@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "workspaces": [
+    "types-demo",
+    "packages/core"
+  ],
+  "scripts": {
+    "lint": "yarn workspaces run lint",
+    "test": "yarn workspace types-demo test",
+    "test:watch": "watchexec -e .ts yarn workspace types-demo test"
+  },
+  "volta": {
+    "node": "12.16.2",
+    "yarn": "1.22.4"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "root": true,
+  "plugins": ["@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+  "extends": ["plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "@typescript-eslint/prefer-const": "off",
+    "@typescript-eslint/explicit-function-return-type": ["error"],
+
+    // Because of the number of type constraints we deal with that need to be
+    // able to appear in both covariant and contravariant positions, it becomes
+    // incredibly unwieldy to manage variants of each constraint with `never`
+    // and `unknown` in all the right places
+    "@typescript-eslint/no-explicit-any": "off"
+  }
+}

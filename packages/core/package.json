@@ -1,0 +1,9 @@
+{
+  "name": "@gleam/core",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint . --ext ts --max-warnings 0 && prettier --check .",
+    "lint:fix": "eslint . --ext ts --fix && prettier --write ."
+  }
+}
