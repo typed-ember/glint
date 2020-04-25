@@ -1,8 +1,8 @@
 import { expectType, expectError } from 'tsd';
-import { resolve, BuiltIns, toBlock, invokeInline, invokeBlock } from '@gleam/core';
-import { AcceptsBlocks } from '@gleam/core/-private/signature';
-import { BlockResult, BlockYield } from '@gleam/core/-private/blocks';
-import { Invokable } from '@gleam/core/-private/invoke';
+import { resolve, BuiltIns, toBlock, invokeInline, invokeBlock } from '@glint/template';
+import { AcceptsBlocks } from '@glint/template/-private/signature';
+import { BlockResult, BlockYield } from '@glint/template/-private/blocks';
+import { Invokable } from '@glint/template/-private/invoke';
 
 const component = resolve(BuiltIns['component']);
 

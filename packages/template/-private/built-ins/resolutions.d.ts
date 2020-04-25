@@ -1,7 +1,7 @@
 /**
  * This module contains default resolution rules for working with
  * Ember and Glimmer components, as well as resolving the signatures
- * of anything declared with Gleam's `Invokable` type.
+ * of anything declared with Glint's `Invokable` type.
  *
  * These resolution rules are designed to be extensible, to allow
  * for components/helpers/modifiers with custom base classes that
@@ -26,10 +26,11 @@ import { TemplateContext } from '../template';
 import { AcceptsBlocks, ReturnsValue } from '../signature';
 import { BlockResult } from '../blocks';
 import { Invokable } from '../invoke';
+import { Unmatched } from '../resolution';
 
 type Constructor<T> = new (...args: never[]) => T;
 
-declare module '@gleam/core/-private/resolution' {
+declare module '@glint/template/-private/resolution' {
   export interface ContextResolutions<Host> {
     '@glimmer/component': Host extends GlimmerComponent<infer Args>
       ? TemplateContext<Host, Args>
@@ -40,7 +41,7 @@ declare module '@gleam/core/-private/resolution' {
   }
 
   export interface SignatureResolutions<InvokedValue> {
-    '@gleam/core': InvokedValue extends Invokable<infer Signature> ? Signature : Unmatched;
+    '@glint/template': InvokedValue extends Invokable<infer Signature> ? Signature : Unmatched;
 
     '@glimmer/component': InvokedValue extends Constructor<GlimmerComponent<infer Args>>
       ? InvokedValue extends { template: Invokable<infer Signature> }

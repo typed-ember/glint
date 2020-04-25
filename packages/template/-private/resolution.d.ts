@@ -85,6 +85,7 @@ export declare function resolve<T>(item: T): ResolveSignature<T>;
  * no associated signature as though they were arg-less helpers that return a
  * value of the appropriate type.
  */
-export declare function resolveOrReturn<T>(
+export declare function resolveOrReturn<T extends object>(
   item: T
 ): unknown extends ResolveSignature<T> ? (args: {}) => ReturnsValue<T> : ResolveSignature<T>;
+export declare function resolveOrReturn<T>(item: T): (args: {}) => ReturnsValue<T>;

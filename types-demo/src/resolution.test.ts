@@ -1,12 +1,12 @@
 import GlimmerComponent from '@glimmer/component';
 import EmberComponent from '@ember/component';
 import { expectType } from 'tsd';
-import { AcceptsBlocks } from '@gleam/core/-private/signature';
-import { BlockResult } from '@gleam/core/-private/blocks';
-import { ResolveSignature } from '@gleam/core/-private/resolution';
-import { TemplateContext } from '@gleam/core/-private/template';
-import { template, invokeBlock, resolve, BuiltIns, toBlock, ResolveContext } from '@gleam/core';
-import { Invokable } from '@gleam/core/-private/invoke';
+import { AcceptsBlocks } from '@glint/template/-private/signature';
+import { BlockResult } from '@glint/template/-private/blocks';
+import { ResolveSignature } from '@glint/template/-private/resolution';
+import { TemplateContext } from '@glint/template/-private/template';
+import { template, invokeBlock, resolve, BuiltIns, toBlock, ResolveContext } from '@glint/template';
+import { Invokable } from '@glint/template/-private/invoke';
 
 declare function value<T>(): T;
 

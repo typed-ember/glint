@@ -9,9 +9,9 @@ import {
   invokeModifier,
   invokeInline,
   resolveOrReturn,
-} from '@gleam/core';
+} from '@glint/template';
 import { expectType } from 'tsd';
-import { BlockYield } from '@gleam/core/-private/blocks';
+import { BlockYield } from '@glint/template/-private/blocks';
 
 type MyComponentArgs<T> = {
   name?: string;

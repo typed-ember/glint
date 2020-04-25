@@ -1,5 +1,5 @@
 import { expectType, expectError } from 'tsd';
-import { resolve, BuiltIns, invokeInline } from '@gleam/core';
+import { resolve, BuiltIns, invokeInline } from '@glint/template';
 
 const debug = resolve(BuiltIns['debugger']);
 

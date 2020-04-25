@@ -1,7 +1,7 @@
 import Helper, { helper } from '@ember/component/helper';
-import { Invokable, invokeInline } from '@gleam/core/-private/invoke';
-import { ReturnsValue } from '@gleam/core/-private/signature';
-import { resolve } from '@gleam/core';
+import { Invokable, invokeInline } from '@glint/template/-private/invoke';
+import { ReturnsValue } from '@glint/template/-private/signature';
+import { resolve } from '@glint/template';
 import { expectType, expectError } from 'tsd';
 
 declare module '@ember/component/helper' {

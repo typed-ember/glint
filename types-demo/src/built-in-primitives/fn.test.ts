@@ -1,5 +1,5 @@
 import { expectType, expectError } from 'tsd';
-import { resolve, BuiltIns, invokeInline } from '@gleam/core';
+import { resolve, BuiltIns, invokeInline } from '@glint/template';
 
 const fn = resolve(BuiltIns['fn']);
 const f = (x: string, y: number): number => x.length + y;

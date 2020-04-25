@@ -1,4 +1,4 @@
-import { resolve, BuiltIns, invokeModifier } from '@gleam/core';
+import { resolve, BuiltIns, invokeModifier } from '@glint/template';
 import { expectType } from 'tsd';
 
 const on = resolve(BuiltIns['on']);

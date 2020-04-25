@@ -1,9 +1,9 @@
 import { expectType } from 'tsd';
 import SumType from 'sums-up';
-import { resolve, toBlock, invokeBlock } from '@gleam/core';
-import { AcceptsBlocks } from '@gleam/core/-private/signature';
-import { BlockResult, BlockYield } from '@gleam/core/-private/blocks';
-import { Invokable } from '@gleam/core/-private/invoke';
+import { resolve, toBlock, invokeBlock } from '@glint/template';
+import { AcceptsBlocks } from '@glint/template/-private/signature';
+import { BlockResult, BlockYield } from '@glint/template/-private/blocks';
+import { Invokable } from '@glint/template/-private/invoke';
 
 ///////////////////////////////////////////////////////////////////////////////
 // This module exercises what's possible when declaring a signature for a
