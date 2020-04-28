@@ -57,10 +57,10 @@ export declare function invokeBlock<T extends AcceptsBlocks<any>, Impls extends 
   // It doesn't seem to be possible to get the typechecker to infer the
   // return types for the elements of `blocks` AND have it enforce that no
   // extra keys are passed in. The situation in which that inference kicks
-  // in seems to be exactly the situation in which ECP ("excess property checking")
+  // in seems to be exactly the situation in which EPC ("excess property checking")
   // is disabled. Accepting a list of the names of the blocks we're passing
   // is essentially a hack to ensure we don't pass any invalid names.
-  // (It also sometimes INEXPLICABLY turns on ECP, resulting in a type error
+  // (It also sometimes INEXPLICABLY turns on EPC, resulting in a type error
   // on the original hash instead of on the offending key in `names` 🙃)
   ...names: Array<keyof Parameters<T>[0]>
 ): YieldsFromBlock<Impls[keyof Impls]>;

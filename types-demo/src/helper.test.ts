@@ -1,11 +1,11 @@
 import Helper, { helper } from '@ember/component/helper';
 import { Invokable, invokeInline } from '@glint/template/-private/invoke';
-import { ReturnsValue } from '@glint/template/-private/signature';
+import { ReturnsValue, NoNamedArgs } from '@glint/template/-private/signature';
 import { resolve } from '@glint/template';
 import { expectType, expectError } from 'tsd';
 
 declare module '@ember/component/helper' {
-  export function helper<T, Positional extends unknown[], Args = {}>(
+  export function helper<T, Positional extends unknown[], Args = NoNamedArgs>(
     f: (positional: Positional, named: Args) => T
   ): Invokable<(args: Args, ...positional: Positional) => ReturnsValue<T>>;
 }
@@ -34,3 +34,6 @@ expectError(invokeInline(id({})));
 
 // Invalid named param
 expectError(invokeInline(hello({ target: 'world', foo: true })));
+
+// Named param when none are expected
+expectError(invokeInline(id({ key: 'value' }, 'hello')));

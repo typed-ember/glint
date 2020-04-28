@@ -42,6 +42,14 @@ export type ReturnsValue<T> = () => { [Return]: T };
 /** Denotes that the associated entity should be invoked as a modifier */
 export type CreatesModifier = () => { [Modifier]: true };
 
+// These shenanigans are necessary to get TS to report when named args
+// are passed to a signature that doesn't expect any, because `{}` is
+// special-cased in the type system not to trigger EPC.
+export const NoNamedArgs: unique symbol;
+
+/** Indicates that a signature expects no named arguments. */
+export type NoNamedArgs = { [NoNamedArgs]?: void };
+
 /**
  * Denotes that the associated entity may be invoked with the given
  * blocks, yielding params of the appropriate type.

@@ -1,7 +1,7 @@
 import { expectType } from 'tsd';
 import SumType from 'sums-up';
 import { resolve, toBlock, invokeBlock } from '@glint/template';
-import { AcceptsBlocks } from '@glint/template/-private/signature';
+import { AcceptsBlocks, NoNamedArgs } from '@glint/template/-private/signature';
 import { BlockResult, BlockYield } from '@glint/template/-private/blocks';
 import { Invokable } from '@glint/template/-private/invoke';
 
@@ -23,13 +23,13 @@ type SumVariants<T extends SumType<never>> = T extends SumType<infer V> ? V : ne
 // It doesn't (can't) do exhaustiveness checking, but it does plumb through
 // type parameters correctly, and
 declare const caseOf: Invokable<<T extends SumType<never>>(
-  args: {},
+  args: NoNamedArgs,
   value: T
 ) => AcceptsBlocks<{
   default(
     when: Invokable<
       <K extends keyof SumVariants<T>>(
-        args: {},
+        args: NoNamedArgs,
         key: K
       ) => AcceptsBlocks<{
         default(...args: SumVariants<T>[K]): BlockResult;

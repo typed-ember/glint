@@ -4,7 +4,7 @@
  */
 declare const ModuleDocs: void;
 
-import { ReturnsValue, AnySignature } from './signature';
+import { ReturnsValue, AnySignature, NoNamedArgs } from './signature';
 import { ContextResolutions, SignatureResolutions, ResolutionKey } from '../resolution-rules';
 
 type ContextResolutionKeys = keyof ContextResolutions<unknown>;
@@ -59,5 +59,7 @@ export declare function resolve<T>(item: T): ResolveSignature<T>;
  */
 export declare function resolveOrReturn<T extends object>(
   item: T
-): unknown extends ResolveSignature<T> ? (args: {}) => ReturnsValue<T> : ResolveSignature<T>;
-export declare function resolveOrReturn<T>(item: T): (args: {}) => ReturnsValue<T>;
+): unknown extends ResolveSignature<T>
+  ? (args: NoNamedArgs) => ReturnsValue<T>
+  : ResolveSignature<T>;
+export declare function resolveOrReturn<T>(item: T): (args: NoNamedArgs) => ReturnsValue<T>;

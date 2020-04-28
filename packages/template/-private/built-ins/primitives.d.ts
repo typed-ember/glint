@@ -19,12 +19,12 @@
  */
 declare const ModuleDocs: void;
 
-import { AnyBlocks, ReturnsValue, AcceptsBlocks, CreatesModifier } from '../signature';
+import { AnyBlocks, ReturnsValue, AcceptsBlocks, CreatesModifier, NoNamedArgs } from '../signature';
 import { ResolveSignature } from '../resolution';
 import { BlockResult } from '../blocks';
 import { Invokable } from '../invoke';
 
-export type ArrayHelper = Invokable<<T>(args: {}, ...items: T[]) => ReturnsValue<T[]>>;
+export type ArrayHelper = Invokable<<T>(args: NoNamedArgs, ...items: T[]) => ReturnsValue<T[]>>;
 
 type ArgsFor<T> = ResolveSignature<T> extends (args: infer Args) => unknown ? Args : {};
 
@@ -57,9 +57,11 @@ export type ComponentHelper = Invokable<
   >
 >;
 
-export type ConcatHelper = Invokable<(args: {}, ...items: string[]) => ReturnsValue<string>>;
+export type ConcatHelper = Invokable<
+  (args: NoNamedArgs, ...items: string[]) => ReturnsValue<string>
+>;
 
-export type DebuggerHelper = Invokable<(args: {}) => ReturnsValue<void>>;
+export type DebuggerHelper = Invokable<(args: NoNamedArgs) => ReturnsValue<void>>;
 
 export type EachHelper = Invokable<
   <T>(
@@ -73,7 +75,7 @@ export type EachHelper = Invokable<
 
 export type EachInHelper = Invokable<
   <T>(
-    args: {},
+    args: NoNamedArgs,
     object: T
   ) => AcceptsBlocks<{
     default<K extends keyof T>(key: K, value: T[K]): BlockResult;
@@ -87,16 +89,16 @@ export type EachInHelper = Invokable<
 // https://github.com/DefinitelyTyped/DefinitelyTyped/blob/539042117cd697da07daf93092bdf16bc14922d8/types/ramda/index.d.ts#L1310-L1324
 // prettier-ignore
 export type FnHelper = Invokable<{
-  <Ret, Args extends unknown[]>(args: {}, f: (...rest: Args) => Ret): ReturnsValue<(...rest: Args) => Ret>;
-  <A, Ret, Args extends unknown[]>(args: {}, f: (a: A, ...rest: Args) => Ret, a: A): ReturnsValue<(...rest: Args) => Ret>;
-  <A, B, Ret, Args extends unknown[]>(args: {}, f: (a: A, b: B, ...rest: Args) => Ret, a: A, b: B): ReturnsValue<(...rest: Args) => Ret>;
-  <A, B, C, Ret, Args extends unknown[]>(args: {}, f: (a: A, b: B, c: C, ...rest: Args) => Ret, a: A, b: B, c: C): ReturnsValue<(...rest: Args) => Ret>;
-  <A, B, C, D, Ret, Args extends unknown[]>(args: {}, f: (a: A, b: B, c: C, d: D, ...rest: Args) => Ret, a: A, b: B, c: C, d: D): ReturnsValue<(...rest: Args) => Ret>;
+  <Ret, Args extends unknown[]>(args: NoNamedArgs, f: (...rest: Args) => Ret): ReturnsValue<(...rest: Args) => Ret>;
+  <A, Ret, Args extends unknown[]>(args: NoNamedArgs, f: (a: A, ...rest: Args) => Ret, a: A): ReturnsValue<(...rest: Args) => Ret>;
+  <A, B, Ret, Args extends unknown[]>(args: NoNamedArgs, f: (a: A, b: B, ...rest: Args) => Ret, a: A, b: B): ReturnsValue<(...rest: Args) => Ret>;
+  <A, B, C, Ret, Args extends unknown[]>(args: NoNamedArgs, f: (a: A, b: B, c: C, ...rest: Args) => Ret, a: A, b: B, c: C): ReturnsValue<(...rest: Args) => Ret>;
+  <A, B, C, D, Ret, Args extends unknown[]>(args: NoNamedArgs, f: (a: A, b: B, c: C, d: D, ...rest: Args) => Ret, a: A, b: B, c: C, d: D): ReturnsValue<(...rest: Args) => Ret>;
 }>;
 
 export type LetHelper = Invokable<
   <T extends unknown[]>(
-    args: {},
+    args: NoNamedArgs,
     ...values: T
   ) => AcceptsBlocks<{
     default(...values: T): BlockResult;
@@ -113,7 +115,7 @@ export type OnModifier = Invokable<
 
 export type WithHelper = Invokable<
   <T>(
-    args: {},
+    args: NoNamedArgs,
     value: T
   ) => AcceptsBlocks<{
     default(value: T): BlockResult;
