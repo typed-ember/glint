@@ -4,53 +4,15 @@
  */
 declare const ModuleDocs: void;
 
-/* eslint-disable @typescript-eslint/no-empty-interface */
-import { ReturnsValue } from './signature';
+import { ReturnsValue, AnySignature } from './signature';
+import { ContextResolutions, SignatureResolutions, ResolutionKey } from '../resolution-rules';
 
-type Values<T> = T[keyof T];
-type ExcludeUnmatched<T> = Exclude<T, Unmatched> extends Unmatched
-  ? unknown
-  : Exclude<T, Unmatched>;
+type ContextResolutionKeys = keyof ContextResolutions<unknown>;
+type SignatureResolutionKeys = keyof SignatureResolutions<unknown>;
 
-declare const Unmatched: unique symbol;
-export type Unmatched = typeof Unmatched;
-
-/**
- * When transforming a tagged template string into a TS representation,
- * the resulting value must indicate the context it expects to be
- * executed against. This means determing two things: the type of `this`
- * in the template, and the type of any `@arg`s referenced.
- *
- * These values are dependent on the component manager in use for a
- * given template, so this interface acts as a registry type that can
- * theoretically be extended to account for specialized components with
- * their own managers (although this is currently housed under a `-private`
- * directory).
- *
- * See `built-ins/resolutions.d.ts` for the default baked-in context
- * resolution rules.
- */
-export interface ContextResolutions<Host> {}
-
-/**
- * For any invokable value in a template, its template signature defines
- * the arguments it expects to receive, as well as whether it expects to
- * be invoked inline and return a value, invoked as a modifier, or
- * invoked with a particular set of blocks.
- *
- * For example, when a user writes `<SomeComponent />` in a template,
- * the first step in typechecking that invocation is determing the
- * signature of `SomeComponent` to figure out what args and blocks it
- * expects.
- *
- * This interface is a registry type whose values determine the possible
- * signature for a given type of value. Although it's currently housed
- * under a `-private` directory, the use of an interface in this manner
- * allows for the signature resolution behavior to be extended by external
- * packages using declaration merging. See `built-ins/resolutions.d.ts` for
- * the default baked-in signature resolution rules.
- */
-export interface SignatureResolutions<InvokedValue> {}
+type Resolvable<Key> =
+  | Record<ResolutionKey, Key>
+  | (new (...params: any) => Record<ResolutionKey, Key>);
 
 /**
  * This type is used to determine the context that a template is run in.
@@ -61,13 +23,23 @@ export interface SignatureResolutions<InvokedValue> {}
  * For example, `ResolveContext<GlimmerComponent<T>>` will result in a type
  * like `{ args: T, this: GlimmerComponent<T> }`.
  */
-export type ResolveContext<T> = ExcludeUnmatched<Values<ContextResolutions<T>>>;
+export type ResolveContext<T> = T extends Resolvable<infer Key>
+  ? Key extends ContextResolutionKeys
+    ? ContextResolutions<T>[Key]
+    : unknown
+  : unknown;
 
 /**
  * This type is used to determine what args and blocks a given value
  * will accept when invoked in a template.
  */
-export type ResolveSignature<T> = ExcludeUnmatched<Values<SignatureResolutions<T>>>;
+export type ResolveSignature<T> = T extends Resolvable<infer Key>
+  ? Key extends SignatureResolutionKeys
+    ? SignatureResolutions<T>[Key]
+    : unknown
+  : T extends AnySignature
+  ? T
+  : unknown;
 
 /**
  * Given a value that the user is attempting to invoke as a helper,

@@ -1,4 +1,4 @@
-import './-private/built-ins/resolutions';
+import './-private/built-ins/resolution-rules';
 
 export { resolve, resolveOrReturn, ResolveContext } from './-private/resolution';
 export { invokeInline, invokeBlock, invokeModifier } from './-private/invoke';

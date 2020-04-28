@@ -26,43 +26,64 @@ import { TemplateContext } from '../template';
 import { AcceptsBlocks, ReturnsValue } from '../signature';
 import { BlockResult } from '../blocks';
 import { Invokable } from '../invoke';
-import { Unmatched } from '../resolution';
+import { ResolutionKey } from '../../resolution-rules';
 
 type Constructor<T> = new (...args: never[]) => T;
 
-declare module '@glint/template/-private/resolution' {
+declare const ResolveGlimmerComponent: unique symbol;
+declare const ResolveEmberComponent: unique symbol;
+declare const ResolveEmberHelper: unique symbol;
+
+declare module '@glimmer/component' {
+  export default interface Component<Args> {
+    [ResolutionKey]: typeof ResolveGlimmerComponent;
+  }
+}
+
+declare module '@ember/component' {
+  export default interface Component {
+    [ResolutionKey]: typeof ResolveEmberComponent;
+  }
+}
+
+declare module '@ember/component/helper' {
+  export default interface Helper {
+    [ResolutionKey]: typeof ResolveEmberHelper;
+  }
+}
+
+declare module '@glint/template/resolution-rules' {
   export interface ContextResolutions<Host> {
-    '@glimmer/component': Host extends GlimmerComponent<infer Args>
+    [ResolveGlimmerComponent]: Host extends GlimmerComponent<infer Args>
       ? TemplateContext<Host, Args>
-      : Unmatched;
-    '@ember/component': Host extends EmberComponent
+      : never;
+
+    [ResolveEmberComponent]: Host extends EmberComponent
       ? TemplateContext<Host, Record<string, unknown>>
-      : Unmatched;
+      : never;
   }
 
   export interface SignatureResolutions<InvokedValue> {
-    '@glint/template': InvokedValue extends Invokable<infer Signature> ? Signature : Unmatched;
-
-    '@glimmer/component': InvokedValue extends Constructor<GlimmerComponent<infer Args>>
+    [ResolveGlimmerComponent]: InvokedValue extends Constructor<GlimmerComponent<infer Args>>
       ? InvokedValue extends { template: Invokable<infer Signature> }
         ? Signature
         : (args: Args) => AcceptsBlocks<{ default?(): BlockResult }>
-      : Unmatched;
+      : never;
 
-    '@ember/component/helper': InvokedValue extends Constructor<Helper & { compute: infer Compute }>
+    [ResolveEmberHelper]: InvokedValue extends Constructor<Helper & { compute: infer Compute }>
       ? Compute extends (positional: infer Positional, named: infer Named) => infer Result
         ? (named: Named, ...positional: Positional & unknown[]) => ReturnsValue<Result>
-        : Unmatched
-      : Unmatched;
+        : never
+      : never;
 
     // TODO: deal with positional params?
-    '@ember/component': InvokedValue extends Constructor<EmberComponent & infer Instance>
+    [ResolveEmberComponent]: InvokedValue extends Constructor<EmberComponent & infer Instance>
       ? InvokedValue extends { template: Invokable<infer Signature> }
         ? Signature
         : (
             args: Partial<Instance>,
             ...positional: unknown[]
           ) => AcceptsBlocks<{ default?(): BlockResult }>
-      : Unmatched;
+      : never;
   }
 }

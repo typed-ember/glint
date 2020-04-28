@@ -17,7 +17,6 @@ It's an elaboration on the design laid out in [this gist](https://gist.github.co
   - [Typechecking (via CLI, editor integration, etc)](#typechecking-via-cli-editor-integration-etc)
   - [Editor Support (autocomplete, refactorings, etc)](#editor-support-autocomplete-refactorings-etc)
 
-
 ## Design Overview
 
 The high-level idea here is to build a CLI/Language Server/library akin to [Vetur](https://github.com/vuejs/vetur) that can provide TS-aware checking of templates in the Ember ecosystem. It assumes the advancement of [template imports](https://github.com/emberjs/rfcs/pull/454) and [strict mode templates](https://github.com/emberjs/rfcs/pull/496).
@@ -80,7 +79,7 @@ In other words, both of the example components above would be presented to TypeS
 ```ts
 import Component from '@glimmer/component';
 import { SomeComponent } from 'another-package';
-import { template, invokeBlock, resolve, TemplateContext } from '...';
+import { template, invokeBlock, resolve, ResolveContext } from '...';
 
 export default class MyComponent extends Component<{ target: string }> {
   private get message() {
@@ -88,7 +87,7 @@ export default class MyComponent extends Component<{ target: string }> {
   }
 
   // More details about what this actually means below;
-  public static template = template(function*(𝚪: TemplateContext<MyComponent>) {
+  public static template = template(function* (𝚪: ResolveContext<MyComponent>) {
     yield invokeBlock(resolve(SomeComponent)({ arg: 𝚪.this.message }), {});
   });
 }
@@ -97,9 +96,10 @@ export default class MyComponent extends Component<{ target: string }> {
 ### Encoding Templates as TypeScript
 
 There are three primary things a developer can do in a Glimmer template:
- - emit a piece of static content (`<marquee>hello</marquee>`)
- - emit a piece of dynamic content (`{{this.message}}`)
- - invoke some other template entity (`<SomeComponent />`, `{{helper foo=123}}`)
+
+- emit a piece of static content (`<marquee>hello</marquee>`)
+- emit a piece of dynamic content (`{{this.message}}`)
+- invoke some other template entity (`<SomeComponent />`, `{{helper foo=123}}`)
 
 The first is uninteresting to us for these purposes, since it's inert relative to the rest of the template and any backing TypeScript.
 
@@ -114,9 +114,10 @@ Any "callable" value in a template, whether it's a component, helper, modifier, 
 At a high level, a signature looks like this:
 
 ```ts
-type MySignature = (args: NamedArgs, ...positional: PositionalArgs)
-  => (blocks: BlockCallbacks)
-  => CompletionType;
+type MySignature = (
+  args: NamedArgs,
+  ...positional: PositionalArgs
+) => (blocks: BlockCallbacks) => CompletionType;
 ```
 
 The shape of the signature for a particular entity dictates how it can be invoked: what types of args it accepts, whether it can receive blocks (and if so, what type of parameters they receive), and whether it returns a value, acts as a modifier, etc.
@@ -130,7 +131,10 @@ type ConcatHelper = (args: {}, ...items: string[]) => ReturnsValue<string>;
 And `each` looks like:
 
 ```ts
-type EachHelper = <T>(args: { key?: string }, items: T[]) => AcceptsBlocks<{
+type EachHelper = <T>(
+  args: { key?: string },
+  items: T[]
+) => AcceptsBlocks<{
   default(item: T, index: number): BlockResult;
   inverse?(): BlockResult;
 }>;
@@ -183,7 +187,7 @@ Finally, the resulting value is invoked according to the form it appears in in t
 invokeBlock(boundMyComponent, {
   *default(message) {
     // ...
-  }
+  },
 });
 ```
 
@@ -193,7 +197,7 @@ Typically these three steps are combined into a single expression:
 invokeBlock(resolve(MyComponent)({ target: 'World' }), {
   *default(message) {
     // ...
-  }
+  },
 });
 ```
 
@@ -212,15 +216,15 @@ One key piece of the execution model for templates is the way components may yie
 This is the reason template bodies and blocks are modeled as generators: they provide a natural way to capture the semantics of `{{yield}}` statements. The template above would be represented like this in TypeScript:
 
 ```ts
-template(function*() {
+template(function* () {
   yield invokeBlock(resolve(BuiltIns['let'])({}, ['one', 'two', 'three']), {
     *default(values) {
       yield invokeBlock(resolve(BuiltIns['each'])({}, values), {
         *default(value) {
           yield toBlock('default', value);
-        }
+        },
       });
-    }
+    },
   });
 });
 ```
