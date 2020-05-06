@@ -11,9 +11,11 @@ It's an elaboration on the design laid out in [this gist](https://gist.github.co
     - [Invoking a Component/Helper/Modifier](#invoking-a-componenthelpermodifier)
     - [Yielding to the Caller](#yielding-to-the-caller)
     - [Emitting Values](#emitting-values)
+  - [Mapping Templates to TypeScript](#mapping-templates-to-typescript)
+    - [The Mechanics of Translation](#the-mechanics-of-translation)
+    - [Mapping Source Locations](#mapping-source-locations)
 - [Caveats/To-Dos](#caveatsto-dos)
   - [Modeling Templates](#modeling-templates)
-  - [Translating Templates to TypeScript](#translating-templates-to-typescript)
   - [Typechecking (via CLI, editor integration, etc)](#typechecking-via-cli-editor-integration-etc)
   - [Editor Support (autocomplete, refactorings, etc)](#editor-support-autocomplete-refactorings-etc)
 
@@ -86,12 +88,14 @@ export default class MyComponent extends Component<{ target: string }> {
     return `Hello, ${this.args.target}`;
   }
 
-  // More details about what this actually means below;
+  // More details about what this actually means below
   public static template = template(function* (𝚪: ResolveContext<MyComponent>) {
     yield invokeBlock(resolve(SomeComponent)({ arg: 𝚪.this.message }), {});
   });
 }
 ```
+
+The `@glint/template` package contains a library of types and function declarations designed to represent the approximate semantics of strict-mode templates within TypeScript's type system.
 
 ### Encoding Templates as TypeScript
 
@@ -140,7 +144,7 @@ type EachHelper = <T>(
 }>;
 ```
 
-The [`signature.d.ts` module](packages/core/-private/signature.d.ts) contains more detailed information and some utility types like `ReturnsValue` and `AcceptsBlocks` for defining template signatures.
+The [`signature.d.ts` module](packages/template/-private/signature.d.ts) contains more detailed information and some utility types like `ReturnsValue` and `AcceptsBlocks` for defining template signatures.
 
 #### Invoking a Component/Helper/Modifier
 
@@ -253,6 +257,55 @@ Hello, {{foo.bar}}!
 <MyComponent @value={{foo.bar}} />
 ```
 
+### Mapping Templates to TypeScript
+
+The `@glint/transform` package is responsible for translating a TypeScript module containing one or more embedded templates into an equivalent one with the templates defined using `@glint/template`. Its primary export is `rewriteModule`, which accepts a filename and the text of a TS module and returns both the transformed source as well as a mapping between locations in the original and transformed source.
+
+#### The Mechanics of Translation
+
+While doing AST to AST translation and then generating code from the result is appealingly symmetric, we want to be able to exactly map locations between the original and transformed code, and generating code from an AST would leave us without precise knowledge of where a generated node will end up.
+
+Instead, we traverse the `@glimmer/syntax` AST for each input template and collect a buffer of strings we want to emit, building up a hierarchical mapping between locations in the original template and sequences of strings in the output.
+
+The ultimate output of this process is a [`TransformedModule`](packages/transform/src/transformed-module.ts), which captures both the original and transformed source and a collection of `ReplacedSpan`s, which represent locations in the original source that were replaced with `@glint/template` code. Each replaced span in turn has a fine-grained source-to-source mapping tree for translating between locations in the original and transformed code.
+
+#### Mapping Source Locations
+
+Source-to-source location mappings are represented by a hierarchy of [`MappingTree`](packages/transform/src/mapping-tree.ts) objects. The tree-like nature of these mappings follows from the structure of the code the represent.
+
+For instance, given an expression like `{{foo.bar}}` in a template, a corresponding expression in TypeScript might be `foo?.bar`. The individual identifiers `foo` and `bar` map directly to one another both directions, and if TypeScript reports an error with one of those, we should trivially map it to the corresponding characters in the original template.
+
+The higher level expressions map to one another too, though. If TypeScript reports an error with the full `foo?.bar` expression, we should accordingly map that to `{{foo.bar}}` in the template.
+
+Suppose we have the following TypeScript file:
+
+```ts
+import Component, { hbs } from '@glimmerx/component';
+
+export default class MyComponent extends Component<{ message: string }> {
+  public static template = hbs`
+    The caller says, "{{@message}}".
+  `;
+}
+```
+
+This might map to transformed code that looks roughly like:
+
+```ts
+import Component, { hbs } from '@glimmer/component';
+
+export default class MyComponent extends Component<{ message: string }> {
+  public static template = (() => {
+    let χ!: typeof import('@glint/template');
+    return χ.template(function* (𝚪: import('@glint/template').ResolveContext<MyComponent>) {
+      χ.invokeInline(χ.resolveOrReturn(𝚪.args.message));
+    });
+  })();
+}
+```
+
+The `TransformedModule` for this file would have a single `ReplacedSpan` corresponding to the `hbs`-tagged string in the original source and containing the code for the IIFE in the transformed source. Its `MappingTree` would contain mappings from e.g. `@message` to `𝚪.args.message`, enabling the `TransformedModule` to answer questions about how locations within each version of the file correspond to one another within that span.
+
 ## Caveats/To-Dos
 
 This section contains notes on things still to be explored and known limitations of the current design.
@@ -271,16 +324,18 @@ This section contains notes on things still to be explored and known limitations
 
   It also doesn't handle pre-binding positional params, because yuck.
 
-### Translating Templates to TypeScript
-
-I have some sketchy code from a couple months back where I started playing with what this might look like. Assuming I can find it (and the whole thing doesn't turn out to be the incoherent output of jetlag-brain) I'll import it into this repo and write up any relevant notes on it.
-
 ### Typechecking (via CLI, editor integration, etc)
 
-Reporting type errors in the right place in source templates. Ties together the above bits. Totally untouched at present.
+Reporting type errors in the right place in source templates. Ties together the above bits. A simple proof of concept for a CLI exists using the tools from `@glint/transform`, but needs to be cleaned up and made actually invokable from the command line.
+
+A prototype `@glint/tsserver-plugin` package also exists (not yet committed anywhere) and is slightly more fleshed out than the CLI, but similarly needs to be more thoroughly tested, and the touchpoints at which it hacks `tsserver` should probably be vetted.
 
 ### Editor Support (autocomplete, refactorings, etc)
 
 Aside from reporting type errors, we should also be able to support autocompleting things like named args to components, as well as propagating the effects of a symbol rename (e.g. changing a class field's name updates corresponding references in the template).
 
-Totally untouched at present.
+This turns out to have been only a small additional lift over just getting basic typechecking working via `@glint/tsserver-plugin`, so mainly just requires getting that in good shape.
+
+```
+
+```

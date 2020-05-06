@@ -1,0 +1,31 @@
+{
+  "name": "@glint/transform",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "Dan Freeman (https://github.com/dfreeman)",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "lint": "eslint . --ext ts --max-warnings 0 && prettier --check .",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-typescript": "^7.9.0",
+    "@babel/plugin-proposal-decorators": "7.8.3",
+    "@glimmer/reference": "^0.50.4",
+    "@glimmer/syntax": "^0.50.4",
+    "@glimmer/validator": "^0.50.4",
+    "debug": "^4.1.1"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.1.7",
+    "@types/common-tags": "^1.8.0",
+    "@types/debug": "^4.1.5",
+    "@types/jest": "^25.2.1",
+    "common-tags": "^1.8.0",
+    "jest": "^25.4.0",
+    "ts-jest": "^25.4.0",
+    "typescript": "^3.8.3"
+  }
+}

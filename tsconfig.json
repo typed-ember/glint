@@ -1,0 +1,7 @@
+{
+  "references": [
+    { "path": "packages/template" },
+    { "path": "packages/transform" }
+  ],
+  "files": []
+}

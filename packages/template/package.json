@@ -2,6 +2,8 @@
   "name": "@glint/template",
   "version": "0.1.0",
   "license": "MIT",
+  "author": "Dan Freeman (https://github.com/dfreeman)",
+  "types": "index.d.ts",
   "scripts": {
     "lint": "eslint . --ext ts --max-warnings 0 && prettier --check .",
     "lint:fix": "eslint . --ext ts --fix && prettier --write .",

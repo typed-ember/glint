@@ -1,7 +1,8 @@
 {
   "private": true,
   "workspaces": [
-    "packages/template"
+    "packages/template",
+    "packages/transform"
   ],
   "scripts": {
     "lint": "yarn workspaces run lint",
