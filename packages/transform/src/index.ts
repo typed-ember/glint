@@ -93,7 +93,7 @@ function calculateSpansForTaggedTemplates(
   let errors: Array<TransformError> = [];
   let partialSpans: Array<PartialReplacedSpan> = [];
 
-  traverse(ast!, {
+  traverse(ast, {
     TaggedTemplateExpression(path) {
       let tag = path.get('tag');
       if (isImportedIdentifier(tag, 'hbs', '@glimmerx/component')) {

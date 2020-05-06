@@ -11,7 +11,7 @@ export default class ScopeStack {
     this.stack = [new Set(identifiers)];
   }
 
-  public push(identifiers: Array<string>) {
+  public push(identifiers: Array<string>): void {
     let scope = new Set(this.top);
     for (let identifier of identifiers) {
       scope.add(identifier);

@@ -14,7 +14,7 @@ describe('rewriteTemplate', () => {
       .split('\n')
       .slice(3, -3)
       .join('\n')
-      .replace(/(^|\n)    /g, '$1');
+      .replace(/(^|\n) {4}/g, '$1');
   }
 
   describe('template boilerplate', () => {

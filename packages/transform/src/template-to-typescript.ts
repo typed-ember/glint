@@ -71,7 +71,7 @@ export function templateToTypescript(
 
     return;
 
-    function emitTopLevelStatement(node: AST.TopLevelStatement) {
+    function emitTopLevelStatement(node: AST.TopLevelStatement): void {
       switch (node.type) {
         case 'AttrNode':
         case 'Block':
@@ -105,7 +105,7 @@ export function templateToTypescript(
     // evaluates a helper or returns it also depends on the location it's in.
     type InvokePosition = 'top-level' | 'attr' | 'arg' | 'concat' | 'sexpr';
 
-    function emitTopLevelMustacheStatement(node: AST.MustacheStatement) {
+    function emitTopLevelMustacheStatement(node: AST.MustacheStatement): void {
       emitMustacheStatement(node, 'top-level');
       emit.text(';');
       emit.newline();
@@ -115,7 +115,7 @@ export function templateToTypescript(
       keyword: InlineKeyword,
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition
-    ) {
+    ): void {
       switch (keyword) {
         case 'yield':
           return emitYieldStatement(node, position);
@@ -134,7 +134,7 @@ export function templateToTypescript(
       }
     }
 
-    function emitHashExpression(node: AST.MustacheStatement | AST.SubExpression) {
+    function emitHashExpression(node: AST.MustacheStatement | AST.SubExpression): void {
       emit.forNode(node, () => {
         assert(node.params.length === 0, '{{hash}} only accepts named parameters');
 
@@ -162,7 +162,7 @@ export function templateToTypescript(
       });
     }
 
-    function emitArrayExpression(node: AST.MustacheStatement | AST.SubExpression) {
+    function emitArrayExpression(node: AST.MustacheStatement | AST.SubExpression): void {
       emit.forNode(node, () => {
         assert(node.hash.pairs.length === 0, '{{array}} only accepts positional parameters');
 
@@ -180,7 +180,7 @@ export function templateToTypescript(
       });
     }
 
-    function emitIfExpression(node: AST.MustacheStatement | AST.SubExpression) {
+    function emitIfExpression(node: AST.MustacheStatement | AST.SubExpression): void {
       emit.forNode(node, () => {
         assert(node.params.length >= 2, '{{if}} requires at least two parameters');
 
@@ -224,7 +224,7 @@ export function templateToTypescript(
       return null;
     }
 
-    function emitExpression(node: AST.Expression) {
+    function emitExpression(node: AST.Expression): void {
       switch (node.type) {
         case 'PathExpression':
           return emitPath(node);
@@ -244,7 +244,7 @@ export function templateToTypescript(
       }
     }
 
-    function emitElementNode(node: AST.ElementNode) {
+    function emitElementNode(node: AST.ElementNode): void {
       emit.forNode(node, () => {
         for (let modifier of node.modifiers) {
           emitModifier(modifier);
@@ -263,7 +263,7 @@ export function templateToTypescript(
       });
     }
 
-    function emitConcatStatement(node: AST.ConcatStatement) {
+    function emitConcatStatement(node: AST.ConcatStatement): void {
       emit.forNode(node, () => {
         emit.text('`');
         for (let part of node.parts) {
@@ -277,7 +277,7 @@ export function templateToTypescript(
       });
     }
 
-    function emitIdentifierReference(name: string, hbsOffset: number, hbsLength?: number) {
+    function emitIdentifierReference(name: string, hbsOffset: number, hbsLength?: number): void {
       if (scope.hasBinding(name)) {
         emit.identifier(name, hbsOffset, hbsLength);
       } else {
@@ -306,7 +306,7 @@ export function templateToTypescript(
       }
     }
 
-    function emitComponent(node: AST.ElementNode) {
+    function emitComponent(node: AST.ElementNode): void {
       emit.forNode(node, () => {
         let start = template.indexOf(node.tag, rangeForNode(node).start);
         let { kind, path } = tagNameToPath(node.tag);
@@ -353,7 +353,7 @@ export function templateToTypescript(
         if (node.selfClosing) {
           emit.text('});');
         } else {
-          let blocks = determineBlockType(node);
+          let blocks = determineBlockChildren(node);
           if (blocks.type === 'named') {
             let blocksEmitted = [];
 
@@ -415,7 +415,7 @@ export function templateToTypescript(
       });
     }
 
-    function isAllowedAmongNamedBlocks(node: AST.Node) {
+    function isAllowedAmongNamedBlocks(node: AST.Node): boolean {
       return (
         (node.type === 'TextNode' && node.chars.trim() === '') ||
         node.type === 'CommentStatement' ||
@@ -423,15 +423,15 @@ export function templateToTypescript(
       );
     }
 
-    function isNamedBlock(node: AST.Node) {
+    function isNamedBlock(node: AST.Node): boolean {
       return node.type === 'ElementNode' && node.tag.startsWith(':');
     }
 
-    function determineBlockType(
-      node: AST.ElementNode
-    ):
+    type BlockChildren =
       | { type: 'named'; children: AST.ElementNode[] }
-      | { type: 'default'; children: AST.TopLevelStatement[] } {
+      | { type: 'default'; children: AST.TopLevelStatement[] };
+
+    function determineBlockChildren(node: AST.ElementNode): BlockChildren {
       let named = 0;
       let other = 0;
 
@@ -476,13 +476,13 @@ export function templateToTypescript(
       }
     }
 
-    function emitPlainElement(node: AST.ElementNode) {
+    function emitPlainElement(node: AST.ElementNode): void {
       for (let child of node.children) {
         emitTopLevelStatement(child);
       }
     }
 
-    function emitPlainAttribute(node: AST.AttrNode) {
+    function emitPlainAttribute(node: AST.AttrNode): void {
       emit.forNode(node, () => {
         if (node.name.startsWith('@') || node.value.type === 'TextNode') return;
 
@@ -497,7 +497,7 @@ export function templateToTypescript(
       });
     }
 
-    function emitModifier(node: AST.ElementModifierStatement) {
+    function emitModifier(node: AST.ElementModifierStatement): void {
       emit.forNode(node, () => {
         emit.text('χ.invokeModifier(');
         emitResolve(node, 'resolve');
@@ -506,7 +506,7 @@ export function templateToTypescript(
       });
     }
 
-    function emitMustacheStatement(node: AST.MustacheStatement, position: InvokePosition) {
+    function emitMustacheStatement(node: AST.MustacheStatement, position: InvokePosition): void {
       let keyword = getInlineKeyword(node);
       if (keyword) {
         emitInlineKeywordStatement(keyword, node, position);
@@ -542,7 +542,7 @@ export function templateToTypescript(
     function emitYieldStatement(
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition
-    ) {
+    ): void {
       emit.forNode(node, () => {
         assert(position === 'top-level', '{{yield}} may only appear as a top-level statement');
 
@@ -568,7 +568,7 @@ export function templateToTypescript(
       });
     }
 
-    function emitBlockKeywordStatement(keyword: BlockKeyword, node: AST.BlockStatement) {
+    function emitBlockKeywordStatement(keyword: BlockKeyword, node: AST.BlockStatement): void {
       switch (keyword) {
         case 'if':
           emitIfStatement(node);
@@ -579,7 +579,7 @@ export function templateToTypescript(
       }
     }
 
-    function emitIfStatement(node: AST.BlockStatement) {
+    function emitIfStatement(node: AST.BlockStatement): void {
       emit.forNode(node, () => {
         assert(node.params.length === 1, '{{#if}} requires exactly one condition');
 
@@ -610,7 +610,7 @@ export function templateToTypescript(
       });
     }
 
-    function emitBlockStatement(node: AST.BlockStatement) {
+    function emitBlockStatement(node: AST.BlockStatement): void {
       let keyword = getBlockKeyword(node);
       if (keyword) {
         emitBlockKeywordStatement(keyword, node);
@@ -657,7 +657,7 @@ export function templateToTypescript(
       emit.newline();
     }
 
-    function emitBlock(name: string, node: AST.Block) {
+    function emitBlock(name: string, node: AST.Block): void {
       let paramsStart = template.lastIndexOf(
         '|',
         template.lastIndexOf('|', rangeForNode(node).start) - 1
@@ -672,7 +672,7 @@ export function templateToTypescript(
       blockParams: string[],
       blockParamsOffset: number,
       children: AST.TopLevelStatement[]
-    ) {
+    ): void {
       assert(
         blockParams.every((name) => !name.includes('-')),
         'Block params must be valid TypeScript identifiers'
@@ -714,7 +714,7 @@ export function templateToTypescript(
       scope.pop();
     }
 
-    function emitSubExpression(node: AST.SubExpression) {
+    function emitSubExpression(node: AST.SubExpression): void {
       let keyword = getInlineKeyword(node);
       if (keyword) {
         emitInlineKeywordStatement(keyword, node, 'sexpr');
@@ -735,7 +735,7 @@ export function templateToTypescript(
       | AST.BlockStatement
       | AST.ElementModifierStatement;
 
-    function emitResolve(node: CurlyInvocationNode, resolveType: string) {
+    function emitResolve(node: CurlyInvocationNode, resolveType: string): void {
       emit.text('χ.');
       emit.text(resolveType);
       emit.text('(');
@@ -772,7 +772,7 @@ export function templateToTypescript(
 
     type PathKind = 'this' | 'arg' | 'free';
 
-    function emitPath(node: AST.PathExpression) {
+    function emitPath(node: AST.PathExpression): void {
       emit.forNode(node, () => {
         let { start } = rangeForNode(node);
         emitPathContents(node.parts, start, determinePathKind(node));
@@ -783,7 +783,7 @@ export function templateToTypescript(
       return node.this ? 'this' : node.data ? 'arg' : 'free';
     }
 
-    function emitPathContents(parts: string[], start: number, kind: PathKind) {
+    function emitPathContents(parts: string[], start: number, kind: PathKind): void {
       if (kind === 'this') {
         let thisStart = template.indexOf('this', start);
         emit.text('𝚪.');
@@ -824,11 +824,11 @@ export function templateToTypescript(
       }
     }
 
-    function emitHashKey(name: string, start: number) {
+    function emitHashKey(name: string, start: number): void {
       emit.identifier(isSafeKey(name) ? name : JSON.stringify(name), start, name.length);
     }
 
-    function emitLiteral(node: AST.Literal) {
+    function emitLiteral(node: AST.Literal): void {
       emit.forNode(node, () =>
         emit.text(node.value === undefined ? 'undefined' : JSON.stringify(node.value))
       );

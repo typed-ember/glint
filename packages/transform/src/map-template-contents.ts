@@ -108,7 +108,11 @@ export function mapTemplateContents(
   // If an exception is thrown while executing the callback, the error
   // will be captured and associated with the given range, and no content
   // will be emitted.
-  let captureMapping = (hbsRange: Range, source: AST.Node | Identifier, callback: () => void) => {
+  let captureMapping = (
+    hbsRange: Range,
+    source: AST.Node | Identifier,
+    callback: () => void
+  ): void => {
     let start = offset;
     let mappings: MappingTree[] = [];
     let segments: string[] = [];

@@ -7,5 +7,6 @@
     "baseUrl": ".",
     "lib": ["dom"],
     "composite": true
-  }
+  },
+  "exclude": ["__tests__"]
 }

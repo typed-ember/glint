@@ -2,6 +2,7 @@ import { rewriteModule, TransformedModule, rewriteDiagnostic } from '../src';
 import { stripIndent } from 'common-tags';
 import { Range } from '../src/transformed-module';
 import ts from 'typescript';
+import { assert } from '../src/util';
 
 describe('Source-to-source offset mapping', () => {
   function rewriteTestModule({
@@ -32,7 +33,7 @@ describe('Source-to-source offset mapping', () => {
     return result;
   }
 
-  function findOccurrence(haystack: string, needle: string, occurrence: number) {
+  function findOccurrence(haystack: string, needle: string, occurrence: number): number {
     let offset = -1;
     for (let i = 0; i < occurrence + 1; i++) {
       offset = haystack.indexOf(needle, offset + 1);
@@ -48,7 +49,7 @@ describe('Source-to-source offset mapping', () => {
     transformedModule: TransformedModule,
     originalToken: string,
     { transformedToken = originalToken, occurrence = 0 } = {}
-  ) {
+  ): void {
     let { originalSource, transformedSource } = transformedModule;
     let originalOffset = findOccurrence(originalSource, originalToken, occurrence);
     let transformedOffset = findOccurrence(transformedSource, transformedToken, occurrence);
@@ -70,7 +71,7 @@ describe('Source-to-source offset mapping', () => {
     transformedModule: TransformedModule,
     originalRange: Range,
     transformedRange: Range
-  ) {
+  ): void {
     expect(transformedModule.getOriginalOffset(transformedRange.start)).toEqual(
       originalRange.start
     );
@@ -296,7 +297,8 @@ describe('Diagnostic offset mapping', () => {
     }
   `;
 
-  const transformedModule = rewriteModule('test.ts', source)!;
+  const transformedModule = rewriteModule('test.ts', source);
+  assert(transformedModule);
 
   test('without related information', () => {
     let category = ts.DiagnosticCategory.Error;
