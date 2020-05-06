@@ -1,3 +1,6 @@
+import '@glint/template/ember';
+import '@glint/template/glimmer';
+
 import GlimmerComponent from '@glimmer/component';
 import EmberComponent from '@ember/component';
 import { expectType } from 'tsd';

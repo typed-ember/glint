@@ -1,14 +1,8 @@
+import '@glint/template/ember';
 import Helper, { helper } from '@ember/component/helper';
-import { Invokable, invokeInline } from '@glint/template/-private/invoke';
-import { ReturnsValue, NoNamedArgs } from '@glint/template/-private/signature';
+import { invokeInline } from '@glint/template/-private/invoke';
 import { resolve } from '@glint/template';
 import { expectType, expectError } from 'tsd';
-
-declare module '@ember/component/helper' {
-  export function helper<T, Positional extends unknown[], Args = NoNamedArgs>(
-    f: (positional: Positional, named: Args) => T
-  ): Invokable<(args: Args, ...positional: Positional) => ReturnsValue<T>>;
-}
 
 // Type parameters can be persisted for functional helpers
 const id = resolve(helper(<T>([value]: [T]) => value));

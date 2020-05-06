@@ -1,9 +1,18 @@
 {
   "name": "@glint/template",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "license": "MIT",
   "scripts": {
     "lint": "eslint . --ext ts --max-warnings 0 && prettier --check .",
-    "lint:fix": "eslint . --ext ts --fix && prettier --write ."
+    "lint:fix": "eslint . --ext ts --fix && prettier --write .",
+    "test": "tsd __tests__"
+  },
+  "devDependencies": {
+    "@glimmerx/component": "^0.2.2",
+    "@glimmer/component": "^1.0.0",
+    "@types/ember__component": "~3.0.7",
+    "sums-up": "^2.1.0",
+    "tsd": "^0.11.0",
+    "typescript": "^3.8.3"
   }
 }

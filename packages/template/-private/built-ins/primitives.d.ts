@@ -16,6 +16,13 @@
  * third-party primitives to be exposed if they're somehow hacked
  * into the runtime (or transformed away at build time), though
  * whether that's a good idea or not is unclear.
+ *
+ * Given the place the strict mode RFC landed, this likely needs
+ * to be rethought a bit. Several of the things listed here are
+ * actually slated to become importables, so it may end up making
+ * sense to hard code (or at least make statically configurable)
+ * the set of built-in keywords rather than relying on the
+ * `BuiltIns` interface at typecheck time.
  */
 declare const ModuleDocs: void;
 
@@ -23,8 +30,6 @@ import { AnyBlocks, ReturnsValue, AcceptsBlocks, CreatesModifier, NoNamedArgs } 
 import { ResolveSignature } from '../resolution';
 import { BlockResult } from '../blocks';
 import { Invokable } from '../invoke';
-
-export type ArrayHelper = Invokable<<T>(args: NoNamedArgs, ...items: T[]) => ReturnsValue<T[]>>;
 
 type ArgsFor<T> = ResolveSignature<T> extends (args: infer Args) => unknown ? Args : {};
 
@@ -124,8 +129,6 @@ export type WithHelper = Invokable<
 >;
 
 interface BuiltIns {
-  /** Creates an array */
-  array: ArrayHelper;
   /** Pre-binds arguments to a component before invoking */
   component: ComponentHelper;
   /** Concatentates strings */

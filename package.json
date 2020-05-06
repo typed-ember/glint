@@ -1,7 +1,6 @@
 {
   "private": true,
   "workspaces": [
-    "types-demo",
     "packages/template"
   ],
   "scripts": {

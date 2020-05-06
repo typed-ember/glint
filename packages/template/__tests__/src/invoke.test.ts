@@ -1,3 +1,5 @@
+import '@glint/template/glimmer';
+
 import GlimmerComponent from '@glimmer/component';
 import {
   template,

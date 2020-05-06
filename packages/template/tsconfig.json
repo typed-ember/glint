@@ -4,8 +4,8 @@
     "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,
-    "noEmit": true,
     "baseUrl": ".",
-    "lib": ["dom"]
+    "lib": ["dom"],
+    "composite": true
   }
 }

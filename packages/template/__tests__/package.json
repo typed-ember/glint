@@ -1,0 +1,9 @@
+{
+  "name": "@glint/template-tests",
+  "private": true,
+  "version": "0.0.0",
+  "types": "index.d.ts",
+  "tsd": {
+    "directory": "src"
+  }
+}

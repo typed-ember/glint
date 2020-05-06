@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
-export declare const ResolutionKey: unique symbol;
-export type ResolutionKey = typeof ResolutionKey;
-
 /**
  * When transforming a tagged template string into a TS representation,
  * the resulting value must indicate the context it expects to be

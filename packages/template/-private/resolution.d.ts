@@ -5,7 +5,10 @@
 declare const ModuleDocs: void;
 
 import { ReturnsValue, AnySignature, NoNamedArgs } from './signature';
-import { ContextResolutions, SignatureResolutions, ResolutionKey } from '../resolution-rules';
+import { ContextResolutions, SignatureResolutions } from '../resolution-rules';
+
+export declare const ResolutionKey: unique symbol;
+export type ResolutionKey = typeof ResolutionKey;
 
 type ContextResolutionKeys = keyof ContextResolutions<unknown>;
 type SignatureResolutionKeys = keyof SignatureResolutions<unknown>;
