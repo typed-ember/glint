@@ -1,5 +1,6 @@
 {
   "references": [
+    { "path": "packages/cli" },
     { "path": "packages/template" },
     { "path": "packages/transform" }
   ],

@@ -1,7 +1,8 @@
 # typed-templates
 
-This repo contains design thoughts on typing Ember templates, as well as implementation sketches.
-It's an elaboration on the design laid out in [this gist](https://gist.github.com/dfreeman/a5a910976e5dbed44d0649ba21aab23f).
+This repo contains design thoughts on typing Ember templates, as well as a spike implementation of a possible approach, based on [GlimmerX](https://github.com/glimmerjs/glimmer-experimental).
+
+It's an elaboration on the original design laid out in [this gist](https://gist.github.com/dfreeman/a5a910976e5dbed44d0649ba21aab23f).
 
 - [Design Overview](#design-overview)
   - [Future Template Flavors](#future-template-flavors)
@@ -14,10 +15,11 @@ It's an elaboration on the design laid out in [this gist](https://gist.github.co
   - [Mapping Templates to TypeScript](#mapping-templates-to-typescript)
     - [The Mechanics of Translation](#the-mechanics-of-translation)
     - [Mapping Source Locations](#mapping-source-locations)
+  - [CLI](#cli)
 - [Caveats/To-Dos](#caveatsto-dos)
+  - [Template Detection](#template-detection)
   - [Modeling Templates](#modeling-templates)
-  - [Typechecking (via CLI, editor integration, etc)](#typechecking-via-cli-editor-integration-etc)
-  - [Editor Support (autocomplete, refactorings, etc)](#editor-support-autocomplete-refactorings-etc)
+  - [Editor Support (diagnostic reporting, autocomplete, refactorings, etc)](#editor-support-diagnostic-reporting-autocomplete-refactorings-etc)
 
 ## Design Overview
 
@@ -306,9 +308,21 @@ export default class MyComponent extends Component<{ message: string }> {
 
 The `TransformedModule` for this file would have a single `ReplacedSpan` corresponding to the `hbs`-tagged string in the original source and containing the code for the IIFE in the transformed source. Its `MappingTree` would contain mappings from e.g. `@message` to `𝚪.args.message`, enabling the `TransformedModule` to answer questions about how locations within each version of the file correspond to one another within that span.
 
+### CLI
+
+The CLI is a fairly lightweight layer that uses the [TypeScript compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API), providing a custom compiler host that intercepts reads from the filesystem to present modules to the compiler after running their source through `@glint/transform`. Similarly, diagnostics emitted by the compiler are mapped back to their corresponding location in the original source before being shown.
+
+The CLI supports a subset of `tsc`'s functionality, currently limited to one-off and watched builds, as well as optionally emitting `.d.ts` files including template type information.
+
 ## Caveats/To-Dos
 
 This section contains notes on things still to be explored and known limitations of the current design.
+
+### Template Detection
+
+While `@glint/template` contains resolution rules for working with Ember and Glimmer.js, template detection is currently hard-coded to look for the `hbs` import from `@glimmerx/component`. (And in fact, we don't even bother processing a file if it doesnt contain the string `@glimmerx/component` somewhere in its text).
+
+Ultimately we likely need some configurable way (`.glintrc` or similar, maybe) to inform the tooling packages in this repo what tagged strings should be processed as templates.
 
 ### Modeling Templates
 
@@ -320,22 +334,14 @@ This section contains notes on things still to be explored and known limitations
 
 - `component` is similarly hard to type when the input class has type params, but a bit worse because of the whole functions-in-functions nature of template signature.
 
-  At present, values yielded to blocks whose types are dependent on a type param always degrade that param to `unknown` (or whatever the type constraint on the param is). This seems unavoidable given the way TypeScript's current "we implicitly preserve generics for you in a small number of specific cases" approach to HKT.
+At present, values yielded to blocks whose types are dependent on a type param always degrade that param to `unknown` (or whatever the type constraint on the param is). This seems unavoidable given the way TypeScript's current "we implicitly preserve generics for you in a small number of specific cases" approach to HKT.
 
-  It also doesn't handle pre-binding positional params, because yuck.
+It also doesn't handle pre-binding positional params, because yuck.
 
-### Typechecking (via CLI, editor integration, etc)
+### Editor Support (diagnostic reporting, autocomplete, refactorings, etc)
 
-Reporting type errors in the right place in source templates. Ties together the above bits. A simple proof of concept for a CLI exists using the tools from `@glint/transform`, but needs to be cleaned up and made actually invokable from the command line.
+Integrating with editors is a bit more complex than building a CLI, as we can't present the editor with a different version of the source files, as the editor itself is the source of truth! A prototype `@glint/tsserver-plugin` package exists (not yet committed anywhere) that maintains parallel `ts.SourceFile`s for modules with templates in them and reports combined diagnostics, but the touchpoints at which it hacks `tsserver` should probably be vetted.
 
-A prototype `@glint/tsserver-plugin` package also exists (not yet committed anywhere) and is slightly more fleshed out than the CLI, but similarly needs to be more thoroughly tested, and the touchpoints at which it hacks `tsserver` should probably be vetted.
+This plugin also contains support for autocomplete, jump-to-definition and symbol renaming, and has been shown to (at least minimally) work with VS Code, Atom and Vim (via [Coc](https://github.com/neoclide/coc.nvim)).
 
-### Editor Support (autocomplete, refactorings, etc)
-
-Aside from reporting type errors, we should also be able to support autocompleting things like named args to components, as well as propagating the effects of a symbol rename (e.g. changing a class field's name updates corresponding references in the template).
-
-This turns out to have been only a small additional lift over just getting basic typechecking working via `@glint/tsserver-plugin`, so mainly just requires getting that in good shape.
-
-```
-
-```
+Unfortunately, it turns out JetBrains _doesn't_ use `tsserver` in the (closed source) implementation of their JS/TS tooling, so supporting their line of IDEs isn't as straightforward. It's likely possible to build a plugin to layer template diagnostics on top of the baseline TypeScript ones, but it may not be feasible to avoid "unused variable" warnings for values only consumed in templates as long as we're sticking to a standard `.ts` file extension. Tobias might have more insight here.

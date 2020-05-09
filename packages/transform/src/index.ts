@@ -58,12 +58,17 @@ export function rewriteDiagnostic(
  * if it has no embedded templates.
  */
 export function rewriteModule(filename: string, source: string): TransformedModule | null {
-  let ast = parseSync(source, {
-    filename,
-    code: false,
-    presets: [require.resolve('@babel/preset-typescript')],
-    plugins: [[require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]],
-  });
+  let ast: t.File | t.Program | null = null;
+  try {
+    ast = parseSync(source, {
+      filename,
+      code: false,
+      presets: [require.resolve('@babel/preset-typescript')],
+      plugins: [[require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]],
+    });
+  } catch {
+    // If parsing fails for any reason, we simply return null
+  }
 
   if (!ast) {
     return null;
