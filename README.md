@@ -1,4 +1,4 @@
-# typed-templates
+# glint
 
 This repo contains design thoughts on typing Ember templates, as well as a spike implementation of a possible approach, based on [GlimmerX](https://github.com/glimmerjs/glimmer-experimental).
 
