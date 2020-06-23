@@ -136,5 +136,5 @@ declare function value<T>(): T;
     otherwise(): BlockResult;
   }>;
 
-  expectType<TestSignature>(value<ResolveSignature<Invokable<TestSignature>>>());
+  expectType<TestSignature>(resolve(value<Invokable<TestSignature>>()));
 }

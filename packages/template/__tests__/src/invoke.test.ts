@@ -97,3 +97,8 @@ expectType<BlockYield<'default', [number]>>(
     },
   })
 );
+
+/** Constrained type parameters can be tricky. */
+export function testConstrainedTypeParameter<T extends { foo: 'bar' }>(value: T): void {
+  expectType<T>(invokeInline(resolveOrReturn(value)({})));
+}

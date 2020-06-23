@@ -26,23 +26,30 @@
  */
 declare const ModuleDocs: void;
 
-import { AnyBlocks, ReturnsValue, AcceptsBlocks, CreatesModifier, NoNamedArgs } from '../signature';
+import {
+  AnyBlocks,
+  ReturnsValue,
+  AcceptsBlocks,
+  CreatesModifier,
+  NoNamedArgs,
+  AnySignature,
+} from '../signature';
 import { ResolveSignature } from '../resolution';
 import { BlockResult } from '../blocks';
 import { Invokable } from '../invoke';
 
-type ArgsFor<T> = ResolveSignature<T> extends (args: infer Args) => unknown ? Args : {};
+type SignatureFor<T> = T extends AnySignature ? T : ResolveSignature<T>;
 
-type PositionalFor<T> = ResolveSignature<T> extends (
+type ArgsFor<T> = SignatureFor<T> extends (args: infer Args) => unknown ? Args : {};
+
+type PositionalFor<T> = SignatureFor<T> extends (
   args: never,
   ...positional: infer Positional
 ) => unknown
   ? Positional
   : never[];
 
-type BlocksFor<T> = ResolveSignature<T> extends (
-  ...params: never
-) => (blocks: infer Blocks) => unknown
+type BlocksFor<T> = SignatureFor<T> extends (...params: never) => (blocks: infer Blocks) => unknown
   ? Blocks extends Partial<AnyBlocks>
     ? Blocks
     : {}
@@ -101,6 +108,10 @@ export type FnHelper = Invokable<{
   <A, B, C, D, Ret, Args extends unknown[]>(args: NoNamedArgs, f: (a: A, b: B, c: C, d: D, ...rest: Args) => Ret, a: A, b: B, c: C, d: D): ReturnsValue<(...rest: Args) => Ret>;
 }>;
 
+export type HasBlockHelper = Invokable<
+  (args: NoNamedArgs, blockName?: string) => ReturnsValue<boolean>
+>;
+
 export type LetHelper = Invokable<
   <T extends unknown[]>(
     args: NoNamedArgs,
@@ -141,6 +152,8 @@ interface BuiltIns {
   'each-in': EachInHelper;
   /** Pre-binds arguments to a function */
   fn: FnHelper;
+  /** Indicates whether a block with the given name was passed */
+  'has-block': HasBlockHelper;
   /** Binds one or more values and yields them to its block */
   let: LetHelper;
   /** Attaches an event listener */

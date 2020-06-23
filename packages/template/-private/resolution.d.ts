@@ -40,8 +40,6 @@ export type ResolveSignature<T> = T extends Resolvable<infer Key>
   ? Key extends SignatureResolutionKeys
     ? SignatureResolutions<T>[Key]
     : unknown
-  : T extends AnySignature
-  ? T
   : unknown;
 
 /**
@@ -49,7 +47,10 @@ export type ResolveSignature<T> = T extends Resolvable<infer Key>
  * component or modifier, returns the appropriate signature for that
  * value if applicable, or `unknown` otherwise.
  */
-export declare function resolve<T>(item: T): ResolveSignature<T>;
+export declare function resolve<T extends Resolvable<SignatureResolutionKeys>>(
+  item: T
+): ResolveSignature<T>;
+export declare function resolve<T extends AnySignature>(item: T): T;
 
 /**
  * A mustache like `{{this.foo}}` might either return a plain value like a string
@@ -60,9 +61,8 @@ export declare function resolve<T>(item: T): ResolveSignature<T>;
  * no associated signature as though they were arg-less helpers that return a
  * value of the appropriate type.
  */
-export declare function resolveOrReturn<T extends object>(
+export declare function resolveOrReturn<T extends Resolvable<SignatureResolutionKeys>>(
   item: T
-): unknown extends ResolveSignature<T>
-  ? (args: NoNamedArgs) => ReturnsValue<T>
-  : ResolveSignature<T>;
+): ResolveSignature<T>;
+export declare function resolveOrReturn<T extends AnySignature>(item: T): T;
 export declare function resolveOrReturn<T>(item: T): (args: NoNamedArgs) => ReturnsValue<T>;

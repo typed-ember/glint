@@ -41,7 +41,7 @@ function createCompilerHost(
   ts: typeof import('typescript'),
   options: ts.CompilerOptions,
   transformManager: TransformManager
-): import('typescript').CompilerHost {
+): ts.CompilerHost {
   let host = ts.createCompilerHost(options);
   host.readFile = function (filename) {
     return transformManager.readFile(filename);
