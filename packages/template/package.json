@@ -9,11 +9,11 @@
     "test": "tsd __tests__"
   },
   "devDependencies": {
-    "@glimmerx/component": "^0.2.2",
     "@glimmer/component": "^1.0.0",
+    "@glimmerx/component": "^0.2.2",
     "@types/ember__component": "~3.0.7",
     "sums-up": "^2.1.0",
     "tsd": "^0.11.0",
-    "typescript": "^3.8.3"
+    "typescript": "^3.9.5"
   }
 }

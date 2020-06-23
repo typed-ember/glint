@@ -16,18 +16,18 @@
     "test": "jest"
   },
   "dependencies": {
+    "@glint/transform": "link:../transform",
     "debug": "^4.1.1",
     "resolve": "^1.17.0",
     "yargs": "^15.3.1"
   },
   "devDependencies": {
-    "@glint/transform": "*",
     "@types/jest": "^25.2.1",
     "@types/resolve": "^1.17.0",
     "execa": "^4.0.1",
     "jest": "^25.2.1",
     "strip-ansi": "^6.0.0",
     "ts-jest": "^25.5.1",
-    "typescript": "^3.8.3"
+    "typescript": "^3.9.5"
   }
 }

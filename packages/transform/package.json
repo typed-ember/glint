@@ -11,11 +11,9 @@
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
-    "@babel/preset-typescript": "^7.9.0",
     "@babel/plugin-proposal-decorators": "7.8.3",
-    "@glimmer/reference": "^0.50.4",
-    "@glimmer/syntax": "^0.50.4",
-    "@glimmer/validator": "^0.50.4",
+    "@babel/preset-typescript": "^7.9.0",
+    "@glimmer/syntax": "^0.54.0",
     "debug": "^4.1.1"
   },
   "devDependencies": {
@@ -26,6 +24,6 @@
     "common-tags": "^1.8.0",
     "jest": "^25.4.0",
     "ts-jest": "^25.4.0",
-    "typescript": "^3.8.3"
+    "typescript": "^3.9.5"
   }
 }

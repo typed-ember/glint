@@ -8,7 +8,11 @@
     "lib": ["dom"],
     "composite": true,
     "outDir": "lib",
-    "rootDir": "src"
+    "rootDir": "src",
+    // Not ideal, but several of the @glimmer packages fairly consistently
+    // produce type errors across different versions.
+    "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [{ "path": "../transform" }]
 }

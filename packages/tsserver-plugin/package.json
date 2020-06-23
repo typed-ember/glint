@@ -8,11 +8,13 @@
     "lint": "eslint . --ext ts --max-warnings 0 && prettier --check src",
     "test": "jest"
   },
+  "dependencies": {
+    "@glint/transform": "link:../transform"
+  },
   "devDependencies": {
-    "@glint/transform": "*",
     "@types/jest": "^25.2.1",
     "jest": "^25.5.4",
     "ts-jest": "^25.4.0",
-    "typescript": "^3.8.3"
+    "typescript": "^3.9.5"
   }
 }

@@ -23,6 +23,7 @@ export default class Project {
         target: 'es2019',
         module: 'es2015',
         moduleResolution: 'node',
+        skipLibCheck: true,
         ...compilerOptions,
       },
     };
