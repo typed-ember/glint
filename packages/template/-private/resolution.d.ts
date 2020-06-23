@@ -17,6 +17,11 @@ type Resolvable<Key> =
   | Record<ResolutionKey, Key>
   | (new (...params: any) => Record<ResolutionKey, Key>);
 
+// Used to ensure `resolve` and `resolveOrReturn` behave reasonably
+// when they receive an argument of type `any` or `never`
+declare const AnyGuard: unique symbol;
+type AnyGuard = typeof AnyGuard;
+
 /**
  * This type is used to determine the context that a template is run in.
  * That is, if a template is associated with a given class, then the type
@@ -47,6 +52,7 @@ export type ResolveSignature<T> = T extends Resolvable<infer Key>
  * component or modifier, returns the appropriate signature for that
  * value if applicable, or `unknown` otherwise.
  */
+export declare function resolve<T extends AnyGuard>(item: T): any;
 export declare function resolve<T extends Resolvable<SignatureResolutionKeys>>(
   item: T
 ): ResolveSignature<T>;
@@ -61,6 +67,7 @@ export declare function resolve<T extends AnySignature>(item: T): T;
  * no associated signature as though they were arg-less helpers that return a
  * value of the appropriate type.
  */
+export declare function resolveOrReturn<T extends AnyGuard>(item: T): any;
 export declare function resolveOrReturn<T extends Resolvable<SignatureResolutionKeys>>(
   item: T
 ): ResolveSignature<T>;

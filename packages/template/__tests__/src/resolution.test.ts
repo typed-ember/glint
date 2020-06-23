@@ -6,7 +6,7 @@ import EmberComponent from '@ember/component';
 import { expectType } from 'tsd';
 import { AcceptsBlocks } from '@glint/template/-private/signature';
 import { BlockResult } from '@glint/template/-private/blocks';
-import { ResolveSignature } from '@glint/template/-private/resolution';
+import { ResolveSignature, resolveOrReturn } from '@glint/template/-private/resolution';
 import { TemplateContext } from '@glint/template/-private/template';
 import { template, invokeBlock, resolve, BuiltIns, toBlock, ResolveContext } from '@glint/template';
 import { Invokable } from '@glint/template/-private/invoke';
@@ -137,4 +137,13 @@ declare function value<T>(): T;
   }>;
 
   expectType<TestSignature>(resolve(value<Invokable<TestSignature>>()));
+}
+
+// Values of type `any` or `never` (themselves typically the product of other type errors)
+// shouldn't unnecessarily blow things up by producing an `unknown` signature.
+{
+  expectType<any>(resolveOrReturn({} as any));
+  expectType<any>(resolveOrReturn({} as never));
+  expectType<any>(resolve({} as any));
+  expectType<any>(resolve({} as never));
 }

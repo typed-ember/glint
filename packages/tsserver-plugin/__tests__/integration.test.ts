@@ -9,7 +9,7 @@ describe('tsserver plugin', () => {
   beforeAll(async () => {
     server = await new TSServer().start({
       listenForDebugger: false,
-      printMessages: true,
+      printMessages: false,
     });
   });
 
@@ -1267,15 +1267,8 @@ describe('tsserver plugin', () => {
 
       diagnostics = await project.getDiagnostics('index.ts');
 
-      expect(diagnostics.length).toEqual(2);
-
+      expect(diagnostics.length).toEqual(1);
       expect(diagnostics[0]).toMatchObject({
-        message: `Object is of type 'unknown'.`,
-        startLocation: { line: 6, offset: 5 },
-        endLocation: { line: 6, offset: 18 },
-      });
-
-      expect(diagnostics[1]).toMatchObject({
         message: `Property 'debuggerr' does not exist on type 'BuiltIns'. Did you mean 'debugger'?`,
         startLocation: { line: 6, offset: 7 },
         endLocation: { line: 6, offset: 16 },

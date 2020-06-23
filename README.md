@@ -359,5 +359,3 @@ Ultimately we likely need some configurable way (`.glintrc` or similar, maybe) t
   - Patching `ts.server.ScriptInfo`'s `registerFileUpdate` and `editContent` methods to ensure that changes to source files (either on disk or to their in-memory contents in the editor) are also reflected in their transformed counterparts
 
 - JetBrains IDEs don't fully rely on `tsserver` for their analysis of TS files, so the plugin's usefulness is limited. Type errors _do_ appear to be surfaced, but other diagnostics (such as whether or not a private field is used) seem to be ignored, and the editor seems unwilling to trigger completions, quickinfo, etc within a string. Tobias might have more insight here.
-
-
