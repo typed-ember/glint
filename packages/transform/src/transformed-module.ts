@@ -55,36 +55,48 @@ export default class TransformedModule {
   }
 
   public getOriginalRange(transformedStart: number, transformedEnd: number): RangeWithMapping {
-    let { originalOffset, replacedSpan } = this.determineOriginalOffsetAndSpan(transformedStart);
-    let start = originalOffset;
-    let end = originalOffset + transformedEnd - transformedStart;
-    let mapping = replacedSpan?.mapping?.narrowestMappingForTransformedRange({
-      start: start - replacedSpan.originalStart,
-      end: end - replacedSpan.originalStart,
-    });
+    let startInfo = this.determineOriginalOffsetAndSpan(transformedStart);
+    let endInfo = this.determineOriginalOffsetAndSpan(transformedEnd);
 
-    if (replacedSpan && mapping) {
-      let start = replacedSpan.originalStart + mapping.originalRange.start;
-      let end = replacedSpan.originalStart + mapping.originalRange.end;
-      return { mapping, start, end };
+    let start = startInfo.originalOffset;
+    let end = endInfo.originalOffset;
+
+    if (startInfo.replacedSpan && startInfo.replacedSpan === endInfo.replacedSpan) {
+      let { replacedSpan } = startInfo;
+      let mapping = replacedSpan?.mapping?.narrowestMappingForTransformedRange({
+        start: start - replacedSpan.originalStart,
+        end: end - replacedSpan.originalStart,
+      });
+
+      if (replacedSpan && mapping) {
+        let start = replacedSpan.originalStart + mapping.originalRange.start;
+        let end = replacedSpan.originalStart + mapping.originalRange.end;
+        return { mapping, start, end };
+      }
     }
 
     return { start, end };
   }
 
   public getTransformedRange(originalStart: number, originalEnd: number): RangeWithMapping {
-    let { transformedOffset, replacedSpan } = this.determineTransformedOffsetAndSpan(originalStart);
-    let start = transformedOffset;
-    let end = transformedOffset + originalEnd - originalStart;
-    let mapping = replacedSpan?.mapping?.narrowestMappingForOriginalRange({
-      start: start - replacedSpan.transformedStart,
-      end: end - replacedSpan.transformedStart,
-    });
+    let startInfo = this.determineTransformedOffsetAndSpan(originalStart);
+    let endInfo = this.determineTransformedOffsetAndSpan(originalEnd);
 
-    if (replacedSpan && mapping) {
-      let start = replacedSpan.transformedStart + mapping.transformedRange.start;
-      let end = replacedSpan.transformedStart + mapping.transformedRange.end;
-      return { mapping, start, end };
+    let start = startInfo.transformedOffset;
+    let end = endInfo.transformedOffset;
+
+    if (startInfo.replacedSpan && startInfo.replacedSpan === endInfo.replacedSpan) {
+      let { replacedSpan } = startInfo;
+      let mapping = replacedSpan?.mapping?.narrowestMappingForOriginalRange({
+        start: start - replacedSpan.transformedStart,
+        end: end - replacedSpan.transformedStart,
+      });
+
+      if (replacedSpan && mapping) {
+        let start = replacedSpan.transformedStart + mapping.transformedRange.start;
+        let end = replacedSpan.transformedStart + mapping.transformedRange.end;
+        return { mapping, start, end };
+      }
     }
 
     return { start, end };

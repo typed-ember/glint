@@ -281,6 +281,60 @@ describe('Source-to-source offset mapping', () => {
       expectTokenMapping(module, 'bar', { occurrence: 1 });
     });
   });
+
+  describe('spans outside of mapped segments', () => {
+    const rewritten = rewriteModule(
+      'test.ts',
+      stripIndent`
+        import Component, { hbs } from '@glimmerx/component';
+
+        // start
+        export default class MyComponent extends Component {
+          static template = hbs\`<Greeting />\`;
+        }
+        // end
+
+        export class Greeting extends Component {
+          static template = hbs\`Hello, world!\`;
+        }
+      `
+    )!;
+
+    test('bounds that cross a rewritten span', () => {
+      let originalStart = rewritten.originalSource.indexOf('// start');
+      let originalEnd = rewritten.originalSource.indexOf('// end');
+
+      let transformedStart = rewritten.transformedSource.indexOf('// start');
+      let transformedEnd = rewritten.transformedSource.indexOf('// end');
+
+      expect(rewritten.getOriginalRange(transformedStart, transformedEnd)).toEqual({
+        start: originalStart,
+        end: originalEnd,
+      });
+
+      expect(rewritten.getTransformedRange(originalStart, originalEnd)).toEqual({
+        start: transformedStart,
+        end: transformedEnd,
+      });
+    });
+
+    test('full file bounds', () => {
+      let originalEnd = rewritten.originalSource.length - 1;
+      let transformedEnd = rewritten.transformedSource.length - 1;
+
+      expect(rewritten.getOriginalOffset(transformedEnd)).toEqual(originalEnd);
+      expect(rewritten.getOriginalRange(0, transformedEnd)).toEqual({
+        start: 0,
+        end: originalEnd,
+      });
+
+      expect(rewritten.getTransformedOffset(originalEnd)).toEqual(transformedEnd);
+      expect(rewritten.getTransformedRange(0, originalEnd)).toEqual({
+        start: 0,
+        end: transformedEnd,
+      });
+    });
+  });
 });
 
 describe('Diagnostic offset mapping', () => {
