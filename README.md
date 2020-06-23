@@ -1,4 +1,4 @@
-# glint ![CI](https://github.com/typed-ember/glint/workflows/CI/badge.svg)
+# glint [![CI](https://github.com/typed-ember/glint/workflows/CI/badge.svg)](https://github.com/typed-ember/glint/actions?query=workflow%3ACI)
 
 This repo contains design thoughts on typing Ember templates, as well as a spike implementation of a possible approach, based on [GlimmerX](https://github.com/glimmerjs/glimmer-experimental).
 
