@@ -16,10 +16,11 @@ It's an elaboration on the original design laid out in [this gist](https://gist.
     - [The Mechanics of Translation](#the-mechanics-of-translation)
     - [Mapping Source Locations](#mapping-source-locations)
   - [CLI](#cli)
+  - [Editor Support](#editor-support)
 - [Caveats/To-Dos](#caveatsto-dos)
   - [Template Detection](#template-detection)
   - [Modeling Templates](#modeling-templates)
-  - [Editor Support (diagnostic reporting, autocomplete, refactorings, etc)](#editor-support-diagnostic-reporting-autocomplete-refactorings-etc)
+  - [Editor Support](#editor-support-1)
 
 ## Design Overview
 
@@ -310,9 +311,19 @@ The `TransformedModule` for this file would have a single `ReplacedSpan` corresp
 
 ### CLI
 
-The CLI is a fairly lightweight layer that uses the [TypeScript compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API), providing a custom compiler host that intercepts reads from the filesystem to present modules to the compiler after running their source through `@glint/transform`. Similarly, diagnostics emitted by the compiler are mapped back to their corresponding location in the original source before being shown.
+The CLI package (`@glint/cli`) is a fairly lightweight layer that uses the [TypeScript compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API), providing a custom compiler host that intercepts reads from the filesystem to present modules to the compiler after running their source through `@glint/transform`. Similarly, diagnostics emitted by the compiler are mapped back to their corresponding location in the original source before being shown.
 
 The CLI supports a subset of `tsc`'s functionality, currently limited to one-off and watched builds, as well as optionally emitting `.d.ts` files including template type information.
+
+### Editor Support
+
+The `@glint/tsserver-plugin` package provides a [Language Service Plugin](https://github.com/microsoft/TypeScript/wiki/Writing-a-Language-Service-Plugin) that can be added to project's `tsconfig.json` to provide editor feedback. In addition to highlighting type errors, it contains support for autocomplete, jump-to-definition and symbol renaming, and has been shown to (at least minimally) work with VS Code, Atom and Vim (via [Coc](https://github.com/neoclide/coc.nvim)). It _partially_ works in JetBrains IDEs (further details in Caveats/To-Dos below).
+
+Integrating with editor entails some additional challenges compared to the CLI, as we can't present the editor with a different version of the source files—the editor itself is the source of truth! To handle this, the `@glint/tsserver-plugin` package maintains parallel _transformed source files_ for each TS module in the project, and resolves any imports that point to the original modules to the transformed ones instead.
+
+For source modules with no embedded templates, these intermediary modules are essentially `export * from 'the-original'`. For source modules that _do_ have embedded templates, they instead contain the version of the file processed using `@glint/transform` to represent the template contents as TypeScript.
+
+When the language service receives a request fo diagnostics (or definitions, references, etc) for a file with an embedded template, that request is rewritten to be made against the corresponding point in the transformed file. Similarly, results from any language service requests that reference the contents of a transformed file are updated to point to the corresponding spot in the original.
 
 ## Caveats/To-Dos
 
@@ -334,14 +345,19 @@ Ultimately we likely need some configurable way (`.glintrc` or similar, maybe) t
 
 - `component` is similarly hard to type when the input class has type params, but a bit worse because of the whole functions-in-functions nature of template signature.
 
-At present, values yielded to blocks whose types are dependent on a type param always degrade that param to `unknown` (or whatever the type constraint on the param is). This seems unavoidable given the way TypeScript's current "we implicitly preserve generics for you in a small number of specific cases" approach to HKT.
+  At present, values yielded to blocks whose types are dependent on a type param always degrade that param to `unknown` (or whatever the type constraint on the param is). This seems unavoidable given the way TypeScript's current "we implicitly preserve generics for you in a small number of specific cases" approach to HKT.
 
-It also doesn't handle pre-binding positional params, because yuck.
+  It also doesn't handle pre-binding positional params, because yuck.
 
-### Editor Support (diagnostic reporting, autocomplete, refactorings, etc)
+### Editor Support
 
-Integrating with editors is a bit more complex than building a CLI, as we can't present the editor with a different version of the source files, as the editor itself is the source of truth! A prototype `@glint/tsserver-plugin` package exists (not yet committed anywhere) that maintains parallel `ts.SourceFile`s for modules with templates in them and reports combined diagnostics, but the touchpoints at which it hacks `tsserver` should probably be vetted.
+- The current approach for implementing editor support (via a `tsserver` plugin) involves a bit more patching of TS internals than plugins are typically expected to do. The list of sins includes:
 
-This plugin also contains support for autocomplete, jump-to-definition and symbol renaming, and has been shown to (at least minimally) work with VS Code, Atom and Vim (via [Coc](https://github.com/neoclide/coc.nvim)).
+  - Patching `resolveModuleNames` on the language service host to resolve imports to our internal transformed modules instead of directly to their real-world counterparts (though [`typescript-deno-plugin`](https://github.com/justjavac/typescript-deno-plugin) does the same to make Deno's remote imports resolve)
+  - Patching `ts.sys.{readFile,watchFile,fileExists}` to account for our use of transformed modules. These are hooks that the outside environment can provide to the compiler (which is exactly what we do in `@glint/cli`), but it's not exactly normal for a plugin to do that from within.
+  - Patching `ts.createSourceFile` and `ts.updateSourceFile` to ensure that files are always considered to reference their transformed counterparts, so that they're included in typechecking even if that file is otherwise never imported
+  - Patching `ts.server.ScriptInfo`'s `registerFileUpdate` and `editContent` methods to ensure that changes to source files (either on disk or to their in-memory contents in the editor) are also reflected in their transformed counterparts
 
-Unfortunately, it turns out JetBrains _doesn't_ use `tsserver` in the (closed source) implementation of their JS/TS tooling, so supporting their line of IDEs isn't as straightforward. It's likely possible to build a plugin to layer template diagnostics on top of the baseline TypeScript ones, but it may not be feasible to avoid "unused variable" warnings for values only consumed in templates as long as we're sticking to a standard `.ts` file extension. Tobias might have more insight here.
+- JetBrains IDEs don't fully rely on `tsserver` for their analysis of TS files, so the plugin's usefulness is limited. Type errors _do_ appear to be surfaced, but other diagnostics (such as whether or not a private field is used) seem to be ignored, and the editor seems unwilling to trigger completions, quickinfo, etc within a string. Tobias might have more insight here.
+
+

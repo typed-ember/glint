@@ -2,7 +2,8 @@
   "references": [
     { "path": "packages/cli" },
     { "path": "packages/template" },
-    { "path": "packages/transform" }
+    { "path": "packages/transform" },
+    { "path": "packages/tsserver-plugin" }
   ],
   "files": []
 }

@@ -3,7 +3,8 @@
   "workspaces": [
     "packages/cli",
     "packages/template",
-    "packages/transform"
+    "packages/transform",
+    "packages/tsserver-plugin"
   ],
   "scripts": {
     "lint": "yarn workspaces run lint",
