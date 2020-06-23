@@ -30,6 +30,10 @@ describe('Debug utilities', () => {
       |  hbs(0:50):    hbs\`\\\\n    <HelperComponent @foo={{this.bar}} />\\\\n  \`
       |  ts(0:248):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/template\\");\\\\n  return χ.template(function*(𝚪: import(\\"@glint/template\\").ResolveContext<MyComponent>) {\\\\n    yield χ.invokeBlock(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), {});\\\\n    𝚪;\\\\n  });\\\\n})()
       | 
+      | | Mapping: Identifier
+      | |  hbs(0:0):     
+      | |  ts(135:146):  MyComponent
+      | | 
       | | Mapping: ElementNode
       | |  hbs(9:46):    <HelperComponent @foo={{this.bar}} />
       | |  ts(151:230):  yield χ.invokeBlock(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), {});
@@ -77,6 +81,10 @@ describe('Debug utilities', () => {
       |  hbs(0:28):    hbs\`\\\\n    Hello, {{@foo}}\\\\n  \`
       |  ts(0:229):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/template\\");\\\\n  return χ.template(function*(𝚪: import(\\"@glint/template\\").ResolveContext<HelperComponent>) {\\\\n    χ.invokeInline(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    𝚪;\\\\n  });\\\\n})()
       | 
+      | | Mapping: Identifier
+      | |  hbs(0:0):     
+      | |  ts(135:150):  HelperComponent
+      | | 
       | | Mapping: MustacheStatement
       | |  hbs(16:24):   {{@foo}}
       | |  ts(155:209):  χ.invokeInline(χ.resolveOrReturn(𝚪.args.foo)({}))

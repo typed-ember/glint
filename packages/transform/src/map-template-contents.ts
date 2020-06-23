@@ -31,11 +31,17 @@ export type Mapper = {
     /** Increase the indent level for future emitted content */
     indent(): void;
 
-    /** Decrease the indent level for future emitted content*/
+    /** Decrease the indent level for future emitted content */
     dedent(): void;
 
     /** Append the given raw text to the transformed source */
     text(value: string): void;
+
+    /**
+     * Append the given raw text to the transformed source, creating
+     * a 0-length mapping for it in the output.
+     */
+    synthetic(value: string): void;
 
     /**
      * Append the given value to the transformed source, mapping
@@ -161,6 +167,9 @@ export function mapTemplateContents(
 
       offset += value.length;
       segmentsStack[0].push(value);
+    },
+    synthetic(value: string) {
+      emit.identifier(value, 0, 0);
     },
     identifier(value: string, hbsOffset: number, hbsLength = value.length) {
       let hbsRange = { start: hbsOffset, end: hbsOffset + hbsLength };

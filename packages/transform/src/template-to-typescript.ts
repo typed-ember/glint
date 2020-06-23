@@ -46,9 +46,9 @@ export function templateToTypescript(
     emit.newline();
 
     emit.text('return χ.template(function*');
-    emit.text(typeParams);
+    emit.synthetic(typeParams);
     emit.text('(𝚪: import("@glint/template").ResolveContext<');
-    emit.text(contextType);
+    emit.synthetic(contextType);
     emit.text('>) {');
     emit.newline();
     emit.indent();
