@@ -1,3 +1,4 @@
+import '@glint/template/glimmerx';
 import { renderComponent } from '@glimmerx/core';
 import App from './App';
 

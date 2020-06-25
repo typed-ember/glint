@@ -1,33 +1,23 @@
 # demo-app
 
-This README outlines the details of collaborating on this GlimmerX application.
-A short introduction of this app could easily go here.
+This application demonstrates `@glint/cli` and `@glint/tsserver-plugin`.
 
-## Prerequisites
+It supports one-off typechecking via the `glint` executable:
 
-You will need the following things properly installed on your computer.
+![image](https://user-images.githubusercontent.com/108688/85793967-1f54f580-b736-11ea-9dec-93aa80d2bd5a.png)
 
-* [Git](https://git-scm.com/)
-* [Node.js](https://nodejs.org/) (with NPM)
-* [Yarn](https://yarnpkg.com/en/)
+And exposes the same errors inline in the editor via a `tsserver` plugin:
 
-## Installation
+![image](https://user-images.githubusercontent.com/108688/85796347-1108d880-b73a-11ea-81fc-55655dcdec42.png)
 
-* `git clone <repository-url>` this repository
-* `cd demo-app`
-* `yarn`
+That plugin also supports (a limited amount of) typeahead and completion:
 
-## Running / Development
+![image](https://user-images.githubusercontent.com/108688/85796413-34cc1e80-b73a-11ea-8877-441574da99b5.png)
 
-* `yarn start`
-* Visit your app at [http://localhost:8080](http://localhost:8080).
+As well as jump-to-definition:
 
-### Building
+![image](https://i.imgur.com/N3LCD2X.gif)
 
-* `yarn build`
+And renaming symbols:
 
-## Further Reading / Useful Links
-
-* [glimmerx](http://github.com/glimmerjs/glimmer-experimental/)
-* [webpack](https://webpack.js.org/)
-* [babel](https://babeljs.io/docs/en/configuration)
+![image](https://i.imgur.com/hJsEKNS.gif)

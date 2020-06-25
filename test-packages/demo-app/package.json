@@ -10,7 +10,8 @@
     "build": "NODE_ENV=production webpack",
     "lint": "eslint . --ext=js,ts --cache",
     "start": "webpack-dev-server",
-    "test": "npm-run-all test:browsers",
+    "typecheck": "glint",
+    "test": "npm-run-all typecheck test:browsers",
     "test:browsers": "testem ci",
     "test:watch": "testem"
   },
@@ -30,6 +31,8 @@
     "@glimmerx/helper": "^0.2.3",
     "@glimmerx/modifier": "^0.2.3",
     "@glimmerx/service": "^0.2.3",
+    "@glint/cli": "*",
+    "@glint/tsserver-plugin": "*",
     "@types/qunit": "^2.9.1",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.26.0",

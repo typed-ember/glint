@@ -7,7 +7,8 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "noEmit": true,
-    "types": ["qunit"]
+    "types": ["qunit"],
+    "plugins": [{ "name": "@glint/tsserver-plugin", "logFile": "glint.log" }]
   },
   "exclude": ["node_modules", "tmp", "dist"]
 }
