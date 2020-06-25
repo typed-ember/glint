@@ -77,11 +77,12 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
 
   public getSemanticDiagnostics(fileName: string): ts.Diagnostic[] {
     const info = this.getTransformInfoForOriginalPath(fileName);
-    if (info) {
+    const originalSourceFile = this.ls.getProgram()?.getSourceFile(fileName);
+    if (info && originalSourceFile) {
       return this.ls
         .getSemanticDiagnostics(info.transformedPath)
         .map((diagnostic) =>
-          rewriteDiagnostic(diagnostic, info.transformedModule, info.transformedSourceFile)
+          rewriteDiagnostic(diagnostic, info.transformedModule, originalSourceFile)
         );
     }
 
@@ -89,12 +90,13 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
   }
 
   public getSuggestionDiagnostics(fileName: string): ts.DiagnosticWithLocation[] {
-    let info = this.getTransformInfoForOriginalPath(fileName);
-    if (info) {
+    const info = this.getTransformInfoForOriginalPath(fileName);
+    const originalSourceFile = this.ls.getProgram()?.getSourceFile(fileName);
+    if (info && originalSourceFile) {
       return this.ls
         .getSuggestionDiagnostics(info.transformedPath)
         .map((diagnostic) =>
-          rewriteDiagnostic(diagnostic, info!.transformedModule, info!.transformedSourceFile)
+          rewriteDiagnostic(diagnostic, info.transformedModule, originalSourceFile)
         );
     }
 
@@ -133,8 +135,11 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
 
       // If we're within a freeform text area in the template, don't attempt to autocomplete at all
       let containingNode = range.mapping?.sourceNode;
-      if (containingNode && ['Template', 'Block', 'StringLiteral'].includes(containingNode.type)) {
-        return undefined;
+      if (
+        containingNode &&
+        ['Template', 'Block', 'StringLiteral', 'ElementNode'].includes(containingNode.type)
+      ) {
+        return;
       }
 
       result = this.ls.getCompletionsAtPosition(info.transformedPath, range.start, options);
