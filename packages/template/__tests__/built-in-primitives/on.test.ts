@@ -1,12 +1,12 @@
 import { resolve, BuiltIns, invokeModifier } from '@glint/template';
-import { expectType } from 'tsd';
+import { expectTypeOf } from 'expect-type';
 
 const on = resolve(BuiltIns['on']);
 
-expectType<void>(
+expectTypeOf(
   invokeModifier(
     on({}, 'keydown', (event) => {
-      expectType<KeyboardEvent>(event);
+      expectTypeOf(event).toEqualTypeOf<KeyboardEvent>();
     })
   )
-);
+).toEqualTypeOf<void>();

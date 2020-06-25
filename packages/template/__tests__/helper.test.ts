@@ -2,7 +2,7 @@ import '@glint/template/ember';
 import Helper, { helper } from '@ember/component/helper';
 import { invokeInline } from '@glint/template/-private/invoke';
 import { resolve } from '@glint/template';
-import { expectType, expectError } from 'tsd';
+import { expectTypeOf } from 'expect-type';
 
 // Type parameters can be persisted for functional helpers
 const id = resolve(helper(<T>([value]: [T]) => value));
@@ -17,17 +17,17 @@ const hello = resolve(
 );
 
 // Correct parametrized type for a functional helper
-expectType<string>(invokeInline(id({}, 'hello')));
-expectType<number>(invokeInline(id({}, 123)));
+expectTypeOf(invokeInline(id({}, 'hello'))).toEqualTypeOf<string>();
+expectTypeOf(invokeInline(id({}, 123))).toEqualTypeOf<number>();
 
 // Correct type for a class-based helper
-expectType<string>(invokeInline(hello({ target: 'world' })));
+expectTypeOf(invokeInline(hello({ target: 'world' }))).toEqualTypeOf<string>();
 
-// Missing positional param
-expectError(invokeInline(id({})));
+// @ts-expect-error: Missing positional param
+invokeInline(id({}));
 
-// Invalid named param
-expectError(invokeInline(hello({ target: 'world', foo: true })));
+// @ts-expect-error: Invalid named param
+invokeInline(hello({ target: 'world', foo: true }));
 
-// Named param when none are expected
-expectError(invokeInline(id({ key: 'value' }, 'hello')));
+// @ts-expect-error: Named param when none are expected
+invokeInline(id({ key: 'value' }, 'hello'));

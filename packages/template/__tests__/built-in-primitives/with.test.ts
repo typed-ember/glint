@@ -1,21 +1,21 @@
-import { expectType, expectError } from 'tsd';
+import { expectTypeOf } from 'expect-type';
 import { resolve, BuiltIns, toBlock, invokeBlock } from '@glint/template';
 import { BlockYield } from '@glint/template/-private/blocks';
 
 const withh = resolve(BuiltIns['with']);
 
 // Yields out the given value
-expectType<BlockYield<'body', [string]>>(
+expectTypeOf(
   invokeBlock(withh({}, 'hello'), {
     *default(str) {
-      expectType<string>(str);
+      expectTypeOf(str).toEqualTypeOf<string>();
       yield toBlock('body', str);
     },
     *inverse() {
       yield toBlock('body', 'nothing');
     },
   })
-);
+).toEqualTypeOf<BlockYield<'body', [string]>>();
 
-// Rejects multiple values
-expectError(withh({}, 'hello', 'goodbye'));
+// @ts-expect-error: Rejects multiple values
+withh({}, 'hello', 'goodbye');

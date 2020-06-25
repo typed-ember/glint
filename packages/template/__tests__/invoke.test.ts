@@ -12,7 +12,7 @@ import {
   invokeInline,
   resolveOrReturn,
 } from '@glint/template';
-import { expectType } from 'tsd';
+import { expectTypeOf } from 'expect-type';
 import { BlockYield } from '@glint/template/-private/blocks';
 
 type MyComponentArgs<T> = {
@@ -65,16 +65,16 @@ class MyComponent<T> extends GlimmerComponent<MyComponentArgs<T>> {
  *   </:body>
  * </MyComponent>
  */
-expectType<BlockYield<'default', [string]>>(
+expectTypeOf(
   invokeBlock(resolve(MyComponent)({ value: 'hi' }), {
     *body(isReady, value) {
-      expectType<string>(invokeInline(resolveOrReturn(value)({})));
-      expectType<boolean>(invokeInline(resolveOrReturn(isReady)({})));
+      expectTypeOf(invokeInline(resolveOrReturn(value)({}))).toEqualTypeOf<string>();
+      expectTypeOf(invokeInline(resolveOrReturn(isReady)({}))).toEqualTypeOf<boolean>();
 
       yield toBlock('default', value);
     },
   })
-);
+).toEqualTypeOf<BlockYield<'default', [string]>>();
 
 /**
  * Instantiate `T` to `number` and verify it's threaded through:
@@ -87,18 +87,25 @@ expectType<BlockYield<'default', [string]>>(
  *   </:body>
  * </MyComponent>
  */
-expectType<BlockYield<'default', [number]>>(
+expectTypeOf(
   invokeBlock(resolve(MyComponent)({ value: 123 }), {
     *body(isReady, value) {
-      expectType<number>(invokeInline(resolveOrReturn(value)({})));
-      expectType<boolean>(invokeInline(resolveOrReturn(isReady)({})));
+      expectTypeOf(invokeInline(resolveOrReturn(value)({}))).toEqualTypeOf<number>();
+      expectTypeOf(invokeInline(resolveOrReturn(isReady)({}))).toEqualTypeOf<boolean>();
 
       yield toBlock('default', value);
     },
   })
-);
+).toEqualTypeOf<BlockYield<'default', [number]>>();
 
-/** Constrained type parameters can be tricky. */
+/**
+ * Constrained type parameters can be tricky, and `expect-type` doesn't
+ * work well with type assertions directly against them, but we can assert
+ * against a property that the constraint dictates must exist to ensure
+ * that we don't break or degrade them to `unknown` or `any` when used
+ * in a template.
+ */
 export function testConstrainedTypeParameter<T extends { foo: 'bar' }>(value: T): void {
-  expectType<T>(invokeInline(resolveOrReturn(value)({})));
+  let result = invokeInline(resolveOrReturn(value)({}));
+  expectTypeOf(result.foo).toEqualTypeOf<'bar'>();
 }

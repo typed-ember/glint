@@ -1,4 +1,4 @@
-import { expectType } from 'tsd';
+import { expectTypeOf } from 'expect-type';
 import SumType from 'sums-up';
 import { resolve, toBlock, invokeBlock } from '@glint/template';
 import { AcceptsBlocks, NoNamedArgs } from '@glint/template/-private/signature';
@@ -21,7 +21,7 @@ type SumVariants<T extends SumType<never>> = T extends SumType<infer V> ? V : ne
 // Used to do pattern matching against sum type values using
 // https://github.com/hojberg/sums-up
 // It doesn't (can't) do exhaustiveness checking, but it does plumb through
-// type parameters correctly, and
+// type parameters correctly
 declare const caseOf: Invokable<<T extends SumType<never>>(
   args: NoNamedArgs,
   value: T
@@ -50,7 +50,7 @@ declare const caseOf: Invokable<<T extends SumType<never>>(
  * {{/case-of}}
  * ```
  */
-expectType<BlockYield<'default', [number]>>(
+expectTypeOf(
   invokeBlock(resolve(caseOf)({}, maybeValue), {
     *default(when) {
       yield invokeBlock(resolve(when)({}, 'Just'), {
@@ -67,7 +67,7 @@ expectType<BlockYield<'default', [number]>>(
       });
     },
   })
-);
+).toEqualTypeOf<BlockYield<'default', [number]>>();
 
 // Below is an alternative formulation using named block syntax.
 // This is a bit weird as it's really a control structure and looks here
@@ -95,7 +95,7 @@ declare const CaseOf: Invokable<<T extends SumType<never>>(args: {
  * </CaseOf>
  * ```
  */
-expectType<BlockYield<'default', [number]>>(
+expectTypeOf(
   invokeBlock(resolve(CaseOf)({ value: maybeValue }), {
     *Just(value) {
       yield toBlock('default', value);
@@ -104,4 +104,4 @@ expectType<BlockYield<'default', [number]>>(
       /* nothin */
     },
   })
-);
+).toEqualTypeOf<BlockYield<'default', [number]>>();

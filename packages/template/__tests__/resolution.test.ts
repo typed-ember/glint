@@ -3,7 +3,7 @@ import '@glint/template/glimmer';
 
 import GlimmerComponent from '@glimmer/component';
 import EmberComponent from '@ember/component';
-import { expectType } from 'tsd';
+import { expectTypeOf } from 'expect-type';
 import { AcceptsBlocks } from '@glint/template/-private/signature';
 import { BlockResult } from '@glint/template/-private/blocks';
 import { ResolveSignature, resolveOrReturn } from '@glint/template/-private/resolution';
@@ -24,7 +24,7 @@ declare function value<T>(): T;
   type ExpectedSignature = (args: MyArgs<unknown>) => AcceptsBlocks<{ default?(): BlockResult }>;
 
   // Resolved component signature is the expected one
-  expectType<ExpectedSignature>(value<ResolveSignature<typeof MyComponent>>());
+  expectTypeOf<ResolveSignature<typeof MyComponent>>().toEqualTypeOf<ExpectedSignature>();
 }
 
 // Glimmer component with a template
@@ -61,14 +61,14 @@ declare function value<T>(): T;
   type ExpectedContext<T> = TemplateContext<MyComponent<T>, MyArgs<T>>;
 
   // Template has the correct type
-  expectType<Invokable<ExpectedSignature>>(MyComponent.template);
+  expectTypeOf(MyComponent.template).toEqualTypeOf<Invokable<ExpectedSignature>>();
 
   // Resolved component signature uses the template type
-  expectType<ExpectedSignature>(value<ResolveSignature<typeof MyComponent>>());
+  expectTypeOf<ResolveSignature<typeof MyComponent>>().toEqualTypeOf<ExpectedSignature>();
 
   // Template context is inferred correctly
-  expectType<ExpectedContext<number>>(value<ResolveContext<MyComponent<number>>>());
-  expectType<ExpectedContext<string>>(value<ResolveContext<MyComponent<string>>>());
+  expectTypeOf<ResolveContext<MyComponent<number>>>().toEqualTypeOf<ExpectedContext<number>>();
+  expectTypeOf<ResolveContext<MyComponent<string>>>().toEqualTypeOf<ExpectedContext<string>>();
 }
 
 // Ember component with no template
@@ -83,7 +83,7 @@ declare function value<T>(): T;
   ) => AcceptsBlocks<{ default?(): BlockResult }>;
 
   // Resolved component signature is as expected
-  expectType<ExpectedSignature>(value<ResolveSignature<typeof MyComponent>>());
+  expectTypeOf<ResolveSignature<typeof MyComponent>>().toEqualTypeOf<ExpectedSignature>();
 }
 
 // Ember component with a template
@@ -116,14 +116,14 @@ declare function value<T>(): T;
   type ExpectedContext<T> = TemplateContext<MyComponent<T>, Record<string, unknown>>;
 
   // Template has the correct type
-  expectType<Invokable<ExpectedSignature>>(MyComponent.template);
+  expectTypeOf(MyComponent.template).toEqualTypeOf<Invokable<ExpectedSignature>>();
 
   // Resolved component signature uses the template type
-  expectType<ExpectedSignature>(value<ResolveSignature<typeof MyComponent>>());
+  expectTypeOf<ResolveSignature<typeof MyComponent>>().toEqualTypeOf<ExpectedSignature>();
 
   // Template context is inferred correctly
-  expectType<ExpectedContext<number>>(value<ResolveContext<MyComponent<number>>>());
-  expectType<ExpectedContext<string>>(value<ResolveContext<MyComponent<string>>>());
+  expectTypeOf<ResolveContext<MyComponent<number>>>().toEqualTypeOf<ExpectedContext<number>>();
+  expectTypeOf<ResolveContext<MyComponent<string>>>().toEqualTypeOf<ExpectedContext<string>>();
 }
 
 // A raw Invokable value
@@ -136,14 +136,14 @@ declare function value<T>(): T;
     otherwise(): BlockResult;
   }>;
 
-  expectType<TestSignature>(resolve(value<Invokable<TestSignature>>()));
+  expectTypeOf(resolve(value<Invokable<TestSignature>>())).toEqualTypeOf<TestSignature>();
 }
 
 // Values of type `any` or `never` (themselves typically the product of other type errors)
 // shouldn't unnecessarily blow things up by producing an `unknown` signature.
 {
-  expectType<any>(resolveOrReturn({} as any));
-  expectType<any>(resolveOrReturn({} as never));
-  expectType<any>(resolve({} as any));
-  expectType<any>(resolve({} as never));
+  expectTypeOf(resolveOrReturn({} as any)).toEqualTypeOf<any>();
+  expectTypeOf(resolveOrReturn({} as never)).toEqualTypeOf<any>();
+  expectTypeOf(resolve({} as any)).toEqualTypeOf<any>();
+  expectTypeOf(resolve({} as never)).toEqualTypeOf<any>();
 }
