@@ -503,10 +503,10 @@ function rewriteTextSpan(
   };
 }
 
-function rewriteQuotedModulePath(text: string): string {
-  let textWithoutQuotes = text.replace(/^"|"$/g, '');
-  if (isExtensionlessTransformedPath(textWithoutQuotes)) {
-    return `"${getExtensionlessOriginalPath(textWithoutQuotes)}"`;
+function rewriteQuotedModulePath(stringLiteral: string): string {
+  let text = JSON.parse(stringLiteral) as string;
+  if (isExtensionlessTransformedPath(text)) {
+    return `"${getExtensionlessOriginalPath(text)}"`;
   }
-  return text;
+  return stringLiteral;
 }
