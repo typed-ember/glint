@@ -101,7 +101,7 @@ function calculateSpansForTaggedTemplates(
   traverse(ast, {
     TaggedTemplateExpression(path) {
       let tag = path.get('tag');
-      if (isImportedIdentifier(tag, 'hbs', '@glimmerx/component')) {
+      if (tag.node.type === 'Identifier' && tag.referencesImport('@glimmerx/component', 'hbs')) {
         let tagName = tag.node.name;
         let { quasis } = path.node.quasi;
 
@@ -135,13 +135,26 @@ function calculateSpansForTaggedTemplates(
         }
 
         for (let { message, location } of transformedTemplate.errors) {
-          errors.push({
-            message,
-            location: {
-              start: path.node.start + location.start,
-              end: path.node.start + location.end,
-            },
-          });
+          if (location) {
+            errors.push({
+              message,
+              location: {
+                start: path.node.start + location.start,
+                end: path.node.start + location.end,
+              },
+            });
+          } else {
+            assert(path.node.tag.start, 'Missing location info');
+            assert(path.node.tag.end, 'Missing location info');
+
+            errors.push({
+              message,
+              location: {
+                start: path.node.tag.start,
+                end: path.node.tag.end,
+              },
+            });
+          }
         }
 
         if (transformedTemplate.result) {
@@ -245,29 +258,4 @@ function findContainingClass(path: NodePath<any>): t.Class | null {
     }
   }
   return null;
-}
-
-function isImportedIdentifier(
-  path: NodePath<t.Expression> | NodePath<t.Identifier>,
-  name: string,
-  source: string
-): path is NodePath<t.Identifier> {
-  if (!t.isIdentifier(path.node)) return false;
-
-  let binding = path.scope.getBinding(path.node.name);
-  if (binding?.kind !== 'module') return false;
-
-  let specifierNode = binding.path.node;
-  if (
-    (t.isImportDefaultSpecifier(specifierNode) && name !== 'default') ||
-    !t.isImportSpecifier(specifierNode) ||
-    specifierNode.imported.name !== name
-  ) {
-    return false;
-  }
-
-  let declarationNode = binding.path.parent;
-  if (!t.isImportDeclaration(declarationNode)) return false;
-
-  return declarationNode.source.value === source;
 }

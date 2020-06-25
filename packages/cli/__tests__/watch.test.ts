@@ -78,13 +78,7 @@ describe('watched typechecking', () => {
       Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
 
       11   public static template = hbs\`
-                                    ~~~~
-      12     Welcome to app v{{@version}.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      13     The current time is {{this.startupTime}}.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      14   \`;
-         ~~~"
+                                    ~~~"
     `);
   });
 

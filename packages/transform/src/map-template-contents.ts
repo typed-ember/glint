@@ -63,7 +63,7 @@ export type RewriteResult = {
    * Any errors discovered during rewriting, along with their location
    * in terms of the original source.
    */
-  errors: Array<{ message: string; location: Range }>;
+  errors: Array<{ message: string; location?: Range }>;
 
   /**
    * The source code and a `MappingTree` resulting from rewriting a
@@ -91,12 +91,7 @@ export function mapTemplateContents(
     ast = preprocess(template);
   } catch (error) {
     return {
-      errors: [
-        {
-          message: error.message,
-          location: { start: 0, end: template.length },
-        },
-      ],
+      errors: [{ message: error.message }],
     };
   }
 
