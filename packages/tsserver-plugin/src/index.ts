@@ -1,4 +1,6 @@
 import type ts from 'typescript/lib/tsserverlibrary';
+import path from 'path';
+import { loadConfig } from '@glint/config';
 import VirtualModuleManager from './virtual-module-manager';
 import { patchLib } from './patch/lib';
 import { patchLanguageServiceHost } from './patch/language-service-host';
@@ -13,11 +15,12 @@ const init: ts.server.PluginModuleFactory = ({ typescript: ts }) => {
   return {
     create(info) {
       let logger = loggerFor(info);
+      let config = loadConfig(path.dirname(info.project.projectName));
 
       logger.log('\nStarting @glint/tsserver-plugin at', new Date().toString());
-      patchLanguageServiceHost(info);
+      patchLanguageServiceHost(config, info);
 
-      modules.addProject(info.project);
+      modules.addProject(config, info.project);
 
       let glintService = new GlintLanguageService(ts, modules, info);
       let fullService = makeProxy(info.languageService, glintService);

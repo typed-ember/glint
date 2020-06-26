@@ -16,7 +16,7 @@ import {
  */
 export function patchLib(ts: typeof tslib, modules: VirtualModuleManager): void {
   patchFSOperations(ts, modules);
-  patchSourceFileCreation(ts);
+  patchSourceFileCreation(ts, modules);
   patchScriptInfo(ts);
 }
 
@@ -53,18 +53,22 @@ function patchFSOperations(ts: typeof tslib, modules: VirtualModuleManager): voi
 // references its transformed version, if appropriate, so that the
 // transformed version will be included in typechecking and can generate
 // approprate diagnostics even if it's never explicitly imported.
-function patchSourceFileCreation(ts: typeof tslib): void {
+function patchSourceFileCreation(ts: typeof tslib, modules: VirtualModuleManager): void {
   const { createSourceFile, updateSourceFile } = ts;
 
   ts.createSourceFile = (fileName, ...params) => {
     let sourceFile = createSourceFile.call(ts, fileName, ...params);
-    addReferenceToTransformedFile(sourceFile);
+    if (modules.isTransformationCandidate(sourceFile.fileName)) {
+      addReferenceToTransformedFile(sourceFile);
+    }
     return sourceFile;
   };
 
   ts.updateSourceFile = (sourceFile, ...params) => {
     let updated = updateSourceFile(sourceFile, ...params);
-    addReferenceToTransformedFile(updated);
+    if (modules.isTransformationCandidate(updated.fileName)) {
+      addReferenceToTransformedFile(updated);
+    }
     return updated;
   };
 
