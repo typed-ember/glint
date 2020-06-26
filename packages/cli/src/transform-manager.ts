@@ -1,10 +1,11 @@
 import { TransformedModule, rewriteModule, rewriteDiagnostic } from '@glint/transform';
 import type ts from 'typescript';
+import { GlintConfig } from '@glint/config';
 
 export default class TransformManager {
   private transformedModules = new Map<string, TransformedModule>();
 
-  constructor(private ts: typeof import('typescript')) {}
+  constructor(private ts: typeof import('typescript'), private glintConfig: GlintConfig) {}
 
   public getTransformDiagnostics(sourceFile?: ts.SourceFile): Array<ts.Diagnostic> {
     if (sourceFile) {
@@ -40,7 +41,8 @@ export default class TransformManager {
     if (
       filename.endsWith('.ts') &&
       !filename.endsWith('.d.ts') &&
-      source?.includes('@glimmerx/component')
+      source?.includes('@glimmerx/component') &&
+      this.glintConfig.includesFile(filename)
     ) {
       let transformedModule = rewriteModule(filename, source);
       if (transformedModule) {

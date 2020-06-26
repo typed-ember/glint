@@ -115,4 +115,26 @@ describe('single-pass typechecking', () => {
       "
     `);
   });
+
+  test('honors .glintrc configuration', async () => {
+    let code = stripIndent`
+      import '@glint/template/glimmerx';
+      import Component, { hbs } from '@glimmerx/component';
+
+      export default class Application extends Component {
+        public static template = hbs\`
+          {{ oh look a syntax error
+        \`;
+      }
+    `;
+
+    project.write('index.ts', code);
+    project.write('.glintrc', 'exclude: "index.ts"\n');
+
+    let checkResult = await project.check();
+
+    expect(checkResult.exitCode).toBe(0);
+    expect(checkResult.stdout).toBe('');
+    expect(checkResult.stderr).toBe('');
+  });
 });

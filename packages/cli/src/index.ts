@@ -1,4 +1,5 @@
 import yargs from 'yargs';
+import { loadConfig } from '@glint/config';
 import { performWatch } from './perform-watch';
 import { performCheck } from './perform-check';
 import { determineOptionsToExtend } from './options';
@@ -26,11 +27,12 @@ const { argv } = yargs
   .strict();
 
 const ts = loadTypeScript();
-const configPath = argv.project ?? ts.findConfigFile('.', ts.sys.fileExists);
+const glintConfig = loadConfig(process.cwd());
+const tsconfigPath = argv.project ?? ts.findConfigFile('.', ts.sys.fileExists);
 const optionsToExtend = determineOptionsToExtend(argv);
 
 if (argv.watch) {
-  performWatch(ts, configPath, optionsToExtend);
+  performWatch(ts, glintConfig, tsconfigPath, optionsToExtend);
 } else {
-  performCheck(ts, argv._, configPath, optionsToExtend);
+  performCheck(ts, argv._, glintConfig, tsconfigPath, optionsToExtend);
 }
