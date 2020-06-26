@@ -1,6 +1,6 @@
 {
   "name": "glint",
-  "repository": "typed-ember/glint",
+  "repository": "https://github.com/typed-ember/glint",
   "private": true,
   "workspaces": [
     "packages/*",
@@ -19,6 +19,9 @@
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
     "eslint": "^6.8.0",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "release-it": "^13.6.3",
+    "release-it-lerna-changelog": "^2.3.0",
+    "release-it-yarn-workspaces": "^1.4.0"
   }
 }
