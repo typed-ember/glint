@@ -1332,21 +1332,6 @@
     "@glimmerx/core" "0.2.3"
     ember-cli-babel "^7.18.0"
 
-"@glint/config@link:packages/config":
-  version "0.1.0"
-  dependencies:
-    cosmiconfig "^6.0.0"
-    minimatch "^3.0.4"
-
-"@glint/transform@link:packages/transform":
-  version "0.1.0"
-  dependencies:
-    "@babel/core" "^7.9.0"
-    "@babel/plugin-proposal-decorators" "7.8.3"
-    "@babel/preset-typescript" "^7.9.0"
-    "@glimmer/syntax" "^0.54.0"
-    debug "^4.1.1"
-
 "@iarna/toml@2.2.5":
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/@iarna/toml/-/toml-2.2.5.tgz#b32366c89b43c6f8cefbdefac778b9c828e3ba8c"
