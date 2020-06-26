@@ -1,6 +1,7 @@
 repo: 'typed-ember/glint'
 github:
   release: true
+  releaseName: 'v${version}'
   tokenRef: GITHUB_AUTH
 plugins:
   release-it-yarn-workspaces:
@@ -10,5 +11,4 @@ plugins:
       - packages/transform
       - packages/cli
       - packages/tsserver-plugin
-  release-it-lerna-changelog:
-    editor: true
+  release-it-lerna-changelog: true
