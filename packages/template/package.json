@@ -9,6 +9,11 @@
     "lint": "eslint . --ext ts --max-warnings 0 && prettier --check .",
     "test": "tsc --project __tests__"
   },
+  "files": [
+    "README.md",
+    "-private",
+    "*.d.ts"
+  ],
   "devDependencies": {
     "@glimmer/component": "^1.0.0",
     "@glimmerx/component": "^0.2.2",

@@ -14,7 +14,9 @@
   },
   "scripts": {
     "lint": "eslint . --ext ts --max-warnings 0 && prettier --check src",
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc --build",
+    "prepack": "yarn build"
   },
   "dependencies": {
     "@glint/config": "link:../config",

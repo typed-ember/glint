@@ -1,0 +1,8 @@
+repo: 'typed-ember/glint'
+github:
+  release: true
+  tokenRef: GITHUB_AUTH
+plugins:
+  release-it-yarn-workspaces: true
+  release-it-lerna-changelog:
+    editor: true
