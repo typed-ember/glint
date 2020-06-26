@@ -3,6 +3,12 @@ github:
   release: true
   tokenRef: GITHUB_AUTH
 plugins:
-  release-it-yarn-workspaces: true
+  release-it-yarn-workspaces:
+    workspaces:
+      - packages/config
+      - packages/template
+      - packages/transform
+      - packages/cli
+      - packages/tsserver-plugin
   release-it-lerna-changelog:
     editor: true
