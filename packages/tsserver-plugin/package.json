@@ -1,6 +1,7 @@
 {
   "name": "@glint/tsserver-plugin",
   "version": "1.0.0",
+  "repository": "typed-ember/glint",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "main": "lib/index.js",
@@ -9,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@glint/config": "link:../config",
     "@glint/transform": "link:../transform"
   },
   "devDependencies": {

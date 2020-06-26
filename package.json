@@ -1,4 +1,6 @@
 {
+  "name": "glint",
+  "repository": "typed-ember/glint",
   "private": true,
   "workspaces": [
     "packages/*",

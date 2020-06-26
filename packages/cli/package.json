@@ -1,6 +1,7 @@
 {
   "name": "@glint/cli",
   "version": "0.1.0",
+  "repository": "typed-ember/glint",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "files": [
@@ -16,6 +17,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@glint/config": "link:../config",
     "@glint/transform": "link:../transform",
     "debug": "^4.1.1",
     "resolve": "^1.17.0",

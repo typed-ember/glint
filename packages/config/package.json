@@ -1,5 +1,5 @@
 {
-  "name": "@glint/transform",
+  "name": "@glint/config",
   "version": "0.1.0",
   "repository": "typed-ember/glint",
   "license": "MIT",
@@ -11,20 +11,13 @@
     "test": "jest"
   },
   "dependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/plugin-proposal-decorators": "7.8.3",
-    "@babel/preset-typescript": "^7.9.0",
-    "@glimmer/syntax": "^0.54.0",
-    "debug": "^4.1.1"
+    "cosmiconfig": "^6.0.0",
+    "minimatch": "^3.0.4"
   },
   "devDependencies": {
-    "@types/babel__core": "^7.1.7",
-    "@types/common-tags": "^1.8.0",
-    "@types/debug": "^4.1.5",
+    "@types/minimatch": "^3.0.3",
     "@types/jest": "^25.2.1",
-    "common-tags": "^1.8.0",
     "jest": "^25.4.0",
-    "ts-jest": "^25.4.0",
-    "typescript": "^3.9.5"
+    "ts-jest": "^25.4.0"
   }
 }

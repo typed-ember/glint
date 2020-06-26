@@ -1331,4 +1331,27 @@ describe('tsserver plugin', () => {
       expect(diagnostics).toEqual([]);
     });
   });
+
+  describe('custom configuration', () => {
+    test('it honors .glintrc include/exclude', async () => {
+      project.write('.glintrc', 'exclude: "index.ts"');
+
+      await project.open({
+        'lib.ts': `import '@glint/template/glimmerx';`,
+        'index.ts': stripIndent`
+          import Component, { hbs } from '@glimmerx/component';
+
+          export default class Application extends Component {
+            static template = hbs\`
+              {{ a syntax error!
+            \`;
+          }
+        `,
+      });
+
+      // Ensure the template is just treated as a string, so we
+      // see no diagnostic for the syntax error.
+      expect(await project.getDiagnostics('index.ts')).toEqual([]);
+    });
+  });
 });

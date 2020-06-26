@@ -1,13 +1,15 @@
 import TransformManager from './transform-manager';
+import { GlintConfig } from '@glint/config';
 
 export function performWatch(
   ts: typeof import('typescript'),
-  configPath: string | undefined,
+  glintConfig: GlintConfig,
+  tsconfigPath: string | undefined,
   optionsToExtend: import('typescript').CompilerOptions
 ): void {
-  let transformManager = new TransformManager(ts);
+  let transformManager = new TransformManager(ts, glintConfig);
   let host = ts.createWatchCompilerHost(
-    configPath ?? 'tsconfig.json',
+    tsconfigPath ?? 'tsconfig.json',
     optionsToExtend,
     sysForWatchCompilerHost(ts, transformManager),
     ts.createSemanticDiagnosticsBuilderProgram,

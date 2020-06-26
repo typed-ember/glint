@@ -1,3 +1,4 @@
+import { GlintConfig } from '@glint/config';
 import {
   isTransformedPath,
   getOriginalPath,
@@ -5,14 +6,27 @@ import {
   getTransformedPath,
 } from '../path-transformation';
 
+const hostConfigs = new WeakMap<ts.LanguageServiceHost, Set<GlintConfig>>();
+
 /**
  * This patch updates module resolution logic on the language service host
  * to cause imports to resolve to the transformed version of a given module
  * rather than directly to the untransformed source.
  */
-export function patchLanguageServiceHost({
-  languageServiceHost,
-}: ts.server.PluginCreateInfo): void {
+export function patchLanguageServiceHost(
+  config: GlintConfig,
+  { languageServiceHost }: ts.server.PluginCreateInfo
+): void {
+  let configs = hostConfigs.get(languageServiceHost);
+  if (configs) {
+    configs.add(config);
+  } else {
+    hostConfigs.set(languageServiceHost, new Set([config]));
+    patchModuleResolution(languageServiceHost);
+  }
+}
+
+function patchModuleResolution(languageServiceHost: ts.LanguageServiceHost): void {
   let { resolveModuleNames } = languageServiceHost;
   languageServiceHost.resolveModuleNames = (moduleNames, containingFile, ...params) => {
     let result =
@@ -28,8 +42,8 @@ export function patchLanguageServiceHost({
         };
       } else if (
         resolved &&
-        !resolved.isExternalLibraryImport &&
-        isTransformablePath(resolved.resolvedFileName)
+        isTransformablePath(resolved.resolvedFileName) &&
+        isIncludedInConfig(languageServiceHost, resolved.resolvedFileName)
       ) {
         // Otherwise, point it to the transformed module, which will itself
         // depend on and re-export items from the original if necessary.
@@ -42,4 +56,20 @@ export function patchLanguageServiceHost({
       return resolved;
     });
   };
+}
+
+function isIncludedInConfig(
+  languageServiceHost: ts.LanguageServiceHost,
+  fileName: string
+): boolean {
+  let configs = hostConfigs.get(languageServiceHost);
+  if (!configs) return false;
+
+  for (let config of configs) {
+    if (config.includesFile(fileName)) {
+      return true;
+    }
+  }
+
+  return false;
 }

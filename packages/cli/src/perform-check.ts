@@ -1,13 +1,15 @@
 import type ts from 'typescript';
 import TransformManager from './transform-manager';
+import { GlintConfig } from '@glint/config';
 
 export function performCheck(
   ts: typeof import('typescript'),
   rootNames: string[],
+  glintConfig: GlintConfig,
   configPath: string | undefined,
   optionsToExtend: ts.CompilerOptions
 ): void {
-  let transformManager = new TransformManager(ts);
+  let transformManager = new TransformManager(ts, glintConfig);
   let parsedConfig = loadTsconfig(ts, configPath, optionsToExtend);
   let compilerHost = createCompilerHost(ts, parsedConfig.options, transformManager);
   let program = ts.createProgram({
