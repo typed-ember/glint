@@ -17,8 +17,8 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "@glint/config": "0.1.0",
-    "@glint/transform": "0.1.0"
+    "@glint/config": "^0.1.0",
+    "@glint/transform": "^0.1.0"
   },
   "devDependencies": {
     "@types/jest": "^25.2.1",
