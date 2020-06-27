@@ -4,7 +4,7 @@ import { loadConfig } from '@glint/config';
 import VirtualModuleManager from './virtual-module-manager';
 import { patchLib } from './patch/lib';
 import { patchLanguageServiceHost } from './patch/language-service-host';
-import { loggerFor, Logger } from './logging';
+import { loggerFor, Logger } from './util/logging';
 import GlintLanguageService from './language-service';
 
 const init: ts.server.PluginModuleFactory = ({ typescript: ts }) => {
