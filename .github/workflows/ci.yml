@@ -16,7 +16,7 @@ env:
   CI: true
 
 jobs:
-  test-defaults:
+  test:
     name: Test
     runs-on: ubuntu-latest
     steps:
@@ -30,6 +30,42 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Lint
         run: yarn lint
+      - name: Build
+        run: yarn build
+      - name: Run Tests
+        run: yarn test
+
+  test-windows:
+    name: Test Windows
+    needs: [test]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Install Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build
+        run: yarn build
+      - name: Run Tests
+        run: yarn test
+
+  test-versions:
+    name: Test TypeScript Nightly
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Install Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install Dependencies
+        run: yarn add --dev -W typescript@next
       - name: Build
         run: yarn build
       - name: Run Tests
