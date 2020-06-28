@@ -19,7 +19,6 @@
     "@glimmerx/component": "^0.2.2",
     "@types/ember__component": "~3.0.7",
     "expect-type": "^0.7.4",
-    "sums-up": "^2.1.0",
-    "typescript": "^3.9.5"
+    "sums-up": "^2.1.0"
   }
 }

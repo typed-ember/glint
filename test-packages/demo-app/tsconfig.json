@@ -8,7 +8,10 @@
     "experimentalDecorators": true,
     "noEmit": true,
     "types": ["qunit"],
-    "plugins": [{ "name": "@glint/tsserver-plugin", "logFile": "glint.log" }]
+    "plugins": [{ "name": "@glint/tsserver-plugin", "logFile": "glint.log" }],
+    // Not ideal, but several of the @glimmer packages fairly consistently
+    // produce type errors across different versions.
+    "skipLibCheck": true
   },
   "exclude": ["node_modules", "tmp", "dist"]
 }

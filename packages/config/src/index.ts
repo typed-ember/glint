@@ -16,26 +16,36 @@ export function loadConfig(from: string): GlintConfig {
 }
 
 export class GlintConfig {
+  public readonly rootDir: string;
+
   private includeMatchers: Array<IMinimatch>;
   private excludeMatchers: Array<IMinimatch>;
 
-  public constructor(public readonly rootDir: string, config: Record<string, unknown> = {}) {
+  public constructor(rootDir: string, config: Record<string, unknown> = {}) {
     validateInput(config);
+
+    this.rootDir = normalizePath(rootDir);
 
     let include = Array.isArray(config.include) ? config.include : [config.include ?? '**/*.ts'];
     let exclude = Array.isArray(config.exclude)
       ? config.exclude
       : [config.exclude ?? '**/node_modules/**'];
 
-    this.includeMatchers = include.map((glob) => new Minimatch(path.resolve(rootDir, glob)));
-    this.excludeMatchers = exclude.map((glob) => new Minimatch(path.resolve(rootDir, glob)));
+    this.includeMatchers = this.buildMatchers(include);
+    this.excludeMatchers = this.buildMatchers(exclude);
   }
 
-  public includesFile(fileName: string): boolean {
+  public includesFile(rawFileName: string): boolean {
+    let fileName = normalizePath(rawFileName);
+
     return (
       this.excludeMatchers.every((matcher) => !matcher.match(fileName)) &&
       this.includeMatchers.some((matcher) => matcher.match(fileName))
     );
+  }
+
+  private buildMatchers(globs: Array<string>): Array<IMinimatch> {
+    return globs.map((glob) => new Minimatch(normalizePath(path.resolve(this.rootDir, glob))));
   }
 }
 
@@ -64,4 +74,12 @@ function assert(test: unknown, message: string): asserts test {
   if (!test) {
     throw new Error(`@glint/config: ${message}`);
   }
+}
+
+export function normalizePath(fileName: string): string {
+  if (path.sep !== '/') {
+    return fileName.split(path.sep).join('/');
+  }
+
+  return fileName;
 }

@@ -1,5 +1,6 @@
 import { stripIndent } from 'common-tags';
 import stripAnsi from 'strip-ansi';
+import os from 'os';
 import Project from './utils/project';
 
 describe('watched typechecking', () => {
@@ -68,10 +69,10 @@ describe('watched typechecking', () => {
     await watch.terminate();
 
     let stripped = stripAnsi(output);
-    let error = stripped.slice(stripped.indexOf('index.ts'), stripped.lastIndexOf('~~~\n') + 3);
+    let error = stripped.slice(stripped.indexOf('index.ts'), stripped.lastIndexOf(`~~~${os.EOL}`) + 3);
 
     expect(output).toMatch('Found 1 error.');
-    expect(error).toMatchInlineSnapshot(`
+    expect(error.replace(/\r/g, '')).toMatchInlineSnapshot(`
       "index.ts:11:28 - error TS0: [glint] Parse error on line 2:
       ...e to app v{{@version}.    The current t
       -----------------------^
@@ -109,10 +110,10 @@ describe('watched typechecking', () => {
     await watch.terminate();
 
     let stripped = stripAnsi(output);
-    let error = stripped.slice(stripped.indexOf('index.ts'), stripped.lastIndexOf(`~~~\n`) + 3);
+    let error = stripped.slice(stripped.indexOf('index.ts'), stripped.lastIndexOf(`~~~${os.EOL}`) + 3);
 
     expect(output).toMatch('Found 1 error.');
-    expect(error).toMatchInlineSnapshot(`
+    expect(error.replace(/\r/g, '')).toMatchInlineSnapshot(`
       "index.ts:13:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
 
       13     The current time is {{this.startupTimee}}.

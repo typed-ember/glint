@@ -1,7 +1,8 @@
+import path from 'path';
 import { GlintConfig } from '../src';
 
 describe('include/exclude configuration', () => {
-  const root = '/foo/bar';
+  const root = path.resolve('/foo/bar');
 
   describe('defaults', () => {
     const config = new GlintConfig(root, {});
