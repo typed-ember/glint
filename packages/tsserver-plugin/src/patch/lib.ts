@@ -5,7 +5,7 @@ import {
   getTransformedPath,
   isTransformedPath,
   getOriginalPath,
-} from '../path-transformation';
+} from '../util/path-transformation';
 
 /**
  * This module houses our deepest sins. Here we directly patch certain

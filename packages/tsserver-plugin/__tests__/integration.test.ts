@@ -16,7 +16,9 @@ describe('tsserver plugin', () => {
   });
 
   beforeEach(async () => {
-    project = await new Project(server).create({ printLogContents: false });
+    project = await new Project(server).create({
+      printLogContents: false,
+    });
   });
 
   afterEach(async () => {
@@ -447,7 +449,7 @@ describe('tsserver plugin', () => {
       ]);
     });
 
-    test.skip('auto-import from other modules when an import is already present', async () => {
+    test('auto-import from other modules when an import is already present', async () => {
       await project.open({
         'greeting.ts': stripIndent`
           import Component from '@glimmerx/component';
@@ -495,15 +497,15 @@ describe('tsserver plugin', () => {
       expect(detailString).toEqual('class Greeting');
       expect(details?.[0]?.codeActions).toEqual([
         {
-          description: `Add default import 'Greeting' to existing import declaration from "./greeting"`,
+          description: `Import default 'Greeting' from module "./greeting"`,
           changes: [
             {
               fileName: project.filePath('index.ts'),
               textChanges: [
                 {
-                  newText: 'Greeting, ',
-                  start: { line: 3, offset: 8 },
-                  end: { line: 3, offset: 8 },
+                  newText: `import Greeting, { Name } from './greeting';`,
+                  start: { line: 3, offset: 1 },
+                  end: { line: 3, offset: 35 },
                 },
               ],
             },

@@ -4,7 +4,7 @@ import {
   getOriginalPath,
   isTransformablePath,
   getTransformedPath,
-} from '../path-transformation';
+} from '../util/path-transformation';
 
 const hostConfigs = new WeakMap<ts.LanguageServiceHost, Set<GlintConfig>>();
 

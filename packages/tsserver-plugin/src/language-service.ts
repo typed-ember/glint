@@ -1,7 +1,7 @@
 import type ts from 'typescript/lib/tsserverlibrary';
 import { TransformedModule, rewriteDiagnostic } from '@glint/transform';
 import VirtualModuleManager from './virtual-module-manager';
-import { loggerFor, Logger } from './logging';
+import { loggerFor, Logger } from './util/logging';
 import {
   TransformedPath,
   TransformablePath,
@@ -11,7 +11,8 @@ import {
   getOriginalPath,
   isExtensionlessTransformedPath,
   getExtensionlessOriginalPath,
-} from './path-transformation';
+} from './util/path-transformation';
+import { isAutoImportChange, rewriteAutoImportChange } from './util/auto-import';
 
 type TransformInfo = {
   transformedModule: TransformedModule;
@@ -191,24 +192,10 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
       );
 
       if (details?.codeActions) {
-        details = { ...details };
-        details.codeActions = details.codeActions?.map((action) => ({
-          ...action,
-          changes: action.changes.map((change) => {
-            if (isTransformedPath(change.fileName)) {
-              const changeInfo = this.getTransformInfoForTransformedPath(change.fileName);
-              if (changeInfo) {
-                change = { ...change };
-                change.fileName = changeInfo.originalPath;
-                change.textChanges = change.textChanges.map((textChange) => ({
-                  ...textChange,
-                  span: rewriteTextSpan(textChange.span, changeInfo?.transformedModule),
-                }));
-              }
-            }
-            return change;
-          }),
-        }));
+        details = {
+          ...details,
+          codeActions: details.codeActions?.map((action) => this.rewriteCodeAction(action)),
+        };
       }
 
       return details;
@@ -482,6 +469,50 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
 
     return documentSpan;
   }
+
+  private rewriteCodeAction(action: ts.CodeAction): ts.CodeAction {
+    return {
+      ...action,
+      changes: action.changes.map((change) => {
+        change = { ...change };
+
+        if (isTransformedPath(change.fileName)) {
+          const changeInfo = this.getTransformInfoForTransformedPath(change.fileName);
+          if (changeInfo) {
+            change.fileName = changeInfo.originalPath;
+            change.textChanges = change.textChanges.map((textChange) => {
+              textChange = rewriteTextChange(this.ts, textChange, changeInfo.transformedSourceFile);
+              return {
+                ...textChange,
+                span: rewriteTextSpan(textChange.span, changeInfo.transformedModule),
+              };
+            });
+          }
+        } else {
+          const sourceFile = this.ls.getProgram()?.getSourceFile(change.fileName);
+          if (sourceFile) {
+            change.textChanges = change.textChanges.map((textChange) =>
+              rewriteTextChange(this.ts, textChange, sourceFile)
+            );
+          }
+        }
+
+        return change;
+      }),
+    };
+  }
+}
+
+function rewriteTextChange(
+  ts: typeof import('typescript/lib/tsserverlibrary'),
+  textChange: ts.TextChange,
+  sourceFile: ts.SourceFile
+): ts.TextChange {
+  if (isAutoImportChange(textChange)) {
+    return rewriteAutoImportChange(ts, textChange, sourceFile);
+  }
+
+  return textChange;
 }
 
 function rewriteTextSpan(span: ts.TextSpan, module: TransformedModule): ts.TextSpan;
