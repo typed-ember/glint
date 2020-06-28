@@ -1,6 +1,6 @@
 import os from 'os';
 import fs from 'fs';
-import { loadConfig } from '../src';
+import { loadConfig, normalizePath } from '../src';
 
 describe('loadConfig', () => {
   const testDir = `${os.tmpdir()}/glint-config-test-${process.pid}`;
@@ -17,7 +17,7 @@ describe('loadConfig', () => {
   test('returns a default config if none is found', () => {
     let config = loadConfig(testDir);
 
-    expect(config.rootDir).toBe(testDir);
+    expect(config.rootDir).toBe(normalizePath(testDir));
     expect(config.includesFile(`${testDir}/index.ts`)).toBe(true);
     expect(config.includesFile(__filename)).toBe(false);
   });
@@ -29,7 +29,7 @@ describe('loadConfig', () => {
 
     let config = loadConfig(`${testDir}/deeply/nested/directory`);
 
-    expect(config.rootDir).toBe(`${testDir}/deeply`);
+    expect(config.rootDir).toBe(normalizePath(`${testDir}/deeply`));
     expect(config.includesFile(`${testDir}/deeply/index.ts`)).toBe(false);
     expect(config.includesFile(`${testDir}/deeply/index.root.ts`)).toBe(false);
     expect(config.includesFile(`${testDir}/deeply/index.nested.ts`)).toBe(true);

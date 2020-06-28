@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { EventEmitter } from 'events';
 import Protocol, { CommandTypes, WatchFileKind } from 'typescript/lib/protocol';
+import { normalizePath } from '@glint/config';
 
 export type Requests = {
   [CommandTypes.SemanticDiagnosticsSync]: [
@@ -60,7 +61,7 @@ export class Project {
   constructor(private server: TSServer) {}
 
   public filePath(fileName: string): string {
-    return path.join(this.rootDir, fileName);
+    return normalizePath(path.join(this.rootDir, fileName));
   }
 
   public async create(

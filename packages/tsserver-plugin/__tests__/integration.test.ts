@@ -1,4 +1,5 @@
 import { stripIndent } from 'common-tags';
+import os from 'os';
 import Protocol, { CommandTypes } from 'typescript/lib/protocol';
 import { TSServer, Project } from './test-server';
 
@@ -7,6 +8,7 @@ describe('tsserver plugin', () => {
   let project!: Project;
 
   beforeAll(async () => {
+    jest.setTimeout(10_000);
     server = await new TSServer().start({
       listenForDebugger: false,
       printMessages: false,
@@ -434,7 +436,7 @@ describe('tsserver plugin', () => {
               fileName: project.filePath('index.ts'),
               textChanges: [
                 {
-                  newText: `import Greeting from './greeting';\n`,
+                  newText: `import Greeting from './greeting';${os.EOL}`,
                   start: { line: 3, offset: 1 },
                   end: { line: 3, offset: 1 },
                 },

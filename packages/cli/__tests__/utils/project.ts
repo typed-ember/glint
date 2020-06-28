@@ -57,7 +57,7 @@ export default class Project {
   }
 
   public check(options: Options & { flags?: string[] } = {}): ExecaChildProcess {
-    return execa(`${__dirname}/../../bin/glint.js`, options.flags, {
+    return execa.node(`${__dirname}/../../bin/glint`, options.flags, {
       cwd: this.rootDir,
       ...options,
     });
