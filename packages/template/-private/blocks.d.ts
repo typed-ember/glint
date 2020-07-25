@@ -1,4 +1,4 @@
-/**
+/*
  * This module contains types pertaining to defining and working with
  * blocks in templates. In general, a block body is represented as a
  * generator function that iterates over `BlockYield` values, whose
@@ -20,7 +20,6 @@
  * which could then be plumbed out to the surrounding context to inform
  * the expected blocks the template in question expects to receive.
  */
-declare const ModuleDocs: void;
 
 import { AnyBlocks } from './signature';
 

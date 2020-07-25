@@ -1,4 +1,4 @@
-/**
+/*
  * This module contains types pertaining to defining and working with
  * template signatures, which are functions that generally take the form:
  *
@@ -22,8 +22,6 @@
  *       inverse?(): BlockResult;
  *     }>
  */
-declare const ModuleDocs: void;
-
 
 declare const Modifier: unique symbol;
 declare const Return: unique symbol;

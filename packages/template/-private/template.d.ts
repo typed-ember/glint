@@ -1,9 +1,8 @@
-/**
+/*
  * This module contains types and functions used for defining
  * the template value associated with a particular component
  * class.
  */
-declare const ModuleDocs: void;
 
 import { BlockYield } from './blocks';
 import { AcceptsBlocks } from './signature';

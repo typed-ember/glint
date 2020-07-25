@@ -1,8 +1,7 @@
-/**
+/*
  * This module contains types and functions related to resolving the
  * _template signature_ and _template context_ for various values.
  */
-declare const ModuleDocs: void;
 
 import { ReturnsValue, AnySignature, NoNamedArgs } from './signature';
 import { ContextResolutions, SignatureResolutions } from '../resolution-rules';
