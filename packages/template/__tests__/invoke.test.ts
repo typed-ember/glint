@@ -7,7 +7,7 @@ import {
   toBlock,
   invokeBlock,
   ResolveContext,
-  BuiltIns,
+  Globals,
   invokeModifier,
   invokeInline,
   resolveOrReturn,
@@ -37,13 +37,13 @@ class MyComponent<T> extends GlimmerComponent<MyComponentArgs<T>> {
    * ```
    */
   public static template = template(function* <T>(𝚪: ResolveContext<MyComponent<T>>) {
-    yield invokeBlock(resolve(BuiltIns['let'])({}, 𝚪.this.state.ready), {
+    yield invokeBlock(resolve(Globals['let'])({}, 𝚪.this.state.ready), {
       *default(isReady) {
         invokeModifier(
-          resolve(BuiltIns['on'])(
+          resolve(Globals['on'])(
             {},
             'click',
-            invokeInline(resolve(BuiltIns['fn'])({}, 𝚪.this.wrapperClicked, 'clicked!'))
+            invokeInline(resolve(Globals['fn'])({}, 𝚪.this.wrapperClicked, 'clicked!'))
           )
         );
 

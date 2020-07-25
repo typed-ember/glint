@@ -2,7 +2,7 @@ import { expectTypeOf } from 'expect-type';
 import SumType from 'sums-up';
 import { resolve, toBlock, invokeBlock } from '@glint/template';
 import { AcceptsBlocks, NoNamedArgs } from '@glint/template/-private/signature';
-import { BlockResult, BlockYield } from '@glint/template/-private/blocks';
+import { BlockYield } from '@glint/template/-private/blocks';
 import { Invokable } from '@glint/template/-private/invoke';
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,17 +26,17 @@ declare const caseOf: Invokable<<T extends SumType<never>>(
   args: NoNamedArgs,
   value: T
 ) => AcceptsBlocks<{
-  default(
-    when: Invokable<
+  default: [
+    Invokable<
       <K extends keyof SumVariants<T>>(
         args: NoNamedArgs,
         key: K
       ) => AcceptsBlocks<{
-        default(...args: SumVariants<T>[K]): BlockResult;
-        inverse?(): BlockResult;
+        default: SumVariants<T>[K];
+        inverse?: [];
       }>
     >
-  ): BlockResult;
+  ];
 }>>;
 
 /**
@@ -75,13 +75,9 @@ expectTypeOf(
 // you do get exhaustiveness checking with this approach (though it's
 // arguable whether that's necessarily a good thing in template-land)
 
-declare const CaseOf: Invokable<<T extends SumType<never>>(args: {
+declare const CaseOf: Invokable<<T extends SumType<any>>(args: {
   value: T;
-}) => AcceptsBlocks<
-  {
-    [K in keyof SumVariants<T>]: (...args: SumVariants<T>[K]) => BlockResult;
-  }
->>;
+}) => AcceptsBlocks<SumVariants<T>>>;
 
 /**
  * ```hbs

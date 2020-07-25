@@ -1,8 +1,8 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, BuiltIns, toBlock, invokeBlock } from '@glint/template';
+import { resolve, Globals, toBlock, invokeBlock } from '@glint/template';
 import { BlockYield } from '@glint/template/-private/blocks';
 
-const each = resolve(BuiltIns['each']);
+const each = resolve(Globals['each']);
 
 // Yield out array values and indices
 expectTypeOf(

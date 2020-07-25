@@ -1,8 +1,8 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, BuiltIns, toBlock, invokeBlock } from '@glint/template';
+import { resolve, Globals, toBlock, invokeBlock } from '@glint/template';
 import { BlockYield } from '@glint/template/-private/blocks';
 
-const withh = resolve(BuiltIns['with']);
+const withh = resolve(Globals['with']);
 
 // Yields out the given value
 expectTypeOf(

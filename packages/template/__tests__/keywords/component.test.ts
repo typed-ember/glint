@@ -1,16 +1,16 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, BuiltIns, toBlock, invokeInline, invokeBlock } from '@glint/template';
+import { resolve, Globals, toBlock, invokeInline, invokeBlock } from '@glint/template';
 import { AcceptsBlocks } from '@glint/template/-private/signature';
-import { BlockResult, BlockYield } from '@glint/template/-private/blocks';
+import { BlockYield } from '@glint/template/-private/blocks';
 import { Invokable } from '@glint/template/-private/invoke';
 
-const component = resolve(BuiltIns['component']);
+const component = resolve(Globals['component']);
 
 declare const TestComponent: Invokable<(args: {
   value: string;
 }) => AcceptsBlocks<{
-  default?(arg: string): BlockResult;
-  inverse?(): BlockResult;
+  default?: [string];
+  inverse?: [];
 }>>;
 
 const NoopCurriedTestComponent = invokeInline(component({}, TestComponent));

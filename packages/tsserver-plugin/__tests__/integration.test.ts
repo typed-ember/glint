@@ -1273,7 +1273,7 @@ describe('tsserver plugin', () => {
 
       expect(diagnostics.length).toEqual(1);
       expect(diagnostics[0]).toMatchObject({
-        message: `Property 'debuggerr' does not exist on type 'BuiltIns'. Did you mean 'debugger'?`,
+        message: `Property 'debuggerr' does not exist on type 'Globals'. Did you mean 'debugger'?`,
         startLocation: { line: 6, offset: 7 },
         endLocation: { line: 6, offset: 16 },
       });

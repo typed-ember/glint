@@ -1,7 +1,6 @@
 import '@glint/template/ember';
 import Helper, { helper } from '@ember/component/helper';
-import { invokeInline } from '@glint/template/-private/invoke';
-import { resolve } from '@glint/template';
+import { resolve, invokeInline } from '@glint/template';
 import { expectTypeOf } from 'expect-type';
 
 // Type parameters can be persisted for functional helpers

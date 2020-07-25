@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, BuiltIns, invokeInline } from '@glint/template';
+import { resolve, Globals, invokeInline } from '@glint/template';
 
-const debug = resolve(BuiltIns['debugger']);
+const debug = resolve(Globals['debugger']);
 
 // Can be invoked as {{debugger}}
 expectTypeOf(invokeInline(debug({}))).toEqualTypeOf<void>();

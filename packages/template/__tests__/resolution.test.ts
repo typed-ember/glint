@@ -4,12 +4,12 @@ import '@glint/template/glimmer';
 import GlimmerComponent from '@glimmer/component';
 import EmberComponent from '@ember/component';
 import { expectTypeOf } from 'expect-type';
-import { AcceptsBlocks } from '@glint/template/-private/signature';
-import { BlockResult } from '@glint/template/-private/blocks';
 import { ResolveSignature, resolveOrReturn } from '@glint/template/-private/resolution';
 import { TemplateContext } from '@glint/template/-private/template';
-import { template, invokeBlock, resolve, BuiltIns, toBlock, ResolveContext } from '@glint/template';
+import { template, invokeBlock, resolve, toBlock, ResolveContext } from '@glint/template';
 import { Invokable } from '@glint/template/-private/invoke';
+import { AcceptsBlocks } from '../-private';
+import Globals from '../-private/globals';
 
 declare function value<T>(): T;
 
@@ -21,7 +21,7 @@ declare function value<T>(): T;
 
   class MyComponent<T> extends GlimmerComponent<MyArgs<T>> {}
 
-  type ExpectedSignature = (args: MyArgs<unknown>) => AcceptsBlocks<{ default?(): BlockResult }>;
+  type ExpectedSignature = (args: MyArgs<unknown>) => AcceptsBlocks<{ default?: [] }>;
 
   // Resolved component signature is the expected one
   expectTypeOf<ResolveSignature<typeof MyComponent>>().toEqualTypeOf<ExpectedSignature>();
@@ -44,7 +44,7 @@ declare function value<T>(): T;
      * ```
      */
     public static template = template(function* <T>(𝚪: ResolveContext<MyComponent<T>>) {
-      yield invokeBlock(resolve(BuiltIns['let'])({}, 𝚪.this.state.ready), {
+      yield invokeBlock(resolve(Globals['let'])({}, 𝚪.this.state.ready), {
         *default(isReady) {
           yield toBlock('body', isReady, 𝚪.args.value);
         },
@@ -55,7 +55,7 @@ declare function value<T>(): T;
   type ExpectedSignature = <T>(
     args: MyArgs<T>
   ) => AcceptsBlocks<{
-    body?(isReady: boolean, value: T): BlockResult;
+    body?: [boolean, T];
   }>;
 
   type ExpectedContext<T> = TemplateContext<MyComponent<T>, MyArgs<T>>;
@@ -80,7 +80,7 @@ declare function value<T>(): T;
   type ExpectedSignature = (
     args: Partial<MyComponent<unknown>>,
     ...positional: unknown[]
-  ) => AcceptsBlocks<{ default?(): BlockResult }>;
+  ) => AcceptsBlocks<{ default?: [] }>;
 
   // Resolved component signature is as expected
   expectTypeOf<ResolveSignature<typeof MyComponent>>().toEqualTypeOf<ExpectedSignature>();
@@ -99,7 +99,7 @@ declare function value<T>(): T;
      * ```
      */
     public static template = template(function* <T>(𝚪: ResolveContext<MyComponent<T>>) {
-      yield invokeBlock(resolve(BuiltIns['let'])({}, 𝚪.this.value), {
+      yield invokeBlock(resolve(Globals['let'])({}, 𝚪.this.value), {
         *default(thisValue) {
           yield toBlock('body', thisValue, 𝚪.args.value);
         },
@@ -110,7 +110,7 @@ declare function value<T>(): T;
   type ExpectedSignature = <T>(
     args: Record<string, unknown>
   ) => AcceptsBlocks<{
-    body?: (thisValue: T, argValue: unknown) => BlockResult;
+    body?: [T, unknown];
   }>;
 
   type ExpectedContext<T> = TemplateContext<MyComponent<T>, Record<string, unknown>>;
@@ -132,8 +132,8 @@ declare function value<T>(): T;
     args: { value: T; values: T[] },
     positional: string
   ) => AcceptsBlocks<{
-    foo(values: T[], mode: string): BlockResult;
-    otherwise(): BlockResult;
+    foo: [T[], string];
+    otherwise: [];
   }>;
 
   expectTypeOf(resolve(value<Invokable<TestSignature>>())).toEqualTypeOf<TestSignature>();

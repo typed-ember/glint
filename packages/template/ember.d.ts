@@ -8,7 +8,6 @@ import {
   ReturnsValue,
   Invokable,
   AcceptsBlocks,
-  BlockResult,
   NoNamedArgs,
 } from '@glint/template/-private';
 
@@ -51,10 +50,7 @@ declare module '@glint/template/resolution-rules' {
     [ResolveEmberComponent]: InvokedValue extends Constructor<EmberComponent & infer Instance>
       ? InvokedValue extends { template: Invokable<infer Signature> }
         ? Signature
-        : (
-            args: Partial<Instance>,
-            ...positional: unknown[]
-          ) => AcceptsBlocks<{ default?(): BlockResult }>
+        : (args: Partial<Instance>, ...positional: unknown[]) => AcceptsBlocks<{ default?: [] }>
       : never;
   }
 }
