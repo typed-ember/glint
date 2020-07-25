@@ -1,7 +1,7 @@
-import { resolve, BuiltIns, invokeModifier } from '@glint/template';
+import { resolve, Globals, invokeModifier } from '@glint/template';
 import { expectTypeOf } from 'expect-type';
 
-const on = resolve(BuiltIns['on']);
+const on = resolve(Globals['on']);
 
 expectTypeOf(
   invokeModifier(

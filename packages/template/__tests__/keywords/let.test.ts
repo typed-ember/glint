@@ -1,8 +1,8 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, BuiltIns, toBlock, invokeBlock } from '@glint/template';
+import { resolve, Globals, toBlock, invokeBlock } from '@glint/template';
 import { BlockYield } from '@glint/template/-private/blocks';
 
-const lett = resolve(BuiltIns['let']);
+const lett = resolve(Globals['let']);
 
 // Yields out the given values
 expectTypeOf(

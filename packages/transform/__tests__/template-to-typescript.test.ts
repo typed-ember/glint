@@ -151,7 +151,7 @@ describe('rewriteTemplate', () => {
           "if (𝚪.args.foo) {
             χ.invokeInline(χ.resolveOrReturn(𝚪.args.ok)({}));
           } else {
-            yield χ.invokeBlock(χ.resolve(χ.BuiltIns[\\"doAThing\\"])({}), {
+            yield χ.invokeBlock(χ.resolve(χ.Globals[\\"doAThing\\"])({}), {
               *default(...[ok]) {
                 χ.invokeInline(χ.resolveOrReturn(ok)({}));
               },
@@ -159,7 +159,7 @@ describe('rewriteTemplate', () => {
                 χ.invokeInline(χ.resolveOrReturn(𝚪.args.nevermind)({}));
               },
             }, \\"default\\", \\"inverse\\");
-            χ.BuiltIns[\\"doAThing\\"];
+            χ.Globals[\\"doAThing\\"];
           }"
         `);
       });
@@ -257,7 +257,7 @@ describe('rewriteTemplate', () => {
           let template = '{{message}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"χ.invokeInline(χ.resolveOrReturn(χ.BuiltIns[\\"message\\"])({}));"`
+            `"χ.invokeInline(χ.resolveOrReturn(χ.Globals[\\"message\\"])({}));"`
           );
         });
 
@@ -454,13 +454,13 @@ describe('rewriteTemplate', () => {
       `;
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
-        "yield χ.invokeBlock(χ.resolve(χ.BuiltIns[\\"foo\\"])({}), {
+        "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
           *default(...[bar, baz]) {
             χ.invokeInline(χ.resolveOrReturn(bar)({}));
             χ.invokeInline(χ.resolveOrReturn(baz)({}));
           },
         }, \\"default\\");
-        χ.BuiltIns[\\"foo\\"];"
+        χ.Globals[\\"foo\\"];"
       `);
     });
 
@@ -474,7 +474,7 @@ describe('rewriteTemplate', () => {
       `;
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
-        "yield χ.invokeBlock(χ.resolve(χ.BuiltIns[\\"foo\\"])({}), {
+        "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
           *default(...[bar, baz]) {
             χ.invokeInline(χ.resolveOrReturn(bar)({}));
             χ.invokeInline(χ.resolveOrReturn(baz)({}));
@@ -483,7 +483,7 @@ describe('rewriteTemplate', () => {
             χ.invokeInline(χ.resolveOrReturn(𝚪.args.oh)({}));
           },
         }, \\"default\\", \\"inverse\\");
-        χ.BuiltIns[\\"foo\\"];"
+        χ.Globals[\\"foo\\"];"
       `);
     });
 
@@ -497,7 +497,7 @@ describe('rewriteTemplate', () => {
       `;
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
-        "yield χ.invokeBlock(χ.resolve(χ.BuiltIns[\\"foo\\"])({}), {
+        "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
           *default(...[bar, baz]) {
             χ.invokeInline(χ.resolveOrReturn(bar)({}));
             χ.invokeInline(χ.resolveOrReturn(baz)({}));
@@ -506,7 +506,7 @@ describe('rewriteTemplate', () => {
             χ.invokeInline(χ.resolveOrReturn(𝚪.args.oh)({}));
           },
         }, \\"default\\", \\"inverse\\");
-        χ.BuiltIns[\\"foo\\"];"
+        χ.Globals[\\"foo\\"];"
       `);
     });
   });
@@ -542,7 +542,7 @@ describe('rewriteTemplate', () => {
       let template = `<Foo @bar="hello" />`;
 
       expect(templateBody(template)).toMatchInlineSnapshot(
-        `"yield χ.invokeBlock(χ.resolve(χ.BuiltIns[\\"Foo\\"])({ bar: \\"hello\\" }), {});"`
+        `"yield χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({ bar: \\"hello\\" }), {});"`
       );
     });
 
@@ -554,12 +554,12 @@ describe('rewriteTemplate', () => {
       `;
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
-        "yield χ.invokeBlock(χ.resolve(χ.BuiltIns[\\"Foo\\"])({}), {
+        "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({}), {
           *default(...[bar]) {
             χ.invokeInline(χ.resolveOrReturn(bar)({}));
           },
         }, \\"default\\");
-        χ.BuiltIns[\\"Foo\\"];"
+        χ.Globals[\\"Foo\\"];"
       `);
     });
 
@@ -602,7 +602,7 @@ describe('rewriteTemplate', () => {
       `;
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
-        "yield χ.invokeBlock(χ.resolve(χ.BuiltIns[\\"Foo\\"])({}), {
+        "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({}), {
           *head(...[h]) {
             χ.invokeInline(χ.resolveOrReturn(h)({}));
           },
@@ -614,7 +614,7 @@ describe('rewriteTemplate', () => {
             b?.contents;
           },
         }, \\"head\\", \\"body\\");
-        χ.BuiltIns[\\"Foo\\"];"
+        χ.Globals[\\"Foo\\"];"
       `);
     });
 

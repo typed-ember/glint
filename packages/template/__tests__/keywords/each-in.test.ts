@@ -1,8 +1,8 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, BuiltIns, toBlock, invokeBlock } from '@glint/template';
+import { resolve, Globals, toBlock, invokeBlock } from '@glint/template';
 import { BlockYield } from '@glint/template/-private/blocks';
 
-const eachIn = resolve(BuiltIns['each-in']);
+const eachIn = resolve(Globals['each-in']);
 
 // Yield out key/value pairs from the given input
 expectTypeOf(

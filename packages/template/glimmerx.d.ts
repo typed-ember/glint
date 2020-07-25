@@ -3,8 +3,8 @@
 import { NoNamedArgs, CreatesModifier } from '@glint/template/-private';
 import { Invokable, ReturnsValue } from '@glint/template/-private';
 import { ResolutionKey } from '@glint/template/-private';
+import { TemplateContext, AcceptsBlocks } from '@glint/template/-private';
 import GlimmerXComponent, { ResolveGlimmerXComponent } from '@glimmerx/component';
-import { TemplateContext, AcceptsBlocks, BlockResult } from '@glint/template/-private';
 
 declare module '@glimmerx/modifier' {
   export function on<Name extends keyof HTMLElementEventMap>(
@@ -43,7 +43,7 @@ declare module '@glint/template/resolution-rules' {
     [ResolveGlimmerXComponent]: InvokedValue extends Constructor<GlimmerXComponent<infer Args>>
       ? InvokedValue extends { template: Invokable<infer Signature> }
         ? Signature
-        : (args: Args) => AcceptsBlocks<{ default?(): BlockResult }>
+        : (args: Args) => AcceptsBlocks<{ default?: [] }>
       : never;
   }
 }

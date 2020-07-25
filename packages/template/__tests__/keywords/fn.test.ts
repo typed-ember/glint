@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, BuiltIns, invokeInline } from '@glint/template';
+import { resolve, Globals, invokeInline } from '@glint/template';
 
-const fn = resolve(BuiltIns['fn']);
+const fn = resolve(Globals['fn']);
 const f = (x: string, y: number): number => x.length + y;
 const id = <T>(x: T): T => x;
 

@@ -7,7 +7,7 @@
  *
  * For example, in an invocation like this:
  *
- *     invokeBlock(resolve(BuiltIns['each'])({}, ['a', 'b', 'c']), {
+ *     invokeBlock(resolve(Globals['each'])({}, ['a', 'b', 'c']), {
  *       *default(letter, index) {
  *         yield toBlock('body', `Letter #${index}: ${letter}`);
  *       }

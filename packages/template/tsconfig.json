@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "lib": ["dom"],
-    "composite": true,
+    "composite": true
     // Not ideal, but several of the @glimmer packages fairly consistently
     // produce type errors across different versions.
     "skipLibCheck": true
