@@ -5,7 +5,7 @@
  */
 declare const ModuleDocs: void;
 
-import { BlockYield, BlockResult } from './blocks';
+import { BlockYield } from './blocks';
 import { AcceptsBlocks } from './signature';
 import { Invokable } from './invoke';
 
@@ -30,7 +30,7 @@ export declare function template<This, Args, Yields extends BlockYield<string, u
     args: Args
   ) => AcceptsBlocks<
     {
-      [K in Yields['to']]?: (...params: Extract<Yields, { to: K }>['values']) => BlockResult;
+      [K in Yields['to']]?: Extract<Yields, { to: K }>['values'];
     }
   >
 >;

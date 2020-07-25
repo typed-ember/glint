@@ -1,10 +1,5 @@
-/**
- *
- */
-declare const ModuleDocs: void;
-
 import { Return, ReturnsValue, CreatesModifier, AcceptsBlocks, AnySignature } from './signature';
-import { YieldsFromBlock } from './blocks';
+import { YieldsFromBlock, BlockBodies } from './blocks';
 
 /**
  * This wrapping type indicates a value that may be invoked in a template.
@@ -51,7 +46,10 @@ export declare function invokeModifier<T extends CreatesModifier>(value: T): voi
  * This form of invocation is the only one in a template that accepts
  * blocks.
  */
-export declare function invokeBlock<T extends AcceptsBlocks<any>, Impls extends Parameters<T>[0]>(
+export declare function invokeBlock<
+  T extends AcceptsBlocks<any>,
+  Impls extends BlockBodies<Parameters<T>[0]>
+>(
   value: T,
   blocks: Impls,
   // It doesn't seem to be possible to get the typechecker to infer the

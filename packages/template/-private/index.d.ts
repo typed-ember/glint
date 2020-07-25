@@ -1,4 +1,3 @@
-export { BlockResult } from './blocks';
 export { Invokable } from './invoke';
 export { AcceptsBlocks, CreatesModifier, ReturnsValue, NoNamedArgs } from './signature';
 export { TemplateContext } from './template';

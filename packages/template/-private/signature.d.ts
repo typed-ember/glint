@@ -24,14 +24,13 @@
  */
 declare const ModuleDocs: void;
 
-import { BlockResult } from './blocks';
 
 declare const Modifier: unique symbol;
 declare const Return: unique symbol;
 declare const Blocks: unique symbol;
 
 /** The loosest shape of a "blocks hash" */
-export type AnyBlocks = Record<string, (...params: any) => BlockResult>;
+export type AnyBlocks = Record<string, unknown[]>;
 
 /** The loosest shape of a template signature */
 export type AnySignature = (...args: any) => (blocks: any) => any;

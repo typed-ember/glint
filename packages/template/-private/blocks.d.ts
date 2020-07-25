@@ -22,8 +22,12 @@
  */
 declare const ModuleDocs: void;
 
-/** The loose shape of the expected return type for a block body */
-export type BlockResult = IterableIterator<BlockYield<string, unknown[]>>;
+import { AnyBlocks } from './signature';
+
+type Block<
+  Params extends any[] = any,
+  Yields extends BlockYield<string, unknown[]> = BlockYield<string, unknown[]>
+> = (...params: Params) => IterableIterator<Yields>;
 
 /**
  * A type that encapsulates the act of `{{yield}}`ing in a template, encoding
@@ -32,12 +36,19 @@ export type BlockResult = IterableIterator<BlockYield<string, unknown[]>>;
 export type BlockYield<K extends string, V extends unknown[]> = { to: K; values: V };
 
 /**
+ * Given a mapping from block names to the parameters they'll receive, produces
+ * the corresponding type for the blocks hash that may be passed to the component
+ * in question.
+ */
+export type BlockBodies<Blocks extends AnyBlocks> = {
+  [BlockName in keyof Blocks]: Block<NonNullable<Blocks[BlockName]>>;
+};
+
+/**
  * Given a block function, determines its `BlockYield`s based on its returned
  * iterator type.
  */
-export type YieldsFromBlock<T extends (...args: any) => BlockResult> = T extends (
-  ...args: any
-) => IterableIterator<infer U>
+export type YieldsFromBlock<T extends Block> = T extends (...args: any) => IterableIterator<infer U>
   ? U
   : never;
 
