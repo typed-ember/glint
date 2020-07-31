@@ -3,6 +3,9 @@ import { stripIndent } from 'common-tags';
 import { Range } from '../src/transformed-module';
 import ts from 'typescript';
 import { assert } from '../src/util';
+import { GlintEnvironment } from '@glint/config';
+
+const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
 
 describe('Source-to-source offset mapping', () => {
   function rewriteTestModule({
@@ -23,7 +26,8 @@ describe('Source-to-source offset mapping', () => {
             ${contents}
           \`;
         }
-      `
+      `,
+      glimmerxEnvironment
     );
 
     if (!result) {
@@ -297,7 +301,8 @@ describe('Source-to-source offset mapping', () => {
         export class Greeting extends Component {
           static template = hbs\`Hello, world!\`;
         }
-      `
+      `,
+      glimmerxEnvironment
     )!;
 
     test('bounds that cross a rewritten span', () => {
@@ -351,7 +356,7 @@ describe('Diagnostic offset mapping', () => {
     }
   `;
 
-  const transformedModule = rewriteModule('test.ts', source);
+  const transformedModule = rewriteModule('test.ts', source, glimmerxEnvironment);
   assert(transformedModule);
 
   test('without related information', () => {

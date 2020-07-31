@@ -1,12 +1,13 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, Globals, toBlock, invokeBlock } from '@glint/template';
+import { resolve, toBlock, invokeBlock } from '@glint/template';
 import { BlockYield } from '@glint/template/-private/blocks';
+import { EachKeyword } from '@glint/template/-private/keywords';
 
-const each = resolve(Globals['each']);
+const eachKeyword = resolve({} as EachKeyword);
 
 // Yield out array values and indices
 expectTypeOf(
-  invokeBlock(each({}, ['a', 'b', 'c']), {
+  invokeBlock(eachKeyword({}, ['a', 'b', 'c']), {
     *default(value, index) {
       expectTypeOf(value).toEqualTypeOf<string>();
       expectTypeOf(index).toEqualTypeOf<number>();
@@ -17,7 +18,7 @@ expectTypeOf(
 
 // Accept a `key` string
 expectTypeOf(
-  invokeBlock(each({ key: 'id' }, [{ id: 1 }]), {
+  invokeBlock(eachKeyword({ key: 'id' }, [{ id: 1 }]), {
     *default() {
       // Don't yield
     },

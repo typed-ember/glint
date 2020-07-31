@@ -1,10 +1,11 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, Globals, toBlock, invokeInline, invokeBlock } from '@glint/template';
-import { AcceptsBlocks } from '@glint/template/-private/signature';
+import { resolve, toBlock, invokeInline, invokeBlock } from '@glint/template';
+import { AcceptsBlocks } from '@glint/template/-private';
 import { BlockYield } from '@glint/template/-private/blocks';
 import { Invokable } from '@glint/template/-private/invoke';
+import { ComponentKeyword } from '@glint/template/-private/keywords';
 
-const component = resolve(Globals['component']);
+const componentKeyword = resolve({} as ComponentKeyword);
 
 declare const TestComponent: Invokable<(args: {
   value: string;
@@ -13,8 +14,8 @@ declare const TestComponent: Invokable<(args: {
   inverse?: [];
 }>>;
 
-const NoopCurriedTestComponent = invokeInline(component({}, TestComponent));
-const ValueCurriedTestComponent = invokeInline(component({ value: 'hello' }, TestComponent));
+const NoopCurriedTestComponent = invokeInline(componentKeyword({}, TestComponent));
+const ValueCurriedTestComponent = invokeInline(componentKeyword({ value: 'hello' }, TestComponent));
 
 // Invoking the noop-curried component
 expectTypeOf(invokeBlock(resolve(NoopCurriedTestComponent)({ value: 'hello' }), {})).toEqualTypeOf<
@@ -65,7 +66,7 @@ expectTypeOf(invokeBlock(resolve(ValueCurriedTestComponent)({ value: 'hi' }), {}
 invokeBlock(resolve(ValueCurriedTestComponent)({ value: 123 }), {});
 
 // @ts-expect-error: Attempting to curry a nonexistent arg
-component({ foo: true }, TestComponent);
+componentKeyword({ foo: true }, TestComponent);
 
 // @ts-expect-error: Attempting to curry an arg with the wrong type
-component({ value: 123 }, TestComponent);
+componentKeyword({ value: 123 }, TestComponent);

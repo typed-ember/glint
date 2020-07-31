@@ -1,10 +1,11 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, Globals, invokeInline } from '@glint/template';
+import { resolve, invokeInline } from '@glint/template';
+import { DebuggerKeyword } from '@glint/template/-private/keywords';
 
-const debug = resolve(Globals['debugger']);
+const debuggerKeyword = resolve({} as DebuggerKeyword);
 
 // Can be invoked as {{debugger}}
-expectTypeOf(invokeInline(debug({}))).toEqualTypeOf<void>();
+expectTypeOf(invokeInline(debuggerKeyword({}))).toEqualTypeOf<void>();
 
 // @ts-expect-error: Rejects any additional arguments
-debug({}, 'hello');
+debuggerKeyword({}, 'hello');

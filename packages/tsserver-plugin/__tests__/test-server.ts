@@ -1,11 +1,9 @@
 import { fork, ChildProcess } from 'child_process';
 import { createInterface, ReadLine } from 'readline';
-import os from 'os';
 import fs from 'fs';
 import path from 'path';
 import { EventEmitter } from 'events';
 import Protocol, { CommandTypes, WatchFileKind } from 'typescript/lib/protocol';
-import { normalizePath } from '@glint/config';
 
 export type Requests = {
   [CommandTypes.SemanticDiagnosticsSync]: [
@@ -53,8 +51,10 @@ export type Deferred<T> = {
   reject: (reason: unknown) => void;
 };
 
+const ROOT = path.resolve(__dirname, '../../../test-packages/ephemeral');
+
 export class Project {
-  private rootDir = path.join(os.tmpdir(), Math.random().toString(16).slice(2));
+  private rootDir = path.join(ROOT, Math.random().toString(16).slice(2));
   private openFiles = new Set<string>();
   private printLogContents = false;
 
@@ -89,13 +89,11 @@ export class Project {
     }
 
     fs.rmdirSync(this.rootDir, { recursive: true });
-    fs.mkdirSync(this.rootDir);
+    fs.mkdirSync(this.rootDir, { recursive: true });
 
     fs.writeFileSync(path.join(this.rootDir, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2));
     fs.writeFileSync(path.join(this.rootDir, 'package.json'), '{}');
-
-    this.linkPackage('@glint/template');
-    this.linkPackage('@glimmerx/component');
+    fs.writeFileSync(path.join(this.rootDir, '.glintrc'), 'environment: glimmerx\n');
 
     await this.server.sendAndWait(CommandTypes.Configure, {
       watchOptions: { watchFile: WatchFileKind.UseFsEventsOnParentDirectory },
@@ -169,14 +167,6 @@ export class Project {
     });
 
     fs.rmdirSync(this.rootDir, { recursive: true });
-  }
-
-  private linkPackage(name: string): void {
-    let linkPath = path.join(this.rootDir, 'node_modules', name);
-    let linkTarget = path.dirname(require.resolve(`${name}/package.json`));
-
-    fs.mkdirSync(path.dirname(linkPath), { recursive: true });
-    fs.symlinkSync(linkTarget, linkPath, 'dir');
   }
 }
 
@@ -305,4 +295,12 @@ export class TSServer extends EventEmitter {
       }
     }
   }
+}
+
+function normalizePath(fileName: string): string {
+  if (path.sep !== '/') {
+    return fileName.split(path.sep).join('/');
+  }
+
+  return fileName;
 }

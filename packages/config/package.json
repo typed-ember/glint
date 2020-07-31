@@ -19,11 +19,14 @@
   },
   "dependencies": {
     "cosmiconfig": "^6.0.0",
-    "minimatch": "^3.0.4"
+    "escape-string-regexp": "^4.0.0",
+    "minimatch": "^3.0.4",
+    "resolve": "^1.17.0"
   },
   "devDependencies": {
-    "@types/minimatch": "^3.0.3",
     "@types/jest": "^25.2.1",
+    "@types/minimatch": "^3.0.3",
+    "@types/resolve": "^1.17.1",
     "jest": "^25.4.0",
     "ts-jest": "^25.4.0"
   }

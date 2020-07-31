@@ -13,7 +13,6 @@ describe('emitting declarations', () => {
 
   test('emit for a valid project', async () => {
     let code = stripIndent`
-      import '@glint/template/glimmerx';
       import Component, { hbs } from '@glimmerx/component';
 
       export interface ApplicationArgs {
@@ -37,8 +36,7 @@ describe('emitting declarations', () => {
     expect(emitResult.exitCode).toBe(0);
 
     expect(project.read('index.d.ts')).toMatchInlineSnapshot(`
-      "import '@glint/template/glimmerx';
-      import Component from '@glimmerx/component';
+      "import Component from '@glimmerx/component';
       export interface ApplicationArgs {
           version: string;
       }

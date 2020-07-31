@@ -10,6 +10,7 @@ type InlineKeyword = typeof INLINE_KEYWORDS[number];
 type BlockKeyword = typeof BLOCK_KEYWORDS[number];
 
 export type TemplateToTypescriptOptions = {
+  typesPath: string;
   identifiersInScope?: Array<string>;
   contextType?: string;
   typeParams?: string;
@@ -24,11 +25,12 @@ export type TemplateToTypescriptOptions = {
 export function templateToTypescript(
   template: string,
   {
+    typesPath,
     identifiersInScope = [],
     typeParams = '',
     contextType = 'unknown',
     preamble = [],
-  }: TemplateToTypescriptOptions = {}
+  }: TemplateToTypescriptOptions
 ): RewriteResult {
   return mapTemplateContents(template, (ast, { emit, rangeForNode }) => {
     let scope = new ScopeStack(identifiersInScope);
@@ -42,12 +44,12 @@ export function templateToTypescript(
       emit.newline();
     }
 
-    emit.text(`let χ!: typeof import("@glint/template");`);
+    emit.text(`let χ!: typeof import("${typesPath}");`);
     emit.newline();
 
     emit.text('return χ.template(function*');
     emit.synthetic(typeParams);
-    emit.text('(𝚪: import("@glint/template").ResolveContext<');
+    emit.text(`(𝚪: import("${typesPath}").ResolveContext<`);
     emit.synthetic(contextType);
     emit.text('>) {');
     emit.newline();

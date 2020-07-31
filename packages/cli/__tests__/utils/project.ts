@@ -1,10 +1,11 @@
 import path from 'path';
-import os from 'os';
 import fs from 'fs';
 import execa, { ExecaChildProcess, Options } from 'execa';
 
+const ROOT = path.resolve(__dirname, '../../../../test-packages/ephemeral');
+
 export default class Project {
-  private rootDir = path.join(os.tmpdir(), Math.random().toString(16).slice(2));
+  private rootDir = path.join(ROOT, Math.random().toString(16).slice(2));
 
   private constructor() {}
 
@@ -18,7 +19,6 @@ export default class Project {
     let project = new Project();
     let tsconfig = {
       compilerOptions: {
-        plugins: [{ name: path.resolve(__dirname, '../lib') }],
         strict: true,
         target: 'es2019',
         module: 'es2015',
@@ -29,17 +29,14 @@ export default class Project {
     };
 
     fs.rmdirSync(project.rootDir, { recursive: true });
-    fs.mkdirSync(project.rootDir);
+    fs.mkdirSync(project.rootDir, { recursive: true });
 
+    fs.writeFileSync(path.join(project.rootDir, 'package.json'), '{}');
+    fs.writeFileSync(path.join(project.rootDir, '.glintrc'), 'environment: glimmerx\n');
     fs.writeFileSync(
       path.join(project.rootDir, 'tsconfig.json'),
       JSON.stringify(tsconfig, null, 2)
     );
-    fs.writeFileSync(path.join(project.rootDir, 'package.json'), '{}');
-
-    project.linkPackage('@glint/template');
-    project.linkPackage('@glimmerx/component');
-    project.linkPackage('typescript');
 
     return project;
   }
@@ -65,14 +62,6 @@ export default class Project {
 
   public watch(options?: Options): Watch {
     return new Watch(this.check({ ...options, flags: ['--watch'], reject: false }));
-  }
-
-  private linkPackage(name: string): void {
-    let linkPath = path.join(this.rootDir, 'node_modules', name);
-    let linkTarget = path.dirname(require.resolve(`${name}/package.json`));
-
-    fs.mkdirSync(path.dirname(linkPath), { recursive: true });
-    fs.symlinkSync(linkTarget, linkPath, 'dir');
   }
 }
 

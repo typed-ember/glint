@@ -22,6 +22,7 @@
     "@babel/plugin-proposal-decorators": "7.8.3",
     "@babel/preset-typescript": "^7.9.0",
     "@glimmer/syntax": "^0.54.0",
+    "@glint/config": "^0.1.2",
     "debug": "^4.1.1"
   },
   "devDependencies": {

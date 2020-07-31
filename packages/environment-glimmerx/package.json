@@ -1,0 +1,31 @@
+{
+  "name": "@glint/environment-glimmerx",
+  "version": "0.1.2",
+  "repository": "typed-ember/glint",
+  "description": "A Glint environment to support GlimmerX projects",
+  "license": "MIT",
+  "author": "Dan Freeman (https://github.com/dfreeman)",
+  "main": "lib/index.js",
+  "keywords": [
+    "glint-environment"
+  ],
+  "scripts": {
+    "lint": "eslint . --ext ts --max-warnings 0 && prettier --check .",
+    "test": "tsc --project __tests__",
+    "build": "tsc --build",
+    "prepack": "yarn build"
+  },
+  "files": [
+    "README.md",
+    "lib/",
+    "types/"
+  ],
+  "dependencies": {
+    "@glint/config": "^0.1.2",
+    "@glint/template": "^0.1.2"
+  },
+  "devDependencies": {
+    "expect-type": "0.7.3",
+    "@glimmerx/component": "^0.2.2"
+  }
+}

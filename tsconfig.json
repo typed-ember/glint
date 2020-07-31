@@ -2,6 +2,7 @@
   "references": [
     { "path": "packages/cli" },
     { "path": "packages/config" },
+    { "path": "packages/environment-glimmerx" },
     { "path": "packages/template" },
     { "path": "packages/transform" },
     { "path": "packages/tsserver-plugin" }
