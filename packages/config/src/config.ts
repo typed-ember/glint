@@ -1,7 +1,9 @@
 import path from 'path';
 import { Minimatch, IMinimatch } from 'minimatch';
+import { GlintEnvironment } from './environment';
 
 export type GlintConfigInput = {
+  environment: string;
   include?: string | Array<string>;
   exclude?: string | Array<string>;
 };
@@ -12,6 +14,7 @@ export type GlintConfigInput = {
  */
 export class GlintConfig {
   public readonly rootDir: string;
+  public readonly environment: GlintEnvironment;
 
   private includeMatchers: Array<IMinimatch>;
   private excludeMatchers: Array<IMinimatch>;
@@ -20,6 +23,7 @@ export class GlintConfig {
     validateConfigInput(config);
 
     this.rootDir = normalizePath(rootDir);
+    this.environment = GlintEnvironment.load(config.environment, { rootDir });
 
     let include = Array.isArray(config.include) ? config.include : [config.include ?? '**/*.ts'];
     let exclude = Array.isArray(config.exclude)
@@ -46,7 +50,14 @@ export class GlintConfig {
   private buildMatchers(globs: Array<string>): Array<IMinimatch> {
     return globs.map((glob) => new Minimatch(normalizePath(path.resolve(this.rootDir, glob))));
   }
+}
 
+export function normalizePath(fileName: string): string {
+  if (path.sep !== '/') {
+    return fileName.split(path.sep).join('/');
+  }
+
+  return fileName;
 }
 
 function validateConfigInput(input: Record<string, unknown>): asserts input is GlintConfigInput {
@@ -74,12 +85,4 @@ function assert(test: unknown, message: string): asserts test {
   if (!test) {
     throw new Error(`@glint/config: ${message}`);
   }
-}
-
-function normalizePath(fileName: string): string {
-  if (path.sep !== '/') {
-    return fileName.split(path.sep).join('/');
-  }
-
-  return fileName;
 }
