@@ -6,6 +6,7 @@ import Project from './utils/project';
 describe('watched typechecking', () => {
   let project!: Project;
   beforeEach(async () => {
+    jest.setTimeout(20_000);
     project = await Project.create();
   });
 
