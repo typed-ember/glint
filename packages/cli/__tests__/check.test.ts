@@ -129,7 +129,7 @@ describe('single-pass typechecking', () => {
     `;
 
     project.write('index.ts', code);
-    project.write('.glintrc', 'exclude: "index.ts"\n');
+    project.write('.glintrc', 'environment: glimmerx\nexclude: "index.ts"\n');
 
     let checkResult = await project.check();
 

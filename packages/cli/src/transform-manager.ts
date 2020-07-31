@@ -36,15 +36,16 @@ export default class TransformManager {
 
   public readFile(filename: string, encoding?: string): string | undefined {
     let source = this.ts.sys.readFile(filename, encoding);
+    let config = this.glintConfig;
 
-    // TODO: don't hard-code the relevant import we're interested in
     if (
+      source &&
       filename.endsWith('.ts') &&
       !filename.endsWith('.d.ts') &&
-      source?.includes('@glimmerx/component') &&
-      this.glintConfig.includesFile(filename)
+      config.includesFile(filename) &&
+      config.environment.moduleMayHaveTagImports(source)
     ) {
-      let transformedModule = rewriteModule(filename, source);
+      let transformedModule = rewriteModule(filename, source, config.environment);
       if (transformedModule) {
         this.transformedModules.set(filename, transformedModule);
         return transformedModule.transformedSource;

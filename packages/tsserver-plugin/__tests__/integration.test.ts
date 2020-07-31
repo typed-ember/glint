@@ -33,7 +33,6 @@ describe('tsserver plugin', () => {
     test('using private properties', async () => {
       await project.open({
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
 
           export default class MyComponent extends Component {
@@ -54,21 +53,20 @@ describe('tsserver plugin', () => {
 
       let messageInfo = await server.request(CommandTypes.Quickinfo, {
         file: project.filePath('index.ts'),
-        line: 9,
+        line: 8,
         offset: 13,
       });
 
       // {{this.message}} in the template matches back to the private property
       expect(messageInfo?.documentation).toEqual('A message.');
-      expect(messageInfo?.start).toEqual({ line: 9, offset: 12 });
-      expect(messageInfo?.end).toEqual({ line: 9, offset: 19 });
+      expect(messageInfo?.start).toEqual({ line: 8, offset: 12 });
+      expect(messageInfo?.end).toEqual({ line: 8, offset: 19 });
       expect(messageInfo?.displayString).toEqual('(property) MyComponent.message: string');
     });
 
     test('using args', async () => {
       await project.open({
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
 
           interface MyComponentArgs {
@@ -91,21 +89,20 @@ describe('tsserver plugin', () => {
 
       let strInfo = await server.request(CommandTypes.Quickinfo, {
         file: project.filePath('index.ts'),
-        line: 11,
+        line: 10,
         offset: 8,
       });
 
       // {{@str}} in the template matches back to the arg definition
       expect(strInfo?.documentation).toEqual('Some string');
-      expect(strInfo?.start).toEqual({ line: 11, offset: 8 });
-      expect(strInfo?.end).toEqual({ line: 11, offset: 11 });
+      expect(strInfo?.start).toEqual({ line: 10, offset: 8 });
+      expect(strInfo?.end).toEqual({ line: 10, offset: 11 });
       expect(strInfo?.displayString).toEqual('(property) MyComponentArgs.str: string');
     });
 
     test('curly block params', async () => {
       await project.open({
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
 
           export default class MyComponent extends Component {
@@ -125,24 +122,24 @@ describe('tsserver plugin', () => {
 
       let indexInfo = await server.request(CommandTypes.Quickinfo, {
         file: project.filePath('index.ts'),
-        line: 7,
+        line: 6,
         offset: 15,
       });
 
       // {{index}} in the template matches back to the block param
-      expect(indexInfo?.start).toEqual({ line: 7, offset: 15 });
-      expect(indexInfo?.end).toEqual({ line: 7, offset: 20 });
+      expect(indexInfo?.start).toEqual({ line: 6, offset: 15 });
+      expect(indexInfo?.end).toEqual({ line: 6, offset: 20 });
       expect(indexInfo?.displayString).toEqual('var index: number');
 
       let itemInfo = await server.request(CommandTypes.Quickinfo, {
         file: project.filePath('index.ts'),
-        line: 7,
+        line: 6,
         offset: 26,
       });
 
       // {{item}} in the template matches back to the block param
-      expect(itemInfo?.start).toEqual({ line: 7, offset: 26 });
-      expect(itemInfo?.end).toEqual({ line: 7, offset: 30 });
+      expect(itemInfo?.start).toEqual({ line: 6, offset: 26 });
+      expect(itemInfo?.end).toEqual({ line: 6, offset: 30 });
       expect(itemInfo?.displayString).toEqual('var item: string');
     });
 
@@ -174,7 +171,6 @@ describe('tsserver plugin', () => {
     test('passing component args', async () => {
       await project.open({
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
 
           export default class MyComponent extends Component {
@@ -189,7 +185,7 @@ describe('tsserver plugin', () => {
 
       let completions = await server.request(CommandTypes.CompletionInfo, {
         file: project.filePath('index.ts'),
-        line: 6,
+        line: 5,
         offset: 12,
       });
 
@@ -215,7 +211,7 @@ describe('tsserver plugin', () => {
 
       let details = await server.request(CommandTypes.CompletionDetails, {
         file: project.filePath('index.ts'),
-        line: 6,
+        line: 5,
         offset: 12,
         entryNames: ['bar'],
       });
@@ -227,7 +223,6 @@ describe('tsserver plugin', () => {
     test('referencing class properties', async () => {
       await project.open({
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
 
           export default class MyComponent extends Component {
@@ -242,7 +237,7 @@ describe('tsserver plugin', () => {
 
       let completions = await server.request(CommandTypes.CompletionInfo, {
         file: project.filePath('index.ts'),
-        line: 8,
+        line: 7,
         offset: 13,
       });
 
@@ -255,7 +250,7 @@ describe('tsserver plugin', () => {
 
       let details = await server.request(CommandTypes.CompletionDetails, {
         file: project.filePath('index.ts'),
-        line: 8,
+        line: 7,
         offset: 13,
         entryNames: ['message'],
       });
@@ -267,7 +262,6 @@ describe('tsserver plugin', () => {
     test('referencing own args', async () => {
       await project.open({
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
 
           interface MyComponentArgs<T> {
@@ -284,7 +278,7 @@ describe('tsserver plugin', () => {
 
       let completions = await server.request(CommandTypes.CompletionInfo, {
         file: project.filePath('index.ts'),
-        line: 10,
+        line: 9,
         offset: 9,
       });
 
@@ -297,7 +291,7 @@ describe('tsserver plugin', () => {
 
       let details = await server.request(CommandTypes.CompletionDetails, {
         file: project.filePath('index.ts'),
-        line: 10,
+        line: 9,
         offset: 9,
         entryNames: ['items'],
       });
@@ -309,7 +303,6 @@ describe('tsserver plugin', () => {
     test('referencing block params', async () => {
       await project.open({
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
 
           export default class MyComponent<T> extends Component {
@@ -324,7 +317,7 @@ describe('tsserver plugin', () => {
 
       let completions = await server.request(CommandTypes.CompletionInfo, {
         file: project.filePath('index.ts'),
-        line: 7,
+        line: 6,
         offset: 8,
       });
 
@@ -337,7 +330,7 @@ describe('tsserver plugin', () => {
 
       let details = await server.request(CommandTypes.CompletionDetails, {
         file: project.filePath('index.ts'),
-        line: 7,
+        line: 6,
         offset: 8,
         entryNames: ['letter'],
       });
@@ -349,7 +342,6 @@ describe('tsserver plugin', () => {
     test('referencing module-scope identifiers', async () => {
       await project.open({
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
 
           const greeting: string = 'hello';
@@ -364,7 +356,7 @@ describe('tsserver plugin', () => {
 
       let completions = await server.request(CommandTypes.CompletionInfo, {
         file: project.filePath('index.ts'),
-        line: 8,
+        line: 7,
         offset: 8,
       });
 
@@ -377,7 +369,7 @@ describe('tsserver plugin', () => {
 
       let details = await server.request(CommandTypes.CompletionDetails, {
         file: project.filePath('index.ts'),
-        line: 8,
+        line: 7,
         offset: 8,
         entryNames: ['greeting'],
       });
@@ -394,7 +386,6 @@ describe('tsserver plugin', () => {
         `,
 
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
 
           export default class MyComponent<T> extends Component {
@@ -408,7 +399,7 @@ describe('tsserver plugin', () => {
       let completions = await server.request(CommandTypes.CompletionInfo, {
         file: project.filePath('index.ts'),
         includeExternalModuleExports: true,
-        line: 6,
+        line: 5,
         offset: 10,
       });
 
@@ -423,7 +414,7 @@ describe('tsserver plugin', () => {
 
       let details = await server.request(CommandTypes.CompletionDetails, {
         file: project.filePath('index.ts'),
-        line: 6,
+        line: 5,
         offset: 10,
         entryNames: [{ name: 'Greeting', source: project.filePath('greeting') }],
       });
@@ -439,8 +430,8 @@ describe('tsserver plugin', () => {
               textChanges: [
                 {
                   newText: `import Greeting from './greeting';${os.EOL}`,
-                  start: { line: 3, offset: 1 },
-                  end: { line: 3, offset: 1 },
+                  start: { line: 2, offset: 1 },
+                  end: { line: 2, offset: 1 },
                 },
               ],
             },
@@ -458,7 +449,6 @@ describe('tsserver plugin', () => {
         `,
 
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
           import { Name } from './greeting';
 
@@ -473,7 +463,7 @@ describe('tsserver plugin', () => {
       let completions = await server.request(CommandTypes.CompletionInfo, {
         file: project.filePath('index.ts'),
         includeExternalModuleExports: true,
-        line: 7,
+        line: 6,
         offset: 10,
       });
 
@@ -488,7 +478,7 @@ describe('tsserver plugin', () => {
 
       let details = await server.request(CommandTypes.CompletionDetails, {
         file: project.filePath('index.ts'),
-        line: 7,
+        line: 6,
         offset: 10,
         entryNames: [{ name: 'Greeting', source: project.filePath('greeting') }],
       });
@@ -504,8 +494,8 @@ describe('tsserver plugin', () => {
               textChanges: [
                 {
                   newText: `import Greeting, { Name } from './greeting';`,
-                  start: { line: 3, offset: 1 },
-                  end: { line: 3, offset: 35 },
+                  start: { line: 2, offset: 1 },
+                  end: { line: 2, offset: 35 },
                 },
               ],
             },
@@ -524,7 +514,6 @@ describe('tsserver plugin', () => {
 
     test('component references', async () => {
       await project.open({
-        'lib.ts': `import '@glint/template/glimmerx';`,
         'greeting.ts': stripIndent`
           import Component, { hbs } from '@glimmerx/component';
 
@@ -622,7 +611,6 @@ describe('tsserver plugin', () => {
 
     test('arg references', async () => {
       await project.open({
-        'lib.ts': `import '@glint/template/glimmerx';`,
         'greeting.ts': stripIndent`
           import Component, { hbs } from '@glimmerx/component';
 
@@ -727,7 +715,6 @@ describe('tsserver plugin', () => {
   describe('find definition', () => {
     test('component invocation', async () => {
       await project.open({
-        'lib.ts': `import '@glint/template/glimmerx';`,
         'greeting.ts': stripIndent`
           import Component, { hbs } from '@glimmerx/component';
           export default class Greeting extends Component<{ message: string }> {
@@ -777,7 +764,6 @@ describe('tsserver plugin', () => {
 
     test('arg passing', async () => {
       await project.open({
-        'lib.ts': `import '@glint/template/glimmerx';`,
         'greeting.ts': stripIndent`
           import Component, { hbs } from '@glimmerx/component';
 
@@ -832,7 +818,6 @@ describe('tsserver plugin', () => {
 
     test('arg use', async () => {
       await project.open({
-        'lib.ts': `import '@glint/template/glimmerx';`,
         'greeting.ts': stripIndent`
           import Component, { hbs } from '@glimmerx/component';
 
@@ -877,7 +862,6 @@ describe('tsserver plugin', () => {
 
     test('import source', async () => {
       await project.open({
-        'lib.ts': `import '@glint/template/glimmerx';`,
         'greeting.ts': stripIndent`
           import Component, { hbs } from '@glimmerx/component';
 
@@ -932,7 +916,6 @@ describe('tsserver plugin', () => {
   describe('renaming symbols', () => {
     test('arg', async () => {
       await project.open({
-        'lib.ts': `import '@glint/template/glimmerx';`,
         'greeting.ts': stripIndent`
           import Component, { hbs } from '@glimmerx/component';
 
@@ -1039,7 +1022,6 @@ describe('tsserver plugin', () => {
 
     test('block param', async () => {
       await project.open({
-        'lib.ts': `import '@glint/template/glimmerx';`,
         'index.ts': stripIndent`
           import Component, { hbs } from '@glimmerx/component';
 
@@ -1108,7 +1090,6 @@ describe('tsserver plugin', () => {
 
     test('component', async () => {
       await project.open({
-        'lib.ts': `import '@glint/template/glimmerx';`,
         'greeting.ts': stripIndent`
           import Component, { hbs } from '@glimmerx/component';
 
@@ -1198,7 +1179,6 @@ describe('tsserver plugin', () => {
 
     test('module', async () => {
       await project.open({
-        'lib.ts': `import '@glint/template/glimmerx';`,
         'greeting.ts': stripIndent`
           import Component, { hbs } from '@glimmerx/component';
 
@@ -1246,7 +1226,6 @@ describe('tsserver plugin', () => {
     test('introducing and fixing a template error with editor changes', async () => {
       await project.open({
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
 
           export default class MyComponent extends Component {
@@ -1264,8 +1243,8 @@ describe('tsserver plugin', () => {
 
       // Typo `debugger` to `debuggerr`
       await project.update('index.ts', {
-        start: { line: 6, offset: 15 },
-        end: { line: 6, offset: 15 },
+        start: { line: 5, offset: 15 },
+        end: { line: 5, offset: 15 },
         newText: 'r',
       });
 
@@ -1274,14 +1253,14 @@ describe('tsserver plugin', () => {
       expect(diagnostics.length).toEqual(1);
       expect(diagnostics[0]).toMatchObject({
         message: `Property 'debuggerr' does not exist on type 'Globals'. Did you mean 'debugger'?`,
-        startLocation: { line: 6, offset: 7 },
-        endLocation: { line: 6, offset: 16 },
+        startLocation: { line: 5, offset: 7 },
+        endLocation: { line: 5, offset: 16 },
       });
 
       // Fix the typo
       await project.update('index.ts', {
-        start: { line: 6, offset: 15 },
-        end: { line: 6, offset: 16 },
+        start: { line: 5, offset: 15 },
+        end: { line: 5, offset: 16 },
         newText: '',
       });
 
@@ -1293,7 +1272,6 @@ describe('tsserver plugin', () => {
     test('introducing and fixing a TS syntax error with editor changes', async () => {
       await project.open({
         'index.ts': stripIndent`
-          import '@glint/template/glimmerx';
           import Component, { hbs } from '@glimmerx/component';
 
           export default class MyComponent extends Component {
@@ -1338,10 +1316,9 @@ describe('tsserver plugin', () => {
 
   describe('custom configuration', () => {
     test('it honors .glintrc include/exclude', async () => {
-      project.write('.glintrc', 'exclude: "index.ts"');
+      project.write('.glintrc', 'environment: glimmerx\nexclude: "index.ts"\n');
 
       await project.open({
-        'lib.ts': `import '@glint/template/glimmerx';`,
         'index.ts': stripIndent`
           import Component, { hbs } from '@glimmerx/component';
 

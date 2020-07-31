@@ -36,6 +36,7 @@ function collectDiagnostics(
     ...program.getSyntacticDiagnostics(),
     ...transformManager.getTransformDiagnostics(),
     ...program.getSemanticDiagnostics(),
+    ...program.getDeclarationDiagnostics(),
   ];
 }
 

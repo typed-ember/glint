@@ -9,6 +9,7 @@
   ],
   "rules": {
     "prefer-const": "off",
+    "require-yield": "off",
     "@typescript-eslint/prefer-const": "off",
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-empty-interface": "off",
