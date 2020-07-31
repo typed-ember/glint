@@ -13,5 +13,6 @@
     // produce type errors across different versions.
     "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [{ "path": "../config" }]
 }

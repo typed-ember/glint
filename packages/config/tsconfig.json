@@ -13,6 +13,5 @@
     // produce type errors across different versions.
     "skipLibCheck": true
   },
-  "include": ["src"],
-  "references": [{ "path": "../transform" }]
+  "include": ["src"]
 }
