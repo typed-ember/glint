@@ -2,6 +2,7 @@ import logger from 'debug';
 import { parseSync, NodePath, types as t, traverse } from '@babel/core';
 import generate from '@babel/generator';
 import type ts from 'typescript';
+import { GlintEnvironment } from '@glint/config';
 import { templateToTypescript } from './template-to-typescript';
 import { assert } from './util';
 import TransformedModule, { ReplacedSpan, TransformError } from './transformed-module';
@@ -57,7 +58,11 @@ export function rewriteDiagnostic(
  * Returns `null` if the given module can't be parsed as TypeScript, or
  * if it has no embedded templates.
  */
-export function rewriteModule(filename: string, source: string): TransformedModule | null {
+export function rewriteModule(
+  filename: string,
+  source: string,
+  environment: GlintEnvironment
+): TransformedModule | null {
   let ast: t.File | t.Program | null = null;
   try {
     ast = parseSync(source, {
@@ -74,7 +79,7 @@ export function rewriteModule(filename: string, source: string): TransformedModu
     return null;
   }
 
-  let { errors, partialSpans } = calculateSpansForTaggedTemplates(ast);
+  let { errors, partialSpans } = calculateSpansForTaggedTemplates(ast, environment);
   if (!partialSpans.length && !errors.length) {
     return null;
   }
@@ -93,7 +98,8 @@ export function rewriteModule(filename: string, source: string): TransformedModu
  * string.
  */
 function calculateSpansForTaggedTemplates(
-  ast: t.File | t.Program
+  ast: t.File | t.Program,
+  environment: GlintEnvironment
 ): { errors: Array<TransformError>; partialSpans: Array<PartialReplacedSpan> } {
   let errors: Array<TransformError> = [];
   let partialSpans: Array<PartialReplacedSpan> = [];
@@ -101,7 +107,10 @@ function calculateSpansForTaggedTemplates(
   traverse(ast, {
     TaggedTemplateExpression(path) {
       let tag = path.get('tag');
-      if (tag.node.type === 'Identifier' && tag.referencesImport('@glimmerx/component', 'hbs')) {
+      if (!tag.isIdentifier()) return;
+
+      let typesPath = determineTypesPathForTag(tag, environment);
+      if (typesPath) {
         let tagName = tag.node.name;
         let { quasis } = path.node.quasi;
 
@@ -118,6 +127,7 @@ function calculateSpansForTaggedTemplates(
         let { typeParams, contextType } = getContainingTypeInfo(path);
         let identifiersInScope = Object.keys(path.scope.getAllBindings());
         let transformedTemplate = templateToTypescript(template, {
+          typesPath,
           preamble,
           identifiersInScope,
           typeParams,
@@ -175,6 +185,19 @@ function calculateSpansForTaggedTemplates(
   });
 
   return { errors, partialSpans };
+}
+
+function determineTypesPathForTag(
+  path: NodePath<t.Identifier>,
+  environment: GlintEnvironment
+): string | undefined {
+  for (let [importSource, tags] of Object.entries(environment.getConfiguredTemplateTags())) {
+    for (let [importSpecifier, tagConfig] of Object.entries(tags)) {
+      if (path.referencesImport(importSource, importSpecifier)) {
+        return tagConfig.typesSource;
+      }
+    }
+  }
 }
 
 /**

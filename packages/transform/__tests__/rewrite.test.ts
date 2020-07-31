@@ -1,5 +1,8 @@
 import { rewriteModule } from '../src';
 import { stripIndent } from 'common-tags';
+import { GlintEnvironment } from '@glint/config';
+
+const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
 
 describe('rewriteModule', () => {
   test('with a simple class', () => {
@@ -10,7 +13,7 @@ describe('rewriteModule', () => {
       }
     `;
 
-    let transformedModule = rewriteModule('test.ts', code);
+    let transformedModule = rewriteModule('test.ts', code, glimmerxEnvironment);
 
     expect(transformedModule?.errors).toEqual([]);
     expect(transformedModule?.transformedSource).toMatchInlineSnapshot(`
@@ -18,8 +21,8 @@ describe('rewriteModule', () => {
       export default class MyComponent extends Component {
         static template = (() => {
         hbs;
-        let χ!: typeof import(\\"@glint/template\\");
-        return χ.template(function*(𝚪: import(\\"@glint/template\\").ResolveContext<MyComponent>) {
+        let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");
+        return χ.template(function*(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<MyComponent>) {
           𝚪;
         });
       })();
@@ -35,7 +38,7 @@ describe('rewriteModule', () => {
       }
     `;
 
-    let transformedModule = rewriteModule('test.ts', code);
+    let transformedModule = rewriteModule('test.ts', code, glimmerxEnvironment);
 
     expect(transformedModule?.errors).toEqual([]);
     expect(transformedModule?.transformedSource).toMatchInlineSnapshot(`
@@ -43,8 +46,8 @@ describe('rewriteModule', () => {
       export default class MyComponent<K extends string> extends Component<{ value: K }> {
         static template = (() => {
         hbs;
-        let χ!: typeof import(\\"@glint/template\\");
-        return χ.template(function*<K extends string>(𝚪: import(\\"@glint/template\\").ResolveContext<MyComponent<K>>) {
+        let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");
+        return χ.template(function*<K extends string>(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<MyComponent<K>>) {
           𝚪;
         });
       })();
@@ -60,7 +63,7 @@ describe('rewriteModule', () => {
       }
     `;
 
-    let transformedModule = rewriteModule('test.ts', code);
+    let transformedModule = rewriteModule('test.ts', code, glimmerxEnvironment);
 
     expect(transformedModule?.errors).toEqual([
       {
@@ -77,8 +80,8 @@ describe('rewriteModule', () => {
       export default class extends Component {
         static template = (() => {
         hbs;
-        let χ!: typeof import(\\"@glint/template\\");
-        return χ.template(function*(𝚪: import(\\"@glint/template\\").ResolveContext<unknown>) {
+        let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");
+        return χ.template(function*(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<unknown>) {
           𝚪;
         });
       })();
