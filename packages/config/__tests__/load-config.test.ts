@@ -9,7 +9,10 @@ describe('loadConfig', () => {
   beforeEach(() => {
     fs.rmdirSync(testDir, { recursive: true });
     fs.mkdirSync(testDir);
-    fs.writeFileSync(`${testDir}/local-env.js`, `exports.tags = { test: true };\n`);
+    fs.writeFileSync(
+      `${testDir}/local-env.js`,
+      `module.exports = () => ({ tags: { test: true } });\n`
+    );
   });
 
   afterEach(() => {
