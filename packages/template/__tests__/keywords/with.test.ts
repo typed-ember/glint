@@ -1,12 +1,13 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, Globals, toBlock, invokeBlock } from '@glint/template';
+import { resolve, toBlock, invokeBlock } from '@glint/template';
 import { BlockYield } from '@glint/template/-private/blocks';
+import { WithKeyword } from '@glint/template/-private/keywords';
 
-const withh = resolve(Globals['with']);
+const withKeyword = resolve({} as WithKeyword);
 
 // Yields out the given value
 expectTypeOf(
-  invokeBlock(withh({}, 'hello'), {
+  invokeBlock(withKeyword({}, 'hello'), {
     *default(str) {
       expectTypeOf(str).toEqualTypeOf<string>();
       yield toBlock('body', str);
@@ -18,4 +19,4 @@ expectTypeOf(
 ).toEqualTypeOf<BlockYield<'body', [string]>>();
 
 // @ts-expect-error: Rejects multiple values
-withh({}, 'hello', 'goodbye');
+withKeyword({}, 'hello', 'goodbye');

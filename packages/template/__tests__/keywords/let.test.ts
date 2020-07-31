@@ -1,12 +1,13 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, Globals, toBlock, invokeBlock } from '@glint/template';
+import { resolve, toBlock, invokeBlock } from '@glint/template';
 import { BlockYield } from '@glint/template/-private/blocks';
+import { LetKeyword } from '@glint/template/-private/keywords';
 
-const lett = resolve(Globals['let']);
+const letKeyword = resolve({} as LetKeyword);
 
 // Yields out the given values
 expectTypeOf(
-  invokeBlock(lett({}, 'hello', 123), {
+  invokeBlock(letKeyword({}, 'hello', 123), {
     *default(str, num) {
       expectTypeOf(str).toEqualTypeOf<string>();
       expectTypeOf(num).toEqualTypeOf<number>();

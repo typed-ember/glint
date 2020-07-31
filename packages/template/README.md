@@ -1,5 +1,6 @@
 # `@glint/template`
 
-This package contains type declarations used by other [glint] packages for perfoming TypeScript analysis of Glimmer templates. These types determine the semantics of component/modifier/helper invocations.
+This package contains type declarations used by other [glint] packages for perfoming TypeScript analysis of Glimmer templates. These types form the basis on which [glint-environment packages] are built.
 
 [glint]: https://github.com/typed-ember/glint
+[glint-environment packages]: https://www.npmjs.com/search?q=keywords:glint-environment

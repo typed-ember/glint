@@ -1,30 +1,27 @@
-import '@glint/template/glimmer';
-
-import GlimmerComponent from '@glimmer/component';
 import {
   template,
   resolve,
   toBlock,
   invokeBlock,
   ResolveContext,
-  Globals,
   invokeModifier,
   invokeInline,
   resolveOrReturn,
 } from '@glint/template';
 import { expectTypeOf } from 'expect-type';
 import { BlockYield } from '@glint/template/-private/blocks';
+import TestComponent, { globals } from './test-component';
 
 type MyComponentArgs<T> = {
   name?: string;
   value: T;
 };
 
-class MyComponent<T> extends GlimmerComponent<MyComponentArgs<T>> {
+class MyComponent<T> extends TestComponent<MyComponentArgs<T>> {
   private state = { ready: false };
 
-  private wrapperClicked(message: string, event: MouseEvent): void {
-    console.log(message, event.x, event.y);
+  private wrapperClicked(event: MouseEvent): void {
+    console.log('clicked', event.x, event.y);
   }
 
   /**
@@ -37,15 +34,9 @@ class MyComponent<T> extends GlimmerComponent<MyComponentArgs<T>> {
    * ```
    */
   public static template = template(function* <T>(𝚪: ResolveContext<MyComponent<T>>) {
-    yield invokeBlock(resolve(Globals['let'])({}, 𝚪.this.state.ready), {
+    yield invokeBlock(resolve(globals.let)({}, 𝚪.this.state.ready), {
       *default(isReady) {
-        invokeModifier(
-          resolve(Globals['on'])(
-            {},
-            'click',
-            invokeInline(resolve(Globals['fn'])({}, 𝚪.this.wrapperClicked, 'clicked!'))
-          )
-        );
+        invokeModifier(resolve(globals.on)({}, 'click', 𝚪.this.wrapperClicked));
 
         yield toBlock('body', isReady, 𝚪.args.value);
       },
