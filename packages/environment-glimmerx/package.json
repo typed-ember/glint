@@ -27,5 +27,8 @@
   "devDependencies": {
     "expect-type": "0.7.3",
     "@glimmerx/component": "^0.2.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
