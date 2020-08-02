@@ -1,6 +1,6 @@
 {
   "name": "demo-app",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A brand new Glimmer app.",
   "directories": {
     "doc": "doc",
@@ -31,9 +31,9 @@
     "@glimmerx/helper": "^0.2.3",
     "@glimmerx/modifier": "^0.2.3",
     "@glimmerx/service": "^0.2.3",
-    "@glint/cli": "^0.1.2",
-    "@glint/environment-glimmerx": "^0.1.2",
-    "@glint/tsserver-plugin": "^0.1.2",
+    "@glint/cli": "^0.2.0",
+    "@glint/environment-glimmerx": "^0.2.0",
+    "@glint/tsserver-plugin": "^0.2.0",
     "@types/qunit": "^2.9.1",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.26.0",

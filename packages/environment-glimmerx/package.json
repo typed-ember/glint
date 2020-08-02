@@ -1,6 +1,6 @@
 {
   "name": "@glint/environment-glimmerx",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "repository": "typed-ember/glint",
   "description": "A Glint environment to support GlimmerX projects",
   "license": "MIT",
@@ -21,8 +21,8 @@
     "types/"
   ],
   "dependencies": {
-    "@glint/config": "^0.1.2",
-    "@glint/template": "^0.1.2"
+    "@glint/config": "^0.2.0",
+    "@glint/template": "^0.2.0"
   },
   "devDependencies": {
     "expect-type": "0.7.3",

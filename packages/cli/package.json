@@ -1,6 +1,6 @@
 {
   "name": "@glint/cli",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "repository": "typed-ember/glint",
   "description": "A CLI for performing typechecking on Glimmer templates",
   "license": "MIT",
@@ -20,8 +20,8 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "@glint/config": "^0.1.2",
-    "@glint/transform": "^0.1.2",
+    "@glint/config": "^0.2.0",
+    "@glint/transform": "^0.2.0",
     "debug": "^4.1.1",
     "resolve": "^1.17.0",
     "yargs": "^15.3.1"

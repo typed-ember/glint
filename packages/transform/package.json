@@ -1,6 +1,6 @@
 {
   "name": "@glint/transform",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "repository": "typed-ember/glint",
   "description": "Transforms Glimmer templates into TypeScript code that approximates their semantics",
   "license": "MIT",
@@ -22,7 +22,7 @@
     "@babel/plugin-proposal-decorators": "7.8.3",
     "@babel/preset-typescript": "^7.9.0",
     "@glimmer/syntax": "^0.54.0",
-    "@glint/config": "^0.1.2",
+    "@glint/config": "^0.2.0",
     "debug": "^4.1.1"
   },
   "devDependencies": {
