@@ -1,12 +1,21 @@
-<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle cx="256" cy="256" r="256" fill="#F7835A"/>
-<circle cx="214.5" cy="105.5" r="22.5" fill="white"/>
-<circle cx="312.5" cy="414.5" r="22.5" fill="white"/>
-<circle cx="106.5" cy="314.5" r="22.5" fill="white"/>
-<rect x="70.7072" y="217.686" width="135.117" height="45" rx="22.5" transform="rotate(-44.8726 70.7072 217.686)" fill="white"/>
-<rect x="352.194" y="345.123" width="90.5032" height="45" rx="22.5" transform="rotate(-44.8726 352.194 345.123)" fill="white"/>
-<rect x="176" y="419.329" width="341.86" height="45" rx="22.5" transform="rotate(-44.8726 176 419.329)" fill="white"/>
-<rect x="111" y="380.329" width="135.117" height="45" rx="22.5" transform="rotate(-44.8726 111 380.329)" fill="white"/>
-<rect x="225.054" y="267.996" width="223.939" height="45" rx="22.5" transform="rotate(-44.8726 225.054 267.996)" fill="white"/>
-<rect x="125" y="264.329" width="270.434" height="45" rx="22.5" transform="rotate(-44.8726 125 264.329)" fill="white"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256px" height="256px" viewBox="0 0 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>glint</title>
+    <defs>
+        <path d="M117.523672,0 C182.430204,0 235.047344,52.6171401 235.047344,117.523672 C235.047344,182.430204 182.430204,235.047344 117.523672,235.047344 C52.6171401,235.047344 0,182.430204 0,117.523672 C0,52.6171401 52.6171401,0 117.523672,0 Z M117.523672,46.8102761 L101.831,92.092 L29.4789422,66.4805517 L87.887,116.378 L56.2840747,152.88037 L103.251,143.847 L117.02569,218.115967 L130.834,143.662 L178.763269,152.88037 L146.736,115.889 L204.572438,66.4805517 L133.106,91.777 L117.523672,46.8102761 Z" id="path-1"></path>
+        <filter x="-1.3%" y="-1.3%" width="102.6%" height="102.6%" filterUnits="objectBoundingBox" id="filter-2">
+            <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="1" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="glint" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group" transform="translate(10.000000, 10.000000)">
+            <circle id="Oval" fill="#FFFFFF" cx="117.523672" cy="117.523672" r="117.523672"></circle>
+            <g id="Combined-Shape">
+                <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+                <use fill="#13B2D6" fill-rule="evenodd" xlink:href="#path-1"></use>
+            </g>
+        </g>
+    </g>
 </svg>

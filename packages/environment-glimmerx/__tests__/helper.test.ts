@@ -1,7 +1,7 @@
 import { helper, fn as fnDefinition } from '@glimmerx/helper';
 import { resolve } from '@glint/environment-glimmerx/types';
 import { expectTypeOf } from 'expect-type';
-import { NoNamedArgs, ReturnsValue } from '@glint/template/-private';
+import { NoNamedArgs } from '@glint/template/-private';
 
 // Built-in helper: `fn`
 {
@@ -31,7 +31,7 @@ import { NoNamedArgs, ReturnsValue } from '@glint/template/-private';
   let definition = helper(<T, U>([a, b]: [T, U]) => a || b);
   let or = resolve(definition);
 
-  expectTypeOf(or).toEqualTypeOf<<T, U>(args: NoNamedArgs, t: T, u: U) => ReturnsValue<T | U>>();
+  expectTypeOf(or).toEqualTypeOf<<T, U>(args: NoNamedArgs, t: T, u: U) => T | U>();
 
   // @ts-expect-error: extra named arg
   or({ hello: true }, 'a', 'b');
@@ -55,9 +55,7 @@ import { NoNamedArgs, ReturnsValue } from '@glint/template/-private';
 
   let repeat = resolve(definition);
 
-  expectTypeOf(repeat).toEqualTypeOf<
-    (args: { word: string; count?: number }) => ReturnsValue<Array<string>>
-  >();
+  expectTypeOf(repeat).toEqualTypeOf<(args: { word: string; count?: number }) => Array<string>>();
 
   // @ts-expect-error: extra positional arg
   repeat({ word: 'hi' }, 123);

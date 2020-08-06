@@ -3,7 +3,7 @@
  * _template signature_ and _template context_ for various values.
  */
 
-import { ReturnsValue, AnySignature, NoNamedArgs } from './signature';
+import { NoNamedArgs } from './signature';
 import { ContextResolutions, SignatureResolutions } from '../resolution-rules';
 
 export declare const ResolutionKey: unique symbol;
@@ -55,7 +55,7 @@ export declare function resolve<T extends AnyGuard>(item: T): any;
 export declare function resolve<T extends Resolvable<SignatureResolutionKeys>>(
   item: T
 ): ResolveSignature<T>;
-export declare function resolve<T extends AnySignature>(item: T): T;
+export declare function resolve<T extends Function>(item: T): T;
 
 /**
  * A mustache like `{{this.foo}}` might either return a plain value like a string
@@ -70,5 +70,5 @@ export declare function resolveOrReturn<T extends AnyGuard>(item: T): any;
 export declare function resolveOrReturn<T extends Resolvable<SignatureResolutionKeys>>(
   item: T
 ): ResolveSignature<T>;
-export declare function resolveOrReturn<T extends AnySignature>(item: T): T;
-export declare function resolveOrReturn<T>(item: T): (args: NoNamedArgs) => ReturnsValue<T>;
+export declare function resolveOrReturn<T extends Function>(item: T): T;
+export declare function resolveOrReturn<T>(item: T): (args: NoNamedArgs) => T;

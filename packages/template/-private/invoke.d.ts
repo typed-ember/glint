@@ -2,15 +2,6 @@ import { CreatesModifier, AcceptsBlocks } from './signature';
 import { YieldsFromBlock, BlockBodies } from './blocks';
 
 /**
- * This wrapping type indicates a value that may be invoked in a template.
- *
- * At present it's just a no-op type that does nothing but validate that
- * the given type is a valid template signature, as it's otherwise not
- * possible to do anything with function types in TS without losing information
- * about any type parameters they may have.
- */
-export type Invokable<T extends AnySignature> = T;
-
  * Invokes the given value as an inline expression to be emitted to the DOM.
  * This corresponds to a mustache statement either at the top level or being
  * passed as an attribute or concatenated into a string:
