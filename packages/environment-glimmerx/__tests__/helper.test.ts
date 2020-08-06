@@ -1,5 +1,5 @@
 import { helper, fn as fnDefinition } from '@glimmerx/helper';
-import { resolve, invokeInline } from '@glint/environment-glimmerx/types';
+import { resolve } from '@glint/environment-glimmerx/types';
 import { expectTypeOf } from 'expect-type';
 import { NoNamedArgs, ReturnsValue } from '@glint/template/-private';
 
@@ -13,21 +13,17 @@ import { NoNamedArgs, ReturnsValue } from '@glint/template/-private';
   // @ts-expect-error: invalid arg
   fn({}, (t: string) => t, 123);
 
-  expectTypeOf(invokeInline(fn({}, () => true))).toEqualTypeOf<() => boolean>();
-  expectTypeOf(invokeInline(fn({}, (arg: string) => arg.length))).toEqualTypeOf<
-    (arg: string) => number
-  >();
-  expectTypeOf(invokeInline(fn({}, (arg: string) => arg.length, 'hi'))).toEqualTypeOf<
-    () => number
-  >();
+  expectTypeOf(fn({}, () => true)).toEqualTypeOf<() => boolean>();
+  expectTypeOf(fn({}, (arg: string) => arg.length)).toEqualTypeOf<(arg: string) => number>();
+  expectTypeOf(fn({}, (arg: string) => arg.length, 'hi')).toEqualTypeOf<() => number>();
 
   let identity = <T>(x: T): T => x;
 
   // Bound type parameters are reflected in the output
-  expectTypeOf(invokeInline(fn({}, identity, 'hi'))).toEqualTypeOf<() => string>();
+  expectTypeOf(fn({}, identity, 'hi')).toEqualTypeOf<() => string>();
 
-  // Unfortunately unbound type parameters degrade to `unknown`; this is a known limitation
-  expectTypeOf(invokeInline(fn({}, identity))).toEqualTypeOf<(x: unknown) => unknown>();
+  // Unbound type parameters survive to the output
+  expectTypeOf(fn({}, identity)).toEqualTypeOf<<T>(x: T) => T>();
 }
 
 // Custom helper: positional params
@@ -46,9 +42,9 @@ import { NoNamedArgs, ReturnsValue } from '@glint/template/-private';
   // @ts-expect-error: extra positional arg
   or({}, 'a', 'b', 'c');
 
-  expectTypeOf(invokeInline(or({}, 'a', 'b'))).toEqualTypeOf<string>();
-  expectTypeOf(invokeInline(or({}, 'a', true))).toEqualTypeOf<string | boolean>();
-  expectTypeOf(invokeInline(or({}, false, true))).toEqualTypeOf<boolean>();
+  expectTypeOf(or({}, 'a', 'b')).toEqualTypeOf<string>();
+  expectTypeOf(or({}, 'a', true)).toEqualTypeOf<string | boolean>();
+  expectTypeOf(or({}, false, true)).toEqualTypeOf<boolean>();
 }
 
 // Custom helper: named params
@@ -72,6 +68,6 @@ import { NoNamedArgs, ReturnsValue } from '@glint/template/-private';
   // @ts-expect-error: extra named arg
   repeat({ word: 'hello', foo: true });
 
-  expectTypeOf(invokeInline(repeat({ word: 'hi' }))).toEqualTypeOf<Array<string>>();
-  expectTypeOf(invokeInline(repeat({ word: 'hi', count: 3 }))).toEqualTypeOf<Array<string>>();
+  expectTypeOf(repeat({ word: 'hi' })).toEqualTypeOf<Array<string>>();
+  expectTypeOf(repeat({ word: 'hi', count: 3 })).toEqualTypeOf<Array<string>>();
 }

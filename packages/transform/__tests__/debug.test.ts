@@ -80,7 +80,7 @@ describe('Debug utilities', () => {
 
       | Mapping: Template
       |  hbs(0:28):    hbs\`\\\\n    Hello, {{@foo}}\\\\n  \`
-      |  ts(0:265):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");\\\\n  return χ.template(function*(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<HelperComponent>) {\\\\n    χ.invokeInline(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    𝚪;\\\\n  });\\\\n})()
+      |  ts(0:263):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");\\\\n  return χ.template(function*(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<HelperComponent>) {\\\\n    χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    𝚪;\\\\n  });\\\\n})()
       | 
       | | Mapping: Identifier
       | |  hbs(0:0):     
@@ -88,15 +88,15 @@ describe('Debug utilities', () => {
       | | 
       | | Mapping: MustacheStatement
       | |  hbs(16:24):   {{@foo}}
-      | |  ts(191:245):  χ.invokeInline(χ.resolveOrReturn(𝚪.args.foo)({}))
+      | |  ts(191:243):  χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}))
       | | 
       | | | Mapping: PathExpression
       | | |  hbs(18:22):   @foo
-      | | |  ts(228:239):  𝚪.args.foo
+      | | |  ts(226:237):  𝚪.args.foo
       | | | 
       | | | | Mapping: Identifier
       | | | |  hbs(19:22):   foo
-      | | | |  ts(236:239):  foo
+      | | | |  ts(234:237):  foo
       | | | | 
       | | | 
       | | 

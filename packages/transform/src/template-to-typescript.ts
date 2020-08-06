@@ -529,14 +529,18 @@ export function templateToTypescript(
         // If a mustache has parameters, we know it must be an invocation; if
         // not, it depends on where it appears. In arg position, it's always
         // passed directly as a value; otherwise it's invoked if it's a
-        // component/helper, and emitted as a value otherwise.
+        // component/helper, and returned as a value otherwise.
         let hasParams = Boolean(node.hash.pairs.length || node.params.length);
+        let isEmit = position === 'top-level' || position === 'attr' || position === 'concat';
+
         if (!hasParams && position === 'arg') {
           emitExpression(node.path);
-        } else {
-          emit.text('χ.invokeInline(');
+        } else if (isEmit) {
+          emit.text('χ.invokeEmit(');
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
           emit.text(')');
+        } else {
+          emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
         }
       });
     }
@@ -724,9 +728,7 @@ export function templateToTypescript(
       }
 
       emit.forNode(node, () => {
-        emit.text('χ.invokeInline(');
         emitResolve(node, 'resolve');
-        emit.text(')');
       });
     }
 

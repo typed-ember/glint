@@ -99,7 +99,7 @@ describe('rewriteTemplate', () => {
 
         expect(templateBody(template)).toMatchInlineSnapshot(`
           "if (𝚪.args.foo) {
-            χ.invokeInline(χ.resolveOrReturn(𝚪.args.ok)({}));
+            χ.invokeEmit(χ.resolveOrReturn(𝚪.args.ok)({}));
           }"
         `);
       });
@@ -115,9 +115,9 @@ describe('rewriteTemplate', () => {
 
         expect(templateBody(template)).toMatchInlineSnapshot(`
           "if (𝚪.args.foo) {
-            χ.invokeInline(χ.resolveOrReturn(𝚪.args.ok)({}));
+            χ.invokeEmit(χ.resolveOrReturn(𝚪.args.ok)({}));
           } else {
-            χ.invokeInline(χ.resolveOrReturn(𝚪.args.noGood)({}));
+            χ.invokeEmit(χ.resolveOrReturn(𝚪.args.noGood)({}));
           }"
         `);
       });
@@ -135,12 +135,12 @@ describe('rewriteTemplate', () => {
 
         expect(templateBody(template)).toMatchInlineSnapshot(`
           "if (𝚪.args.foo) {
-            χ.invokeInline(χ.resolveOrReturn(𝚪.args.ok)({}));
+            χ.invokeEmit(χ.resolveOrReturn(𝚪.args.ok)({}));
           } else {
             if (𝚪.args.bar) {
-              χ.invokeInline(χ.resolveOrReturn(𝚪.args.noGood)({}));
+              χ.invokeEmit(χ.resolveOrReturn(𝚪.args.noGood)({}));
             } else {
-              χ.invokeInline(χ.resolveOrReturn(𝚪.args.done)({}));
+              χ.invokeEmit(χ.resolveOrReturn(𝚪.args.done)({}));
             }
           }"
         `);
@@ -159,14 +159,14 @@ describe('rewriteTemplate', () => {
 
         expect(templateBody(template)).toMatchInlineSnapshot(`
           "if (𝚪.args.foo) {
-            χ.invokeInline(χ.resolveOrReturn(𝚪.args.ok)({}));
+            χ.invokeEmit(χ.resolveOrReturn(𝚪.args.ok)({}));
           } else {
             yield χ.invokeBlock(χ.resolve(χ.Globals[\\"doAThing\\"])({}), {
               *default(...[ok]) {
-                χ.invokeInline(χ.resolveOrReturn(ok)({}));
+                χ.invokeEmit(χ.resolveOrReturn(ok)({}));
               },
               *inverse(...[]) {
-                χ.invokeInline(χ.resolveOrReturn(𝚪.args.nevermind)({}));
+                χ.invokeEmit(χ.resolveOrReturn(𝚪.args.nevermind)({}));
               },
             }, \\"default\\", \\"inverse\\");
             χ.Globals[\\"doAThing\\"];
@@ -218,7 +218,7 @@ describe('rewriteTemplate', () => {
         `;
 
         expect(templateBody(template, { identifiersInScope: ['log'] })).toMatchInlineSnapshot(
-          `"χ.invokeInline(χ.resolve(log)({}, [1, true, \\"free\\"]));"`
+          `"χ.invokeEmit(χ.resolve(log)({}, [1, true, \\"free\\"]));"`
         );
       });
     });
@@ -251,7 +251,7 @@ describe('rewriteTemplate', () => {
         `;
 
         expect(templateBody(template, { identifiersInScope: ['log'] })).toMatchInlineSnapshot(`
-          "χ.invokeInline(χ.resolve(log)({}, ({
+          "χ.invokeEmit(χ.resolve(log)({}, ({
             a: 1,
             b: \\"ok\\",
           })));"
@@ -267,7 +267,7 @@ describe('rewriteTemplate', () => {
           let template = '{{message}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"χ.invokeInline(χ.resolveOrReturn(χ.Globals[\\"message\\"])({}));"`
+            `"χ.invokeEmit(χ.resolveOrReturn(χ.Globals[\\"message\\"])({}));"`
           );
         });
 
@@ -276,7 +276,7 @@ describe('rewriteTemplate', () => {
           let template = '{{message}}';
 
           expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-            `"χ.invokeInline(χ.resolveOrReturn(message)({}));"`
+            `"χ.invokeEmit(χ.resolveOrReturn(message)({}));"`
           );
         });
 
@@ -285,7 +285,7 @@ describe('rewriteTemplate', () => {
           let template = '{{obj.foo.bar}}';
 
           expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-            `"χ.invokeInline(χ.resolveOrReturn(obj?.foo?.bar)({}));"`
+            `"χ.invokeEmit(χ.resolveOrReturn(obj?.foo?.bar)({}));"`
           );
         });
 
@@ -294,7 +294,7 @@ describe('rewriteTemplate', () => {
           let template = '{{obj.foo-bar.baz}}';
 
           expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-            `"χ.invokeInline(χ.resolveOrReturn(obj?.[\\"foo-bar\\"]?.baz)({}));"`
+            `"χ.invokeEmit(χ.resolveOrReturn(obj?.[\\"foo-bar\\"]?.baz)({}));"`
           );
         });
 
@@ -302,7 +302,7 @@ describe('rewriteTemplate', () => {
           let template = '{{this}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"χ.invokeInline(χ.resolveOrReturn(𝚪.this)({}));"`
+            `"χ.invokeEmit(χ.resolveOrReturn(𝚪.this)({}));"`
           );
         });
 
@@ -310,7 +310,7 @@ describe('rewriteTemplate', () => {
           let template = '{{this.foo.bar}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"χ.invokeInline(χ.resolveOrReturn(𝚪.this.foo?.bar)({}));"`
+            `"χ.invokeEmit(χ.resolveOrReturn(𝚪.this.foo?.bar)({}));"`
           );
         });
 
@@ -318,7 +318,26 @@ describe('rewriteTemplate', () => {
           let template = '{{@foo}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"χ.invokeInline(χ.resolveOrReturn(𝚪.args.foo)({}));"`
+            `"χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}));"`
+          );
+        });
+
+        test('passed as an attr', () => {
+          let identifiersInScope = ['Foo', 'helper'];
+          let template = '<Foo data-bar={{helper param=true}} />';
+
+          expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+            "χ.invokeEmit(χ.resolve(helper)({ param: true }));
+            yield χ.invokeBlock(χ.resolve(Foo)({}), {});"
+          `);
+        });
+
+        test('passed as an @arg', () => {
+          let identifiersInScope = ['Foo', 'helper'];
+          let template = '<Foo @bar={{helper param=true}} />';
+
+          expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
+            `"yield χ.invokeBlock(χ.resolve(Foo)({ bar: χ.resolve(helper)({ param: true }) }), {});"`
           );
         });
       });
@@ -328,7 +347,7 @@ describe('rewriteTemplate', () => {
           let template = '{{@input}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"χ.invokeInline(χ.resolveOrReturn(𝚪.args.input)({}));"`
+            `"χ.invokeEmit(χ.resolveOrReturn(𝚪.args.input)({}));"`
           );
         });
 
@@ -336,7 +355,7 @@ describe('rewriteTemplate', () => {
           let template = '<div data-attr={{@input}}></div>';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"χ.invokeInline(χ.resolveOrReturn(𝚪.args.input)({}));"`
+            `"χ.invokeEmit(χ.resolveOrReturn(𝚪.args.input)({}));"`
           );
         });
 
@@ -344,7 +363,7 @@ describe('rewriteTemplate', () => {
           let template = '<div data-attr="hello, {{@input}}"></div>';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"\`\${χ.invokeInline(χ.resolveOrReturn(𝚪.args.input)({}))}\`;"`
+            `"\`\${χ.invokeEmit(χ.resolveOrReturn(𝚪.args.input)({}))}\`;"`
           );
         });
 
@@ -399,7 +418,7 @@ describe('rewriteTemplate', () => {
         let template = '{{doSomething "hello" 123}}';
 
         expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-          `"χ.invokeInline(χ.resolve(doSomething)({}, \\"hello\\", 123));"`
+          `"χ.invokeEmit(χ.resolve(doSomething)({}, \\"hello\\", 123));"`
         );
       });
 
@@ -408,7 +427,7 @@ describe('rewriteTemplate', () => {
         let template = '{{doSomething a=123 b="ok"}}';
 
         expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-          `"χ.invokeInline(χ.resolve(doSomething)({ a: 123, b: \\"ok\\" }));"`
+          `"χ.invokeEmit(χ.resolve(doSomething)({ a: 123, b: \\"ok\\" }));"`
         );
       });
 
@@ -417,7 +436,7 @@ describe('rewriteTemplate', () => {
         let template = '{{doSomething "one" true 3 four=4}}';
 
         expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-          `"χ.invokeInline(χ.resolve(doSomething)({ four: 4 }, \\"one\\", true, 3));"`
+          `"χ.invokeEmit(χ.resolve(doSomething)({ four: 4 }, \\"one\\", true, 3));"`
         );
       });
     });
@@ -450,7 +469,7 @@ describe('rewriteTemplate', () => {
       let template = `<div data-attr={{concat (foo 1) (foo true)}}></div>`;
 
       expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-        `"χ.invokeInline(χ.resolve(concat)({}, χ.invokeInline(χ.resolve(foo)({}, 1)), χ.invokeInline(χ.resolve(foo)({}, true))));"`
+        `"χ.invokeEmit(χ.resolve(concat)({}, χ.resolve(foo)({}, 1), χ.resolve(foo)({}, true)));"`
       );
     });
   });
@@ -466,8 +485,8 @@ describe('rewriteTemplate', () => {
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
           *default(...[bar, baz]) {
-            χ.invokeInline(χ.resolveOrReturn(bar)({}));
-            χ.invokeInline(χ.resolveOrReturn(baz)({}));
+            χ.invokeEmit(χ.resolveOrReturn(bar)({}));
+            χ.invokeEmit(χ.resolveOrReturn(baz)({}));
           },
         }, \\"default\\");
         χ.Globals[\\"foo\\"];"
@@ -486,11 +505,11 @@ describe('rewriteTemplate', () => {
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
           *default(...[bar, baz]) {
-            χ.invokeInline(χ.resolveOrReturn(bar)({}));
-            χ.invokeInline(χ.resolveOrReturn(baz)({}));
+            χ.invokeEmit(χ.resolveOrReturn(bar)({}));
+            χ.invokeEmit(χ.resolveOrReturn(baz)({}));
           },
           *inverse(...[]) {
-            χ.invokeInline(χ.resolveOrReturn(𝚪.args.oh)({}));
+            χ.invokeEmit(χ.resolveOrReturn(𝚪.args.oh)({}));
           },
         }, \\"default\\", \\"inverse\\");
         χ.Globals[\\"foo\\"];"
@@ -509,11 +528,11 @@ describe('rewriteTemplate', () => {
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
           *default(...[bar, baz]) {
-            χ.invokeInline(χ.resolveOrReturn(bar)({}));
-            χ.invokeInline(χ.resolveOrReturn(baz)({}));
+            χ.invokeEmit(χ.resolveOrReturn(bar)({}));
+            χ.invokeEmit(χ.resolveOrReturn(baz)({}));
           },
           *inverse(...[]) {
-            χ.invokeInline(χ.resolveOrReturn(𝚪.args.oh)({}));
+            χ.invokeEmit(χ.resolveOrReturn(𝚪.args.oh)({}));
           },
         }, \\"default\\", \\"inverse\\");
         χ.Globals[\\"foo\\"];"
@@ -526,7 +545,7 @@ describe('rewriteTemplate', () => {
       let template = '<div>{{@foo}}</div>';
 
       expect(templateBody(template)).toMatchInlineSnapshot(
-        `"χ.invokeInline(χ.resolveOrReturn(𝚪.args.foo)({}));"`
+        `"χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}));"`
       );
     });
 
@@ -534,7 +553,7 @@ describe('rewriteTemplate', () => {
       let template = '<div data-foo={{@foo}}></div>';
 
       expect(templateBody(template)).toMatchInlineSnapshot(
-        `"χ.invokeInline(χ.resolveOrReturn(𝚪.args.foo)({}));"`
+        `"χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}));"`
       );
     });
 
@@ -542,7 +561,7 @@ describe('rewriteTemplate', () => {
       let template = '<div data-foo="value-{{@foo}}-{{@bar}}"></div>';
 
       expect(templateBody(template)).toMatchInlineSnapshot(
-        `"\`\${χ.invokeInline(χ.resolveOrReturn(𝚪.args.foo)({}))}\${χ.invokeInline(χ.resolveOrReturn(𝚪.args.bar)({}))}\`;"`
+        `"\`\${χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}))}\${χ.invokeEmit(χ.resolveOrReturn(𝚪.args.bar)({}))}\`;"`
       );
     });
   });
@@ -566,7 +585,7 @@ describe('rewriteTemplate', () => {
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({}), {
           *default(...[bar]) {
-            χ.invokeInline(χ.resolveOrReturn(bar)({}));
+            χ.invokeEmit(χ.resolveOrReturn(bar)({}));
           },
         }, \\"default\\");
         χ.Globals[\\"Foo\\"];"
@@ -614,7 +633,7 @@ describe('rewriteTemplate', () => {
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({}), {
           *head(...[h]) {
-            χ.invokeInline(χ.resolveOrReturn(h)({}));
+            χ.invokeEmit(χ.resolveOrReturn(h)({}));
           },
           *body(...[b]) {
             yield χ.invokeBlock(χ.resolve(b?.contents)({}), {
@@ -633,7 +652,7 @@ describe('rewriteTemplate', () => {
       let template = `<Foo @arg="bar-{{baz}}" />`;
 
       expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-        `"yield χ.invokeBlock(χ.resolve(Foo)({ arg: \`\${χ.invokeInline(χ.resolveOrReturn(baz)({}))}\` }), {});"`
+        `"yield χ.invokeBlock(χ.resolve(Foo)({ arg: \`\${χ.invokeEmit(χ.resolveOrReturn(baz)({}))}\` }), {});"`
       );
     });
   });

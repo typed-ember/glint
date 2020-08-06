@@ -1,4 +1,4 @@
-import { Return, ReturnsValue, CreatesModifier, AcceptsBlocks, AnySignature } from './signature';
+import { CreatesModifier, AcceptsBlocks } from './signature';
 import { YieldsFromBlock, BlockBodies } from './blocks';
 
 /**
@@ -11,20 +11,17 @@ import { YieldsFromBlock, BlockBodies } from './blocks';
  */
 export type Invokable<T extends AnySignature> = T;
 
-/**
- * Invokes the given value as an inline invocation. This corresponds to a
- * mustache statement or subexpression, i.e. one of:
+ * Invokes the given value as an inline expression to be emitted to the DOM.
+ * This corresponds to a mustache statement either at the top level or being
+ * passed as an attribute or concatenated into a string:
  *
  *     {{value foo=bar}}
- *     <div data-attr={{value foo=bar}}></div>
- *     <div data-attr={{concat (value foo=bar)}}
- *
- * This form of invocation is the only one in a template that allows for a
- * value to be returned.
+ *     <div data-x={{value foo=bar}}>
+ *     <div data-x="hello {{value foo=bar}}">
  */
-export declare function invokeInline<T extends ReturnsValue<any>>(
-  value: T
-): ReturnType<T>[typeof Return];
+export declare function invokeEmit<
+  T extends AcceptsBlocks<{}> | string | number | boolean | null | void
+>(value: T): void;
 
 /**
  * Invokes the given value as a modifier. This corresponds to a mustache
