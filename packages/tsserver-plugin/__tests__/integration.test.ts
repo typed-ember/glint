@@ -8,7 +8,7 @@ describe('tsserver plugin', () => {
   let project!: Project;
 
   beforeAll(async () => {
-    jest.setTimeout(10_000);
+    jest.setTimeout(30_000);
     server = await new TSServer().start({
       listenForDebugger: false,
       printMessages: false,
