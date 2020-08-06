@@ -24,20 +24,13 @@
  */
 
 declare const Modifier: unique symbol;
-declare const Return: unique symbol;
 declare const Blocks: unique symbol;
 
 /** The loosest shape of a "blocks hash" */
 export type AnyBlocks = Record<string, unknown[]>;
 
-/** The loosest shape of a template signature */
-export type AnySignature = (...args: any) => (blocks: any) => any;
-
-/** Denotes that the associated entity returns a value when invoked */
-export type ReturnsValue<T> = () => { [Return]: T };
-
 /** Denotes that the associated entity should be invoked as a modifier */
-export type CreatesModifier = () => { [Modifier]: true };
+export type CreatesModifier = { [Modifier]: true };
 
 // These shenanigans are necessary to get TS to report when named args
 // are passed to a signature that doesn't expect any, because `{}` is

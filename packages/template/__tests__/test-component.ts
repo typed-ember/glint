@@ -2,7 +2,6 @@ import {
   ResolutionKey,
   TemplateContext,
   AcceptsBlocks,
-  Invokable,
   NoNamedArgs,
   CreatesModifier,
 } from '@glint/template/-private';
@@ -39,7 +38,7 @@ declare module '@glint/template/resolution-rules' {
 
   export interface SignatureResolutions<InvokedValue> {
     [ResolveTestComponent]: InvokedValue extends Constructor<TestComponent<infer Args>>
-      ? InvokedValue extends { template: Invokable<infer Signature> }
+      ? InvokedValue extends { template: infer Signature }
         ? Signature
         : (args: Args) => AcceptsBlocks<{ default?: [] }>
       : never;

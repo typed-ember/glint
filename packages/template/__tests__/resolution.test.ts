@@ -2,7 +2,6 @@ import { expectTypeOf } from 'expect-type';
 import { ResolveSignature, resolveOrReturn } from '@glint/template/-private/resolution';
 import { TemplateContext } from '@glint/template/-private/template';
 import { template, invokeBlock, resolve, toBlock, ResolveContext } from '@glint/template';
-import { Invokable } from '@glint/template/-private/invoke';
 import { AcceptsBlocks } from '../-private';
 import TestComponent, { globals } from './test-component';
 
@@ -56,7 +55,7 @@ declare function value<T>(): T;
   type ExpectedContext<T> = TemplateContext<MyComponent<T>, MyArgs<T>>;
 
   // Template has the correct type
-  expectTypeOf(MyComponent.template).toEqualTypeOf<Invokable<ExpectedSignature>>();
+  expectTypeOf(MyComponent.template).toEqualTypeOf<ExpectedSignature>();
 
   // Resolved component signature uses the template type
   expectTypeOf<ResolveSignature<typeof MyComponent>>().toEqualTypeOf<ExpectedSignature>();
@@ -76,7 +75,7 @@ declare function value<T>(): T;
     otherwise: [];
   }>;
 
-  expectTypeOf(resolve(value<Invokable<TestSignature>>())).toEqualTypeOf<TestSignature>();
+  expectTypeOf(resolve(value<TestSignature>())).toEqualTypeOf<TestSignature>();
 }
 
 // Values of type `any` or `never` (themselves typically the product of other type errors)

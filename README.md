@@ -301,7 +301,7 @@ export default class MyComponent extends Component<{ message: string }> {
   public static template = (() => {
     let χ!: typeof import('@glint/template');
     return χ.template(function* (𝚪: import('@glint/template').ResolveContext<MyComponent>) {
-      χ.invokeInline(χ.resolveOrReturn(𝚪.args.message));
+      χ.invokeEmit(χ.resolveOrReturn(𝚪.args.message));
     });
   })();
 }

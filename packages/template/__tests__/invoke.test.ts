@@ -5,7 +5,7 @@ import {
   invokeBlock,
   ResolveContext,
   invokeModifier,
-  invokeInline,
+  invokeEmit,
   resolveOrReturn,
 } from '@glint/template';
 import { expectTypeOf } from 'expect-type';
@@ -59,8 +59,11 @@ class MyComponent<T> extends TestComponent<MyComponentArgs<T>> {
 expectTypeOf(
   invokeBlock(resolve(MyComponent)({ value: 'hi' }), {
     *body(isReady, value) {
-      expectTypeOf(invokeInline(resolveOrReturn(value)({}))).toEqualTypeOf<string>();
-      expectTypeOf(invokeInline(resolveOrReturn(isReady)({}))).toEqualTypeOf<boolean>();
+      expectTypeOf(isReady).toEqualTypeOf<boolean>();
+      expectTypeOf(value).toEqualTypeOf<string>();
+
+      invokeEmit(resolveOrReturn(value)({}));
+      invokeEmit(resolveOrReturn(isReady)({}));
 
       yield toBlock('default', value);
     },
@@ -81,13 +84,26 @@ expectTypeOf(
 expectTypeOf(
   invokeBlock(resolve(MyComponent)({ value: 123 }), {
     *body(isReady, value) {
-      expectTypeOf(invokeInline(resolveOrReturn(value)({}))).toEqualTypeOf<number>();
-      expectTypeOf(invokeInline(resolveOrReturn(isReady)({}))).toEqualTypeOf<boolean>();
+      expectTypeOf(isReady).toEqualTypeOf<boolean>();
+      expectTypeOf(value).toEqualTypeOf<number>();
+
+      invokeEmit(resolveOrReturn(value)({}));
+      invokeEmit(resolveOrReturn(isReady)({}));
 
       yield toBlock('default', value);
     },
   })
 ).toEqualTypeOf<BlockYield<'default', [number]>>();
+
+/**
+ * Invoke the component inline, which is valid since it has no
+ * required blocks.
+ *
+ * hbs```
+ * {{MyComponent value=123}}
+ * ```
+ */
+invokeEmit(resolve(MyComponent)({ value: 123 }));
 
 /**
  * Constrained type parameters can be tricky, and `expect-type` doesn't
@@ -97,6 +113,6 @@ expectTypeOf(
  * in a template.
  */
 export function testConstrainedTypeParameter<T extends { foo: 'bar' }>(value: T): void {
-  let result = invokeInline(resolveOrReturn(value)({}));
+  let result = resolveOrReturn(value)({});
   expectTypeOf(result.foo).toEqualTypeOf<'bar'>();
 }

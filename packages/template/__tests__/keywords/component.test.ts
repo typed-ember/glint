@@ -1,21 +1,20 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, toBlock, invokeInline, invokeBlock } from '@glint/template';
+import { resolve, toBlock, invokeBlock } from '@glint/template';
 import { AcceptsBlocks } from '@glint/template/-private';
 import { BlockYield } from '@glint/template/-private/blocks';
-import { Invokable } from '@glint/template/-private/invoke';
 import { ComponentKeyword } from '@glint/template/-private/keywords';
 
 const componentKeyword = resolve({} as ComponentKeyword);
 
-declare const TestComponent: Invokable<(args: {
+declare const TestComponent: (args: {
   value: string;
 }) => AcceptsBlocks<{
   default?: [string];
   inverse?: [];
-}>>;
+}>;
 
-const NoopCurriedTestComponent = invokeInline(componentKeyword({}, TestComponent));
-const ValueCurriedTestComponent = invokeInline(componentKeyword({ value: 'hello' }, TestComponent));
+const NoopCurriedTestComponent = componentKeyword({}, TestComponent);
+const ValueCurriedTestComponent = componentKeyword({ value: 'hello' }, TestComponent);
 
 // Invoking the noop-curried component
 expectTypeOf(invokeBlock(resolve(NoopCurriedTestComponent)({ value: 'hello' }), {})).toEqualTypeOf<

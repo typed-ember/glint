@@ -1,5 +1,5 @@
-import { NoNamedArgs, ReturnsValue } from '../signature';
+import { NoNamedArgs } from '../signature';
 
 export default interface DebuggerKeyword {
-  (args: NoNamedArgs): ReturnsValue<void>;
+  (args: NoNamedArgs): void;
 }

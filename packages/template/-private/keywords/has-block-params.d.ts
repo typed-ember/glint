@@ -1,5 +1,5 @@
-import { NoNamedArgs, ReturnsValue } from '../signature';
+import { NoNamedArgs } from '../signature';
 
 export default interface HasBlockParamsKeyword {
-  (args: NoNamedArgs, blockName?: string): ReturnsValue<boolean>;
+  (args: NoNamedArgs, blockName?: string): boolean;
 }

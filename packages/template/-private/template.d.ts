@@ -6,7 +6,6 @@
 
 import { BlockYield } from './blocks';
 import { AcceptsBlocks } from './signature';
-import { Invokable } from './invoke';
 
 /**
  * Determines the type of `this` and any `@arg`s used in a template.
@@ -18,18 +17,16 @@ export type TemplateContext<This, Args> = { this: This; args: Args };
 
 /**
  * Accepts a generator function declaring an expected template context,
- * and returns an appropriate `Invokable` type that accepts the required
+ * and returns an appropriate invokable type that accepts the required
  * named args and a set of blocks as determined by any `BlockYield`s
  * included in the generators iterator type.
  */
 export declare function template<This, Args, Yields extends BlockYield<string, unknown[]>>(
   f: (𝚪: TemplateContext<This, Args>) => IterableIterator<Yields>
-): Invokable<
-  (
-    args: Args
-  ) => AcceptsBlocks<
-    {
-      [K in Yields['to']]?: Extract<Yields, { to: K }>['values'];
-    }
-  >
+): (
+  args: Args
+) => AcceptsBlocks<
+  {
+    [K in Yields['to']]?: Extract<Yields, { to: K }>['values'];
+  }
 >;
