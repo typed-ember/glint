@@ -1,6 +1,6 @@
 {
   "name": "@glint/tsserver-plugin",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "repository": "typed-ember/glint",
   "description": "A TypeScript language service plugin to provide typechecking and editor support for working with Glimmer templates",
   "license": "MIT",
@@ -18,8 +18,8 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "@glint/config": "^0.2.0",
-    "@glint/transform": "^0.2.0"
+    "@glint/config": "^0.2.1",
+    "@glint/transform": "^0.2.1"
   },
   "devDependencies": {
     "@types/jest": "^25.2.1",
