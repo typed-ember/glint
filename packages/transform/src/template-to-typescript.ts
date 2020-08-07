@@ -814,6 +814,8 @@ export function templateToTypescript(
         emit.identifier(head, start);
       }
 
+      start += head.length;
+
       for (let i = 1; i < parts.length; i++) {
         let part = parts[i];
         start = template.indexOf(part, start);
@@ -825,6 +827,7 @@ export function templateToTypescript(
           emit.identifier(JSON.stringify(part), start, part.length);
           emit.text(']');
         }
+        start += part.length;
       }
     }
 
