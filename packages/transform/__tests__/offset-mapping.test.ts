@@ -125,6 +125,13 @@ describe('Source-to-source offset mapping', () => {
       expectTokenMapping(module, 'bar');
       expectTokenMapping(module, 'this');
     });
+
+    test('paths with repeated subsequences', () => {
+      let module = rewriteTestModule({ contents: '{{this.tabState.tab}}' });
+      expectTokenMapping(module, 'this');
+      expectTokenMapping(module, 'tabState');
+      expectTokenMapping(module, 'tab', { occurrence: 1 });
+    });
   });
 
   describe('keys', () => {
