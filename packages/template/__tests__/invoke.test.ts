@@ -1,7 +1,6 @@
 import {
   template,
   resolve,
-  toBlock,
   invokeBlock,
   ResolveContext,
   invokeModifier,
@@ -9,15 +8,19 @@ import {
   resolveOrReturn,
 } from '@glint/template';
 import { expectTypeOf } from 'expect-type';
-import { BlockYield } from '@glint/template/-private/blocks';
 import TestComponent, { globals } from './test-component';
+import { yieldToBlock } from '../-private/blocks';
 
 type MyComponentArgs<T> = {
   name?: string;
   value: T;
 };
 
-class MyComponent<T> extends TestComponent<MyComponentArgs<T>> {
+type MyComponentYields<T> = {
+  body?: [boolean, T];
+};
+
+class MyComponent<T> extends TestComponent<MyComponentArgs<T>, MyComponentYields<T>> {
   private state = { ready: false };
 
   private wrapperClicked(event: MouseEvent): void {
@@ -27,18 +30,37 @@ class MyComponent<T> extends TestComponent<MyComponentArgs<T>> {
   /**
    * ```hbs
    * {{#let this.state.ready as |isReady|}}
-   *   <div {{on 'click' (fn this.wrapperClicked 'clicked!')}}>
+   *   <div {{on 'click' this.wrapperClicked}}>
    *     {{yield isReady @value to="body"}}
    *   </div>
    * {{/let}}
    * ```
    */
-  public static template = template(function* <T>(𝚪: ResolveContext<MyComponent<T>>) {
-    yield invokeBlock(resolve(globals.let)({}, 𝚪.this.state.ready), {
-      *default(isReady) {
+  public static template = template(function <T>(𝚪: ResolveContext<MyComponent<T>>) {
+    invokeBlock(resolve(globals.let)({}, 𝚪.this.state.ready), {
+      default(isReady) {
         invokeModifier(resolve(globals.on)({}, 'click', 𝚪.this.wrapperClicked));
 
-        yield toBlock('body', isReady, 𝚪.args.value);
+        yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
+
+        yieldToBlock(
+          𝚪,
+          // @ts-expect-error: bad block
+          'bad',
+          isReady,
+          𝚪.args.value
+        );
+
+        // @ts-expect-error: missing params
+        yieldToBlock(𝚪, 'body');
+
+        yieldToBlock(
+          𝚪,
+          'body',
+          isReady,
+          // @ts-expect-error: wrong param type
+          Symbol()
+        );
       },
     });
   });
@@ -56,19 +78,15 @@ class MyComponent<T> extends TestComponent<MyComponentArgs<T>> {
  *   </:body>
  * </MyComponent>
  */
-expectTypeOf(
-  invokeBlock(resolve(MyComponent)({ value: 'hi' }), {
-    *body(isReady, value) {
-      expectTypeOf(isReady).toEqualTypeOf<boolean>();
-      expectTypeOf(value).toEqualTypeOf<string>();
+invokeBlock(resolve(MyComponent)({ value: 'hi' }), {
+  body(isReady, value) {
+    expectTypeOf(isReady).toEqualTypeOf<boolean>();
+    expectTypeOf(value).toEqualTypeOf<string>();
 
-      invokeEmit(resolveOrReturn(value)({}));
-      invokeEmit(resolveOrReturn(isReady)({}));
-
-      yield toBlock('default', value);
-    },
-  })
-).toEqualTypeOf<BlockYield<'default', [string]>>();
+    invokeEmit(resolveOrReturn(value)({}));
+    invokeEmit(resolveOrReturn(isReady)({}));
+  },
+});
 
 /**
  * Instantiate `T` to `number` and verify it's threaded through:
@@ -81,19 +99,15 @@ expectTypeOf(
  *   </:body>
  * </MyComponent>
  */
-expectTypeOf(
-  invokeBlock(resolve(MyComponent)({ value: 123 }), {
-    *body(isReady, value) {
-      expectTypeOf(isReady).toEqualTypeOf<boolean>();
-      expectTypeOf(value).toEqualTypeOf<number>();
+invokeBlock(resolve(MyComponent)({ value: 123 }), {
+  body(isReady, value) {
+    expectTypeOf(isReady).toEqualTypeOf<boolean>();
+    expectTypeOf(value).toEqualTypeOf<number>();
 
-      invokeEmit(resolveOrReturn(value)({}));
-      invokeEmit(resolveOrReturn(isReady)({}));
-
-      yield toBlock('default', value);
-    },
-  })
-).toEqualTypeOf<BlockYield<'default', [number]>>();
+    invokeEmit(resolveOrReturn(value)({}));
+    invokeEmit(resolveOrReturn(isReady)({}));
+  },
+});
 
 /**
  * Invoke the component inline, which is valid since it has no

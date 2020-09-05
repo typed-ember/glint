@@ -1,25 +1,12 @@
 import { expectTypeOf } from 'expect-type';
-import { ResolveSignature, resolveOrReturn } from '@glint/template/-private/resolution';
+import { resolveOrReturn } from '@glint/template/-private/resolution';
 import { TemplateContext } from '@glint/template/-private/template';
-import { template, invokeBlock, resolve, toBlock, ResolveContext } from '@glint/template';
+import { template, invokeBlock, resolve, ResolveContext } from '@glint/template';
 import { AcceptsBlocks } from '../-private';
 import TestComponent, { globals } from './test-component';
+import { yieldToBlock } from '../-private/blocks';
 
 declare function value<T>(): T;
-
-// Component with no template
-{
-  type MyArgs<T> = {
-    value: T;
-  };
-
-  class MyComponent<T> extends TestComponent<MyArgs<T>> {}
-
-  type ExpectedSignature = (args: MyArgs<unknown>) => AcceptsBlocks<{ default?: [] }>;
-
-  // Resolved component signature is the expected one
-  expectTypeOf<ResolveSignature<typeof MyComponent>>().toEqualTypeOf<ExpectedSignature>();
-}
 
 // Component with a template
 {
@@ -27,7 +14,11 @@ declare function value<T>(): T;
     value: T;
   };
 
-  class MyComponent<T> extends TestComponent<MyArgs<T>> {
+  type MyYields<T> = {
+    body: [boolean, T];
+  };
+
+  class MyComponent<T> extends TestComponent<MyArgs<T>, MyYields<T>> {
     private state = { ready: false };
 
     /**
@@ -37,10 +28,10 @@ declare function value<T>(): T;
      * {{/let}}
      * ```
      */
-    public static template = template(function* <T>(𝚪: ResolveContext<MyComponent<T>>) {
-      yield invokeBlock(resolve(globals.let)({}, 𝚪.this.state.ready), {
-        *default(isReady) {
-          yield toBlock('body', isReady, 𝚪.args.value);
+    public static template = template(function <T>(𝚪: ResolveContext<MyComponent<T>>) {
+      invokeBlock(resolve(globals.let)({}, 𝚪.this.state.ready), {
+        default(isReady) {
+          yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
         },
       });
     });
@@ -49,16 +40,13 @@ declare function value<T>(): T;
   type ExpectedSignature = <T>(
     args: MyArgs<T>
   ) => AcceptsBlocks<{
-    body?: [boolean, T];
+    body: [boolean, T];
   }>;
 
-  type ExpectedContext<T> = TemplateContext<MyComponent<T>, MyArgs<T>>;
+  type ExpectedContext<T> = TemplateContext<MyComponent<T>, MyArgs<T>, MyYields<T>>;
 
   // Template has the correct type
-  expectTypeOf(MyComponent.template).toEqualTypeOf<ExpectedSignature>();
-
-  // Resolved component signature uses the template type
-  expectTypeOf<ResolveSignature<typeof MyComponent>>().toEqualTypeOf<ExpectedSignature>();
+  expectTypeOf(resolve(MyComponent)).toEqualTypeOf<ExpectedSignature>();
 
   // Template context is inferred correctly
   expectTypeOf<ResolveContext<MyComponent<number>>>().toEqualTypeOf<ExpectedContext<number>>();
