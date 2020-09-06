@@ -129,7 +129,7 @@ describe('tsserver plugin', () => {
       // {{index}} in the template matches back to the block param
       expect(indexInfo?.start).toEqual({ line: 6, offset: 15 });
       expect(indexInfo?.end).toEqual({ line: 6, offset: 20 });
-      expect(indexInfo?.displayString).toEqual('var index: number');
+      expect(indexInfo?.displayString).toEqual('(parameter) index: number');
 
       let itemInfo = await server.request(CommandTypes.Quickinfo, {
         file: project.filePath('index.ts'),
@@ -140,7 +140,7 @@ describe('tsserver plugin', () => {
       // {{item}} in the template matches back to the block param
       expect(itemInfo?.start).toEqual({ line: 6, offset: 26 });
       expect(itemInfo?.end).toEqual({ line: 6, offset: 30 });
-      expect(itemInfo?.displayString).toEqual('var item: string');
+      expect(itemInfo?.displayString).toEqual('(parameter) item: string');
     });
 
     test('module details', async () => {
@@ -322,7 +322,7 @@ describe('tsserver plugin', () => {
       });
 
       expect(completions?.entries).toContainEqual({
-        kind: 'var',
+        kind: 'parameter',
         kindModifiers: '',
         name: 'letter',
         sortText: '0',
@@ -336,7 +336,7 @@ describe('tsserver plugin', () => {
       });
 
       let detailString = details?.[0]?.displayParts.map((part) => part.text).join('');
-      expect(detailString).toEqual('var letter: string');
+      expect(detailString).toEqual('(parameter) letter: string');
     });
 
     test('referencing module-scope identifiers', async () => {
@@ -1042,8 +1042,6 @@ describe('tsserver plugin', () => {
             {
               start: { line: 5, offset: 37 },
               end: { line: 5, offset: 43 },
-              contextStart: { line: 5, offset: 5 },
-              contextEnd: { line: 7, offset: 14 },
             },
             {
               start: { line: 6, offset: 9 },

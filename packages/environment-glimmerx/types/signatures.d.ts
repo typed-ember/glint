@@ -1,30 +1,28 @@
-import { NoNamedArgs, CreatesModifier } from '@glint/template/-private';
+import { NoNamedArgs, CreatesModifier, NoYields } from '@glint/template/-private';
 import { ResolutionKey } from '@glint/template/-private';
 import { TemplateContext, AcceptsBlocks } from '@glint/template/-private';
 import GlimmerXComponent from '@glimmerx/component';
 
-type Constructor<T> = new (...args: any) => T;
-
 declare const ResolveGlimmerXComponent: unique symbol;
+declare const YieldTypes: unique symbol;
 
 declare module '@glint/template/resolution-rules' {
   export interface ContextResolutions<Host> {
-    [ResolveGlimmerXComponent]: Host extends GlimmerXComponent<infer Args>
-      ? TemplateContext<Host, Args>
+    [ResolveGlimmerXComponent]: Host extends GlimmerXComponent<infer Args, infer Yields>
+      ? TemplateContext<Host, Args, Yields>
       : never;
   }
 
   export interface SignatureResolutions<InvokedValue> {
-    [ResolveGlimmerXComponent]: InvokedValue extends Constructor<GlimmerXComponent<infer Args>>
-      ? InvokedValue extends { template: infer Signature }
-        ? Signature
-        : (args: Args) => AcceptsBlocks<{ default?: [] }>
+    [ResolveGlimmerXComponent]: InvokedValue extends GlimmerXComponent<infer Args, infer Yields>
+      ? (args: Args) => AcceptsBlocks<Yields>
       : never;
   }
 }
 
 declare module '@glimmerx/component' {
-  export default interface Component<Args> {
+  export default interface Component<Args, Yields = NoYields> {
+    [YieldTypes]: Yields;
     [ResolutionKey]: typeof ResolveGlimmerXComponent;
   }
 }

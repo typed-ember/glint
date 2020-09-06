@@ -1,11 +1,12 @@
 import { CreatesModifier, AcceptsBlocks } from './signature';
-import { YieldsFromBlock, BlockBodies } from './blocks';
+import { BlockBodies } from './blocks';
 
 /**
  * Invokes the given value as an inline expression to be emitted to the DOM.
  * This corresponds to a mustache statement either at the top level or being
  * passed as an attribute or concatenated into a string:
  *
+ *     {{value}}
  *     {{value foo=bar}}
  *     <div data-x={{value foo=bar}}>
  *     <div data-x="hello {{value foo=bar}}">
@@ -34,19 +35,7 @@ export declare function invokeModifier<T extends CreatesModifier>(value: T): voi
  * This form of invocation is the only one in a template that accepts
  * blocks.
  */
-export declare function invokeBlock<
-  T extends AcceptsBlocks<any>,
-  Impls extends BlockBodies<Parameters<T>[0]>
->(
-  value: T,
-  blocks: Impls,
-  // It doesn't seem to be possible to get the typechecker to infer the
-  // return types for the elements of `blocks` AND have it enforce that no
-  // extra keys are passed in. The situation in which that inference kicks
-  // in seems to be exactly the situation in which EPC ("excess property checking")
-  // is disabled. Accepting a list of the names of the blocks we're passing
-  // is essentially a hack to ensure we don't pass any invalid names.
-  // (It also sometimes INEXPLICABLY turns on EPC, resulting in a type error
-  // on the original hash instead of on the offending key in `names` 🙃)
-  ...names: Array<keyof Parameters<T>[0]>
-): YieldsFromBlock<Impls[keyof Impls]>;
+export declare function invokeBlock<Yields>(
+  value: AcceptsBlocks<Yields>,
+  blocks: BlockBodies<Yields>
+): void;

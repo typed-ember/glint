@@ -22,7 +22,7 @@ describe('rewriteModule', () => {
         static template = (() => {
         hbs;
         let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");
-        return χ.template(function*(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<MyComponent>) {
+        return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<MyComponent>) {
           𝚪;
         });
       })();
@@ -47,7 +47,7 @@ describe('rewriteModule', () => {
         static template = (() => {
         hbs;
         let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");
-        return χ.template(function*<K extends string>(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<MyComponent<K>>) {
+        return χ.template(function<K extends string>(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<MyComponent<K>>) {
           𝚪;
         });
       })();
@@ -81,7 +81,7 @@ describe('rewriteModule', () => {
         static template = (() => {
         hbs;
         let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");
-        return χ.template(function*(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<unknown>) {
+        return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<unknown>) {
           𝚪;
         });
       })();

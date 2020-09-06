@@ -29,47 +29,47 @@ describe('Debug utilities', () => {
 
       | Mapping: Template
       |  hbs(0:50):    hbs\`\\\\n    <HelperComponent @foo={{this.bar}} />\\\\n  \`
-      |  ts(0:284):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");\\\\n  return χ.template(function*(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<MyComponent>) {\\\\n    yield χ.invokeBlock(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), {});\\\\n    𝚪;\\\\n  });\\\\n})()
+      |  ts(0:277):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");\\\\n  return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<MyComponent>) {\\\\n    χ.invokeBlock(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), {});\\\\n    𝚪;\\\\n  });\\\\n})()
       | 
       | | Mapping: Identifier
       | |  hbs(0:0):     
-      | |  ts(171:182):  MyComponent
+      | |  ts(170:181):  MyComponent
       | | 
       | | Mapping: ElementNode
       | |  hbs(9:46):    <HelperComponent @foo={{this.bar}} />
-      | |  ts(187:266):  yield χ.invokeBlock(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), {});
+      | |  ts(186:259):  χ.invokeBlock(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), {});
       | | 
       | | | Mapping: ElementNode
       | | |  hbs(9:46):    <HelperComponent @foo={{this.bar}} />
-      | | |  ts(187:266):  yield χ.invokeBlock(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), {});
+      | | |  ts(186:259):  χ.invokeBlock(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), {});
       | | | 
       | | | | Mapping: Identifier
       | | | |  hbs(10:25):   HelperComponent
-      | | | |  ts(221:236):  HelperComponent
+      | | | |  ts(214:229):  HelperComponent
       | | | | 
       | | | | Mapping: AttrNode
       | | | |  hbs(26:43):   @foo={{this.bar}}
-      | | | |  ts(240:256):  foo: 𝚪.this.bar
+      | | | |  ts(233:249):  foo: 𝚪.this.bar
       | | | | 
       | | | | | Mapping: Identifier
       | | | | |  hbs(27:30):   foo
-      | | | | |  ts(240:243):  foo
+      | | | | |  ts(233:236):  foo
       | | | | | 
       | | | | | Mapping: MustacheStatement
       | | | | |  hbs(31:43):   {{this.bar}}
-      | | | | |  ts(245:256):  𝚪.this.bar
+      | | | | |  ts(238:249):  𝚪.this.bar
       | | | | | 
       | | | | | | Mapping: PathExpression
       | | | | | |  hbs(33:41):   this.bar
-      | | | | | |  ts(245:256):  𝚪.this.bar
+      | | | | | |  ts(238:249):  𝚪.this.bar
       | | | | | | 
       | | | | | | | Mapping: Identifier
       | | | | | | |  hbs(33:37):   this
-      | | | | | | |  ts(248:252):  this
+      | | | | | | |  ts(241:245):  this
       | | | | | | | 
       | | | | | | | Mapping: Identifier
       | | | | | | |  hbs(38:41):   bar
-      | | | | | | |  ts(253:256):  bar
+      | | | | | | |  ts(246:249):  bar
       | | | | | | | 
       | | | | | | 
       | | | | | 
@@ -80,23 +80,23 @@ describe('Debug utilities', () => {
 
       | Mapping: Template
       |  hbs(0:28):    hbs\`\\\\n    Hello, {{@foo}}\\\\n  \`
-      |  ts(0:263):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");\\\\n  return χ.template(function*(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<HelperComponent>) {\\\\n    χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    𝚪;\\\\n  });\\\\n})()
+      |  ts(0:262):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");\\\\n  return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<HelperComponent>) {\\\\n    χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    𝚪;\\\\n  });\\\\n})()
       | 
       | | Mapping: Identifier
       | |  hbs(0:0):     
-      | |  ts(171:186):  HelperComponent
+      | |  ts(170:185):  HelperComponent
       | | 
       | | Mapping: MustacheStatement
       | |  hbs(16:24):   {{@foo}}
-      | |  ts(191:243):  χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}))
+      | |  ts(190:242):  χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}))
       | | 
       | | | Mapping: PathExpression
       | | |  hbs(18:22):   @foo
-      | | |  ts(226:237):  𝚪.args.foo
+      | | |  ts(225:236):  𝚪.args.foo
       | | | 
       | | | | Mapping: Identifier
       | | | |  hbs(19:22):   foo
-      | | | |  ts(234:237):  foo
+      | | | |  ts(233:236):  foo
       | | | | 
       | | | 
       | | 

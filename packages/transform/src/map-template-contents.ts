@@ -167,6 +167,12 @@ export function mapTemplateContents(
       emit.identifier(value, 0, 0);
     },
     identifier(value: string, hbsOffset: number, hbsLength = value.length) {
+      // If there's a pending indent, flush that so it's not included in
+      // the range mapping for the identifier we're about to emit
+      if (needsIndent) {
+        emit.text('');
+      }
+
       let hbsRange = { start: hbsOffset, end: hbsOffset + hbsLength };
       let source = new Identifier(value);
       captureMapping(hbsRange, source, () => emit.text(value));

@@ -1,8 +1,9 @@
 import { expectTypeOf } from 'expect-type';
 import SumType from 'sums-up';
-import { resolve, toBlock, invokeBlock } from '@glint/template';
+import { resolve, invokeBlock } from '@glint/template';
 import { AcceptsBlocks, NoNamedArgs } from '@glint/template/-private/signature';
-import { BlockYield } from '@glint/template/-private/blocks';
+import { invokeEmit } from '../-private/invoke';
+import { resolveOrReturn } from '../-private/resolution';
 
 ///////////////////////////////////////////////////////////////////////////////
 // This module exercises what's possible when declaring a signature for a
@@ -40,31 +41,30 @@ declare const caseOf: <T extends SumType<never>>(
  * ```hbs
  * {{#case-of maybeValue as |when|}}
  *   {{#when 'Just' as |n|}}
- *     {{yield n}}
+ *     {{n}}
  *   {{else when 'Nothing'}}
  *     {{! nothin }}
  *   {{/when}}
  * {{/case-of}}
  * ```
  */
-expectTypeOf(
-  invokeBlock(resolve(caseOf)({}, maybeValue), {
-    *default(when) {
-      yield invokeBlock(resolve(when)({}, 'Just'), {
-        *default(n) {
-          yield toBlock('default', n);
-        },
-        *inverse() {
-          yield invokeBlock(resolve(when)({}, 'Nothing'), {
-            *default() {
-              /* nothin */
-            },
-          });
-        },
-      });
-    },
-  })
-).toEqualTypeOf<BlockYield<'default', [number]>>();
+invokeBlock(resolve(caseOf)({}, maybeValue), {
+  default(when) {
+    invokeBlock(resolve(when)({}, 'Just'), {
+      default(n) {
+        expectTypeOf(n).toEqualTypeOf<number>();
+        invokeEmit(resolveOrReturn(n)({}));
+      },
+      inverse() {
+        invokeBlock(resolve(when)({}, 'Nothing'), {
+          default() {
+            /* nothin */
+          },
+        });
+      },
+    });
+  },
+});
 
 // Below is an alternative formulation using named block syntax.
 // This is a bit weird as it's really a control structure and looks here
@@ -78,7 +78,7 @@ declare const CaseOf: <T extends SumType<any>>(args: { value: T }) => AcceptsBlo
  * ```hbs
  * <CaseOf @value={{maybeValue}}>
  *   <:Just as |value|>
- *     {{yield value}}
+ *     {{value}}
  *   </:Just>
  *   <:Nothing>
  *     {{! nothin }}
@@ -86,13 +86,12 @@ declare const CaseOf: <T extends SumType<any>>(args: { value: T }) => AcceptsBlo
  * </CaseOf>
  * ```
  */
-expectTypeOf(
-  invokeBlock(resolve(CaseOf)({ value: maybeValue }), {
-    *Just(value) {
-      yield toBlock('default', value);
-    },
-    *Nothing() {
-      /* nothin */
-    },
-  })
-).toEqualTypeOf<BlockYield<'default', [number]>>();
+invokeBlock(resolve(CaseOf)({ value: maybeValue }), {
+  Just(value) {
+    expectTypeOf(value).toEqualTypeOf<number>();
+    invokeEmit(resolveOrReturn(value)({}));
+  },
+  Nothing() {
+    /* nothin */
+  },
+});

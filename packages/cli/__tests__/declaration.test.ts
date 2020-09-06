@@ -42,7 +42,7 @@ describe('emitting declarations', () => {
       }
       export default class Application extends Component<ApplicationArgs> {
           private startupTime;
-          static template: (args: ApplicationArgs) => import(\\"@glint/template/-private\\").AcceptsBlocks<{}>;
+          static template: import(\\"@glint/environment-glimmerx/types\\").Template;
       }
       "
     `);
