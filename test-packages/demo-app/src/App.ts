@@ -12,10 +12,17 @@ export default class App extends Component {
       <img src={{this.logo}}/>
 
       <GreetingHeader @greeting="hello" @target="glint" />
-      <h3>
+
+      <SubHeader>
         you can get started by editing <code>src/App.js</code>,
         and run tests by visiting <a href="./tests">/tests</a>
-      </h3>
+      </SubHeader>
     </div>
+  `;
+}
+
+class SubHeader extends Component<{}, { default: [] }> {
+  public static template = hbs`
+    <h3>{{yield}}</h3>
   `;
 }
