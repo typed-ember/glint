@@ -10,7 +10,7 @@
     "glint-environment"
   ],
   "scripts": {
-    "lint": "eslint . --ext ts --max-warnings 0 && prettier --check .",
+    "lint": "eslint . --ext ts --max-warnings 0 && prettier --check src",
     "test": "tsc --project __tests__",
     "build": "tsc --build",
     "prepack": "yarn build"

@@ -24,11 +24,11 @@
     "resolve": "^1.17.0"
   },
   "devDependencies": {
-    "@types/jest": "^25.2.1",
+    "@types/jest": "^26.0.13",
     "@types/minimatch": "^3.0.3",
     "@types/resolve": "^1.17.1",
-    "jest": "^25.4.0",
-    "ts-jest": "^25.4.0"
+    "jest": "^26.4.2",
+    "ts-jest": "^26.3.0"
   },
   "publishConfig": {
     "access": "public"

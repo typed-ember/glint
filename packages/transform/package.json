@@ -18,9 +18,9 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/plugin-proposal-decorators": "7.8.3",
-    "@babel/preset-typescript": "^7.9.0",
+    "@babel/core": "^7.11.6",
+    "@babel/plugin-proposal-decorators": "7.10.5",
+    "@babel/preset-typescript": "^7.10.4",
     "@glimmer/syntax": "^0.54.0",
     "@glint/config": "^0.2.1",
     "debug": "^4.1.1"
@@ -29,10 +29,10 @@
     "@types/babel__core": "^7.1.7",
     "@types/common-tags": "^1.8.0",
     "@types/debug": "^4.1.5",
-    "@types/jest": "^25.2.1",
+    "@types/jest": "^26.0.13",
     "common-tags": "^1.8.0",
-    "jest": "^25.4.0",
-    "ts-jest": "^25.4.0"
+    "jest": "^26.4.2",
+    "ts-jest": "^26.3.0"
   },
   "publishConfig": {
     "access": "public"
