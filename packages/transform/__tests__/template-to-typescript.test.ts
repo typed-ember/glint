@@ -29,7 +29,7 @@ describe('rewriteTemplate', () => {
         .toMatchInlineSnapshot(`
         "(() => {
           let χ!: typeof import(\\"@glint/template\\");
-          return χ.template(function*(𝚪: import(\\"@glint/template\\").ResolveContext<unknown>) {
+          return χ.template(function(𝚪: import(\\"@glint/template\\").ResolveContext<unknown>) {
             𝚪;
           });
         })()"
@@ -46,7 +46,7 @@ describe('rewriteTemplate', () => {
       ).toMatchInlineSnapshot(`
         "(() => {
           let χ!: typeof import(\\"@glint/template\\");
-          return χ.template(function*<T extends string>(𝚪: import(\\"@glint/template\\").ResolveContext<MyComponent<T>>) {
+          return χ.template(function<T extends string>(𝚪: import(\\"@glint/template\\").ResolveContext<MyComponent<T>>) {
             𝚪;
           });
         })()"
@@ -62,7 +62,7 @@ describe('rewriteTemplate', () => {
           console.log(\\"hello!\\");
           throw new Error();
           let χ!: typeof import(\\"@glint/template\\");
-          return χ.template(function*(𝚪: import(\\"@glint/template\\").ResolveContext<unknown>) {
+          return χ.template(function(𝚪: import(\\"@glint/template\\").ResolveContext<unknown>) {
             𝚪;
           });
         })()"
@@ -161,14 +161,14 @@ describe('rewriteTemplate', () => {
           "if (𝚪.args.foo) {
             χ.invokeEmit(χ.resolveOrReturn(𝚪.args.ok)({}));
           } else {
-            yield χ.invokeBlock(χ.resolve(χ.Globals[\\"doAThing\\"])({}), {
-              *default(...[ok]) {
+            χ.invokeBlock(χ.resolve(χ.Globals[\\"doAThing\\"])({}), {
+              default(ok) {
                 χ.invokeEmit(χ.resolveOrReturn(ok)({}));
               },
-              *inverse(...[]) {
+              inverse() {
                 χ.invokeEmit(χ.resolveOrReturn(𝚪.args.nevermind)({}));
               },
-            }, \\"default\\", \\"inverse\\");
+            });
             χ.Globals[\\"doAThing\\"];
           }"
         `);
@@ -182,7 +182,7 @@ describe('rewriteTemplate', () => {
         `;
 
         expect(templateBody(template)).toMatchInlineSnapshot(
-          `"yield χ.toBlock(\\"default\\", 123, 𝚪.this.message);"`
+          `"χ.yieldToBlock(𝚪, \\"default\\", 123, 𝚪.this.message);"`
         );
       });
 
@@ -191,7 +191,9 @@ describe('rewriteTemplate', () => {
           {{yield 123 to="body"}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`"yield χ.toBlock(\\"body\\", 123);"`);
+        expect(templateBody(template)).toMatchInlineSnapshot(
+          `"χ.yieldToBlock(𝚪, \\"body\\", 123);"`
+        );
       });
     });
 
@@ -328,7 +330,7 @@ describe('rewriteTemplate', () => {
 
           expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
             "χ.invokeEmit(χ.resolve(helper)({ param: true }));
-            yield χ.invokeBlock(χ.resolve(Foo)({}), {});"
+            χ.invokeBlock(χ.resolve(Foo)({}), {});"
           `);
         });
 
@@ -337,7 +339,7 @@ describe('rewriteTemplate', () => {
           let template = '<Foo @bar={{helper param=true}} />';
 
           expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-            `"yield χ.invokeBlock(χ.resolve(Foo)({ bar: χ.resolve(helper)({ param: true }) }), {});"`
+            `"χ.invokeBlock(χ.resolve(Foo)({ bar: χ.resolve(helper)({ param: true }) }), {});"`
           );
         });
       });
@@ -372,7 +374,7 @@ describe('rewriteTemplate', () => {
           let template = '<Greet @message={{@arg}} />';
 
           expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-            `"yield χ.invokeBlock(χ.resolve(Greet)({ message: 𝚪.args.arg }), {});"`
+            `"χ.invokeBlock(χ.resolve(Greet)({ message: 𝚪.args.arg }), {});"`
           );
         });
 
@@ -458,7 +460,7 @@ describe('rewriteTemplate', () => {
 
       expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
         "χ.invokeModifier(χ.resolve(modifier)({ foo: \\"bar\\" }));
-        yield χ.invokeBlock(χ.resolve(MyComponent)({}), {});"
+        χ.invokeBlock(χ.resolve(MyComponent)({}), {});"
       `);
     });
   });
@@ -483,12 +485,12 @@ describe('rewriteTemplate', () => {
       `;
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
-        "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
-          *default(...[bar, baz]) {
+        "χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
+          default(bar, baz) {
             χ.invokeEmit(χ.resolveOrReturn(bar)({}));
             χ.invokeEmit(χ.resolveOrReturn(baz)({}));
           },
-        }, \\"default\\");
+        });
         χ.Globals[\\"foo\\"];"
       `);
     });
@@ -503,15 +505,15 @@ describe('rewriteTemplate', () => {
       `;
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
-        "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
-          *default(...[bar, baz]) {
+        "χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
+          default(bar, baz) {
             χ.invokeEmit(χ.resolveOrReturn(bar)({}));
             χ.invokeEmit(χ.resolveOrReturn(baz)({}));
           },
-          *inverse(...[]) {
+          inverse() {
             χ.invokeEmit(χ.resolveOrReturn(𝚪.args.oh)({}));
           },
-        }, \\"default\\", \\"inverse\\");
+        });
         χ.Globals[\\"foo\\"];"
       `);
     });
@@ -526,15 +528,15 @@ describe('rewriteTemplate', () => {
       `;
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
-        "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
-          *default(...[bar, baz]) {
+        "χ.invokeBlock(χ.resolve(χ.Globals[\\"foo\\"])({}), {
+          default(bar, baz) {
             χ.invokeEmit(χ.resolveOrReturn(bar)({}));
             χ.invokeEmit(χ.resolveOrReturn(baz)({}));
           },
-          *inverse(...[]) {
+          inverse() {
             χ.invokeEmit(χ.resolveOrReturn(𝚪.args.oh)({}));
           },
-        }, \\"default\\", \\"inverse\\");
+        });
         χ.Globals[\\"foo\\"];"
       `);
     });
@@ -571,7 +573,7 @@ describe('rewriteTemplate', () => {
       let template = `<Foo @bar="hello" />`;
 
       expect(templateBody(template)).toMatchInlineSnapshot(
-        `"yield χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({ bar: \\"hello\\" }), {});"`
+        `"χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({ bar: \\"hello\\" }), {});"`
       );
     });
 
@@ -583,11 +585,11 @@ describe('rewriteTemplate', () => {
       `;
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
-        "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({}), {
-          *default(...[bar]) {
+        "χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({}), {
+          default(bar) {
             χ.invokeEmit(χ.resolveOrReturn(bar)({}));
           },
-        }, \\"default\\");
+        });
         χ.Globals[\\"Foo\\"];"
       `);
     });
@@ -597,7 +599,7 @@ describe('rewriteTemplate', () => {
       let template = '<foo.bar @arg="hello" />';
 
       expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-        `"yield χ.invokeBlock(χ.resolve(foo?.bar)({ arg: \\"hello\\" }), {});"`
+        `"χ.invokeBlock(χ.resolve(foo?.bar)({ arg: \\"hello\\" }), {});"`
       );
     });
 
@@ -605,7 +607,7 @@ describe('rewriteTemplate', () => {
       let template = '<@foo @arg="hello" />';
 
       expect(templateBody(template)).toMatchInlineSnapshot(
-        `"yield χ.invokeBlock(χ.resolve(𝚪.args.foo)({ arg: \\"hello\\" }), {});"`
+        `"χ.invokeBlock(χ.resolve(𝚪.args.foo)({ arg: \\"hello\\" }), {});"`
       );
     });
 
@@ -613,7 +615,7 @@ describe('rewriteTemplate', () => {
       let template = '<this.foo @arg="hello" />';
 
       expect(templateBody(template)).toMatchInlineSnapshot(
-        `"yield χ.invokeBlock(χ.resolve(𝚪.this.foo)({ arg: \\"hello\\" }), {});"`
+        `"χ.invokeBlock(χ.resolve(𝚪.this.foo)({ arg: \\"hello\\" }), {});"`
       );
     });
 
@@ -631,18 +633,18 @@ describe('rewriteTemplate', () => {
       `;
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
-        "yield χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({}), {
-          *head(...[h]) {
+        "χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({}), {
+          head(h) {
             χ.invokeEmit(χ.resolveOrReturn(h)({}));
           },
-          *body(...[b]) {
-            yield χ.invokeBlock(χ.resolve(b?.contents)({}), {
-              *default(...[]) {
+          body(b) {
+            χ.invokeBlock(χ.resolve(b?.contents)({}), {
+              default() {
               },
-            }, \\"default\\");
+            });
             b?.contents;
           },
-        }, \\"head\\", \\"body\\");
+        });
         χ.Globals[\\"Foo\\"];"
       `);
     });
@@ -652,7 +654,7 @@ describe('rewriteTemplate', () => {
       let template = `<Foo @arg="bar-{{baz}}" />`;
 
       expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-        `"yield χ.invokeBlock(χ.resolve(Foo)({ arg: \`\${χ.invokeEmit(χ.resolveOrReturn(baz)({}))}\` }), {});"`
+        `"χ.invokeBlock(χ.resolve(Foo)({ arg: \`\${χ.invokeEmit(χ.resolveOrReturn(baz)({}))}\` }), {});"`
       );
     });
   });

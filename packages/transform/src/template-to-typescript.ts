@@ -47,7 +47,7 @@ export function templateToTypescript(
     emit.text(`let χ!: typeof import("${typesPath}");`);
     emit.newline();
 
-    emit.text('return χ.template(function*');
+    emit.text('return χ.template(function');
     emit.synthetic(typeParams);
     emit.text(`(𝚪: import("${typesPath}").ResolveContext<`);
     emit.synthetic(contextType);
@@ -313,7 +313,7 @@ export function templateToTypescript(
         let start = template.indexOf(node.tag, rangeForNode(node).start);
         let { kind, path } = tagNameToPath(node.tag);
 
-        emit.text('yield χ.invokeBlock(χ.resolve(');
+        emit.text('χ.invokeBlock(χ.resolve(');
         emitPathContents(path.split('.'), start, kind);
         emit.text(')({');
 
@@ -355,13 +355,11 @@ export function templateToTypescript(
         if (node.selfClosing) {
           emit.text('});');
         } else {
+          emit.newline();
+          emit.indent();
+
           let blocks = determineBlockChildren(node);
           if (blocks.type === 'named') {
-            let blocksEmitted = [];
-
-            emit.newline();
-            emit.indent();
-
             for (let child of blocks.children) {
               let childStart = rangeForNode(child).start;
               let nameStart = template.indexOf(child.tag, childStart) + ':'.length;
@@ -374,23 +372,9 @@ export function templateToTypescript(
                 blockParamsStart,
                 child.children
               );
-              let location = template.indexOf(child.tag, rangeForNode(child).start) + 1;
-              blocksEmitted.push({ name, location });
             }
-
-            emit.dedent();
-            emit.text('}');
-
-            for (let { name, location } of blocksEmitted) {
-              emit.text(', ');
-              emit.identifier(JSON.stringify(name), location, name.length);
-            }
-
-            emit.text(');');
           } else {
             let blockParamsStart = template.indexOf('|', rangeForNode(node).start);
-            emit.newline();
-            emit.indent();
             emitBlockContents(
               'default',
               undefined,
@@ -398,9 +382,10 @@ export function templateToTypescript(
               blockParamsStart,
               blocks.children
             );
-            emit.dedent();
-            emit.text('}, "default");');
           }
+
+          emit.dedent();
+          emit.text('});');
 
           // Emit `ComponentName;` to represent the closing tag, so we have
           // an anchor for things like symbol renames.
@@ -562,7 +547,7 @@ export function templateToTypescript(
           to = toPair.value.value;
         }
 
-        emit.text('yield χ.toBlock(');
+        emit.text('χ.yieldToBlock(𝚪, ');
         emit.text(JSON.stringify(to));
 
         for (let param of node.params) {
@@ -624,9 +609,7 @@ export function templateToTypescript(
       }
 
       emit.forNode(node, () => {
-        let blocksEmitted = [{ name: 'default', node: node.program }];
-
-        emit.text('yield χ.invokeBlock(');
+        emit.text('χ.invokeBlock(');
         emitResolve(node, 'resolve');
         emit.text(', {');
         emit.newline();
@@ -635,19 +618,11 @@ export function templateToTypescript(
         emitBlock('default', node.program);
 
         if (node.inverse) {
-          blocksEmitted.push({ name: 'inverse', node: node.inverse });
           emitBlock('inverse', node.inverse);
         }
 
         emit.dedent();
-        emit.text('}');
-
-        for (let { name, node } of blocksEmitted) {
-          emit.text(', ');
-          emit.forNode(node, () => emit.text(JSON.stringify(name)));
-        }
-
-        emit.text(');');
+        emit.text('});');
 
         // TODO: emit something corresponding to `{{/foo}}` like we do
         // for angle bracket components, so that symbol renames propagate?
@@ -686,17 +661,13 @@ export function templateToTypescript(
 
       scope.push(blockParams);
 
-      // We emit `*foo(...[bar, baz]) {` rather than `*foo(bar, baz) {`
-      // because when you declare more params than the block receives, the
-      // former is a local destructuring error, while the latter produces
-      // a type error that spans the entire hash of blocks being passed.
-      emit.text('*');
       if (nameOffset) {
         emitHashKey(name, nameOffset);
       } else {
         emit.text(isSafeKey(name) ? name : JSON.stringify(name));
       }
-      emit.text('(...[');
+
+      emit.text('(');
 
       let start = blockParamsOffset;
       for (let [index, param] of blockParams.entries()) {
@@ -706,7 +677,7 @@ export function templateToTypescript(
         emit.identifier(param, start);
       }
 
-      emit.text(']) {');
+      emit.text(') {');
       emit.newline();
       emit.indent();
 

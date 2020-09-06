@@ -411,7 +411,7 @@ describe('Diagnostic offset mapping', () => {
           code,
           file: transformedSourceFile,
           messageText: relatedMessageText,
-          start: transformedModule.transformedSource.indexOf('[bar]') + 1,
+          start: transformedModule.transformedSource.indexOf('(bar)') + 1,
           length: 3,
         },
       ],
