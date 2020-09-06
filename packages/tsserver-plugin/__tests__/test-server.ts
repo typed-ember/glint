@@ -263,7 +263,7 @@ export class TSServer extends EventEmitter {
 
     await new Promise((resolve, reject) => {
       this.server?.stdin?.write(`${JSON.stringify(payload)}\r\n`, (error) =>
-        error ? reject(error) : resolve()
+        error ? reject(error) : resolve(undefined)
       );
     });
 
