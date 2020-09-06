@@ -1,17 +1,10 @@
 {
+  "extends": "../../tsconfig.compileroptions.json",
   "compilerOptions": {
-    "target": "es6",
-    "module": "es2015",
-    "inlineSourceMap": true,
-    "inlineSources": true,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
+    "composite": false,
     "noEmit": true,
     "types": ["qunit"],
-    "plugins": [{ "name": "@glint/tsserver-plugin", "logFile": "glint.log" }],
-    // Not ideal, but several of the @glimmer packages fairly consistently
-    // produce type errors across different versions.
-    "skipLibCheck": true
+    "plugins": [{ "name": "@glint/tsserver-plugin", "logFile": "glint.log" }]
   },
   "exclude": ["node_modules", "tmp", "dist"]
 }

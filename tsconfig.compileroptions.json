@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "composite": true,
+    "declaration": true,
+    // Not ideal, but several of the @glimmer packages fairly consistently
+    // produce type errors across different versions.
+    "skipLibCheck": true
+  }
+}

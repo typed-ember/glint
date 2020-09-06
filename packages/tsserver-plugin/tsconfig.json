@@ -1,17 +1,8 @@
 {
+  "extends": "../../tsconfig.compileroptions.json",
   "compilerOptions": {
-    "target": "es2019",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "baseUrl": ".",
-    "lib": ["dom"],
-    "composite": true,
     "outDir": "lib",
-    "rootDir": "src",
-    // Not ideal, but several of the @glimmer packages fairly consistently
-    // produce type errors across different versions.
-    "skipLibCheck": true
+    "rootDir": "src"
   },
   "include": ["src"],
   "references": [{ "path": "../transform" }, { "path": "../config" }]
