@@ -364,7 +364,6 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
       ...this.ls.getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences),
     ];
 
-    this.logger.log('getEditsForFileRename', oldTransformedPath, newFilePath, preferences, edits);
     return edits.filter((edit) => !isTransformedPath(edit.fileName));
   }
 
@@ -382,8 +381,6 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     }
 
     result = result?.map((entry) => this.rewriteDefinition(entry));
-
-    this.logger.log('getDefinitionAtPosition', fileName, offset, result);
 
     return result;
   }

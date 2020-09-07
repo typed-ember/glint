@@ -2,7 +2,7 @@ import type ts from 'typescript/lib/tsserverlibrary';
 import path from 'path';
 import { loadConfig } from '@glint/config';
 import VirtualModuleManager from './virtual-module-manager';
-import { patchLib } from './patch/lib';
+import { patchLib } from './patch-lib';
 import { loggerFor, Logger } from './util/logging';
 import GlintLanguageService from './language-service';
 
