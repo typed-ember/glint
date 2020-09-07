@@ -14,9 +14,10 @@ const init: ts.server.PluginModuleFactory = ({ typescript: ts }) => {
   return {
     create(info) {
       let logger = loggerFor(info);
-      let config = loadConfig(path.dirname(info.project.projectName));
+      let projectDir = path.dirname(info.project.projectName);
+      let config = loadConfig(projectDir);
 
-      logger.log('\nStarting @glint/tsserver-plugin at', new Date().toString());
+      logger.log('\nStarting @glint/tsserver-plugin in', projectDir, 'at', new Date().toString());
 
       modules.addProject(config, info.project);
 

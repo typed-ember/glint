@@ -355,14 +355,7 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     formatOptions: ts.FormatCodeSettings,
     preferences: ts.UserPreferences | undefined
   ): readonly ts.FileTextChanges[] {
-    let oldTransformedPath = isTransformablePath(oldFilePath)
-      ? getTransformedPath(oldFilePath)
-      : oldFilePath;
-
-    let edits = [
-      ...this.ls.getEditsForFileRename(oldTransformedPath, newFilePath, formatOptions, preferences),
-      ...this.ls.getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences),
-    ];
+    let edits = this.ls.getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences);
 
     return edits.filter((edit) => !isTransformedPath(edit.fileName));
   }

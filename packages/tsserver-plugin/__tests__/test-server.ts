@@ -116,6 +116,7 @@ export class Project {
 
       if (!this.openFiles.has(file)) {
         if (!fs.existsSync(file)) {
+          fs.mkdirSync(path.dirname(file), { recursive: true });
           fs.writeFileSync(file, fileContent ?? '');
         }
 
