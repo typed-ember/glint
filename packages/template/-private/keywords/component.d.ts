@@ -1,7 +1,7 @@
-import { AnyBlocks, AcceptsBlocks } from '../signature';
-import { ResolveSignature, Resolvable } from '../resolution';
+import { AcceptsBlocks } from '../signature';
+import { HasSignature } from '../resolution';
 
-type SignatureFor<T> = T extends Resolvable<any> ? ResolveSignature<T> : T;
+type SignatureFor<T> = T extends HasSignature<infer Signature> ? Signature : T;
 
 type ArgsFor<T> = SignatureFor<T> extends (args: infer Args) => unknown ? Args : {};
 
@@ -12,10 +12,8 @@ type PositionalFor<T> = SignatureFor<T> extends (
   ? Positional
   : never[];
 
-type BlocksFor<T> = SignatureFor<T> extends (...params: never) => (blocks: infer Blocks) => unknown
-  ? Blocks extends Partial<AnyBlocks>
-    ? Blocks
-    : {}
+type BlocksFor<T> = SignatureFor<T> extends (...params: never) => AcceptsBlocks<infer Blocks>
+  ? Blocks
   : {};
 
 export default interface ComponentKeyword {

@@ -1,10 +1,11 @@
 import {
-  ResolutionKey,
   TemplateContext,
   AcceptsBlocks,
-  NoNamedArgs,
   CreatesModifier,
+  NoNamedArgs,
   NoYields,
+  SignatureType,
+  ContextType,
 } from '@glint/template/-private';
 import { LetKeyword } from '@glint/template/-private/keywords';
 
@@ -22,25 +23,8 @@ export declare const globals: {
   ) => CreatesModifier;
 };
 
-declare const YieldTypes: unique symbol;
-
-declare const ResolveTestComponent: unique symbol;
 declare class TestComponent<Args, Yields = NoYields> {
   readonly args: Args;
-  [YieldTypes]: Yields;
-  [ResolutionKey]: typeof ResolveTestComponent;
-}
-
-declare module '@glint/template/resolution-rules' {
-  export interface ContextResolutions<Host> {
-    [ResolveTestComponent]: Host extends TestComponent<infer Args, infer Yields>
-      ? TemplateContext<Host, Args, Yields>
-      : never;
-  }
-
-  export interface SignatureResolutions<InvokedValue> {
-    [ResolveTestComponent]: InvokedValue extends TestComponent<infer Args, infer Yields>
-      ? (args: Args) => AcceptsBlocks<Yields>
-      : never;
-  }
+  [SignatureType]: (args: Args) => AcceptsBlocks<Yields>;
+  [ContextType]: TemplateContext<this, Args, Yields>;
 }
