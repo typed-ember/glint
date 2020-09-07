@@ -433,6 +433,28 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     });
   }
 
+  public getNavigateToItems(
+    searchValue: string,
+    maxResultCount?: number,
+    fileName?: string,
+    excludeDtsFiles?: boolean
+  ): Array<ts.NavigateToItem> {
+    let items = this.ls.getNavigateToItems(
+      searchValue,
+      maxResultCount ? 2 * maxResultCount : undefined,
+      fileName,
+      excludeDtsFiles
+    );
+
+    items = items.filter((item) => !isTransformedPath(item.fileName));
+
+    if (maxResultCount) {
+      items = items.slice(0, maxResultCount);
+    }
+
+    return items;
+  }
+
   private rewriteDefinition<T extends ts.DefinitionInfo>(def: T): T {
     let rewritten = this.rewriteDocumentSpan(def);
     if (rewritten.kind === 'module') {
