@@ -12,7 +12,6 @@ import {
   isExtensionlessTransformedPath,
   getExtensionlessOriginalPath,
 } from './util/path-transformation';
-import { isAutoImportChange, rewriteAutoImportChange } from './util/auto-import';
 
 type TransformInfo = {
   transformedModule: TransformedModule;
@@ -289,25 +288,15 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     findInComments: boolean,
     providePrefixAndSuffixTextForRename?: boolean | undefined
   ): readonly ts.RenameLocation[] | undefined {
-    let info = this.getTransformInfoForOriginalPath(fileName);
-    let result: readonly ts.RenameLocation[] | undefined;
-    if (info) {
-      result = this.ls.findRenameLocations(
-        info.transformedPath,
-        info.transformedModule.getTransformedOffset(offset),
-        findInStrings,
-        findInComments,
-        providePrefixAndSuffixTextForRename
-      );
-    } else {
-      result = this.ls.findRenameLocations(
+    let result = this.flatMapDefinitions(fileName, offset, (fileName, offset) => {
+      return this.ls.findRenameLocations(
         fileName,
         offset,
         findInStrings,
         findInComments,
         providePrefixAndSuffixTextForRename
       );
-    }
+    });
 
     return result
       ?.map((renameLocation) => {
@@ -325,6 +314,41 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
       .filter((renameLocation): renameLocation is ts.RenameLocation => !!renameLocation);
   }
 
+  // When we have a definition in module that's subject to transformation, we ultimately
+  // wind up with two definitions: one from the original (which all other modules see)
+  // and one in the transformed version, which is what references within the transformed
+  // module will resolve to. For things like reference resolution and symbol renames, we
+  // want to make sure we cover references to both definitions,
+  private flatMapDefinitions<T>(
+    fileName: string,
+    offset: number,
+    callback: (fileName: string, offset: number) => ReadonlyArray<T> | undefined
+  ): Array<T> {
+    let results: Array<T> = [];
+    let def = this.getDefinitionAtPosition(fileName, offset)?.[0];
+    if (!def) return results;
+
+    results.push(...(callback(def.fileName, def.textSpan.start) ?? []));
+
+    if (isTransformablePath(def.fileName)) {
+      let info = this.getTransformInfoForOriginalPath(def.fileName);
+      if (info) {
+        let transformedOffset = info.transformedModule.getTransformedOffset(def.textSpan.start);
+        let result = callback(info.transformedPath, transformedOffset) ?? [];
+        results.push(...result);
+      }
+    } else if (isTransformedPath(def.fileName)) {
+      let info = this.getTransformInfoForTransformedPath(def.fileName);
+      if (info) {
+        let originalOffset = info.transformedModule.getOriginalOffset(def.textSpan.start);
+        let result = callback(info.originalPath, originalOffset) ?? [];
+        results.push(...result);
+      }
+    }
+
+    return results;
+  }
+
   public getEditsForFileRename(
     oldFilePath: string,
     newFilePath: string,
@@ -340,7 +364,6 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
       ...this.ls.getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences),
     ];
 
-    this.logger.log('getEditsForFileRename', oldTransformedPath, newFilePath, preferences, edits);
     return edits.filter((edit) => !isTransformedPath(edit.fileName));
   }
 
@@ -358,8 +381,6 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     }
 
     result = result?.map((entry) => this.rewriteDefinition(entry));
-
-    this.logger.log('getDefinitionAtPosition', fileName, offset, result);
 
     return result;
   }
@@ -393,35 +414,23 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     fileName: string,
     offset: number
   ): ts.ReferenceEntry[] | undefined {
-    let info = this.getTransformInfoForOriginalPath(fileName);
-    if (info) {
-      let transformedOffset = info.transformedModule.getTransformedOffset(offset);
-      let references = this.ls.getReferencesAtPosition(info.transformedPath, transformedOffset);
-      if (!references) return;
-
-      return this.rewriteReferenceEntries(references);
-    }
-
-    return this.ls.getReferencesAtPosition(fileName, offset);
+    return this.flatMapDefinitions(fileName, offset, (fileName, offset) => {
+      let referenceEntries = this.ls.getReferencesAtPosition(fileName, offset);
+      if (referenceEntries) {
+        return this.rewriteReferenceEntries(referenceEntries);
+      }
+    });
   }
 
   public findReferences(fileName: string, offset: number): ts.ReferencedSymbol[] | undefined {
-    let info = this.getTransformInfoForOriginalPath(fileName);
-    if (info) {
-      let transformedOffset = info.transformedModule.getTransformedOffset(offset);
-      let references = this.ls.findReferences(info.transformedPath, transformedOffset);
-
-      if (!references) return;
-
-      return references.map((ref) => {
-        ref = { ...ref };
-        ref.references = this.rewriteReferenceEntries(ref.references);
-        ref.definition = this.rewriteDefinition(ref.definition);
-        return ref;
-      });
-    }
-
-    return this.ls.findReferences(fileName, offset);
+    return this.flatMapDefinitions(fileName, offset, (fileName, offset) => {
+      return this.ls.findReferences(fileName, offset);
+    }).map((ref) => {
+      ref = { ...ref };
+      ref.references = this.rewriteReferenceEntries(ref.references);
+      ref.definition = this.rewriteDefinition(ref.definition);
+      return ref;
+    });
   }
 
   private rewriteDefinition<T extends ts.DefinitionInfo>(def: T): T {
@@ -438,7 +447,7 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
       .filter((ref) => {
         // If we have references in both the transformed and untransformed version
         // of a file, exclude any from the original, since that means the transformed
-        // module has at _least_ those references and possibly more. {}
+        // module has at _least_ those references and possibly more.
         return !(
           isTransformablePath(ref.fileName) && referenceFiles.has(getTransformedPath(ref.fileName))
         );
@@ -481,19 +490,11 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
           if (changeInfo) {
             change.fileName = changeInfo.originalPath;
             change.textChanges = change.textChanges.map((textChange) => {
-              textChange = rewriteTextChange(this.ts, textChange, changeInfo.transformedSourceFile);
               return {
                 ...textChange,
                 span: rewriteTextSpan(textChange.span, changeInfo.transformedModule),
               };
             });
-          }
-        } else {
-          const sourceFile = this.ls.getProgram()?.getSourceFile(change.fileName);
-          if (sourceFile) {
-            change.textChanges = change.textChanges.map((textChange) =>
-              rewriteTextChange(this.ts, textChange, sourceFile)
-            );
           }
         }
 
@@ -501,18 +502,6 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
       }),
     };
   }
-}
-
-function rewriteTextChange(
-  ts: typeof import('typescript/lib/tsserverlibrary'),
-  textChange: ts.TextChange,
-  sourceFile: ts.SourceFile
-): ts.TextChange {
-  if (isAutoImportChange(textChange)) {
-    return rewriteAutoImportChange(ts, textChange, sourceFile);
-  }
-
-  return textChange;
 }
 
 function rewriteTextSpan(span: ts.TextSpan, module: TransformedModule): ts.TextSpan;

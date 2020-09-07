@@ -1,11 +1,11 @@
 import type tslib from 'typescript/lib/tsserverlibrary';
-import VirtualModuleManager from '../virtual-module-manager';
+import VirtualModuleManager from './virtual-module-manager';
 import {
   isTransformablePath,
   getTransformedPath,
   isTransformedPath,
   getOriginalPath,
-} from '../util/path-transformation';
+} from './util/path-transformation';
 
 /**
  * This module houses our deepest sins. Here we directly patch certain
