@@ -1288,6 +1288,117 @@ describe('tsserver plugin', () => {
     });
   });
 
+  describe('renaming files', () => {
+    test('moving a transformed file updates its imports', async () => {
+      await project.open({
+        'dir/greeting.ts': stripIndent`
+          import Component, { hbs } from '@glimmerx/component';
+
+          export interface GreetingArgs {
+            message: string;
+          }
+
+          export default class Greeting extends Component<GreetingArgs> {
+            static template = hbs\`{{@message}}, World!\`;
+          }
+        `,
+        'dir/index.ts': stripIndent`
+          import Component, { hbs } from '@glimmerx/component';
+          import Greeting from './greeting';
+
+          export class Application extends Component {
+            static template = hbs\`
+              <Greeting @message="Hello" />
+            \`;
+          }
+        `,
+      });
+
+      let greetingMoveResult = await server.request(CommandTypes.GetEditsForFileRename, {
+        oldFilePath: project.filePath('dir/greeting.ts'),
+        newFilePath: project.filePath('other/greeting.ts'),
+      });
+
+      expect(greetingMoveResult).toMatchObject([
+        {
+          fileName: project.filePath('dir/index.ts'),
+          textChanges: [
+            {
+              start: { line: 2, offset: 23 },
+              end: { line: 2, offset: 33 },
+              newText: '../other/greeting',
+            },
+          ],
+        },
+      ]);
+
+      let indexMoveResult = await server.request(CommandTypes.GetEditsForFileRename, {
+        oldFilePath: project.filePath('dir/index.ts'),
+        newFilePath: project.filePath('other/index.ts'),
+      });
+
+      expect(indexMoveResult).toMatchObject([
+        {
+          fileName: project.filePath('dir/index.ts'),
+          textChanges: [
+            {
+              start: { line: 2, offset: 23 },
+              end: { line: 2, offset: 33 },
+              newText: '../dir/greeting',
+            },
+          ],
+        },
+      ]);
+    });
+
+    test('moving an untransformed file updates its imports', async () => {
+      await project.open({
+        'dir/foo.ts': stripIndent`
+          export const message = 'hello';
+        `,
+        'dir/index.ts': stripIndent`
+          export { message } from './foo';
+        `,
+      });
+
+      let greetingMoveResult = await server.request(CommandTypes.GetEditsForFileRename, {
+        oldFilePath: project.filePath('dir/foo.ts'),
+        newFilePath: project.filePath('other/foo.ts'),
+      });
+
+      expect(greetingMoveResult).toMatchObject([
+        {
+          fileName: project.filePath('dir/index.ts'),
+          textChanges: [
+            {
+              start: { line: 1, offset: 26 },
+              end: { line: 1, offset: 31 },
+              newText: '../other/foo',
+            },
+          ],
+        },
+      ]);
+
+      let indexMoveResult = await server.request(CommandTypes.GetEditsForFileRename, {
+        oldFilePath: project.filePath('dir/index.ts'),
+        newFilePath: project.filePath('other/index.ts'),
+      });
+
+      expect(indexMoveResult).toMatchObject([
+        {
+          fileName: project.filePath('dir/index.ts'),
+          textChanges: [
+            {
+              start: { line: 1, offset: 26 },
+              end: { line: 1, offset: 31 },
+              newText: '../dir/foo',
+            },
+          ],
+        },
+      ]);
+    });
+  });
+
   describe('error recovery', () => {
     test('introducing and fixing a template error with editor changes', async () => {
       await project.open({
