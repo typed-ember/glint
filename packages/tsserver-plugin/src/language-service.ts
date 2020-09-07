@@ -12,7 +12,6 @@ import {
   isExtensionlessTransformedPath,
   getExtensionlessOriginalPath,
 } from './util/path-transformation';
-import { isAutoImportChange, rewriteAutoImportChange } from './util/auto-import';
 
 type TransformInfo = {
   transformedModule: TransformedModule;
@@ -494,19 +493,11 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
           if (changeInfo) {
             change.fileName = changeInfo.originalPath;
             change.textChanges = change.textChanges.map((textChange) => {
-              textChange = rewriteTextChange(this.ts, textChange, changeInfo.transformedSourceFile);
               return {
                 ...textChange,
                 span: rewriteTextSpan(textChange.span, changeInfo.transformedModule),
               };
             });
-          }
-        } else {
-          const sourceFile = this.ls.getProgram()?.getSourceFile(change.fileName);
-          if (sourceFile) {
-            change.textChanges = change.textChanges.map((textChange) =>
-              rewriteTextChange(this.ts, textChange, sourceFile)
-            );
           }
         }
 
@@ -514,18 +505,6 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
       }),
     };
   }
-}
-
-function rewriteTextChange(
-  ts: typeof import('typescript/lib/tsserverlibrary'),
-  textChange: ts.TextChange,
-  sourceFile: ts.SourceFile
-): ts.TextChange {
-  if (isAutoImportChange(textChange)) {
-    return rewriteAutoImportChange(ts, textChange, sourceFile);
-  }
-
-  return textChange;
 }
 
 function rewriteTextSpan(span: ts.TextSpan, module: TransformedModule): ts.TextSpan;

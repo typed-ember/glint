@@ -487,15 +487,15 @@ describe('tsserver plugin', () => {
       expect(detailString).toEqual('class Greeting');
       expect(details?.[0]?.codeActions).toEqual([
         {
-          description: `Import default 'Greeting' from module "./greeting"`,
+          description: `Add default import 'Greeting' to existing import declaration from "./greeting"`,
           changes: [
             {
               fileName: project.filePath('index.ts'),
               textChanges: [
                 {
-                  newText: `import Greeting, { Name } from './greeting';`,
-                  start: { line: 2, offset: 1 },
-                  end: { line: 2, offset: 35 },
+                  newText: `Greeting, `,
+                  start: { line: 2, offset: 8 },
+                  end: { line: 2, offset: 8 },
                 },
               ],
             },
