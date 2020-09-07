@@ -1,6 +1,5 @@
 import type ts from 'typescript/lib/tsserverlibrary';
 import { TransformedModule, rewriteModule } from '@glint/transform';
-import { basename } from 'path';
 import { isTransformedPath, getOriginalPath, TransformablePath } from './util/path-transformation';
 import { GlintConfig } from '@glint/config';
 
@@ -62,17 +61,7 @@ export default class VirtualModuleManager {
       this.transformedModules.delete(originalScriptInfo);
     }
 
-    let originalModuleName = basename(originalPath, '.ts');
-    let exports = [`export * from './${originalModuleName}';`];
-
-    // This is far from perfect detection, but it's a reasonable approximation
-    // and the consequences of a false positive are minimal. This avoids needing
-    // to parse the entire module to discover whether there's a default export.
-    if (/export(\s+|\s*\{\s*)default/.test(content)) {
-      exports.push(`export { default } from './${originalModuleName}';`);
-    }
-
-    return exports.join('\n');
+    return '';
   }
 
   private findConfiguredProject(fileName: string): ConfiguredProject | null {
