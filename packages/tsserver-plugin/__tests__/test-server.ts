@@ -35,6 +35,7 @@ export type Requests = {
     Protocol.GetEditsForFileRenameRequestArgs,
     Protocol.GetEditsForFileRenameResponse
   ];
+  [CommandTypes.Navto]: [Protocol.NavtoRequestArgs, Protocol.NavtoResponse];
 };
 
 export type Commands = {

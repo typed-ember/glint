@@ -2,6 +2,9 @@ import { stripIndent } from 'common-tags';
 import os from 'os';
 import Protocol, { CommandTypes } from 'typescript/lib/protocol';
 import { TSServer, Project } from './test-server';
+import semver from 'semver';
+
+const TS_VERSION = semver.parse(require('typescript/package.json').version)!;
 
 describe('tsserver plugin', () => {
   let server!: TSServer;
@@ -1217,6 +1220,71 @@ describe('tsserver plugin', () => {
           ],
         },
       ]);
+    });
+  });
+
+  describe('symbol search', () => {
+    test('component definition', async () => {
+      await project.open({
+        'greeting.ts': stripIndent`
+          import Component, { hbs } from '@glimmerx/component';
+
+          export interface GreetingArgs {
+            message: string;
+          }
+
+          export default class Greeting extends Component<GreetingArgs> {
+            static template = hbs\`{{@message}}, World!\`;
+          }
+        `,
+        'index.ts': stripIndent`
+          import Component, { hbs } from '@glimmerx/component';
+          import Greeting from './greeting';
+
+          export class Application extends Component {
+            static template = hbs\`
+              <Greeting @message="Hello" />
+            \`;
+          }
+        `,
+      });
+
+      let expected = new Set([
+        {
+          name: 'Greeting',
+          kind: 'class',
+          isCaseSensitive: false,
+          matchKind: 'exact',
+          file: project.filePath('greeting.ts'),
+          start: { line: 7, offset: 1 },
+          end: { line: 9, offset: 2 },
+          kindModifiers: 'export',
+        },
+        {
+          name: 'Greeting',
+          kind: 'alias',
+          isCaseSensitive: false,
+          matchKind: 'exact',
+          file: project.filePath('index.ts'),
+          start: { line: 2, offset: 8 },
+          end: { line: 2, offset: 16 },
+          kindModifiers: TS_VERSION.major >= 4 ? '' : undefined,
+        },
+        {
+          name: 'GreetingArgs',
+          kind: 'interface',
+          isCaseSensitive: false,
+          matchKind: 'prefix',
+          file: project.filePath('greeting.ts'),
+          start: { line: 3, offset: 1 },
+          end: { line: 5, offset: 2 },
+          kindModifiers: 'export',
+        },
+      ]);
+
+      let result = new Set(await server.request(CommandTypes.Navto, { searchValue: 'greeting' }));
+
+      expect(result).toEqual(expected);
     });
   });
 

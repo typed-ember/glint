@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.13",
+    "@types/semver": "^7.3.3",
     "jest": "^26.4.2",
     "ts-jest": "^26.3.0"
   },
