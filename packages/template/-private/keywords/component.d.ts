@@ -1,27 +1,25 @@
-import { AcceptsBlocks } from '../signature';
+import { AcceptsBlocks, AnyBlocks } from '../signature';
 import { HasSignature } from '../resolution';
 
-type SignatureFor<T> = T extends HasSignature<infer Signature> ? Signature : T;
-
-type ArgsFor<T> = SignatureFor<T> extends (args: infer Args) => unknown ? Args : {};
-
-type PositionalFor<T> = SignatureFor<T> extends (
-  args: never,
-  ...positional: infer Positional
-) => unknown
-  ? Positional
-  : never[];
-
-type BlocksFor<T> = SignatureFor<T> extends (...params: never) => AcceptsBlocks<infer Blocks>
-  ? Blocks
-  : {};
-
 export default interface ComponentKeyword {
-  <Component, GivenArgs extends keyof ArgsFor<Component>>(
-    args: { [Arg in GivenArgs]: ArgsFor<Component>[Arg] },
-    component: Component
+  // Invoking with a component class
+  <
+    Args,
+    GivenArgs extends Partial<Args>,
+    Blocks extends AnyBlocks,
+    ConstructorArgs extends unknown[]
+  >(
+    args: GivenArgs,
+    component: new (...args: ConstructorArgs) => HasSignature<(args: Args) => AcceptsBlocks<Blocks>>
   ): (
-    args: Omit<ArgsFor<Component>, GivenArgs> & Partial<Pick<ArgsFor<Component>, GivenArgs>>,
-    ...positional: PositionalFor<Component>
-  ) => AcceptsBlocks<BlocksFor<Component>>;
+    args: Omit<Args, keyof GivenArgs> & Partial<Pick<Args, keyof GivenArgs & keyof Args>>
+  ) => AcceptsBlocks<Blocks>;
+
+  // Invoking with the result of another `{{component}}` expression
+  <Args, GivenArgs extends Partial<Args>, Blocks extends AnyBlocks>(
+    args: GivenArgs,
+    component: (args: Args) => AcceptsBlocks<Blocks>
+  ): (
+    args: Omit<Args, keyof GivenArgs> & Partial<Pick<Args, keyof GivenArgs & keyof Args>>
+  ) => AcceptsBlocks<Blocks>;
 }
