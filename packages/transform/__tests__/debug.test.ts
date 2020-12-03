@@ -4,28 +4,31 @@ import { GlintEnvironment } from '@glint/config';
 
 describe('Debug utilities', () => {
   test('TransformedModule#toDebugString', () => {
-    let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+    let script = {
+      filename: 'test.ts',
+      contents: stripIndent`
+        import Component, { hbs } from '@glimmerx/component';
 
-      export default class MyComponent extends Component {
-        private bar = 'hi';
+        export default class MyComponent extends Component {
+          private bar = 'hi';
 
-        static template = hbs\`
-          <HelperComponent @foo={{this.bar}} />
-        \`;
-      }
+          static template = hbs\`
+            <HelperComponent @foo={{this.bar}} />
+          \`;
+        }
 
-      class HelperComponent extends Component<{ foo: string }> {
-        static template = hbs\`
-          Hello, {{@foo}}
-        \`;
-      }
-    `;
+        class HelperComponent extends Component<{ foo: string }> {
+          static template = hbs\`
+            Hello, {{@foo}}
+          \`;
+        }
+      `,
+    };
 
-    let transformedModule = rewriteModule('test.ts', code, GlintEnvironment.load('glimmerx'));
+    let transformedModule = rewriteModule({ script }, GlintEnvironment.load('glimmerx'));
 
     expect(transformedModule?.toDebugString()).toMatchInlineSnapshot(`
-      "TransformedModule test.ts
+      "TransformedModule
 
       | Mapping: Template
       |  hbs(0:50):    hbs\`\\\\n    <HelperComponent @foo={{this.bar}} />\\\\n  \`

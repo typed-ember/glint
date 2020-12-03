@@ -5,30 +5,33 @@ import type ts from 'typescript';
 import { GlintEnvironment } from '@glint/config';
 import { templateToTypescript } from './template-to-typescript';
 import { assert } from './util';
-import TransformedModule, { ReplacedSpan, TransformError } from './transformed-module';
+import TransformedModule, {
+  CorrelatedSpan,
+  TransformError,
+  SourceFile,
+} from './transformed-module';
 
 export { TransformedModule };
 
 const debug = logger('@glint/compile:mapping');
 
-type PartialReplacedSpan = Omit<ReplacedSpan, 'transformedStart' | 'transformedLength'>;
+type PartialCorrelatedSpan = Omit<CorrelatedSpan, 'transformedStart' | 'transformedLength'>;
 
 /**
  * Given a TypeScript diagnostic object from a module that was rewritten
- * by `rewriteModule`, as well as the resulting `TransformedModule` and
- * the original un-transformed `SourceFile`, returns a rewritten version
- * of that diagnostic that maps to the corresponding location in the
- * original source file.
+ * by `rewriteModule`, as well as the resulting `TransformedModule`, returns
+ * a rewritten version of that diagnostic that maps to the corresponding
+ * location in the original source file.
  */
 export function rewriteDiagnostic(
+  tsImpl: typeof ts,
   transformedDiagnostic: ts.DiagnosticWithLocation | ts.DiagnosticRelatedInformation,
-  transformedModule: TransformedModule,
-  originalSourceFile: ts.SourceFile
+  transformedModule: TransformedModule
 ): ts.DiagnosticWithLocation {
   assert(transformedDiagnostic.start);
   assert(transformedDiagnostic.length);
 
-  let { start, end } = transformedModule.getOriginalRange(
+  let { start, end, source } = transformedModule.getOriginalRange(
     transformedDiagnostic.start,
     transformedDiagnostic.start + transformedDiagnostic.length
   );
@@ -38,12 +41,12 @@ export function rewriteDiagnostic(
     ...transformedDiagnostic,
     start,
     length,
-    file: originalSourceFile,
+    file: tsImpl.createSourceFile(source.filename, source.contents, tsImpl.ScriptTarget.Latest),
   };
 
   if ('relatedInformation' in transformedDiagnostic && transformedDiagnostic.relatedInformation) {
     diagnostic.relatedInformation = transformedDiagnostic.relatedInformation.map((relatedInfo) =>
-      rewriteDiagnostic(relatedInfo, transformedModule, originalSourceFile)
+      rewriteDiagnostic(tsImpl, relatedInfo, transformedModule)
     );
   }
 
@@ -51,22 +54,36 @@ export function rewriteDiagnostic(
 }
 
 /**
- * Given the name of a module and its text, returns a `TransformedModule`
- * representing that module with any inline templates rewritten into
- * equivalent TypeScript using `@glint/template`.
+ * Input to the process of rewriting a template, containing one or both of:
+ *   script: the backing JS/TS module for a component, which may contain
+ *           embedded templates depending on the environment
+ *   template: a standalone template file
+ */
+export type RewriteInput =
+  | { script: SourceFile }
+  | { template: SourceFile }
+  | { template: SourceFile; script: SourceFile };
+
+/**
+ * Given the script and/or template that together comprise a component module,
+ * returns a `TransformedModule` representing the combined result, with the
+ * template(s), either alongside or inline, rewritten into equivalent TypeScript
+ * in terms of the active glint environment's exported types.
  *
- * Returns `null` if the given module can't be parsed as TypeScript, or
- * if it has no embedded templates.
+ * May return `null` if an unrecoverable parse error occurs or if there is
+ * no transformation to be done.
  */
 export function rewriteModule(
-  filename: string,
-  source: string,
+  input: RewriteInput,
   environment: GlintEnvironment
 ): TransformedModule | null {
-  let ast: t.File | t.Program | null = null;
+  // TODO: handle template-only components
+  if (!('script' in input)) return null;
+
+  let scriptAST: t.File | t.Program | null = null;
   try {
-    ast = parseSync(source, {
-      filename,
+    scriptAST = parseSync(input.script.contents, {
+      filename: input.script.filename,
       code: false,
       presets: [require.resolve('@babel/preset-typescript')],
       plugins: [[require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]],
@@ -75,19 +92,27 @@ export function rewriteModule(
     // If parsing fails for any reason, we simply return null
   }
 
-  if (!ast) {
+  if (!scriptAST) {
     return null;
   }
 
-  let { errors, partialSpans } = calculateSpansForTaggedTemplates(ast, environment);
+  // TODO: `calculateSpansForTaggedTemplates` should probably become just
+  // `calculateCorrelatedSpans` and also handle inlining the companion template
+  // if present.
+  let { errors, partialSpans } = calculateSpansForTaggedTemplates(
+    input.script,
+    scriptAST,
+    environment
+  );
+
   if (!partialSpans.length && !errors.length) {
     return null;
   }
 
-  let fullSpans = calculateFullReplacedSpans(partialSpans);
-  let transformedSource = calculateTransformedSource(source, fullSpans);
+  let sparseSpans = completeCorrelatedSpans(partialSpans);
+  let { contents, correlatedSpans } = calculateTransformedSource(input.script, sparseSpans);
 
-  return new TransformedModule(filename, source, transformedSource, errors, fullSpans);
+  return new TransformedModule(contents, errors, correlatedSpans);
 }
 
 /**
@@ -98,11 +123,12 @@ export function rewriteModule(
  * string.
  */
 function calculateSpansForTaggedTemplates(
+  source: SourceFile,
   ast: t.File | t.Program,
   environment: GlintEnvironment
-): { errors: Array<TransformError>; partialSpans: Array<PartialReplacedSpan> } {
+): { errors: Array<TransformError>; partialSpans: Array<PartialCorrelatedSpan> } {
   let errors: Array<TransformError> = [];
-  let partialSpans: Array<PartialReplacedSpan> = [];
+  let partialSpans: Array<PartialCorrelatedSpan> = [];
 
   traverse(ast, {
     TaggedTemplateExpression(path) {
@@ -136,6 +162,7 @@ function calculateSpansForTaggedTemplates(
 
         if (!contextType) {
           errors.push({
+            source,
             message: 'Classes containing templates must have a name',
             location: {
               start: path.node.start,
@@ -147,6 +174,7 @@ function calculateSpansForTaggedTemplates(
         for (let { message, location } of transformedTemplate.errors) {
           if (location) {
             errors.push({
+              source,
               message,
               location: {
                 start: path.node.start + location.start,
@@ -158,6 +186,7 @@ function calculateSpansForTaggedTemplates(
             assert(path.node.tag.end, 'Missing location info');
 
             errors.push({
+              source,
               message,
               location: {
                 start: path.node.tag.start,
@@ -174,6 +203,7 @@ function calculateSpansForTaggedTemplates(
           }
 
           partialSpans.push({
+            originalFile: source,
             originalStart: path.node.start,
             originalLength: path.node.end - path.node.start,
             transformedSource: code,
@@ -201,31 +231,64 @@ function determineTypesPathForTag(
 }
 
 /**
- * Given a `ReplacedSpan` array and the original source for a module,
- * returns the resulting full transformed source string for that module.
+ * Given a sparse `CorrelatedSpan` array and the original source for a module,
+ * returns the resulting full transformed source string for that module, as
+ * well as a filled-in array of correlated spans that includes chunks of the
+ * original source that were not transformed.
  */
-function calculateTransformedSource(originalSource: string, spans: ReplacedSpan[]): string {
-  let segments = [];
-  let totalOffset = 0;
+function calculateTransformedSource(
+  originalFile: SourceFile,
+  sparseSpans: Array<CorrelatedSpan>
+): { contents: string; correlatedSpans: Array<CorrelatedSpan> } {
+  let correlatedSpans: Array<CorrelatedSpan> = [];
+  let originalOffset = 0;
+  let transformedOffset = 0;
 
-  for (let replacedSpan of spans) {
-    segments.push(originalSource.slice(totalOffset, replacedSpan.originalStart));
-    segments.push(replacedSpan.transformedSource);
-    totalOffset = replacedSpan.originalStart + replacedSpan.originalLength;
+  for (let span of sparseSpans) {
+    let interstitial = originalFile.contents.slice(originalOffset, span.originalStart);
+
+    correlatedSpans.push({
+      originalFile,
+      originalStart: originalOffset,
+      originalLength: interstitial.length,
+      transformedStart: transformedOffset,
+      transformedLength: interstitial.length,
+      transformedSource: interstitial,
+    });
+
+    correlatedSpans.push(span);
+
+    transformedOffset += interstitial.length + span.transformedLength;
+    originalOffset +=
+      interstitial.length + (span.originalFile === originalFile ? span.originalLength : 0);
   }
 
-  segments.push(originalSource.slice(totalOffset));
+  let trailingContent = originalFile.contents.slice(originalOffset);
 
-  return segments.join('');
+  correlatedSpans.push({
+    originalFile,
+    originalStart: originalOffset,
+    originalLength: trailingContent.length + 1,
+    transformedStart: transformedOffset,
+    transformedLength: trailingContent.length + 1,
+    transformedSource: trailingContent,
+  });
+
+  return {
+    contents: correlatedSpans.map((span) => span.transformedSource).join(''),
+    correlatedSpans,
+  };
 }
 
 /**
- * Given an array of `PartialReplacedSpan`s for a file, calculates
+ * Given an array of `PartialCorrelatedSpan`s for a file, calculates
  * their `transformedLength` and `transformedStart` values, resulting
  * in full `ReplacedSpan`s.
  */
-function calculateFullReplacedSpans(partialSpans: Array<PartialReplacedSpan>): Array<ReplacedSpan> {
-  let replacedSpans: Array<ReplacedSpan> = [];
+function completeCorrelatedSpans(
+  partialSpans: Array<PartialCorrelatedSpan>
+): Array<CorrelatedSpan> {
+  let replacedSpans: Array<CorrelatedSpan> = [];
 
   for (let i = 0; i < partialSpans.length; i++) {
     let current = partialSpans[i];
