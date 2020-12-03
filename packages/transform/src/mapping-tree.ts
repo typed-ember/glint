@@ -98,6 +98,6 @@ export default class MappingTree {
       lines.push(indent);
     }
 
-    return lines.join('\n');
+    return lines.map((line) => line.trimEnd()).join('\n');
   }
 }

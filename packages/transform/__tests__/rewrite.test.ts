@@ -6,17 +6,20 @@ const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
 
 describe('rewriteModule', () => {
   test('with a simple class', () => {
-    let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
-      export default class MyComponent extends Component {
-        static template = hbs\`\`;
-      }
-    `;
+    let script = {
+      filename: 'test.ts',
+      contents: stripIndent`
+        import Component, { hbs } from '@glimmerx/component';
+        export default class MyComponent extends Component {
+          static template = hbs\`\`;
+        }
+      `,
+    };
 
-    let transformedModule = rewriteModule('test.ts', code, glimmerxEnvironment);
+    let transformedModule = rewriteModule({ script }, glimmerxEnvironment);
 
     expect(transformedModule?.errors).toEqual([]);
-    expect(transformedModule?.transformedSource).toMatchInlineSnapshot(`
+    expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
       "import Component, { hbs } from '@glimmerx/component';
       export default class MyComponent extends Component {
         static template = (() => {
@@ -31,17 +34,20 @@ describe('rewriteModule', () => {
   });
 
   test('with a class with type parameters', () => {
-    let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
-      export default class MyComponent<K extends string> extends Component<{ value: K }> {
-        static template = hbs\`\`;
-      }
-    `;
+    let script = {
+      filename: 'test.ts',
+      contents: stripIndent`
+        import Component, { hbs } from '@glimmerx/component';
+        export default class MyComponent<K extends string> extends Component<{ value: K }> {
+          static template = hbs\`\`;
+        }
+      `,
+    };
 
-    let transformedModule = rewriteModule('test.ts', code, glimmerxEnvironment);
+    let transformedModule = rewriteModule({ script }, glimmerxEnvironment);
 
     expect(transformedModule?.errors).toEqual([]);
-    expect(transformedModule?.transformedSource).toMatchInlineSnapshot(`
+    expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
       "import Component, { hbs } from '@glimmerx/component';
       export default class MyComponent<K extends string> extends Component<{ value: K }> {
         static template = (() => {
@@ -56,26 +62,30 @@ describe('rewriteModule', () => {
   });
 
   test('with an anonymous class', () => {
-    let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
-      export default class extends Component {
-        static template = hbs\`\`;
-      }
-    `;
+    let script = {
+      filename: 'test.ts',
+      contents: stripIndent`
+        import Component, { hbs } from '@glimmerx/component';
+        export default class extends Component {
+          static template = hbs\`\`;
+        }
+      `,
+    };
 
-    let transformedModule = rewriteModule('test.ts', code, glimmerxEnvironment);
+    let transformedModule = rewriteModule({ script }, glimmerxEnvironment);
 
     expect(transformedModule?.errors).toEqual([
       {
         message: 'Classes containing templates must have a name',
+        source: script,
         location: {
-          start: code.indexOf('hbs`'),
-          end: code.lastIndexOf('`') + 1,
+          start: script.contents.indexOf('hbs`'),
+          end: script.contents.lastIndexOf('`') + 1,
         },
       },
     ]);
 
-    expect(transformedModule?.transformedSource).toMatchInlineSnapshot(`
+    expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
       "import Component, { hbs } from '@glimmerx/component';
       export default class extends Component {
         static template = (() => {

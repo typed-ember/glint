@@ -22,37 +22,32 @@ export default class TransformManager {
     let file = diagnostic.file;
     let transformedModule = file && this.transformedModules.get(file.fileName);
     if (diagnostic.code && file && transformedModule) {
-      let sourceFile = this.ts.createSourceFile(
-        file.fileName,
-        transformedModule.originalSource,
-        file.languageVersion
-      );
-
-      diagnostic = rewriteDiagnostic(diagnostic, transformedModule, sourceFile);
+      diagnostic = rewriteDiagnostic(this.ts, diagnostic, transformedModule);
     }
 
     return this.ts.formatDiagnosticsWithColorAndContext([diagnostic], this.formatDiagnosticHost);
   }
 
   public readFile(filename: string, encoding?: string): string | undefined {
-    let source = this.ts.sys.readFile(filename, encoding);
+    let contents = this.ts.sys.readFile(filename, encoding);
     let config = this.glintConfig;
 
     if (
-      source &&
+      contents &&
       filename.endsWith('.ts') &&
       !filename.endsWith('.d.ts') &&
       config.includesFile(filename) &&
-      config.environment.moduleMayHaveTagImports(source)
+      config.environment.moduleMayHaveTagImports(contents)
     ) {
-      let transformedModule = rewriteModule(filename, source, config.environment);
+      let script = { filename, contents };
+      let transformedModule = rewriteModule({ script }, config.environment);
       if (transformedModule) {
         this.transformedModules.set(filename, transformedModule);
-        return transformedModule.transformedSource;
+        return transformedModule.transformedContents;
       }
     }
 
-    return source;
+    return contents;
   }
 
   private readonly formatDiagnosticHost: ts.FormatDiagnosticsHost = {
@@ -62,20 +57,14 @@ export default class TransformManager {
   };
 
   private buildDiagnostics(transformedModule: TransformedModule): Array<ts.DiagnosticWithLocation> {
-    if (!transformedModule.errors.length) {
-      return [];
-    }
-
-    let sourceFile = this.ts.createSourceFile(
-      transformedModule.filename,
-      transformedModule.originalSource,
-      this.ts.ScriptTarget.ESNext
-    );
-
     return transformedModule.errors.map((error) => ({
       category: this.ts.DiagnosticCategory.Error,
       code: 0,
-      file: sourceFile,
+      file: this.ts.createSourceFile(
+        error.source.filename,
+        error.source.contents,
+        this.ts.ScriptTarget.Latest
+      ),
       start: error.location.start,
       length: error.location.end - error.location.start,
       messageText: `[glint] ${error.message}`,

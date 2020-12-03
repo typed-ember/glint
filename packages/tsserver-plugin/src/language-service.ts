@@ -77,13 +77,10 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
 
   public getSemanticDiagnostics(fileName: string): ts.Diagnostic[] {
     const info = this.getTransformInfoForOriginalPath(fileName);
-    const originalSourceFile = this.ls.getProgram()?.getSourceFile(fileName);
-    if (info && originalSourceFile) {
+    if (info) {
       return this.ls
         .getSemanticDiagnostics(info.transformedPath)
-        .map((diagnostic) =>
-          rewriteDiagnostic(diagnostic, info.transformedModule, originalSourceFile)
-        );
+        .map((diagnostic) => rewriteDiagnostic(this.ts, diagnostic, info.transformedModule));
     }
 
     return this.ls.getSemanticDiagnostics(fileName);
@@ -91,13 +88,10 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
 
   public getSuggestionDiagnostics(fileName: string): ts.DiagnosticWithLocation[] {
     const info = this.getTransformInfoForOriginalPath(fileName);
-    const originalSourceFile = this.ls.getProgram()?.getSourceFile(fileName);
-    if (info && originalSourceFile) {
+    if (info) {
       return this.ls
         .getSuggestionDiagnostics(info.transformedPath)
-        .map((diagnostic) =>
-          rewriteDiagnostic(diagnostic, info.transformedModule, originalSourceFile)
-        );
+        .map((diagnostic) => rewriteDiagnostic(this.ts, diagnostic, info.transformedModule));
     }
 
     return this.ls.getSuggestionDiagnostics(fileName);
@@ -131,7 +125,7 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     let info = this.getTransformInfoForOriginalPath(fileName);
     let result: ts.WithMetadata<ts.CompletionInfo> | undefined;
     if (info) {
-      let range = info.transformedModule.getTransformedRange(offset, offset);
+      let range = info.transformedModule.getTransformedRange(info.originalPath, offset, offset);
 
       // If we're within a freeform text area in the template, don't attempt to autocomplete at all
       let containingNode = range.mapping?.sourceNode;
@@ -180,7 +174,10 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
   ): ts.CompletionEntryDetails | undefined {
     let info = this.getTransformInfoForOriginalPath(fileName);
     if (info) {
-      let transformedOffset = info.transformedModule.getTransformedOffset(offset);
+      let transformedOffset = info.transformedModule.getTransformedOffset(
+        info.originalPath,
+        offset
+      );
       let details = this.ls.getCompletionEntryDetails(
         info.transformedPath,
         transformedOffset,
@@ -218,7 +215,10 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
   ): ts.Symbol | undefined {
     let info = this.getTransformInfoForOriginalPath(fileName);
     if (info) {
-      let transformedOffset = info.transformedModule.getTransformedOffset(offset);
+      let transformedOffset = info.transformedModule.getTransformedOffset(
+        info.originalPath,
+        offset
+      );
       return this.ls.getCompletionEntrySymbol(
         info.transformedPath,
         transformedOffset,
@@ -234,7 +234,10 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     let info = this.getTransformInfoForOriginalPath(fileName);
     let quickInfo: ts.QuickInfo | undefined;
     if (info) {
-      let transformedOffset = info.transformedModule.getTransformedOffset(offset);
+      let transformedOffset = info.transformedModule.getTransformedOffset(
+        info.originalPath,
+        offset
+      );
       quickInfo = this.ls.getQuickInfoAtPosition(info.transformedPath, transformedOffset);
 
       if (quickInfo) {
@@ -270,7 +273,10 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
   ): ts.RenameInfo {
     let info = this.getTransformInfoForOriginalPath(fileName);
     if (info) {
-      let transformedOffset = info.transformedModule.getTransformedOffset(offset);
+      let transformedOffset = info.transformedModule.getTransformedOffset(
+        info.originalPath,
+        offset
+      );
       let result = this.ls.getRenameInfo(info.transformedPath, transformedOffset, options);
       this.logger.log('getRenameInfo result before', result);
       if (result.canRename) {
@@ -340,15 +346,18 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     if (isTransformablePath(def.fileName)) {
       let info = this.getTransformInfoForOriginalPath(def.fileName);
       if (info) {
-        let transformedOffset = info.transformedModule.getTransformedOffset(def.textSpan.start);
+        let transformedOffset = info.transformedModule.getTransformedOffset(
+          info.originalPath,
+          def.textSpan.start
+        );
         let result = callback(info.transformedPath, transformedOffset) ?? [];
         results.push(...result);
       }
     } else if (isTransformedPath(def.fileName)) {
       let info = this.getTransformInfoForTransformedPath(def.fileName);
       if (info) {
-        let originalOffset = info.transformedModule.getOriginalOffset(def.textSpan.start);
-        let result = callback(info.originalPath, originalOffset) ?? [];
+        let original = info.transformedModule.getOriginalOffset(def.textSpan.start);
+        let result = callback(info.originalPath, original.offset) ?? [];
         results.push(...result);
       }
     }
@@ -374,7 +383,8 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     let info = this.getTransformInfoForOriginalPath(fileName);
     let result: readonly ts.DefinitionInfo[] | undefined;
     if (info) {
-      let transformedPosition = info.transformedModule.getTransformedOffset(offset) + 1;
+      let transformedPosition =
+        info.transformedModule.getTransformedOffset(info.originalPath, offset) + 1;
       result = this.ls.getDefinitionAtPosition(info.transformedPath, transformedPosition);
     } else {
       result = this.ls.getDefinitionAtPosition(fileName, offset);
@@ -392,7 +402,10 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     let info = this.getTransformInfoForOriginalPath(fileName);
     let result: ts.DefinitionInfoAndBoundSpan | undefined;
     if (info) {
-      let transformedOffset = info.transformedModule.getTransformedOffset(offset);
+      let transformedOffset = info.transformedModule.getTransformedOffset(
+        info.originalPath,
+        offset
+      );
       result = this.ls.getDefinitionAndBoundSpan(info.transformedPath, transformedOffset);
     } else {
       result = this.ls.getDefinitionAndBoundSpan(fileName, offset);

@@ -1,6 +1,6 @@
 import { rewriteModule, TransformedModule, rewriteDiagnostic } from '../src';
 import { stripIndent } from 'common-tags';
-import { Range } from '../src/transformed-module';
+import { Range, SourceFile } from '../src/transformed-module';
 import ts from 'typescript';
 import { assert } from '../src/util';
 import { GlintEnvironment } from '@glint/config';
@@ -8,16 +8,18 @@ import { GlintEnvironment } from '@glint/config';
 const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
 
 describe('Source-to-source offset mapping', () => {
+  type RewrittenTestModule = { script: SourceFile; transformedModule: TransformedModule };
+
   function rewriteTestModule({
     contents,
     identifiersInScope = [],
   }: {
     contents: string;
     identifiersInScope?: string[];
-  }): TransformedModule {
-    let result = rewriteModule(
-      'test.ts',
-      stripIndent`
+  }): RewrittenTestModule {
+    let script = {
+      filename: 'test.ts',
+      contents: stripIndent`
         import Component, { hbs } from '@glimmerx/component';
         import { ${identifiersInScope.join(', ')} } from 'dummy';
 
@@ -27,14 +29,14 @@ describe('Source-to-source offset mapping', () => {
           \`;
         }
       `,
-      glimmerxEnvironment
-    );
+    };
 
-    if (!result) {
+    let transformedModule = rewriteModule({ script }, glimmerxEnvironment);
+    if (!transformedModule) {
       throw new Error('Expected module to have rewritten contents');
     }
 
-    return result;
+    return { script, transformedModule };
   }
 
   function findOccurrence(haystack: string, needle: string, occurrence: number): number {
@@ -50,16 +52,17 @@ describe('Source-to-source offset mapping', () => {
   }
 
   function expectTokenMapping(
-    transformedModule: TransformedModule,
+    rewrittenTestModule: RewrittenTestModule,
     originalToken: string,
     { transformedToken = originalToken, occurrence = 0 } = {}
   ): void {
-    let { originalSource, transformedSource } = transformedModule;
+    let originalSource = rewrittenTestModule.script.contents;
+    let transformedContents = rewrittenTestModule.transformedModule.transformedContents;
     let originalOffset = findOccurrence(originalSource, originalToken, occurrence);
-    let transformedOffset = findOccurrence(transformedSource, transformedToken, occurrence);
+    let transformedOffset = findOccurrence(transformedContents, transformedToken, occurrence);
 
     expectRangeMapping(
-      transformedModule,
+      rewrittenTestModule,
       {
         start: originalOffset,
         end: originalOffset + originalToken.length,
@@ -72,18 +75,21 @@ describe('Source-to-source offset mapping', () => {
   }
 
   function expectRangeMapping(
-    transformedModule: TransformedModule,
+    rewrittenTestModule: RewrittenTestModule,
     originalRange: Range,
     transformedRange: Range
   ): void {
-    expect(transformedModule.getOriginalOffset(transformedRange.start)).toEqual(
-      originalRange.start
-    );
-    expect(transformedModule.getTransformedOffset(originalRange.start)).toEqual(
+    let { transformedModule, script: original } = rewrittenTestModule;
+    expect(transformedModule.getOriginalOffset(transformedRange.start)).toEqual({
+      offset: originalRange.start,
+      source: rewrittenTestModule.script,
+    });
+    expect(transformedModule.getTransformedOffset(original.filename, originalRange.start)).toEqual(
       transformedRange.start
     );
 
     let calculatedTransformedRange = transformedModule.getTransformedRange(
+      original.filename,
       originalRange.start,
       originalRange.end
     );
@@ -96,6 +102,7 @@ describe('Source-to-source offset mapping', () => {
       transformedRange.end
     );
 
+    expect(calculatedOriginalRange.source).toBe(rewrittenTestModule.script);
     expect(calculatedOriginalRange.start).toEqual(originalRange.start);
     expect(calculatedOriginalRange.end).toEqual(originalRange.end);
   }
@@ -294,9 +301,9 @@ describe('Source-to-source offset mapping', () => {
   });
 
   describe('spans outside of mapped segments', () => {
-    const rewritten = rewriteModule(
-      'test.ts',
-      stripIndent`
+    const source = {
+      filename: 'test.ts',
+      contents: stripIndent`
         import Component, { hbs } from '@glimmerx/component';
 
         // start
@@ -309,39 +316,42 @@ describe('Source-to-source offset mapping', () => {
           static template = hbs\`Hello, world!\`;
         }
       `,
-      glimmerxEnvironment
-    )!;
+    };
+
+    const rewritten = rewriteModule({ script: source }, glimmerxEnvironment)!;
 
     test('bounds that cross a rewritten span', () => {
-      let originalStart = rewritten.originalSource.indexOf('// start');
-      let originalEnd = rewritten.originalSource.indexOf('// end');
+      let originalStart = source.contents.indexOf('// start');
+      let originalEnd = source.contents.indexOf('// end');
 
-      let transformedStart = rewritten.transformedSource.indexOf('// start');
-      let transformedEnd = rewritten.transformedSource.indexOf('// end');
+      let transformedStart = rewritten.transformedContents.indexOf('// start');
+      let transformedEnd = rewritten.transformedContents.indexOf('// end');
 
       expect(rewritten.getOriginalRange(transformedStart, transformedEnd)).toEqual({
         start: originalStart,
         end: originalEnd,
+        source,
       });
 
-      expect(rewritten.getTransformedRange(originalStart, originalEnd)).toEqual({
+      expect(rewritten.getTransformedRange(source.filename, originalStart, originalEnd)).toEqual({
         start: transformedStart,
         end: transformedEnd,
       });
     });
 
     test('full file bounds', () => {
-      let originalEnd = rewritten.originalSource.length - 1;
-      let transformedEnd = rewritten.transformedSource.length - 1;
+      let originalEnd = source.contents.length - 1;
+      let transformedEnd = rewritten.transformedContents.length - 1;
 
-      expect(rewritten.getOriginalOffset(transformedEnd)).toEqual(originalEnd);
+      expect(rewritten.getOriginalOffset(transformedEnd)).toEqual({ source, offset: originalEnd });
       expect(rewritten.getOriginalRange(0, transformedEnd)).toEqual({
         start: 0,
         end: originalEnd,
+        source,
       });
 
-      expect(rewritten.getTransformedOffset(originalEnd)).toEqual(transformedEnd);
-      expect(rewritten.getTransformedRange(0, originalEnd)).toEqual({
+      expect(rewritten.getTransformedOffset(source.filename, originalEnd)).toEqual(transformedEnd);
+      expect(rewritten.getTransformedRange(source.filename, 0, originalEnd)).toEqual({
         start: 0,
         end: transformedEnd,
       });
@@ -350,20 +360,22 @@ describe('Source-to-source offset mapping', () => {
 });
 
 describe('Diagnostic offset mapping', () => {
-  const originalSourceFile = { fileName: 'original' } as ts.SourceFile;
-  const transformedSourceFile = { fileName: 'transformed' } as ts.SourceFile;
-  const source = stripIndent`
-    import Component, { hbs } from '@glimmerx/component';
-    export default class MyComponent extends Component {
-      static template = hbs\`
-        {{#each foo as |bar|}}
-          {{concat bar}}
-        {{/each}}
-      \`;
-    }
-  `;
+  const transformedContentsFile = { fileName: 'transformed' } as ts.SourceFile;
+  const source = {
+    filename: 'test.ts',
+    contents: stripIndent`
+      import Component, { hbs } from '@glimmerx/component';
+      export default class MyComponent extends Component {
+        static template = hbs\`
+          {{#each foo as |bar|}}
+            {{concat bar}}
+          {{/each}}
+        \`;
+      }
+    `,
+  };
 
-  const transformedModule = rewriteModule('test.ts', source, glimmerxEnvironment);
+  const transformedModule = rewriteModule({ script: source }, glimmerxEnvironment);
   assert(transformedModule);
 
   test('without related information', () => {
@@ -375,19 +387,18 @@ describe('Diagnostic offset mapping', () => {
       category,
       code,
       messageText,
-      file: transformedSourceFile,
-      start: transformedModule.transformedSource.indexOf('"foo"'),
+      file: transformedContentsFile,
+      start: transformedModule.transformedContents.indexOf('"foo"'),
       length: 5,
     };
 
-    let rewritten = rewriteDiagnostic(original, transformedModule, originalSourceFile);
+    let rewritten = rewriteDiagnostic(ts, original, transformedModule);
 
-    expect(rewritten).toEqual({
+    expect(rewritten).toMatchObject({
       category,
       code,
       messageText,
-      file: originalSourceFile,
-      start: source.indexOf('foo'),
+      start: source.contents.indexOf('foo'),
       length: 3,
     });
   });
@@ -401,38 +412,36 @@ describe('Diagnostic offset mapping', () => {
     let original: ts.DiagnosticWithLocation = {
       category,
       code,
-      file: transformedSourceFile,
-      start: transformedModule.transformedSource.indexOf(', bar') + 2,
+      file: transformedContentsFile,
+      start: transformedModule.transformedContents.indexOf(', bar') + 2,
       length: 3,
       messageText,
       relatedInformation: [
         {
           category,
           code,
-          file: transformedSourceFile,
+          file: transformedContentsFile,
           messageText: relatedMessageText,
-          start: transformedModule.transformedSource.indexOf('(bar)') + 1,
+          start: transformedModule.transformedContents.indexOf('(bar)') + 1,
           length: 3,
         },
       ],
     };
 
-    let rewritten = rewriteDiagnostic(original, transformedModule, originalSourceFile);
+    let rewritten = rewriteDiagnostic(ts, original, transformedModule);
 
-    expect(rewritten).toEqual({
+    expect(rewritten).toMatchObject({
       category,
       code,
       messageText,
-      file: originalSourceFile,
-      start: source.indexOf(' bar') + 1,
+      start: source.contents.indexOf(' bar') + 1,
       length: 3,
       relatedInformation: [
         {
           category,
           code,
-          file: originalSourceFile,
           messageText: relatedMessageText,
-          start: source.indexOf('|bar|') + 1,
+          start: source.contents.indexOf('|bar|') + 1,
           length: 3,
         },
       ],

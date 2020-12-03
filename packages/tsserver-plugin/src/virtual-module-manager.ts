@@ -45,16 +45,17 @@ export default class VirtualModuleManager {
     let glintEnvironment = configuredProject.config.environment;
     let snapshot = originalScriptInfo?.getSnapshot();
     let length = snapshot?.getLength() ?? 0;
-    let content = snapshot?.getText(0, length) ?? this.sysReadFile(originalPath, encoding);
+    let contents = snapshot?.getText(0, length) ?? this.sysReadFile(originalPath, encoding);
 
-    if (!content || !glintEnvironment.moduleMayHaveTagImports(content)) {
-      return content;
+    if (!contents || !glintEnvironment.moduleMayHaveTagImports(contents)) {
+      return contents;
     }
 
-    let transformedModule = rewriteModule(originalPath, content, glintEnvironment);
+    let script = { filename: originalPath, contents };
+    let transformedModule = rewriteModule({ script }, glintEnvironment);
     if (transformedModule && originalScriptInfo) {
       this.transformedModules.set(originalScriptInfo, transformedModule);
-      return transformedModule.transformedSource;
+      return transformedModule.transformedContents;
     }
 
     if (originalScriptInfo) {
