@@ -192,7 +192,7 @@ describe('tsserver plugin', () => {
         offset: 12,
       });
 
-      expect(completions).toEqual({
+      expect(completions).toMatchObject({
         isGlobalCompletion: false,
         isMemberCompletion: true,
         isNewIdentifierLocation: false,
@@ -201,13 +201,11 @@ describe('tsserver plugin', () => {
             name: 'bar',
             kind: 'property',
             kindModifiers: 'optional',
-            sortText: '1',
           },
           {
             name: 'foo',
             kind: 'property',
             kindModifiers: 'optional',
-            sortText: '1',
           },
         ],
       });
@@ -244,11 +242,10 @@ describe('tsserver plugin', () => {
         offset: 13,
       });
 
-      expect(completions?.entries).toContainEqual({
+      expect(completions?.entries.find((entry) => entry.name === 'message')).toMatchObject({
         kind: 'property',
         kindModifiers: 'private',
         name: 'message',
-        sortText: '0',
       });
 
       let details = await server.request(CommandTypes.CompletionDetails, {
@@ -285,11 +282,10 @@ describe('tsserver plugin', () => {
         offset: 9,
       });
 
-      expect(completions?.entries).toContainEqual({
+      expect(completions?.entries.find((entry) => entry.name === 'items')).toMatchObject({
         kind: 'property',
         kindModifiers: '',
         name: 'items',
-        sortText: '0',
       });
 
       let details = await server.request(CommandTypes.CompletionDetails, {
@@ -324,11 +320,10 @@ describe('tsserver plugin', () => {
         offset: 8,
       });
 
-      expect(completions?.entries).toContainEqual({
+      expect(completions?.entries.find((entry) => entry.name === 'letter')).toMatchObject({
         kind: 'parameter',
         kindModifiers: '',
         name: 'letter',
-        sortText: '0',
       });
 
       let details = await server.request(CommandTypes.CompletionDetails, {
@@ -363,11 +358,10 @@ describe('tsserver plugin', () => {
         offset: 8,
       });
 
-      expect(completions?.entries).toContainEqual({
+      expect(completions?.entries.find((entry) => entry.name === 'greeting')).toMatchObject({
         kind: 'const',
         kindModifiers: '',
         name: 'greeting',
-        sortText: '0',
       });
 
       let details = await server.request(CommandTypes.CompletionDetails, {
@@ -406,11 +400,10 @@ describe('tsserver plugin', () => {
         offset: 10,
       });
 
-      expect(completions?.entries).toContainEqual({
+      expect(completions?.entries.find((entry) => entry.name === 'Greeting')).toMatchObject({
         name: 'Greeting',
         kind: 'class',
         kindModifiers: 'export',
-        sortText: '5',
         hasAction: true,
         source: project.filePath('greeting'),
       });
@@ -470,11 +463,10 @@ describe('tsserver plugin', () => {
         offset: 10,
       });
 
-      expect(completions?.entries).toContainEqual({
+      expect(completions?.entries.find((entry) => entry.name === 'Greeting')).toMatchObject({
         name: 'Greeting',
         kind: 'class',
         kindModifiers: 'export',
-        sortText: '5',
         hasAction: true,
         source: project.filePath('greeting'),
       });

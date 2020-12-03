@@ -278,9 +278,11 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
         offset
       );
       let result = this.ls.getRenameInfo(info.transformedPath, transformedOffset, options);
+      this.logger.log('getRenameInfo result before', result);
       if (result.canRename) {
         result.triggerSpan = rewriteTextSpan(result.triggerSpan, info.transformedModule);
       }
+      this.logger.log('getRenameInfo result before', result);
       return result;
     }
 
@@ -295,13 +297,18 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     providePrefixAndSuffixTextForRename?: boolean | undefined
   ): readonly ts.RenameLocation[] | undefined {
     let result = this.flatMapDefinitions(fileName, offset, (fileName, offset) => {
-      return this.ls.findRenameLocations(
-        fileName,
-        offset,
-        findInStrings,
-        findInComments,
-        providePrefixAndSuffixTextForRename
-      );
+      let shouldConsiderRenaming =
+        isTransformedPath(fileName) || this.ls.getRenameInfo(fileName, offset).canRename;
+
+      if (shouldConsiderRenaming) {
+        return this.ls.findRenameLocations(
+          fileName,
+          offset,
+          findInStrings,
+          findInComments,
+          providePrefixAndSuffixTextForRename
+        );
+      }
     });
 
     return result
