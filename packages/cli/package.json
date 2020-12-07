@@ -14,7 +14,7 @@
     "glint": "bin/glint.js"
   },
   "scripts": {
-    "lint": "eslint . --ext ts --max-warnings 0 && prettier --check src",
+    "lint": "eslint . --max-warnings 0 && prettier --check src",
     "test": "jest",
     "build": "tsc --build",
     "prepack": "yarn build"

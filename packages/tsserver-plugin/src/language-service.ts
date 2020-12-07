@@ -60,14 +60,14 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
   public getSyntacticDiagnostics(fileName: string): ts.DiagnosticWithLocation[] {
     let info = this.getTransformInfoForOriginalPath(fileName);
     let transformationErrors = info?.transformedModule?.errors ?? [];
-    let originalSourceFile = this.ls.getProgram()?.getSourceFile(fileName)!;
+    let originalSourceFile = this.ls.getProgram()?.getSourceFile(fileName);
 
     return [
       ...this.ls.getSyntacticDiagnostics(fileName),
       ...transformationErrors.map((error) => ({
         category: this.ts.DiagnosticCategory.Error,
         code: 0,
-        file: originalSourceFile,
+        file: originalSourceFile!,
         start: error.location.start,
         length: error.location.end - error.location.start,
         messageText: `[glint] ${error.message}`,
