@@ -21,7 +21,7 @@
     "@babel/core": "^7.11.6",
     "@babel/plugin-proposal-decorators": "7.10.5",
     "@babel/preset-typescript": "^7.10.4",
-    "@glimmer/syntax": "^0.54.0",
+    "@glimmer/syntax": "^0.68.1",
     "@glint/config": "^0.2.1",
     "debug": "^4.1.1"
   },
