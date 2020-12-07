@@ -75,10 +75,8 @@ export function templateToTypescript(
 
     function emitTopLevelStatement(node: AST.TopLevelStatement): void {
       switch (node.type) {
-        case 'AttrNode':
         case 'Block':
         case 'PartialStatement':
-        case 'Template':
           throw new Error(`Internal error: unexpected top-level ${node.type}`);
 
         case 'TextNode':

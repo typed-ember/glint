@@ -7,7 +7,7 @@
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "types": "index.d.ts",
   "scripts": {
-    "lint": "eslint . --ext ts --max-warnings 0 && prettier --check .",
+    "lint": "eslint . --max-warnings 0 && prettier --check .",
     "test": "tsc --project __tests__"
   },
   "files": [
@@ -16,8 +16,8 @@
     "*.d.ts"
   ],
   "devDependencies": {
-    "@glimmer/component": "^1.0.0",
-    "@glimmerx/component": "^0.2.2",
+    "@glimmer/component": "^1.0.2",
+    "@glimmerx/component": "^0.3.0",
     "@types/ember__component": "~3.0.7",
     "expect-type": "0.7.3",
     "sums-up": "^2.1.0"

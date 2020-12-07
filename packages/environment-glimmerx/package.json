@@ -10,7 +10,7 @@
     "glint-environment"
   ],
   "scripts": {
-    "lint": "eslint . --ext ts --max-warnings 0 && prettier --check src",
+    "lint": "eslint . --max-warnings 0 && prettier --check src",
     "test": "tsc --project __tests__",
     "build": "tsc --build",
     "prepack": "yarn build"
@@ -25,8 +25,8 @@
     "@glint/template": "^0.2.1"
   },
   "devDependencies": {
-    "expect-type": "0.7.3",
-    "@glimmerx/component": "^0.2.2"
+    "@glimmerx/component": "^0.3.0",
+    "expect-type": "0.7.3"
   },
   "publishConfig": {
     "access": "public"

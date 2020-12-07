@@ -31,7 +31,7 @@ invokeBlock(resolve(NoopCurriedStringComponent)({ value: 'hello' }), {
   default() {
     /* nothing */
   },
-  // @ts-expect-error
+  // @ts-expect-error: invalid block name
   asdf() {
     /* nothing */
   },
