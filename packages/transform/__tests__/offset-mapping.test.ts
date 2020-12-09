@@ -6,11 +6,15 @@ import { assert } from '../src/util';
 import { GlintEnvironment } from '@glint/config';
 
 const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
+const emberLooseEnvironment = GlintEnvironment.load('ember-loose');
 
 describe('Source-to-source offset mapping', () => {
-  type RewrittenTestModule = { script: SourceFile; transformedModule: TransformedModule };
+  type RewrittenTestModule = {
+    source: SourceFile;
+    transformedModule: TransformedModule;
+  };
 
-  function rewriteTestModule({
+  function rewriteInlineTemplate({
     contents,
     identifiersInScope = [],
   }: {
@@ -36,7 +40,34 @@ describe('Source-to-source offset mapping', () => {
       throw new Error('Expected module to have rewritten contents');
     }
 
-    return { script, transformedModule };
+    return { source: script, transformedModule };
+  }
+
+  function rewriteCompanionTemplate({
+    contents,
+  }: {
+    contents: string;
+    identifiersInScope?: string[];
+  }): RewrittenTestModule {
+    let script = {
+      filename: 'test.ts',
+      contents: stripIndent`
+        import Component from '@glimmer/component';
+        export default class MyComponent extends Component {}
+      `,
+    };
+
+    let template = {
+      filename: 'test.hbs',
+      contents: contents,
+    };
+
+    let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+    if (!transformedModule) {
+      throw new Error('Expected module to have rewritten contents');
+    }
+
+    return { source: template, transformedModule };
   }
 
   function findOccurrence(haystack: string, needle: string, occurrence: number): number {
@@ -56,7 +87,7 @@ describe('Source-to-source offset mapping', () => {
     originalToken: string,
     { transformedToken = originalToken, occurrence = 0 } = {}
   ): void {
-    let originalSource = rewrittenTestModule.script.contents;
+    let originalSource = rewrittenTestModule.source.contents;
     let transformedContents = rewrittenTestModule.transformedModule.transformedContents;
     let originalOffset = findOccurrence(originalSource, originalToken, occurrence);
     let transformedOffset = findOccurrence(transformedContents, transformedToken, occurrence);
@@ -79,17 +110,17 @@ describe('Source-to-source offset mapping', () => {
     originalRange: Range,
     transformedRange: Range
   ): void {
-    let { transformedModule, script: original } = rewrittenTestModule;
+    let { transformedModule, source } = rewrittenTestModule;
     expect(transformedModule.getOriginalOffset(transformedRange.start)).toEqual({
       offset: originalRange.start,
-      source: rewrittenTestModule.script,
+      source,
     });
-    expect(transformedModule.getTransformedOffset(original.filename, originalRange.start)).toEqual(
+    expect(transformedModule.getTransformedOffset(source.filename, originalRange.start)).toEqual(
       transformedRange.start
     );
 
     let calculatedTransformedRange = transformedModule.getTransformedRange(
-      original.filename,
+      source.filename,
       originalRange.start,
       originalRange.end
     );
@@ -102,201 +133,229 @@ describe('Source-to-source offset mapping', () => {
       transformedRange.end
     );
 
-    expect(calculatedOriginalRange.source).toBe(rewrittenTestModule.script);
+    expect(calculatedOriginalRange.source).toBe(rewrittenTestModule.source);
     expect(calculatedOriginalRange.start).toEqual(originalRange.start);
     expect(calculatedOriginalRange.end).toEqual(originalRange.end);
   }
 
-  describe('path segments', () => {
-    test('simple in-scope paths', () => {
-      let module = rewriteTestModule({ identifiersInScope: ['foo'], contents: '{{foo.bar}}' });
-      expectTokenMapping(module, 'foo');
-      expectTokenMapping(module, 'bar');
-    });
+  describe('standalone companion template', () => {
+    describe('path segments', () => {
+      test('simple path', () => {
+        let module = rewriteCompanionTemplate({ contents: '{{foo.bar}}' });
+        expectTokenMapping(module, 'foo', { transformedToken: '"foo"' });
+        expectTokenMapping(module, 'bar');
+      });
 
-    test('simple out-of-scope paths', () => {
-      let module = rewriteTestModule({ contents: '{{foo.bar}}' });
-      expectTokenMapping(module, 'foo', { transformedToken: '"foo"' });
-      expectTokenMapping(module, 'bar');
-    });
-
-    test('arg paths', () => {
-      let module = rewriteTestModule({ contents: '{{@foo.bar}}' });
-      expectTokenMapping(module, 'foo');
-      expectTokenMapping(module, 'bar');
-    });
-
-    test('this paths', () => {
-      let module = rewriteTestModule({ contents: '{{this.foo.bar}}' });
-      expectTokenMapping(module, 'foo');
-      expectTokenMapping(module, 'bar');
-      expectTokenMapping(module, 'this');
-    });
-
-    test('paths with repeated subsequences', () => {
-      let module = rewriteTestModule({ contents: '{{this.tabState.tab}}' });
-      expectTokenMapping(module, 'this');
-      expectTokenMapping(module, 'tabState');
-      expectTokenMapping(module, 'tab', { occurrence: 1 });
+      test('paths with repeated subsequences', () => {
+        let module = rewriteCompanionTemplate({ contents: '{{this.tabState.tab}}' });
+        expectTokenMapping(module, 'this');
+        expectTokenMapping(module, 'tabState');
+        expectTokenMapping(module, 'tab', { occurrence: 1 });
+      });
     });
   });
 
-  describe('keys', () => {
-    test('named params to mustaches', () => {
-      let module = rewriteTestModule({
-        identifiersInScope: ['foo', 'hello'],
-        contents: '{{foo bar=hello}}',
-      });
-      expectTokenMapping(module, 'foo');
-      expectTokenMapping(module, 'bar');
-      expectTokenMapping(module, 'hello');
-    });
-
-    test('named spinal-case params to mustaches', () => {
-      let module = rewriteTestModule({
-        identifiersInScope: ['foo', 'hello'],
-        contents: '{{foo bar-baz=hello}}',
-      });
-      expectTokenMapping(module, 'foo');
-      expectTokenMapping(module, 'bar-baz', { transformedToken: '"bar-baz"' });
-      expectTokenMapping(module, 'hello');
-    });
-
-    test('component args', () => {
-      let module = rewriteTestModule({
-        identifiersInScope: ['Foo', 'hello'],
-        contents: '<Foo @bar={{hello}} />',
-      });
-      expectTokenMapping(module, 'Foo');
-      expectTokenMapping(module, 'bar');
-      expectTokenMapping(module, 'hello');
-    });
-
-    test('spinal-case component args', () => {
-      let module = rewriteTestModule({
-        identifiersInScope: ['Foo', 'hello'],
-        contents: '<Foo @bar-baz={{hello}} />',
-      });
-      expectTokenMapping(module, 'Foo');
-      expectTokenMapping(module, 'bar-baz', { transformedToken: '"bar-baz"' });
-      expectTokenMapping(module, 'hello');
-    });
-
-    test('named blocks', () => {
-      let module = rewriteTestModule({
-        identifiersInScope: ['Foo'],
-        contents: '<Foo><:block>hi</:block></Foo>',
-      });
-      expectTokenMapping(module, 'Foo');
-      expectTokenMapping(module, 'block');
-    });
-
-    test('spinal-case named blocks', () => {
-      let module = rewriteTestModule({
-        identifiersInScope: ['Foo'],
-        contents: '<Foo><:block-name>hi</:block-name></Foo>',
-      });
-      expectTokenMapping(module, 'Foo');
-      expectTokenMapping(module, 'block-name', { transformedToken: '"block-name"' });
-    });
-  });
-
-  describe('block params', () => {
-    test('curly params', () => {
-      let module = rewriteTestModule({
-        contents: stripIndent`
-          {{#each this.items as |num|}}
-            #{{num}}
-          {{/each}}
-        `,
+  describe('inline template', () => {
+    describe('path segments', () => {
+      test('simple in-scope paths', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['foo'],
+          contents: '{{foo.bar}}',
+        });
+        expectTokenMapping(module, 'foo');
+        expectTokenMapping(module, 'bar');
       });
 
-      expectTokenMapping(module, 'each', { occurrence: 0, transformedToken: '"each"' });
-      expectTokenMapping(module, 'this');
-      expectTokenMapping(module, 'items');
-      expectTokenMapping(module, 'num', { occurrence: 0 });
-      expectTokenMapping(module, 'num', { occurrence: 1 });
-      expectTokenMapping(module, 'each', { occurrence: 1, transformedToken: '"each"' });
-    });
-
-    test('angle bracket params', () => {
-      let module = rewriteTestModule({
-        identifiersInScope: ['Foo'],
-        contents: '<Foo as |bar baz|></Foo>',
+      test('simple out-of-scope paths', () => {
+        let module = rewriteInlineTemplate({ contents: '{{foo.bar}}' });
+        expectTokenMapping(module, 'foo', { transformedToken: '"foo"' });
+        expectTokenMapping(module, 'bar');
       });
-      expectTokenMapping(module, 'Foo');
-      expectTokenMapping(module, 'bar');
-      expectTokenMapping(module, 'baz');
-    });
-  });
 
-  describe('block mustaches', () => {
-    test('simple identifiers', () => {
-      let module = rewriteTestModule({ identifiersInScope: ['foo'], contents: '{{#foo}}{{/foo}}' });
-      expectTokenMapping(module, 'foo', { occurrence: 0 });
-      expectTokenMapping(module, 'foo', { occurrence: 1 });
-    });
-
-    test('simple paths', () => {
-      let module = rewriteTestModule({
-        identifiersInScope: ['foo'],
-        contents: '{{#foo.bar}}{{/foo.bar}}',
+      test('arg paths', () => {
+        let module = rewriteInlineTemplate({ contents: '{{@foo.bar}}' });
+        expectTokenMapping(module, 'foo');
+        expectTokenMapping(module, 'bar');
       });
-      expectTokenMapping(module, 'foo', { occurrence: 0 });
-      expectTokenMapping(module, 'foo', { occurrence: 1 });
-      expectTokenMapping(module, 'bar', { occurrence: 0 });
-      expectTokenMapping(module, 'bar', { occurrence: 1 });
-    });
 
-    test('arg paths', () => {
-      let module = rewriteTestModule({ contents: '{{#@foo.bar}}{{/@foo.bar}}' });
-      expectTokenMapping(module, 'foo', { occurrence: 0 });
-      expectTokenMapping(module, 'foo', { occurrence: 1 });
-      expectTokenMapping(module, 'bar', { occurrence: 0 });
-      expectTokenMapping(module, 'bar', { occurrence: 1 });
-    });
-
-    test('this paths', () => {
-      let module = rewriteTestModule({ contents: '{{#this.bar}}{{/this.bar}}' });
-      expectTokenMapping(module, 'this', { occurrence: 0 });
-      expectTokenMapping(module, 'this', { occurrence: 1 });
-      expectTokenMapping(module, 'bar', { occurrence: 0 });
-      expectTokenMapping(module, 'bar', { occurrence: 1 });
-    });
-  });
-
-  describe('angle bracket components', () => {
-    test('simple identifiers', () => {
-      let module = rewriteTestModule({ identifiersInScope: ['Foo'], contents: '<Foo></Foo>' });
-      expectTokenMapping(module, 'Foo', { occurrence: 0 });
-      expectTokenMapping(module, 'Foo', { occurrence: 1 });
-    });
-
-    test('simple paths', () => {
-      let module = rewriteTestModule({
-        identifiersInScope: ['foo'],
-        contents: '<foo.bar></foo.bar>',
+      test('this paths', () => {
+        let module = rewriteInlineTemplate({ contents: '{{this.foo.bar}}' });
+        expectTokenMapping(module, 'foo');
+        expectTokenMapping(module, 'bar');
+        expectTokenMapping(module, 'this');
       });
-      expectTokenMapping(module, 'foo', { occurrence: 0 });
-      expectTokenMapping(module, 'foo', { occurrence: 1 });
-      expectTokenMapping(module, 'bar', { occurrence: 0 });
-      expectTokenMapping(module, 'bar', { occurrence: 1 });
+
+      test('paths with repeated subsequences', () => {
+        let module = rewriteInlineTemplate({ contents: '{{this.tabState.tab}}' });
+        expectTokenMapping(module, 'this');
+        expectTokenMapping(module, 'tabState');
+        expectTokenMapping(module, 'tab', { occurrence: 1 });
+      });
     });
 
-    test('arg paths', () => {
-      let module = rewriteTestModule({ contents: '<@foo.bar></@foo.bar>' });
-      expectTokenMapping(module, 'foo', { occurrence: 0 });
-      expectTokenMapping(module, 'foo', { occurrence: 1 });
-      expectTokenMapping(module, 'bar', { occurrence: 0 });
-      expectTokenMapping(module, 'bar', { occurrence: 1 });
+    describe('keys', () => {
+      test('named params to mustaches', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['foo', 'hello'],
+          contents: '{{foo bar=hello}}',
+        });
+        expectTokenMapping(module, 'foo');
+        expectTokenMapping(module, 'bar');
+        expectTokenMapping(module, 'hello');
+      });
+
+      test('named spinal-case params to mustaches', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['foo', 'hello'],
+          contents: '{{foo bar-baz=hello}}',
+        });
+        expectTokenMapping(module, 'foo');
+        expectTokenMapping(module, 'bar-baz', { transformedToken: '"bar-baz"' });
+        expectTokenMapping(module, 'hello');
+      });
+
+      test('component args', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['Foo', 'hello'],
+          contents: '<Foo @bar={{hello}} />',
+        });
+        expectTokenMapping(module, 'Foo');
+        expectTokenMapping(module, 'bar');
+        expectTokenMapping(module, 'hello');
+      });
+
+      test('spinal-case component args', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['Foo', 'hello'],
+          contents: '<Foo @bar-baz={{hello}} />',
+        });
+        expectTokenMapping(module, 'Foo');
+        expectTokenMapping(module, 'bar-baz', { transformedToken: '"bar-baz"' });
+        expectTokenMapping(module, 'hello');
+      });
+
+      test('named blocks', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['Foo'],
+          contents: '<Foo><:block>hi</:block></Foo>',
+        });
+        expectTokenMapping(module, 'Foo');
+        expectTokenMapping(module, 'block');
+      });
+
+      test('spinal-case named blocks', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['Foo'],
+          contents: '<Foo><:block-name>hi</:block-name></Foo>',
+        });
+        expectTokenMapping(module, 'Foo');
+        expectTokenMapping(module, 'block-name', { transformedToken: '"block-name"' });
+      });
     });
 
-    test('this paths', () => {
-      let module = rewriteTestModule({ contents: '<this.bar></this.bar>' });
-      expectTokenMapping(module, 'this', { occurrence: 0 });
-      expectTokenMapping(module, 'this', { occurrence: 1 });
-      expectTokenMapping(module, 'bar', { occurrence: 0 });
-      expectTokenMapping(module, 'bar', { occurrence: 1 });
+    describe('block params', () => {
+      test('curly params', () => {
+        let module = rewriteInlineTemplate({
+          contents: stripIndent`
+              {{#each this.items as |num|}}
+                #{{num}}
+              {{/each}}
+            `,
+        });
+
+        expectTokenMapping(module, 'each', { occurrence: 0, transformedToken: '"each"' });
+        expectTokenMapping(module, 'this');
+        expectTokenMapping(module, 'items');
+        expectTokenMapping(module, 'num', { occurrence: 0 });
+        expectTokenMapping(module, 'num', { occurrence: 1 });
+        expectTokenMapping(module, 'each', { occurrence: 1, transformedToken: '"each"' });
+      });
+
+      test('angle bracket params', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['Foo'],
+          contents: '<Foo as |bar baz|></Foo>',
+        });
+        expectTokenMapping(module, 'Foo');
+        expectTokenMapping(module, 'bar');
+        expectTokenMapping(module, 'baz');
+      });
+    });
+
+    describe('block mustaches', () => {
+      test('simple identifiers', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['foo'],
+          contents: '{{#foo}}{{/foo}}',
+        });
+        expectTokenMapping(module, 'foo', { occurrence: 0 });
+        expectTokenMapping(module, 'foo', { occurrence: 1 });
+      });
+
+      test('simple paths', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['foo'],
+          contents: '{{#foo.bar}}{{/foo.bar}}',
+        });
+        expectTokenMapping(module, 'foo', { occurrence: 0 });
+        expectTokenMapping(module, 'foo', { occurrence: 1 });
+        expectTokenMapping(module, 'bar', { occurrence: 0 });
+        expectTokenMapping(module, 'bar', { occurrence: 1 });
+      });
+
+      test('arg paths', () => {
+        let module = rewriteInlineTemplate({ contents: '{{#@foo.bar}}{{/@foo.bar}}' });
+        expectTokenMapping(module, 'foo', { occurrence: 0 });
+        expectTokenMapping(module, 'foo', { occurrence: 1 });
+        expectTokenMapping(module, 'bar', { occurrence: 0 });
+        expectTokenMapping(module, 'bar', { occurrence: 1 });
+      });
+
+      test('this paths', () => {
+        let module = rewriteInlineTemplate({ contents: '{{#this.bar}}{{/this.bar}}' });
+        expectTokenMapping(module, 'this', { occurrence: 0 });
+        expectTokenMapping(module, 'this', { occurrence: 1 });
+        expectTokenMapping(module, 'bar', { occurrence: 0 });
+        expectTokenMapping(module, 'bar', { occurrence: 1 });
+      });
+    });
+
+    describe('angle bracket components', () => {
+      test('simple identifiers', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['Foo'],
+          contents: '<Foo></Foo>',
+        });
+        expectTokenMapping(module, 'Foo', { occurrence: 0 });
+        expectTokenMapping(module, 'Foo', { occurrence: 1 });
+      });
+
+      test('simple paths', () => {
+        let module = rewriteInlineTemplate({
+          identifiersInScope: ['foo'],
+          contents: '<foo.bar></foo.bar>',
+        });
+        expectTokenMapping(module, 'foo', { occurrence: 0 });
+        expectTokenMapping(module, 'foo', { occurrence: 1 });
+        expectTokenMapping(module, 'bar', { occurrence: 0 });
+        expectTokenMapping(module, 'bar', { occurrence: 1 });
+      });
+
+      test('arg paths', () => {
+        let module = rewriteInlineTemplate({ contents: '<@foo.bar></@foo.bar>' });
+        expectTokenMapping(module, 'foo', { occurrence: 0 });
+        expectTokenMapping(module, 'foo', { occurrence: 1 });
+        expectTokenMapping(module, 'bar', { occurrence: 0 });
+        expectTokenMapping(module, 'bar', { occurrence: 1 });
+      });
+
+      test('this paths', () => {
+        let module = rewriteInlineTemplate({ contents: '<this.bar></this.bar>' });
+        expectTokenMapping(module, 'this', { occurrence: 0 });
+        expectTokenMapping(module, 'this', { occurrence: 1 });
+        expectTokenMapping(module, 'bar', { occurrence: 0 });
+        expectTokenMapping(module, 'bar', { occurrence: 1 });
+      });
     });
   });
 
@@ -343,7 +402,10 @@ describe('Source-to-source offset mapping', () => {
       let originalEnd = source.contents.length - 1;
       let transformedEnd = rewritten.transformedContents.length - 1;
 
-      expect(rewritten.getOriginalOffset(transformedEnd)).toEqual({ source, offset: originalEnd });
+      expect(rewritten.getOriginalOffset(transformedEnd)).toEqual({
+        source,
+        offset: originalEnd,
+      });
       expect(rewritten.getOriginalRange(0, transformedEnd)).toEqual({
         start: 0,
         end: originalEnd,
@@ -392,7 +454,7 @@ describe('Diagnostic offset mapping', () => {
       length: 5,
     };
 
-    let rewritten = rewriteDiagnostic(ts, original, transformedModule);
+    let rewritten = rewriteDiagnostic(ts, original, () => transformedModule);
 
     expect(rewritten).toMatchObject({
       category,
@@ -428,7 +490,7 @@ describe('Diagnostic offset mapping', () => {
       ],
     };
 
-    let rewritten = rewriteDiagnostic(ts, original, transformedModule);
+    let rewritten = rewriteDiagnostic(ts, original, () => transformedModule);
 
     expect(rewritten).toMatchObject({
       category,

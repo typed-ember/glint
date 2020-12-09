@@ -11,6 +11,8 @@ export type CorrelatedSpan = {
   originalStart: number;
   /** The length of this span's content in its original source */
   originalLength: number;
+  /** The location in the untransformed source where this span is spliced in */
+  insertionPoint: number;
   /** The contents of this span in the transformed output */
   transformedSource: string;
   /** The offset in the transformed output of this span */
