@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.compileroptions.json",
+  "compilerOptions": {
+    "outDir": "lib",
+    "rootDir": "src"
+  },
+  "include": ["src", "types"],
+  "references": [{ "path": "../template" }, { "path": "../config" }]
+}
