@@ -38,9 +38,6 @@ module.exports = () => {
     mode: IS_PRODUCTION ? 'production' : 'development',
     entry,
     plugins,
-    externals: {
-      '@glint/template/glimmerx': 'null',
-    },
     module: {
       rules: [
         {

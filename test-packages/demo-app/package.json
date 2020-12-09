@@ -22,7 +22,6 @@
     "@babel/preset-env": "^7.9.0",
     "@babel/preset-typescript": "^7.10.1",
     "@glimmer/babel-plugin-glimmer-env": "~2.0.0-beta.1",
-    "@glimmer/bundle-compiler": "^0.59.1",
     "@glimmer/env": "^0.1.7",
     "@glimmerx/babel-plugin-component-templates": "^0.3.0",
     "@glimmerx/component": "^0.3.0",
