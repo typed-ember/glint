@@ -2,7 +2,8 @@ import resolve from 'resolve';
 import escapeStringRegexp from 'escape-string-regexp';
 
 export type GlintEnvironmentConfig = {
-  tags: GlintTagsConfig;
+  tags?: GlintTagsConfig;
+  template?: GlintTemplateConfig;
 };
 
 export type GlintTagsConfig = {
@@ -13,20 +14,52 @@ export type GlintTagsConfig = {
   };
 };
 
+export type GlintTemplateConfig = {
+  typesPath: string;
+  getPossibleTemplatePaths(scriptPath: string): Array<string>;
+  getPossibleScriptPaths(templatePath: string): Array<string>;
+};
+
 export class GlintEnvironment {
-  private tags: GlintTagsConfig;
+  private tagConfig: GlintTagsConfig;
+  private standaloneTemplateConfig?: GlintTemplateConfig;
   private tagImportRegexp: RegExp;
 
-  public constructor(config: GlintEnvironmentConfig) {
-    this.tags = config.tags;
+  public constructor(public readonly name: string, config: GlintEnvironmentConfig) {
+    this.tagConfig = config.tags ?? {};
+    this.standaloneTemplateConfig = config.template;
     this.tagImportRegexp = this.buildTagImportRegexp();
   }
 
   public static load(name: string, { rootDir = '.' } = {}): GlintEnvironment {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     let envModule = require(locateEnvironment(name, rootDir));
     let envFunction = envModule.default ?? envModule;
-    return new GlintEnvironment(envFunction());
+    return new GlintEnvironment(name, envFunction());
+  }
+
+  /**
+   * Returns the import path that should be used for `@glint/template`-derived
+   * types to drive typechecking for standalone template files, if this
+   * environment supports such templates.
+   */
+  public getTypesForStandaloneTemplate(): string | undefined {
+    return this.standaloneTemplateConfig?.typesPath;
+  }
+
+  /**
+   * Given the path of a script, returns an array of candidate paths where
+   * a template corresponding to that script might be located.
+   */
+  public getPossibleTemplatePaths(scriptPath: string): Array<string> {
+    return this.standaloneTemplateConfig?.getPossibleTemplatePaths(scriptPath) ?? [];
+  }
+
+  /**
+   * Given the path of a template, returns an array of candidate paths where
+   * a script corresponding to that script might be located.
+   */
+  public getPossibleScriptPaths(templatePath: string): Array<string> {
+    return this.standaloneTemplateConfig?.getPossibleScriptPaths(templatePath) ?? [];
   }
 
   /**
@@ -46,11 +79,11 @@ export class GlintEnvironment {
    * for each tag can be found.
    */
   public getConfiguredTemplateTags(): GlintTagsConfig {
-    return this.tags;
+    return this.tagConfig;
   }
 
   private buildTagImportRegexp(): RegExp {
-    let importSources = Object.keys(this.tags);
+    let importSources = Object.keys(this.tagConfig);
     let regexpSource = importSources.map(escapeStringRegexp).join('|');
     return new RegExp(regexpSource);
   }
