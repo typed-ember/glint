@@ -1,0 +1,36 @@
+{
+  "name": "@glint/environment-ember-loose",
+  "version": "0.2.1",
+  "repository": "typed-ember/glint",
+  "description": "A Glint environment to support loose-mode Ember.js projects",
+  "license": "MIT",
+  "author": "Dan Freeman (https://github.com/dfreeman)",
+  "main": "lib/index.js",
+  "keywords": [
+    "glint-environment"
+  ],
+  "scripts": {
+    "lint": "eslint . --max-warnings 0 && prettier --check src",
+    "test": "tsc --project __tests__",
+    "build": "tsc --build",
+    "prepack": "yarn build"
+  },
+  "files": [
+    "README.md",
+    "lib/",
+    "types/"
+  ],
+  "dependencies": {
+    "@glint/config": "^0.2.1",
+    "@glint/template": "^0.2.1"
+  },
+  "devDependencies": {
+    "@glimmer/component": "^1.0.0",
+    "@types/ember__component": "^3.0.0",
+    "ember-modifier": "^2.1.1",
+    "expect-type": "0.7.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
