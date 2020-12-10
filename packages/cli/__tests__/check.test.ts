@@ -14,7 +14,6 @@ describe('single-pass typechecking', () => {
 
   test('passes a valid project', async () => {
     let code = stripIndent`
-      import '@glint/template/glimmerx';
       import Component, { hbs } from '@glimmerx/component';
 
       interface ApplicationArgs {
@@ -42,7 +41,6 @@ describe('single-pass typechecking', () => {
 
   test('reports diagnostics for a template syntax error', async () => {
     let code = stripIndent`
-      import '@glint/template/glimmerx';
       import Component, { hbs } from '@glimmerx/component';
 
       interface ApplicationArgs {
@@ -66,12 +64,12 @@ describe('single-pass typechecking', () => {
     expect(checkResult.exitCode).toBe(1);
     expect(checkResult.stdout).toEqual('');
     expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-      "index.ts:11:28 - error TS0: [glint] Parse error on line 2:
+      "index.ts:10:28 - error TS0: [glint] Parse error on line 2:
       ...e to app v{{@version}.    The current t
       -----------------------^
       Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
 
-      11   public static template = hbs\`
+      10   public static template = hbs\`
                                     ~~~
       "
     `);
@@ -79,7 +77,6 @@ describe('single-pass typechecking', () => {
 
   test('reports diagnostics for a template type error', async () => {
     let code = stripIndent`
-      import '@glint/template/glimmerx';
       import Component, { hbs } from '@glimmerx/component';
 
       interface ApplicationArgs {
@@ -103,13 +100,13 @@ describe('single-pass typechecking', () => {
     expect(checkResult.exitCode).toBe(1);
     expect(checkResult.stdout).toEqual('');
     expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-      "index.ts:13:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
+      "index.ts:12:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
 
-      13     The current time is {{this.startupTimee}}.
+      12     The current time is {{this.startupTimee}}.
                                         ~~~~~~~~~~~~
 
-        index.ts:9:11
-          9   private startupTime = new Date().toISOString();
+        index.ts:8:11
+          8   private startupTime = new Date().toISOString();
                       ~~~~~~~~~~~
           'startupTime' is declared here.
       "
@@ -118,7 +115,6 @@ describe('single-pass typechecking', () => {
 
   test('honors .glintrc configuration', async () => {
     let code = stripIndent`
-      import '@glint/template/glimmerx';
       import Component, { hbs } from '@glimmerx/component';
 
       export default class Application extends Component {
