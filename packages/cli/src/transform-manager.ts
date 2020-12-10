@@ -19,13 +19,14 @@ export default class TransformManager {
   }
 
   public formatDiagnostic(diagnostic: ts.Diagnostic): string {
-    let file = diagnostic.file;
-    let transformedModule = file && this.transformedModules.get(file.fileName);
-    if (diagnostic.code && file && transformedModule) {
-      diagnostic = rewriteDiagnostic(this.ts, diagnostic, transformedModule);
-    }
+    let transformedDiagnostic = rewriteDiagnostic(this.ts, diagnostic, (fileName) =>
+      this.transformedModules.get(fileName)
+    );
 
-    return this.ts.formatDiagnosticsWithColorAndContext([diagnostic], this.formatDiagnosticHost);
+    return this.ts.formatDiagnosticsWithColorAndContext(
+      [transformedDiagnostic],
+      this.formatDiagnosticHost
+    );
   }
 
   public readFile(filename: string, encoding?: string): string | undefined {
