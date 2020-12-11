@@ -1,6 +1,7 @@
 import { TransformedModule, rewriteModule, rewriteDiagnostic } from '@glint/transform';
 import type ts from 'typescript';
 import { GlintConfig } from '@glint/config';
+import { assert } from '@glint/transform/lib/util';
 
 export default class TransformManager {
   private transformedModules = new Map<string, TransformedModule>();
@@ -29,7 +30,35 @@ export default class TransformManager {
     );
   }
 
-  public readFile(filename: string, encoding?: string): string | undefined {
+  public watchFile = (
+    path: string,
+    callback: ts.FileWatcherCallback,
+    pollingInterval?: number,
+    options?: ts.WatchOptions
+  ): ts.FileWatcher => {
+    const { watchFile } = this.ts.sys;
+    assert(watchFile);
+
+    let rootWatcher = watchFile(path, callback, pollingInterval, options);
+    let templatePaths = this.glintConfig.environment.getPossibleTemplatePaths(path);
+
+    if (this.glintConfig.includesFile(path) && templatePaths.length) {
+      let templateWatchers = templatePaths.map((candidate) =>
+        watchFile(candidate, (_, event) => callback(path, event), pollingInterval, options)
+      );
+
+      return {
+        close() {
+          rootWatcher.close();
+          templateWatchers.forEach((watcher) => watcher.close());
+        },
+      };
+    }
+
+    return rootWatcher;
+  };
+
+  public readFile = (filename: string, encoding?: string): string | undefined => {
     let contents = this.ts.sys.readFile(filename, encoding);
     let config = this.glintConfig;
 
@@ -37,11 +66,21 @@ export default class TransformManager {
       contents &&
       filename.endsWith('.ts') &&
       !filename.endsWith('.d.ts') &&
-      config.includesFile(filename) &&
-      config.environment.moduleMayHaveTagImports(contents)
+      config.includesFile(filename)
     ) {
+      let mayHaveTaggedTemplates = contents && config.environment.moduleMayHaveTagImports(contents);
+      let templateCandidates = config.environment.getPossibleTemplatePaths(filename);
+      let templatePath = templateCandidates.find((candidate) => this.ts.sys.fileExists(candidate));
+      if (!mayHaveTaggedTemplates && !templatePath) {
+        return contents;
+      }
+
       let script = { filename, contents };
-      let transformedModule = rewriteModule({ script }, config.environment);
+      let template = templatePath
+        ? { filename: templatePath, contents: this.ts.sys.readFile(templatePath) ?? '' }
+        : undefined;
+
+      let transformedModule = rewriteModule({ script, template }, config.environment);
       if (transformedModule) {
         this.transformedModules.set(filename, transformedModule);
         return transformedModule.transformedContents;
@@ -49,7 +88,7 @@ export default class TransformManager {
     }
 
     return contents;
-  }
+  };
 
   private readonly formatDiagnosticHost: ts.FormatDiagnosticsHost = {
     getCanonicalFileName: (name) => name,

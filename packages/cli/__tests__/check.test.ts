@@ -75,7 +75,7 @@ describe('single-pass typechecking', () => {
     `);
   });
 
-  test('reports diagnostics for a template type error', async () => {
+  test('reports diagnostics for an inline template type error', async () => {
     let code = stripIndent`
       import Component, { hbs } from '@glimmerx/component';
 
@@ -109,6 +109,46 @@ describe('single-pass typechecking', () => {
           8   private startupTime = new Date().toISOString();
                       ~~~~~~~~~~~
           'startupTime' is declared here.
+      "
+    `);
+  });
+
+  test('reports diagnostics for a companion template type error', async () => {
+    project.write('.glintrc', 'environment: ember-loose\n');
+
+    let script = stripIndent`
+      import Component from '@ember/component';
+
+      export interface MyComponentArgs {
+        message: string;
+      }
+
+      export default class MyComponent extends Component<MyComponentArgs> {
+        target = 'World!';
+      }
+    `;
+
+    let template = stripIndent`
+      {{@message}}, {{this.targett}}
+    `;
+
+    project.write('my-component.ts', script);
+    project.write('my-component.hbs', template);
+
+    let checkResult = await project.check({ reject: false });
+
+    expect(checkResult.exitCode).toBe(1);
+    expect(checkResult.stdout).toEqual('');
+    expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+      "my-component.hbs:1:22 - error TS2551: Property 'targett' does not exist on type 'MyComponent'. Did you mean 'target'?
+
+      1 {{@message}}, {{this.targett}}
+                             ~~~~~~~
+
+        my-component.ts:8:3
+          8   target = 'World!';
+              ~~~~~~
+          'target' is declared here.
       "
     `);
   });

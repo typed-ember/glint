@@ -166,4 +166,54 @@ describe('watched typechecking', () => {
 
     await watch.terminate();
   });
+
+  test('reports on errors introduced and cleared in a companion template', async () => {
+    project.write('.glintrc', 'environment: ember-loose\n');
+    project.write('index.ts', 'import "@glint/environment-ember-loose/types";');
+
+    let script = stripIndent`
+      import Component from '@ember/component';
+
+      export interface MyComponentArgs {
+        message: string;
+      }
+
+      export default class MyComponent extends Component<MyComponentArgs> {
+        target = 'World!';
+      }
+    `;
+
+    let template = stripIndent`
+      {{@message}}, {{this.target}}
+    `;
+
+    project.write('my-component.ts', script);
+
+    let watch = project.watch({ reject: true });
+
+    let output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 0 errors.');
+
+    project.write('my-component.hbs', template.replace('target', 'tarrget'));
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 1 error.');
+
+    project.write('my-component.hbs', template);
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 0 errors.');
+
+    project.write('my-component.hbs', template.replace('@message', '@messagee'));
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 1 error.');
+
+    project.remove('my-component.hbs');
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 0 errors.');
+
+    await watch.terminate();
+  });
 });

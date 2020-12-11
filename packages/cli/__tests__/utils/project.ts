@@ -49,6 +49,10 @@ export default class Project {
     return fs.readFileSync(this.filePath(fileName), 'utf-8');
   }
 
+  public remove(fileName: string): void {
+    fs.unlinkSync(this.filePath(fileName));
+  }
+
   public async destroy(): Promise<void> {
     fs.rmdirSync(this.rootDir, { recursive: true });
   }
