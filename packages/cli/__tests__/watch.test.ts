@@ -16,7 +16,6 @@ describe('watched typechecking', () => {
 
   test('passes a valid project', async () => {
     let code = stripIndent`
-      import '@glint/template/glimmerx';
       import Component, { hbs } from '@glimmerx/component';
 
       interface ApplicationArgs {
@@ -45,7 +44,6 @@ describe('watched typechecking', () => {
 
   test('reports diagnostics for a template syntax error', async () => {
     let code = stripIndent`
-      import '@glint/template/glimmerx';
       import Component, { hbs } from '@glimmerx/component';
 
       interface ApplicationArgs {
@@ -70,23 +68,25 @@ describe('watched typechecking', () => {
     await watch.terminate();
 
     let stripped = stripAnsi(output);
-    let error = stripped.slice(stripped.indexOf('index.ts'), stripped.lastIndexOf(`~~~${os.EOL}`) + 3);
+    let error = stripped.slice(
+      stripped.indexOf('index.ts'),
+      stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+    );
 
     expect(output).toMatch('Found 1 error.');
     expect(error.replace(/\r/g, '')).toMatchInlineSnapshot(`
-      "index.ts:11:28 - error TS0: [glint] Parse error on line 2:
+      "index.ts:10:28 - error TS0: [glint] Parse error on line 2:
       ...e to app v{{@version}.    The current t
       -----------------------^
       Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
 
-      11   public static template = hbs\`
+      10   public static template = hbs\`
                                     ~~~"
     `);
   });
 
   test('reports diagnostics for a template type error', async () => {
     let code = stripIndent`
-      import '@glint/template/glimmerx';
       import Component, { hbs } from '@glimmerx/component';
 
       interface ApplicationArgs {
@@ -111,24 +111,26 @@ describe('watched typechecking', () => {
     await watch.terminate();
 
     let stripped = stripAnsi(output);
-    let error = stripped.slice(stripped.indexOf('index.ts'), stripped.lastIndexOf(`~~~${os.EOL}`) + 3);
+    let error = stripped.slice(
+      stripped.indexOf('index.ts'),
+      stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+    );
 
     expect(output).toMatch('Found 1 error.');
     expect(error.replace(/\r/g, '')).toMatchInlineSnapshot(`
-      "index.ts:13:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
+      "index.ts:12:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
 
-      13     The current time is {{this.startupTimee}}.
+      12     The current time is {{this.startupTimee}}.
                                         ~~~~~~~~~~~~
 
-        index.ts:9:11
-          9   private startupTime = new Date().toISOString();
+        index.ts:8:11
+          8   private startupTime = new Date().toISOString();
                       ~~~~~~~~~~~"
     `);
   });
 
   test('reports on errors introduced and cleared during the watch', async () => {
     let code = stripIndent`
-      import '@glint/template/glimmerx';
       import Component, { hbs } from '@glimmerx/component';
 
       interface ApplicationArgs {
@@ -158,6 +160,56 @@ describe('watched typechecking', () => {
     expect(output).toMatch('Found 1 error.');
 
     project.write('index.ts', code);
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 0 errors.');
+
+    await watch.terminate();
+  });
+
+  test('reports on errors introduced and cleared in a companion template', async () => {
+    project.write('.glintrc', 'environment: ember-loose\n');
+    project.write('index.ts', 'import "@glint/environment-ember-loose/types";');
+
+    let script = stripIndent`
+      import Component from '@ember/component';
+
+      export interface MyComponentArgs {
+        message: string;
+      }
+
+      export default class MyComponent extends Component<MyComponentArgs> {
+        target = 'World!';
+      }
+    `;
+
+    let template = stripIndent`
+      {{@message}}, {{this.target}}
+    `;
+
+    project.write('my-component.ts', script);
+
+    let watch = project.watch({ reject: true });
+
+    let output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 0 errors.');
+
+    project.write('my-component.hbs', template.replace('target', 'tarrget'));
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 1 error.');
+
+    project.write('my-component.hbs', template);
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 0 errors.');
+
+    project.write('my-component.hbs', template.replace('@message', '@messagee'));
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 1 error.');
+
+    project.remove('my-component.hbs');
 
     output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');

@@ -45,6 +45,15 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     }
   }
 
+  private getTransformInfoForPath(path: string): TransformInfo | undefined {
+    let originalPath = isTransformablePath(path) ? path : getOriginalPath(path as TransformedPath);
+    let transformedPath = isTransformedPath(path)
+      ? path
+      : getTransformedPath(path as TransformablePath);
+
+    return this.getTransformInfo(originalPath, transformedPath);
+  }
+
   private getTransformInfo(
     originalPath: TransformablePath,
     transformedPath: TransformedPath
@@ -80,7 +89,7 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     if (info) {
       return this.ls
         .getSemanticDiagnostics(info.transformedPath)
-        .map((diagnostic) => rewriteDiagnostic(this.ts, diagnostic, info.transformedModule));
+        .map((diagnostic) => this.rewriteDiagnostic(diagnostic));
     }
 
     return this.ls.getSemanticDiagnostics(fileName);
@@ -91,10 +100,18 @@ export default class GlintLanguageService implements Partial<ts.LanguageService>
     if (info) {
       return this.ls
         .getSuggestionDiagnostics(info.transformedPath)
-        .map((diagnostic) => rewriteDiagnostic(this.ts, diagnostic, info.transformedModule));
+        .map((diagnostic) => this.rewriteDiagnostic(diagnostic));
     }
 
     return this.ls.getSuggestionDiagnostics(fileName);
+  }
+
+  private rewriteDiagnostic<T extends ts.Diagnostic>(diagnostic: T): T {
+    return rewriteDiagnostic(
+      this.ts,
+      diagnostic,
+      (fileName) => this.getTransformInfoForPath(fileName)?.transformedModule
+    );
   }
 
   public getEncodedSyntacticClassifications(

@@ -22,7 +22,6 @@
   "dependencies": {
     "@glint/config": "^0.2.1",
     "@glint/transform": "^0.2.1",
-    "debug": "^4.1.1",
     "resolve": "^1.17.0",
     "yargs": "^15.3.1"
   },
