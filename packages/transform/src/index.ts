@@ -146,6 +146,11 @@ function calculateCorrelatedSpans(
       partialSpans.push(...result.partialSpans);
     },
 
+    TSModuleDeclaration(path) {
+      // don't traverse into declare module
+      path.skip();
+    },
+
     ExportDefaultDeclaration(path) {
       if (template) {
         let result = calculateCompanionTemplateSpans(path, script, template, environment);

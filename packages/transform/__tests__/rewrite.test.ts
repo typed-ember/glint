@@ -242,5 +242,47 @@ describe('rewriteModule', () => {
         }"
       `);
     });
+
+    test('with a class with default export in module augmentation', () => {
+      let script = {
+        filename: 'test.ts',
+        contents: stripIndent`
+          import Component from '@glimmer/component';
+          export default class MyComponent extends Component {
+          }
+          declare module '@glint/environment-ember-loose/types/registry' {
+            export default interface Registry {
+              Test: MyComponent;
+            }
+          }
+        `,
+      };
+
+      let template = {
+        filename: 'test.hbs',
+        contents: stripIndent``,
+      };
+
+      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import Component from '@glimmer/component';
+        export default class MyComponent extends Component {
+        private static '~template' = (() => {
+          MyComponent['~template'];
+          let χ!: typeof import(\\"@glint/environment-ember-loose/types\\");
+          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/types\\").ResolveContext<MyComponent>) {
+            𝚪;
+          });
+        })();
+        }
+        declare module '@glint/environment-ember-loose/types/registry' {
+          export default interface Registry {
+            Test: MyComponent;
+          }
+        }"
+      `);
+    });
   });
 });
