@@ -1,4 +1,4 @@
-# demo-app
+# demo-glimmerx-app
 
 This application demonstrates `@glint/cli` and `@glint/tsserver-plugin`.
 
