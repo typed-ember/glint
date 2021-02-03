@@ -1,5 +1,5 @@
 import { stripIndent } from 'common-tags';
-import Project from './utils/project';
+import Project from '../utils/project';
 
 describe('emitting declarations', () => {
   let project!: Project;

@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 /* eslint-disable */
-require('../lib');
+require('../lib/cli');
