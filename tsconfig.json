@@ -1,7 +1,7 @@
 {
   "references": [
-    { "path": "packages/cli" },
     { "path": "packages/config" },
+    { "path": "packages/core" },
     { "path": "packages/environment-ember-loose" },
     { "path": "packages/environment-glimmerx" },
     { "path": "packages/template" },

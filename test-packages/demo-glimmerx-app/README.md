@@ -1,6 +1,6 @@
 # demo-glimmerx-app
 
-This application demonstrates `@glint/cli` and `@glint/tsserver-plugin`.
+This application demonstrates the usage of glint in a GlimmerX project.
 
 It supports one-off typechecking via the `glint` executable:
 

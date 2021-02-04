@@ -1,5 +1,7 @@
 # glint [![CI](https://github.com/typed-ember/glint/workflows/CI/badge.svg)](https://github.com/typed-ember/glint/actions?query=workflow%3ACI)
 
+⚠️ While many of the key concepts in this document are still relevant, many of the details, including specifics around template translation and package breakdown, are outdated.
+
 This repo contains design thoughts on typing Ember templates, as well as a spike implementation of a possible approach, based on [GlimmerX](https://github.com/glimmerjs/glimmer-experimental).
 
 It's an elaboration on the original design laid out in [this gist](https://gist.github.com/dfreeman/a5a910976e5dbed44d0649ba21aab23f).

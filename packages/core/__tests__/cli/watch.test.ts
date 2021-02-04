@@ -1,7 +1,7 @@
 import { stripIndent } from 'common-tags';
 import stripAnsi from 'strip-ansi';
 import os from 'os';
-import Project from './utils/project';
+import Project from '../utils/project';
 
 describe('watched typechecking', () => {
   let project!: Project;

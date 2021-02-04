@@ -1,6 +1,6 @@
 import { stripIndent } from 'common-tags';
 import stripAnsi from 'strip-ansi';
-import Project from './utils/project';
+import Project from '../utils/project';
 
 describe('single-pass typechecking', () => {
   let project!: Project;
