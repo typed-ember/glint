@@ -1,5 +1,5 @@
 import type ts from 'typescript';
-import TransformManager from './transform-manager';
+import TransformManager from '../util/transform-manager';
 import { GlintConfig } from '@glint/config';
 
 export function performCheck(

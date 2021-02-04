@@ -3,7 +3,7 @@ import { loadConfig } from '@glint/config';
 import { performWatch } from './perform-watch';
 import { performCheck } from './perform-check';
 import { determineOptionsToExtend } from './options';
-import { loadTypeScript } from './load-typescript';
+import { loadTypeScript } from '../util/load-typescript';
 
 const { argv } = yargs
   .scriptName('glint')
