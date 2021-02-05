@@ -3,7 +3,7 @@ import stripAnsi from 'strip-ansi';
 import os from 'os';
 import Project from '../utils/project';
 
-describe('watched typechecking', () => {
+describe('CLI: watched typechecking', () => {
   let project!: Project;
   beforeEach(async () => {
     jest.setTimeout(20_000);

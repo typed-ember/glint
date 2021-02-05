@@ -1,7 +1,7 @@
 import { stripIndent } from 'common-tags';
 import Project from '../utils/project';
 
-describe('emitting declarations', () => {
+describe('CLI: emitting declarations', () => {
   let project!: Project;
   beforeEach(async () => {
     project = await Project.create();

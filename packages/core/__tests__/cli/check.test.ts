@@ -2,7 +2,7 @@ import { stripIndent } from 'common-tags';
 import stripAnsi from 'strip-ansi';
 import Project from '../utils/project';
 
-describe('single-pass typechecking', () => {
+describe('CLI: single-pass typechecking', () => {
   let project!: Project;
   beforeEach(async () => {
     project = await Project.create();
