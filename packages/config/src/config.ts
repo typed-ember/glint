@@ -25,7 +25,12 @@ export class GlintConfig {
     this.rootDir = normalizePath(rootDir);
     this.environment = GlintEnvironment.load(config.environment, { rootDir });
 
-    let include = Array.isArray(config.include) ? config.include : [config.include ?? '**/*.ts'];
+    let include = Array.isArray(config.include)
+      ? config.include
+      : config.include
+      ? [config.include]
+      : ['**/*.ts', '**/*.hbs'];
+
     let exclude = Array.isArray(config.exclude)
       ? config.exclude
       : [config.exclude ?? '**/node_modules/**'];
