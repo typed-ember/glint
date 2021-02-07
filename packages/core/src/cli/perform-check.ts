@@ -46,7 +46,7 @@ function createCompilerHost(
   transformManager: TransformManager
 ): ts.CompilerHost {
   let host = ts.createCompilerHost(options);
-  host.readFile = transformManager.readFile;
+  host.readFile = transformManager.readTransformedFile;
   return host;
 }
 

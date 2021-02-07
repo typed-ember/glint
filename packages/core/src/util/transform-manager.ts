@@ -2,35 +2,119 @@ import { TransformedModule, rewriteModule, rewriteDiagnostic } from '@glint/tran
 import type ts from 'typescript';
 import { GlintConfig } from '@glint/config';
 import { assert } from '@glint/transform/lib/util';
+import DocumentCache, { isTemplate } from './document-cache';
 
 export default class TransformManager {
-  private transformedModules = new Map<string, TransformedModule>();
+  private transformCache = new Map<
+    string,
+    { version: string; transformedModule: TransformedModule }
+  >();
 
-  constructor(private ts: typeof import('typescript'), private glintConfig: GlintConfig) {}
+  constructor(
+    private ts: typeof import('typescript'),
+    private glintConfig: GlintConfig,
+    private documents: DocumentCache = new DocumentCache(ts, glintConfig)
+  ) {}
 
-  public getTransformDiagnostics(sourceFile?: ts.SourceFile): Array<ts.Diagnostic> {
-    if (sourceFile) {
-      let transformedModule = this.transformedModules.get(sourceFile.fileName);
+  public getTransformDiagnostics(fileName?: string): Array<ts.Diagnostic> {
+    if (fileName) {
+      let transformedModule = this.transformCache.get(fileName)?.transformedModule;
       return transformedModule ? this.buildDiagnostics(transformedModule) : [];
     }
 
-    return [...this.transformedModules.values()].flatMap((transformedModule) => {
-      return this.buildDiagnostics(transformedModule);
+    return [...this.transformCache.values()].flatMap((transformedModule) => {
+      return this.buildDiagnostics(transformedModule.transformedModule);
     });
   }
 
-  public formatDiagnostic(diagnostic: ts.Diagnostic): string {
-    let transformedDiagnostic = rewriteDiagnostic(this.ts, diagnostic, (fileName) =>
-      this.transformedModules.get(fileName)
+  public rewriteDiagnostic(diagnostic: ts.Diagnostic): ts.Diagnostic {
+    return rewriteDiagnostic(
+      this.ts,
+      diagnostic,
+      (fileName) => this.transformCache.get(fileName)?.transformedModule
     );
+  }
 
+  public formatDiagnostic(diagnostic: ts.Diagnostic): string {
     return this.ts.formatDiagnosticsWithColorAndContext(
-      [transformedDiagnostic],
+      [this.rewriteDiagnostic(diagnostic)],
       this.formatDiagnosticHost
     );
   }
 
-  public watchFile = (
+  public getTransformedRange(
+    originalFileName: string,
+    originalStart: number,
+    originalEnd: number
+  ): { transformedFileName: string; transformedStart: number; transformedEnd: number } {
+    let transformInfo = this.getTransformInfo(originalFileName);
+    if (!transformInfo) {
+      return {
+        transformedFileName: originalFileName,
+        transformedStart: originalStart,
+        transformedEnd: originalEnd,
+      };
+    }
+
+    let { transformedFileName, transformedModule } = transformInfo;
+    let transformedRange = transformedModule.getTransformedRange(
+      originalFileName,
+      originalStart,
+      originalEnd
+    );
+
+    return {
+      transformedFileName,
+      transformedStart: transformedRange.start,
+      transformedEnd: transformedRange.end,
+    };
+  }
+
+  public getOriginalRange(
+    transformedFileName: string,
+    transformedStart: number,
+    transformedEnd: number
+  ): { originalFileName: string; originalStart: number; originalEnd: number } {
+    let transformInfo = this.getTransformInfo(transformedFileName);
+    if (!transformInfo) {
+      return {
+        originalFileName: transformedFileName,
+        originalStart: transformedStart,
+        originalEnd: transformedEnd,
+      };
+    }
+
+    let original = transformInfo.transformedModule.getOriginalRange(
+      transformedStart,
+      transformedEnd
+    );
+
+    return {
+      originalFileName: original.source.filename,
+      originalStart: original.start,
+      originalEnd: original.end,
+    };
+  }
+
+  public getTransformedOffset(
+    originalFileName: string,
+    originalOffset: number
+  ): { transformedFileName: string; transformedOffset: number } {
+    let transformInfo = this.getTransformInfo(originalFileName);
+    if (!transformInfo) {
+      return { transformedFileName: originalFileName, transformedOffset: originalOffset };
+    }
+
+    let { transformedFileName, transformedModule } = transformInfo;
+    let transformedOffset = transformedModule.getTransformedOffset(
+      originalFileName,
+      originalOffset
+    );
+
+    return { transformedFileName, transformedOffset };
+  }
+
+  public watchTransformedFile = (
     path: string,
     callback: ts.FileWatcherCallback,
     pollingInterval?: number,
@@ -58,8 +142,14 @@ export default class TransformManager {
     return rootWatcher;
   };
 
-  public readFile = (filename: string, encoding?: string): string | undefined => {
-    let contents = this.ts.sys.readFile(filename, encoding);
+  public readTransformedFile = (filename: string, encoding?: string): string | undefined => {
+    let existing = this.transformCache.get(filename);
+    let version = this.documents.getCompoundDocumentVersion(filename);
+    if (existing?.version === version) {
+      return existing.transformedModule.transformedContents;
+    }
+
+    let contents = this.documents.getDocumentContents(filename, encoding);
     let config = this.glintConfig;
 
     if (
@@ -70,25 +160,44 @@ export default class TransformManager {
     ) {
       let mayHaveTaggedTemplates = contents && config.environment.moduleMayHaveTagImports(contents);
       let templateCandidates = config.environment.getPossibleTemplatePaths(filename);
-      let templatePath = templateCandidates.find((candidate) => this.ts.sys.fileExists(candidate));
+      let templatePath = templateCandidates.find((candidate) =>
+        this.documents.documentExists(candidate)
+      );
+
       if (!mayHaveTaggedTemplates && !templatePath) {
         return contents;
       }
 
       let script = { filename, contents };
       let template = templatePath
-        ? { filename: templatePath, contents: this.ts.sys.readFile(templatePath) ?? '' }
+        ? { filename: templatePath, contents: this.documents.getDocumentContents(templatePath) }
         : undefined;
 
       let transformedModule = rewriteModule({ script, template }, config.environment);
       if (transformedModule) {
-        this.transformedModules.set(filename, transformedModule);
+        this.transformCache.set(filename, { version, transformedModule });
         return transformedModule.transformedContents;
       }
     }
 
     return contents;
   };
+
+  private getTransformInfo(
+    originalFileName: string
+  ): undefined | { transformedFileName: string; transformedModule: TransformedModule } {
+    let transformedFileName = isTemplate(originalFileName)
+      ? this.documents.getCompanionDocumentPath(originalFileName)
+      : originalFileName;
+
+    let transformInfo = transformedFileName
+      ? this.transformCache.get(transformedFileName)
+      : undefined;
+
+    if (transformedFileName && transformInfo) {
+      return { transformedFileName, transformedModule: transformInfo.transformedModule };
+    }
+  }
 
   private readonly formatDiagnosticHost: ts.FormatDiagnosticsHost = {
     getCanonicalFileName: (name) => name,

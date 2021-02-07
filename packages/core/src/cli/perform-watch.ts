@@ -27,8 +27,8 @@ function sysForWatchCompilerHost(
 ): typeof ts.sys {
   return {
     ...ts.sys,
-    watchFile: transformManager.watchFile,
-    readFile: transformManager.readFile,
+    watchFile: transformManager.watchTransformedFile,
+    readFile: transformManager.readTransformedFile,
   };
 }
 
@@ -47,7 +47,7 @@ function patchProgram(program: Program, transformManager: TransformManager): voi
   let { getSyntacticDiagnostics } = program;
   program.getSyntacticDiagnostics = function (sourceFile, cancelationToken) {
     let diagnostics = getSyntacticDiagnostics.call(program, sourceFile, cancelationToken);
-    let transformDiagnostics = transformManager.getTransformDiagnostics(sourceFile);
+    let transformDiagnostics = transformManager.getTransformDiagnostics(sourceFile?.fileName);
     return [...diagnostics, ...transformDiagnostics];
   };
 }
