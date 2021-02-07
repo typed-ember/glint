@@ -1,18 +1,18 @@
-export type LineAndCharacter = { line: number; character: number };
+/**
+ * The LSP refers to line/character combinations as positions,
+ * while TS uses numeric offsets instead.
+ */
+export type Position = { line: number; character: number };
 
-export function lineAndCharacterToPosition(
-  contents: string,
-  line: number,
-  character: number
-): number {
+export function positionToOffset(contents: string, { line, character }: Position): number {
   const lineStarts = computeLineStarts(contents);
   return lineStarts[line] + character;
 }
 
-export function positionTolineAndCharacter(contents: string, position: number): LineAndCharacter {
+export function offsetToPosition(contents: string, position: number): Position {
   const lineStarts = computeLineStarts(contents);
   let line = 0;
-  while (line + 2 < lineStarts.length && lineStarts[line + 1] < position) {
+  while (line + 2 < lineStarts.length && lineStarts[line + 1] <= position) {
     line++;
   }
   const character = position - lineStarts[line];

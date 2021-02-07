@@ -1,4 +1,4 @@
-export { lineAndCharacterToPosition, positionTolineAndCharacter } from './position';
+export { positionToOffset, offsetToPosition } from './position';
 export { scriptElementKindToCompletionItemKind } from './completion';
 
 import { URI } from 'vscode-uri';
