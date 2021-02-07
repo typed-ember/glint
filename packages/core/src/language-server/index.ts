@@ -1,21 +1,12 @@
-import {
-  DiagnosticSeverity,
-  TextDocuments,
-  createConnection,
-  Diagnostic,
-  TextDocumentChangeEvent,
-  TextDocumentSyncKind,
-  TextDocumentPositionParams,
-  CompletionItem,
-  Hover,
-  HoverParams,
-  DefinitionParams,
-} from 'vscode-languageserver/node';
+import { TextDocuments, TextDocumentSyncKind, createConnection } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { loadConfig } from '@glint/config';
 import { loadTypeScript } from '../util/load-typescript';
 import GlintLanguageServer from './glint-language-server';
-import { parseConfigFile, uriToFilePath, scriptElementKindToCompletionItemKind } from './util';
+import { parseConfigFile } from './util';
+
+const connection = createConnection(process.stdin, process.stdout);
+const documents = new TextDocuments(TextDocument);
 
 const ts = loadTypeScript();
 const glintConfig = loadConfig(process.cwd());
@@ -23,9 +14,6 @@ const tsconfigPath = ts.findConfigFile(process.cwd(), ts.sys.fileExists);
 const { fileNames, options } = parseConfigFile(ts, tsconfigPath);
 const tsFileNames = fileNames.filter((fileName) => /\.ts$/.test(fileName));
 const gls = new GlintLanguageServer(ts, glintConfig, tsFileNames, options);
-
-const connection = createConnection(process.stdin, process.stdout);
-const documents = new TextDocuments(TextDocument);
 
 connection.onInitialize(() => ({
   capabilities: {
@@ -38,89 +26,41 @@ connection.onInitialize(() => ({
   },
 }));
 
-documents.onDidChangeContent((change: TextDocumentChangeEvent<TextDocument>): void => {
-  const { document } = change;
-  const templateFileName = uriToFilePath(document.uri);
-  gls.updateTemplate(templateFileName, document.getText());
-  const templateDiagnostics = gls.getTemplateDiagnostics(templateFileName);
-
-  const diagnostics: Array<Diagnostic> = templateDiagnostics.map((tmplDiag) => ({
-    severity: DiagnosticSeverity.Error,
-    range: {
-      start: document.positionAt(tmplDiag.start || 0),
-      end: document.positionAt((tmplDiag.start || 0) + (tmplDiag.length || 0)),
-    },
-    message: ts.flattenDiagnosticMessageText(tmplDiag.messageText, '\n'),
-    source: 'glint',
-  }));
-
-  connection.sendDiagnostics({
-    uri: document.uri,
-    diagnostics,
-  });
+connection.onDidChangeWatchedFiles(() => {
+  // TODO: use this to synchronize files that aren't open so we don't assume changes only
+  // happen in the editor.
 });
 
-type GlintCompletionData = {
-  uri: string;
-  line: number;
-  character: number;
-  source?: string;
-};
-
-type GlintCompletionItem = Omit<CompletionItem, 'data'> & { data?: GlintCompletionData };
-
-connection.onCompletion((positionParams: TextDocumentPositionParams): GlintCompletionItem[] => {
-  const {
-    textDocument: { uri },
-    position: { line, character },
-  } = positionParams;
-  const templateFileName = uriToFilePath(uri);
-  const completions = gls.getCompletions(templateFileName, line, character);
-  return completions
-    ? completions.entries.map((completion) => ({
-        label: completion.name,
-        kind: scriptElementKindToCompletionItemKind(completion.kind),
-        data: { uri, line, character, source: completion.source },
-      }))
-    : [];
+documents.onDidOpen(({ document }) => {
+  gls.openFile(document.uri, document.getText());
 });
 
-connection.onCompletionResolve(
-  (item: GlintCompletionItem): GlintCompletionItem => {
-    const { label, data } = item;
-    if (!data) {
-      return item;
-    }
-    const { uri, line, character, source } = data;
-    const templateFileName = uriToFilePath(uri);
-    const details = gls.getCompletionDetails(templateFileName, line, character, label, source);
-    if (details) {
-      item.detail = details.detail;
-      item.documentation = {
-        kind: 'markdown',
-        value: details.documentation,
-      };
-    }
-    return item;
+documents.onDidClose(({ document }) => {
+  gls.closeFile(document.uri);
+});
+
+documents.onDidChangeContent(({ document }) => {
+  gls.updateFile(document.uri, document.getText());
+
+  for (let diagnosticBatch of gls.getDiagnostics(document.uri)) {
+    connection.sendDiagnostics(diagnosticBatch);
   }
-);
-
-connection.onHover((hoverParams: HoverParams): Hover | undefined => {
-  const {
-    textDocument: { uri },
-    position: { line, character },
-  } = hoverParams;
-  const templateFileName = uriToFilePath(uri);
-  return gls.getHover(templateFileName, line, character);
 });
 
-connection.onDefinition((definitionParams: DefinitionParams) => {
-  const {
-    textDocument: { uri },
-    position: { line, character },
-  } = definitionParams;
-  const templateFileName = uriToFilePath(uri);
-  return gls.getDefinition(templateFileName, line, character);
+connection.onCompletion(({ textDocument, position }) => {
+  return gls.getCompletions(textDocument.uri, position);
+});
+
+connection.onCompletionResolve((item) => {
+  return gls.getCompletionDetails(item);
+});
+
+connection.onHover(({ textDocument, position }) => {
+  return gls.getHover(textDocument.uri, position);
+});
+
+connection.onDefinition(({ textDocument, position }) => {
+  return gls.getDefinition(textDocument.uri, position);
 });
 
 documents.listen(connection);

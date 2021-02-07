@@ -1,238 +1,231 @@
-import * as fs from 'fs';
 import { GlintConfig } from '@glint/config';
-import TransformManager from './transform-manager';
-import type ts from 'typescript';
-import { positionTolineAndCharacter, filePathToUri } from './util';
-import { Range, Hover, Location, LocationLink } from 'vscode-languageserver';
+import TransformManager from '../util/transform-manager';
+import ts from 'typescript';
+import {
+  offsetToPosition,
+  filePathToUri,
+  uriToFilePath,
+  scriptElementKindToCompletionItemKind,
+} from './util';
+import { Hover, Location, CompletionItem, Diagnostic } from 'vscode-languageserver';
+import DocumentCache from '../util/document-cache';
+import { Position, positionToOffset } from './util/position';
+import { severityForDiagnostic, tagsForDiagnostic } from './util/protocol';
 
-export default class GlimmerLanguageServer {
-  service: ts.LanguageService;
-  files: ts.MapLike<{ version: number }> = {};
+export default class GlintLanguageServer {
+  private service: ts.LanguageService;
   private transformManager: TransformManager;
+  private documents: DocumentCache;
 
   constructor(
     private ts: typeof import('typescript'),
-    glintConfig: GlintConfig,
+    private glintConfig: GlintConfig,
     rootFileNames: string[],
     options: ts.CompilerOptions
   ) {
-    this.transformManager = new TransformManager(ts, glintConfig);
-
-    rootFileNames.forEach((fileName) => {
-      this.files[fileName] = { version: 0 };
-    });
-
+    this.documents = new DocumentCache(ts, glintConfig);
+    this.transformManager = new TransformManager(ts, glintConfig, this.documents);
     const serviceHost: ts.LanguageServiceHost = {
       getScriptFileNames: () => rootFileNames,
-      getScriptVersion: (fileName) =>
-        this.files[fileName] && this.files[fileName].version.toString(),
+      getScriptVersion: (fileName) => this.documents.getDocumentVersion(fileName),
       getScriptSnapshot: (fileName) => {
-        if (!fs.existsSync(fileName)) {
-          return undefined;
+        let contents = this.transformManager.readTransformedFile(fileName);
+        if (typeof contents === 'string') {
+          return ts.ScriptSnapshot.fromString(contents);
         }
-        let contents = this.transformManager.readFile(fileName) ?? '';
-        return ts.ScriptSnapshot.fromString(contents);
       },
-      getCurrentDirectory: () => process.cwd(),
+      readFile: this.transformManager.readTransformedFile,
       getCompilationSettings: () => options,
-      getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
+      // Yes, this looks like a mismatch, but built-in lib declarations don't resolve
+      // correctly otherwise, and this is what the TS wiki uses in their code snippet.
+      getDefaultLibFileName: ts.getDefaultLibFilePath,
+      // TS defaults from here down
+      getCurrentDirectory: ts.sys.getCurrentDirectory,
       fileExists: ts.sys.fileExists,
-      readFile: this.transformManager.readFile,
       readDirectory: ts.sys.readDirectory,
       directoryExists: ts.sys.directoryExists,
       getDirectories: ts.sys.getDirectories,
     };
 
-    this.service = ts.createLanguageService(serviceHost, ts.createDocumentRegistry());
-    // trigger file reads
-    this.service.getProgram();
+    this.service = ts.createLanguageService(serviceHost);
   }
 
-  logErrors(fileName: string): void {
-    const allDiagnostics = this.getDiagnostics(fileName);
+  public openFile(uri: string, contents: string): void {
+    this.documents.updateDocument(uriToFilePath(uri), contents);
+  }
 
-    allDiagnostics.forEach((diagnostic) => {
-      let message = this.ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-      if (diagnostic.file) {
-        let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start!);
-        console.log(
-          `  Error ${diagnostic.file.fileName} [${diagnostic.start!}] (${line + 1},${
-            character + 1
-          }): ${message}`
-        );
-      } else {
-        console.log(`  Error: ${message}`);
+  public updateFile(uri: string, contents: string): void {
+    this.documents.updateDocument(uriToFilePath(uri), contents);
+  }
+
+  public closeFile(uri: string): void {
+    this.documents.removeDocument(uriToFilePath(uri));
+  }
+
+  public getDiagnostics(uri: string): Array<{ uri: string; diagnostics: Array<Diagnostic> }> {
+    let { script, template } = this.findDiagnosticsSource(uriToFilePath(uri));
+
+    // TODO: template-only component support
+    if (!script) return [];
+
+    let diagnosticsByFileName: Record<string, Array<Diagnostic>> = {};
+
+    diagnosticsByFileName[script] = [];
+
+    if (template) {
+      diagnosticsByFileName[template] = [];
+    }
+
+    const allDiagnostics = [
+      ...this.service.getSyntacticDiagnostics(script),
+      ...this.transformManager.getTransformDiagnostics(script),
+      ...this.service.getSemanticDiagnostics(script),
+      ...this.service.getSuggestionDiagnostics(script),
+    ];
+
+    for (let rawDiagnostic of allDiagnostics) {
+      let diagnostic = this.transformManager.rewriteDiagnostic(rawDiagnostic);
+      let file = diagnostic.file;
+      if (!file || !(file.fileName in diagnosticsByFileName)) continue;
+
+      let { start = 0, length = 0, messageText } = diagnostic;
+      diagnosticsByFileName[file.fileName].push({
+        severity: severityForDiagnostic(diagnostic),
+        message: this.ts.flattenDiagnosticMessageText(messageText, '\n'),
+        source: `glint:ts(${diagnostic.code})`,
+        tags: tagsForDiagnostic(diagnostic),
+        range: {
+          start: offsetToPosition(file.getText(), start),
+          end: offsetToPosition(file.getText(), start + length),
+        },
+      });
+    }
+
+    return Object.entries(diagnosticsByFileName).map(([fileName, diagnostics]) => ({
+      uri: filePathToUri(fileName),
+      diagnostics,
+    }));
+  }
+
+  private findDiagnosticsSource(fileName: string): { script: string; template?: string } {
+    if (fileName.endsWith('.hbs') && this.glintConfig.includesFile(fileName)) {
+      let scriptPaths = this.glintConfig.environment.getPossibleScriptPaths(fileName);
+      let script = scriptPaths.find((candidate) => this.documents.documentExists(candidate));
+      if (!script) {
+        // TODO: support template-only components somehow
+        script = 'broken-template-only.ts';
       }
-    });
-  }
 
-  updateTemplate(templateFileName: string, contents: string): void {
-    const tsFile = this.transformManager.getTemplateTsFile(templateFileName);
-    if (!tsFile) {
-      return;
+      return {
+        script,
+        template: fileName,
+      };
+    } else if (fileName.endsWith('.ts') && this.glintConfig.includesFile(fileName)) {
+      let templatePaths = this.glintConfig.environment.getPossibleTemplatePaths(fileName);
+      return {
+        script: fileName,
+        template: templatePaths.find((candidate) => this.documents.documentExists(candidate)),
+      };
     }
-    this.transformManager.setTemplateContents(templateFileName, contents);
-    this.files[tsFile].version++;
+
+    return { script: fileName };
   }
 
-  getTemplateDiagnostics(templateFileName: string): Array<ts.Diagnostic> {
-    const tsFile = this.transformManager.getTemplateTsFile(templateFileName);
-    if (!tsFile) {
-      return [];
-    }
-    const results = this.getDiagnostics(tsFile);
-
-    return results.filter((result) => result?.file?.fileName === templateFileName);
-  }
-
-  getDiagnostics(fileName: string): Array<ts.Diagnostic> {
-    const allDiagnostics = this.service
-      .getCompilerOptionsDiagnostics()
-      .concat(this.service.getSyntacticDiagnostics(fileName))
-      .concat(this.service.getSemanticDiagnostics(fileName))
-      .concat(this.transformManager.getTransformDiagnostics(fileName));
-
-    return allDiagnostics.map((diagnostic) =>
-      this.transformManager.getTransformedDiagnostic(diagnostic)
+  public getCompletions(uri: string, position: Position): CompletionItem[] | undefined {
+    let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    let completions = this.service.getCompletionsAtPosition(
+      transformedFileName,
+      transformedOffset,
+      {}
     );
+
+    return completions?.entries.map((completionEntry) => ({
+      label: completionEntry.name,
+      kind: scriptElementKindToCompletionItemKind(completionEntry.kind),
+      data: { transformedFileName, transformedOffset, source: completionEntry.source },
+    }));
   }
 
-  getCompletions(
-    templateFileName: string,
-    line: number,
-    character: number
-  ): ts.WithMetadata<ts.CompletionInfo> | undefined {
-    const tsFileName = this.transformManager.getTemplateTsFile(templateFileName);
-    if (!tsFileName) {
-      return;
+  public getCompletionDetails(item: CompletionItem): CompletionItem {
+    let { label, data } = item;
+    if (!data) {
+      return item;
     }
-    const position = this.transformManager.getTemplateTsFilePos(templateFileName, line, character);
-    if (typeof position !== 'number') {
-      return;
-    }
-    const options = {};
-    const completions = this.service.getCompletionsAtPosition(tsFileName, position, options);
-    return completions;
-  }
 
-  getCompletionDetails(
-    templateFileName: string,
-    line: number,
-    character: number,
-    entryName: string,
-    source?: string
-  ): { detail: string; documentation: string } | undefined {
-    const tsFileName = this.transformManager.getTemplateTsFile(templateFileName);
-    if (!tsFileName) {
-      return;
-    }
-    const position = this.transformManager.getTemplateTsFilePos(templateFileName, line, character);
-    if (typeof position !== 'number') {
-      return;
-    }
-    const formatOptions: ts.FormatCodeOptions | ts.FormatCodeSettings = {};
-    const preferences: ts.UserPreferences = {
-      importModuleSpecifierEnding: 'minimal',
-      importModuleSpecifierPreference: 'relative',
-      includeCompletionsWithInsertText: true,
-    };
-    const details = this.service.getCompletionEntryDetails(
-      tsFileName,
-      position,
-      entryName,
-      formatOptions,
+    let { transformedFileName, transformedOffset, source } = data;
+    let details = this.service.getCompletionEntryDetails(
+      transformedFileName,
+      transformedOffset,
+      label,
+      {},
       source,
-      preferences
+      {}
     );
+
     if (!details) {
-      return;
+      return item;
     }
+
     return {
+      ...item,
       detail: this.ts.displayPartsToString(details.displayParts),
-      documentation: this.ts.displayPartsToString(details.documentation),
-    };
-  }
-
-  getHover(templateFileName: string, line: number, character: number): Hover | undefined {
-    const tsFileName = this.transformManager.getTemplateTsFile(templateFileName);
-    if (!tsFileName) {
-      return;
-    }
-    const position = this.transformManager.getTemplateTsFilePos(templateFileName, line, character);
-    if (typeof position !== 'number') {
-      return;
-    }
-    const info = this.service.getQuickInfoAtPosition(tsFileName, position);
-    if (!info) {
-      return;
-    }
-    const value = this.ts.displayPartsToString(info.displayParts);
-    const posRange = this.transformManager.getTsFileTemplateRange(tsFileName, info.textSpan);
-    if (!posRange) {
-      return;
-    }
-    const contents = this.transformManager.getTemplateContents(templateFileName);
-    if (!contents) {
-      return;
-    }
-    const range: Range = {
-      start: positionTolineAndCharacter(contents, posRange.start),
-      end: positionTolineAndCharacter(contents, posRange.end),
-    };
-    return {
-      contents: {
-        language: 'ts',
-        value,
+      documentation: {
+        kind: 'markdown',
+        value: this.ts.displayPartsToString(details.documentation),
       },
-      range,
     };
   }
 
-  getDefinition(
-    templateFileName: string,
-    line: number,
-    character: number
-  ): Location | Location[] | LocationLink[] | null | undefined {
-    const tsFileName = this.transformManager.getTemplateTsFile(templateFileName);
-    if (!tsFileName) {
-      return;
-    }
-    const position = this.transformManager.getTemplateTsFilePos(templateFileName, line, character);
-    if (typeof position !== 'number') {
-      return;
-    }
-    const definition = this.service.getDefinitionAndBoundSpan(tsFileName, position);
-    if (!definition || !definition.definitions) {
-      return;
-    }
-    const { definitions } = definition;
-    const program = this.service.getProgram();
-    if (!program) {
-      return;
-    }
-    const defs = definitions
-      .map((def) => {
-        const { fileName, textSpan } = def;
-        const sourceFile = program.getSourceFile(fileName);
-        if (!sourceFile) {
-          return;
-        }
-        const originalRange = this.transformManager.getOriginalRange(
-          fileName,
-          textSpan.start,
-          textSpan.start + textSpan.length
-        );
-        if (!originalRange) {
-          return;
-        }
-        const start = positionTolineAndCharacter(
-          originalRange.source.contents,
-          originalRange.start
-        );
-        const end = positionTolineAndCharacter(originalRange.source.contents, originalRange.end);
-        return Location.create(filePathToUri(fileName), { start, end });
-      })
-      .filter(Boolean) as Location[];
-    return defs;
+  private getTransformedOffset(
+    originalURI: string,
+    originalPosition: Position
+  ): { transformedFileName: string; transformedOffset: number } {
+    let originalFileName = uriToFilePath(originalURI);
+    let originalFileContents = this.documents.getDocumentContents(originalFileName);
+    let originalOffset = positionToOffset(originalFileContents, originalPosition);
+
+    return this.transformManager.getTransformedOffset(originalFileName, originalOffset);
+  }
+
+  public getHover(uri: string, position: Position): Hover | undefined {
+    let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    let info = this.service.getQuickInfoAtPosition(transformedFileName, transformedOffset);
+    if (!info) return;
+
+    let value = this.ts.displayPartsToString(info.displayParts);
+    let { originalFileName, originalStart, originalEnd } = this.transformManager.getOriginalRange(
+      transformedFileName,
+      info.textSpan.start,
+      info.textSpan.start + info.textSpan.length
+    );
+
+    let originalContents = this.documents.getDocumentContents(originalFileName);
+    let start = offsetToPosition(originalContents, originalStart);
+    let end = offsetToPosition(originalContents, originalEnd);
+
+    return {
+      range: { start, end },
+      contents: { language: 'ts', value },
+    };
+  }
+
+  public getDefinition(uri: string, position: Position): Location[] {
+    let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    let definitions =
+      this.service.getDefinitionAtPosition(transformedFileName, transformedOffset) ?? [];
+
+    return definitions.map(({ fileName, textSpan }) => {
+      let { originalFileName, originalStart, originalEnd } = this.transformManager.getOriginalRange(
+        fileName,
+        textSpan.start,
+        textSpan.start + textSpan.length
+      );
+
+      let originalContents = this.documents.getDocumentContents(originalFileName);
+      let start = offsetToPosition(originalContents, originalStart);
+      let end = offsetToPosition(originalContents, originalEnd);
+
+      return Location.create(filePathToUri(originalFileName), { start, end });
+    });
   }
 }
