@@ -8,7 +8,7 @@ import {
   scriptElementKindToCompletionItemKind,
 } from './util';
 import { Hover, Location, CompletionItem, Diagnostic } from 'vscode-languageserver';
-import DocumentCache from '../common/document-cache';
+import DocumentCache, { isScript, isTemplate } from '../common/document-cache';
 import { Position, positionToOffset } from './util/position';
 import { severityForDiagnostic, tagsForDiagnostic } from './util/protocol';
 
@@ -83,8 +83,8 @@ export default class GlintLanguageServer {
       ...this.service.getSuggestionDiagnostics(script),
     ];
 
-    for (let rawDiagnostic of allDiagnostics) {
-      let diagnostic = this.transformManager.rewriteDiagnostic(rawDiagnostic);
+    for (let transformedDiagnostic of allDiagnostics) {
+      let diagnostic = this.transformManager.rewriteDiagnostic(transformedDiagnostic);
       let file = diagnostic.file;
       if (!file || !(file.fileName in diagnosticsByFileName)) continue;
 
@@ -105,30 +105,6 @@ export default class GlintLanguageServer {
       uri: filePathToUri(fileName),
       diagnostics,
     }));
-  }
-
-  private findDiagnosticsSource(fileName: string): { script: string; template?: string } {
-    if (fileName.endsWith('.hbs') && this.glintConfig.includesFile(fileName)) {
-      let scriptPaths = this.glintConfig.environment.getPossibleScriptPaths(fileName);
-      let script = scriptPaths.find((candidate) => this.documents.documentExists(candidate));
-      if (!script) {
-        // TODO: support template-only components somehow
-        script = 'broken-template-only.ts';
-      }
-
-      return {
-        script,
-        template: fileName,
-      };
-    } else if (fileName.endsWith('.ts') && this.glintConfig.includesFile(fileName)) {
-      let templatePaths = this.glintConfig.environment.getPossibleTemplatePaths(fileName);
-      return {
-        script: fileName,
-        template: templatePaths.find((candidate) => this.documents.documentExists(candidate)),
-      };
-    }
-
-    return { script: fileName };
   }
 
   public getCompletions(uri: string, position: Position): CompletionItem[] | undefined {
@@ -176,17 +152,6 @@ export default class GlintLanguageServer {
     };
   }
 
-  private getTransformedOffset(
-    originalURI: string,
-    originalPosition: Position
-  ): { transformedFileName: string; transformedOffset: number } {
-    let originalFileName = uriToFilePath(originalURI);
-    let originalFileContents = this.documents.getDocumentContents(originalFileName);
-    let originalOffset = positionToOffset(originalFileContents, originalPosition);
-
-    return this.transformManager.getTransformedOffset(originalFileName, originalOffset);
-  }
-
   public getHover(uri: string, position: Position): Hover | undefined {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
     let info = this.service.getQuickInfoAtPosition(transformedFileName, transformedOffset);
@@ -227,5 +192,40 @@ export default class GlintLanguageServer {
 
       return Location.create(filePathToUri(originalFileName), { start, end });
     });
+  }
+
+  private findDiagnosticsSource(fileName: string): { script: string; template?: string } {
+    if (isTemplate(fileName) && this.glintConfig.includesFile(fileName)) {
+      let scriptPaths = this.glintConfig.environment.getPossibleScriptPaths(fileName);
+      let script = scriptPaths.find((candidate) => this.documents.documentExists(candidate));
+      if (!script) {
+        // TODO: support template-only components somehow
+        script = 'broken-template-only.ts';
+      }
+
+      return {
+        script,
+        template: fileName,
+      };
+    } else if (isScript(fileName) && this.glintConfig.includesFile(fileName)) {
+      let templatePaths = this.glintConfig.environment.getPossibleTemplatePaths(fileName);
+      return {
+        script: fileName,
+        template: templatePaths.find((candidate) => this.documents.documentExists(candidate)),
+      };
+    }
+
+    return { script: fileName };
+  }
+
+  private getTransformedOffset(
+    originalURI: string,
+    originalPosition: Position
+  ): { transformedFileName: string; transformedOffset: number } {
+    let originalFileName = uriToFilePath(originalURI);
+    let originalFileContents = this.documents.getDocumentContents(originalFileName);
+    let originalOffset = positionToOffset(originalFileContents, originalPosition);
+
+    return this.transformManager.getTransformedOffset(originalFileName, originalOffset);
   }
 }

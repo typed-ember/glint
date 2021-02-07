@@ -4,11 +4,10 @@ import { GlintConfig } from '@glint/config';
 import { assert } from '@glint/transform/lib/util';
 import DocumentCache, { isTemplate } from './document-cache';
 
+type TransformInfo = { version: string; transformedModule: TransformedModule };
+
 export default class TransformManager {
-  private transformCache = new Map<
-    string,
-    { version: string; transformedModule: TransformedModule }
-  >();
+  private transformCache = new Map<string, TransformInfo>();
 
   constructor(
     private ts: typeof import('typescript'),

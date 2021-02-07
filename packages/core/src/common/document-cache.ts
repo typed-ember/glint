@@ -107,3 +107,7 @@ export default class DocumentCache {
 export function isTemplate(path: string): boolean {
   return path.endsWith('.hbs');
 }
+
+export function isScript(path: string): boolean {
+  return path.endsWith('.ts');
+}
