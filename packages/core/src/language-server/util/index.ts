@@ -1,5 +1,5 @@
 export { positionToOffset, offsetToPosition } from './position';
-export { scriptElementKindToCompletionItemKind } from './completion';
+export { scriptElementKindToCompletionItemKind } from './protocol';
 
 import { URI } from 'vscode-uri';
 import * as TS from 'typescript';

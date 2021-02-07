@@ -1,5 +1,10 @@
-import * as ts from 'typescript';
-import { CompletionItemKind } from 'vscode-languageserver';
+import ts from 'typescript';
+import { CompletionItemKind, DiagnosticSeverity, DiagnosticTag } from 'vscode-languageserver';
+
+/*
+ * This module contains utilities for converting between conventions used
+ * by the Language Server Protocol and TypeScript's language services interface.
+ */
 
 export function scriptElementKindToCompletionItemKind(
   kind: ts.ScriptElementKind
@@ -41,5 +46,36 @@ export function scriptElementKindToCompletionItemKind(
       return CompletionItemKind.Property;
     default:
       return CompletionItemKind.Text;
+  }
+}
+
+export function tagsForDiagnostic(diagnostic: ts.Diagnostic): DiagnosticTag[] {
+  let tags: Array<DiagnosticTag> = [];
+
+  if (diagnostic.reportsUnnecessary) {
+    tags.push(DiagnosticTag.Unnecessary);
+  }
+
+  if (diagnostic.reportsDeprecated) {
+    tags.push(DiagnosticTag.Deprecated);
+  }
+
+  return tags;
+}
+
+export function severityForDiagnostic(diagnostic: ts.Diagnostic): DiagnosticSeverity {
+  if (diagnostic.reportsUnnecessary) {
+    return DiagnosticSeverity.Warning;
+  }
+
+  switch (diagnostic.category) {
+    case ts.DiagnosticCategory.Error:
+      return DiagnosticSeverity.Error;
+    case ts.DiagnosticCategory.Message:
+      return DiagnosticSeverity.Information;
+    case ts.DiagnosticCategory.Suggestion:
+      return DiagnosticSeverity.Hint;
+    case ts.DiagnosticCategory.Warning:
+      return DiagnosticSeverity.Warning;
   }
 }
