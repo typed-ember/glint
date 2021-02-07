@@ -115,19 +115,24 @@ export default class TransformManager {
 
   public watchTransformedFile = (
     path: string,
-    callback: ts.FileWatcherCallback,
+    originalCallback: ts.FileWatcherCallback,
     pollingInterval?: number,
     options?: ts.WatchOptions
   ): ts.FileWatcher => {
     const { watchFile } = this.ts.sys;
     assert(watchFile);
 
+    let callback: ts.FileWatcherCallback = (watchedPath, eventKind) => {
+      this.documents.markDocumentStale(watchedPath);
+      return originalCallback(path, eventKind);
+    };
+
     let rootWatcher = watchFile(path, callback, pollingInterval, options);
     let templatePaths = this.glintConfig.environment.getPossibleTemplatePaths(path);
 
     if (this.glintConfig.includesFile(path) && templatePaths.length) {
       let templateWatchers = templatePaths.map((candidate) =>
-        watchFile(candidate, (_, event) => callback(path, event), pollingInterval, options)
+        watchFile(candidate, callback, pollingInterval, options)
       );
 
       return {

@@ -64,13 +64,13 @@ describe('CLI: single-pass typechecking', () => {
     expect(checkResult.exitCode).toBe(1);
     expect(checkResult.stdout).toEqual('');
     expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-      "index.ts:10:28 - error TS0: [glint] Parse error on line 2:
+      "index.ts:11:24 - error TS0: Parse error on line 2:
       ...e to app v{{@version}.    The current t
       -----------------------^
       Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
 
-      10   public static template = hbs\`
-                                    ~~~
+      11     Welcome to app v{{@version}.
+                                ~~~~~~~
       "
     `);
   });
