@@ -226,8 +226,8 @@ function calculateLineOffsets(template: string): Array<number> {
 function buildRangeForNode(offsets: Array<number>): (node: AST.Node) => Range {
   return (node) => {
     let { loc } = node;
-    let start = offsets[loc.startPosition.line] + loc.startPosition.column;
-    let end = offsets[loc.endPosition.line] + loc.endPosition.column;
+    let start = offsets[loc.start.line] + loc.start.column;
+    let end = offsets[loc.end.line] + loc.end.column;
 
     // This makes error reporting for illegal text nodes (e.g. alongside named blocks)
     // a bit nicer by only highlighting the content rather than all the surrounding

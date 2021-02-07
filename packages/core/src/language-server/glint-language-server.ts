@@ -92,7 +92,7 @@ export default class GlintLanguageServer {
       diagnosticsByFileName[file.fileName].push({
         severity: severityForDiagnostic(diagnostic),
         message: this.ts.flattenDiagnosticMessageText(messageText, '\n'),
-        source: `glint:ts(${diagnostic.code})`,
+        source: `glint${diagnostic.code ? `:ts(${diagnostic.code})` : ''}`,
         tags: tagsForDiagnostic(diagnostic),
         range: {
           start: offsetToPosition(file.getText(), start),

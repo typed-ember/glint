@@ -21,8 +21,8 @@ export default class TransformManager {
       return transformedModule ? this.buildDiagnostics(transformedModule) : [];
     }
 
-    return [...this.transformCache.values()].flatMap((transformedModule) => {
-      return this.buildDiagnostics(transformedModule.transformedModule);
+    return [...this.transformCache.values()].flatMap((transformInfo) => {
+      return this.buildDiagnostics(transformInfo.transformedModule);
     });
   }
 
@@ -215,7 +215,7 @@ export default class TransformManager {
       ),
       start: error.location.start,
       length: error.location.end - error.location.start,
-      messageText: `[glint] ${error.message}`,
+      messageText: error.message,
     }));
   }
 }
