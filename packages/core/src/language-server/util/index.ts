@@ -2,7 +2,7 @@ export { positionToOffset, offsetToPosition } from './position';
 export { scriptElementKindToCompletionItemKind } from './protocol';
 
 import { URI } from 'vscode-uri';
-import * as TS from 'typescript';
+import type TS from 'typescript';
 
 export function uriToFilePath(uri: string): string {
   return URI.parse(uri).fsPath.replace(/\\/g, '/');

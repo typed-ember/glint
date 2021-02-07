@@ -1,7 +1,7 @@
 import { TextDocuments, TextDocumentSyncKind, createConnection } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { loadConfig } from '@glint/config';
-import { loadTypeScript } from '../util/load-typescript';
+import { loadTypeScript } from '../common/load-typescript';
 import GlintLanguageServer from './glint-language-server';
 import { parseConfigFile } from './util';
 

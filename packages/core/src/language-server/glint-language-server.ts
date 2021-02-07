@@ -1,6 +1,6 @@
 import { GlintConfig } from '@glint/config';
-import TransformManager from '../util/transform-manager';
-import ts from 'typescript';
+import TransformManager from '../common/transform-manager';
+import type ts from 'typescript';
 import {
   offsetToPosition,
   filePathToUri,
@@ -8,7 +8,7 @@ import {
   scriptElementKindToCompletionItemKind,
 } from './util';
 import { Hover, Location, CompletionItem, Diagnostic } from 'vscode-languageserver';
-import DocumentCache from '../util/document-cache';
+import DocumentCache from '../common/document-cache';
 import { Position, positionToOffset } from './util/position';
 import { severityForDiagnostic, tagsForDiagnostic } from './util/protocol';
 

@@ -1,4 +1,4 @@
-import TransformManager from '../util/transform-manager';
+import TransformManager from '../common/transform-manager';
 import { GlintConfig } from '@glint/config';
 
 export function performWatch(
