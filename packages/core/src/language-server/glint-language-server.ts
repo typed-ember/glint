@@ -8,7 +8,7 @@ import {
   scriptElementKindToCompletionItemKind,
 } from './util';
 import { Hover, Location, CompletionItem, Diagnostic, MarkedString } from 'vscode-languageserver';
-import DocumentCache, { isScript, isTemplate } from '../common/document-cache';
+import DocumentCache, { isTemplate } from '../common/document-cache';
 import { Position, positionToOffset } from './util/position';
 import { severityForDiagnostic, tagsForDiagnostic } from './util/protocol';
 
@@ -69,34 +69,22 @@ export default class GlintLanguageServer {
     this.documents.removeDocument(uriToFilePath(uri));
   }
 
-  public getDiagnostics(uri: string): Array<{ uri: string; diagnostics: Array<Diagnostic> }> {
-    let { script, template } = this.findDiagnosticsSource(uriToFilePath(uri));
+  public getDiagnostics(uri: string): Array<Diagnostic> {
+    let filePath = uriToFilePath(uri);
+    let sourcePath = this.findDiagnosticsSource(filePath);
+    if (!sourcePath) return [];
 
-    // TODO: template-only component support
-    if (!script) return [];
-
-    let diagnosticsByFileName: Record<string, Array<Diagnostic>> = {};
-
-    diagnosticsByFileName[script] = [];
-
-    if (template) {
-      diagnosticsByFileName[template] = [];
-    }
-
-    const allDiagnostics = [
-      ...this.service.getSyntacticDiagnostics(script),
-      ...this.transformManager.getTransformDiagnostics(script),
-      ...this.service.getSemanticDiagnostics(script),
-      ...this.service.getSuggestionDiagnostics(script),
-    ];
-
-    for (let transformedDiagnostic of allDiagnostics) {
+    return [
+      ...this.service.getSyntacticDiagnostics(sourcePath),
+      ...this.transformManager.getTransformDiagnostics(sourcePath),
+      ...this.service.getSemanticDiagnostics(sourcePath),
+      ...this.service.getSuggestionDiagnostics(sourcePath),
+    ].flatMap((transformedDiagnostic) => {
       let diagnostic = this.transformManager.rewriteDiagnostic(transformedDiagnostic);
-      let file = diagnostic.file;
-      if (!file || !(file.fileName in diagnosticsByFileName)) continue;
+      let { start = 0, length = 0, messageText, file } = diagnostic;
+      if (!file || file.fileName !== filePath) return [];
 
-      let { start = 0, length = 0, messageText } = diagnostic;
-      diagnosticsByFileName[file.fileName].push({
+      return {
         severity: severityForDiagnostic(diagnostic),
         message: this.ts.flattenDiagnosticMessageText(messageText, '\n'),
         source: `glint${diagnostic.code ? `:ts(${diagnostic.code})` : ''}`,
@@ -105,13 +93,8 @@ export default class GlintLanguageServer {
           start: offsetToPosition(file.getText(), start),
           end: offsetToPosition(file.getText(), start + length),
         },
-      });
-    }
-
-    return Object.entries(diagnosticsByFileName).map(([fileName, diagnostics]) => ({
-      uri: filePathToUri(fileName),
-      diagnostics,
-    }));
+      };
+    });
   }
 
   public getCompletions(uri: string, position: Position): CompletionItem[] | undefined {
@@ -203,28 +186,13 @@ export default class GlintLanguageServer {
     });
   }
 
-  private findDiagnosticsSource(fileName: string): { script: string; template?: string } {
+  private findDiagnosticsSource(fileName: string): string | undefined {
     if (isTemplate(fileName) && this.glintConfig.includesFile(fileName)) {
       let scriptPaths = this.glintConfig.environment.getPossibleScriptPaths(fileName);
-      let script = scriptPaths.find((candidate) => this.documents.documentExists(candidate));
-      if (!script) {
-        // TODO: support template-only components somehow
-        script = 'broken-template-only.ts';
-      }
-
-      return {
-        script,
-        template: fileName,
-      };
-    } else if (isScript(fileName) && this.glintConfig.includesFile(fileName)) {
-      let templatePaths = this.glintConfig.environment.getPossibleTemplatePaths(fileName);
-      return {
-        script: fileName,
-        template: templatePaths.find((candidate) => this.documents.documentExists(candidate)),
-      };
+      return scriptPaths.find((candidate) => this.documents.documentExists(candidate));
     }
 
-    return { script: fileName };
+    return fileName;
   }
 
   private getTransformedOffset(

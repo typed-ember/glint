@@ -4,6 +4,7 @@ import { loadConfig } from '@glint/config';
 import { loadTypeScript } from '../common/load-typescript';
 import GlintLanguageServer from './glint-language-server';
 import { parseConfigFile, uriToFilePath } from './util';
+import { debounce } from '../common/scheduling';
 
 const connection = createConnection(process.stdin, process.stdout);
 const documents = new TextDocuments(TextDocument);
@@ -30,6 +31,15 @@ connection.onInitialize(() => ({
   },
 }));
 
+const scheduleDiagnostics = debounce(250, () => {
+  for (let { uri } of documents.all()) {
+    connection.sendDiagnostics({
+      uri,
+      diagnostics: gls.getDiagnostics(uri),
+    });
+  }
+});
+
 connection.onDidChangeWatchedFiles(() => {
   // TODO: use this to synchronize files that aren't open so we don't assume changes only
   // happen in the editor.
@@ -37,6 +47,8 @@ connection.onDidChangeWatchedFiles(() => {
 
 documents.onDidOpen(({ document }) => {
   gls.openFile(document.uri, document.getText());
+
+  scheduleDiagnostics();
 });
 
 documents.onDidClose(({ document }) => {
@@ -46,9 +58,7 @@ documents.onDidClose(({ document }) => {
 documents.onDidChangeContent(({ document }) => {
   gls.updateFile(document.uri, document.getText());
 
-  for (let diagnosticBatch of gls.getDiagnostics(document.uri)) {
-    connection.sendDiagnostics(diagnosticBatch);
-  }
+  scheduleDiagnostics();
 });
 
 connection.onCompletion(({ textDocument, position }) => {

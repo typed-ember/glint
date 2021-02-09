@@ -36,9 +36,7 @@ describe('Language Server: Diagnostics', () => {
     let server = project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.ts'));
 
-    expect(diagnostics.length).toEqual(1);
-    expect(diagnostics[0].uri).toEqual(project.fileURI('index.ts'));
-    expect(diagnostics[0].diagnostics).toMatchInlineSnapshot(`
+    expect(diagnostics).toMatchInlineSnapshot(`
       Array [
         Object {
           "message": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
@@ -80,12 +78,7 @@ describe('Language Server: Diagnostics', () => {
     server.openFile(project.fileURI('index.ts'), code);
     server.updateFile(project.fileURI('index.ts'), code.replace('startupTimee', 'startupTime'));
 
-    expect(server.getDiagnostics(project.fileURI('index.ts'))).toEqual([
-      {
-        uri: project.fileURI('index.ts'),
-        diagnostics: [],
-      },
-    ]);
+    expect(server.getDiagnostics(project.fileURI('index.ts'))).toEqual([]);
   });
 
   test('reports diagnostics for a companion template type error', () => {
@@ -111,11 +104,10 @@ describe('Language Server: Diagnostics', () => {
     project.write('index.hbs', template);
 
     let server = project.startLanguageServer();
-    let diagnostics = server.getDiagnostics(project.fileURI('index.ts'));
+    let scriptDiagnostics = server.getDiagnostics(project.fileURI('index.ts'));
+    let templateDiagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
 
-    expect(diagnostics.length).toEqual(2);
-    expect(diagnostics[0].uri).toEqual(project.fileURI('index.ts'));
-    expect(diagnostics[0].diagnostics).toMatchInlineSnapshot(`
+    expect(scriptDiagnostics).toMatchInlineSnapshot(`
       Array [
         Object {
           "message": "'startupTime' is declared but its value is never read.",
@@ -137,8 +129,8 @@ describe('Language Server: Diagnostics', () => {
         },
       ]
     `);
-    expect(diagnostics[1].uri).toEqual(project.fileURI('index.hbs'));
-    expect(diagnostics[1].diagnostics).toMatchInlineSnapshot(`
+
+    expect(templateDiagnostics).toMatchInlineSnapshot(`
       Array [
         Object {
           "message": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
@@ -165,15 +157,7 @@ describe('Language Server: Diagnostics', () => {
       template.replace('startupTimee', 'startupTime')
     );
 
-    expect(server.getDiagnostics(project.fileURI('index.ts'))).toEqual([
-      {
-        uri: project.fileURI('index.ts'),
-        diagnostics: [],
-      },
-      {
-        uri: project.fileURI('index.hbs'),
-        diagnostics: [],
-      },
-    ]);
+    expect(server.getDiagnostics(project.fileURI('index.ts'))).toEqual([]);
+    expect(server.getDiagnostics(project.fileURI('index.hbs'))).toEqual([]);
   });
 });
