@@ -28,6 +28,9 @@ connection.onInitialize(() => ({
     },
     hoverProvider: true,
     definitionProvider: true,
+    renameProvider: {
+      prepareProvider: true,
+    },
   },
 }));
 
@@ -59,6 +62,14 @@ documents.onDidChangeContent(({ document }) => {
   gls.updateFile(document.uri, document.getText());
 
   scheduleDiagnostics();
+});
+
+connection.onPrepareRename(({ textDocument, position }) => {
+  return gls.prepareRename(textDocument.uri, position);
+});
+
+connection.onRenameRequest(({ textDocument, position, newName }) => {
+  return gls.getEditsForRename(textDocument.uri, position, newName);
 });
 
 connection.onCompletion(({ textDocument, position }) => {

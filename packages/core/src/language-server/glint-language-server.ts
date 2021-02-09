@@ -7,10 +7,19 @@ import {
   uriToFilePath,
   scriptElementKindToCompletionItemKind,
 } from './util';
-import { Hover, Location, CompletionItem, Diagnostic, MarkedString } from 'vscode-languageserver';
+import {
+  Hover,
+  Location,
+  CompletionItem,
+  Diagnostic,
+  MarkedString,
+  WorkspaceEdit,
+  Range,
+} from 'vscode-languageserver';
 import DocumentCache, { isTemplate } from '../common/document-cache';
 import { Position, positionToOffset } from './util/position';
 import { severityForDiagnostic, tagsForDiagnostic } from './util/protocol';
+import { TextEdit } from 'vscode-languageserver-textdocument';
 
 export default class GlintLanguageServer {
   private service: ts.LanguageService;
@@ -140,6 +149,69 @@ export default class GlintLanguageServer {
         value: this.ts.displayPartsToString(details.documentation),
       },
     };
+  }
+
+  public prepareRename(uri: string, position: Position): Range | undefined {
+    let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    let rename = this.service.getRenameInfo(transformedFileName, transformedOffset);
+    if (rename.canRename) {
+      let { originalStart, originalEnd } = this.transformManager.getOriginalRange(
+        transformedFileName,
+        rename.triggerSpan.start,
+        rename.triggerSpan.start + rename.triggerSpan.length
+      );
+
+      let contents = this.documents.getDocumentContents(uriToFilePath(uri));
+
+      return {
+        start: offsetToPosition(contents, originalStart),
+        end: offsetToPosition(contents, originalEnd),
+      };
+    }
+  }
+
+  public getEditsForRename(uri: string, position: Position, newText: string): WorkspaceEdit {
+    let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    let renameLocations = this.service.findRenameLocations(
+      transformedFileName,
+      transformedOffset,
+      false,
+      false
+    );
+
+    if (!renameLocations?.length) {
+      return {};
+    }
+
+    let changes: Record<string, TextEdit[]> = {};
+    for (let { fileName, textSpan } of renameLocations) {
+      let { originalFileName, originalStart, originalEnd } = this.transformManager.getOriginalRange(
+        fileName,
+        textSpan.start,
+        textSpan.start + textSpan.length
+      );
+
+      if (originalStart === originalEnd) {
+        // Zero-length spans correspond to synthetic use (such as in the context type
+        // of the template, which references the containing class), so we want to filter
+        // those out.
+        continue;
+      }
+
+      let originalContents = this.documents.getDocumentContents(originalFileName);
+      let originalFileURI = filePathToUri(originalFileName);
+      let changesForFile = (changes[originalFileURI] ??= []);
+
+      changesForFile.push({
+        newText,
+        range: {
+          start: offsetToPosition(originalContents, originalStart),
+          end: offsetToPosition(originalContents, originalEnd),
+        },
+      });
+    }
+
+    return { changes };
   }
 
   public getHover(uri: string, position: Position): Hover | undefined {
