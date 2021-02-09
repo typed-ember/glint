@@ -48,6 +48,13 @@ export default class GlintLanguageServer {
     };
 
     this.service = ts.createLanguageService(serviceHost);
+
+    // Kickstart typechecking
+    this.service.getProgram();
+  }
+
+  public dispose(): void {
+    this.service.dispose();
   }
 
   public openFile(uri: string, contents: string): void {

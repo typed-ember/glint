@@ -18,6 +18,7 @@ export function scriptElementKindToCompletionItemKind(
     case ts.ScriptElementKind.letElement:
     case ts.ScriptElementKind.constElement:
     case ts.ScriptElementKind.alias:
+    case ts.ScriptElementKind.parameterElement:
       return CompletionItemKind.Variable;
     case ts.ScriptElementKind.memberVariableElement:
     case ts.ScriptElementKind.memberGetAccessorElement:

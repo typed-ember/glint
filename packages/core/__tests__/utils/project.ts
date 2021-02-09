@@ -1,21 +1,51 @@
 import path from 'path';
 import fs from 'fs';
 import execa, { ExecaChildProcess, Options } from 'execa';
+import ts from 'typescript';
+import { loadConfig } from '@glint/config';
+import { sync as glob } from 'glob';
+import GlintLanguageServer from '../../src/language-server/glint-language-server';
+import { filePathToUri, normalizeFilePath } from '../../src/language-server/util';
 
 const ROOT = path.resolve(__dirname, '../../../../test-packages/ephemeral');
 
 export default class Project {
-  private rootDir = path.join(ROOT, Math.random().toString(16).slice(2));
+  private rootDir = normalizeFilePath(path.join(ROOT, Math.random().toString(16).slice(2)));
+  private server?: GlintLanguageServer;
 
   private constructor() {}
 
   public filePath(fileName: string): string {
-    return path.join(this.rootDir, fileName);
+    return normalizeFilePath(path.join(this.rootDir, fileName));
   }
 
-  public static async create(
-    compilerOptions: import('typescript').CompilerOptions = {}
-  ): Promise<Project> {
+  public fileURI(fileName: string): string {
+    return filePathToUri(this.filePath(fileName));
+  }
+
+  public startLanguageServer(): GlintLanguageServer {
+    if (this.server) {
+      throw new Error('Language server is already running');
+    }
+
+    let tsConfig = ts.parseJsonConfigFileContent(
+      JSON.parse(this.read('tsconfig.json')),
+      ts.sys,
+      this.rootDir
+    );
+
+    let glintConfig = loadConfig(this.rootDir);
+    let rootFileNames = glob('**/*.ts', { cwd: this.rootDir, absolute: true });
+
+    return (this.server = new GlintLanguageServer(
+      ts,
+      glintConfig,
+      rootFileNames,
+      tsConfig.options
+    ));
+  }
+
+  public static async create(compilerOptions: ts.CompilerOptions = {}): Promise<Project> {
     let project = new Project();
     let tsconfig = {
       compilerOptions: {
@@ -54,6 +84,7 @@ export default class Project {
   }
 
   public async destroy(): Promise<void> {
+    this.server?.dispose();
     fs.rmdirSync(this.rootDir, { recursive: true });
   }
 
