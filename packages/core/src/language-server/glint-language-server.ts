@@ -7,7 +7,7 @@ import {
   uriToFilePath,
   scriptElementKindToCompletionItemKind,
 } from './util';
-import { Hover, Location, CompletionItem, Diagnostic } from 'vscode-languageserver';
+import { Hover, Location, CompletionItem, Diagnostic, MarkedString } from 'vscode-languageserver';
 import DocumentCache, { isScript, isTemplate } from '../common/document-cache';
 import { Position, positionToOffset } from './util/position';
 import { severityForDiagnostic, tagsForDiagnostic } from './util/protocol';
@@ -175,10 +175,12 @@ export default class GlintLanguageServer {
     let start = offsetToPosition(originalContents, originalStart);
     let end = offsetToPosition(originalContents, originalEnd);
 
-    return {
-      range: { start, end },
-      contents: { language: 'ts', value },
-    };
+    let contents: Array<MarkedString> = [{ language: 'ts', value }];
+    if (info.documentation?.length) {
+      contents.push(this.ts.displayPartsToString(info.documentation));
+    }
+
+    return { contents, range: { start, end } };
   }
 
   public getDefinition(uri: string, position: Position): Location[] {
