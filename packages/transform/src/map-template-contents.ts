@@ -87,15 +87,24 @@ export function mapTemplateContents(
   callback: (ast: AST.Template, mapper: Mapper) => void
 ): RewriteResult {
   let ast: AST.Template;
+  let lineOffsets = calculateLineOffsets(template);
   try {
     ast = preprocess(template);
   } catch (error) {
+    let location: Range | undefined;
+    if (error.hash.loc) {
+      location = {
+        start: lineOffsets[error.hash.loc.first_line] + error.hash.loc.first_column,
+        end: lineOffsets[error.hash.loc.last_line] + error.hash.loc.last_column,
+      };
+    }
+
     return {
-      errors: [{ message: error.message }],
+      errors: [{ message: error.message, location }],
     };
   }
 
-  let rangeForNode = calculateLineOffsets(template);
+  let rangeForNode = buildRangeForNode(lineOffsets);
 
   let segmentsStack: string[][] = [[]];
   let mappingsStack: MappingTree[][] = [[]];
@@ -200,7 +209,7 @@ export function mapTemplateContents(
 const LEADING_WHITESPACE = /^\s+/;
 const TRAILING_WHITESPACE = /\s+$/;
 
-function calculateLineOffsets(template: string): (node: AST.Node) => Range {
+function calculateLineOffsets(template: string): Array<number> {
   let lines = template.split('\n');
   let total = 0;
   let offsets = [0];
@@ -211,6 +220,10 @@ function calculateLineOffsets(template: string): (node: AST.Node) => Range {
     total += line.length + 1;
   }
 
+  return offsets;
+}
+
+function buildRangeForNode(offsets: Array<number>): (node: AST.Node) => Range {
   return (node) => {
     let { loc } = node;
     let start = offsets[loc.start.line] + loc.start.column;

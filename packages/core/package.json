@@ -11,7 +11,8 @@
     "bin"
   ],
   "bin": {
-    "glint": "bin/glint.js"
+    "glint": "bin/glint.js",
+    "glint-language-server": "bin/glint-language-server.js"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0 && prettier --check src",
@@ -23,6 +24,9 @@
     "@glint/config": "^0.2.1",
     "@glint/transform": "^0.2.1",
     "resolve": "^1.17.0",
+    "vscode-languageserver": "^7.0.0",
+    "vscode-languageserver-textdocument": "^1.0.1",
+    "vscode-uri": "^3.0.2",
     "yargs": "^15.3.1"
   },
   "devDependencies": {

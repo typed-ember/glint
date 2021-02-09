@@ -660,6 +660,24 @@ describe('rewriteTemplate', () => {
   });
 
   describe('error conditions', () => {
+    test('Syntax error', () => {
+      let { errors } = templateToTypescript('<Foo @attr={{"123}} />', {
+        typesPath: '@glint/template',
+      });
+
+      expect(errors).toEqual([
+        {
+          location: { start: 11, end: 13 },
+          message: stripIndent`
+            Parse error on line 1:
+            <Foo @attr={{\"123}} />
+            -------------^
+            Expecting 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
+          `,
+        },
+      ]);
+    });
+
     test('{{yield}} in expression position', () => {
       let { errors } = templateToTypescript('<Foo @attr={{yield}} />', {
         typesPath: '@glint/template',

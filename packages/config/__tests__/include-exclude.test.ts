@@ -12,11 +12,16 @@ describe('include/exclude configuration', () => {
       expect(config.includesFile(`${root}/deeply/nested/file.ts`)).toBe(true);
     });
 
+    test('includes all .hbs files within the root', () => {
+      expect(config.includesFile(`${root}/file.hbs`)).toBe(true);
+      expect(config.includesFile(`${root}/deeply/nested/file.hbs`)).toBe(true);
+    });
+
     test('excludes files outside the root', () => {
       expect(config.includesFile(`${root}/../other.ts`)).toBe(false);
     });
 
-    test('excludes non-.ts files', () => {
+    test('excludes non-.ts/.hbs files', () => {
       expect(config.includesFile(`${root}/other.txt`)).toBe(false);
     });
 

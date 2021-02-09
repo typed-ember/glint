@@ -1,5 +1,5 @@
 import type ts from 'typescript';
-import TransformManager from './transform-manager';
+import TransformManager from '../common/transform-manager';
 import { GlintConfig } from '@glint/config';
 
 export function performCheck(
@@ -46,7 +46,7 @@ function createCompilerHost(
   transformManager: TransformManager
 ): ts.CompilerHost {
   let host = ts.createCompilerHost(options);
-  host.readFile = transformManager.readFile;
+  host.readFile = transformManager.readTransformedFile;
   return host;
 }
 

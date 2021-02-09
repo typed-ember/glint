@@ -3,7 +3,7 @@ import stripAnsi from 'strip-ansi';
 import os from 'os';
 import Project from '../utils/project';
 
-describe('watched typechecking', () => {
+describe('CLI: watched typechecking', () => {
   let project!: Project;
   beforeEach(async () => {
     jest.setTimeout(20_000);
@@ -75,13 +75,13 @@ describe('watched typechecking', () => {
 
     expect(output).toMatch('Found 1 error.');
     expect(error.replace(/\r/g, '')).toMatchInlineSnapshot(`
-      "index.ts:10:28 - error TS0: [glint] Parse error on line 2:
+      "index.ts:11:24 - error TS0: Parse error on line 2:
       ...e to app v{{@version}.    The current t
       -----------------------^
       Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
 
-      10   public static template = hbs\`
-                                    ~~~"
+      11     Welcome to app v{{@version}.
+                                ~~~~~~~"
     `);
   });
 
