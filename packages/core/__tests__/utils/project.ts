@@ -5,21 +5,22 @@ import ts from 'typescript';
 import { loadConfig } from '@glint/config';
 import { sync as glob } from 'glob';
 import GlintLanguageServer from '../../src/language-server/glint-language-server';
+import { filePathToUri, normalizeFilePath } from '../../src/language-server/util';
 
 const ROOT = path.resolve(__dirname, '../../../../test-packages/ephemeral');
 
 export default class Project {
-  private rootDir = path.join(ROOT, Math.random().toString(16).slice(2));
+  private rootDir = normalizeFilePath(path.join(ROOT, Math.random().toString(16).slice(2)));
   private server?: GlintLanguageServer;
 
   private constructor() {}
 
   public filePath(fileName: string): string {
-    return path.join(this.rootDir, fileName);
+    return normalizeFilePath(path.join(this.rootDir, fileName));
   }
 
   public fileURI(fileName: string): string {
-    return `file://${this.filePath(fileName)}`;
+    return filePathToUri(this.filePath(fileName));
   }
 
   public startLanguageServer(): GlintLanguageServer {
