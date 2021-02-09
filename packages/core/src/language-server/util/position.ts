@@ -12,7 +12,7 @@ export function positionToOffset(contents: string, { line, character }: Position
 export function offsetToPosition(contents: string, position: number): Position {
   const lineStarts = computeLineStarts(contents);
   let line = 0;
-  while (line + 2 < lineStarts.length && lineStarts[line + 1] <= position) {
+  while (line + 1 < lineStarts.length && lineStarts[line + 1] <= position) {
     line++;
   }
   const character = position - lineStarts[line];

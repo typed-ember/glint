@@ -144,12 +144,12 @@ describe('Language Server: Diagnostics', () => {
           "message": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
           "range": Object {
             "end": Object {
-              "character": 69,
-              "line": 0,
+              "character": 39,
+              "line": 1,
             },
             "start": Object {
-              "character": 57,
-              "line": 0,
+              "character": 27,
+              "line": 1,
             },
           },
           "severity": 1,
