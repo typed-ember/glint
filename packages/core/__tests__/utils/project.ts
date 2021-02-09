@@ -71,8 +71,19 @@ export default class Project {
     return project;
   }
 
-  public write(fileName: string, fileContent: string): void {
-    fs.writeFileSync(this.filePath(fileName), fileContent);
+  public write(files: Record<string, string>): void;
+  public write(fileName: string, fileContent: string): void;
+  public write(...args: [Record<string, string>] | [string, string]): void {
+    let files: Record<string, string>;
+    if (args.length === 2) {
+      files = { [args[0]]: args[1] };
+    } else {
+      files = args[0];
+    }
+
+    for (let [fileName, fileContent] of Object.entries(files)) {
+      fs.writeFileSync(this.filePath(fileName), fileContent);
+    }
   }
 
   public read(fileName: string): string {
