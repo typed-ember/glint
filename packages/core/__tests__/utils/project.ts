@@ -40,7 +40,7 @@ export default class Project {
     return (this.server = new GlintLanguageServer(
       ts,
       glintConfig,
-      rootFileNames,
+      () => rootFileNames,
       tsConfig.options
     ));
   }

@@ -20,13 +20,13 @@ export default class GlintLanguageServer {
   constructor(
     private ts: typeof import('typescript'),
     private glintConfig: GlintConfig,
-    rootFileNames: string[],
+    getRootFileNames: () => Array<string>,
     options: ts.CompilerOptions
   ) {
     this.documents = new DocumentCache(ts, glintConfig);
     this.transformManager = new TransformManager(ts, glintConfig, this.documents);
     const serviceHost: ts.LanguageServiceHost = {
-      getScriptFileNames: () => rootFileNames,
+      getScriptFileNames: getRootFileNames,
       getScriptVersion: (fileName) => this.documents.getDocumentVersion(fileName),
       getScriptSnapshot: (fileName) => {
         let contents = this.transformManager.readTransformedFile(fileName);

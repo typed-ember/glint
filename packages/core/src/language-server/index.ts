@@ -3,7 +3,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { loadConfig } from '@glint/config';
 import { loadTypeScript } from '../common/load-typescript';
 import GlintLanguageServer from './glint-language-server';
-import { parseConfigFile } from './util';
+import { parseConfigFile, uriToFilePath } from './util';
 
 const connection = createConnection(process.stdin, process.stdout);
 const documents = new TextDocuments(TextDocument);
@@ -13,7 +13,11 @@ const glintConfig = loadConfig(process.cwd());
 const tsconfigPath = ts.findConfigFile(process.cwd(), ts.sys.fileExists);
 const { fileNames, options } = parseConfigFile(ts, tsconfigPath);
 const tsFileNames = fileNames.filter((fileName) => /\.ts$/.test(fileName));
-const gls = new GlintLanguageServer(ts, glintConfig, tsFileNames, options);
+const getRootFileNames = (): Array<string> => {
+  return tsFileNames.concat(documents.all().map((doc) => uriToFilePath(doc.uri)));
+};
+
+const gls = new GlintLanguageServer(ts, glintConfig, getRootFileNames, options);
 
 connection.onInitialize(() => ({
   capabilities: {
