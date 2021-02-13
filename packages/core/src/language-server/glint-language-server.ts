@@ -7,10 +7,19 @@ import {
   uriToFilePath,
   scriptElementKindToCompletionItemKind,
 } from './util';
-import { Hover, Location, CompletionItem, Diagnostic, MarkedString } from 'vscode-languageserver';
-import DocumentCache, { isScript, isTemplate } from '../common/document-cache';
+import {
+  Hover,
+  Location,
+  CompletionItem,
+  Diagnostic,
+  MarkedString,
+  WorkspaceEdit,
+  Range,
+} from 'vscode-languageserver';
+import DocumentCache, { isTemplate } from '../common/document-cache';
 import { Position, positionToOffset } from './util/position';
 import { severityForDiagnostic, tagsForDiagnostic } from './util/protocol';
+import { TextEdit } from 'vscode-languageserver-textdocument';
 
 export default class GlintLanguageServer {
   private service: ts.LanguageService;
@@ -20,13 +29,13 @@ export default class GlintLanguageServer {
   constructor(
     private ts: typeof import('typescript'),
     private glintConfig: GlintConfig,
-    rootFileNames: string[],
+    getRootFileNames: () => Array<string>,
     options: ts.CompilerOptions
   ) {
     this.documents = new DocumentCache(ts, glintConfig);
     this.transformManager = new TransformManager(ts, glintConfig, this.documents);
     const serviceHost: ts.LanguageServiceHost = {
-      getScriptFileNames: () => rootFileNames,
+      getScriptFileNames: getRootFileNames,
       getScriptVersion: (fileName) => this.documents.getDocumentVersion(fileName),
       getScriptSnapshot: (fileName) => {
         let contents = this.transformManager.readTransformedFile(fileName);
@@ -69,34 +78,22 @@ export default class GlintLanguageServer {
     this.documents.removeDocument(uriToFilePath(uri));
   }
 
-  public getDiagnostics(uri: string): Array<{ uri: string; diagnostics: Array<Diagnostic> }> {
-    let { script, template } = this.findDiagnosticsSource(uriToFilePath(uri));
+  public getDiagnostics(uri: string): Array<Diagnostic> {
+    let filePath = uriToFilePath(uri);
+    let sourcePath = this.findDiagnosticsSource(filePath);
+    if (!sourcePath) return [];
 
-    // TODO: template-only component support
-    if (!script) return [];
-
-    let diagnosticsByFileName: Record<string, Array<Diagnostic>> = {};
-
-    diagnosticsByFileName[script] = [];
-
-    if (template) {
-      diagnosticsByFileName[template] = [];
-    }
-
-    const allDiagnostics = [
-      ...this.service.getSyntacticDiagnostics(script),
-      ...this.transformManager.getTransformDiagnostics(script),
-      ...this.service.getSemanticDiagnostics(script),
-      ...this.service.getSuggestionDiagnostics(script),
-    ];
-
-    for (let transformedDiagnostic of allDiagnostics) {
+    return [
+      ...this.service.getSyntacticDiagnostics(sourcePath),
+      ...this.transformManager.getTransformDiagnostics(sourcePath),
+      ...this.service.getSemanticDiagnostics(sourcePath),
+      ...this.service.getSuggestionDiagnostics(sourcePath),
+    ].flatMap((transformedDiagnostic) => {
       let diagnostic = this.transformManager.rewriteDiagnostic(transformedDiagnostic);
-      let file = diagnostic.file;
-      if (!file || !(file.fileName in diagnosticsByFileName)) continue;
+      let { start = 0, length = 0, messageText, file } = diagnostic;
+      if (!file || file.fileName !== filePath) return [];
 
-      let { start = 0, length = 0, messageText } = diagnostic;
-      diagnosticsByFileName[file.fileName].push({
+      return {
         severity: severityForDiagnostic(diagnostic),
         message: this.ts.flattenDiagnosticMessageText(messageText, '\n'),
         source: `glint${diagnostic.code ? `:ts(${diagnostic.code})` : ''}`,
@@ -105,13 +102,8 @@ export default class GlintLanguageServer {
           start: offsetToPosition(file.getText(), start),
           end: offsetToPosition(file.getText(), start + length),
         },
-      });
-    }
-
-    return Object.entries(diagnosticsByFileName).map(([fileName, diagnostics]) => ({
-      uri: filePathToUri(fileName),
-      diagnostics,
-    }));
+      };
+    });
   }
 
   public getCompletions(uri: string, position: Position): CompletionItem[] | undefined {
@@ -159,6 +151,69 @@ export default class GlintLanguageServer {
     };
   }
 
+  public prepareRename(uri: string, position: Position): Range | undefined {
+    let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    let rename = this.service.getRenameInfo(transformedFileName, transformedOffset);
+    if (rename.canRename) {
+      let { originalStart, originalEnd } = this.transformManager.getOriginalRange(
+        transformedFileName,
+        rename.triggerSpan.start,
+        rename.triggerSpan.start + rename.triggerSpan.length
+      );
+
+      let contents = this.documents.getDocumentContents(uriToFilePath(uri));
+
+      return {
+        start: offsetToPosition(contents, originalStart),
+        end: offsetToPosition(contents, originalEnd),
+      };
+    }
+  }
+
+  public getEditsForRename(uri: string, position: Position, newText: string): WorkspaceEdit {
+    let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    let renameLocations = this.service.findRenameLocations(
+      transformedFileName,
+      transformedOffset,
+      false,
+      false
+    );
+
+    if (!renameLocations?.length) {
+      return {};
+    }
+
+    let changes: Record<string, TextEdit[]> = {};
+    for (let { fileName, textSpan } of renameLocations) {
+      let { originalFileName, originalStart, originalEnd } = this.transformManager.getOriginalRange(
+        fileName,
+        textSpan.start,
+        textSpan.start + textSpan.length
+      );
+
+      if (originalStart === originalEnd) {
+        // Zero-length spans correspond to synthetic use (such as in the context type
+        // of the template, which references the containing class), so we want to filter
+        // those out.
+        continue;
+      }
+
+      let originalContents = this.documents.getDocumentContents(originalFileName);
+      let originalFileURI = filePathToUri(originalFileName);
+      let changesForFile = (changes[originalFileURI] ??= []);
+
+      changesForFile.push({
+        newText,
+        range: {
+          start: offsetToPosition(originalContents, originalStart),
+          end: offsetToPosition(originalContents, originalEnd),
+        },
+      });
+    }
+
+    return { changes };
+  }
+
   public getHover(uri: string, position: Position): Hover | undefined {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
     let info = this.service.getQuickInfoAtPosition(transformedFileName, transformedOffset);
@@ -203,28 +258,13 @@ export default class GlintLanguageServer {
     });
   }
 
-  private findDiagnosticsSource(fileName: string): { script: string; template?: string } {
+  private findDiagnosticsSource(fileName: string): string | undefined {
     if (isTemplate(fileName) && this.glintConfig.includesFile(fileName)) {
       let scriptPaths = this.glintConfig.environment.getPossibleScriptPaths(fileName);
-      let script = scriptPaths.find((candidate) => this.documents.documentExists(candidate));
-      if (!script) {
-        // TODO: support template-only components somehow
-        script = 'broken-template-only.ts';
-      }
-
-      return {
-        script,
-        template: fileName,
-      };
-    } else if (isScript(fileName) && this.glintConfig.includesFile(fileName)) {
-      let templatePaths = this.glintConfig.environment.getPossibleTemplatePaths(fileName);
-      return {
-        script: fileName,
-        template: templatePaths.find((candidate) => this.documents.documentExists(candidate)),
-      };
+      return scriptPaths.find((candidate) => this.documents.documentExists(candidate));
     }
 
-    return { script: fileName };
+    return fileName;
   }
 
   private getTransformedOffset(

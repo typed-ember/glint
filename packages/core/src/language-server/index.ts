@@ -3,7 +3,8 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { loadConfig } from '@glint/config';
 import { loadTypeScript } from '../common/load-typescript';
 import GlintLanguageServer from './glint-language-server';
-import { parseConfigFile } from './util';
+import { parseConfigFile, uriToFilePath } from './util';
+import { debounce } from '../common/scheduling';
 
 const connection = createConnection(process.stdin, process.stdout);
 const documents = new TextDocuments(TextDocument);
@@ -13,7 +14,11 @@ const glintConfig = loadConfig(process.cwd());
 const tsconfigPath = ts.findConfigFile(process.cwd(), ts.sys.fileExists);
 const { fileNames, options } = parseConfigFile(ts, tsconfigPath);
 const tsFileNames = fileNames.filter((fileName) => /\.ts$/.test(fileName));
-const gls = new GlintLanguageServer(ts, glintConfig, tsFileNames, options);
+const getRootFileNames = (): Array<string> => {
+  return tsFileNames.concat(documents.all().map((doc) => uriToFilePath(doc.uri)));
+};
+
+const gls = new GlintLanguageServer(ts, glintConfig, getRootFileNames, options);
 
 connection.onInitialize(() => ({
   capabilities: {
@@ -23,8 +28,20 @@ connection.onInitialize(() => ({
     },
     hoverProvider: true,
     definitionProvider: true,
+    renameProvider: {
+      prepareProvider: true,
+    },
   },
 }));
+
+const scheduleDiagnostics = debounce(250, () => {
+  for (let { uri } of documents.all()) {
+    connection.sendDiagnostics({
+      uri,
+      diagnostics: gls.getDiagnostics(uri),
+    });
+  }
+});
 
 connection.onDidChangeWatchedFiles(() => {
   // TODO: use this to synchronize files that aren't open so we don't assume changes only
@@ -33,6 +50,8 @@ connection.onDidChangeWatchedFiles(() => {
 
 documents.onDidOpen(({ document }) => {
   gls.openFile(document.uri, document.getText());
+
+  scheduleDiagnostics();
 });
 
 documents.onDidClose(({ document }) => {
@@ -42,9 +61,15 @@ documents.onDidClose(({ document }) => {
 documents.onDidChangeContent(({ document }) => {
   gls.updateFile(document.uri, document.getText());
 
-  for (let diagnosticBatch of gls.getDiagnostics(document.uri)) {
-    connection.sendDiagnostics(diagnosticBatch);
-  }
+  scheduleDiagnostics();
+});
+
+connection.onPrepareRename(({ textDocument, position }) => {
+  return gls.prepareRename(textDocument.uri, position);
+});
+
+connection.onRenameRequest(({ textDocument, position, newName }) => {
+  return gls.getEditsForRename(textDocument.uri, position, newName);
 });
 
 connection.onCompletion(({ textDocument, position }) => {
