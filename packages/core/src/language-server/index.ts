@@ -29,6 +29,7 @@ connection.onInitialize(() => ({
     referencesProvider: true,
     hoverProvider: true,
     definitionProvider: true,
+    workspaceSymbolProvider: true,
     renameProvider: {
       prepareProvider: true,
     },
@@ -91,6 +92,10 @@ connection.onDefinition(({ textDocument, position }) => {
 
 connection.onReferences(({ textDocument, position }) => {
   return gls.getReferences(textDocument.uri, position);
+});
+
+connection.onWorkspaceSymbol(({ query }) => {
+  return gls.findSymbols(query);
 });
 
 documents.listen(connection);
