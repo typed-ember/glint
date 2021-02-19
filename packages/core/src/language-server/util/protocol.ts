@@ -1,5 +1,10 @@
 import ts from 'typescript';
-import { CompletionItemKind, DiagnosticSeverity, DiagnosticTag } from 'vscode-languageserver';
+import {
+  CompletionItemKind,
+  DiagnosticSeverity,
+  DiagnosticTag,
+  SymbolKind,
+} from 'vscode-languageserver';
 
 /*
  * This module contains utilities for converting between conventions used
@@ -47,6 +52,41 @@ export function scriptElementKindToCompletionItemKind(
       return CompletionItemKind.Property;
     default:
       return CompletionItemKind.Text;
+  }
+}
+
+export function scriptElementKindToSymbolKind(kind: ts.ScriptElementKind): SymbolKind {
+  switch (kind) {
+    case ts.ScriptElementKind.memberVariableElement:
+    case ts.ScriptElementKind.indexSignatureElement:
+      return SymbolKind.Field;
+    case ts.ScriptElementKind.memberGetAccessorElement:
+    case ts.ScriptElementKind.memberSetAccessorElement:
+    case ts.ScriptElementKind.memberFunctionElement:
+      return SymbolKind.Method;
+    case ts.ScriptElementKind.functionElement:
+    case ts.ScriptElementKind.localFunctionElement:
+    case ts.ScriptElementKind.constructSignatureElement:
+    case ts.ScriptElementKind.callSignatureElement:
+      return SymbolKind.Function;
+    case ts.ScriptElementKind.enumElement:
+      return SymbolKind.Enum;
+    case ts.ScriptElementKind.moduleElement:
+      return SymbolKind.Module;
+    case ts.ScriptElementKind.classElement:
+    case ts.ScriptElementKind.localClassElement:
+      return SymbolKind.Class;
+    case ts.ScriptElementKind.interfaceElement:
+      return SymbolKind.Interface;
+    case ts.ScriptElementKind.scriptElement:
+      return SymbolKind.File;
+    case ts.ScriptElementKind.jsxAttribute:
+      return SymbolKind.Property;
+    case ts.ScriptElementKind.constElement:
+    case ts.ScriptElementKind.enumMemberElement:
+      return SymbolKind.Constant;
+    default:
+      return SymbolKind.Variable;
   }
 }
 
