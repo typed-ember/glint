@@ -243,19 +243,39 @@ export default class GlintLanguageServer {
     let definitions =
       this.service.getDefinitionAtPosition(transformedFileName, transformedOffset) ?? [];
 
-    return definitions.map(({ fileName, textSpan }) => {
-      let { originalFileName, originalStart, originalEnd } = this.transformManager.getOriginalRange(
-        fileName,
-        textSpan.start,
-        textSpan.start + textSpan.length
-      );
+    return this.calculateOriginalLocations(definitions);
+  }
 
-      let originalContents = this.documents.getDocumentContents(originalFileName);
-      let start = offsetToPosition(originalContents, originalStart);
-      let end = offsetToPosition(originalContents, originalEnd);
+  public getReferences(uri: string, position: Position): Location[] {
+    let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    let references =
+      this.service.getReferencesAtPosition(transformedFileName, transformedOffset) ?? [];
 
-      return Location.create(filePathToUri(originalFileName), { start, end });
-    });
+    return this.calculateOriginalLocations(references);
+  }
+
+  private calculateOriginalLocations(spans: ReadonlyArray<ts.DocumentSpan>): Array<Location> {
+    return spans
+      .map((span) => this.documentSpanToLocation(span))
+      .filter((loc): loc is Location => Boolean(loc));
+  }
+
+  private documentSpanToLocation({ fileName, textSpan }: ts.DocumentSpan): Location | undefined {
+    let { originalFileName, originalStart, originalEnd } = this.transformManager.getOriginalRange(
+      fileName,
+      textSpan.start,
+      textSpan.start + textSpan.length
+    );
+
+    // Zero-length spans correspond to a synthetic use of the symbol, so we don't
+    // want to actually show them to the user.
+    if (originalStart === originalEnd) return;
+
+    let originalContents = this.documents.getDocumentContents(originalFileName);
+    let start = offsetToPosition(originalContents, originalStart);
+    let end = offsetToPosition(originalContents, originalEnd);
+
+    return Location.create(filePathToUri(originalFileName), { start, end });
   }
 
   private findDiagnosticsSource(fileName: string): string | undefined {
