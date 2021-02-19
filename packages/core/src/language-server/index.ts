@@ -26,6 +26,7 @@ connection.onInitialize(() => ({
     completionProvider: {
       resolveProvider: true,
     },
+    referencesProvider: true,
     hoverProvider: true,
     definitionProvider: true,
     renameProvider: {
@@ -86,6 +87,10 @@ connection.onHover(({ textDocument, position }) => {
 
 connection.onDefinition(({ textDocument, position }) => {
   return gls.getDefinition(textDocument.uri, position);
+});
+
+connection.onReferences(({ textDocument, position }) => {
+  return gls.getReferences(textDocument.uri, position);
 });
 
 documents.listen(connection);
