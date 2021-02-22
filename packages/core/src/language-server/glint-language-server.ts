@@ -15,10 +15,15 @@ import {
   MarkedString,
   WorkspaceEdit,
   Range,
+  SymbolInformation,
 } from 'vscode-languageserver';
 import DocumentCache, { isTemplate } from '../common/document-cache';
 import { Position, positionToOffset } from './util/position';
-import { severityForDiagnostic, tagsForDiagnostic } from './util/protocol';
+import {
+  scriptElementKindToSymbolKind,
+  severityForDiagnostic,
+  tagsForDiagnostic,
+} from './util/protocol';
 import { TextEdit } from 'vscode-languageserver-textdocument';
 
 export default class GlintLanguageServer {
@@ -104,6 +109,18 @@ export default class GlintLanguageServer {
         },
       };
     });
+  }
+
+  public findSymbols(query: string): Array<SymbolInformation> {
+    return this.service
+      .getNavigateToItems(query)
+      .map(({ name, kind, fileName, textSpan }) => {
+        let location = this.textSpanToLocation(fileName, textSpan);
+        if (location) {
+          return { name, location, kind: scriptElementKindToSymbolKind(kind) };
+        }
+      })
+      .filter((info): info is SymbolInformation => Boolean(info));
   }
 
   public getCompletions(uri: string, position: Position): CompletionItem[] | undefined {
@@ -256,11 +273,11 @@ export default class GlintLanguageServer {
 
   private calculateOriginalLocations(spans: ReadonlyArray<ts.DocumentSpan>): Array<Location> {
     return spans
-      .map((span) => this.documentSpanToLocation(span))
+      .map((span) => this.textSpanToLocation(span.fileName, span.textSpan))
       .filter((loc): loc is Location => Boolean(loc));
   }
 
-  private documentSpanToLocation({ fileName, textSpan }: ts.DocumentSpan): Location | undefined {
+  private textSpanToLocation(fileName: string, textSpan: ts.TextSpan): Location | undefined {
     let { originalFileName, originalStart, originalEnd } = this.transformManager.getOriginalRange(
       fileName,
       textSpan.start,
