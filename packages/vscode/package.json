@@ -22,6 +22,7 @@
   ],
   "main": "lib/extension.js",
   "dependencies": {
+    "resolve": "^1.20.0",
     "vscode-languageclient": "^7.0.0"
   },
   "devDependencies": {
