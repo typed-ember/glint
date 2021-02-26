@@ -29,6 +29,7 @@
     "@glint/core": "^0.2.0",
     "@types/jest": "^26.0.13",
     "@types/vscode": "^1.52.0",
+    "intercept-stdout": "^0.1.2",
     "jest": "^26.4.2",
     "ts-jest": "^26.3.0",
     "vscode-test": "^1.5.1"
