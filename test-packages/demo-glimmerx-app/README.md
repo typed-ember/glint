@@ -6,7 +6,7 @@ It supports one-off typechecking via the `glint` executable:
 
 ![image](https://user-images.githubusercontent.com/108688/85793967-1f54f580-b736-11ea-9dec-93aa80d2bd5a.png)
 
-And exposes the same errors inline in the editor via a `tsserver` plugin:
+And exposes the same errors inline in the editor via the language server:
 
 ![image](https://user-images.githubusercontent.com/108688/85796347-1108d880-b73a-11ea-81fc-55655dcdec42.png)
 

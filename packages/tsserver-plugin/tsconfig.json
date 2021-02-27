@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig.compileroptions.json",
-  "compilerOptions": {
-    "outDir": "lib",
-    "rootDir": "src"
-  },
-  "include": ["src"],
-  "references": [{ "path": "../transform" }, { "path": "../config" }]
-}
