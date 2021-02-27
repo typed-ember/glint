@@ -25,7 +25,8 @@ function addWorkspaceFolder(workspaceFolder: WorkspaceFolder, context: Extension
   if (clients.has(folderPath)) return;
 
   let executable = {
-    command: resolve('@glint/core/bin/glint-language-server', { basedir: folderPath }),
+    command: 'node',
+    args: [resolve('@glint/core/bin/glint-language-server', { basedir: folderPath })],
   };
 
   let serverOptions: ServerOptions = {
