@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "lint": "eslint . --max-warnings 0 && prettier --check src",
-    "test": "jest",
+    "test": "node __tests__/support/launch-from-cli.js",
     "build": "tsc --build",
     "prepack": "yarn build"
   },
