@@ -42,7 +42,9 @@ jobs:
       - name: Build
         run: yarn build
       - name: Run Tests
-        run: yarn test
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          run: yarn test
 
   test-windows:
     name: Test Windows
@@ -96,4 +98,6 @@ jobs:
       - name: Build
         run: yarn build
       - name: Run Tests
-        run: yarn test
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          run: yarn test

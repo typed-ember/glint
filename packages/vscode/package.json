@@ -1,0 +1,37 @@
+{
+  "name": "@glint/vscode",
+  "version": "0.0.0",
+  "description": "A Visual Studio Code extension for the glint language server",
+  "author": "James C. Davis (https://github.com/jamescdavis)",
+  "license": "MIT",
+  "files": [
+    "README.md",
+    "lib"
+  ],
+  "scripts": {
+    "lint": "eslint . --max-warnings 0 && prettier --check src",
+    "test": "node __tests__/support/launch-from-cli.js",
+    "build": "tsc --build",
+    "prepack": "yarn build"
+  },
+  "engines": {
+    "vscode": "^1.40.0"
+  },
+  "activationEvents": [
+    "*"
+  ],
+  "main": "lib/extension.js",
+  "dependencies": {
+    "resolve": "^1.20.0",
+    "vscode-languageclient": "^7.0.0"
+  },
+  "devDependencies": {
+    "@glint/core": "^0.2.0",
+    "@types/jest": "^26.0.13",
+    "@types/vscode": "^1.52.0",
+    "intercept-stdout": "^0.1.2",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.3.0",
+    "vscode-test": "^1.5.1"
+  }
+}

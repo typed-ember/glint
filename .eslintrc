@@ -1,33 +1,51 @@
 {
   "root": true,
-  "plugins": ["@typescript-eslint"],
-  "parser": "@typescript-eslint/parser",
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
-  ],
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2020
+  },
   "rules": {
     "prefer-const": "off",
-    "require-yield": "off",
-    "@typescript-eslint/prefer-const": "off",
-    "@typescript-eslint/no-empty-function": "off",
-    "@typescript-eslint/no-empty-interface": "off",
-    "@typescript-eslint/no-use-before-define": "off",
-    "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/ban-types": "off",
-    "@typescript-eslint/no-var-requires": "off",
-    "@typescript-eslint/explicit-function-return-type": [
-      "error",
-      {
-        "allowExpressions": true
+    "require-yield": "off"
+  },
+  "overrides": [
+    {
+      "files": "*.js",
+      "env": {
+        "node": true
       }
-    ],
+    },
+    {
+      "files": "*.ts",
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint"],
+      "extends": [
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
+      ],
+      "rules": {
+        "prefer-const": "off",
+        "require-yield": "off",
+        "@typescript-eslint/prefer-const": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/no-use-before-define": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/ban-types": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/explicit-function-return-type": [
+          "error",
+          {
+            "allowExpressions": true
+          }
+        ],
 
-    // Because of the number of type constraints we deal with that need to be
-    // able to appear in both covariant and contravariant positions, it becomes
-    // incredibly unwieldy to manage variants of each constraint with `never`
-    // and `unknown` in all the right places
-    "@typescript-eslint/no-explicit-any": "off"
-  }
+        // Because of the number of type constraints we deal with that need to be
+        // able to appear in both covariant and contravariant positions, it becomes
+        // incredibly unwieldy to manage variants of each constraint with `never`
+        // and `unknown` in all the right places
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
 }
