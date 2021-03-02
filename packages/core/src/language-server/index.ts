@@ -18,6 +18,14 @@ const getRootFileNames = (): Array<string> => {
   return tsFileNames.concat(documents.all().map((doc) => uriToFilePath(doc.uri)));
 };
 
+function captureErrors<T>(callback: () => T): T | undefined {
+  try {
+    return callback();
+  } catch (error) {
+    connection.console.error(error.stack ?? error);
+  }
+}
+
 if (glintConfig) {
   const gls = new GlintLanguageServer(ts, glintConfig, getRootFileNames, options);
 
@@ -68,35 +76,35 @@ if (glintConfig) {
   });
 
   connection.onPrepareRename(({ textDocument, position }) => {
-    return gls.prepareRename(textDocument.uri, position);
+    return captureErrors(() => gls.prepareRename(textDocument.uri, position));
   });
 
   connection.onRenameRequest(({ textDocument, position, newName }) => {
-    return gls.getEditsForRename(textDocument.uri, position, newName);
+    return captureErrors(() => gls.getEditsForRename(textDocument.uri, position, newName));
   });
 
   connection.onCompletion(({ textDocument, position }) => {
-    return gls.getCompletions(textDocument.uri, position);
+    return captureErrors(() => gls.getCompletions(textDocument.uri, position));
   });
 
   connection.onCompletionResolve((item) => {
-    return gls.getCompletionDetails(item);
+    return captureErrors(() => gls.getCompletionDetails(item)) ?? item;
   });
 
   connection.onHover(({ textDocument, position }) => {
-    return gls.getHover(textDocument.uri, position);
+    return captureErrors(() => gls.getHover(textDocument.uri, position));
   });
 
   connection.onDefinition(({ textDocument, position }) => {
-    return gls.getDefinition(textDocument.uri, position);
+    return captureErrors(() => gls.getDefinition(textDocument.uri, position));
   });
 
   connection.onReferences(({ textDocument, position }) => {
-    return gls.getReferences(textDocument.uri, position);
+    return captureErrors(() => gls.getReferences(textDocument.uri, position));
   });
 
   connection.onWorkspaceSymbol(({ query }) => {
-    return gls.findSymbols(query);
+    return captureErrors(() => gls.findSymbols(query));
   });
 
   documents.listen(connection);
