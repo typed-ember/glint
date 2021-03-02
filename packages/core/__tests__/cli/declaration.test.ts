@@ -4,6 +4,7 @@ import Project from '../utils/project';
 describe('CLI: emitting declarations', () => {
   let project!: Project;
   beforeEach(async () => {
+    jest.setTimeout(20_000);
     project = await Project.create();
   });
 
