@@ -92,11 +92,17 @@ export function mapTemplateContents(
     ast = preprocess(template);
   } catch (error) {
     let location: Range | undefined;
-    if (error.hash.loc) {
+    if (error?.hash?.loc) {
       location = {
         start: lineOffsets[error.hash.loc.first_line] + error.hash.loc.first_column,
         end: lineOffsets[error.hash.loc.last_line] + error.hash.loc.last_column,
       };
+    } else {
+      let match = /line (\d+) : column (\d+)/.exec(error.message ?? '');
+      if (match) {
+        let offset = lineOffsets[Number(match[1])] + Number(match[2]);
+        location = { start: offset, end: offset };
+      }
     }
 
     return {
