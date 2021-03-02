@@ -1,6 +1,7 @@
 import { NodePath, types as t } from '@babel/core';
 import { GlintEnvironment } from '@glint/config';
 import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } from '.';
+import MappingTree, { ParseError } from '../mapping-tree';
 import { templateToTypescript } from '../template-to-typescript';
 import { SourceFile, TransformError } from '../transformed-module';
 import { assert } from '../util';
@@ -96,6 +97,22 @@ export function calculateCompanionTemplateSpans(
           transformedSource: `;\n`,
         }
       );
+    } else {
+      let mapping = new MappingTree(
+        { start: 0, end: 0 },
+        { start: 0, end: template.contents.length },
+        [],
+        new ParseError()
+      );
+
+      partialSpans.push({
+        originalFile: template,
+        originalStart: 0,
+        originalLength: template.contents.length,
+        insertionPoint: target.end - 1,
+        transformedSource: '',
+        mapping,
+      });
     }
   } else {
     // TODO: handle opaque expression like an imported identifier or `templateOnlyComponent()`
