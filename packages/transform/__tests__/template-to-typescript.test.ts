@@ -660,7 +660,7 @@ describe('rewriteTemplate', () => {
   });
 
   describe('error conditions', () => {
-    test('Syntax error', () => {
+    test('Handlebars syntax error', () => {
       let { errors } = templateToTypescript('<Foo @attr={{"123}} />', {
         typesPath: '@glint/template',
       });
@@ -674,6 +674,20 @@ describe('rewriteTemplate', () => {
             -------------^
             Expecting 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
           `,
+        },
+      ]);
+    });
+
+    test('HTML syntax error', () => {
+      let { errors } = templateToTypescript('<Foo </Foo>', {
+        typesPath: '@glint/template',
+      });
+
+      expect(errors).toEqual([
+        {
+          location: { start: 5, end: 5 },
+          message:
+            "< is not a valid character within attribute names: (error occurred in 'an unknown module' @ line 1 : column 5)",
         },
       ]);
     });

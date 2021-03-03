@@ -99,6 +99,28 @@ describe('rewriteModule', () => {
         }"
       `);
     });
+
+    test('with a syntax error', () => {
+      let script = {
+        filename: 'test.ts',
+        contents: stripIndent`
+          import Component, { hbs } from '@glimmerx/component';
+          export default class MyComponent extends Component {
+            static template = hbs\`
+              {{hello
+            \`;
+          }
+        `,
+      };
+
+      let transformedModule = rewriteModule({ script }, glimmerxEnvironment);
+
+      expect(transformedModule?.errors.length).toBe(1);
+      expect(transformedModule?.transformedContents).toBe(script.contents);
+
+      expect(transformedModule?.getOriginalOffset(100)).toEqual({ offset: 100, source: script });
+      expect(transformedModule?.getTransformedOffset(script.filename, 100)).toEqual(100);
+    });
   });
 
   describe('standalone companion template', () => {
@@ -283,6 +305,35 @@ describe('rewriteModule', () => {
           }
         }"
       `);
+    });
+
+    test('with a syntax error', () => {
+      let script = {
+        filename: 'test.ts',
+        contents: stripIndent`
+          import Component from '@glimmer/component';
+          export default class MyComponent extends Component {
+          }
+        `,
+      };
+
+      let template = {
+        filename: 'test.hbs',
+        contents: stripIndent`
+          {{hello
+        `,
+      };
+
+      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+
+      expect(transformedModule?.errors.length).toBe(1);
+      expect(transformedModule?.transformedContents).toBe(script.contents);
+
+      expect(transformedModule?.getOriginalOffset(50)).toEqual({ offset: 50, source: script });
+      expect(transformedModule?.getTransformedOffset(script.filename, 50)).toEqual(50);
+      expect(transformedModule?.getTransformedOffset(template.filename, 5)).toEqual(
+        script.contents.lastIndexOf('}')
+      );
     });
   });
 });

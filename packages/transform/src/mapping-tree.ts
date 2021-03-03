@@ -3,6 +3,16 @@ import { Range } from './transformed-module';
 import { Identifier } from './map-template-contents';
 
 /**
+ * In cases where we're unable to parse a template, we still want to
+ * be able to hold a placeholder mapping so that we can respond sensibly
+ * to offset transformation queries. This class acts as a standin for
+ * the proper AST node we were unable to obtain in such cases.
+ */
+export class ParseError {
+  public readonly type = 'ParseError';
+}
+
+/**
  * A `MappingTree` maintains a hierarchy of mappings between ranges of
  * locations in original and transformed source strings. These mappings
  * are naturally hierarchical due to the tree structure of the underlying
@@ -21,7 +31,7 @@ export default class MappingTree {
     public transformedRange: Range,
     public originalRange: Range,
     public children: Array<MappingTree> = [],
-    public sourceNode: AST.Node | Identifier
+    public sourceNode: AST.Node | Identifier | ParseError
   ) {}
 
   /**

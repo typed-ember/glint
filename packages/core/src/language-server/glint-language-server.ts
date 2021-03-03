@@ -151,7 +151,9 @@ export default class GlintLanguageServer {
       label,
       {},
       source,
-      {}
+      {},
+      // @ts-ignore: 4.3 adds a new not-optional-but-can-be-undefined `data` arg
+      undefined
     );
 
     if (!details) {
@@ -284,9 +286,10 @@ export default class GlintLanguageServer {
       textSpan.start + textSpan.length
     );
 
-    // Zero-length spans correspond to a synthetic use of the symbol, so we don't
-    // want to actually show them to the user.
-    if (originalStart === originalEnd) return;
+    // If our calculated original span is zero-length but the transformed span
+    // does take up space, this corresponds to a synthetic usage we generated
+    // in the transformed output, and we don't want to show it to the user.
+    if (originalStart === originalEnd && textSpan.length > 0) return;
 
     let originalContents = this.documents.getDocumentContents(originalFileName);
     let start = offsetToPosition(originalContents, originalStart);

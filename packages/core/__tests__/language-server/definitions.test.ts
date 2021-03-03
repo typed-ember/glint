@@ -155,12 +155,16 @@ describe('Language Server: Definitions', () => {
       character: 27,
     });
 
-    expect(definitions).toEqual([
+    expect(definitions).toMatchObject([
       {
         uri: project.fileURI('greeting.ts'),
+
+        // Versions of TS vary on whether they consider the source to be
+        // the entire module or just the first character, so we'll consider
+        // the test passing as long as the loose shape is right.
         range: {
           start: { line: 0, character: 0 },
-          end: { line: 8, character: 1 },
+          end: {},
         },
       },
     ]);
