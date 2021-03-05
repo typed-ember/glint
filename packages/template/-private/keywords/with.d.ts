@@ -1,8 +1,9 @@
+import { Invokable } from '../resolution';
 import { NoNamedArgs, AcceptsBlocks } from '../signature';
 
-export default interface WithKeyword {
+export type WithKeyword = Invokable<{
   <T>(args: NoNamedArgs, value: T): AcceptsBlocks<{
     default: [T];
     inverse?: [];
   }>;
-}
+}>;

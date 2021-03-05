@@ -1,5 +1,6 @@
+import { Invokable } from '../resolution';
 import { NoNamedArgs } from '../signature';
 
-export default interface DebuggerKeyword {
+export type DebuggerKeyword = Invokable<{
   (args: NoNamedArgs): void;
-}
+}>;

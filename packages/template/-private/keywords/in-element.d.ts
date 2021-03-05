@@ -1,5 +1,6 @@
+import { Invokable } from '../resolution';
 import { AcceptsBlocks } from '../signature';
 
-export default interface InElementKeyword {
+export type InElementKeyword = Invokable<{
   (args: { insertBefore?: null }, element: Element): AcceptsBlocks<{ default: [] }>;
-}
+}>;

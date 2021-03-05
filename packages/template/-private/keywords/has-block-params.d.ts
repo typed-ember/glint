@@ -1,5 +1,6 @@
+import { Invokable } from '../resolution';
 import { NoNamedArgs } from '../signature';
 
-export default interface HasBlockParamsKeyword {
+export type HasBlockParamsKeyword = Invokable<{
   (args: NoNamedArgs, blockName?: string): boolean;
-}
+}>;
