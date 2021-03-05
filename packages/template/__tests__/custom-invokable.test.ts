@@ -3,7 +3,7 @@ import SumType from 'sums-up';
 import { resolve, invokeBlock } from '@glint/template';
 import { AcceptsBlocks, NoNamedArgs } from '@glint/template/-private/signature';
 import { invokeEmit } from '../-private/invoke';
-import { resolveOrReturn } from '../-private/resolution';
+import { Invokable, resolveOrReturn } from '../-private/resolution';
 
 ///////////////////////////////////////////////////////////////////////////////
 // This module exercises what's possible when declaring a signature for a
@@ -22,20 +22,22 @@ type SumVariants<T extends SumType<never>> = T extends SumType<infer V> ? V : ne
 // https://github.com/hojberg/sums-up
 // It doesn't (can't) do exhaustiveness checking, but it does plumb through
 // type parameters correctly
-declare const caseOf: <T extends SumType<never>>(
+declare const caseOf: Invokable<<T extends SumType<never>>(
   args: NoNamedArgs,
   value: T
 ) => AcceptsBlocks<{
   default: [
-    <K extends keyof SumVariants<T>>(
-      args: NoNamedArgs,
-      key: K
-    ) => AcceptsBlocks<{
-      default: SumVariants<T>[K];
-      inverse?: [];
-    }>
+    Invokable<
+      <K extends keyof SumVariants<T>>(
+        args: NoNamedArgs,
+        key: K
+      ) => AcceptsBlocks<{
+        default: SumVariants<T>[K];
+        inverse?: [];
+      }>
+    >
   ];
-}>;
+}>>;
 
 /**
  * ```hbs
@@ -72,7 +74,9 @@ invokeBlock(resolve(caseOf)({}, maybeValue), {
 // you do get exhaustiveness checking with this approach (though it's
 // arguable whether that's necessarily a good thing in template-land)
 
-declare const CaseOf: <T extends SumType<any>>(args: { value: T }) => AcceptsBlocks<SumVariants<T>>;
+declare const CaseOf: Invokable<<T extends SumType<any>>(args: {
+  value: T;
+}) => AcceptsBlocks<SumVariants<T>>>;
 
 /**
  * ```hbs
