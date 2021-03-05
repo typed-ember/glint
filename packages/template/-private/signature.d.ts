@@ -1,30 +1,3 @@
-/*
- * This module contains types pertaining to defining and working with
- * template signatures, which are functions that generally take the form:
- *
- *     (args: NamedArgs, ...positional: PositionalArgs) => EntityDetails
- *
- * TODO: the following is out of date, but this whole area is currently
- * in flux, so it's likely not productive to rewrite these docs until
- * the dust settles.
- *
- * Signature definitions will typically use one of the three utility
- * types `ReturnsValue<T>`, `CreatesModifier` or `AcceptsBlocks<Blocks>`
- * to dictate the environment the associated entity expects to be invoked
- * in.
- *
- * For instance, the `concat` helper's signature would be:
- *
- *     (named: {}, ...strings: string[]) => ReturnsValue<string[]>
- *
- * While the `each` helper's would be:
- *
- *     <T>(named: { key?: string }, items: T[]) => AcceptsBlocks<{
- *       default(item: T, index: number): BlockResult;
- *       inverse?(): BlockResult;
- *     }>
- */
-
 declare const Modifier: unique symbol;
 declare const Blocks: unique symbol;
 
