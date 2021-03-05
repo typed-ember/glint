@@ -4,7 +4,7 @@ import {
   CreatesModifier,
   NoNamedArgs,
   NoYields,
-  SignatureType,
+  Invoke,
   ContextType,
 } from '@glint/template/-private';
 import { LetKeyword } from '@glint/template/-private/keywords';
@@ -25,6 +25,6 @@ export declare const globals: {
 
 declare class TestComponent<Args, Yields = NoYields> {
   readonly args: Args;
-  [SignatureType]: (args: Args) => AcceptsBlocks<Yields>;
+  [Invoke]: (args: Args) => AcceptsBlocks<Yields>;
   [ContextType]: TemplateContext<this, Args, Yields>;
 }

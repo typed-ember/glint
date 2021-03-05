@@ -6,8 +6,8 @@
 import { NoNamedArgs } from './signature';
 import { TemplateContext } from './template';
 
-declare const SignatureType: unique symbol;
-export type HasSignature<T extends AnySignature = AnySignature> = { [SignatureType]: T };
+declare const Invoke: unique symbol;
+export type Invokable<T extends AnySignature = AnySignature> = { [Invoke]: T };
 
 declare const ContextType: unique symbol;
 export type HasContext<T extends AnyContext = AnyContext> = { [ContextType]: T };

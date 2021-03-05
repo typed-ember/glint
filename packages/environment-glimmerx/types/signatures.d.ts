@@ -1,10 +1,10 @@
 import { NoNamedArgs, CreatesModifier, NoYields } from '@glint/template/-private';
-import { ContextType, SignatureType } from '@glint/template/-private';
+import { ContextType, Invoke } from '@glint/template/-private';
 import { TemplateContext, AcceptsBlocks } from '@glint/template/-private';
 
 declare module '@glimmerx/component' {
   export default interface Component<Args, Yields = NoYields> {
-    [SignatureType]: (args: Args) => AcceptsBlocks<Yields>;
+    [Invoke]: (args: Args) => AcceptsBlocks<Yields>;
     [ContextType]: TemplateContext<this, Args, Yields>;
   }
 }
