@@ -69,3 +69,42 @@ import { NoNamedArgs } from '@glint/template/-private';
   expectTypeOf(repeat({ word: 'hi' })).toEqualTypeOf<Array<string>>();
   expectTypeOf(repeat({ word: 'hi', count: 3 })).toEqualTypeOf<Array<string>>();
 }
+
+// Custom helper: bare function
+{
+  let definition = <T>(item: T, count?: number): Array<T> => {
+    return Array.from({ length: count ?? 2 }, () => item);
+  };
+
+  let repeat = resolve(definition);
+
+  expectTypeOf(repeat).toEqualTypeOf<<T>(args: NoNamedArgs, item: T, count?: number) => Array<T>>();
+
+  // @ts-expect-error: unexpected named arg
+  repeat({ word: 'hi' }, 123, 12);
+
+  // @ts-expect-error: missing required positional arg
+  repeat({});
+
+  // @ts-expect-error: extra positional arg
+  repeat({}, 'hi', 12, 'ok');
+
+  expectTypeOf(repeat({}, 123)).toEqualTypeOf<Array<number>>();
+  expectTypeOf(repeat({}, 'hi', 5)).toEqualTypeOf<Array<string>>();
+}
+
+// Custom helper: type guard
+{
+  let definition = (arg: unknown): arg is string => typeof arg === 'string';
+
+  let isString = resolve(definition);
+
+  expectTypeOf(isString).toEqualTypeOf<(args: NoNamedArgs, arg: unknown) => arg is string>();
+
+  let x = 'hi' as string | number;
+  if (isString({}, x)) {
+    expectTypeOf(x).toEqualTypeOf<string>();
+  } else {
+    expectTypeOf(x).toEqualTypeOf<number>();
+  }
+}
