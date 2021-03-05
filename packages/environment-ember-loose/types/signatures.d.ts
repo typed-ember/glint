@@ -6,6 +6,7 @@ import { ModifierArgs } from 'ember-modifier';
 import { NoYields, NoNamedArgs, CreatesModifier } from '@glint/template/-private';
 import { ContextType, Invoke } from '@glint/template/-private';
 import { TemplateContext, AcceptsBlocks } from '@glint/template/-private';
+import { Invokable } from '@glint/template/-private/resolution';
 
 declare module '@glimmer/component' {
   export default interface Component<Args, Yields = NoYields> {
@@ -33,7 +34,7 @@ declare module '@ember/component/helper' {
 
   export function helper<Positional extends unknown[] = [], Named = NoNamedArgs, Return = unknown>(
     fn: (params: Positional, hash: Named) => Return
-  ): (named: Named, ...positional: Positional) => Return;
+  ): new () => Invokable<(named: Named, ...positional: Positional) => Return>;
 }
 
 declare module 'ember-modifier' {
@@ -47,5 +48,5 @@ declare module 'ember-modifier' {
     Named = NoNamedArgs
   >(
     fn: (element: El, positional: Positional, named: Named) => unknown
-  ): (named: Named, ...positional: Positional) => CreatesModifier;
+  ): new () => Invokable<(named: Named, ...positional: Positional) => CreatesModifier>;
 }

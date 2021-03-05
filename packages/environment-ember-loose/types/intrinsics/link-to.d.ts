@@ -1,10 +1,11 @@
 import { AcceptsBlocks, NoNamedArgs } from '@glint/template/-private';
+import { Invokable } from '@glint/template/-private/resolution';
 
-export interface LinkToKeyword {
+export type LinkToKeyword = Invokable<{
   (args: NoNamedArgs, route: string, ...params: unknown[]): AcceptsBlocks<{
     default?: [];
   }>;
-}
+}>;
 
 export interface LinkToArgs {
   route: string;
@@ -17,6 +18,6 @@ export interface LinkToArgs {
   query?: Record<string, unknown>;
 }
 
-export interface LinkToComponent {
+export type LinkToComponent = Invokable<{
   (args: LinkToArgs): AcceptsBlocks<{ default: [] }>;
-}
+}>;
