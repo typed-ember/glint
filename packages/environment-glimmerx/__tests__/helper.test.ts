@@ -1,5 +1,5 @@
-import { helper, fn as fnDefinition } from '@glimmerx/helper';
 import { resolve } from '@glint/environment-glimmerx/types';
+import { helper, fn2 as fnDefinition } from '@glimmerx/helper';
 import { expectTypeOf } from 'expect-type';
 import { NoNamedArgs } from '@glint/template/-private';
 

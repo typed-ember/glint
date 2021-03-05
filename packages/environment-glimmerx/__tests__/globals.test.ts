@@ -1,11 +1,11 @@
 import { expectTypeOf } from 'expect-type';
-import DebuggerKeyword from '@glint/template/-private/keywords/debugger';
-import EachKeyword from '@glint/template/-private/keywords/each';
-import HasBlockKeyword from '@glint/template/-private/keywords/has-block';
-import HasBlockParamsKeyword from '@glint/template/-private/keywords/has-block-params';
-import InElementKeyword from '@glint/template/-private/keywords/in-element';
-import LetKeyword from '@glint/template/-private/keywords/let';
-import WithKeyword from '@glint/template/-private/keywords/with';
+import { DebuggerKeyword } from '@glint/template/-private/keywords/debugger';
+import { EachKeyword } from '@glint/template/-private/keywords/each';
+import { HasBlockKeyword } from '@glint/template/-private/keywords/has-block';
+import { HasBlockParamsKeyword } from '@glint/template/-private/keywords/has-block-params';
+import { InElementKeyword } from '@glint/template/-private/keywords/in-element';
+import { LetKeyword } from '@glint/template/-private/keywords/let';
+import { WithKeyword } from '@glint/template/-private/keywords/with';
 
 import { Globals } from '@glint/environment-glimmerx/types';
 
