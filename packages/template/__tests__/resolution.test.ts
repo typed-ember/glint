@@ -1,5 +1,5 @@
 import { expectTypeOf } from 'expect-type';
-import { resolveOrReturn } from '@glint/template/-private/resolution';
+import { Invokable, resolveOrReturn } from '@glint/template/-private/resolution';
 import { TemplateContext } from '@glint/template/-private/template';
 import { template, invokeBlock, resolve, ResolveContext } from '@glint/template';
 import { AcceptsBlocks } from '../-private';
@@ -63,14 +63,14 @@ declare function value<T>(): T;
     otherwise: [];
   }>;
 
-  expectTypeOf(resolve(value<TestSignature>())).toEqualTypeOf<TestSignature>();
+  expectTypeOf(resolve(value<Invokable<TestSignature>>())).toEqualTypeOf<TestSignature>();
 }
 
 // Values of type `any` or `never` (themselves typically the product of other type errors)
 // shouldn't unnecessarily blow things up by producing an `unknown` signature.
 {
   expectTypeOf(resolveOrReturn({} as any)).toEqualTypeOf<any>();
-  expectTypeOf(resolveOrReturn({} as never)).toEqualTypeOf<any>();
+  expectTypeOf(resolveOrReturn({} as never)).toEqualTypeOf<never>();
   expectTypeOf(resolve({} as any)).toEqualTypeOf<any>();
-  expectTypeOf(resolve({} as never)).toEqualTypeOf<any>();
+  expectTypeOf(resolve({} as never)).toEqualTypeOf<never>();
 }

@@ -1,3 +1,5 @@
+import { Invokable } from '@glint/template/-private/resolution';
+
 export type ActionNamedArgs<T> = {
   value?: keyof T;
 };
@@ -8,7 +10,7 @@ export type ActionResult<T, Args extends ActionNamedArgs<T>> = undefined extends
   ? T[Args['value']]
   : T;
 
-export interface ActionKeyword {
+export type ActionKeyword = Invokable<{
   <Ret, Args extends ActionNamedArgs<Ret>, Params extends unknown[]>(
     args: Args,
     f: (...rest: Params) => Ret
@@ -42,4 +44,4 @@ export interface ActionKeyword {
   (args: ActionNamedArgs<Record<string, unknown>>, action: string, ...rest: unknown[]): (
     ...rest: unknown[]
   ) => unknown;
-}
+}>;

@@ -1,8 +1,9 @@
+import { Invokable } from '../resolution';
 import { AcceptsBlocks } from '../signature';
 
-export default interface EachKeyword {
+export type EachKeyword = Invokable<{
   <T>(args: { key?: string }, items: T[]): AcceptsBlocks<{
     default: [T, number];
     inverse?: [];
   }>;
-}
+}>;
