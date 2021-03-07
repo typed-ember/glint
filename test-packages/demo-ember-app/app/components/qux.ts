@@ -1,11 +1,5 @@
-import Component from '@ember/component';
+import { GlimmerComponent } from '@glint/environment-ember-loose';
 
-export default class QuxComponent extends Component {
+export default class Qux extends GlimmerComponent {
   name = 'QUX';
-}
-
-declare module '@glint/environment-ember-loose/types/registry' {
-  export default interface Registry {
-    Qux: QuxComponent;
-  }
 }

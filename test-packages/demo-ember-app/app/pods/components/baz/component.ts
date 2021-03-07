@@ -1,11 +1,5 @@
-import Component from '@ember/component';
+import { GlimmerComponent } from '@glint/environment-ember-loose';
 
-export default class BazComponent extends Component {
+export default class BazComponent extends GlimmerComponent {
   name = 'BAZ';
-}
-
-declare module '@glint/environment-ember-loose/types/registry' {
-  export default interface Registry {
-    Baz: BazComponent;
-  }
 }
