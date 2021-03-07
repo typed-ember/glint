@@ -265,6 +265,68 @@ describe('rewriteModule', () => {
       `);
     });
 
+    test('with no default value export', () => {
+      let script = {
+        filename: 'test.ts',
+        contents: stripIndent`
+          import Component from '@glimmer/component';
+          export class MyComponent extends Component {}
+        `,
+      };
+
+      let template = {
+        filename: 'test.hbs',
+        contents: stripIndent``,
+      };
+
+      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+
+      expect(transformedModule?.errors).toEqual([
+        {
+          message:
+            'Modules with an associated template must have a default export that is a class declaration or expression',
+          source: script,
+          location: {
+            start: 0,
+            end: script.contents.length,
+          },
+        },
+      ]);
+
+      expect(transformedModule?.getOriginalRange(0, script.contents.length)).toEqual({
+        source: script,
+        start: 0,
+        end: script.contents.length,
+      });
+    });
+
+    test('with an unresolvable default export', () => {
+      let script = {
+        filename: 'test.ts',
+        contents: stripIndent`
+          export default Foo;
+        `,
+      };
+
+      let template = {
+        filename: 'test.hbs',
+        contents: stripIndent``,
+      };
+
+      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+
+      expect(transformedModule?.errors).toEqual([
+        {
+          message: 'Unable to resolve a class body to associate a template declaration to',
+          source: script,
+          location: {
+            start: script.contents.indexOf('Foo'),
+            end: script.contents.indexOf(';'),
+          },
+        },
+      ]);
+    });
+
     test('with a class with default export in module augmentation', () => {
       let script = {
         filename: 'test.ts',
