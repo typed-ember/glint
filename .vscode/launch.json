@@ -6,7 +6,11 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/vscode"]
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+        "${workspaceFolder}/test-packages/demo-ember-app",
+        "${workspaceFolder}/test-packages/demo-glimmerx-app"
+      ]
     }
   ]
 }
