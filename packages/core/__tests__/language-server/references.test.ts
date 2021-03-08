@@ -16,7 +16,7 @@ describe('Language Server: References', () => {
   test('component references', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
         export default class Greeting extends Component {
           private nested = Math.random() > 0.5;
@@ -31,7 +31,7 @@ describe('Language Server: References', () => {
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
         import Greeting from './greeting';
 
         export default class Application extends Component {
@@ -92,21 +92,21 @@ describe('Language Server: References', () => {
   test('arg references', async () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
         export interface GreetingArgs {
           /** Who to greet */
           target: string;
         }
 
-        export default class Greeting extends Component<GreetingArgs> {
+        export default class Greeting extends Component<{ Args: GreetingArgs }> {
           static template = hbs\`
             Hello, {{@target}}
           \`;
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
         import Greeting from './greeting';
 
         export default class Application extends Component {

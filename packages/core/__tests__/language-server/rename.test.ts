@@ -16,9 +16,13 @@ describe('Language Server: Renaming Symbols', () => {
   test('preparing rename-able and unrename-able elements', () => {
     project.write({
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
-        export default class Greeting extends Component<GreetingArgs> {
+        interface GreetingArgs {
+          message: string;
+        }
+
+        export default class Greeting extends Component<{ Args: GreetingArgs }> {
           private foo = 'hi';
 
           static template = hbs\`
@@ -31,17 +35,17 @@ describe('Language Server: Renaming Symbols', () => {
 
     let server = project.startLanguageServer();
     let renameSuccessful = server.prepareRename(project.fileURI('index.ts'), {
-      line: 6,
+      line: 10,
       character: 12,
     });
 
     expect(renameSuccessful).toEqual({
-      start: { line: 6, character: 11 },
-      end: { line: 6, character: 14 },
+      start: { line: 10, character: 11 },
+      end: { line: 10, character: 14 },
     });
 
     let renameFail = server.prepareRename(project.fileURI('index.ts'), {
-      line: 7,
+      line: 11,
       character: 10,
     });
 
@@ -51,18 +55,18 @@ describe('Language Server: Renaming Symbols', () => {
   test('renaming an arg', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
         export interface GreetingArgs {
           message: string;
         }
 
-        export default class Greeting extends Component<GreetingArgs> {
+        export default class Greeting extends Component<{ Args: GreetingArgs }> {
           static template = hbs\`{{@message}}, World!\`;
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
         import Greeting from './greeting';
 
         export class Application extends Component {
@@ -135,7 +139,7 @@ describe('Language Server: Renaming Symbols', () => {
   test('renaming a block param', () => {
     project.write({
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
         export default class Application extends Component {
           static template = hbs\`
@@ -191,18 +195,18 @@ describe('Language Server: Renaming Symbols', () => {
   test('renaming a component', async () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
         export interface GreetingArgs {
           message: string;
         }
 
-        export default class Greeting extends Component<GreetingArgs> {
+        export default class Greeting extends Component<{ Args: GreetingArgs }> {
           static template = hbs\`{{@message}}, World!\`;
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
         import Greeting from './greeting';
 
         export class Application extends Component {

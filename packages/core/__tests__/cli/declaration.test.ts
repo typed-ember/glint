@@ -14,13 +14,13 @@ describe('CLI: emitting declarations', () => {
 
   test('emit for a valid project', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
 
       export interface ApplicationArgs {
         version: string;
       }
 
-      export default class Application extends Component<ApplicationArgs> {
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
         public static template = hbs\`
@@ -37,11 +37,13 @@ describe('CLI: emitting declarations', () => {
     expect(emitResult.exitCode).toBe(0);
 
     expect(project.read('index.d.ts')).toMatchInlineSnapshot(`
-      "import Component from '@glimmerx/component';
+      "import { Component } from '@glint/environment-glimmerx';
       export interface ApplicationArgs {
           version: string;
       }
-      export default class Application extends Component<ApplicationArgs> {
+      export default class Application extends Component<{
+          Args: ApplicationArgs;
+      }> {
           private startupTime;
           static template: import(\\"@glint/environment-glimmerx/types\\").Template;
       }

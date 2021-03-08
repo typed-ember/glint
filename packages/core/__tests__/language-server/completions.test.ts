@@ -16,7 +16,7 @@ describe('Language Server: Completions', () => {
 
   test('passing component args', () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
 
       export default class MyComponent extends Component {
         static template = hbs\`
@@ -24,7 +24,7 @@ describe('Language Server: Completions', () => {
         \`;
       }
 
-      class Inner extends Component<{ foo?: string; bar?: number }> {}
+      class Inner extends Component<{ Args: { foo?: string; bar?: number } }> {}
     `;
 
     project.write('index.ts', code);
@@ -53,7 +53,7 @@ describe('Language Server: Completions', () => {
 
   test('referencing class properties', () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
 
       export default class MyComponent extends Component {
         private message = 'hello';
@@ -83,13 +83,13 @@ describe('Language Server: Completions', () => {
 
   test('referencing own args', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
 
       interface MyComponentArgs<T> {
         items: Set<T>;
       }
 
-      export default class MyComponent<T> extends Component<MyComponentArgs<T>> {
+      export default class MyComponent<T> extends Component<{ Args: MyComponentArgs<T> }> {
         static template = hbs\`
           {{@i}}
         \`;
@@ -115,9 +115,9 @@ describe('Language Server: Completions', () => {
 
   test('referencing block params', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
 
-      export default class MyComponent<T> extends Component {
+      export default class MyComponent extends Component {
         static template = hbs\`
           {{#each (array "a" "b" "c") as |letter|}}
             {{l}}
@@ -145,11 +145,11 @@ describe('Language Server: Completions', () => {
 
   test('referencing module-scope identifiers', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
 
       const greeting: string = 'hello';
 
-      export default class MyComponent<T> extends Component {
+      export default class MyComponent extends Component {
         static template = hbs\`
           {{g}}
         \`;

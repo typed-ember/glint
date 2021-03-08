@@ -17,18 +17,18 @@ describe('Language Server: Symbol Search', () => {
   test('component definition', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
         export interface GreetingArgs {
           message: string;
         }
 
-        export default class Greeting extends Component<GreetingArgs> {
+        export default class Greeting extends Component<{ Args: GreetingArgs }> {
           static template = hbs\`{{@message}}, World!\`;
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
         import Greeting from './greeting';
 
         export class Application extends Component {
