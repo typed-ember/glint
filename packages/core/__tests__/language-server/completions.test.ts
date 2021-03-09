@@ -172,4 +172,37 @@ describe('Language Server: Completions', () => {
 
     expect(details.detail).toEqual('const greeting: string');
   });
+
+  test('immediately after a change', () => {
+    let code = stripIndent`
+      import Component, { hbs } from '@glimmerx/component';
+
+      export default class MyComponent<T> extends Component {
+        static template = hbs\`
+          {{#each (array "a" "b" "c") as |letter|}}
+            {{}}
+          {{/each}}
+        \`;
+      }
+    `;
+
+    project.write('index.ts', code);
+
+    let server = project.startLanguageServer();
+
+    server.updateFile(project.fileURI('index.ts'), code.replace('{{}}', '{{l}}'));
+
+    let completions = server.getCompletions(project.fileURI('index.ts'), {
+      line: 5,
+      character: 7,
+    });
+
+    let letterCompletion = completions?.find((item) => item.label === 'letter');
+
+    expect(letterCompletion?.kind).toEqual(CompletionItemKind.Variable);
+
+    let details = server.getCompletionDetails(letterCompletion!);
+
+    expect(details.detail).toEqual('(parameter) letter: string');
+  });
 });
