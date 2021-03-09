@@ -81,7 +81,10 @@ export default class TransformedModule {
     let startInfo = this.determineOriginalOffsetAndSpan(transformedStart);
     let endInfo = this.determineOriginalOffsetAndSpan(transformedEnd);
 
-    assert(startInfo.correlatedSpan.originalFile === endInfo.correlatedSpan.originalFile);
+    assert(
+      startInfo.correlatedSpan.originalFile === endInfo.correlatedSpan.originalFile,
+      'Attempted to transform a range across two different files'
+    );
 
     let source = startInfo.correlatedSpan.originalFile;
     let start = startInfo.originalOffset;

@@ -9,7 +9,7 @@ import { assert } from '../util';
 const STANDALONE_TEMPLATE_FIELD = `'~template'`;
 
 export function calculateCompanionTemplateSpans(
-  path: NodePath<t.ExportDefaultDeclaration>,
+  path: NodePath<t.Class> | NodePath<t.Expression>,
   script: SourceFile,
   template: SourceFile,
   environment: GlintEnvironment
@@ -30,9 +30,12 @@ export function calculateCompanionTemplateSpans(
   let targetPath = findCompanionTemplateTarget(path);
   if (!targetPath) {
     errors.push({
+      message: `Unable to resolve a class body to associate a template declaration to`,
       source: script,
-      location: { start: 0, end: script.contents.length },
-      message: `Modules with an associated template must have a default export`,
+      location: {
+        start: path.node.start ?? 0,
+        end: path.node.end ?? script.contents.length,
+      },
     });
 
     return { errors, partialSpans };
@@ -124,11 +127,10 @@ export function calculateCompanionTemplateSpans(
 type CompanionTemplateTarget = NodePath<t.Class> | NodePath<t.Expression> | null;
 
 function findCompanionTemplateTarget(
-  path: NodePath<t.ExportDefaultDeclaration>
+  declaration: NodePath<t.Class> | NodePath<t.Expression>
 ): CompanionTemplateTarget {
-  let declaration = path.get('declaration');
   let value = declaration.isIdentifier()
-    ? path.scope.getBinding(declaration.node.name)?.path
+    ? declaration.scope.getBinding(declaration.node.name)?.path
     : declaration;
 
   if (value?.isClass() || value?.isExpression()) {

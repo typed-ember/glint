@@ -137,6 +137,7 @@ function calculateCorrelatedSpans(
 ): CorrelatedSpansResult {
   let errors: Array<TransformError> = [];
   let partialSpans: Array<PartialCorrelatedSpan> = [];
+  let defaultExportSeen = false;
 
   traverse(ast, {
     TaggedTemplateExpression(path) {
@@ -152,14 +153,24 @@ function calculateCorrelatedSpans(
     },
 
     ExportDefaultDeclaration(path) {
-      if (template) {
-        let result = calculateCompanionTemplateSpans(path, script, template, environment);
+      let declaration = path.get('declaration');
+      if (template && (declaration.isClass() || declaration.isExpression())) {
+        let result = calculateCompanionTemplateSpans(declaration, script, template, environment);
 
+        defaultExportSeen = true;
         errors.push(...result.errors);
         partialSpans.push(...result.partialSpans);
       }
     },
   });
+
+  if (template && !defaultExportSeen) {
+    errors.push({
+      message: `Modules with an associated template must have a default export that is a class declaration or expression`,
+      source: script,
+      location: { start: 0, end: script.contents.length },
+    });
+  }
 
   return { errors, partialSpans };
 }
