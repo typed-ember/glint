@@ -1,4 +1,5 @@
 import resolve from 'resolve';
+import path from 'path';
 import escapeStringRegexp from 'escape-string-regexp';
 
 export type GlintEnvironmentConfig = {
@@ -90,17 +91,32 @@ export class GlintEnvironment {
 }
 
 function locateEnvironment(name: string, basedir: string): string {
+  // Resolve a package name, either shorthand or explicit
   for (let candidate of [`@glint/environment-${name}`, name]) {
-    try {
-      return resolve.sync(candidate, { basedir });
-    } catch (error) {
-      if (error?.code === 'MODULE_NOT_FOUND') {
-        continue;
-      }
-
-      throw error;
+    let pkg = tryResolve(`${candidate}/package.json`, basedir);
+    if (pkg) {
+      let relativePath = require(pkg)['glint-environment'] ?? '.';
+      return path.resolve(path.dirname(pkg), relativePath);
     }
   }
 
+  // Resolve a path to an explicit file
+  let literalPath = tryResolve(name, basedir);
+  if (literalPath) {
+    return literalPath;
+  }
+
   throw new Error(`Unable to resolve environment '${name}' from ${basedir}`);
+}
+
+function tryResolve(name: string, basedir: string): string | null {
+  try {
+    return resolve.sync(name, { basedir });
+  } catch (error) {
+    if (error?.code === 'MODULE_NOT_FOUND') {
+      return null;
+    }
+
+    throw error;
+  }
 }

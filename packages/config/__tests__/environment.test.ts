@@ -1,3 +1,5 @@
+import fs from 'fs';
+import os from 'os';
 import { GlintEnvironment } from '../src';
 
 describe('Environments', () => {
@@ -69,6 +71,69 @@ describe('Environments', () => {
       expect(env.getTypesForStandaloneTemplate()).toEqual('@glint/test-env/types');
       expect(env.getPossibleTemplatePaths('hello.ts')).toEqual(['hello.hbs']);
       expect(env.getPossibleScriptPaths('hello.hbs')).toEqual(['hello.ts', 'hello.js']);
+    });
+  });
+
+  describe('loading an environment', () => {
+    const testDir = `${os.tmpdir()}/glint-env-test-${process.pid}`;
+
+    beforeEach(() => {
+      fs.mkdirSync(testDir);
+      fs.writeFileSync(`${testDir}/package.json`, JSON.stringify({ name: 'test-pkg' }));
+    });
+
+    afterEach(() => {
+      fs.rmdirSync(testDir, { recursive: true });
+    });
+
+    test('loading an environment via @glint/environment-* shorthand', () => {
+      const envDir = `${testDir}/node_modules/@glint/environment-test-env`;
+
+      fs.mkdirSync(envDir, { recursive: true });
+      fs.writeFileSync(`${envDir}/env.js`, 'module.exports = () => ({ tags: "hello" });');
+      fs.writeFileSync(
+        `${envDir}/package.json`,
+        JSON.stringify({
+          name: '@glint/environment-test-env',
+          'glint-environment': 'env',
+        })
+      );
+
+      let env = GlintEnvironment.load('test-env', { rootDir: testDir });
+
+      expect(env.getConfiguredTemplateTags()).toEqual('hello');
+    });
+
+    test('loading an environment from some other package', () => {
+      const envDir = `${testDir}/node_modules/some-other-environment`;
+
+      fs.mkdirSync(envDir, { recursive: true });
+      fs.writeFileSync(`${envDir}/third-party-env.js`, 'module.exports = () => ({ tags: "hi" });');
+      fs.writeFileSync(
+        `${envDir}/package.json`,
+        JSON.stringify({
+          name: 'some-other-environment',
+          'glint-environment': 'third-party-env',
+        })
+      );
+
+      let env = GlintEnvironment.load('some-other-environment', { rootDir: testDir });
+
+      expect(env.getConfiguredTemplateTags()).toEqual('hi');
+    });
+
+    test('loading an environment from an explicit path', () => {
+      const envDir = `${testDir}/lib`;
+
+      fs.mkdirSync(envDir, { recursive: true });
+      fs.writeFileSync(
+        `${envDir}/my-internal-env.js`,
+        'module.exports = () => ({ tags: "internal" });'
+      );
+
+      let env = GlintEnvironment.load('./lib/my-internal-env', { rootDir: testDir });
+
+      expect(env.getConfiguredTemplateTags()).toEqual('internal');
     });
   });
 });
