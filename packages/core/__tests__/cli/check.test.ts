@@ -17,9 +17,9 @@ describe('CLI: single-pass typechecking', () => {
     let code = stripIndent`
       import { Component, hbs } from '@glint/environment-glimmerx';
 
-      interface ApplicationArgs {
+      type ApplicationArgs = {
         version: string;
-      }
+      };
 
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
@@ -44,9 +44,9 @@ describe('CLI: single-pass typechecking', () => {
     let code = stripIndent`
       import { Component, hbs } from '@glint/environment-glimmerx';
 
-      interface ApplicationArgs {
+      type ApplicationArgs = {
         version: string;
-      }
+      };
 
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
@@ -80,9 +80,9 @@ describe('CLI: single-pass typechecking', () => {
     let code = stripIndent`
       import { Component, hbs } from '@glint/environment-glimmerx';
 
-      interface ApplicationArgs {
+      type ApplicationArgs = {
         version: string;
-      }
+      };
 
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
@@ -120,9 +120,9 @@ describe('CLI: single-pass typechecking', () => {
     let script = stripIndent`
       import { EmberComponent } from '@glint/environment-ember-loose';
 
-      export interface MyComponentArgs {
+      export type MyComponentArgs = {
         message: string;
-      }
+      };
 
       export default class MyComponent extends EmberComponent<{ Args: MyComponentArgs }> {
         target = 'World!';

@@ -85,9 +85,9 @@ describe('Language Server: Completions', () => {
     let code = stripIndent`
       import { Component, hbs } from '@glint/environment-glimmerx';
 
-      interface MyComponentArgs<T> {
+      type MyComponentArgs<T> = {
         items: Set<T>;
-      }
+      };
 
       export default class MyComponent<T> extends Component<{ Args: MyComponentArgs<T> }> {
         static template = hbs\`
@@ -110,7 +110,7 @@ describe('Language Server: Completions', () => {
 
     let details = server.getCompletionDetails(itemsCompletion!);
 
-    expect(details.detail).toEqual('(property) MyComponentArgs<T>.items: Set<T>');
+    expect(details.detail).toEqual('(property) items: Set<T>');
   });
 
   test('referencing block params', async () => {

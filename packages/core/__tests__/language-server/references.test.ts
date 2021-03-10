@@ -94,10 +94,10 @@ describe('Language Server: References', () => {
       'greeting.ts': stripIndent`
         import { Component, hbs } from '@glint/environment-glimmerx';
 
-        export interface GreetingArgs {
+        export type GreetingArgs = {
           /** Who to greet */
           target: string;
-        }
+        };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
           static template = hbs\`

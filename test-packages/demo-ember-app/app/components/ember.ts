@@ -1,10 +1,10 @@
 import { EmberComponent } from '@glint/environment-ember-loose';
 
-export interface EmberArgs {
+export type EmberArgs = {
   required: string;
   hasDefault?: string;
   optional?: number;
-}
+};
 
 export default interface Ember extends EmberArgs {}
 export default class Ember extends EmberComponent<{ Args: EmberArgs }> {

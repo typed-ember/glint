@@ -18,9 +18,9 @@ describe('Language Server: Renaming Symbols', () => {
       'index.ts': stripIndent`
         import { Component, hbs } from '@glint/environment-glimmerx';
 
-        interface GreetingArgs {
+        type GreetingArgs = {
           message: string;
-        }
+        };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
           private foo = 'hi';
@@ -57,9 +57,9 @@ describe('Language Server: Renaming Symbols', () => {
       'greeting.ts': stripIndent`
         import { Component, hbs } from '@glint/environment-glimmerx';
 
-        export interface GreetingArgs {
+        export type GreetingArgs = {
           message: string;
-        }
+        };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
           static template = hbs\`{{@message}}, World!\`;
@@ -197,9 +197,9 @@ describe('Language Server: Renaming Symbols', () => {
       'greeting.ts': stripIndent`
         import { Component, hbs } from '@glint/environment-glimmerx';
 
-        export interface GreetingArgs {
+        export type GreetingArgs = {
           message: string;
-        }
+        };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
           static template = hbs\`{{@message}}, World!\`;

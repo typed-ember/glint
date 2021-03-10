@@ -17,9 +17,9 @@ describe('Language Server: Diagnostics', () => {
     let code = stripIndent`
       import { Component, hbs } from '@glint/environment-glimmerx';
 
-      interface ApplicationArgs {
+      type ApplicationArgs = {
         version: string;
-      }
+      };
 
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
@@ -85,9 +85,9 @@ describe('Language Server: Diagnostics', () => {
     let script = stripIndent`
       import { Component } from '@glint/environment-glimmerx';
 
-      interface ApplicationArgs {
+      type ApplicationArgs = {
         version: string;
-      }
+      };
 
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();

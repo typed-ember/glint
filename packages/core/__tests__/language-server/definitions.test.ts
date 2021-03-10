@@ -55,9 +55,9 @@ describe('Language Server: Definitions', () => {
       'greeting.ts': stripIndent`
         import { Component, hbs } from '@glint/environment-glimmerx';
 
-        export interface GreetingArgs {
+        export type GreetingArgs = {
           message: string;
-        }
+        };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
           static template = hbs\`{{@message}}, World!\`;
@@ -97,9 +97,9 @@ describe('Language Server: Definitions', () => {
       'greeting.ts': stripIndent`
         import { Component, hbs } from '@glint/environment-glimmerx';
 
-        export interface GreetingArgs {
+        export type GreetingArgs = {
           message: string;
-        }
+        };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
           static template = hbs\`{{@message}}, World!\`;
@@ -129,9 +129,9 @@ describe('Language Server: Definitions', () => {
       'greeting.ts': stripIndent`
         import { Component, hbs } from '@glint/environment-glimmerx';
 
-        export interface GreetingArgs {
+        export type GreetingArgs = {
           message: string;
-        }
+        };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
           static template = hbs\`{{@message}}, World!\`;
