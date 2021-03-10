@@ -1,5 +1,5 @@
-import Component from '@glimmer/component';
+import { GlimmerComponent } from '@glint/environment-ember-loose';
 
-export default class MyComponent extends Component {
+export default class MyComponent extends GlimmerComponent {
   private message = 'hello';
 }
