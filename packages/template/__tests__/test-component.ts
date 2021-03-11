@@ -8,7 +8,7 @@ import {
   ContextType,
 } from '@glint/template/-private';
 import { LetKeyword } from '@glint/template/-private/keywords';
-import { Invokable } from '../-private/resolution';
+import { DirectInvokable } from '../-private/resolution';
 
 // This module contains a `@glimmer/component`-like base class and the
 // declarations necessary for it to be used as a component in glint, as
@@ -17,7 +17,7 @@ import { Invokable } from '../-private/resolution';
 export default TestComponent;
 export declare const globals: {
   let: LetKeyword;
-  on: Invokable<
+  on: DirectInvokable<
     <T extends keyof HTMLElementEventMap>(
       args: NoNamedArgs,
       event: T,

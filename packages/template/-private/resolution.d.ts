@@ -6,6 +6,9 @@
 import { NoNamedArgs } from './signature';
 import { TemplateContext } from './template';
 
+declare const InvokeDirect: unique symbol;
+export type DirectInvokable<T extends AnySignature = AnySignature> = { [InvokeDirect]: T };
+
 declare const Invoke: unique symbol;
 export type Invokable<T extends AnySignature = AnySignature> = { [Invoke]: T };
 
@@ -34,7 +37,7 @@ export type ResolveContext<T> = T extends HasContext<infer Context> ? Context : 
  *    signature and reconstruct it as a regular function, which has the implicit effect
  *    of preserving type parameters for polymorphic components in the resulting function
  *    type.
- *  - `Invokable<T>`: While items like component classes can't directly be `Invokable<T>`
+ *  - `DirectInvokable<T>`: While items like component classes can't directly be invokable
  *    themselves (among other things, their instance's type params wouldn't be in scope),
  *    this form is useful for certain complex cases that may require explicitly declaring
  *    a type rather than inferring it. Breaking apart and reconstructing a function
@@ -46,7 +49,7 @@ export type ResolveContext<T> = T extends HasContext<infer Context> ? Context : 
  * be invokables with their own particular resolution semantics.
  */
 
-export declare function resolve<T extends Invokable>(item: T): T[typeof Invoke];
+export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolve<Args extends unknown[], Instance extends Invokable>(
   item: new (...args: Args) => Instance
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
@@ -61,7 +64,7 @@ export declare function resolve<Args extends unknown[], Instance extends Invokab
  * value of the appropriate type.
  */
 
-export declare function resolveOrReturn<T extends Invokable>(item: T): T[typeof Invoke];
+export declare function resolveOrReturn<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolveOrReturn<Args extends unknown[], Instance extends Invokable>(
   item: new (...args: Args) => Instance
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;

@@ -1,7 +1,7 @@
 import { AcceptsBlocks, NoNamedArgs } from '@glint/template/-private';
-import { Invokable } from '@glint/template/-private/resolution';
+import { DirectInvokable } from '@glint/template/-private/resolution';
 
-export type EachInKeyword = Invokable<{
+export type EachInKeyword = DirectInvokable<{
   <T>(args: NoNamedArgs, object: T): AcceptsBlocks<{
     default: [key: keyof T, value: T[keyof T]];
   }>;

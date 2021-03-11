@@ -9,7 +9,7 @@ export { Globals } from './globals';
  * those functions correctly.
  *
  * In order, we have:
- *  - explicit `Invokable<T>`
+ *  - explicit `DirectInvokable<T>`
  *  - constructor for an `Invokable<T>`
  *  - a plain type guard
  *  - any other kind of plain function
@@ -19,10 +19,15 @@ export { Globals } from './globals';
  * further details on resolution.
  */
 
-import { Invokable, Invoke } from '@glint/template/-private/resolution';
+import {
+  DirectInvokable,
+  Invokable,
+  Invoke,
+  InvokeDirect,
+} from '@glint/template/-private/resolution';
 import { NoNamedArgs } from '@glint/template/-private/signature';
 
-export declare function resolve<T extends Invokable>(item: T): T[typeof Invoke];
+export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolve<Args extends unknown[], Instance extends Invokable>(
   item: new (...args: Args) => Instance
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
@@ -33,7 +38,7 @@ export declare function resolve<Args extends unknown[], T>(
   item: (...args: Args) => T
 ): (named: NoNamedArgs, ...args: Args) => T;
 
-export declare function resolveOrReturn<T extends Invokable>(item: T): T[typeof Invoke];
+export declare function resolveOrReturn<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolveOrReturn<Args extends unknown[], Instance extends Invokable>(
   item: new (...args: Args) => Instance
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;

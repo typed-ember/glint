@@ -1,7 +1,7 @@
 import { AcceptsBlocks, AnyBlocks } from '../signature';
-import { Invokable } from '../resolution';
+import { DirectInvokable, Invokable } from '../resolution';
 
-export type ComponentKeyword = Invokable<{
+export type ComponentKeyword = DirectInvokable<{
   <
     Args,
     GivenArgs extends Partial<Args>,
