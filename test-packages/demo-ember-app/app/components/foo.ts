@@ -1,13 +1,7 @@
-import Component from '@glimmer/component';
+import { GlimmerComponent } from '@glint/environment-ember-loose';
 
-export default class FooComponent extends Component {
+export default class Foo extends GlimmerComponent {
   name = 'FOO';
 
   obj = { a: 'A', b: 'B', c: 1, 𝚪: '' };
-}
-
-declare module '@glint/environment-ember-loose/types/registry' {
-  export default interface Registry {
-    Foo: FooComponent;
-  }
 }

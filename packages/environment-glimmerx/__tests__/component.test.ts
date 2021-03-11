@@ -1,4 +1,4 @@
-import Component from '@glimmerx/component';
+import { Component } from '@glint/environment-glimmerx';
 import {
   template,
   invokeBlock,
@@ -7,10 +7,10 @@ import {
   yieldToBlock,
 } from '@glint/environment-glimmerx/types';
 import { expectTypeOf } from 'expect-type';
-import { NoNamedArgs, NoYields } from '@glint/template/-private';
+import { EmptyObject } from '@glint/template/-private/signature';
 
 {
-  class NoArgsComponent extends Component<NoNamedArgs, NoYields> {
+  class NoArgsComponent extends Component {
     static template = template(function* (𝚪: ResolveContext<NoArgsComponent>) {
       𝚪;
     });
@@ -35,7 +35,7 @@ import { NoNamedArgs, NoYields } from '@glint/template/-private';
     static template = template(function* (𝚪: ResolveContext<StatefulComponent>) {
       expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
       expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
-      expectTypeOf(𝚪.args).toEqualTypeOf<{}>();
+      expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
     });
   }
 
@@ -43,19 +43,17 @@ import { NoNamedArgs, NoYields } from '@glint/template/-private';
 }
 
 {
-  interface YieldingComponentArgs<T> {
-    values: Array<T>;
+  interface YieldingComponentSignature<T> {
+    Args: {
+      values: Array<T>;
+    };
+    Yields: {
+      default: [T];
+      inverse?: [];
+    };
   }
 
-  interface YieldingComponentYields<T> {
-    default: [T];
-    inverse?: [];
-  }
-
-  class YieldingComponent<T> extends Component<
-    YieldingComponentArgs<T>,
-    YieldingComponentYields<T>
-  > {
+  class YieldingComponent<T> extends Component<YieldingComponentSignature<T>> {
     static template = template(function* <T>(𝚪: ResolveContext<YieldingComponent<T>>) {
       expectTypeOf(𝚪.this).toEqualTypeOf<YieldingComponent<T>>();
       expectTypeOf(𝚪.args).toEqualTypeOf<{ values: T[] }>();

@@ -1,5 +1,5 @@
-import Helper, { helper } from '@ember/component/helper';
-import { resolve } from '@glint/environment-glimmerx/types';
+import { Helper, helper } from '@glint/environment-ember-loose';
+import { resolve } from '@glint/environment-ember-loose/types';
 import { expectTypeOf } from 'expect-type';
 import { NoNamedArgs } from '@glint/template/-private';
 
@@ -50,8 +50,7 @@ import { NoNamedArgs } from '@glint/template/-private';
 // Class-based helper
 {
   type RepeatArgs<T> = { value: T; count?: number };
-  class RepeatHelper<T> extends Helper<[], RepeatArgs<T>, Array<T>> {
-    // @ts-expect-error: this is incompatible with the base definition of `compute` in the upstream types
+  class RepeatHelper<T> extends Helper<{ NamedArgs: RepeatArgs<T>; Return: Array<T> }> {
     compute(_: [], { value, count }: RepeatArgs<T>): Array<T> {
       return Array.from({ length: count ?? 2 }, () => value);
     }

@@ -1,16 +1,14 @@
-import Modifier, { modifier } from 'ember-modifier';
+import { Modifier, modifier } from '@glint/environment-ember-loose';
 import { resolve } from '@glint/environment-ember-loose/types';
 import { expectTypeOf } from 'expect-type';
 import { CreatesModifier } from '@glint/template/-private';
 
 // Class-based modifier
 {
-  interface NeatModifierArgs {
-    named: { multiplier?: number };
-    positional: [input: string];
-  }
-
-  class NeatModifier extends Modifier<NeatModifierArgs> {
+  class NeatModifier extends Modifier<{
+    NamedArgs: { multiplier?: number };
+    PositionalArgs: [input: string];
+  }> {
     private interval?: number;
 
     get lengthOfInput(): number {

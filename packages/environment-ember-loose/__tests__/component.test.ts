@@ -1,4 +1,4 @@
-import Component from '@ember/component';
+import { ComponentSignature, EmberComponent } from '@glint/environment-ember-loose';
 import {
   template,
   invokeBlock,
@@ -6,11 +6,11 @@ import {
   ResolveContext,
   yieldToBlock,
 } from '@glint/environment-ember-loose/types';
+import { EmptyObject } from '@glint/template/-private/signature';
 import { expectTypeOf } from 'expect-type';
-import { NoNamedArgs, NoYields } from '@glint/template/-private';
 
 {
-  class NoArgsComponent extends Component<NoNamedArgs, NoYields> {
+  class NoArgsComponent extends EmberComponent {
     static template = template(function* (𝚪: ResolveContext<NoArgsComponent>) {
       𝚪;
     });
@@ -29,13 +29,13 @@ import { NoNamedArgs, NoYields } from '@glint/template/-private';
 }
 
 {
-  class StatefulComponent extends Component {
+  class StatefulComponent extends EmberComponent {
     private foo = 'hello';
 
     static template = template(function* (𝚪: ResolveContext<StatefulComponent>) {
       expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
       expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
-      expectTypeOf(𝚪.args).toEqualTypeOf<NoNamedArgs>();
+      expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
     });
   }
 
@@ -43,22 +43,25 @@ import { NoNamedArgs, NoYields } from '@glint/template/-private';
 }
 
 {
-  interface YieldingComponentArgs<T> {
-    values: Array<T>;
+  type ArgsOf<T extends ComponentSignature> = 'Args' extends keyof T ? T['Args'] : EmptyObject;
+
+  interface YieldingComponentSignature<T> {
+    Args: {
+      values: Array<T>;
+    };
+    Yields: {
+      default: [T];
+      inverse?: [];
+    };
   }
 
-  interface YieldingComponentYields<T> {
-    default: [T];
-    inverse?: [];
-  }
-
-  class YieldingComponent<T> extends Component<
-    YieldingComponentArgs<T>,
-    YieldingComponentYields<T>
-  > {
+  interface YieldingComponent<T> extends ArgsOf<YieldingComponentSignature<T>> {}
+  class YieldingComponent<T> extends EmberComponent<YieldingComponentSignature<T>> {
     static template = template(function* <T>(𝚪: ResolveContext<YieldingComponent<T>>) {
       expectTypeOf(𝚪.this).toEqualTypeOf<YieldingComponent<T>>();
       expectTypeOf(𝚪.args).toEqualTypeOf<{ values: T[] }>();
+
+      expectTypeOf(𝚪.this.values).toEqualTypeOf<Array<T>>();
 
       if (𝚪.args.values.length) {
         yieldToBlock(𝚪, 'default', 𝚪.args.values[0]);

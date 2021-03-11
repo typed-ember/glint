@@ -10,7 +10,7 @@ describe('rewriteModule', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import { Component, hbs } from '@glint/environment-glimmerx';
           export default class MyComponent extends Component {
             static template = hbs\`\`;
           }
@@ -21,7 +21,7 @@ describe('rewriteModule', () => {
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from '@glimmerx/component';
+        "import { Component, hbs } from '@glint/environment-glimmerx';
         export default class MyComponent extends Component {
           static template = (() => {
           hbs;
@@ -38,7 +38,7 @@ describe('rewriteModule', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import { Component, hbs } from '@glint/environment-glimmerx';
           export default class MyComponent<K extends string> extends Component<{ value: K }> {
             static template = hbs\`\`;
           }
@@ -49,7 +49,7 @@ describe('rewriteModule', () => {
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from '@glimmerx/component';
+        "import { Component, hbs } from '@glint/environment-glimmerx';
         export default class MyComponent<K extends string> extends Component<{ value: K }> {
           static template = (() => {
           hbs;
@@ -66,7 +66,7 @@ describe('rewriteModule', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import { Component, hbs } from '@glint/environment-glimmerx';
           export default class extends Component {
             static template = hbs\`\`;
           }
@@ -87,7 +87,7 @@ describe('rewriteModule', () => {
       ]);
 
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from '@glimmerx/component';
+        "import { Component, hbs } from '@glint/environment-glimmerx';
         export default class extends Component {
           static template = (() => {
           hbs;
@@ -104,7 +104,7 @@ describe('rewriteModule', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import { Component, hbs } from '@glint/environment-glimmerx';
           export default class MyComponent extends Component {
             static template = hbs\`
               {{hello

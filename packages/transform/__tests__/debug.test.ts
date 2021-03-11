@@ -7,7 +7,7 @@ describe('Debug utilities', () => {
     let script = {
       filename: 'test.ts',
       contents: stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
         export default class MyComponent extends Component {
           private bar = 'hi';
@@ -17,7 +17,7 @@ describe('Debug utilities', () => {
           \`;
         }
 
-        class HelperComponent extends Component<{ foo: string }> {
+        class HelperComponent extends Component<{ Args: { foo: string } }> {
           static template = hbs\`
             Hello, {{@foo}}
           \`;

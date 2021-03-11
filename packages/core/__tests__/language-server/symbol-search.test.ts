@@ -17,18 +17,18 @@ describe('Language Server: Symbol Search', () => {
   test('component definition', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
-        export interface GreetingArgs {
+        export type GreetingArgs = {
           message: string;
-        }
+        };
 
-        export default class Greeting extends Component<GreetingArgs> {
+        export default class Greeting extends Component<{ Args: GreetingArgs }> {
           static template = hbs\`{{@message}}, World!\`;
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
         import Greeting from './greeting';
 
         export class Application extends Component {
@@ -65,12 +65,12 @@ describe('Language Server: Symbol Search', () => {
       },
       {
         name: 'GreetingArgs',
-        kind: SymbolKind.Interface,
+        kind: SymbolKind.Variable,
         location: {
           uri: project.fileURI('greeting.ts'),
           range: {
             start: { line: 2, character: 0 },
-            end: { line: 4, character: 1 },
+            end: { line: 4, character: 2 },
           },
         },
       },

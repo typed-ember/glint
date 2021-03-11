@@ -15,13 +15,13 @@ describe('Language Server: Diagnostics', () => {
 
   test('reports diagnostics for an inline template type error', () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
 
-      interface ApplicationArgs {
+      type ApplicationArgs = {
         version: string;
-      }
+      };
 
-      export default class Application extends Component<ApplicationArgs> {
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
         public static template = hbs\`
@@ -83,13 +83,13 @@ describe('Language Server: Diagnostics', () => {
 
   test('reports diagnostics for a companion template type error', () => {
     let script = stripIndent`
-      import Component from '@glimmer/component';
+      import { Component } from '@glint/environment-glimmerx';
 
-      interface ApplicationArgs {
+      type ApplicationArgs = {
         version: string;
-      }
+      };
 
-      export default class Application extends Component<ApplicationArgs> {
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
       }
     `;

@@ -15,13 +15,13 @@ describe('CLI: single-pass typechecking', () => {
 
   test('passes a valid project', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
 
-      interface ApplicationArgs {
+      type ApplicationArgs = {
         version: string;
-      }
+      };
 
-      export default class Application extends Component<ApplicationArgs> {
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
         public static template = hbs\`
@@ -42,13 +42,13 @@ describe('CLI: single-pass typechecking', () => {
 
   test('reports diagnostics for a template syntax error', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
 
-      interface ApplicationArgs {
+      type ApplicationArgs = {
         version: string;
-      }
+      };
 
-      export default class Application extends Component<ApplicationArgs> {
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
         public static template = hbs\`
@@ -78,13 +78,13 @@ describe('CLI: single-pass typechecking', () => {
 
   test('reports diagnostics for an inline template type error', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
 
-      interface ApplicationArgs {
+      type ApplicationArgs = {
         version: string;
-      }
+      };
 
-      export default class Application extends Component<ApplicationArgs> {
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
         public static template = hbs\`
@@ -118,13 +118,13 @@ describe('CLI: single-pass typechecking', () => {
     project.write('.glintrc', 'environment: ember-loose\n');
 
     let script = stripIndent`
-      import Component from '@ember/component';
+      import { EmberComponent } from '@glint/environment-ember-loose';
 
-      export interface MyComponentArgs {
+      export type MyComponentArgs = {
         message: string;
-      }
+      };
 
-      export default class MyComponent extends Component<MyComponentArgs> {
+      export default class MyComponent extends EmberComponent<{ Args: MyComponentArgs }> {
         target = 'World!';
       }
     `;
@@ -156,7 +156,7 @@ describe('CLI: single-pass typechecking', () => {
 
   test('honors .glintrc configuration', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
 
       export default class Application extends Component {
         public static template = hbs\`

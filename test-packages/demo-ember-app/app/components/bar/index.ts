@@ -1,15 +1,11 @@
-import Component from '@glimmer/component';
+import { GlimmerComponent } from '@glint/environment-ember-loose';
 
-interface BarComponentArgs {
-  grault: number;
+interface BarSignature {
+  Args: {
+    grault: number;
+  };
 }
 
-export default class BarComponent extends Component<BarComponentArgs> {
+export default class Bar extends GlimmerComponent<BarSignature> {
   name = 'BAR';
-}
-
-declare module '@glint/environment-ember-loose/types/registry' {
-  export default interface Registry {
-    Bar: BarComponent;
-  }
 }

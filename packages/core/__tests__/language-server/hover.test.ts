@@ -16,7 +16,7 @@ describe('Language Server: Hover', () => {
   test('using private properties', () => {
     project.write({
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
         export default class MyComponent extends Component {
           /** A message. */
@@ -48,14 +48,14 @@ describe('Language Server: Hover', () => {
   test('using args', () => {
     project.write({
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
         interface MyComponentArgs {
           /** Some string */
           str: string;
         }
 
-        export default class MyComponent extends Component<MyComponentArgs> {
+        export default class MyComponent extends Component<{ Args: MyComponentArgs }> {
           static template = hbs\`
             {{@str}}
           \`;
@@ -85,7 +85,7 @@ describe('Language Server: Hover', () => {
   test('curly block params', () => {
     project.write({
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
         export default class MyComponent extends Component {
           static template = hbs\`

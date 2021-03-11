@@ -24,7 +24,7 @@ describe('Source-to-source offset mapping', () => {
     let script = {
       filename: 'test.ts',
       contents: stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
         import { ${identifiersInScope.join(', ')} } from 'dummy';
 
         export default class MyComponent extends Component {
@@ -363,7 +363,7 @@ describe('Source-to-source offset mapping', () => {
     const source = {
       filename: 'test.ts',
       contents: stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import { Component, hbs } from '@glint/environment-glimmerx';
 
         // start
         export default class MyComponent extends Component {
@@ -426,7 +426,7 @@ describe('Diagnostic offset mapping', () => {
   const source = {
     filename: 'test.ts',
     contents: stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import { Component, hbs } from '@glint/environment-glimmerx';
       export default class MyComponent extends Component {
         static template = hbs\`
           {{#each foo as |bar|}}

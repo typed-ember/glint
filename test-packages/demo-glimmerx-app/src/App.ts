@@ -1,4 +1,5 @@
-import Component, { hbs } from '@glimmerx/component';
+import { Component } from '@glint/environment-glimmerx';
+import { hbs } from '@glimmerx/component';
 
 import logo from './logo.svg';
 import './App.css';
@@ -21,7 +22,7 @@ export default class App extends Component {
   `;
 }
 
-class SubHeader extends Component<{}, { default: [] }> {
+class SubHeader extends Component<{ Yields: { default: [] } }> {
   public static template = hbs`
     <h3>{{yield}}</h3>
   `;
