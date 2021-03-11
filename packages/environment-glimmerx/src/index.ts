@@ -14,7 +14,7 @@ export * from '@glimmerx/helper';
 import type { CreatesModifier } from '@glint/template/-private';
 import type { ContextType, Invoke } from '@glint/template/-private';
 import type { TemplateContext, AcceptsBlocks } from '@glint/template/-private';
-import type { Invokable } from '@glint/template/-private/resolution';
+import type { DirectInvokable, Invokable } from '@glint/template/-private/resolution';
 import type { EmptyObject } from '@glint/template/-private/signature';
 
 type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
@@ -39,7 +39,7 @@ export interface Component<T extends ComponentSignature = {}>
   [ContextType]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>>;
 }
 
-type OnModifier = Invokable<
+type OnModifier = DirectInvokable<
   <Name extends keyof HTMLElementEventMap>(
     args: EmptyObject,
     name: Name,
@@ -51,7 +51,7 @@ type HelperFactory = <Result, Named = EmptyObject, Positional extends unknown[] 
   fn: (positional: Positional, named: Named) => Result
 ) => new () => Invokable<(args: Named, ...positional: Positional) => Result>;
 
-type FnHelper = Invokable<{
+type FnHelper = DirectInvokable<{
   <Ret, Args extends unknown[]>(args: EmptyObject, f: (...rest: Args) => Ret): (
     ...rest: Args
   ) => Ret;

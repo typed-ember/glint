@@ -1,6 +1,6 @@
-import { Invokable } from '../resolution';
+import { DirectInvokable } from '../resolution';
 import { NoNamedArgs } from '../signature';
 
-export type HasBlockKeyword = Invokable<{
+export type HasBlockKeyword = DirectInvokable<{
   (args: NoNamedArgs, blockName?: string): boolean;
 }>;

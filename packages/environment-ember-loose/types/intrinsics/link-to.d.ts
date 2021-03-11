@@ -1,7 +1,7 @@
 import { AcceptsBlocks, NoNamedArgs } from '@glint/template/-private';
-import { Invokable } from '@glint/template/-private/resolution';
+import { DirectInvokable } from '@glint/template/-private/resolution';
 
-export type LinkToKeyword = Invokable<{
+export type LinkToKeyword = DirectInvokable<{
   (args: NoNamedArgs, route: string, ...params: unknown[]): AcceptsBlocks<{
     default?: [];
   }>;
@@ -18,6 +18,6 @@ export interface LinkToArgs {
   query?: Record<string, unknown>;
 }
 
-export type LinkToComponent = Invokable<{
+export type LinkToComponent = DirectInvokable<{
   (args: LinkToArgs): AcceptsBlocks<{ default: [] }>;
 }>;

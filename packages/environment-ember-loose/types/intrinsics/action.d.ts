@@ -1,4 +1,4 @@
-import { Invokable } from '@glint/template/-private/resolution';
+import { DirectInvokable } from '@glint/template/-private/resolution';
 
 export type ActionNamedArgs<T> = {
   value?: keyof T;
@@ -10,7 +10,7 @@ export type ActionResult<T, Args extends ActionNamedArgs<T>> = undefined extends
   ? T[Args['value']]
   : T;
 
-export type ActionKeyword = Invokable<{
+export type ActionKeyword = DirectInvokable<{
   <Ret, Args extends ActionNamedArgs<Ret>, Params extends unknown[]>(
     args: Args,
     f: (...rest: Params) => Ret

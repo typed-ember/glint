@@ -1,6 +1,6 @@
-import { Invokable } from '../resolution';
+import { DirectInvokable } from '../resolution';
 import { NoNamedArgs } from '../signature';
 
-export type DebuggerKeyword = Invokable<{
+export type DebuggerKeyword = DirectInvokable<{
   (args: NoNamedArgs): void;
 }>;

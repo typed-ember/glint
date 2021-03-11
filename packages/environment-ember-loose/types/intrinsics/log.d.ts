@@ -1,6 +1,6 @@
 import { NoNamedArgs } from '@glint/template/-private';
-import { Invokable } from '@glint/template/-private/resolution';
+import { DirectInvokable } from '@glint/template/-private/resolution';
 
-export type LogKeyword = Invokable<{
+export type LogKeyword = DirectInvokable<{
   (args: NoNamedArgs, ...params: unknown[]): void;
 }>;
