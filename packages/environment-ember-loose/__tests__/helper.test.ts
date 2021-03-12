@@ -1,4 +1,4 @@
-import { Helper, helper } from '@glint/environment-ember-loose';
+import Helper, { helper } from '@glint/environment-ember-loose/ember-component/helper';
 import { resolve } from '@glint/environment-ember-loose/types';
 import { expectTypeOf } from 'expect-type';
 import { NoNamedArgs } from '@glint/template/-private';

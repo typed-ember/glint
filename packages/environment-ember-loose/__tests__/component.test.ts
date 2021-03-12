@@ -1,4 +1,4 @@
-import { ComponentSignature, EmberComponent } from '@glint/environment-ember-loose';
+import Component, { ComponentSignature } from '@glint/environment-ember-loose/ember-component';
 import {
   template,
   invokeBlock,
@@ -10,7 +10,7 @@ import { EmptyObject } from '@glint/template/-private/signature';
 import { expectTypeOf } from 'expect-type';
 
 {
-  class NoArgsComponent extends EmberComponent {
+  class NoArgsComponent extends Component {
     static template = template(function* (𝚪: ResolveContext<NoArgsComponent>) {
       𝚪;
     });
@@ -29,7 +29,7 @@ import { expectTypeOf } from 'expect-type';
 }
 
 {
-  class StatefulComponent extends EmberComponent {
+  class StatefulComponent extends Component {
     private foo = 'hello';
 
     static template = template(function* (𝚪: ResolveContext<StatefulComponent>) {
@@ -56,7 +56,7 @@ import { expectTypeOf } from 'expect-type';
   }
 
   interface YieldingComponent<T> extends ArgsOf<YieldingComponentSignature<T>> {}
-  class YieldingComponent<T> extends EmberComponent<YieldingComponentSignature<T>> {
+  class YieldingComponent<T> extends Component<YieldingComponentSignature<T>> {
     static template = template(function* <T>(𝚪: ResolveContext<YieldingComponent<T>>) {
       expectTypeOf(𝚪.this).toEqualTypeOf<YieldingComponent<T>>();
       expectTypeOf(𝚪.args).toEqualTypeOf<{ values: T[] }>();
