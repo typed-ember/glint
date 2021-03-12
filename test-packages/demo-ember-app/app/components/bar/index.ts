@@ -1,4 +1,4 @@
-import { GlimmerComponent } from '@glint/environment-ember-loose';
+import Component from '@glint/environment-ember-loose/glimmer-component';
 
 interface BarSignature {
   Args: {
@@ -6,6 +6,6 @@ interface BarSignature {
   };
 }
 
-export default class Bar extends GlimmerComponent<BarSignature> {
+export default class Bar extends Component<BarSignature> {
   name = 'BAR';
 }

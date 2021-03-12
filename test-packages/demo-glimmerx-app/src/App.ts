@@ -1,4 +1,4 @@
-import { Component } from '@glint/environment-glimmerx';
+import Component from '@glint/environment-glimmerx/component';
 import { hbs } from '@glimmerx/component';
 
 import logo from './logo.svg';

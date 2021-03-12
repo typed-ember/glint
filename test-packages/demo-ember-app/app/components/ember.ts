@@ -1,4 +1,4 @@
-import { EmberComponent } from '@glint/environment-ember-loose';
+import Component from '@glint/environment-ember-loose/ember-component';
 
 export type EmberArgs = {
   required: string;
@@ -7,7 +7,7 @@ export type EmberArgs = {
 };
 
 export default interface Ember extends EmberArgs {}
-export default class Ember extends EmberComponent<{ Args: EmberArgs }> {
+export default class Ember extends Component<{ Args: EmberArgs }> {
   public hasDefault = 'defaultValue';
 
   public checkTypes(): unknown {
