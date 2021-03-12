@@ -1,6 +1,6 @@
-import { GlimmerComponent } from '@glint/environment-ember-loose';
+import Component from '@glint/environment-ember-loose/glimmer-component';
 
-export default class Foo extends GlimmerComponent {
+export default class Foo extends Component {
   name = 'FOO';
 
   obj = { a: 'A', b: 'B', c: 1, 𝚪: '' };

@@ -15,7 +15,7 @@ describe('Language Server: Diagnostics', () => {
 
   test('reports diagnostics for an inline template type error', () => {
     let code = stripIndent`
-      import { Component, hbs } from '@glint/environment-glimmerx';
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -83,7 +83,7 @@ describe('Language Server: Diagnostics', () => {
 
   test('reports diagnostics for a companion template type error', () => {
     let script = stripIndent`
-      import { Component } from '@glint/environment-glimmerx';
+      import Component from '@glint/environment-glimmerx/component';
 
       type ApplicationArgs = {
         version: string;

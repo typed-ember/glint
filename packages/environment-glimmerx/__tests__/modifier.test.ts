@@ -1,4 +1,4 @@
-import { on as onDefinition } from '@glint/environment-glimmerx';
+import { on as onDefinition } from '@glint/environment-glimmerx/modifier';
 import { resolve, invokeModifier } from '@glint/environment-glimmerx/types';
 import { expectTypeOf } from 'expect-type';
 

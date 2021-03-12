@@ -8,7 +8,7 @@ export default function glimmerxEnvironment(): GlintEnvironmentConfig {
           typesSource: '@glint/environment-glimmerx/types',
         },
       },
-      '@glint/environment-glimmerx': {
+      '@glint/environment-glimmerx/component': {
         hbs: {
           typesSource: '@glint/environment-glimmerx/types',
         },

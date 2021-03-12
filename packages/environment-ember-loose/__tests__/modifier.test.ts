@@ -1,4 +1,4 @@
-import { Modifier, modifier } from '@glint/environment-ember-loose';
+import Modifier, { modifier } from '@glint/environment-ember-loose/ember-modifier';
 import { resolve } from '@glint/environment-ember-loose/types';
 import { expectTypeOf } from 'expect-type';
 import { CreatesModifier } from '@glint/template/-private';

@@ -1,5 +1,5 @@
-import { GlimmerComponent } from '@glint/environment-ember-loose';
+import Component from '@glint/environment-ember-loose/glimmer-component';
 
-export default class Qux extends GlimmerComponent {
+export default class Qux extends Component {
   name = 'QUX';
 }

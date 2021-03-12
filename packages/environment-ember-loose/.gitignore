@@ -1,2 +1,5 @@
-lib/
+*.js
+*.d.ts
 tsconfig.tsbuildinfo
+
+!types/**/*.d.ts

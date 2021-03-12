@@ -16,7 +16,7 @@ describe('Language Server: Completions', () => {
 
   test('passing component args', () => {
     let code = stripIndent`
-      import { Component, hbs } from '@glint/environment-glimmerx';
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       export default class MyComponent extends Component {
         static template = hbs\`
@@ -53,7 +53,7 @@ describe('Language Server: Completions', () => {
 
   test('referencing class properties', () => {
     let code = stripIndent`
-      import { Component, hbs } from '@glint/environment-glimmerx';
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       export default class MyComponent extends Component {
         private message = 'hello';
@@ -83,7 +83,7 @@ describe('Language Server: Completions', () => {
 
   test('referencing own args', async () => {
     let code = stripIndent`
-      import { Component, hbs } from '@glint/environment-glimmerx';
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       type MyComponentArgs<T> = {
         items: Set<T>;
@@ -115,7 +115,7 @@ describe('Language Server: Completions', () => {
 
   test('referencing block params', async () => {
     let code = stripIndent`
-      import { Component, hbs } from '@glint/environment-glimmerx';
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       export default class MyComponent extends Component {
         static template = hbs\`
@@ -145,7 +145,7 @@ describe('Language Server: Completions', () => {
 
   test('referencing module-scope identifiers', async () => {
     let code = stripIndent`
-      import { Component, hbs } from '@glint/environment-glimmerx';
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       const greeting: string = 'hello';
 

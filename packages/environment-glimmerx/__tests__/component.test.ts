@@ -1,4 +1,4 @@
-import { Component } from '@glint/environment-glimmerx';
+import Component from '@glint/environment-glimmerx/component';
 import {
   template,
   invokeBlock,
