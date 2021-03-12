@@ -16,7 +16,7 @@ describe('CLI: watched typechecking', () => {
 
   test('passes a valid project', async () => {
     let code = stripIndent`
-      import { Component, hbs } from '@glint/environment-glimmerx';
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -44,7 +44,7 @@ describe('CLI: watched typechecking', () => {
 
   test('reports diagnostics for a template syntax error', async () => {
     let code = stripIndent`
-      import { Component, hbs } from '@glint/environment-glimmerx';
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -87,7 +87,7 @@ describe('CLI: watched typechecking', () => {
 
   test('reports diagnostics for a template type error', async () => {
     let code = stripIndent`
-      import { Component, hbs } from '@glint/environment-glimmerx';
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -131,7 +131,7 @@ describe('CLI: watched typechecking', () => {
 
   test('reports on errors introduced and cleared during the watch', async () => {
     let code = stripIndent`
-      import { Component, hbs } from '@glint/environment-glimmerx';
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -172,13 +172,13 @@ describe('CLI: watched typechecking', () => {
     project.write('index.ts', 'import "@glint/environment-ember-loose/types";');
 
     let script = stripIndent`
-      import { EmberComponent } from '@glint/environment-ember-loose';
+      import Component from '@glint/environment-ember-loose/ember-component';
 
       export type MyComponentArgs = {
         message: string;
       };
 
-      export default class MyComponent extends EmberComponent<{ Args: MyComponentArgs }> {
+      export default class MyComponent extends Component<{ Args: MyComponentArgs }> {
         target = 'World!';
       }
     `;

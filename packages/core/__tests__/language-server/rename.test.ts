@@ -16,7 +16,7 @@ describe('Language Server: Renaming Symbols', () => {
   test('preparing rename-able and unrename-able elements', () => {
     project.write({
       'index.ts': stripIndent`
-        import { Component, hbs } from '@glint/environment-glimmerx';
+        import Component, { hbs } from '@glint/environment-glimmerx/component';
 
         type GreetingArgs = {
           message: string;
@@ -55,7 +55,7 @@ describe('Language Server: Renaming Symbols', () => {
   test('renaming an arg', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import { Component, hbs } from '@glint/environment-glimmerx';
+        import Component, { hbs } from '@glint/environment-glimmerx/component';
 
         export type GreetingArgs = {
           message: string;
@@ -66,7 +66,7 @@ describe('Language Server: Renaming Symbols', () => {
         }
       `,
       'index.ts': stripIndent`
-        import { Component, hbs } from '@glint/environment-glimmerx';
+        import Component, { hbs } from '@glint/environment-glimmerx/component';
         import Greeting from './greeting';
 
         export class Application extends Component {
@@ -139,7 +139,7 @@ describe('Language Server: Renaming Symbols', () => {
   test('renaming a block param', () => {
     project.write({
       'index.ts': stripIndent`
-        import { Component, hbs } from '@glint/environment-glimmerx';
+        import Component, { hbs } from '@glint/environment-glimmerx/component';
 
         export default class Application extends Component {
           static template = hbs\`
@@ -195,7 +195,7 @@ describe('Language Server: Renaming Symbols', () => {
   test('renaming a component', async () => {
     project.write({
       'greeting.ts': stripIndent`
-        import { Component, hbs } from '@glint/environment-glimmerx';
+        import Component, { hbs } from '@glint/environment-glimmerx/component';
 
         export type GreetingArgs = {
           message: string;
@@ -206,7 +206,7 @@ describe('Language Server: Renaming Symbols', () => {
         }
       `,
       'index.ts': stripIndent`
-        import { Component, hbs } from '@glint/environment-glimmerx';
+        import Component, { hbs } from '@glint/environment-glimmerx/component';
         import Greeting from './greeting';
 
         export class Application extends Component {

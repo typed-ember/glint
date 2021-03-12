@@ -14,7 +14,7 @@ describe('CLI: emitting declarations', () => {
 
   test('emit for a valid project', async () => {
     let code = stripIndent`
-      import { Component, hbs } from '@glint/environment-glimmerx';
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       export type ApplicationArgs = {
         version: string;
@@ -37,7 +37,7 @@ describe('CLI: emitting declarations', () => {
     expect(emitResult.exitCode).toBe(0);
 
     expect(project.read('index.d.ts')).toMatchInlineSnapshot(`
-      "import { Component } from '@glint/environment-glimmerx';
+      "import Component from '@glint/environment-glimmerx/component';
       export declare type ApplicationArgs = {
           version: string;
       };
