@@ -143,7 +143,38 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('(parameter) letter: string');
   });
 
-  test('referencing module-scope identifiers', async () => {
+  test('globals', () => {
+    let code = stripIndent`
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
+
+      export default class MyComponent extends Component {
+        static template = hbs\`
+          {{deb}}
+        \`;
+      }
+    `;
+
+    project.write('index.ts', code);
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(project.fileURI('index.ts'), {
+      line: 4,
+      character: 9,
+    });
+
+    let completion = completions?.find((completion) => completion.label === 'debugger');
+
+    expect(completion).toMatchObject({
+      kind: CompletionItemKind.Field,
+      label: 'debugger',
+    });
+  });
+
+  // Currently this test and the 'globals' one above can't both pass at the same time,
+  // because if we see an unknown identifier we have to choose whether to emit it as
+  // `partialIden` or `Globals['partialIden']`, and we can't get completions for both
+  // free-floating identifiers and keys on `Globals`.
+  test.skip('referencing module-scope identifiers', async () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';
 

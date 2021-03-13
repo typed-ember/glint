@@ -142,7 +142,7 @@ describe('Source-to-source offset mapping', () => {
     describe('path segments', () => {
       test('simple path', () => {
         let module = rewriteCompanionTemplate({ contents: '{{foo.bar}}' });
-        expectTokenMapping(module, 'foo', { transformedToken: '"foo"' });
+        expectTokenMapping(module, 'foo');
         expectTokenMapping(module, 'bar');
       });
 
@@ -168,7 +168,7 @@ describe('Source-to-source offset mapping', () => {
 
       test('simple out-of-scope paths', () => {
         let module = rewriteInlineTemplate({ contents: '{{foo.bar}}' });
-        expectTokenMapping(module, 'foo', { transformedToken: '"foo"' });
+        expectTokenMapping(module, 'foo');
         expectTokenMapping(module, 'bar');
       });
 
@@ -263,12 +263,12 @@ describe('Source-to-source offset mapping', () => {
             `,
         });
 
-        expectTokenMapping(module, 'each', { occurrence: 0, transformedToken: '"each"' });
+        expectTokenMapping(module, 'each', { occurrence: 0 });
         expectTokenMapping(module, 'this');
         expectTokenMapping(module, 'items');
         expectTokenMapping(module, 'num', { occurrence: 0 });
         expectTokenMapping(module, 'num', { occurrence: 1 });
-        expectTokenMapping(module, 'each', { occurrence: 1, transformedToken: '"each"' });
+        expectTokenMapping(module, 'each', { occurrence: 1 });
       });
 
       test('angle bracket params', () => {

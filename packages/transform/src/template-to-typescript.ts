@@ -281,9 +281,9 @@ export function templateToTypescript(
       if (scope.hasBinding(name)) {
         emit.identifier(name, hbsOffset, hbsLength);
       } else {
-        emit.text('χ.Globals[');
-        emit.identifier(JSON.stringify(name), hbsOffset, hbsLength ?? name.length);
-        emit.text(']');
+        emit.text('χ.Globals["');
+        emit.identifier(JSON.stringify(name).slice(1, -1), hbsOffset, hbsLength ?? name.length);
+        emit.text('"]');
       }
     }
 
