@@ -1,50 +1,286 @@
 import * as VM from '@glint/template/-private/keywords';
+
 import { ActionKeyword } from './intrinsics/action';
+import { ComponentKeyword } from './intrinsics/component';
+import { ConcatHelper } from './intrinsics/concat';
 import { EachInKeyword } from './intrinsics/each-in';
+import { FnHelper } from './intrinsics/fn';
+import { GetHelper } from './intrinsics/get';
+import { InputComponent } from './intrinsics/input';
 import { LinkToKeyword, LinkToComponent } from './intrinsics/link-to';
-import { LogKeyword } from './intrinsics/log';
+import { LogHelper } from './intrinsics/log';
+import { MountKeyword } from './intrinsics/mount';
+import { MutKeyword } from './intrinsics/mut';
+import { OnModifier } from './intrinsics/on';
+import { OutletKeyword } from './intrinsics/outlet';
+import { TextareaComponent } from './intrinsics/textarea';
+import { UnboundKeyword } from './intrinsics/unbound';
+
 import Registry from './registry';
 
 // The keyword vs global breakdown here is loosely matched with
 // the listing in http://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html
 
 interface Keywords {
+  /**
+    The {{action}} helper provides a way to pass triggers for behavior (usually just a function)
+    between components, and into components from controllers.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/action?anchor=action
+   */
   action: ActionKeyword;
-  component: VM.ComponentKeyword;
+
+  /**
+    The `{{component}}` helper lets you add instances of `Component` to a template.
+    `{{component}}`'s primary use is for cases where you want to dynamically change
+    which type of component is rendered as the state of your application changes.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/component?anchor=component
+   */
+  component: ComponentKeyword<Registry>;
+
+  /**
+    Execute the `debugger` statement in the current template's context.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/debugger?anchor=debugger
+  */
   debugger: VM.DebuggerKeyword;
+
+  /**
+    The `{{#each}}` helper loops over elements in a collection.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/each?anchor=each
+  */
   each: VM.EachKeyword;
+
+  /**
+    The `{{each-in}}` helper loops over properties on an object.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/each-in?anchor=each-in
+  */
   'each-in': EachInKeyword;
-  hasBlock: VM.HasBlockKeyword;
+
+  /**
+    `{{has-block}}` indicates if the component was invoked with a block.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/hasBlock?anchor=hasBlock
+  */
   'has-block': VM.HasBlockKeyword;
+
+  /**
+    `{{has-block-params}}` indicates if the component was invoked with block params.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/hasBlockParams?anchor=hasBlockParams
+  */
   'has-block-params': VM.HasBlockParamsKeyword;
-  // the `if` keyword is implemented directly in @glint/transform
+
+  // `{{if}}` is implemented directly in `@glint/transform`
+  if: void;
+
+  /**
+    The `{{in-element}}` helper renders its block content outside of the regular flow,
+    into a DOM element given by its `destinationElement` positional argument.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/in-element?anchor=in-element
+  */
   'in-element': VM.InElementKeyword;
+
+  /**
+    The `{{let}}` helper receives one or more positional arguments and yields
+    them out as block params.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/let?anchor=let
+   */
   let: VM.LetKeyword;
+
+  /**
+     The `{{link-to}}` helper renders a link to the supplied `route`.
+
+     See [the API documentation] for further details.
+
+     [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/link-to?anchor=link-to
+   */
   'link-to': LinkToKeyword;
-  log: LogKeyword;
-  mount: void; // TODO
-  mut: void; // TODO
-  outlet: void; // TODO
-  'query-params': void; // TODO
-  readonly: void; // TODO
-  unbound: void; // TODO
-  unless: void; // TODO: should this be implemented as `if (!...)`?
+
+  /**
+    `log` allows you to output the value of variables in the current rendering
+    context.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/log?anchor=log
+   */
+  log: LogHelper;
+
+  /**
+    The `{{mount}}` helper lets you embed a routeless engine in a template.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/mount?anchor=mount
+    ```
+  */
+  mount: MountKeyword;
+
+  /**
+    The `mut` helper, when used with `fn`, will return a function that
+    sets the value passed to `mut` to its first argument.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/mut?anchor=mut
+   */
+  mut: MutKeyword;
+
+  /**
+    The `{{outlet}}` helper lets you specify where a child route will render in
+    your template.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/outlet?anchor=outlet
+  */
+  outlet: OutletKeyword;
+
+  /**
+    The `{{unbound}}` helper disconnects the one-way binding of a property,
+    essentially freezing its value at the moment of rendering.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/unbound?anchor=unbound
+   */
+  unbound: UnboundKeyword;
+
+  // `{{unless}}` is implemented directly in `@glint/transform`
+  unless: void;
+
+  /**
+    Use the `{{with}}` helper when you want to alias a property to a new name.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/with?anchor=with
+   */
   with: VM.WithKeyword;
-  // the `yield` keyword is implemented directly in @glint/transform
+
+  // `{{yield}}` is implemented directly in `@glint/transform`
+  yield: void;
 }
 
 export interface Globals extends Keywords, Registry {
-  // `array` is implemented directly in @glint/transform
-  concat: void; // TODO
-  fn: void; // TODO
-  get: void; // TODO
-  // `hash` is implemented directly in @glint/transform
-  on: void; // TODO
-  input: void; // TODO
-  Input: void; // TODO
+  // `{{array}}` is implemented directly in `@glint/transform`
+  array: void;
+
+  /**
+    Concatenates the given arguments into a string.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/concat?anchor=concat
+  */
+  concat: ConcatHelper;
+
+  /**
+    The `fn` helper allows you to ensure a function that you are passing off
+    to another component, helper, or modifier has access to arguments that are
+    available in the template.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/fn?anchor=fn
+  */
+  fn: FnHelper;
+
+  /**
+    Dynamically look up a property on an object. The second argument to `{{get}}`
+    should have a string value, although it can be bound.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/get?anchor=get
+  */
+  get: GetHelper;
+
+  // `hash` is implemented directly in `@glint/transform`
+  hash: void;
+
+  /**
+    The `{{input}}` helper lets you create an HTML `<input>` element.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/input?anchor=input
+  */
+  input: InputComponent;
+
+  /**
+    The `Input` component lets you create an HTML `<input>` element.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.components/methods/Input?anchor=Input
+  */
+  Input: InputComponent;
+
+  /**
+    The `LinkTo` component renders a link to the supplied `routeName` passing an optionally
+    supplied model to the route as its `model` context of the route.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.components/methods/LinkTo?anchor=LinkTo
+  */
   LinkTo: LinkToComponent;
-  textarea: void; // TODO
-  TextArea: void; // TODO
+
+  /**
+    The `{{on}}` modifier lets you easily add event listeners (it uses
+    [EventTarget.addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
+    internally).
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/on?anchor=on
+  */
+  on: OnModifier;
+
+  /**
+    The `{{textarea}}` component inserts a new instance of `<textarea>` tag into the template.
+    The `value` argument provides the content of the `<textarea>`.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.components/methods/Textarea?anchor=Textarea
+   */
+  textarea: TextareaComponent;
+
+  /**
+    The `Textarea` component inserts a new instance of `<textarea>` tag into the template.
+    The `@value` argument provides the content of the `<textarea>`.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.components/methods/Textarea?anchor=Textarea
+   */
+  Textarea: TextareaComponent;
 }
 
 export declare const Globals: Globals;
