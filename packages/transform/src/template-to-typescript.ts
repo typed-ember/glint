@@ -278,7 +278,7 @@ export function templateToTypescript(
     }
 
     function emitIdentifierReference(name: string, hbsOffset: number, hbsLength?: number): void {
-      if (scope.hasBinding(name)) {
+      if (scope.hasMatchingBinding(name)) {
         emit.identifier(name, hbsOffset, hbsLength);
       } else {
         emit.text('χ.Globals["');

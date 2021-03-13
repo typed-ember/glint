@@ -170,11 +170,7 @@ describe('Language Server: Completions', () => {
     });
   });
 
-  // Currently this test and the 'globals' one above can't both pass at the same time,
-  // because if we see an unknown identifier we have to choose whether to emit it as
-  // `partialIden` or `Globals['partialIden']`, and we can't get completions for both
-  // free-floating identifiers and keys on `Globals`.
-  test.skip('referencing module-scope identifiers', async () => {
+  test('referencing module-scope identifiers', async () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';
 
