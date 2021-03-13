@@ -143,6 +143,33 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('(parameter) letter: string');
   });
 
+  test('globals', () => {
+    let code = stripIndent`
+      import Component, { hbs } from '@glint/environment-glimmerx/component';
+
+      export default class MyComponent extends Component {
+        static template = hbs\`
+          {{deb}}
+        \`;
+      }
+    `;
+
+    project.write('index.ts', code);
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(project.fileURI('index.ts'), {
+      line: 4,
+      character: 9,
+    });
+
+    let completion = completions?.find((completion) => completion.label === 'debugger');
+
+    expect(completion).toMatchObject({
+      kind: CompletionItemKind.Field,
+      label: 'debugger',
+    });
+  });
+
   test('referencing module-scope identifiers', async () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';

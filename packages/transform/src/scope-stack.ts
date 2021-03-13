@@ -28,6 +28,20 @@ export default class ScopeStack {
     return this.top.has(identifier);
   }
 
+  public hasMatchingBinding(prefix: string): boolean {
+    if (this.hasBinding(prefix)) {
+      return true;
+    }
+
+    for (let identifier of this.top) {
+      if (identifier.startsWith(prefix)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   private get top(): Set<string> {
     return this.stack[0];
   }
