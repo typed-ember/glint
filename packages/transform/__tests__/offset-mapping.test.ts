@@ -210,7 +210,7 @@ describe('Source-to-source offset mapping', () => {
           contents: '{{foo bar-baz=hello}}',
         });
         expectTokenMapping(module, 'foo');
-        expectTokenMapping(module, 'bar-baz', { transformedToken: '"bar-baz"' });
+        expectTokenMapping(module, 'bar-baz');
         expectTokenMapping(module, 'hello');
       });
 
@@ -230,7 +230,7 @@ describe('Source-to-source offset mapping', () => {
           contents: '<Foo @bar-baz={{hello}} />',
         });
         expectTokenMapping(module, 'Foo');
-        expectTokenMapping(module, 'bar-baz', { transformedToken: '"bar-baz"' });
+        expectTokenMapping(module, 'bar-baz');
         expectTokenMapping(module, 'hello');
       });
 
@@ -249,7 +249,7 @@ describe('Source-to-source offset mapping', () => {
           contents: '<Foo><:block-name>hi</:block-name></Foo>',
         });
         expectTokenMapping(module, 'Foo');
-        expectTokenMapping(module, 'block-name', { transformedToken: '"block-name"' });
+        expectTokenMapping(module, 'block-name');
       });
     });
 

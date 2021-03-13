@@ -792,16 +792,22 @@ export function templateToTypescript(
         if (isSafeKey(part)) {
           emit.identifier(part, start);
         } else {
-          emit.text('[');
-          emit.identifier(JSON.stringify(part), start, part.length);
-          emit.text(']');
+          emit.text('["');
+          emit.identifier(JSON.stringify(part).slice(1, -1), start, part.length);
+          emit.text('"]');
         }
         start += part.length;
       }
     }
 
     function emitHashKey(name: string, start: number): void {
-      emit.identifier(isSafeKey(name) ? name : JSON.stringify(name), start, name.length);
+      if (isSafeKey(name)) {
+        emit.identifier(name, start);
+      } else {
+        emit.text('"');
+        emit.identifier(JSON.stringify(name).slice(1, -1), start, name.length);
+        emit.text('"');
+      }
     }
 
     function emitLiteral(node: AST.Literal): void {
