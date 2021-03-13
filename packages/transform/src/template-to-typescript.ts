@@ -3,8 +3,8 @@ import { unreachable, assert } from './util';
 import { mapTemplateContents, RewriteResult } from './map-template-contents';
 import ScopeStack from './scope-stack';
 
-const INLINE_KEYWORDS = ['if', 'yield', 'hash', 'array'] as const;
-const BLOCK_KEYWORDS = ['if'] as const;
+const INLINE_KEYWORDS = ['if', 'yield', 'hash', 'array', 'unless'] as const;
+const BLOCK_KEYWORDS = ['if', 'unless'] as const;
 
 type InlineKeyword = typeof INLINE_KEYWORDS[number];
 type BlockKeyword = typeof BLOCK_KEYWORDS[number];
@@ -123,6 +123,9 @@ export function templateToTypescript(
         case 'if':
           return emitIfExpression(node);
 
+        case 'unless':
+          return emitUnlessExpression(node);
+
         case 'hash':
           return emitHashExpression(node);
 
@@ -185,6 +188,26 @@ export function templateToTypescript(
         assert(node.params.length >= 2, '{{if}} requires at least two parameters');
 
         emit.text('(');
+        emitExpression(node.params[0]);
+        emit.text(') ? (');
+        emitExpression(node.params[1]);
+        emit.text(') : (');
+
+        if (node.params[2]) {
+          emitExpression(node.params[2]);
+        } else {
+          emit.text('undefined');
+        }
+
+        emit.text(')');
+      });
+    }
+
+    function emitUnlessExpression(node: AST.MustacheStatement | AST.SubExpression): void {
+      emit.forNode(node, () => {
+        assert(node.params.length >= 2, '{{unless}} requires at least two parameters');
+
+        emit.text('!(');
         emitExpression(node.params[0]);
         emit.text(') ? (');
         emitExpression(node.params[1]);
@@ -563,6 +586,10 @@ export function templateToTypescript(
           emitIfStatement(node);
           break;
 
+        case 'unless':
+          emitUnlessStatement(node);
+          break;
+
         default:
           unreachable(keyword);
       }
@@ -575,6 +602,37 @@ export function templateToTypescript(
         emit.text('if (');
         emitExpression(node.params[0]);
         emit.text(') {');
+        emit.newline();
+        emit.indent();
+
+        for (let statement of node.program.body) {
+          emitTopLevelStatement(statement);
+        }
+
+        if (node.inverse) {
+          emit.dedent();
+          emit.text('} else {');
+          emit.indent();
+          emit.newline();
+
+          for (let statement of node.inverse.body) {
+            emitTopLevelStatement(statement);
+          }
+        }
+
+        emit.dedent();
+        emit.text('}');
+        emit.newline();
+      });
+    }
+
+    function emitUnlessStatement(node: AST.BlockStatement): void {
+      emit.forNode(node, () => {
+        assert(node.params.length === 1, '{{#unless}} requires exactly one condition');
+
+        emit.text('if (!(');
+        emitExpression(node.params[0]);
+        emit.text(')) {');
         emit.newline();
         emit.indent();
 
