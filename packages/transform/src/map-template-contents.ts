@@ -127,6 +127,7 @@ export function mapTemplateContents(
   let captureMapping = (
     hbsRange: Range,
     source: AST.Node | Identifier,
+    allowEmpty: boolean,
     callback: () => void
   ): void => {
     let start = offset;
@@ -147,7 +148,7 @@ export function mapTemplateContents(
     // If the offset didn't change (either because nothing was emitted
     // or because an exception was thrown), don't add a new node to the
     // mapping tree or flush any new content.
-    if (start !== offset) {
+    if (start !== offset || allowEmpty) {
       let end = offset;
       let tsRange = { start, end };
 
@@ -179,7 +180,9 @@ export function mapTemplateContents(
       segmentsStack[0].push(value);
     },
     synthetic(value: string) {
-      emit.identifier(value, 0, 0);
+      if (value.length) {
+        emit.identifier(value, 0, 0);
+      }
     },
     identifier(value: string, hbsOffset: number, hbsLength = value.length) {
       // If there's a pending indent, flush that so it's not included in
@@ -190,10 +193,10 @@ export function mapTemplateContents(
 
       let hbsRange = { start: hbsOffset, end: hbsOffset + hbsLength };
       let source = new Identifier(value);
-      captureMapping(hbsRange, source, () => emit.text(value));
+      captureMapping(hbsRange, source, true, () => emit.text(value));
     },
     forNode(node: AST.Node, callback: () => void) {
-      captureMapping(rangeForNode(node), node, callback);
+      captureMapping(rangeForNode(node), node, false, callback);
     },
   };
 

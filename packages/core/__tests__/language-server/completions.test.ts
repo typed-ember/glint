@@ -24,7 +24,7 @@ describe('Language Server: Completions', () => {
         \`;
       }
 
-      class Inner extends Component<{ Args: { foo?: string; bar?: number } }> {}
+      class Inner extends Component<{ Args: { foo?: string; 'bar-baz'?: number } }> {}
     `;
 
     project.write('index.ts', code);
@@ -42,13 +42,13 @@ describe('Language Server: Completions', () => {
       },
       {
         kind: CompletionItemKind.Field,
-        label: 'bar',
+        label: 'bar-baz',
       },
     ]);
 
     let details = server.getCompletionDetails(completions![1]);
 
-    expect(details.detail).toEqual('(property) bar?: number | undefined');
+    expect(details.detail).toEqual("(property) 'bar-baz'?: number | undefined");
   });
 
   test('referencing class properties', () => {
