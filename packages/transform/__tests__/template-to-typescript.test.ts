@@ -89,6 +89,24 @@ describe('rewriteTemplate', () => {
       });
     });
 
+    describe('{{unless}}', () => {
+      test('without an alternate', () => {
+        let template = '{{unless @foo "ok"}}';
+
+        expect(templateBody(template)).toMatchInlineSnapshot(
+          `"!(𝚪.args.foo) ? (\\"ok\\") : (undefined);"`
+        );
+      });
+
+      test('with an alternate', () => {
+        let template = '{{unless @foo "ok" "nope"}}';
+
+        expect(templateBody(template)).toMatchInlineSnapshot(
+          `"!(𝚪.args.foo) ? (\\"ok\\") : (\\"nope\\");"`
+        );
+      });
+    });
+
     describe('{{#if}}', () => {
       test('without an {{else}}', () => {
         let template = stripIndent`
@@ -170,6 +188,40 @@ describe('rewriteTemplate', () => {
               },
             });
             χ.Globals[\\"doAThing\\"];
+          }"
+        `);
+      });
+    });
+
+    describe('{{#unless}}', () => {
+      test('without an {{else}}', () => {
+        let template = stripIndent`
+          {{#unless @foo}}
+            {{@ok}}
+          {{/unless}}
+        `;
+
+        expect(templateBody(template)).toMatchInlineSnapshot(`
+          "if (!(𝚪.args.foo)) {
+            χ.invokeEmit(χ.resolveOrReturn(𝚪.args.ok)({}));
+          }"
+        `);
+      });
+
+      test('with an {{else}}', () => {
+        let template = stripIndent`
+          {{#unless @foo}}
+            {{@ok}}
+          {{else}}
+            {{@noGood}}
+          {{/unless}}
+        `;
+
+        expect(templateBody(template)).toMatchInlineSnapshot(`
+          "if (!(𝚪.args.foo)) {
+            χ.invokeEmit(χ.resolveOrReturn(𝚪.args.ok)({}));
+          } else {
+            χ.invokeEmit(χ.resolveOrReturn(𝚪.args.noGood)({}));
           }"
         `);
       });
