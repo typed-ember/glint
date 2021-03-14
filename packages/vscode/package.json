@@ -1,6 +1,7 @@
 {
   "name": "@glint/vscode",
   "version": "0.0.0",
+  "private": true,
   "description": "A Visual Studio Code extension for the glint language server",
   "author": "James C. Davis (https://github.com/jamescdavis)",
   "license": "MIT",
