@@ -90,3 +90,116 @@ export class Shout extends Component<ShoutSignature> {
   `;
 }
 ```
+
+### With Ember.js
+
+#### Import Paths
+
+In order for GlimmerX entities to be interpretable by Glint, you currently need to use Glint-specific import paths for `@glimmer/component`, `@ember/component` and `ember-modifier`.
+
+| Vanilla Ember             | Ember + Glint                                           |
+| ------------------------- | ------------------------------------------------------- |
+| `@glimmer/component`      | `@glint/environment-ember-loose/glimmer-component`      |
+| `@ember/component`        | `@glint/environment-ember-loose/ember-component`        |
+| `@ember/component/helper` | `@glint/environment-ember-loose/ember-component/helper` |
+| `ember-modifier`          | `@glint/environment-glimmerx/ember-modifier`            |
+
+#### Component Signatures
+
+While Glimmer components accept `Args` as a type parameter, and Ember components accept no type parameters at all, the Glint version of each accepts `Signature`, which contains types for `Args` and `Yields`.
+
+```ts
+// app/components/super-table.ts
+
+import Component from '@glint/environment-glimmerx/glimmer-component';
+
+export interface SuperTableSignature<T> {
+  // We accept an array of items, one per row
+  Args: {
+    items: Array<T>;
+  };
+  // We accept two named blocks: an optional `header`, and a required
+  // `row`, which will be invoked with each item and its index.
+  Yields: {
+    header?: [];
+    row: [item: T, index: number];
+  };
+}
+
+export default class SuperTable<T> extends Component<SuperTableSignature<T>> {}
+```
+
+```hbs
+{{! app/components/super-table.hbs }}
+
+<table ...attributes>
+  {{#if (has-block "header")}}
+    <thead>
+      <tr>{{yield to="header"}}</tr>
+    </thead>
+  {{/if}}
+
+  <tbody>
+    {{#each @items as |item index|}}
+      <tr>{{yield item index to="row"}}</tr>
+    {{/each}}
+  </tbody>
+</table>
+```
+
+#### Ember Components
+
+Since Ember components don't have `this.args`, it takes slightly more boilerplate to make them typesafe.
+
+```ts
+// app/components/greeting.ts
+
+import Component, { ArgsFor } from '@glint/environment-ember-loose/ember-component';
+import { computed } from '@ember/object';
+
+export interface GreetingSignature {
+  Args: {
+    message: string;
+    target?: string;
+  };
+  Yields: {
+    default: [greeting: string];
+  };
+}
+
+// This line declares that our component's args will be 'splatted' on to the instance:
+export default interface Greeting extends ArgsFor<GreetingSignature> {}
+export default class Greeting extends Component<GreetingSignature> {
+  @computed('target')
+  private get greetingTarget() {
+    // Therefore making `this.target` a legal `string | undefined` property access:
+    return this.target ?? 'World';
+  }
+}
+```
+
+```hbs
+{{! app/components/greeting.hbs }}
+
+{{yield (concat @message ", " this.greetingTarget "!")}}
+```
+
+#### Template Registry
+
+Because Ember's template resolution occurs dynamically at runtime today, Glint needs a way of mapping the names used in your templates to the actual backing value they'll be resolved to. This takes the form of a "type registry" similar to the one that powers Ember Data's types.
+
+The recommended approach is to create a single file, for example at `types/template-registry.d.ts`, in which you can populate references to your app's components, helpers and modifiers.
+
+```ts
+// types/template-registry.d.ts
+
+import '@glint/environment-ember-loose/types/registry';
+
+declare module '@glint/environment-ember-loose/types/registry' {
+  export default interface Registry {
+    capitalize: typeof import('my-app/helpers/capitalize').default;
+    Shout: typeof import('my-app/components/shout').default;
+    SuperTable: typeof import('my-app/components/super-table').default;
+  }
+}
+```

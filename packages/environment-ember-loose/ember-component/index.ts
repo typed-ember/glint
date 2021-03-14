@@ -9,6 +9,8 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
   ? Exclude<T[Key], undefined>
   : Otherwise;
 
+export type ArgsFor<T extends ComponentSignature> = 'Args' extends keyof T ? T['Args'] : {};
+
 export interface ComponentSignature {
   Args?: Partial<Record<string, unknown>>;
   Yields?: Partial<Record<string, Array<unknown>>>;
