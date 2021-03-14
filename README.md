@@ -2,6 +2,22 @@
 
 TypeScript-powered tooling for Glimmer templates.
 
+- [Overview](#overview)
+- [Getting Started](#getting-started)
+- [Using Glint](#using-glint)
+  - [With GlimmerX](#with-glimmerx)
+    - [Import Paths](#import-paths)
+    - [Component Signature](#component-signature)
+  - [With Ember.js](#with-emberjs)
+    - [Import Paths](#import-paths-1)
+    - [Component Signatures](#component-signatures)
+    - [Ember Components](#ember-components)
+    - [Template Registry](#template-registry)
+- [Known Limitations](#known-limitations)
+  - [Environment Re-exports](#environment-re-exports)
+  - [Ember-Specific](#ember-specific)
+  - [Tooling](#tooling)
+
 ## Overview
 
 Glint is a set of tools to aid in developing code that uses the Glimmer VM for rendering, such as [Ember.js] and [GlimmerX] projects. It's particularly focused on static analysis of templates via TypeScript and the richer editing experience that that enables for both TS and vanilla JS projects.
@@ -203,3 +219,38 @@ declare module '@glint/environment-ember-loose/types/registry' {
   }
 }
 ```
+
+## Known Limitations
+
+As mentioned above, **Glint is not yet stable** and is still under active development. As such, there are currently several known limitations to be aware of:
+
+### Environment Re-exports
+
+Currently, users must import Glint-aware versions of `Component` and other values that are re-exported from their Glint environment rather than being able to directly use the "native" versions. The details of this requirement are explained in the environment-specific "Using Glint" sections above.
+
+This is not a permanent limitation, but rather a result of the base types for those entities not (yet) being extensible in the ways necessary to capture their template behavior. As we're able to make adjustments to those upstream types across the ecosystem to ensure they're extensible, we should be able to shift to use declaration merging instead of completely re-exporting.
+
+Once that's done, consumers should be able to import values the "normal" way directly from the sources packages like `@glimmer/component`.
+
+### Ember-Specific
+
+Glint is not currently integrated with `ember-cli-typescript`, so typechecking performed during an `ember-cli` build will not take templates into account.
+
+In addition, only pod-based and colocated components with backing classes are currently supported. That is, the following are **not yet** checkable with Glint:
+
+- template-only components
+- classic layout components
+- route templates
+- `render(...)` calls in tests
+
+Finally, the template registry described in the "With Ember.js" section above must currently be maintained by hand. A few possibilities for mitigating that pain have been discussed, but ultimately the best solution will be when [strict mode] comes to Ember and we no longer need to reckon with runtime resolution of template entities.
+
+[strict mode]: http://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html
+
+### Tooling
+
+The CLI and language server currently have a few known limitations:
+
+- The CLI does not yet support composite projects or `tsc`'s `--build` mode.
+- The language server will only operate on projects with a `.glintrc` at their root, not in a subdirectories of the workspace root.
+- In VS Code, you will see diagnostics from both TypeScript and Glint in many files, as well as false 'unused symbol' positives for things only referenced in templates. See [the VS Code extension README](packages/vscode) for details on dealing with this.
