@@ -7,10 +7,10 @@ TypeScript-powered tooling for Glimmer templates.
 - [Using Glint](#using-glint)
   - [With GlimmerX](#with-glimmerx)
     - [Import Paths](#import-paths)
-    - [Component Signature](#component-signature)
+    - [Component Signatures](#component-signatures)
   - [With Ember.js](#with-emberjs)
     - [Import Paths](#import-paths-1)
-    - [Component Signatures](#component-signatures)
+    - [Component Signatures](#component-signatures-1)
     - [Ember Components](#ember-components)
     - [Template Registry](#template-registry)
 - [Known Limitations](#known-limitations)
@@ -68,7 +68,7 @@ The language server can also enable your editor to provide other richer help, su
 
 #### Import Paths
 
-In order for GlimmerX entities to be interpretable by Glint, you currently need to use Glint-specific import paths for `@glimmerx/modifier`, `@glimmerx/helper` and `@glimmerx/component`.
+In order for GlimmerX entities to be interpretable by Glint, you currently need to use Glint-specific import paths for `@glimmerx/modifier`, `@glimmerx/helper` and `@glimmerx/component`. Note that [this is not a long-term restriction](#environment-re-exports), but a temporary workaround for the current state of the ecosystem.
 
 | Vanilla GlimmerX      | GlimmerX + Glint                        |
 | --------------------- | --------------------------------------- |
@@ -78,7 +78,7 @@ In order for GlimmerX entities to be interpretable by Glint, you currently need 
 
 **Note**: because of the way `@glimmerx/babel-plugin-component-templates` currently works, you must still import `hbs` from `@glimmerx/component` or your templates will not be compiled.
 
-#### Component Signature
+#### Component Signatures
 
 While GlimmerX components accept `Args` as a type parameter, the Glint version accepts `Signature`, which contains types for `Args` and `Yields`.
 
@@ -112,7 +112,7 @@ export class Shout extends Component<ShoutSignature> {
 
 #### Import Paths
 
-In order for GlimmerX entities to be interpretable by Glint, you currently need to use Glint-specific import paths for `@glimmer/component`, `@ember/component` and `ember-modifier`.
+In order for GlimmerX entities to be interpretable by Glint, you currently need to use Glint-specific import paths for `@glimmer/component`, `@ember/component` and `ember-modifier`. Note that [this is not a long-term restriction](#environment-re-exports), but a temporary workaround for the current state of the ecosystem.
 
 | Vanilla Ember             | Ember + Glint                                           |
 | ------------------------- | ------------------------------------------------------- |
@@ -223,7 +223,7 @@ declare module '@glint/environment-ember-loose/types/registry' {
 
 ## Known Limitations
 
-As mentioned above, **Glint is not yet stable** and is still under active development. As such, there are currently several known limitations to be aware of:
+As mentioned above, **Glint is not yet stable** and is still under active development. As such, there are currently several known limitations to be aware of.
 
 ### Environment Re-exports
 
