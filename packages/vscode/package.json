@@ -1,10 +1,28 @@
 {
-  "name": "@glint/vscode",
-  "version": "0.0.0",
+  "name": "glint-vscode",
+  "displayName": "Glint",
+  "description": "Glint language server integration for VS Code",
+  "version": "0.3.0",
+  "publisher": "typed-ember",
+  "preview": true,
   "private": true,
-  "description": "A Visual Studio Code extension for the glint language server",
   "author": "James C. Davis (https://github.com/jamescdavis)",
   "license": "MIT",
+  "main": "lib/extension.js",
+  "homepage": "https://github.com/typed-ember/glint/packages/vscode",
+  "repository": {
+    "url": "https://github.com/typed-ember/glint"
+  },
+  "keywords": [
+    "ember",
+    "glimmer",
+    "handlebars",
+    "typescript"
+  ],
+  "categories": [
+    "Programming Languages",
+    "Linters"
+  ],
   "files": [
     "README.md",
     "lib"
@@ -13,15 +31,24 @@
     "lint": "eslint . --max-warnings 0 && prettier --check src",
     "test": "node __tests__/support/launch-from-cli.js",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "vscode:prepublish": "yarn build"
   },
   "engines": {
-    "vscode": "^1.40.0"
+    "vscode": "^1.52.0"
   },
   "activationEvents": [
-    "*"
+    "workspaceContains:.glintrc*"
   ],
-  "main": "lib/extension.js",
+  "icon": "assets/glint.png",
+  "galleryBanner": {
+    "color": "#1E293B",
+    "theme": "dark"
+  },
+  "workspaces": {
+    "nohoist": [
+      "**/*"
+    ]
+  },
   "dependencies": {
     "resolve": "^1.20.0",
     "vscode-languageclient": "^7.0.0"
