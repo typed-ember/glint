@@ -9,7 +9,8 @@
   "scripts": {
     "lint": "yarn workspaces run lint",
     "test": "yarn workspaces run test",
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "release-it": "echo \"Running release-it via yarn breaks publishing! Use npx or a Volta global installation.\""
   },
   "volta": {
     "node": "12.16.2",
