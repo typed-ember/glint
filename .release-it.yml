@@ -1,4 +1,5 @@
 repo: 'typed-ember/glint'
+npm: false
 github:
   release: true
   releaseName: 'v${version}'
