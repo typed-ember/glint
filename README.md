@@ -80,13 +80,19 @@ In order for GlimmerX entities to be interpretable by Glint, you currently need 
 
 #### Component Signatures
 
-While GlimmerX components accept `Args` as a type parameter, the Glint version accepts `Signature`, which contains types for `Args` and `Yields`.
+While GlimmerX components accept `Args` as a type parameter, the Glint version accepts `Signature`, which contains types for `Element`, `Args` and `Yields`.
+
+The `Element` field declares what the component's root element is, in order to ensure any modifiers attached to your component will be compatible with the element they're ultimately attached to. If no `Element` is specified, it will be a type error to set any HTML attributes when invoking your component.
+
+The `Yields` field specifies the names of any blocks the component yields to, as well as the type of any parameter(s) they'll receive. See the [Yieldable Named Blocks RFC] for further details.
 
 ```ts
 import Component from '@glint/environment-glimmerx/component';
 import { hbs } from '@glimmerx/component';
 
 export interface ShoutSignature {
+  // We have a `<div>` as our root element
+  Element: HTMLDivElement;
   // We accept one required argument, `message`
   Args: {
     message: string;
@@ -103,10 +109,14 @@ export class Shout extends Component<ShoutSignature> {
   }
 
   public static template = hbs`
-    {{yield this.louderPlease}}
+    <div ...attributes>
+      {{yield this.louderPlease}}
+    </div>
   `;
 }
 ```
+
+[yieldable named blocks rfc]: https://github.com/emberjs/rfcs/blob/master/text/0460-yieldable-named-blocks.md
 
 ### With Ember.js
 
@@ -123,7 +133,7 @@ In order for GlimmerX entities to be interpretable by Glint, you currently need 
 
 #### Component Signatures
 
-While Glimmer components accept `Args` as a type parameter, and Ember components accept no type parameters at all, the Glint version of each accepts `Signature`, which contains types for `Args` and `Yields`.
+While Glimmer components accept `Args` as a type parameter, and Ember components accept no type parameters at all, the Glint version of each accepts `Signature`, which contains types for `Element`, `Args` and `Yields`. These three fields behave in the same way as they do for GlimmerX components, detailed above in that [Component Signatures](#component-signatures) section.
 
 ```ts
 // app/components/super-table.ts
@@ -131,6 +141,8 @@ While Glimmer components accept `Args` as a type parameter, and Ember components
 import Component from '@glint/environment-glimmerx/glimmer-component';
 
 export interface SuperTableSignature<T> {
+  // We have a `<table>` as our root element
+  Element: HTMLTableElement;
   // We accept an array of items, one per row
   Args: {
     items: Array<T>;
