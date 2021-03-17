@@ -43,7 +43,7 @@ declare function value<T>(): T;
     body: [boolean, T];
   }>;
 
-  type ExpectedContext<T> = TemplateContext<MyComponent<T>, MyArgs<T>, MyYields<T>>;
+  type ExpectedContext<T> = TemplateContext<MyComponent<T>, MyArgs<T>, MyYields<T>, null>;
 
   // Template has the correct type
   expectTypeOf(resolve(MyComponent)).toEqualTypeOf<ExpectedSignature>();
