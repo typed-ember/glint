@@ -1,0 +1,101 @@
+{
+  "name": "demo-untyped-glimmerx-app",
+  "version": "0.0.0",
+  "description": "A brand new Glimmer app.",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "NODE_ENV=production webpack",
+    "lint": "eslint . --ext=js --cache",
+    "start": "webpack-dev-server",
+    "test": "npm-run-all lint test:browsers",
+    "test:browsers": "testem ci",
+    "test:watch": "testem"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-decorators": "^7.8.3",
+    "@babel/preset-env": "^7.9.0",
+    "@glimmer/babel-plugin-glimmer-env": "~2.0.0-beta.12",
+    "@glimmer/env": "^0.1.7",
+    "@glimmerx/babel-plugin-component-templates": "^0.4.2",
+    "@glimmerx/component": "^0.4.2",
+    "@glimmerx/core": "^0.4.2",
+    "@glimmerx/eslint-plugin": "^0.4.2",
+    "@glimmerx/helper": "^0.4.2",
+    "@glimmerx/modifier": "^0.4.2",
+    "@glint/core": "^0.3.0",
+    "babel-loader": "^8.1.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.1.1",
+    "css-loader": "^3.4.2",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "file-loader": "^6.0.0",
+    "glob": "7.1.6",
+    "html-webpack-plugin": "^4.0.4",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.0.2",
+    "qunit": "^2.9.3",
+    "qunit-dom": "^1.1.0",
+    "style-loader": "^1.1.3",
+    "testem": "^3.0.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  },
+  "eslintConfig": {
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "impliedStrict": true
+      }
+    },
+    "env": {
+      "browser": true
+    },
+    "plugins": [
+      "@glimmerx",
+      "prettier"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:prettier/recommended"
+    ],
+    "ignorePatterns": [
+      "dist/",
+      "node_modules/",
+      "!.*"
+    ],
+    "rules": {
+      "@glimmerx/template-vars": "error"
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "browserslist": {
+    "production": [
+      "last 2 Edge versions",
+      "last 2 Chrome versions",
+      "last 2 Firefox versions",
+      "last 2 Safari versions"
+    ],
+    "development": [
+      "last 1 Chrome version",
+      "last 1 Firefox version",
+      "last 1 Safari version"
+    ]
+  },
+  "engines": {
+    "node": ">= 12.0"
+  },
+  "private": true
+}

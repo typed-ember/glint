@@ -9,7 +9,8 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
         "${workspaceFolder}/test-packages/demo-ember-app",
-        "${workspaceFolder}/test-packages/demo-glimmerx-app"
+        "${workspaceFolder}/test-packages/demo-glimmerx-app",
+        "${workspaceFolder}/test-packages/demo-untyped-glimmerx-app"
       ]
     }
   ]
