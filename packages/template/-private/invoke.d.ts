@@ -1,4 +1,4 @@
-import { CreatesModifier, AcceptsBlocks } from './signature';
+import { AcceptsBlocks } from './signature';
 import { BlockBodies } from './blocks';
 
 /**
@@ -14,14 +14,6 @@ import { BlockBodies } from './blocks';
 export declare function invokeEmit<
   T extends AcceptsBlocks<{}> | string | number | boolean | null | void
 >(value: T): void;
-
-/**
- * Invokes the given value as a modifier. This corresponds to a mustache
- * statement 'floating' in the attribute space of an element or component:
- *
- *     <div {{value foo=bar}}></div>
- */
-export declare function invokeModifier<T extends CreatesModifier>(value: T): void;
 
 /**
  * Invokes the given value as an entity that expects to receive blocks
