@@ -18,7 +18,7 @@ declare function value<T>(): T;
     body: [boolean, T];
   };
 
-  class MyComponent<T> extends TestComponent<MyArgs<T>, MyYields<T>> {
+  class MyComponent<T> extends TestComponent<{ Args: MyArgs<T>; Yields: MyYields<T> }> {
     private state = { ready: false };
 
     /**

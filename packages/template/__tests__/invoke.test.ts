@@ -11,16 +11,18 @@ import { expectTypeOf } from 'expect-type';
 import TestComponent, { globals } from './test-component';
 import { yieldToBlock } from '../-private/blocks';
 
-type MyComponentArgs<T> = {
-  name?: string;
-  value: T;
+type MyComponentSignature<T> = {
+  Args: {
+    name?: string;
+    value: T;
+  };
+  Yields: {
+    body?: [boolean, T];
+  };
+  Element: HTMLDivElement;
 };
 
-type MyComponentYields<T> = {
-  body?: [boolean, T];
-};
-
-class MyComponent<T> extends TestComponent<MyComponentArgs<T>, MyComponentYields<T>> {
+class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
   private state = { ready: false };
 
   private wrapperClicked(event: MouseEvent): void {

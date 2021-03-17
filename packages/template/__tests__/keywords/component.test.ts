@@ -5,7 +5,10 @@ import TestComponent from '../test-component';
 
 const componentKeyword = resolve({} as ComponentKeyword);
 
-class StringComponent extends TestComponent<{ value: string }, { default?: [string] }> {}
+class StringComponent extends TestComponent<{
+  Args: { value: string };
+  Yields: { default?: [string] };
+}> {}
 
 const NoopCurriedStringComponent = componentKeyword({}, StringComponent);
 const ValueCurriedStringComponent = componentKeyword({ value: 'hello' }, StringComponent);
@@ -52,10 +55,10 @@ componentKeyword({ foo: true }, StringComponent);
 // @ts-expect-error: Attempting to curry an arg with the wrong type
 componentKeyword({ value: 123 }, StringComponent);
 
-class ParametricComponent<T> extends TestComponent<
-  { values: Array<T>; optional?: string },
-  { default?: [T, number] }
-> {}
+class ParametricComponent<T> extends TestComponent<{
+  Args: { values: Array<T>; optional?: string };
+  Yields: { default?: [T, number] };
+}> {}
 
 const NoopCurriedParametricComponent = componentKeyword({}, ParametricComponent);
 
