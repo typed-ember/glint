@@ -12,9 +12,9 @@ import {
 import { EmptyObject } from '../-private/signature';
 import { expectTypeOf } from 'expect-type';
 
-declare const imageModifier: DirectInvokable<(
-  args: EmptyObject
-) => CreatesModifier<HTMLImageElement>>;
+declare const imageModifier: DirectInvokable<
+  (args: EmptyObject) => CreatesModifier<HTMLImageElement>
+>;
 
 class GenericElementComponent extends TestComponent<{ Element: HTMLElement }> {}
 
