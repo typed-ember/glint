@@ -22,22 +22,24 @@ type SumVariants<T extends SumType<never>> = T extends SumType<infer V> ? V : ne
 // https://github.com/hojberg/sums-up
 // It doesn't (can't) do exhaustiveness checking, but it does plumb through
 // type parameters correctly
-declare const caseOf: DirectInvokable<<T extends SumType<never>>(
-  args: NoNamedArgs,
-  value: T
-) => AcceptsBlocks<{
-  default: [
-    DirectInvokable<
-      <K extends keyof SumVariants<T>>(
-        args: NoNamedArgs,
-        key: K
-      ) => AcceptsBlocks<{
-        default: SumVariants<T>[K];
-        inverse?: [];
-      }>
-    >
-  ];
-}>>;
+declare const caseOf: DirectInvokable<
+  <T extends SumType<never>>(
+    args: NoNamedArgs,
+    value: T
+  ) => AcceptsBlocks<{
+    default: [
+      DirectInvokable<
+        <K extends keyof SumVariants<T>>(
+          args: NoNamedArgs,
+          key: K
+        ) => AcceptsBlocks<{
+          default: SumVariants<T>[K];
+          inverse?: [];
+        }>
+      >
+    ];
+  }>
+>;
 
 /**
  * ```hbs
@@ -74,9 +76,9 @@ invokeBlock(resolve(caseOf)({}, maybeValue), {
 // you do get exhaustiveness checking with this approach (though it's
 // arguable whether that's necessarily a good thing in template-land)
 
-declare const CaseOf: DirectInvokable<<T extends SumType<any>>(args: {
-  value: T;
-}) => AcceptsBlocks<SumVariants<T>>>;
+declare const CaseOf: DirectInvokable<
+  <T extends SumType<any>>(args: { value: T }) => AcceptsBlocks<SumVariants<T>>
+>;
 
 /**
  * ```hbs

@@ -28,7 +28,7 @@
     "@glint/template": "^0.3.0"
   },
   "devDependencies": {
-    "@glimmerx/component": "^0.3.0",
+    "@glimmerx/component": "^0.4.2",
     "expect-type": "0.7.3"
   },
   "publishConfig": {
