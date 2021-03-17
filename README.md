@@ -119,7 +119,7 @@ In order for GlimmerX entities to be interpretable by Glint, you currently need 
 | `@glimmer/component`      | `@glint/environment-ember-loose/glimmer-component`      |
 | `@ember/component`        | `@glint/environment-ember-loose/ember-component`        |
 | `@ember/component/helper` | `@glint/environment-ember-loose/ember-component/helper` |
-| `ember-modifier`          | `@glint/environment-glimmerx/ember-modifier`            |
+| `ember-modifier`          | `@glint/environment-ember-loose/ember-modifier`         |
 
 #### Component Signatures
 
