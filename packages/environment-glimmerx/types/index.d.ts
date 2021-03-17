@@ -25,7 +25,7 @@ import {
   Invoke,
   InvokeDirect,
 } from '@glint/template/-private/resolution';
-import { NoNamedArgs } from '@glint/template/-private/signature';
+import { CreatesModifier, NoNamedArgs } from '@glint/template/-private/signature';
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolve<Args extends unknown[], Instance extends Invokable>(
@@ -34,6 +34,9 @@ export declare function resolve<Args extends unknown[], Instance extends Invokab
 export declare function resolve<Value, Args extends unknown[], T extends Value>(
   item: (value: Value, ...args: Args) => value is T
 ): (named: NoNamedArgs, value: Value, ...args: Args) => value is T;
+export declare function resolve<El extends Element, Args extends unknown[]>(
+  item: (element: El, ...args: Args) => void | (() => void)
+): (named: NoNamedArgs, ...args: Args) => CreatesModifier<El>;
 export declare function resolve<Args extends unknown[], T>(
   item: (...args: Args) => T
 ): (named: NoNamedArgs, ...args: Args) => T;

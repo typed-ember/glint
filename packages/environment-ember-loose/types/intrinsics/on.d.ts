@@ -12,6 +12,8 @@ export type OnModifier = DirectInvokable<{
     args: OnModifierArgs,
     name: Name,
     callback: (event: HTMLElementEventMap[Name]) => void
-  ): CreatesModifier;
-  (args: OnModifierArgs, name: string, callback: (event: Event) => void): CreatesModifier;
+  ): CreatesModifier<HTMLElement>;
+  (args: OnModifierArgs, name: string, callback: (event: Event) => void): CreatesModifier<
+    HTMLElement
+  >;
 }>;

@@ -1,5 +1,5 @@
 import { on as onDefinition } from '@glint/environment-glimmerx/modifier';
-import { resolve, invokeModifier } from '@glint/environment-glimmerx/types';
+import { resolve, applyModifier } from '@glint/environment-glimmerx/types';
 import { expectTypeOf } from 'expect-type';
 
 // Built-in modifier: `on`
@@ -22,5 +22,5 @@ import { expectTypeOf } from 'expect-type';
     expectTypeOf(event).toEqualTypeOf<MouseEvent>();
   });
 
-  expectTypeOf(invokeModifier(on({}, 'click', () => {}))).toEqualTypeOf<void>();
+  expectTypeOf(applyModifier(on({}, 'click', () => {}))).toEqualTypeOf<void>();
 }

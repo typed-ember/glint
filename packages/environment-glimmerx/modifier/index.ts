@@ -11,7 +11,7 @@ type OnModifier = DirectInvokable<
     args: EmptyObject,
     name: Name,
     callback: (event: HTMLElementEventMap[Name]) => void
-  ) => CreatesModifier
+  ) => CreatesModifier<HTMLElement>
 >;
 
 export const on = (glimmerxModifier.on as unknown) as OnModifier;

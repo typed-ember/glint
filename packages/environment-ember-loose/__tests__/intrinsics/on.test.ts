@@ -1,5 +1,5 @@
 import { expectTypeOf } from 'expect-type';
-import { Globals, invokeModifier, resolve } from '@glint/environment-ember-loose/types';
+import { Globals, applyModifier, resolve } from '@glint/environment-ember-loose/types';
 
 const on = resolve(Globals['on']);
 
@@ -26,4 +26,4 @@ on({}, 'keyup', (event) => {
   expectTypeOf(event).toEqualTypeOf<KeyboardEvent>();
 });
 
-expectTypeOf(invokeModifier(on({}, 'click', () => {}))).toEqualTypeOf<void>();
+expectTypeOf(applyModifier(on({}, 'click', () => {}))).toEqualTypeOf<void>();
