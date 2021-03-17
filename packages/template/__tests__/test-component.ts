@@ -2,7 +2,6 @@ import {
   TemplateContext,
   AcceptsBlocks,
   CreatesModifier,
-  NoNamedArgs,
   Invoke,
   ContextType,
 } from '@glint/template/-private';
@@ -20,10 +19,10 @@ export declare const globals: {
   let: LetKeyword;
   on: DirectInvokable<
     <T extends keyof HTMLElementEventMap>(
-      args: NoNamedArgs,
+      args: EmptyObject,
       event: T,
       callback: (event: HTMLElementEventMap[T]) => void
-    ) => CreatesModifier
+    ) => CreatesModifier<HTMLElement>
   >;
 };
 

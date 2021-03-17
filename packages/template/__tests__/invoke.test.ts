@@ -3,13 +3,14 @@ import {
   resolve,
   invokeBlock,
   ResolveContext,
-  invokeModifier,
+  applyModifier,
   invokeEmit,
   resolveOrReturn,
 } from '@glint/template';
 import { expectTypeOf } from 'expect-type';
 import TestComponent, { globals } from './test-component';
 import { yieldToBlock } from '../-private/blocks';
+import { ElementForTagName } from '../-private/attributes';
 
 type MyComponentSignature<T> = {
   Args: {
@@ -41,7 +42,9 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
   public static template = template(function <T>(𝚪: ResolveContext<MyComponent<T>>) {
     invokeBlock(resolve(globals.let)({}, 𝚪.this.state.ready), {
       default(isReady) {
-        invokeModifier(resolve(globals.on)({}, 'click', 𝚪.this.wrapperClicked));
+        applyModifier<ElementForTagName<'div'>>(
+          resolve(globals.on)({}, 'click', 𝚪.this.wrapperClicked)
+        );
 
         yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
 
