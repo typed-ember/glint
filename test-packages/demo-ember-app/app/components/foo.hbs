@@ -13,3 +13,23 @@
 <Baz />
 
 <Qux />
+
+<EmberComponent />
+
+<EmberComponent @required="req" />
+
+<EmberComponent @required={{1}} />
+
+<EmberComponent @required="req" @optional={{1}} />
+
+<EmberComponent @required="req" @optional="opt" />
+
+<EmberComponent @required="req" @hasDefault="override" />
+
+<EmberComponent @required="req" @hasDefault={{false}} />
+
+{{repeat "foo" 3}}
+
+{{repeat "foo"}}
+
+{{repeat "foo" "bar"}}

@@ -1,11 +1,13 @@
 import type { Invoke, Invokable } from '@glint/template/-private/resolution';
 import type { EmptyObject } from '@glint/template/-private/signature';
 
-const EmberHelper = window.require('ember').Helper;
+declare const Ember: { Helper: EmberHelperConstructor };
+
 type EmberHelper = import('@ember/component/helper').default;
 type EmberHelperConstructor = typeof import('@ember/component/helper').default;
 
-const emberHelper = window.require('ember').Helper.helper;
+const EmberHelper = Ember.Helper;
+const emberHelper = Ember.Helper.helper;
 
 type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
   ? Exclude<T[Key], undefined>
@@ -15,7 +17,7 @@ type HelperFactory = <Positional extends unknown[] = [], Named = EmptyObject, Re
   fn: (params: Positional, hash: Named) => Return
 ) => new () => Invokable<(named: Named, ...positional: Positional) => Return>;
 
-export const helper = emberHelper as HelperFactory;
+export const helper = (emberHelper as unknown) as HelperFactory;
 
 export interface HelperSignature {
   NamedArgs?: Record<string, unknown>;
@@ -26,7 +28,7 @@ export interface HelperSignature {
 // Overriding `compute` directly is impossible because the base class has such
 // wide parameter types, so we explicitly exclude that from the interface we're
 // extending here so our override can "take" without an error.
-const Helper = EmberHelper as new <T extends HelperSignature>(
+const Helper = (EmberHelper as unknown) as new <T extends HelperSignature>(
   ...args: ConstructorParameters<EmberHelperConstructor>
 ) => Helper<T>;
 

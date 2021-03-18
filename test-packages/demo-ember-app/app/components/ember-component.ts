@@ -1,6 +1,6 @@
 import Component, { ArgsFor } from '@glint/environment-ember-loose/ember-component';
 
-export interface EmberSignature {
+export interface EmberComponentSignature {
   Args: {
     required: string;
     hasDefault?: string;
@@ -8,8 +8,8 @@ export interface EmberSignature {
   };
 }
 
-export default interface Ember extends ArgsFor<EmberSignature> {}
-export default class Ember extends Component<EmberSignature> {
+export default interface EmberComponent extends ArgsFor<EmberComponentSignature> {}
+export default class EmberComponent extends Component<EmberComponentSignature> {
   public hasDefault = 'defaultValue';
 
   public checkTypes(): unknown {
@@ -23,6 +23,6 @@ export default class Ember extends Component<EmberSignature> {
 
 declare module '@glint/environment-ember-loose/types/registry' {
   export default interface Registry {
-    Ember: typeof Ember;
+    EmberComponent: typeof EmberComponent;
   }
 }
