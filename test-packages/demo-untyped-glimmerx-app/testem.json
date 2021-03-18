@@ -21,8 +21,7 @@
     ]
   },
   "launch_in_ci": [
-    "Chrome",
-    "Firefox"
+    "Chrome"
   ],
   "launch_in_dev": [
     "Chrome"
