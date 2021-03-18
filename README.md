@@ -82,7 +82,7 @@ In order for GlimmerX entities to be interpretable by Glint, you currently need 
 
 While GlimmerX components accept `Args` as a type parameter, the Glint version accepts `Signature`, which contains types for `Element`, `Args` and `Yields`.
 
-The `Element` field declares what the component's root element is, in order to ensure any modifiers attached to your component will be compatible with the element they're ultimately attached to. If no `Element` is specified, it will be a type error to set any HTML attributes when invoking your component.
+The `Element` field declares what type of element(s), if any, the component applies its passed `...attributes` to. This is often the component's root element. Tracking this type ensures any modifiers used on your component will be compatible with the DOM element(s) they're ultimately attached to. If no `Element` is specified, it will be a type error to set any HTML attributes when invoking your component.
 
 The `Yields` field specifies the names of any blocks the component yields to, as well as the type of any parameter(s) they'll receive. See the [Yieldable Named Blocks RFC] for further details.
 

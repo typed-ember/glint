@@ -6,7 +6,7 @@ import {
   ContextType,
 } from '@glint/template/-private';
 import { LetKeyword } from '@glint/template/-private/keywords';
-import { RootElement } from '../-private/attributes';
+import { Element } from '../-private/attributes';
 import { DirectInvokable } from '../-private/resolution';
 import { EmptyObject } from '../-private/signature';
 
@@ -37,6 +37,6 @@ export interface ComponentSignature {
 declare class TestComponent<T extends ComponentSignature = {}> {
   readonly args: Get<T, 'Args'>;
   [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>;
-  [RootElement]: Get<T, 'Element', null>;
+  [Element]: Get<T, 'Element', null>;
   [ContextType]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }

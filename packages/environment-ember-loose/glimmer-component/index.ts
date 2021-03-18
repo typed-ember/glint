@@ -1,5 +1,5 @@
 import type { ContextType, Invoke, TemplateContext } from '@glint/template/-private';
-import type { RootElement } from '@glint/template/-private/attributes';
+import type { Element } from '@glint/template/-private/attributes';
 import type { AcceptsBlocks, EmptyObject } from '@glint/template/-private/signature';
 
 const GlimmerComponent = window.require('@glimmer/component').default;
@@ -22,7 +22,7 @@ const Component = GlimmerComponent as new <T extends ComponentSignature = {}>(
 
 interface Component<T extends ComponentSignature = {}> extends GlimmerComponent<Get<T, 'Args'>> {
   [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>;
-  [RootElement]: Get<T, 'Element', null>;
+  [Element]: Get<T, 'Element', null>;
   [ContextType]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }
 

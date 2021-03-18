@@ -1,14 +1,14 @@
 import { CreatesModifier } from './signature';
 
-declare const RootElement: unique symbol;
-export type HasRootElement<El extends Element | null | undefined> = { [RootElement]: El };
+declare const Element: unique symbol;
+export type HasElement<El extends Element | null | undefined> = { [Element]: El };
 
 export type ElementForTagName<Name extends string> = Name extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[Name]
   : Element;
 
-export type ElementForComponent<T extends Constructor<HasRootElement<any>>> = T extends Constructor<
-  HasRootElement<infer El>
+export type ElementForComponent<T extends Constructor<HasElement<any>>> = T extends Constructor<
+  HasElement<infer El>
 >
   ? El
   : null;

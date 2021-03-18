@@ -1,5 +1,5 @@
 import type { ContextType, Invoke, TemplateContext } from '@glint/template/-private';
-import type { RootElement } from '@glint/template/-private/attributes';
+import type { Element } from '@glint/template/-private/attributes';
 import type { AcceptsBlocks, EmptyObject } from '@glint/template/-private/signature';
 
 const EmberComponent = window.require('ember').EmberComponent;
@@ -24,7 +24,7 @@ const Component = EmberComponent as new <T extends ComponentSignature = {}>(
 
 interface Component<T extends ComponentSignature = {}> extends EmberComponent {
   [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>;
-  [RootElement]: Get<T, 'Element', null>;
+  [Element]: Get<T, 'Element', null>;
   [ContextType]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }
 
