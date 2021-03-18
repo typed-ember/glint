@@ -1,0 +1,5 @@
+*.js    text eol=lf
+*.ts    text eol=lf
+*.css   text eol=lf
+*.hbs   text eol=lf
+*.json  text eol=lf

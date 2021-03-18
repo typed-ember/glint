@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+#app {
+  min-height: 100vh;
+  width: 800px;
+  margin: auto;
+}
