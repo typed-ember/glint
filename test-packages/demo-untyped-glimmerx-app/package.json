@@ -75,7 +75,19 @@
     ],
     "rules": {
       "@glimmerx/template-vars": "error"
-    }
+    },
+    "overrides": [
+      {
+        "files": [
+          ".babelrc.js",
+          "testem.js",
+          "webpack.config.js"
+        ],
+        "env": {
+          "node": true
+        }
+      }
+    ]
   },
   "prettier": {
     "singleQuote": true,
