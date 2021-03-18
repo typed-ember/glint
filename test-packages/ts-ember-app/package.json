@@ -1,8 +1,8 @@
 {
-  "name": "demo-ember-app",
+  "name": "ts-ember-app",
   "version": "0.3.1",
   "private": true,
-  "description": "Small description for demo-ember-app goes here",
+  "description": "Small description for ts-ember-app goes here",
   "repository": "",
   "license": "MIT",
   "author": "",

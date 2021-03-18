@@ -2,8 +2,8 @@
 
 module.exports = function(environment) {
   let ENV = {
-    modulePrefix: 'demo-ember-app',
-    podModulePrefix: 'demo-ember-app/pods',
+    modulePrefix: 'ts-ember-app',
+    podModulePrefix: 'ts-ember-app/pods',
     environment,
     rootURL: '/',
     locationType: 'auto',

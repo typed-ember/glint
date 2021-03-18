@@ -21,10 +21,10 @@
     "module": "es6",
     "experimentalDecorators": true,
     "paths": {
-      "demo-ember-app/tests/*": [
+      "ts-ember-app/tests/*": [
         "tests/*"
       ],
-      "demo-ember-app/*": [
+      "ts-ember-app/*": [
         "app/*"
       ],
       "*": [
