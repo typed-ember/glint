@@ -15,7 +15,7 @@ module('Integration | Component | foo', function(hooks) {
 
     assert.deepEqual(
       this.element.textContent.trim().split(/\s+/),
-      ['FOO','BAR-0','BAR-A','BAR-','BAR-','BAZ','QUX']
+      ['FOO','BAR-0','BAR-A','BAR-','BAR-','BAZ','QUX','foofoofoo']
     );
   });
 });
