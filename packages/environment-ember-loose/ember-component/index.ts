@@ -1,7 +1,9 @@
 import type { ContextType, Invoke, TemplateContext } from '@glint/template/-private';
 import type { AcceptsBlocks, EmptyObject } from '@glint/template/-private/signature';
 
-const EmberComponent = window.require('ember').EmberComponent;
+declare const Ember: { Component: EmberComponentConstructor };
+
+const EmberComponent = Ember.Component;
 type EmberComponent = import('@ember/component').default;
 type EmberComponentConstructor = typeof import('@ember/component').default;
 
@@ -16,7 +18,7 @@ export interface ComponentSignature {
   Yields?: Partial<Record<string, Array<unknown>>>;
 }
 
-const Component = EmberComponent as new <T extends ComponentSignature = {}>(
+const Component = (EmberComponent as unknown) as new <T extends ComponentSignature = {}>(
   ...args: ConstructorParameters<EmberComponentConstructor>
 ) => Component<T>;
 
