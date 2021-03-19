@@ -217,7 +217,7 @@ export default class Greeting extends Component<GreetingSignature> {
 
 Because Ember's template resolution occurs dynamically at runtime today, Glint needs a way of mapping the names used in your templates to the actual backing value they'll be resolved to. This takes the form of a "type registry" similar to the one that powers Ember Data's types.
 
-The recommended approach is to include a declaration in each component, modifier or helper module that adds it to the registry, which is the default export of `@glint/environment-ember-loose/types/registry`.
+The recommended approach is to include a declaration in each component, modifier or helper module that adds it to the registry, which is the default export of `@glint/environment-ember-loose/registry`.
 
 ```ts
 // app/components/greeting.ts
@@ -228,7 +228,7 @@ export default class Greeting extends Component {
   // ...
 }
 
-declare module '@glint/environment-ember-loose/types/registry' {
+declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry {
     Greeting: typeof Greeting;
   }
