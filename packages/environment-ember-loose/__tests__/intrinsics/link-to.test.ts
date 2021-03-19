@@ -1,4 +1,4 @@
-import { Globals, resolve, invokeBlock } from '@glint/environment-ember-loose/types';
+import { Globals, resolve, invokeBlock } from '@glint/environment-ember-loose/-private/dsl';
 
 let linkTo = resolve(Globals['link-to']);
 let LinkTo = resolve(Globals['LinkTo']);

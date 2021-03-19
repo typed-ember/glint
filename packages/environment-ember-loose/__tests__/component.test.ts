@@ -5,8 +5,8 @@ import {
   resolve,
   ResolveContext,
   yieldToBlock,
-} from '@glint/environment-ember-loose/types';
-import { EmptyObject } from '@glint/template/-private/signature';
+} from '@glint/environment-ember-loose/-private/dsl';
+import { EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
 
 {

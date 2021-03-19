@@ -1,5 +1,5 @@
 import { expectTypeOf } from 'expect-type';
-import { Globals, applyModifier, resolve } from '@glint/environment-ember-loose/types';
+import { Globals, applyModifier, resolve } from '@glint/environment-ember-loose/-private/dsl';
 
 const on = resolve(Globals['on']);
 

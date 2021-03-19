@@ -1,5 +1,5 @@
 import { expectTypeOf } from 'expect-type';
-import { Globals, resolve, invokeBlock } from '@glint/environment-ember-loose/types';
+import { Globals, resolve, invokeBlock } from '@glint/environment-ember-loose/-private/dsl';
 
 let eachIn = resolve(Globals['each-in']);
 
