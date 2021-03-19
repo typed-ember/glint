@@ -1,5 +1,4 @@
-import { AcceptsBlocks, AnyBlocks } from '../signature';
-import { DirectInvokable, Invokable } from '../resolution';
+import { AcceptsBlocks, AnyBlocks, DirectInvokable, Invokable } from '../integration';
 
 export type ComponentKeyword = DirectInvokable<{
   <

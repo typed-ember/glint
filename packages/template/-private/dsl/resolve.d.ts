@@ -1,23 +1,4 @@
-/*
- * This module contains types and functions related to resolving the
- * _template signature_ and _template context_ for various values.
- */
-
-import { NoNamedArgs } from './signature';
-import { TemplateContext } from './template';
-
-declare const InvokeDirect: unique symbol;
-export type DirectInvokable<T extends AnySignature = AnySignature> = { [InvokeDirect]: T };
-
-declare const Invoke: unique symbol;
-export type Invokable<T extends AnySignature = AnySignature> = { [Invoke]: T };
-
-declare const ContextType: unique symbol;
-export type HasContext<T extends AnyContext = AnyContext> = { [ContextType]: T };
-
-export type AnySignature = (...args: any) => any;
-export type AnyContext = TemplateContext<any, any, any, any>;
-export type ResolveContext<T> = T extends HasContext<infer Context> ? Context : unknown;
+import { DirectInvokable, EmptyObject, Invokable, Invoke, InvokeDirect } from '../integration';
 
 /*
  * We have multiple ways of representing invokable values, dictated by certain constraints
@@ -68,4 +49,4 @@ export declare function resolveOrReturn<T extends DirectInvokable>(item: T): T[t
 export declare function resolveOrReturn<Args extends unknown[], Instance extends Invokable>(
   item: new (...args: Args) => Instance
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
-export declare function resolveOrReturn<T>(item: T): (args: NoNamedArgs) => T;
+export declare function resolveOrReturn<T>(item: T): (args: EmptyObject) => T;

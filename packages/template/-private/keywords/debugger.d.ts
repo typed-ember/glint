@@ -1,6 +1,5 @@
-import { DirectInvokable } from '../resolution';
-import { NoNamedArgs } from '../signature';
+import { DirectInvokable, EmptyObject } from '../integration';
 
 export type DebuggerKeyword = DirectInvokable<{
-  (args: NoNamedArgs): void;
+  (args: EmptyObject): void;
 }>;

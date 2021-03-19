@@ -1,8 +1,7 @@
-import { DirectInvokable } from '../resolution';
-import { NoNamedArgs, AcceptsBlocks } from '../signature';
+import { AcceptsBlocks, DirectInvokable, EmptyObject } from '../integration';
 
 export type WithKeyword = DirectInvokable<{
-  <T>(args: NoNamedArgs, value: T): AcceptsBlocks<{
+  <T>(args: EmptyObject, value: T): AcceptsBlocks<{
     default: [T];
     inverse?: [];
   }>;
