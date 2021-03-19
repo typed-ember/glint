@@ -1,4 +1,4 @@
-# demo-untyped-glimmerx-app
+# js-glimmerx-app
 
 This application is used for development of the Glint language server in an untyped GlimmerX project.
 

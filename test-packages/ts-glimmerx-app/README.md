@@ -1,4 +1,4 @@
-# demo-glimmerx-app
+# ts-glimmerx-app
 
 This application demonstrates the usage of glint in a GlimmerX project.
 
