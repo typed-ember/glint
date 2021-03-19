@@ -138,7 +138,7 @@ While Glimmer components accept `Args` as a type parameter, and Ember components
 ```ts
 // app/components/super-table.ts
 
-import Component from '@glint/environment-glimmerx/glimmer-component';
+import Component from '@glint/environment-ember-loose/glimmer-component';
 
 export interface SuperTableSignature<T> {
   // We have a `<table>` as our root element
