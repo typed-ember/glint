@@ -25,8 +25,8 @@ describe('rewriteModule', () => {
         export default class MyComponent extends Component {
           static template = (() => {
           hbs;
-          let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<MyComponent>) {
+          let χ!: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\");
+          return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<MyComponent>) {
             𝚪;
           });
         })();
@@ -53,8 +53,8 @@ describe('rewriteModule', () => {
         export default class MyComponent<K extends string> extends Component<{ value: K }> {
           static template = (() => {
           hbs;
-          let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");
-          return χ.template(function<K extends string>(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<MyComponent<K>>) {
+          let χ!: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\");
+          return χ.template(function<K extends string>(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<MyComponent<K>>) {
             𝚪;
           });
         })();
@@ -91,8 +91,8 @@ describe('rewriteModule', () => {
         export default class extends Component {
           static template = (() => {
           hbs;
-          let χ!: typeof import(\\"@glint/environment-glimmerx/types\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/types\\").ResolveContext<unknown>) {
+          let χ!: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\");
+          return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<unknown>) {
             𝚪;
           });
         })();
@@ -149,8 +149,8 @@ describe('rewriteModule', () => {
         export default class MyComponent extends Component {
         private static '~template' = (() => {
           MyComponent['~template'];
-          let χ!: typeof import(\\"@glint/environment-ember-loose/types\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/types\\").ResolveContext<MyComponent>) {
+          let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
+          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>) {
             𝚪;
           });
         })();
@@ -182,8 +182,8 @@ describe('rewriteModule', () => {
         class MyComponent extends Component {
         private static '~template' = (() => {
           MyComponent['~template'];
-          let χ!: typeof import(\\"@glint/environment-ember-loose/types\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/types\\").ResolveContext<MyComponent>) {
+          let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
+          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>) {
             𝚪;
           });
         })();
@@ -215,8 +215,8 @@ describe('rewriteModule', () => {
         export default class MyComponent<K extends string> extends Component<{ value: K }> {
         private static '~template' = (() => {
           MyComponent['~template'];
-          let χ!: typeof import(\\"@glint/environment-ember-loose/types\\");
-          return χ.template(function<K extends string>(𝚪: import(\\"@glint/environment-ember-loose/types\\").ResolveContext<MyComponent<K>>) {
+          let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
+          return χ.template(function<K extends string>(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent<K>>) {
             𝚪;
           });
         })();
@@ -256,8 +256,8 @@ describe('rewriteModule', () => {
         "import Component from '@glimmer/component';
         export default class extends Component {
         private static '~template' = (() => {
-          let χ!: typeof import(\\"@glint/environment-ember-loose/types\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/types\\").ResolveContext<unknown>) {
+          let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
+          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<unknown>) {
             𝚪;
           });
         })();
@@ -334,7 +334,7 @@ describe('rewriteModule', () => {
           import Component from '@glimmer/component';
           export default class MyComponent extends Component {
           }
-          declare module '@glint/environment-ember-loose/types/registry' {
+          declare module '@glint/environment-ember-loose/registry' {
             export default interface Registry {
               Test: MyComponent;
             }
@@ -355,13 +355,13 @@ describe('rewriteModule', () => {
         export default class MyComponent extends Component {
         private static '~template' = (() => {
           MyComponent['~template'];
-          let χ!: typeof import(\\"@glint/environment-ember-loose/types\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/types\\").ResolveContext<MyComponent>) {
+          let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
+          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>) {
             𝚪;
           });
         })();
         }
-        declare module '@glint/environment-ember-loose/types/registry' {
+        declare module '@glint/environment-ember-loose/registry' {
           export default interface Registry {
             Test: MyComponent;
           }

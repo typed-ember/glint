@@ -38,7 +38,7 @@ describe('Environments', () => {
 
     test('getting specified template tag config', () => {
       let tags = {
-        '@glimmerx/component': { hbs: { typesSource: '@glint/environment-glimmerx/types' } },
+        '@glimmerx/component': { hbs: { typesSource: '@glint/environment-glimmerx/-private/dsl' } },
       };
 
       let env = new GlintEnvironment('test-env', { tags });

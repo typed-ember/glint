@@ -45,7 +45,7 @@ describe('CLI: emitting declarations', () => {
           Args: ApplicationArgs;
       }> {
           private startupTime;
-          static template: import(\\"@glint/environment-glimmerx/types\\").Template;
+          static template: void;
       }
       "
     `);
