@@ -4,6 +4,7 @@ export * from '@glimmerx/component';
 
 import type { ContextType, Invoke } from '@glint/template/-private';
 import type { TemplateContext, AcceptsBlocks } from '@glint/template/-private';
+import type { Element } from '@glint/template/-private/attributes';
 import type { EmptyObject } from '@glint/template/-private/signature';
 
 type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
@@ -13,6 +14,7 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
 export interface ComponentSignature {
   Args?: Partial<Record<string, unknown>>;
   Yields?: Partial<Record<string, Array<unknown>>>;
+  Element?: Element;
 }
 
 const Component = glimmerxComponent.default as new <
@@ -21,7 +23,8 @@ const Component = glimmerxComponent.default as new <
 interface Component<T extends ComponentSignature = {}>
   extends glimmerxComponent.default<Get<T, 'Args'> & {}> {
   [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>;
-  [ContextType]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>>;
+  [Element]: Get<T, 'Element', null>;
+  [ContextType]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }
 
 export default Component;

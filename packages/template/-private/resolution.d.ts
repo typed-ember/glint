@@ -16,7 +16,7 @@ declare const ContextType: unique symbol;
 export type HasContext<T extends AnyContext = AnyContext> = { [ContextType]: T };
 
 export type AnySignature = (...args: any) => any;
-export type AnyContext = TemplateContext<any, any, any>;
+export type AnyContext = TemplateContext<any, any, any, any>;
 export type ResolveContext<T> = T extends HasContext<infer Context> ? Context : unknown;
 
 /*

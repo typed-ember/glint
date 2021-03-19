@@ -5,7 +5,7 @@ declare const Blocks: unique symbol;
 export type AnyBlocks = Partial<Record<string, any[]>>;
 
 /** Denotes that the associated entity should be invoked as a modifier */
-export type CreatesModifier = { [Modifier]: true };
+export type CreatesModifier<El extends Element> = { [Modifier]: (el: El) => void };
 
 // These shenanigans are necessary to get TS to report when named args
 // are passed to a signature that doesn't expect any, because `{}` is

@@ -8,6 +8,7 @@ import { CreatesModifier } from '@glint/template/-private';
   class NeatModifier extends Modifier<{
     NamedArgs: { multiplier?: number };
     PositionalArgs: [input: string];
+    Element: HTMLImageElement;
   }> {
     private interval?: number;
 
@@ -24,6 +25,8 @@ import { CreatesModifier } from '@glint/template/-private';
     }
 
     didReceiveArguments(): void {
+      expectTypeOf(this.element).toEqualTypeOf<HTMLImageElement>();
+
       this.interval = window.setInterval(() => {
         alert('this is a typesafe modifier!');
       }, this.multiplier * this.lengthOfInput);
@@ -36,8 +39,8 @@ import { CreatesModifier } from '@glint/template/-private';
 
   let neat = resolve(NeatModifier);
 
-  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<CreatesModifier>();
-  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<CreatesModifier>();
+  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<CreatesModifier<HTMLImageElement>>();
+  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<CreatesModifier<HTMLImageElement>>();
 
   // @ts-expect-error: missing required positional arg
   neat({});
@@ -55,7 +58,7 @@ import { CreatesModifier } from '@glint/template/-private';
 // Function-based modifier
 {
   let definition = modifier(
-    (element: Element, [input]: [string], { multiplier }: { multiplier?: number }) => {
+    (element: HTMLAudioElement, [input]: [string], { multiplier }: { multiplier?: number }) => {
       let interval = window.setInterval(() => {
         alert('this is a typesafe modifier!');
       }, input.length * (multiplier ?? 1000));
@@ -66,8 +69,8 @@ import { CreatesModifier } from '@glint/template/-private';
 
   let neat = resolve(definition);
 
-  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<CreatesModifier>();
-  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<CreatesModifier>();
+  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<CreatesModifier<HTMLAudioElement>>();
+  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<CreatesModifier<HTMLAudioElement>>();
 
   // @ts-expect-error: missing required positional arg
   neat({});

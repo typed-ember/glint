@@ -14,13 +14,14 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
 
 type ModifierFactory = <El extends Element, Positional extends unknown[] = [], Named = EmptyObject>(
   fn: (element: El, positional: Positional, named: Named) => unknown
-) => new () => Invokable<(named: Named, ...positional: Positional) => CreatesModifier>;
+) => new () => Invokable<(named: Named, ...positional: Positional) => CreatesModifier<El>>;
 
 export const modifier = emberModifier as ModifierFactory;
 
 export interface ModifierSignature {
   NamedArgs?: Record<string, unknown>;
   PositionalArgs?: Array<unknown>;
+  Element?: Element;
 }
 
 const Modifier = emberModifier.default as new <T extends ModifierSignature>(
@@ -32,10 +33,11 @@ interface Modifier<T extends ModifierSignature>
     named: Extract<Get<T, 'NamedArgs'>, Record<string, any>>;
     positional: Extract<Get<T, 'PositionalArgs', []>, any[]>;
   }> {
+  readonly element: Get<T, 'Element', Element>;
   [Invoke]: (
     args: Get<T, 'NamedArgs'>,
     ...positional: Get<T, 'PositionalArgs', []>
-  ) => CreatesModifier;
+  ) => CreatesModifier<this['element']>;
 }
 
 export default Modifier;

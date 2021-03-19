@@ -3,6 +3,7 @@ import { unreachable, assert } from './util';
 import { mapTemplateContents, RewriteResult } from './map-template-contents';
 import ScopeStack from './scope-stack';
 
+const SPLATTRIBUTES = '...attributes';
 const INLINE_KEYWORDS = ['if', 'yield', 'hash', 'array', 'unless'] as const;
 const BLOCK_KEYWORDS = ['if', 'unless'] as const;
 
@@ -267,18 +268,21 @@ export function templateToTypescript(
       }
     }
 
+    type ElementNodeType = 'component' | 'element';
+
     function emitElementNode(node: AST.ElementNode): void {
+      let firstCharacter = node.tag.charAt(0);
+      let nodeType: ElementNodeType =
+        firstCharacter.toUpperCase() === firstCharacter || node.tag.includes('.')
+          ? 'component'
+          : 'element';
+
       emit.forNode(node, () => {
-        for (let modifier of node.modifiers) {
-          emitModifier(modifier);
-        }
+        emitPlainAttributes(node, nodeType);
+        emitSplattributes(node, nodeType);
+        emitModifiers(node, nodeType);
 
-        for (let attr of node.attributes) {
-          emitPlainAttribute(attr);
-        }
-
-        let firstCharacter = node.tag.charAt(0);
-        if (firstCharacter.toUpperCase() === firstCharacter || node.tag.includes('.')) {
+        if (nodeType === 'component') {
           emitComponent(node);
         } else {
           emitPlainElement(node);
@@ -310,32 +314,39 @@ export function templateToTypescript(
       }
     }
 
-    function tagNameToPath(input: string): { kind: PathKind; path: string } {
-      if (input.startsWith('@')) {
+    function tagNameToPathContents(
+      node: AST.ElementNode
+    ): { start: number; kind: PathKind; path: Array<string> } {
+      let tagName = node.tag;
+      let start = template.indexOf(tagName, rangeForNode(node).start);
+
+      if (tagName.startsWith('@')) {
         return {
+          start,
           kind: 'arg',
-          path: input.slice(1),
+          path: tagName.slice(1).split('.'),
         };
-      } else if (input.startsWith('this.')) {
+      } else if (tagName.startsWith('this.')) {
         return {
+          start,
           kind: 'this',
-          path: input.slice('this.'.length),
+          path: tagName.slice('this.'.length).split('.'),
         };
       } else {
         return {
+          start,
           kind: 'free',
-          path: input,
+          path: tagName.split('.'),
         };
       }
     }
 
     function emitComponent(node: AST.ElementNode): void {
       emit.forNode(node, () => {
-        let start = template.indexOf(node.tag, rangeForNode(node).start);
-        let { kind, path } = tagNameToPath(node.tag);
+        let { start, path, kind } = tagNameToPathContents(node);
 
         emit.text('χ.invokeBlock(χ.resolve(');
-        emitPathContents(path.split('.'), start, kind);
+        emitPathContents(path, start, kind);
         emit.text(')({');
 
         let dataAttrs = node.attributes.filter(({ name }) => name.startsWith('@'));
@@ -411,11 +422,7 @@ export function templateToTypescript(
           // Emit `ComponentName;` to represent the closing tag, so we have
           // an anchor for things like symbol renames.
           emit.newline();
-          emitPathContents(
-            path.split('.'),
-            template.lastIndexOf(node.tag, rangeForNode(node).end),
-            kind
-          );
+          emitPathContents(path, template.lastIndexOf(node.tag, rangeForNode(node).end), kind);
           emit.text(';');
         }
 
@@ -490,28 +497,91 @@ export function templateToTypescript(
       }
     }
 
-    function emitPlainAttribute(node: AST.AttrNode): void {
-      emit.forNode(node, () => {
-        if (node.name.startsWith('@') || node.value.type === 'TextNode') return;
+    function emitElementTypeReference(node: AST.ElementNode, type: ElementNodeType): void {
+      let { start, path, kind } = tagNameToPathContents(node);
 
-        if (node.value.type === 'MustacheStatement') {
-          emitMustacheStatement(node.value, 'attr');
-        } else {
-          emitConcatStatement(node.value);
-        }
+      emit.text('import("');
+      emit.text(typesPath);
+      emit.text('").');
+      if (type === 'component') {
+        emit.text('ElementForComponent<typeof ');
+        emitPathContents(path, start, kind);
+        emit.text('>');
+      } else {
+        emit.text('ElementForTagName<');
+        emit.text(JSON.stringify(node.tag));
+        emit.text('>');
+      }
+    }
 
-        emit.text(';');
+    function emitPlainAttributes(node: AST.ElementNode, nodeType: ElementNodeType): void {
+      let attributes = node.attributes.filter(
+        (attr) => !attr.name.startsWith('@') && attr.name !== SPLATTRIBUTES
+      );
+
+      if (!attributes.length) return;
+
+      emit.text('χ.applyAttributes<');
+      emitElementTypeReference(node, nodeType);
+      emit.text('>({');
+      emit.newline();
+      emit.indent();
+
+      let start = template.indexOf(node.tag, rangeForNode(node).start) + node.tag.length;
+
+      for (let attr of attributes) {
+        emit.forNode(attr, () => {
+          start = template.indexOf(attr.name, start + 1);
+
+          emitHashKey(attr.name, start);
+          emit.text(': ');
+
+          if (attr.value.type === 'MustacheStatement') {
+            emitMustacheStatement(attr.value, 'attr');
+          } else if (attr.value.type === 'ConcatStatement') {
+            emitConcatStatement(attr.value);
+          } else {
+            emit.text(JSON.stringify(attr.value.chars));
+          }
+
+          emit.text(',');
+          emit.newline();
+        });
+      }
+
+      emit.dedent();
+      emit.text('});');
+      emit.newline();
+    }
+
+    function emitSplattributes(node: AST.ElementNode, nodeType: ElementNodeType): void {
+      let splattributes = node.attributes.find((attr) => attr.name === SPLATTRIBUTES);
+      if (!splattributes) return;
+
+      assert(
+        splattributes.value.type === 'TextNode' && splattributes.value.chars === '',
+        '`...attributes` cannot accept a value'
+      );
+
+      emit.forNode(splattributes, () => {
+        emit.text('χ.applySplattributes<typeof 𝚪.element, ');
+        emitElementTypeReference(node, nodeType);
+        emit.text('>();');
         emit.newline();
       });
     }
 
-    function emitModifier(node: AST.ElementModifierStatement): void {
-      emit.forNode(node, () => {
-        emit.text('χ.invokeModifier(');
-        emitResolve(node, 'resolve');
-        emit.text(');');
-        emit.newline();
-      });
+    function emitModifiers(node: AST.ElementNode, nodeType: ElementNodeType): void {
+      for (let modifier of node.modifiers) {
+        emit.forNode(modifier, () => {
+          emit.text('χ.applyModifier<');
+          emitElementTypeReference(node, nodeType);
+          emit.text('>(');
+          emitResolve(modifier, 'resolve');
+          emit.text(');');
+          emit.newline();
+        });
+      }
     }
 
     function emitMustacheStatement(node: AST.MustacheStatement, position: InvokePosition): void {

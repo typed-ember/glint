@@ -381,7 +381,9 @@ describe('rewriteTemplate', () => {
           let template = '<Foo data-bar={{helper param=true}} />';
 
           expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
-            "χ.invokeEmit(χ.resolve(helper)({ param: true }));
+            "χ.applyAttributes<import(\\"@glint/template\\").ElementForComponent<typeof Foo>>({
+              \\"data-bar\\": χ.invokeEmit(χ.resolve(helper)({ param: true })),
+            });
             χ.invokeBlock(χ.resolve(Foo)({}), {});"
           `);
         });
@@ -408,17 +410,21 @@ describe('rewriteTemplate', () => {
         test('passed to an attribute', () => {
           let template = '<div data-attr={{@input}}></div>';
 
-          expect(templateBody(template)).toMatchInlineSnapshot(
-            `"χ.invokeEmit(χ.resolveOrReturn(𝚪.args.input)({}));"`
-          );
+          expect(templateBody(template)).toMatchInlineSnapshot(`
+            "χ.applyAttributes<import(\\"@glint/template\\").ElementForTagName<\\"div\\">>({
+              \\"data-attr\\": χ.invokeEmit(χ.resolveOrReturn(𝚪.args.input)({})),
+            });"
+          `);
         });
 
         test('in a concat statement', () => {
           let template = '<div data-attr="hello, {{@input}}"></div>';
 
-          expect(templateBody(template)).toMatchInlineSnapshot(
-            `"\`\${χ.invokeEmit(χ.resolveOrReturn(𝚪.args.input)({}))}\`;"`
-          );
+          expect(templateBody(template)).toMatchInlineSnapshot(`
+            "χ.applyAttributes<import(\\"@glint/template\\").ElementForTagName<\\"div\\">>({
+              \\"data-attr\\": \`\${χ.invokeEmit(χ.resolveOrReturn(𝚪.args.input)({}))}\`,
+            });"
+          `);
         });
 
         test('as an @arg value', () => {
@@ -502,7 +508,7 @@ describe('rewriteTemplate', () => {
       let template = `<div {{modifier foo="bar"}}></div>`;
 
       expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-        `"χ.invokeModifier(χ.resolve(modifier)({ foo: \\"bar\\" }));"`
+        `"χ.applyModifier<import(\\"@glint/template\\").ElementForTagName<\\"div\\">>(χ.resolve(modifier)({ foo: \\"bar\\" }));"`
       );
     });
 
@@ -511,7 +517,7 @@ describe('rewriteTemplate', () => {
       let template = `<MyComponent {{modifier foo="bar"}}/>`;
 
       expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
-        "χ.invokeModifier(χ.resolve(modifier)({ foo: \\"bar\\" }));
+        "χ.applyModifier<import(\\"@glint/template\\").ElementForComponent<typeof MyComponent>>(χ.resolve(modifier)({ foo: \\"bar\\" }));
         χ.invokeBlock(χ.resolve(MyComponent)({}), {});"
       `);
     });
@@ -522,9 +528,11 @@ describe('rewriteTemplate', () => {
       let identifiersInScope = ['concat', 'foo'];
       let template = `<div data-attr={{concat (foo 1) (foo true)}}></div>`;
 
-      expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
-        `"χ.invokeEmit(χ.resolve(concat)({}, χ.resolve(foo)({}, 1), χ.resolve(foo)({}, true)));"`
-      );
+      expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+        "χ.applyAttributes<import(\\"@glint/template\\").ElementForTagName<\\"div\\">>({
+          \\"data-attr\\": χ.invokeEmit(χ.resolve(concat)({}, χ.resolve(foo)({}, 1), χ.resolve(foo)({}, true))),
+        });"
+      `);
     });
   });
 
@@ -606,16 +614,28 @@ describe('rewriteTemplate', () => {
     test('with mustache attrs', () => {
       let template = '<div data-foo={{@foo}}></div>';
 
-      expect(templateBody(template)).toMatchInlineSnapshot(
-        `"χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}));"`
-      );
+      expect(templateBody(template)).toMatchInlineSnapshot(`
+        "χ.applyAttributes<import(\\"@glint/template\\").ElementForTagName<\\"div\\">>({
+          \\"data-foo\\": χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({})),
+        });"
+      `);
     });
 
     test('with interpolated attrs', () => {
       let template = '<div data-foo="value-{{@foo}}-{{@bar}}"></div>';
 
+      expect(templateBody(template)).toMatchInlineSnapshot(`
+        "χ.applyAttributes<import(\\"@glint/template\\").ElementForTagName<\\"div\\">>({
+          \\"data-foo\\": \`\${χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}))}\${χ.invokeEmit(χ.resolveOrReturn(𝚪.args.bar)({}))}\`,
+        });"
+      `);
+    });
+
+    test('with splattributes', () => {
+      let template = '<div ...attributes></div>';
+
       expect(templateBody(template)).toMatchInlineSnapshot(
-        `"\`\${χ.invokeEmit(χ.resolveOrReturn(𝚪.args.foo)({}))}\${χ.invokeEmit(χ.resolveOrReturn(𝚪.args.bar)({}))}\`;"`
+        `"χ.applySplattributes<typeof 𝚪.element, import(\\"@glint/template\\").ElementForTagName<\\"div\\">>();"`
       );
     });
   });
@@ -643,6 +663,16 @@ describe('rewriteTemplate', () => {
           },
         });
         χ.Globals[\\"Foo\\"];"
+      `);
+    });
+
+    test('with splattributes', () => {
+      let identifiersInScope = ['Foo'];
+      let template = '<Foo ...attributes />';
+
+      expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+        "χ.applySplattributes<typeof 𝚪.element, import(\\"@glint/template\\").ElementForComponent<typeof Foo>>();
+        χ.invokeBlock(χ.resolve(Foo)({}), {});"
       `);
     });
 

@@ -1,4 +1,5 @@
 import type { ContextType, Invoke, TemplateContext } from '@glint/template/-private';
+import type { Element } from '@glint/template/-private/attributes';
 import type { AcceptsBlocks, EmptyObject } from '@glint/template/-private/signature';
 
 declare const Ember: { Component: EmberComponentConstructor };
@@ -16,6 +17,7 @@ export type ArgsFor<T extends ComponentSignature> = 'Args' extends keyof T ? T['
 export interface ComponentSignature {
   Args?: Partial<Record<string, unknown>>;
   Yields?: Partial<Record<string, Array<unknown>>>;
+  Element?: Element;
 }
 
 const Component = (EmberComponent as unknown) as new <T extends ComponentSignature = {}>(
@@ -24,7 +26,8 @@ const Component = (EmberComponent as unknown) as new <T extends ComponentSignatu
 
 interface Component<T extends ComponentSignature = {}> extends EmberComponent {
   [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>;
-  [ContextType]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>>;
+  [Element]: Get<T, 'Element', null>;
+  [ContextType]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }
 
 export default Component;

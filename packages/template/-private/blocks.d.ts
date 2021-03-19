@@ -26,8 +26,8 @@
  * defined in the context for the containing component, `𝚪`.
  */
 
+import { AnyContext } from './resolution';
 import { AnyBlocks } from './signature';
-import { TemplateContext } from './template';
 
 /**
  * Given a mapping from block names to the parameters they'll receive, produces
@@ -47,7 +47,8 @@ export type BlockBodies<Yields extends AnyBlocks> = {
  *
  *     yieldToBlock(𝚪, 'name', foo, bar);
  */
-export declare function yieldToBlock<
-  Context extends TemplateContext<any, any, any>,
-  K extends keyof Context['yields']
->(𝚪: Context, to: K, ...values: NonNullable<Context['yields'][K]>): void;
+export declare function yieldToBlock<Context extends AnyContext, K extends keyof Context['yields']>(
+  𝚪: Context,
+  to: K,
+  ...values: NonNullable<Context['yields'][K]>
+): void;

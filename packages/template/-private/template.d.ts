@@ -4,6 +4,8 @@
  * class.
  */
 
+import { AnyContext } from './resolution';
+
 declare const Template: unique symbol;
 export type Template = { [Template]: true };
 
@@ -14,7 +16,12 @@ export type Template = { [Template]: true };
  * This type is typically the return type of an application of
  * `ResolveContext` from `resolution.d.ts`.
  */
-export type TemplateContext<This, Args, Yields> = { this: This; args: Args; yields: Yields };
+export type TemplateContext<This, Args, Yields, Element> = {
+  this: This;
+  args: Args;
+  yields: Yields;
+  element: Element;
+};
 
 /**
  * Accepts a generator function declaring an expected template context,
@@ -22,4 +29,4 @@ export type TemplateContext<This, Args, Yields> = { this: This; args: Args; yiel
  * named args and a set of blocks as determined by any `BlockYield`s
  * included in the generators iterator type.
  */
-export declare function template(f: (𝚪: TemplateContext<any, any, any>) => void): Template;
+export declare function template(f: (𝚪: AnyContext) => void): Template;
