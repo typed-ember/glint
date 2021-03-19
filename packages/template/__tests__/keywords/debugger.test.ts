@@ -1,5 +1,5 @@
-import { resolve, invokeEmit } from '@glint/template';
-import { DebuggerKeyword } from '@glint/template/-private/keywords';
+import { invokeEmit, resolve } from '../../-private/dsl';
+import { DebuggerKeyword } from '../../-private/keywords';
 
 const debuggerKeyword = resolve({} as DebuggerKeyword);
 

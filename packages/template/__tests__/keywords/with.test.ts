@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, invokeBlock } from '@glint/template';
-import { WithKeyword } from '@glint/template/-private/keywords';
+import { invokeBlock, resolve } from '../../-private/dsl';
+import { WithKeyword } from '../../-private/keywords';
 
 const withKeyword = resolve({} as WithKeyword);
 
