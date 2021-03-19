@@ -1,4 +1,4 @@
-import { DirectInvokable } from '@glint/template/-private/resolution';
+import { DirectInvokable } from '@glint/template/-private/integration';
 
 export type ActionNamedArgs<T> = {
   value?: keyof T;

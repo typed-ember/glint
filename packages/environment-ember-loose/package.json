@@ -5,7 +5,7 @@
   "description": "A Glint environment to support loose-mode Ember.js projects",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
-  "glint-environment": "environment/index.js",
+  "glint-environment": "-private/environment/index.js",
   "keywords": [
     "glint-environment"
   ],
@@ -17,11 +17,12 @@
   },
   "files": [
     "README.md",
-    "types/**/*.{js,d.ts}",
+    "-private/**/*.{js,d.ts}",
     "environment/**/*.{js,d.ts}",
     "ember-component/**/*.{js,d.ts}",
     "ember-modifier/**/*.{js,d.ts}",
-    "glimmer-component/**/*.{js,d.ts}"
+    "glimmer-component/**/*.{js,d.ts}",
+    "registry/**/*.{js,d.ts}"
   ],
   "dependencies": {
     "@glint/config": "^0.3.1",

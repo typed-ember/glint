@@ -1,22 +1,22 @@
 import * as VM from '@glint/template/-private/keywords';
 
-import { ActionKeyword } from './intrinsics/action';
-import { ComponentKeyword } from './intrinsics/component';
-import { ConcatHelper } from './intrinsics/concat';
-import { EachInKeyword } from './intrinsics/each-in';
-import { FnHelper } from './intrinsics/fn';
-import { GetHelper } from './intrinsics/get';
-import { InputComponent } from './intrinsics/input';
-import { LinkToKeyword, LinkToComponent } from './intrinsics/link-to';
-import { LogHelper } from './intrinsics/log';
-import { MountKeyword } from './intrinsics/mount';
-import { MutKeyword } from './intrinsics/mut';
-import { OnModifier } from './intrinsics/on';
-import { OutletKeyword } from './intrinsics/outlet';
-import { TextareaComponent } from './intrinsics/textarea';
-import { UnboundKeyword } from './intrinsics/unbound';
+import { ActionKeyword } from '../intrinsics/action';
+import { ComponentKeyword } from '../intrinsics/component';
+import { ConcatHelper } from '../intrinsics/concat';
+import { EachInKeyword } from '../intrinsics/each-in';
+import { FnHelper } from '../intrinsics/fn';
+import { GetHelper } from '../intrinsics/get';
+import { InputComponent } from '../intrinsics/input';
+import { LinkToKeyword, LinkToComponent } from '../intrinsics/link-to';
+import { LogHelper } from '../intrinsics/log';
+import { MountKeyword } from '../intrinsics/mount';
+import { MutKeyword } from '../intrinsics/mut';
+import { OnModifier } from '../intrinsics/on';
+import { OutletKeyword } from '../intrinsics/outlet';
+import { TextareaComponent } from '../intrinsics/textarea';
+import { UnboundKeyword } from '../intrinsics/unbound';
 
-import Registry from './registry';
+import Registry from '../../registry';
 
 // The keyword vs global breakdown here is loosely matched with
 // the listing in http://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html

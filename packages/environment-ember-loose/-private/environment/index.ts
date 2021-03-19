@@ -3,7 +3,7 @@ import { GlintEnvironmentConfig } from '@glint/config';
 export default function glimmerxEnvironment(): GlintEnvironmentConfig {
   return {
     template: {
-      typesPath: '@glint/environment-ember-loose/types',
+      typesPath: '@glint/environment-ember-loose/-private/dsl',
 
       getPossibleScriptPaths(templatePath) {
         if (/[\\/]template\.hbs$/.test(templatePath)) {

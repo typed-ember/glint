@@ -1,4 +1,4 @@
-import { DirectInvokable } from '@glint/template/-private/resolution';
+import { DirectInvokable } from '@glint/template/-private/integration';
 
 export type MountKeyword = DirectInvokable<{
   (args: { model?: unknown }, engine: string): void;

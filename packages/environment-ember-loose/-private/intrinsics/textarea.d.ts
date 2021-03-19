@@ -1,6 +1,4 @@
-import { AcceptsBlocks } from '@glint/template/-private';
-import { DirectInvokable } from '@glint/template/-private/resolution';
-import { EmptyObject } from '@glint/template/-private/signature';
+import { AcceptsBlocks, DirectInvokable, EmptyObject } from '@glint/template/-private/integration';
 
 export interface TextareaArgs {
   value?: string;

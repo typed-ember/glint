@@ -1,5 +1,4 @@
-import type { Invoke, Invokable } from '@glint/template/-private/resolution';
-import type { EmptyObject } from '@glint/template/-private/signature';
+import type { Invoke, Invokable, EmptyObject } from '@glint/template/-private/integration';
 
 declare const Ember: { Helper: EmberHelperConstructor };
 

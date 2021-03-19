@@ -1,5 +1,10 @@
-import { AcceptsBlocks, AnyBlocks, EmptyObject } from '@glint/template/-private/signature';
-import { DirectInvokable, Invokable } from '@glint/template/-private/resolution';
+import {
+  AcceptsBlocks,
+  AnyBlocks,
+  EmptyObject,
+  DirectInvokable,
+  Invokable,
+} from '@glint/template/-private/integration';
 
 type RegistryComponentArgs<Registry, T extends keyof Registry> = Registry[T] extends new (
   ...args: any

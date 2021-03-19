@@ -1,5 +1,4 @@
-import { DirectInvokable } from '@glint/template/-private/resolution';
-import { EmptyObject } from '@glint/template/-private/signature';
+import { DirectInvokable, EmptyObject } from '@glint/template/-private/integration';
 import { Mut } from './mut';
 
 export type FnHelper = DirectInvokable<{

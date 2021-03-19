@@ -1,8 +1,7 @@
-import { AcceptsBlocks, NoNamedArgs } from '@glint/template/-private';
-import { DirectInvokable } from '@glint/template/-private/resolution';
+import { AcceptsBlocks, DirectInvokable, EmptyObject } from '@glint/template/-private/integration';
 
 export type LinkToKeyword = DirectInvokable<{
-  (args: NoNamedArgs, route: string, ...params: unknown[]): AcceptsBlocks<{
+  (args: EmptyObject, route: string, ...params: unknown[]): AcceptsBlocks<{
     default?: [];
   }>;
 }>;

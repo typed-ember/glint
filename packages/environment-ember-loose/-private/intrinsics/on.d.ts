@@ -1,5 +1,4 @@
-import { CreatesModifier } from '@glint/template/-private';
-import { DirectInvokable } from '@glint/template/-private/resolution';
+import { BoundModifier, DirectInvokable } from '@glint/template/-private/integration';
 
 export interface OnModifierArgs {
   capture?: boolean;
@@ -12,10 +11,10 @@ export type OnModifier = DirectInvokable<{
     args: OnModifierArgs,
     name: Name,
     callback: (event: HTMLElementEventMap[Name]) => void
-  ): CreatesModifier<HTMLElement>;
+  ): BoundModifier<HTMLElement>;
   (
     args: OnModifierArgs,
     name: string,
     callback: (event: Event) => void
-  ): CreatesModifier<HTMLElement>;
+  ): BoundModifier<HTMLElement>;
 }>;

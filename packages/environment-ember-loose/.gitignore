@@ -2,4 +2,6 @@
 *.d.ts
 tsconfig.tsbuildinfo
 
-!types/**/*.d.ts
+!registry/**/*.d.ts
+!-private/dsl/**/*.d.ts
+!-private/intrinsics/**/*.d.ts
