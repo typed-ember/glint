@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, invokeBlock } from '@glint/template';
+import { resolve, invokeBlock } from '@glint/environment-ember-loose/-private/dsl';
 import Component from '@glint/environment-ember-loose/ember-component';
-import { ComponentKeyword } from '../../types/intrinsics/component';
+import { ComponentKeyword } from '@glint/environment-ember-loose/-private/intrinsics/component';
 
 const componentKeyword = resolve({} as ComponentKeyword<LocalRegistry>);
 

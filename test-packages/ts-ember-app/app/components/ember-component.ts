@@ -21,7 +21,7 @@ export default class EmberComponent extends Component<EmberComponentSignature> {
   }
 }
 
-declare module '@glint/environment-ember-loose/types/registry' {
+declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry {
     EmberComponent: typeof EmberComponent;
   }

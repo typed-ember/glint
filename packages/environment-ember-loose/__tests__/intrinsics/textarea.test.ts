@@ -1,5 +1,5 @@
 import { expectTypeOf } from 'expect-type';
-import { Globals, resolve } from '@glint/environment-ember-loose/types';
+import { Globals, resolve } from '@glint/environment-ember-loose/-private/dsl';
 
 let textarea = resolve(Globals['textarea']);
 let Textarea = resolve(Globals['Textarea']);

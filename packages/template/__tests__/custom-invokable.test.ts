@@ -1,9 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 import SumType from 'sums-up';
-import { resolve, invokeBlock } from '@glint/template';
-import { AcceptsBlocks, NoNamedArgs } from '@glint/template/-private/signature';
-import { invokeEmit } from '../-private/invoke';
-import { DirectInvokable, resolveOrReturn } from '../-private/resolution';
+import { AcceptsBlocks, DirectInvokable, EmptyObject } from '../-private/integration';
+import { invokeBlock, invokeEmit, resolve, resolveOrReturn } from '../-private/dsl';
 
 ///////////////////////////////////////////////////////////////////////////////
 // This module exercises what's possible when declaring a signature for a
@@ -24,13 +22,13 @@ type SumVariants<T extends SumType<never>> = T extends SumType<infer V> ? V : ne
 // type parameters correctly
 declare const caseOf: DirectInvokable<
   <T extends SumType<never>>(
-    args: NoNamedArgs,
+    args: EmptyObject,
     value: T
   ) => AcceptsBlocks<{
     default: [
       DirectInvokable<
         <K extends keyof SumVariants<T>>(
-          args: NoNamedArgs,
+          args: EmptyObject,
           key: K
         ) => AcceptsBlocks<{
           default: SumVariants<T>[K];

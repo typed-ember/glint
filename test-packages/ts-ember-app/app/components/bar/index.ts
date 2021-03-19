@@ -10,7 +10,7 @@ export default class Bar extends Component<BarSignature> {
   name = 'BAR';
 }
 
-declare module '@glint/environment-ember-loose/types/registry' {
+declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry {
     Bar: typeof Bar;
   }

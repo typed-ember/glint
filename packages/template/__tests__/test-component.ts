@@ -1,18 +1,18 @@
-import {
-  TemplateContext,
-  AcceptsBlocks,
-  CreatesModifier,
-  Invoke,
-  ContextType,
-} from '@glint/template/-private';
-import { LetKeyword } from '@glint/template/-private/keywords';
-import { Element } from '../-private/attributes';
-import { DirectInvokable } from '../-private/resolution';
-import { EmptyObject } from '../-private/signature';
-
 // This module contains a `@glimmer/component`-like base class and the
 // declarations necessary for it to be used as a component in glint, as
 // well as simple examples of a helper and modifier.
+
+import {
+  AcceptsBlocks,
+  BoundModifier,
+  Context,
+  DirectInvokable,
+  Element,
+  EmptyObject,
+  Invoke,
+  TemplateContext,
+} from '../-private/integration';
+import { LetKeyword } from '../-private/keywords';
 
 export default TestComponent;
 export declare const globals: {
@@ -22,7 +22,7 @@ export declare const globals: {
       args: EmptyObject,
       event: T,
       callback: (event: HTMLElementEventMap[T]) => void
-    ) => CreatesModifier<HTMLElement>
+    ) => BoundModifier<HTMLElement>
   >;
 };
 
@@ -38,5 +38,5 @@ declare class TestComponent<T extends ComponentSignature = {}> {
   readonly args: Get<T, 'Args'>;
   [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>;
   [Element]: Get<T, 'Element', null>;
-  [ContextType]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
+  [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }

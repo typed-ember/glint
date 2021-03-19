@@ -1,6 +1,5 @@
-import { DirectInvokable } from '../resolution';
-import { NoNamedArgs } from '../signature';
+import { DirectInvokable, EmptyObject } from '../integration';
 
 export type HasBlockParamsKeyword = DirectInvokable<{
-  (args: NoNamedArgs, blockName?: string): boolean;
+  (args: EmptyObject, blockName?: string): boolean;
 }>;

@@ -1,16 +1,16 @@
-import {
-  template,
-  resolve,
-  invokeBlock,
-  ResolveContext,
-  applyModifier,
-  invokeEmit,
-  resolveOrReturn,
-} from '@glint/template';
 import { expectTypeOf } from 'expect-type';
+import {
+  applyModifier,
+  ElementForTagName,
+  invokeBlock,
+  invokeEmit,
+  resolve,
+  ResolveContext,
+  resolveOrReturn,
+  template,
+  yieldToBlock,
+} from '../-private/dsl';
 import TestComponent, { globals } from './test-component';
-import { yieldToBlock } from '../-private/blocks';
-import { ElementForTagName } from '../-private/attributes';
 
 type MyComponentSignature<T> = {
   Args: {
@@ -78,8 +78,6 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
  * <MyComponent @value="hi">
  *   <:body as |isReady value|>
  *     Ready? {{value}}: {{isReady}}
- *     <br>
- *     {{yield value}}
  *   </:body>
  * </MyComponent>
  */
@@ -100,7 +98,6 @@ invokeBlock(resolve(MyComponent)({ value: 'hi' }), {
  * <MyComponent @value={{123}}>
  *   <:body as |isReady value|>
  *     Ready? {{value}}: {{isReady}}
- *     {{yield value}}
  *   </:body>
  * </MyComponent>
  */

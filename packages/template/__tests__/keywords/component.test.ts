@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, invokeBlock } from '@glint/template';
-import { ComponentKeyword } from '@glint/template/-private/keywords';
+import { invokeBlock, resolve } from '../../-private/dsl';
+import { ComponentKeyword } from '../../-private/keywords';
 import TestComponent from '../test-component';
 
 const componentKeyword = resolve({} as ComponentKeyword);

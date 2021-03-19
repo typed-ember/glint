@@ -1,19 +1,20 @@
-import { template, resolve, invokeBlock, ResolveContext } from '@glint/template';
-import TestComponent from './test-component';
-import { DirectInvokable } from '../-private/resolution';
-import { CreatesModifier } from '../-private';
+import { expectTypeOf } from 'expect-type';
 import {
-  applyAttributes,
+  template,
+  resolve,
+  invokeBlock,
+  ResolveContext,
+  ElementForTagName,
   applyModifier,
   applySplattributes,
   ElementForComponent,
-  ElementForTagName,
-} from '../-private/attributes';
-import { EmptyObject } from '../-private/signature';
-import { expectTypeOf } from 'expect-type';
+  applyAttributes,
+} from '../-private/dsl';
+import { BoundModifier, DirectInvokable, EmptyObject } from '../-private/integration';
+import TestComponent from './test-component';
 
 declare const imageModifier: DirectInvokable<
-  (args: EmptyObject) => CreatesModifier<HTMLImageElement>
+  (args: EmptyObject) => BoundModifier<HTMLImageElement>
 >;
 
 class GenericElementComponent extends TestComponent<{ Element: HTMLElement }> {}

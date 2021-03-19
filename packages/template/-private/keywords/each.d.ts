@@ -1,5 +1,4 @@
-import { DirectInvokable } from '../resolution';
-import { AcceptsBlocks } from '../signature';
+import { AcceptsBlocks, DirectInvokable } from '../integration';
 
 export type EachKeyword = DirectInvokable<{
   <T>(args: { key?: string }, items: T[]): AcceptsBlocks<{

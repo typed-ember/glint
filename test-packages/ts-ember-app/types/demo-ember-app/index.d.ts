@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import '@glint/environment-ember-loose/types/registry';
+import '@glint/environment-ember-loose/registry';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface

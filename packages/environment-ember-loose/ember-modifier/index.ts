@@ -1,6 +1,9 @@
-import type { CreatesModifier } from '@glint/template/-private';
-import type { Invokable, Invoke } from '@glint/template/-private/resolution';
-import type { EmptyObject } from '@glint/template/-private/signature';
+import type {
+  Invokable,
+  Invoke,
+  BoundModifier,
+  EmptyObject,
+} from '@glint/template/-private/integration';
 
 const EmberModifier = window.require('ember-modifier').default;
 type EmberModifier<T> = import('ember-modifier').default<T>;
@@ -14,7 +17,7 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
 
 type ModifierFactory = <El extends Element, Positional extends unknown[] = [], Named = EmptyObject>(
   fn: (element: El, positional: Positional, named: Named) => unknown
-) => new () => Invokable<(named: Named, ...positional: Positional) => CreatesModifier<El>>;
+) => new () => Invokable<(named: Named, ...positional: Positional) => BoundModifier<El>>;
 
 export const modifier = emberModifier as ModifierFactory;
 
@@ -37,7 +40,7 @@ interface Modifier<T extends ModifierSignature>
   [Invoke]: (
     args: Get<T, 'NamedArgs'>,
     ...positional: Get<T, 'PositionalArgs', []>
-  ) => CreatesModifier<this['element']>;
+  ) => BoundModifier<this['element']>;
 }
 
 export default Modifier;

@@ -1,10 +1,14 @@
 import { expectTypeOf } from 'expect-type';
-import { DirectInvokable, resolveOrReturn } from '@glint/template/-private/resolution';
-import { TemplateContext } from '@glint/template/-private/template';
-import { template, invokeBlock, resolve, ResolveContext } from '@glint/template';
-import { AcceptsBlocks } from '../-private';
+import { AcceptsBlocks, DirectInvokable, TemplateContext } from '../-private/integration';
+import {
+  invokeBlock,
+  resolve,
+  ResolveContext,
+  resolveOrReturn,
+  template,
+  yieldToBlock,
+} from '../-private/dsl';
 import TestComponent, { globals } from './test-component';
-import { yieldToBlock } from '../-private/blocks';
 
 declare function value<T>(): T;
 

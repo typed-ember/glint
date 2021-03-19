@@ -1,6 +1,11 @@
-import type { ContextType, Invoke, TemplateContext } from '@glint/template/-private';
-import type { Element } from '@glint/template/-private/attributes';
-import type { AcceptsBlocks, EmptyObject } from '@glint/template/-private/signature';
+import type {
+  Context,
+  Invoke,
+  TemplateContext,
+  Element,
+  AcceptsBlocks,
+  EmptyObject,
+} from '@glint/template/-private/integration';
 
 const GlimmerComponent = window.require('@glimmer/component').default;
 type GlimmerComponent<T> = import('@glimmer/component').default<T>;
@@ -23,7 +28,7 @@ const Component = GlimmerComponent as new <T extends ComponentSignature = {}>(
 interface Component<T extends ComponentSignature = {}> extends GlimmerComponent<Get<T, 'Args'>> {
   [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>;
   [Element]: Get<T, 'Element', null>;
-  [ContextType]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
+  [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }
 
 export default Component;
