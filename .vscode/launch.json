@@ -10,7 +10,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
         "${workspaceFolder}/test-packages/ts-ember-app",
         "${workspaceFolder}/test-packages/ts-glimmerx-app",
-        "${workspaceFolder}/test-packages/demo-untyped-glimmerx-app"
+        "${workspaceFolder}/test-packages/js-glimmerx-app"
       ]
     }
   ]
