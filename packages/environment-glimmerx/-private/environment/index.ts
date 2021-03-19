@@ -5,12 +5,12 @@ export default function glimmerxEnvironment(): GlintEnvironmentConfig {
     tags: {
       '@glimmerx/component': {
         hbs: {
-          typesSource: '@glint/environment-glimmerx/types',
+          typesSource: '@glint/environment-glimmerx/-private/dsl',
         },
       },
       '@glint/environment-glimmerx/component': {
         hbs: {
-          typesSource: '@glint/environment-glimmerx/types',
+          typesSource: '@glint/environment-glimmerx/-private/dsl',
         },
       },
     },

@@ -2,8 +2,7 @@ import * as glimmerxHelper from '@glimmerx/helper';
 
 export * from '@glimmerx/helper';
 
-import type { DirectInvokable, Invokable } from '@glint/template/-private/resolution';
-import type { EmptyObject } from '@glint/template/-private/signature';
+import type { DirectInvokable, EmptyObject, Invokable } from '@glint/template/-private/integration';
 
 type HelperFactory = <Result, Named = EmptyObject, Positional extends unknown[] = []>(
   fn: (positional: Positional, named: Named) => Result

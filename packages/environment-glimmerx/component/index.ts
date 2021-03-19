@@ -2,10 +2,14 @@ import * as glimmerxComponent from '@glimmerx/component';
 
 export * from '@glimmerx/component';
 
-import type { ContextType, Invoke } from '@glint/template/-private';
-import type { TemplateContext, AcceptsBlocks } from '@glint/template/-private';
-import type { Element } from '@glint/template/-private/attributes';
-import type { EmptyObject } from '@glint/template/-private/signature';
+import type {
+  AcceptsBlocks,
+  Context,
+  Element,
+  EmptyObject,
+  Invoke,
+  TemplateContext,
+} from '@glint/template/-private/integration';
 
 type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
   ? Exclude<T[Key], undefined>
@@ -24,7 +28,7 @@ interface Component<T extends ComponentSignature = {}>
   extends glimmerxComponent.default<Get<T, 'Args'> & {}> {
   [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>;
   [Element]: Get<T, 'Element', null>;
-  [ContextType]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
+  [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }
 
 export default Component;

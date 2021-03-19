@@ -9,15 +9,13 @@ interface Keywords {
   each: VM.EachKeyword;
   'has-block': VM.HasBlockKeyword;
   'has-block-params': VM.HasBlockParamsKeyword;
-  // the `if` keyword is implemented directly in @glint/transform
+  if: void; // the `if` keyword is implemented directly in @glint/transform
   'in-element': VM.InElementKeyword;
   let: VM.LetKeyword;
-  unless: void; // TODO: should this be implemented as `if (!...)`?
+  unless: void; // the `unless` keyword is implemented directly in @glint/transform
   with: VM.WithKeyword;
-  // the `yield` keyword is implemented directly in @glint/transform
+  yield: void; // the `yield` keyword is implemented directly in @glint/transform
 }
-
-declare const k: Keywords;
 
 export interface Globals extends Keywords {
   // GlimmerX, by design, doesn't have any global values beyond

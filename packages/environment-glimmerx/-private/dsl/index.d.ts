@@ -1,4 +1,4 @@
-export * from '@glint/template';
+export * from '@glint/template/-private/dsl';
 export { Globals } from './globals';
 
 /*
@@ -20,12 +20,13 @@ export { Globals } from './globals';
  */
 
 import {
+  BoundModifier,
   DirectInvokable,
+  EmptyObject,
   Invokable,
   Invoke,
   InvokeDirect,
-} from '@glint/template/-private/resolution';
-import { CreatesModifier, NoNamedArgs } from '@glint/template/-private/signature';
+} from '@glint/template/-private/integration';
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolve<Args extends unknown[], Instance extends Invokable>(
@@ -33,13 +34,13 @@ export declare function resolve<Args extends unknown[], Instance extends Invokab
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 export declare function resolve<Value, Args extends unknown[], T extends Value>(
   item: (value: Value, ...args: Args) => value is T
-): (named: NoNamedArgs, value: Value, ...args: Args) => value is T;
+): (named: EmptyObject, value: Value, ...args: Args) => value is T;
 export declare function resolve<El extends Element, Args extends unknown[]>(
   item: (element: El, ...args: Args) => void | (() => void)
-): (named: NoNamedArgs, ...args: Args) => CreatesModifier<El>;
+): (named: EmptyObject, ...args: Args) => BoundModifier<El>;
 export declare function resolve<Args extends unknown[], T>(
   item: (...args: Args) => T
-): (named: NoNamedArgs, ...args: Args) => T;
+): (named: EmptyObject, ...args: Args) => T;
 
 export declare function resolveOrReturn<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolveOrReturn<Args extends unknown[], Instance extends Invokable>(
@@ -47,8 +48,8 @@ export declare function resolveOrReturn<Args extends unknown[], Instance extends
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 export declare function resolveOrReturn<Value, Args extends unknown[], T extends Value>(
   item: (value: Value, ...args: Args) => value is T
-): (named: NoNamedArgs, value: Value, ...args: Args) => value is T;
+): (named: EmptyObject, value: Value, ...args: Args) => value is T;
 export declare function resolveOrReturn<Args extends unknown[], T>(
   item: (...args: Args) => T
-): (named: NoNamedArgs, ...args: Args) => T;
-export declare function resolveOrReturn<T>(item: T): (args: NoNamedArgs) => T;
+): (named: EmptyObject, ...args: Args) => T;
+export declare function resolveOrReturn<T>(item: T): (args: EmptyObject) => T;

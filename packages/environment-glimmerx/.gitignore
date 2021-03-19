@@ -2,4 +2,4 @@
 *.d.ts
 tsconfig.tsbuildinfo
 
-!types/**/*.d.ts
+!-private/dsl/**/*.d.ts
