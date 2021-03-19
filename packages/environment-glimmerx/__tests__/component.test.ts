@@ -5,9 +5,9 @@ import {
   resolve,
   ResolveContext,
   yieldToBlock,
-} from '@glint/environment-glimmerx/types';
+} from '@glint/environment-glimmerx/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { EmptyObject } from '@glint/template/-private/signature';
+import { EmptyObject } from '@glint/template/-private/integration';
 
 {
   class NoArgsComponent extends Component {

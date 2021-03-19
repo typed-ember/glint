@@ -1,5 +1,5 @@
 import { on as onDefinition } from '@glint/environment-glimmerx/modifier';
-import { resolve, applyModifier } from '@glint/environment-glimmerx/types';
+import { resolve, applyModifier } from '@glint/environment-glimmerx/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 // Built-in modifier: `on`

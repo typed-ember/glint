@@ -7,7 +7,7 @@ import { InElementKeyword } from '@glint/template/-private/keywords/in-element';
 import { LetKeyword } from '@glint/template/-private/keywords/let';
 import { WithKeyword } from '@glint/template/-private/keywords/with';
 
-import { Globals } from '@glint/environment-glimmerx/types';
+import { Globals } from '@glint/environment-glimmerx/-private/dsl';
 
 expectTypeOf(Globals['debugger']).toEqualTypeOf<DebuggerKeyword>();
 expectTypeOf(Globals['each']).toEqualTypeOf<EachKeyword>();
