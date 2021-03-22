@@ -1,4 +1,4 @@
-import { resolve } from '@glint/environment-glimmerx/-private/dsl';
+import { invokeEmit, resolve } from '@glint/environment-glimmerx/-private/dsl';
 import { helper, fn as fnDefinition } from '@glint/environment-glimmerx/helper';
 import { EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
@@ -107,4 +107,18 @@ import { expectTypeOf } from 'expect-type';
   } else {
     expectTypeOf(x).toEqualTypeOf<number>();
   }
+}
+
+// Custom helper that accepts `unknown`
+// (and therefore plausibly could be interpreted as a modifier, but shouldn't be)
+{
+  let definition = (_arg: unknown, callback: () => void): void => callback();
+
+  let hackyOnChange = resolve(definition);
+
+  expectTypeOf(hackyOnChange).toEqualTypeOf<
+    (named: EmptyObject, arg: unknown, callback: () => void) => void
+  >();
+
+  invokeEmit(hackyOnChange({}, 'hello', () => console.log('change!')));
 }

@@ -24,3 +24,19 @@ import { expectTypeOf } from 'expect-type';
 
   expectTypeOf(applyModifier(on({}, 'click', () => {}))).toEqualTypeOf<void>();
 }
+
+// Custom modifier with a specific element type
+{
+  const fetchImageData = resolve(
+    (element: HTMLImageElement, callback: (data: ImageData | undefined) => void): void => {
+      let context = document.createElement('canvas').getContext('2d');
+      context?.drawImage(element, 0, 0);
+      callback(context?.getImageData(0, 0, element.naturalWidth, element.naturalHeight));
+    }
+  );
+
+  applyModifier<HTMLImageElement>(fetchImageData({}, (data) => console.log(data)));
+
+  // @ts-expect-error: invalid element type
+  applyModifier<HTMLDivElement>(fetchImageData({}, (data) => console.log(data)));
+}
