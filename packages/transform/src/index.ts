@@ -42,7 +42,8 @@ export function rewriteDiagnostic<
 
   let length = end - start;
   let diagnostic: T = {
-    ...transformedDiagnostic,
+    // This cast is safe (it's the declared parameter type), but needed as of 4.3.0-dev.20210322
+    ...(transformedDiagnostic as T),
     start,
     length,
     file: tsImpl.createSourceFile(source.filename, source.contents, tsImpl.ScriptTarget.Latest),
