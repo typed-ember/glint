@@ -35,6 +35,9 @@ export declare function resolve<Args extends unknown[], Instance extends Invokab
 export declare function resolve<Value, Args extends unknown[], T extends Value>(
   item: (value: Value, ...args: Args) => value is T
 ): (named: EmptyObject, value: Value, ...args: Args) => value is T;
+export declare function resolve<Args extends unknown[], T>(
+  item: (arg: unknown, ...args: Args) => T
+): (named: EmptyObject, arg: unknown, ...args: Args) => T;
 export declare function resolve<El extends Element, Args extends unknown[]>(
   item: (element: El, ...args: Args) => void | (() => void)
 ): (named: EmptyObject, ...args: Args) => BoundModifier<El>;
