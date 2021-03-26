@@ -19,6 +19,7 @@ module.exports = {
 
 const outputChannel = window.createOutputChannel('Glint Language Server');
 const clients = new Map<string, Disposable>();
+let debugServerPortNumber = 6009;
 
 function addWorkspaceFolder(workspaceFolder: WorkspaceFolder, context: ExtensionContext): void {
   let folderPath = workspaceFolder.uri.fsPath;
@@ -29,9 +30,15 @@ function addWorkspaceFolder(workspaceFolder: WorkspaceFolder, context: Extension
     args: [resolve('@glint/core/bin/glint-language-server', { basedir: folderPath })],
   };
 
+  // Runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
+  let debugExecutable = {
+    ...executable,
+    args: ['--nolazy', `--inspect=${debugServerPortNumber++}`, ...executable.args],
+  };
+
   let serverOptions: ServerOptions = {
     run: executable,
-    debug: executable,
+    debug: debugExecutable,
   };
 
   let clientOptions: LanguageClientOptions = {
