@@ -56,7 +56,14 @@ The `glint` CLI can be used to typecheck your project in a similar manner to `ts
 
 ![glint being run at a terminal and producing a tsc-style type error for a template file](https://user-images.githubusercontent.com/108688/111076577-1d61db00-84ed-11eb-876a-e5b504758d11.png)
 
-You can use the `glint` executable in CI to ensure you maintain type safety in your templates, or locally with the `--watch` flag to monitor your project as you work.
+You can use the `glint` executable in CI to ensure you maintain type safety in your templates. For example, you might replace an `ember-try` config's `tsc` invocation with `glint` like this:
+
+```diff
+-     command: "tsc --noEmit",
++     command: "glint",
+```
+
+You can also use the `glint` command locally with the `--watch` flag to monitor your project as you work!
 
 Similarly, `glint-language-server` can be used by editor integrations to expose that same information inline as you type.
 
