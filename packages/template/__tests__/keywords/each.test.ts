@@ -13,6 +13,15 @@ invokeBlock(eachKeyword({}, ['a', 'b', 'c']), {
   },
 });
 
+// Works for `readonly` arrays
+
+invokeBlock(eachKeyword({}, ['a', 'b', 'c'] as readonly string[]), {
+  default(value, index) {
+    expectTypeOf(value).toEqualTypeOf<string>();
+    expectTypeOf(index).toEqualTypeOf<number>();
+  },
+});
+
 // Accept a `key` string
 invokeBlock(eachKeyword({ key: 'id' }, [{ id: 1 }]), {
   default() {
