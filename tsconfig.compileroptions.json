@@ -7,5 +7,6 @@
     "esModuleInterop": true,
     "composite": true,
     "declaration": true,
+    "sourceMap": true
   }
 }

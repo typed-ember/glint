@@ -3,8 +3,9 @@
   "configurations": [
     {
       "name": "Debug Extension",
-      "type": "extensionHost",
+      "type": "pwa-extensionHost",
       "request": "launch",
+      "autoAttachChildProcesses": true,
       "runtimeExecutable": "${execPath}",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
