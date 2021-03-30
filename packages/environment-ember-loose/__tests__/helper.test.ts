@@ -72,3 +72,18 @@ import { EmptyObject } from '@glint/template/-private/integration';
   expectTypeOf(repeat({ value: 'hi' })).toEqualTypeOf<Array<string>>();
   expectTypeOf(repeat({ value: 123, count: 3 })).toEqualTypeOf<Array<number>>();
 }
+
+// Class-based helpers can return undefined
+{
+  class MaybeStringHelper extends Helper<{ Return: string | undefined }> {
+    compute(): string | undefined {
+      if (Math.random() > 0.5) {
+        return 'ok';
+      }
+    }
+  }
+
+  let maybeString = resolve(MaybeStringHelper);
+
+  expectTypeOf(maybeString).toEqualTypeOf<(args: EmptyObject) => string | undefined>();
+}
