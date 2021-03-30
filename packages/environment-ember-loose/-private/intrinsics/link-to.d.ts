@@ -17,6 +17,7 @@ export interface LinkToArgs {
   activeClass?: string;
   'current-when'?: string;
   model?: unknown;
+  models?: unknown[];
   preventDefault?: boolean;
   tagName?: string;
   query?: Record<string, unknown>;

@@ -28,3 +28,7 @@ invokeBlock(LinkTo({ route: 'index' }), {
 invokeBlock(LinkTo({ route: 'index', query: { a: 123 } }), {
   default() {},
 });
+
+invokeBlock(LinkTo({ route: 'index', models: [123, 'abc'] }), {
+  default() {},
+});
