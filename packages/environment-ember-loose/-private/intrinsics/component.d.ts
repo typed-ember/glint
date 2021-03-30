@@ -4,6 +4,8 @@ import {
   EmptyObject,
   DirectInvokable,
   Invokable,
+  HasElement,
+  ElementInvokable,
 } from '@glint/template/-private/integration';
 
 type RegistryComponentArgs<Registry, T extends keyof Registry> = Registry[T] extends new (
@@ -18,6 +20,12 @@ type RegistryComponentReturn<Registry, T extends keyof Registry> = Registry[T] e
   ? Return
   : unknown;
 
+type RegistryComponentElement<Registry, T extends keyof Registry> = Registry[T] extends new (
+  ...args: any
+) => HasElement<infer El>
+  ? El
+  : null;
+
 export type ComponentKeyword<Registry> = DirectInvokable<{
   // {{component "some-name"}}
   <Name extends keyof Registry>(args: EmptyObject, component: Name): Registry[Name];
@@ -26,16 +34,19 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
   <Name extends keyof Registry, GivenArgs extends Partial<RegistryComponentArgs<Registry, Name>>>(
     args: GivenArgs,
     component: Name
-  ): new () => Invokable<
-    (
-      args: Omit<RegistryComponentArgs<Registry, Name>, keyof GivenArgs> &
-        Partial<
-          Pick<
-            RegistryComponentArgs<Registry, Name>,
-            keyof GivenArgs & keyof RegistryComponentArgs<Registry, Name>
+  ): new () => ElementInvokable<
+    RegistryComponentElement<Registry, Name>,
+    {
+      (
+        args: Omit<RegistryComponentArgs<Registry, Name>, keyof GivenArgs> &
+          Partial<
+            Pick<
+              RegistryComponentArgs<Registry, Name>,
+              keyof GivenArgs & keyof RegistryComponentArgs<Registry, Name>
+            >
           >
-        >
-    ) => RegistryComponentReturn<Registry, Name>
+      ): RegistryComponentReturn<Registry, Name>;
+    }
   >;
 
   // {{component someCurriedComponent arg=value}}
@@ -43,13 +54,20 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
     Args,
     GivenArgs extends Partial<Args>,
     Blocks extends AnyBlocks,
-    ConstructorArgs extends unknown[]
+    ConstructorArgs extends unknown[],
+    El extends Element | null
   >(
     args: GivenArgs,
-    component: new (...args: ConstructorArgs) => Invokable<(args: Args) => AcceptsBlocks<Blocks>>
-  ): new () => Invokable<
-    (
-      args: Omit<Args, keyof GivenArgs> & Partial<Pick<Args, keyof GivenArgs & keyof Args>>
-    ) => AcceptsBlocks<Blocks>
+    component: new (...args: ConstructorArgs) => ElementInvokable<
+      El,
+      (args: Args) => AcceptsBlocks<Blocks>
+    >
+  ): new () => ElementInvokable<
+    El,
+    {
+      (
+        args: Omit<Args, keyof GivenArgs> & Partial<Pick<Args, keyof GivenArgs & keyof Args>>
+      ): AcceptsBlocks<Blocks>;
+    }
   >;
 }>;
