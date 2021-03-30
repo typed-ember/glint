@@ -1,5 +1,10 @@
 import { expectTypeOf } from 'expect-type';
-import { resolve, invokeBlock } from '@glint/environment-ember-loose/-private/dsl';
+import {
+  resolve,
+  invokeBlock,
+  applySplattributes,
+  ElementForComponent,
+} from '@glint/environment-ember-loose/-private/dsl';
 import Component from '@glint/environment-ember-loose/ember-component';
 import { ComponentKeyword } from '@glint/environment-ember-loose/-private/intrinsics/component';
 
@@ -11,6 +16,7 @@ type LocalRegistry = {
 };
 
 class StringComponent extends Component<{
+  Element: HTMLFormElement;
   Args: { value: string };
   Yields: { default?: [string] };
 }> {}
@@ -20,6 +26,9 @@ const ValueCurriedStringComponent = componentKeyword({ value: 'hello' }, 'string
 
 // Invoking the noop-curried component
 invokeBlock(resolve(NoopCurriedStringComponent)({ value: 'hello' }), {});
+
+// Applying attributes/modifiers to the noop-curried component
+applySplattributes<HTMLFormElement, ElementForComponent<typeof NoopCurriedStringComponent>>();
 
 // @ts-expect-error: Invoking the curried component but forgetting `value`
 resolve(NoopCurriedStringComponent)({});
@@ -51,6 +60,9 @@ invokeBlock(resolve(ValueCurriedStringComponent)({}), {});
 // Invoking the curried-with-value component with a valid value
 invokeBlock(resolve(ValueCurriedStringComponent)({ value: 'hi' }), {});
 
+// Applying attributes/modifiers to the noop-curried component
+applySplattributes<HTMLFormElement, ElementForComponent<typeof ValueCurriedStringComponent>>();
+
 // @ts-expect-error: Invoking the curred-with-value component with an invalid value
 invokeBlock(resolve(ValueCurriedStringComponent)({ value: 123 }), {});
 
@@ -61,6 +73,7 @@ componentKeyword({ foo: true }, StringComponent);
 componentKeyword({ value: 123 }, StringComponent);
 
 class ParametricComponent<T> extends Component<{
+  Element: HTMLFormElement;
   Args: { values: Array<T>; optional?: string };
   Yields: { default?: [T, number] };
 }> {}
@@ -94,6 +107,9 @@ invokeBlock(resolve(NoopCurriedParametricComponent)({ values: ['hello'] }), {
     expectTypeOf(value).toEqualTypeOf<string>();
   },
 });
+
+// Applying attributes/modifiers to the parametric component
+applySplattributes<HTMLFormElement, ElementForComponent<typeof NoopCurriedParametricComponent>>();
 
 invokeBlock(
   resolve(NoopCurriedParametricComponent)(

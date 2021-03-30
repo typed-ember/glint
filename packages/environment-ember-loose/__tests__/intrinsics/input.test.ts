@@ -1,5 +1,10 @@
 import { expectTypeOf } from 'expect-type';
-import { Globals, resolve } from '@glint/environment-ember-loose/-private/dsl';
+import {
+  applySplattributes,
+  ElementForComponent,
+  Globals,
+  resolve,
+} from '@glint/environment-ember-loose/-private/dsl';
 
 let input = resolve(Globals['input']);
 let Input = resolve(Globals['Input']);
@@ -11,6 +16,9 @@ Input({}), {};
 Input({ value: 'hello' });
 Input({ type: 'string', value: 'hello' });
 Input({ type: 'checkbox', checked: true });
+
+// Ensure we can apply <input>-specific attributes
+applySplattributes<HTMLInputElement, ElementForComponent<Globals['Input']>>();
 
 // @ts-expect-error: `checked` only works with `@type=checkbox`
 Input({ checked: true });
