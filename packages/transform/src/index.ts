@@ -93,6 +93,8 @@ export function rewriteModule(
   let scriptAST: t.File | t.Program | null = null;
   try {
     scriptAST = parseSync(input.script.contents, {
+      babelrc: false,
+      configFile: false,
       filename: input.script.filename,
       code: false,
       presets: [require.resolve('@babel/preset-typescript')],
