@@ -24,7 +24,7 @@ export function rewriteDiagnostic<
 >(
   tsImpl: typeof ts,
   transformedDiagnostic: T,
-  locateTransformedModule: (fileName: string) => TransformedModule | undefined
+  locateTransformedModule: (fileName: string) => TransformedModule | null | undefined
 ): T {
   assert(transformedDiagnostic.file);
   assert(transformedDiagnostic.start);
@@ -93,6 +93,8 @@ export function rewriteModule(
   let scriptAST: t.File | t.Program | null = null;
   try {
     scriptAST = parseSync(input.script.contents, {
+      babelrc: false,
+      configFile: false,
       filename: input.script.filename,
       code: false,
       presets: [require.resolve('@babel/preset-typescript')],
