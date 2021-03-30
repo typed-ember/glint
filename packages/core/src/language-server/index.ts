@@ -13,9 +13,16 @@ const ts = loadTypeScript();
 const glintConfig = findConfig(process.cwd());
 const tsconfigPath = ts.findConfigFile(process.cwd(), ts.sys.fileExists);
 const { fileNames, options } = parseConfigFile(ts, tsconfigPath);
+
 const tsFileNames = fileNames.filter((fileName) => /\.ts$/.test(fileName));
+const baseProjectRoots = new Set(tsFileNames);
 const getRootFileNames = (): Array<string> => {
-  return tsFileNames.concat(documents.all().map((doc) => uriToFilePath(doc.uri)));
+  return tsFileNames.concat(
+    documents
+      .all()
+      .map((doc) => uriToFilePath(doc.uri))
+      .filter((path) => path.endsWith('.ts') && !baseProjectRoots.has(path))
+  );
 };
 
 if (glintConfig) {
