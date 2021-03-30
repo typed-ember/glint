@@ -24,7 +24,7 @@ export function rewriteDiagnostic<
 >(
   tsImpl: typeof ts,
   transformedDiagnostic: T,
-  locateTransformedModule: (fileName: string) => TransformedModule | undefined
+  locateTransformedModule: (fileName: string) => TransformedModule | null | undefined
 ): T {
   assert(transformedDiagnostic.file);
   assert(transformedDiagnostic.start);

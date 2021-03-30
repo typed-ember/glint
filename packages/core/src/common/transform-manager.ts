@@ -7,7 +7,7 @@ import DocumentCache, { isTemplate } from './document-cache';
 type TransformInfo = {
   version: string;
   transformedFileName: string;
-  transformedModule: TransformedModule;
+  transformedModule: TransformedModule | null;
 };
 
 export default class TransformManager {
@@ -26,7 +26,11 @@ export default class TransformManager {
     }
 
     return [...this.transformCache.values()].flatMap((transformInfo) => {
-      return this.buildDiagnostics(transformInfo.transformedModule);
+      if (transformInfo.transformedModule) {
+        return this.buildDiagnostics(transformInfo.transformedModule);
+      }
+
+      return [];
     });
   }
 
@@ -51,7 +55,7 @@ export default class TransformManager {
     originalEnd: number
   ): { transformedFileName: string; transformedStart: number; transformedEnd: number } {
     let transformInfo = this.findTransformInfoForOriginalFile(originalFileName);
-    if (!transformInfo) {
+    if (!transformInfo?.transformedModule) {
       return {
         transformedFileName: originalFileName,
         transformedStart: originalStart,
@@ -79,7 +83,7 @@ export default class TransformManager {
     transformedEnd: number
   ): { originalFileName: string; originalStart: number; originalEnd: number } {
     let transformInfo = this.getTransformInfo(transformedFileName);
-    if (!transformInfo) {
+    if (!transformInfo?.transformedModule) {
       return {
         originalFileName: transformedFileName,
         originalStart: transformedStart,
@@ -104,7 +108,7 @@ export default class TransformManager {
     originalOffset: number
   ): { transformedFileName: string; transformedOffset: number } {
     let transformInfo = this.findTransformInfoForOriginalFile(originalFileName);
-    if (!transformInfo) {
+    if (!transformInfo?.transformedModule) {
       return { transformedFileName: originalFileName, transformedOffset: originalOffset };
     }
 
@@ -152,7 +156,7 @@ export default class TransformManager {
 
   public readTransformedFile = (filename: string, encoding?: string): string | undefined => {
     let transformInfo = this.getTransformInfo(filename, encoding);
-    if (transformInfo) {
+    if (transformInfo?.transformedModule) {
       return transformInfo.transformedModule.transformedContents;
     } else {
       return this.documents.getDocumentContents(filename, encoding);
@@ -167,13 +171,14 @@ export default class TransformManager {
     return transformedFileName ? this.getTransformInfo(transformedFileName) : null;
   }
 
-  private getTransformInfo(filename: string, encoding?: string): TransformInfo | null {
+  private getTransformInfo(filename: string, encoding?: string): TransformInfo {
     let existing = this.transformCache.get(filename);
     let version = this.documents.getCompoundDocumentVersion(filename);
     if (existing?.version === version) {
       return existing;
     }
 
+    let transformedModule: TransformedModule | null = null;
     let contents = this.documents.getDocumentContents(filename, encoding);
     let config = this.glintConfig;
 
@@ -189,24 +194,19 @@ export default class TransformManager {
         this.documents.documentExists(candidate)
       );
 
-      if (!mayHaveTaggedTemplates && !templatePath) {
-        return null;
-      }
+      if (mayHaveTaggedTemplates || templatePath) {
+        let script = { filename, contents };
+        let template = templatePath
+          ? { filename: templatePath, contents: this.documents.getDocumentContents(templatePath) }
+          : undefined;
 
-      let script = { filename, contents };
-      let template = templatePath
-        ? { filename: templatePath, contents: this.documents.getDocumentContents(templatePath) }
-        : undefined;
-
-      let transformedModule = rewriteModule({ script, template }, config.environment);
-      if (transformedModule) {
-        let cacheEntry = { version, transformedModule, transformedFileName: filename };
-        this.transformCache.set(filename, cacheEntry);
-        return cacheEntry;
+        transformedModule = rewriteModule({ script, template }, config.environment);
       }
     }
 
-    return null;
+    let cacheEntry = { version, transformedFileName: filename, transformedModule };
+    this.transformCache.set(filename, cacheEntry);
+    return cacheEntry;
   }
 
   private readonly formatDiagnosticHost: ts.FormatDiagnosticsHost = {
