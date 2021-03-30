@@ -5,6 +5,7 @@
       "name": "Debug Extension",
       "type": "pwa-extensionHost",
       "request": "launch",
+      "preLaunchTask": "npm: build",
       "autoAttachChildProcesses": true,
       "runtimeExecutable": "${execPath}",
       "args": [
