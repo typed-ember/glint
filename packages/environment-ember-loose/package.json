@@ -6,6 +6,8 @@
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "glint-environment": "-private/environment/index.js",
+  "main": "-private/index.js",
+  "types": "-private/index.d.ts",
   "keywords": [
     "glint-environment"
   ],
