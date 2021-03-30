@@ -1,4 +1,9 @@
-import { AcceptsBlocks, DirectInvokable, EmptyObject } from '@glint/template/-private/integration';
+import {
+  AcceptsBlocks,
+  DirectInvokable,
+  ElementInvokable,
+  EmptyObject,
+} from '@glint/template/-private/integration';
 
 export type LinkToKeyword = DirectInvokable<{
   (args: EmptyObject, route: string, ...params: unknown[]): AcceptsBlocks<{
@@ -17,6 +22,7 @@ export interface LinkToArgs {
   query?: Record<string, unknown>;
 }
 
-export type LinkToComponent = DirectInvokable<{
-  (args: LinkToArgs): AcceptsBlocks<{ default: [] }>;
-}>;
+export type LinkToComponent = new () => ElementInvokable<
+  HTMLAnchorElement,
+  (args: LinkToArgs) => AcceptsBlocks<{ default: [] }>
+>;

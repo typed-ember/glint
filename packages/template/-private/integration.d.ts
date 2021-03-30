@@ -20,6 +20,12 @@ export type Invokable<T extends AnyFunction = AnyFunction> = { [Invoke]: T };
 export declare const Context: unique symbol;
 export type HasContext<T extends AnyContext = AnyContext> = { [Context]: T };
 
+/** Denotes a component-like item that is both invokable and may accept attributes/modifiers */
+export type ElementInvokable<
+  El extends Element | null | undefined,
+  T extends AnyFunction
+> = HasElement<El> & Invokable<T>;
+
 // These shenanigans are necessary to get TS to report when named args
 // are passed to a signature that doesn't expect any, because `{}` is
 // special-cased in the type system not to trigger EPC.
