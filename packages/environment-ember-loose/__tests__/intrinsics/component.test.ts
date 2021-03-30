@@ -7,6 +7,7 @@ import {
 } from '@glint/environment-ember-loose/-private/dsl';
 import Component from '@glint/environment-ember-loose/ember-component';
 import { ComponentKeyword } from '@glint/environment-ember-loose/-private/intrinsics/component';
+import { ComponentWithBoundArgs, ComponentLike } from '@glint/environment-ember-loose';
 
 const componentKeyword = resolve({} as ComponentKeyword<LocalRegistry>);
 
@@ -23,6 +24,20 @@ class StringComponent extends Component<{
 
 const NoopCurriedStringComponent = componentKeyword({}, 'string');
 const ValueCurriedStringComponent = componentKeyword({ value: 'hello' }, 'string');
+
+// Once value is curried, it should be optional in args
+expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
+  ComponentLike<{
+    Element: HTMLFormElement;
+    Args: { value?: string };
+    Yields: { default?: [string] };
+  }>
+>();
+
+// This is also equivalent to this `ComponentWithBoundArgs` shorthand:
+expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
+  ComponentWithBoundArgs<typeof ValueCurriedStringComponent, 'value'>
+>();
 
 // Invoking the noop-curried component
 invokeBlock(resolve(NoopCurriedStringComponent)({ value: 'hello' }), {});
