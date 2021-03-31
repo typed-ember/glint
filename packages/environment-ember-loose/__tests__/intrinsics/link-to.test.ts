@@ -28,3 +28,26 @@ invokeBlock(LinkTo({ route: 'index' }), {
 invokeBlock(LinkTo({ route: 'index', query: { a: 123 } }), {
   default() {},
 });
+
+invokeBlock(LinkTo({ route: 'index', models: [123, 'abc'] }), {
+  default() {},
+});
+
+// Requires at least one of `@route`, `@model`, `@models` or `@query`
+
+// @ts-expect-error: missing one of required props
+invokeBlock(LinkTo({}), {
+  default() {},
+});
+
+invokeBlock(LinkTo({ model: 123 }), {
+  default() {},
+});
+
+invokeBlock(LinkTo({ models: [123] }), {
+  default() {},
+});
+
+invokeBlock(LinkTo({ query: { a: 123 } }), {
+  default() {},
+});
