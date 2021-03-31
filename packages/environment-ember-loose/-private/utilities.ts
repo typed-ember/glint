@@ -75,11 +75,13 @@ export type ComponentLike<T extends ComponentSignature = any> = Constructor<
  * bound arguments. In such cases you may need to construct a
  * `ComponentLike` type manually instead.
  *
- * Note also that TypeScript will not perfectly enforce that the
- * bound component you pass actually _meets_ the given type. You
- * can write `{{component 'my-component'}}` and pass that value in
- * a place where you said to expect the `foo` arg to already be
- * bound, and TypeScript unfortunately won't catch that.
+ * Note also that you must have `strictFunctionTypes` enabled for
+ * TypeScript to fully enforce that the bound component you pass
+ * actually _meets_ the given type. Given the definition above,
+ * You can write `{{component 'my-component'}}` and pass that value
+ * in a place where you said to expect the `foo` arg to already be
+ * bound, that won't be flagged as an error if `strictFunctionTypes`
+ * is disabled.
  */
 export type ComponentWithBoundArgs<
   T extends ComponentLike,
