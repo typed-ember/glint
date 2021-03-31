@@ -79,10 +79,11 @@ applySplattributes<HTMLAnchorElement, ElementForComponent<typeof SVGAElementComp
 
 // @ts-expect-error: `imageModifier` expects an `HTMLImageElement`
 applyModifier<HTMLDivElement>(resolve(imageModifier)({}));
-// @ts-expect-error: `imageModifier` expects an `HTMLImageElement`
-applyModifier<typeof GenericElementComponent>(resolve(imageModifier)({}));
+// @ts-expect-error: `imageModifier` expects an `HTMLImageElement`d
+applyModifier<ElementForComponent<typeof GenericElementComponent>>(resolve(imageModifier)({}));
 // @ts-expect-error: Trying to apply a modifier to a component with no root element
-applyModifier<typeof TestComponent>(resolve(imageModifier)({}));
+applyModifier<ElementForComponent<typeof TestComponent>>(resolve(imageModifier)({}));
+// @ts-expect-error: Can't apply modifier for HTML <a> to SVG <a>
 applyModifier<SVGAElement>(resolve(anchorModifier)({}));
 
 // @ts-expect-error: Trying to apply attributes to a component with no root element
