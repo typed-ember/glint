@@ -1,6 +1,6 @@
 {
   "name": "ts-ember-app",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "private": true,
   "description": "Small description for ts-ember-app goes here",
   "repository": "",
@@ -22,8 +22,8 @@
     "@ember/optional-features": "^2.0.0",
     "@glimmer/component": "^1.0.2",
     "@glimmer/tracking": "^1.0.2",
-    "@glint/core": "^0.4.1",
-    "@glint/environment-ember-loose": "^0.4.1",
+    "@glint/core": "^0.4.2",
+    "@glint/environment-ember-loose": "^0.4.2",
     "@types/ember": "^3.16.2",
     "@types/ember-qunit": "^3.4.13",
     "@types/ember-resolver": "^5.0.10",
