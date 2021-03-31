@@ -8,9 +8,7 @@ type EmberHelperConstructor = typeof import('@ember/component/helper').default;
 const EmberHelper = Ember.Helper;
 const emberHelper = Ember.Helper.helper;
 
-type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
-  ? Exclude<T[Key], undefined>
-  : Otherwise;
+type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T ? T[Key] : Otherwise;
 
 type HelperFactory = <Positional extends unknown[] = [], Named = EmptyObject, Return = unknown>(
   fn: (params: Positional, hash: Named) => Return
@@ -39,7 +37,7 @@ interface Helper<T extends HelperSignature> extends Omit<EmberHelper, 'compute'>
 
   [Invoke]: (
     named: Get<T, 'NamedArgs'>,
-    ...positional: Get<T, 'PositionalArgs', []>
+    ...positional: Exclude<Get<T, 'PositionalArgs', []>, undefined>
   ) => Get<T, 'Return'>;
 }
 
