@@ -2,6 +2,7 @@ import { AcceptsBlocks, DirectInvokable, EmptyObject } from '@glint/template/-pr
 
 export type EachInKeyword = DirectInvokable<{
   <T>(args: EmptyObject, object: T): AcceptsBlocks<{
-    default: [key: keyof T, value: T[keyof T]];
+    default: [key: keyof NonNullable<T>, value: NonNullable<T>[keyof NonNullable<T>]];
+    inverse?: [];
   }>;
 }>;
