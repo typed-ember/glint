@@ -7,6 +7,9 @@ import type {
   EmptyObject,
 } from '@glint/template/-private/integration';
 
+import type { ComponentSignature } from '../-private';
+export type { ComponentSignature };
+
 const GlimmerComponent = window.require('@glimmer/component').default;
 type GlimmerComponent<T> = import('@glimmer/component').default<T>;
 type GlimmerComponentConstructor = typeof import('@glimmer/component').default;
@@ -14,12 +17,6 @@ type GlimmerComponentConstructor = typeof import('@glimmer/component').default;
 type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
   ? Exclude<T[Key], undefined>
   : Otherwise;
-
-export interface ComponentSignature {
-  Args?: Partial<Record<string, unknown>>;
-  Yields?: Partial<Record<string, Array<unknown>>>;
-  Element?: Element;
-}
 
 const Component = GlimmerComponent as new <T extends ComponentSignature = {}>(
   ...args: ConstructorParameters<GlimmerComponentConstructor>
