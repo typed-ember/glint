@@ -1,5 +1,6 @@
 import { expectTypeOf } from 'expect-type';
 import { Globals, resolve } from '@glint/environment-ember-loose/-private/dsl';
+import ObjectProxy from '@ember/object/proxy';
 
 let get = resolve(Globals['get']);
 
@@ -17,3 +18,10 @@ get(
   {},
   'hi'
 );
+
+// Getting a value off an ObjectProxy
+declare const proxiedObject: ObjectProxy<{ name: string }>;
+
+expectTypeOf(get({}, proxiedObject, 'content')).toEqualTypeOf<{ name: string }>();
+expectTypeOf(get({}, proxiedObject, 'name')).toEqualTypeOf<string>();
+expectTypeOf(get({}, proxiedObject, 'unknownKey')).toEqualTypeOf<unknown>();
