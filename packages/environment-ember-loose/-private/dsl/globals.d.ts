@@ -3,6 +3,7 @@ import * as VM from '@glint/template/-private/keywords';
 import { ActionKeyword } from '../intrinsics/action';
 import { ComponentKeyword } from '../intrinsics/component';
 import { ConcatHelper } from '../intrinsics/concat';
+import { EachKeyword } from '../intrinsics/each';
 import { EachInKeyword } from '../intrinsics/each-in';
 import { FnHelper } from '../intrinsics/fn';
 import { GetHelper } from '../intrinsics/get';
@@ -59,7 +60,7 @@ interface Keywords {
 
     [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/each?anchor=each
   */
-  each: VM.EachKeyword;
+  each: EachKeyword;
 
   /**
     The `{{each-in}}` helper loops over properties on an object.
