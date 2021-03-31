@@ -9,7 +9,7 @@ const EmberModifier = window.require('ember-modifier').default;
 type EmberModifier<T> = import('ember-modifier').default<T>;
 type EmberModifierConstructor = typeof import('ember-modifier').default;
 
-const emberModifier = window.require('embber-modifier').modifier;
+const emberModifier = window.require('ember-modifier').modifier;
 
 type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
   ? Exclude<T[Key], undefined>
@@ -27,7 +27,7 @@ export interface ModifierSignature {
   Element?: Element;
 }
 
-const Modifier = emberModifier.default as new <T extends ModifierSignature>(
+const Modifier = EmberModifier as new <T extends ModifierSignature>(
   ...args: ConstructorParameters<EmberModifierConstructor>
 ) => Modifier<T>;
 
