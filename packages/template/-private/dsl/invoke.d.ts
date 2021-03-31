@@ -1,4 +1,5 @@
 import { AcceptsBlocks, AnyBlocks, AnyContext, BoundModifier } from '../integration';
+import { SafeString } from '@glimmer/runtime';
 
 /*
  * Invokes the given value as an inline expression to be emitted to the DOM.
@@ -11,7 +12,7 @@ import { AcceptsBlocks, AnyBlocks, AnyContext, BoundModifier } from '../integrat
  *     <div data-x="hello {{value foo=bar}}">
  */
 export declare function invokeEmit<
-  T extends AcceptsBlocks<{}> | string | number | boolean | null | void
+  T extends AcceptsBlocks<{}> | SafeString | string | number | boolean | null | void
 >(value: T): void;
 
 /*

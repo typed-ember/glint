@@ -2,6 +2,8 @@ import { expectTypeOf } from 'expect-type';
 import SumType from 'sums-up';
 import { AcceptsBlocks, DirectInvokable, EmptyObject } from '../-private/integration';
 import { invokeBlock, invokeEmit, resolve, resolveOrReturn } from '../-private/dsl';
+import { SafeString } from '@glimmer/runtime';
+import { htmlSafe } from '@ember/template';
 
 ///////////////////////////////////////////////////////////////////////////////
 // This module exercises what's possible when declaring a signature for a
@@ -67,6 +69,18 @@ invokeBlock(resolve(caseOf)({}, maybeValue), {
     });
   },
 });
+
+// Glimmer's SafeString interface
+let safeString: SafeString = {
+  toHTML(): string {
+    return '<span>Foo</span>';
+  },
+};
+
+invokeEmit(safeString);
+
+// @ember/template's SafeString
+invokeEmit(htmlSafe('<span>Foo</span>'));
 
 // Below is an alternative formulation using named block syntax.
 // This is a bit weird as it's really a control structure and looks here
