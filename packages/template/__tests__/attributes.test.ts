@@ -17,7 +17,15 @@ declare const imageModifier: DirectInvokable<
   (args: EmptyObject) => BoundModifier<HTMLImageElement>
 >;
 
+declare const anchorModifier: DirectInvokable<
+  (args: EmptyObject) => BoundModifier<HTMLAnchorElement>
+>;
+
 class GenericElementComponent extends TestComponent<{ Element: HTMLElement }> {}
+
+class SVGElementComponent extends TestComponent<{ Element: SVGSVGElement }> {}
+// The <a> tag exists in both HTML and SVG
+class SVGAElementComponent extends TestComponent<{ Element: SVGAElement }> {}
 
 class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   /**
@@ -36,6 +44,8 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 // `ElementForComponent`
 expectTypeOf<ElementForComponent<typeof MyComponent>>().toEqualTypeOf<HTMLImageElement>();
 expectTypeOf<ElementForComponent<typeof GenericElementComponent>>().toEqualTypeOf<HTMLElement>();
+expectTypeOf<ElementForComponent<typeof SVGElementComponent>>().toEqualTypeOf<SVGSVGElement>();
+expectTypeOf<ElementForComponent<typeof SVGAElementComponent>>().toEqualTypeOf<SVGAElement>();
 expectTypeOf<ElementForComponent<typeof TestComponent>>().toEqualTypeOf<null>();
 
 // `ElementForTagName`
@@ -48,8 +58,13 @@ expectTypeOf<ElementForTagName<'unknown'>>().toEqualTypeOf<Element>();
  * ```
  */
 applySplattributes<ElementForTagName<'img'>, ElementForComponent<typeof MyComponent>>();
+applySplattributes<ElementForTagName<'svg'>, ElementForComponent<typeof SVGElementComponent>>();
+applySplattributes<SVGAElement, ElementForComponent<typeof SVGAElementComponent>>();
 applyAttributes<ElementForComponent<typeof MyComponent>>({ foo: 'bar' });
 invokeBlock(resolve(MyComponent)({}), {});
+
+applyModifier<HTMLAnchorElement>(resolve(anchorModifier)({}));
+applyModifier<ElementForTagName<'a'>>(resolve(anchorModifier)({}));
 
 // Error conditions:
 
@@ -59,6 +74,8 @@ applySplattributes<ElementForTagName<'form'>, ElementForTagName<'unknown'>>();
 applySplattributes<ElementForTagName<'form'>, ElementForComponent<typeof MyComponent>>();
 // @ts-expect-error: Trying to apply splattributes to a component with no root element
 applySplattributes<ElementForTagName<'unknown'>, ElementForComponent<typeof TestComponent>>();
+// @ts-expect-error: Trying to apply splattributes for an HTML <a> to an SVG <a>
+applySplattributes<HTMLAnchorElement, ElementForComponent<typeof SVGAElementComponent>>();
 
 // @ts-expect-error: `imageModifier` expects an `HTMLImageElement`
 applyModifier<HTMLDivElement>(resolve(imageModifier)({}));
@@ -66,6 +83,7 @@ applyModifier<HTMLDivElement>(resolve(imageModifier)({}));
 applyModifier<typeof GenericElementComponent>(resolve(imageModifier)({}));
 // @ts-expect-error: Trying to apply a modifier to a component with no root element
 applyModifier<typeof TestComponent>(resolve(imageModifier)({}));
+applyModifier<SVGAElement>(resolve(anchorModifier)({}));
 
 // @ts-expect-error: Trying to apply attributes to a component with no root element
 applyAttributes<typeof TestComponent>({ foo: 'bar' });

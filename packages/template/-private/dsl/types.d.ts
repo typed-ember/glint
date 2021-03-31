@@ -2,9 +2,16 @@ import { HasContext, HasElement } from '@glint/template/-private/integration';
 
 type Constructor<T> = new (...args: any) => T;
 
-/** Given a tag name, returns an appropriate `Element` subtype. */
+/**
+ * Given a tag name, returns an appropriate `Element` subtype.
+ * NOTE: This will return a union for elements that exist both in HTML and SVG. Technically, this will be too permissive.
+ */
 export type ElementForTagName<Name extends string> = Name extends keyof HTMLElementTagNameMap
-  ? HTMLElementTagNameMap[Name]
+  ? Name extends keyof SVGElementTagNameMap
+    ? HTMLElementTagNameMap[Name] & SVGElementTagNameMap[Name]
+    : HTMLElementTagNameMap[Name]
+  : Name extends keyof SVGElementTagNameMap
+  ? SVGElementTagNameMap[Name]
   : Element;
 
 /** Given a component class, returns its `[Element]` type or `null` if it has none. */
