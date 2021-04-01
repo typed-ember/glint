@@ -48,7 +48,28 @@ invokeBlock(each({}, ['a', 'b', 'c'] as readonly string[]), {
 
 // Accept a `key` string
 invokeBlock(each({ key: 'id' }, [{ id: 1 }]), {
-  default() {
-    // Don't yield
+  default(value, index) {
+    expectTypeOf(value).toEqualTypeOf<{ id: number }>();
+    expectTypeOf(index).toEqualTypeOf<number>();
+  },
+});
+
+declare const arrayOrUndefined: string[] | undefined;
+
+// Works for undefined
+invokeBlock(each({}, arrayOrUndefined), {
+  default(value, index) {
+    expectTypeOf(value).toEqualTypeOf<string>();
+    expectTypeOf(index).toEqualTypeOf<number>();
+  },
+});
+
+declare const arrayOrNull: string[] | null;
+
+// Works for null
+invokeBlock(each({}, arrayOrNull), {
+  default(value, index) {
+    expectTypeOf(value).toEqualTypeOf<string>();
+    expectTypeOf(index).toEqualTypeOf<number>();
   },
 });
