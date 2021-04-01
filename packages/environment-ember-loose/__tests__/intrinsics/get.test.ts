@@ -19,9 +19,20 @@ get(
   'hi'
 );
 
+expectTypeOf(get({}, null, 'name')).toEqualTypeOf<undefined>();
+expectTypeOf(get({}, undefined, 'name')).toEqualTypeOf<undefined>();
+
 // Getting a value off an ObjectProxy
 declare const proxiedObject: ObjectProxy<{ name: string }>;
 
-expectTypeOf(get({}, proxiedObject, 'content')).toEqualTypeOf<{ name: string }>();
-expectTypeOf(get({}, proxiedObject, 'name')).toEqualTypeOf<string>();
+expectTypeOf(get({}, proxiedObject, 'content')).toEqualTypeOf<{ name: string } | undefined>();
+expectTypeOf(get({}, proxiedObject, 'name')).toEqualTypeOf<string | undefined>();
 expectTypeOf(get({}, proxiedObject, 'unknownKey')).toEqualTypeOf<unknown>();
+
+declare const optionalProxiedObject: ObjectProxy<{ name: string }> | undefined;
+
+expectTypeOf(get({}, optionalProxiedObject, 'name')).toEqualTypeOf<string | undefined>();
+
+declare const nullProxiedObject: ObjectProxy<{ name: string }> | null;
+
+expectTypeOf(get({}, nullProxiedObject, 'name')).toEqualTypeOf<string | undefined>();
