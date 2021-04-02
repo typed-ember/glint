@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@glimmerx/component": "^0.4.2",
-    "expect-type": "0.7.3"
+    "expect-type": "0.11.0"
   },
   "publishConfig": {
     "access": "public"
