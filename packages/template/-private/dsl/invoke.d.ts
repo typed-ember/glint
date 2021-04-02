@@ -12,7 +12,7 @@ import { SafeString } from '@glimmer/runtime';
  *     <div data-x="hello {{value foo=bar}}">
  */
 export declare function invokeEmit<
-  T extends AcceptsBlocks<{}> | SafeString | string | number | boolean | null | void
+  T extends AcceptsBlocks<{}> | SafeString | Element | string | number | boolean | null | void
 >(value: T): void;
 
 /*
