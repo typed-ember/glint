@@ -4,6 +4,10 @@ export { scriptElementKindToCompletionItemKind } from './protocol';
 import { URI } from 'vscode-uri';
 import type TS from 'typescript';
 
+export function isTemplate(uriOrFilePath: string): boolean {
+  return uriOrFilePath.endsWith('.hbs');
+}
+
 export function uriToFilePath(uri: string): string {
   return URI.parse(uri).fsPath.replace(/\\/g, '/');
 }
