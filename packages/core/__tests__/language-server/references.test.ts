@@ -13,6 +13,18 @@ describe('Language Server: References', () => {
     await project.destroy();
   });
 
+  test('querying an unaffiliated template', () => {
+    project.write('index.hbs', '{{foo}}');
+
+    let server = project.startLanguageServer();
+    let references = server.getReferences(project.fileURI('index.hbs'), {
+      line: 0,
+      character: 2,
+    });
+
+    expect(references).toEqual([]);
+  });
+
   test('component references', () => {
     project.write({
       'greeting.ts': stripIndent`

@@ -125,6 +125,8 @@ export default class GlintLanguageServer {
 
   public getCompletions(uri: string, position: Position): CompletionItem[] | undefined {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    if (isTemplate(transformedFileName)) return;
+
     let completions = this.service.getCompletionsAtPosition(
       transformedFileName,
       transformedOffset,
@@ -172,6 +174,8 @@ export default class GlintLanguageServer {
 
   public prepareRename(uri: string, position: Position): Range | undefined {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    if (isTemplate(transformedFileName)) return;
+
     let rename = this.service.getRenameInfo(transformedFileName, transformedOffset);
     if (rename.canRename) {
       let { originalStart, originalEnd } = this.transformManager.getOriginalRange(
@@ -191,6 +195,8 @@ export default class GlintLanguageServer {
 
   public getEditsForRename(uri: string, position: Position, newText: string): WorkspaceEdit {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    if (isTemplate(transformedFileName)) return {};
+
     let renameLocations = this.service.findRenameLocations(
       transformedFileName,
       transformedOffset,
@@ -235,6 +241,8 @@ export default class GlintLanguageServer {
 
   public getHover(uri: string, position: Position): Hover | undefined {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    if (isTemplate(transformedFileName)) return;
+
     let info = this.service.getQuickInfoAtPosition(transformedFileName, transformedOffset);
     if (!info) return;
 
@@ -259,6 +267,8 @@ export default class GlintLanguageServer {
 
   public getDefinition(uri: string, position: Position): Location[] {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    if (isTemplate(transformedFileName)) return [];
+
     let definitions =
       this.service.getDefinitionAtPosition(transformedFileName, transformedOffset) ?? [];
 
@@ -267,6 +277,8 @@ export default class GlintLanguageServer {
 
   public getReferences(uri: string, position: Position): Location[] {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
+    if (isTemplate(transformedFileName)) return [];
+
     let references =
       this.service.getReferencesAtPosition(transformedFileName, transformedOffset) ?? [];
 

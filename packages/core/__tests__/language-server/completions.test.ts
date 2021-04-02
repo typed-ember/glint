@@ -14,6 +14,18 @@ describe('Language Server: Completions', () => {
     await project.destroy();
   });
 
+  test('querying an unaffiliated template', () => {
+    project.write('index.hbs', '{{foo}}');
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(project.fileURI('index.hbs'), {
+      line: 0,
+      character: 2,
+    });
+
+    expect(completions).toBeUndefined();
+  });
+
   test('passing component args', () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';

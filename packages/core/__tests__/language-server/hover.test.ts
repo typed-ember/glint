@@ -13,6 +13,18 @@ describe('Language Server: Hover', () => {
     await project.destroy();
   });
 
+  test('querying an unaffiliated template', () => {
+    project.write('index.hbs', '{{foo}}');
+
+    let server = project.startLanguageServer();
+    let info = server.getHover(project.fileURI('index.hbs'), {
+      line: 0,
+      character: 2,
+    });
+
+    expect(info).toBeUndefined();
+  });
+
   test('using private properties', () => {
     project.write({
       'index.ts': stripIndent`

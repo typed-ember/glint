@@ -13,6 +13,18 @@ describe('Language Server: Definitions', () => {
     await project.destroy();
   });
 
+  test('querying an unaffiliated template', () => {
+    project.write('index.hbs', '{{foo}}');
+
+    let server = project.startLanguageServer();
+    let definitions = server.getDefinition(project.fileURI('index.hbs'), {
+      line: 0,
+      character: 2,
+    });
+
+    expect(definitions).toEqual([]);
+  });
+
   test('component invocation', () => {
     project.write({
       'greeting.ts': stripIndent`

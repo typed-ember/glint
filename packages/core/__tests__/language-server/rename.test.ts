@@ -13,6 +13,18 @@ describe('Language Server: Renaming Symbols', () => {
     await project.destroy();
   });
 
+  test('querying an unaffiliated template', () => {
+    project.write('index.hbs', '{{foo}}');
+
+    let server = project.startLanguageServer();
+    let renameInfo = server.prepareRename(project.fileURI('index.hbs'), {
+      line: 0,
+      character: 2,
+    });
+
+    expect(renameInfo).toBeUndefined();
+  });
+
   test('preparing rename-able and unrename-able elements', () => {
     project.write({
       'index.ts': stripIndent`
