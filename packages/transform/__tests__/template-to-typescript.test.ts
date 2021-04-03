@@ -739,6 +739,26 @@ describe('rewriteTemplate', () => {
         `"χ.invokeBlock(χ.resolve(Foo)({ arg: \`\${χ.invokeEmit(χ.resolveOrReturn(baz)({}))}\` }), {});"`
       );
     });
+
+    test('with yielded component', () => {
+      let template = stripIndent`
+        <Foo as |NS|>
+          <NS.Nested.Custom class="foo" />
+        </Foo>
+      `;
+
+      expect(templateBody(template)).toMatchInlineSnapshot(`
+        "χ.invokeBlock(χ.resolve(χ.Globals[\\"Foo\\"])({}), {
+          default(NS) {
+            χ.applyAttributes<import(\\"@glint/template\\").ElementForComponent<typeof NS[\\"Nested\\"][\\"Custom\\"]>>({
+              class: \\"foo\\",
+            });
+            χ.invokeBlock(χ.resolve(NS?.Nested?.Custom)({}), {});
+          },
+        });
+        χ.Globals[\\"Foo\\"];"
+      `);
+    });
   });
 
   describe('error conditions', () => {

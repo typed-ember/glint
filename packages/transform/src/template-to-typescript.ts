@@ -505,7 +505,7 @@ export function templateToTypescript(
       emit.text('").');
       if (type === 'component') {
         emit.text('ElementForComponent<typeof ');
-        emitPathContents(path, start, kind);
+        emitPathContents(path, start, kind, true);
         emit.text('>');
       } else {
         emit.text('ElementForTagName<');
@@ -884,7 +884,12 @@ export function templateToTypescript(
       return node.this ? 'this' : node.data ? 'arg' : 'free';
     }
 
-    function emitPathContents(parts: string[], start: number, kind: PathKind): void {
+    function emitPathContents(
+      parts: string[],
+      start: number,
+      kind: PathKind,
+      asType = false
+    ): void {
       if (kind === 'this') {
         let thisStart = template.indexOf('this', start);
         emit.text('𝚪.');
@@ -916,8 +921,10 @@ export function templateToTypescript(
       for (let i = 1; i < parts.length; i++) {
         let part = parts[i];
         start = template.indexOf(part, start);
-        emit.text('?.');
-        if (isSafeKey(part)) {
+        if (!asType) {
+          emit.text('?.');
+        }
+        if (isSafeKey(part) && !asType) {
           emit.identifier(part, start);
         } else {
           emit.text('["');

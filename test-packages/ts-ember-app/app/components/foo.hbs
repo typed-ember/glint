@@ -28,6 +28,10 @@
 
 <EmberComponent @required="req" @hasDefault={{false}} />
 
+<WrapperComponent @value="req" as |WC|>
+  <WC.InnerComponent @optional={{1}} class="custom" />
+</WrapperComponent>
+
 {{repeat "foo" 3}}
 
 {{repeat "foo"}}
