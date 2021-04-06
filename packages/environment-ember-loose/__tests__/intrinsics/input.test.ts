@@ -14,8 +14,14 @@ expectTypeOf(input).toEqualTypeOf(Input);
 
 Input({}), {};
 Input({ value: 'hello' });
-Input({ type: 'string', value: 'hello' });
+Input({ type: 'text', value: 'hello' });
+Input({ type: 'text', value: undefined });
+Input({ type: 'text', value: null });
 Input({ type: 'checkbox', checked: true });
+
+// NOTE: We allow all string types but, if it becomes easily possible, we should limit to valid HTMLInput types and disallow empty strings.
+Input({ type: '', value: 'hello' });
+Input({ type: 'string', value: 'hello' });
 
 // Ensure we can apply <input>-specific attributes
 applySplattributes<HTMLInputElement, ElementForComponent<Globals['Input']>>();
