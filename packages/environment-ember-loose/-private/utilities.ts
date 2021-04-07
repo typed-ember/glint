@@ -20,7 +20,7 @@ export type ArgsOf<C extends ComponentLike> = C extends Constructor<
   : never;
 
 export type YieldsOf<C extends ComponentLike> = C extends Constructor<
-  Invokable<(args: any) => AcceptsBlocks<infer Yields>>
+  Invokable<(args: any) => AcceptsBlocks<infer Yields, any>>
 >
   ? Yields
   : never;
