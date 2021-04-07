@@ -1,5 +1,6 @@
 import { AcceptsBlocks, AnyBlocks, AnyContext, BoundModifier } from '../integration';
 import { SafeString } from '@glimmer/runtime';
+import { ElementForTagName } from './types';
 
 export type EmittableValue = SafeString | Element | string | number | boolean | null | void;
 
@@ -17,7 +18,27 @@ export declare function emitValue<T extends AcceptsBlocks<{}, any> | EmittableVa
 ): void;
 
 /*
- * Invokes the given value as an entity that expects to receive blocks
+ * Emits an element of the given name, providing a value to the
+ * given handler of an appropriate type for the DOM node that will
+ * be produced. This:
+ *
+ *     <div ...attributes class="hello" {{on "click" this.clicked}}></div>
+ *
+ * Would produce code like:
+ *
+ *     emitElement('div', (𝛄) => {
+ *       applySplattributes(𝚪.element, 𝛄.element);
+ *       applyAttributes(𝛄.element, { class: 'hello' });
+ *       applyModifier(𝛄.element, resolve(on)({}, 'click', this.clicked));
+ *     });
+ */
+export declare function emitElement<Name extends string>(
+  name: Name,
+  handler: (elementContext: { element: ElementForTagName<Name> }) => void
+): void;
+
+/*
+ * Emits the given value as an entity that expects to receive blocks
  * rather than return a value. This corresponds to a block-form mustache
  * statement or any angle-bracket component invocation, i.e.:
  *
