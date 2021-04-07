@@ -1,6 +1,6 @@
 import { SafeString } from '@glimmer/runtime';
 import { htmlSafe } from '@ember/template';
-import { invokeEmit } from '../-private/dsl';
+import { emitValue } from '../-private/dsl';
 
 // Glimmer's SafeString interface
 let safeString: SafeString = {
@@ -9,11 +9,11 @@ let safeString: SafeString = {
   },
 };
 
-invokeEmit(safeString);
+emitValue(safeString);
 
 // @ember/template's SafeString
-invokeEmit(htmlSafe('<span>Foo</span>'));
+emitValue(htmlSafe('<span>Foo</span>'));
 
 // Emitting an HTML element inserts that element into the DOM
-invokeEmit(document.createElement('div'));
-invokeEmit(document.createElementNS('http://www.w3.org/2000/svg', 'svg'));
+emitValue(document.createElement('div'));
+emitValue(document.createElementNS('http://www.w3.org/2000/svg', 'svg'));

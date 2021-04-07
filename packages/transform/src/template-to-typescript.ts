@@ -612,7 +612,7 @@ export function templateToTypescript(
         if (!hasParams && position === 'arg') {
           emitExpression(node.path);
         } else if (isEmit) {
-          emit.text('χ.invokeEmit(');
+          emit.text('χ.emitValue(');
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
           emit.text(')');
         } else {

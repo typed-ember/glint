@@ -1,19 +1,20 @@
 import { AcceptsBlocks, AnyBlocks, AnyContext, BoundModifier } from '../integration';
 import { SafeString } from '@glimmer/runtime';
 
+export type EmittableValue = SafeString | Element | string | number | boolean | null | void;
+
 /*
- * Invokes the given value as an inline expression to be emitted to the DOM.
- * This corresponds to a mustache statement either at the top level or being
- * passed as an attribute or concatenated into a string:
+ * Emits the given value to the DOM. This corresponds to a mustache
+ * statement either at the top level:
  *
  *     {{value}}
  *     {{value foo=bar}}
  *     <div data-x={{value foo=bar}}>
  *     <div data-x="hello {{value foo=bar}}">
  */
-export declare function invokeEmit<
-  T extends AcceptsBlocks<{}> | SafeString | Element | string | number | boolean | null | void
->(value: T): void;
+export declare function emitValue<T extends AcceptsBlocks<{}, any> | EmittableValue>(
+  value: T
+): void;
 
 /*
  * Invokes the given value as an entity that expects to receive blocks
