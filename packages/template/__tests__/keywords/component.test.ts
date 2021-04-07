@@ -1,5 +1,5 @@
 import { expectTypeOf } from 'expect-type';
-import { invokeBlock, resolve } from '../../-private/dsl';
+import { emitComponent, bindBlocks, resolve } from '../../-private/dsl';
 import { ComponentKeyword } from '../../-private/keywords';
 import TestComponent from '../test-component';
 
@@ -14,7 +14,9 @@ const NoopCurriedStringComponent = componentKeyword({}, StringComponent);
 const ValueCurriedStringComponent = componentKeyword({ value: 'hello' }, StringComponent);
 
 // Invoking the noop-curried component
-invokeBlock(resolve(NoopCurriedStringComponent)({ value: 'hello' }), {});
+emitComponent(resolve(NoopCurriedStringComponent)({ value: 'hello' }), (component) => {
+  bindBlocks(component.blockParams, {});
+});
 
 // @ts-expect-error: Invoking the curried component but forgetting `value`
 resolve(NoopCurriedStringComponent)({});
@@ -23,37 +25,62 @@ resolve(NoopCurriedStringComponent)({});
 resolve(NoopCurriedStringComponent)({ value: 123 });
 
 // Invoking the noop-curried component with a valid block
-invokeBlock(resolve(NoopCurriedStringComponent)({ value: 'hello' }), {
-  default(...args) {
-    expectTypeOf(args).toEqualTypeOf<[string]>();
-  },
+emitComponent(resolve(NoopCurriedStringComponent)({ value: 'hello' }), (component) => {
+  bindBlocks(component.blockParams, {
+    default(...args) {
+      expectTypeOf(args).toEqualTypeOf<[string]>();
+    },
+  });
 });
 
 // Invoking the noop-curried component with an invalid block
-invokeBlock(resolve(NoopCurriedStringComponent)({ value: 'hello' }), {
-  default() {
-    /* nothing */
-  },
-  // @ts-expect-error: invalid block name
-  asdf() {
-    /* nothing */
-  },
+emitComponent(resolve(NoopCurriedStringComponent)({ value: 'hello' }), (component) => {
+  bindBlocks(component.blockParams, {
+    default() {
+      /* nothing */
+    },
+    // @ts-expect-error: invalid block name
+    asdf() {
+      /* nothing */
+    },
+  });
 });
 
 // Invoking the curried-with-value component with no value
-invokeBlock(resolve(ValueCurriedStringComponent)({}), {});
+emitComponent(resolve(ValueCurriedStringComponent)({}), (component) => {
+  bindBlocks(component.blockParams, {});
+});
 
 // Invoking the curried-with-value component with a valid value
-invokeBlock(resolve(ValueCurriedStringComponent)({ value: 'hi' }), {});
+emitComponent(resolve(ValueCurriedStringComponent)({ value: 'hi' }), (component) => {
+  bindBlocks(component.blockParams, {});
+});
 
-// @ts-expect-error: Invoking the curred-with-value component with an invalid value
-invokeBlock(resolve(ValueCurriedStringComponent)({ value: 123 }), {});
+emitComponent(
+  resolve(ValueCurriedStringComponent)({
+    // @ts-expect-error: Invoking the curred-with-value component with an invalid value
+    value: 123,
+  }),
+  (component) => {
+    bindBlocks(component.blockParams, {});
+  }
+);
 
-// @ts-expect-error: Attempting to curry a nonexistent arg
-componentKeyword({ foo: true }, StringComponent);
+componentKeyword(
+  {
+    // @ts-expect-error: Attempting to curry a nonexistent arg
+    foo: true,
+  },
+  StringComponent
+);
 
-// @ts-expect-error: Attempting to curry an arg with the wrong type
-componentKeyword({ value: 123 }, StringComponent);
+componentKeyword(
+  {
+    // @ts-expect-error: Attempting to curry an arg with the wrong type
+    value: 123,
+  },
+  StringComponent
+);
 
 class ParametricComponent<T> extends TestComponent<{
   Args: { values: Array<T>; optional?: string };
@@ -77,87 +104,100 @@ const OptionalValueCurriedParametricComponent = componentKeyword(
 );
 
 // Invoking the noop-curried component with number values
-invokeBlock(resolve(NoopCurriedParametricComponent)({ values: [1, 2, 3] }), {
-  default(value) {
-    expectTypeOf(value).toEqualTypeOf<number>();
-  },
+emitComponent(resolve(NoopCurriedParametricComponent)({ values: [1, 2, 3] }), (component) => {
+  bindBlocks(component.blockParams, {
+    default(value) {
+      expectTypeOf(value).toEqualTypeOf<number>();
+    },
+  });
 });
 
 // Invoking the noop-curried component with string values
-invokeBlock(resolve(NoopCurriedParametricComponent)({ values: ['hello'] }), {
-  default(value) {
-    expectTypeOf(value).toEqualTypeOf<string>();
-  },
+emitComponent(resolve(NoopCurriedParametricComponent)({ values: ['hello'] }), (component) => {
+  bindBlocks(component.blockParams, {
+    default(value) {
+      expectTypeOf(value).toEqualTypeOf<string>();
+    },
+  });
 });
 
-invokeBlock(
+emitComponent(
   resolve(NoopCurriedParametricComponent)(
     // @ts-expect-error: missing required arg `values`
     {}
   ),
-  {}
+  (component) => bindBlocks(component.blockParams, {})
 );
 
-invokeBlock(
+emitComponent(
   resolve(NoopCurriedParametricComponent)(
     // @ts-expect-error: wrong type for `values`
     { values: 'hello' }
   ),
-  {}
+  (component) => bindBlocks(component.blockParams, {})
 );
 
-invokeBlock(
+emitComponent(
   resolve(NoopCurriedParametricComponent)({
     values: [1, 2, 3],
     // @ts-expect-error: extra arg
     extra: 'uh oh',
   }),
-  {}
+  (component) => bindBlocks(component.blockParams, {})
 );
 
 // Invoking the curred component with no additional args
-invokeBlock(resolve(RequiredValueCurriedParametricComponent)({}), {
-  default(value) {
-    expectTypeOf(value).toEqualTypeOf<string>();
-  },
+emitComponent(resolve(RequiredValueCurriedParametricComponent)({}), (component) => {
+  bindBlocks(component.blockParams, {
+    default(value) {
+      expectTypeOf(value).toEqualTypeOf<string>();
+    },
+  });
 });
 
 // Invoking the curred component and overriding the given arg
-invokeBlock(resolve(RequiredValueCurriedParametricComponent)({ values: ['ok'] }), {
-  default(value) {
-    expectTypeOf(value).toEqualTypeOf<string>();
-  },
+emitComponent(resolve(RequiredValueCurriedParametricComponent)({ values: ['ok'] }), (component) => {
+  bindBlocks(component.blockParams, {
+    default(value) {
+      expectTypeOf(value).toEqualTypeOf<string>();
+    },
+  });
 });
 
-invokeBlock(
+emitComponent(
   resolve(RequiredValueCurriedParametricComponent)({
     // @ts-expect-error: wrong type for arg override
     values: [1, 2, 3],
   }),
-  {}
+  (component) => bindBlocks(component.blockParams, {})
 );
 
-invokeBlock(
+emitComponent(
   resolve(RequiredValueCurriedParametricComponent)({
     // @ts-expect-error: extra arg
     extra: 'bad',
   }),
-  {}
+  (component) => bindBlocks(component.blockParams, {})
 );
 
 // Invoking the curried component, supplying missing required args
-invokeBlock(resolve(OptionalValueCurriedParametricComponent)({ values: [1, 2, 3] }), {
-  default(value) {
-    expectTypeOf(value).toEqualTypeOf<number>();
-  },
-});
+emitComponent(
+  resolve(OptionalValueCurriedParametricComponent)({ values: [1, 2, 3] }),
+  (component) => {
+    bindBlocks(component.blockParams, {
+      default(value) {
+        expectTypeOf(value).toEqualTypeOf<number>();
+      },
+    });
+  }
+);
 
-invokeBlock(
+emitComponent(
   resolve(OptionalValueCurriedParametricComponent)(
     // @ts-expect-error: missing required arg `values`
     {}
   ),
-  {}
+  (component) => bindBlocks(component.blockParams, {})
 );
 
 // {{component (component BoundParametricComponent values=(array "hello")) optional="hi"}}
@@ -167,27 +207,31 @@ const DoubleCurriedComponent = componentKeyword(
 );
 
 // Invoking the component with no args
-invokeBlock(resolve(DoubleCurriedComponent)({}), {
-  default(value) {
-    expectTypeOf(value).toEqualTypeOf<string>();
-  },
+emitComponent(resolve(DoubleCurriedComponent)({}), (component) => {
+  bindBlocks(component.blockParams, {
+    default(value) {
+      expectTypeOf(value).toEqualTypeOf<string>();
+    },
+  });
 });
 
 // Invoking the component overriding an arg correctly
-invokeBlock(resolve(DoubleCurriedComponent)({ values: ['a', 'b'] }), {});
+emitComponent(resolve(DoubleCurriedComponent)({ values: ['a', 'b'] }), (component) => {
+  bindBlocks(component.blockParams, {});
+});
 
-invokeBlock(
+emitComponent(
   resolve(DoubleCurriedComponent)({
     // @ts-expect-error: invalid arg override
     values: [1, 2, 3],
   }),
-  {}
+  (component) => bindBlocks(component.blockParams, {})
 );
 
-invokeBlock(
+emitComponent(
   resolve(DoubleCurriedComponent)({
     // @ts-expect-error: unexpected args
     foo: 'bar',
   }),
-  {}
+  (component) => bindBlocks(component.blockParams, {})
 );
