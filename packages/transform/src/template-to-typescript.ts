@@ -345,7 +345,7 @@ export function templateToTypescript(
       emit.forNode(node, () => {
         let { start, path, kind } = tagNameToPathContents(node);
 
-        emit.text('χ.invokeBlock(χ.resolve(');
+        emit.text('χ.emitComponent(χ.resolve(');
         emitPathContents(path, start, kind);
         emit.text(')({');
 
@@ -382,10 +382,15 @@ export function templateToTypescript(
           }
         }
 
-        emit.text('}), {');
+        emit.text('}), 𝛄 => {');
+        emit.indent();
+        emit.newline();
+
+        emit.text('χ.bindBlocks(𝛄.blockParams, {');
 
         if (node.selfClosing) {
           emit.text('});');
+          emit.newline();
         } else {
           emit.newline();
           emit.indent();
@@ -426,6 +431,8 @@ export function templateToTypescript(
           emit.text(';');
         }
 
+        emit.dedent();
+        emit.text('});');
         emit.newline();
       });
     }
@@ -735,9 +742,13 @@ export function templateToTypescript(
       }
 
       emit.forNode(node, () => {
-        emit.text('χ.invokeBlock(');
+        emit.text('χ.emitComponent(');
         emitResolve(node, 'resolve');
-        emit.text(', {');
+        emit.text(', 𝛄 => {');
+        emit.newline();
+        emit.indent();
+
+        emit.text('χ.bindBlocks(𝛄.blockParams, {');
         emit.newline();
         emit.indent();
 
@@ -747,6 +758,10 @@ export function templateToTypescript(
           emitBlock('inverse', node.inverse);
         }
 
+        emit.dedent();
+        emit.text('});');
+
+        emit.newline();
         emit.dedent();
         emit.text('});');
 
