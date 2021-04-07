@@ -7,7 +7,7 @@ export interface CheckboxInputArgs {
 
 export interface TextInputArgs {
   type?: string;
-  value?: string;
+  value?: string | null;
   enter?: (value: string, event: KeyboardEvent) => void;
   'insert-newline'?: (value: string, event: KeyboardEvent) => void;
   'escape-press'?: (value: string, event: KeyboardEvent) => void;
