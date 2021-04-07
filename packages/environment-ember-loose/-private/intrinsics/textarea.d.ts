@@ -1,7 +1,7 @@
 import { AcceptsBlocks, ElementInvokable, EmptyObject } from '@glint/template/-private/integration';
 
 export interface TextareaArgs {
-  value?: string;
+  value?: string | null;
   enter?: (value: string, event: KeyboardEvent) => void;
   'insert-newline'?: (value: string, event: KeyboardEvent) => void;
   'escape-press'?: (value: string, event: KeyboardEvent) => void;
