@@ -43,17 +43,23 @@ export declare function emitElement<Name extends string>(
  * statement or any angle-bracket component invocation, i.e.:
  *
  *     {{#value foo=bar}}{{/value}}
- *     <Value @foo={{bar}}></Value>
- *     <Value @foo={{bar}} />
+ *     <Value @foo={{bar}} {{baz}}></Value>
+ *     <Value @foo={{bar}} {{baz}} />
  *
- * This form of invocation is the only one in a template that accepts
- * blocks.
+ * This form of invocation is the only one in a template that may have
+ * blocks bound to it. The final line above would produce code like:
+ *
+ *     emitComponent(resolve(Value)({ foo: bar })), (𝛄) => {
+ *       bindBlocks(𝛄.blockParams, {});
+ *       applyModifier(𝛄.element, resolve(baz)({}));
+ *     });
  */
-export declare function invokeBlock<Yields extends AnyBlocks>(
-  value: AcceptsBlocks<Yields>,
-  blocks: {
-    [Block in keyof Yields]: (...params: NonNullable<Yields[Block]>) => void;
-  }
+export declare function emitComponent<T extends AcceptsBlocks<any, any>>(
+  component: T,
+  handler: (componentContext: {
+    element: T extends AcceptsBlocks<any, infer El> ? El : null;
+    blockParams: T extends AcceptsBlocks<infer Yields, any> ? Yields : never;
+  }) => void
 ): void;
 
 /**
@@ -105,4 +111,17 @@ export declare function applyAttributes(element: Element, attrs: Record<string, 
 export declare function applyModifier<TargetElement extends Element>(
   element: TargetElement,
   modifier: BoundModifier<TargetElement>
+): void;
+
+/*
+ * Given a mapping of block names to the parameters they provide
+ * `{ [name: string]: [...params] }`, binds the given block
+ * implementations that will make use of those parameters, ensuring
+ * they typecheck appropriately.
+ */
+export declare function bindBlocks<T extends AnyBlocks>(
+  params: T,
+  blocks: {
+    [K in keyof T]: (...params: NonNullable<T[K]>) => void;
+  }
 ): void;
