@@ -61,43 +61,27 @@ export declare function yieldToBlock<Context extends AnyContext, K extends keyof
  *
  *     <div ...attributes></div>
  *     <AnotherComponent ...attributes />
- *
- * Would produce:
- *
- *     applySplattributes<typeof 𝚪.element, ElementForTagName<'div'>>();
- *     applySplattributes<typeof 𝚪.element, ElementForComponent<typeof AnotherComponent>>();
  */
 export declare function applySplattributes<
   SourceElement extends Element,
-  _TargetElement extends SourceElement
->(): void;
+  TargetElement extends SourceElement
+>(source: SourceElement, target: TargetElement): void;
 
 /*
  * Applies named attributes to an element or component.
  *
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
- *
- * Would produce:
- *
- *     applyAttributes<ElementForTagName<'div'>>({ foo: ... });
- *     applyAttributes<ElementForComponent<typeof AnotherComponent>>({ foo: ... });
  */
-export declare function applyAttributes<_TargetElement extends Element>(
-  attrs: Record<string, unknown>
-): void;
+export declare function applyAttributes(element: Element, attrs: Record<string, unknown>): void;
 
 /*
  * Applies a modifier to an element or component.
  *
  *     <div {{someModifier}}></div>
  *     <AnotherComponent {{someModifier}} />
- *
- * Would produce:
- *
- *     applyModifier<ElementForTagName<'div'>>(resolve(someModifier)({}));
- *     applyModifier<ElementForComponent<typeof AnotherComponent>>(resolve(someModifier)({}));
  */
 export declare function applyModifier<TargetElement extends Element>(
+  element: TargetElement,
   modifier: BoundModifier<TargetElement>
 ): void;
