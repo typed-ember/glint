@@ -1,64 +1,75 @@
 import { expectTypeOf } from 'expect-type';
-import { Globals, resolve, invokeBlock } from '@glint/environment-ember-loose/-private/dsl';
+import {
+  emitComponent,
+  Globals,
+  bindBlocks,
+  resolve,
+} from '@glint/environment-ember-loose/-private/dsl';
 
 let eachIn = resolve(Globals['each-in']);
 
-invokeBlock(eachIn({}, { a: 5, b: 3 }), {
-  default(key, value) {
-    expectTypeOf(key).toEqualTypeOf<'a' | 'b'>();
-    expectTypeOf(value).toEqualTypeOf<number>();
-  },
-});
+emitComponent(eachIn({}, { a: 5, b: 3 }), (component) =>
+  bindBlocks(component.blockParams, {
+    default(key, value) {
+      expectTypeOf(key).toEqualTypeOf<'a' | 'b'>();
+      expectTypeOf(value).toEqualTypeOf<number>();
+    },
+  })
+);
 
 // Can render maybe undefined
 
 declare const maybeVal: { a: number; b: number } | undefined;
 
-invokeBlock(eachIn({}, maybeVal), {
-  default(key, value) {
-    expectTypeOf(key).toEqualTypeOf<'a' | 'b'>();
-    expectTypeOf(value).toEqualTypeOf<number>();
-  },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  inverse(..._args: never) {
-    // This block receives no args
-  },
-});
+emitComponent(eachIn({}, maybeVal), (component) =>
+  bindBlocks(component.blockParams, {
+    default(key, value) {
+      expectTypeOf(key).toEqualTypeOf<'a' | 'b'>();
+      expectTypeOf(value).toEqualTypeOf<number>();
+    },
+    inverse(...args) {
+      expectTypeOf(args).toEqualTypeOf<[]>();
+    },
+  })
+);
 
 // Can render inverse when undefined, null, or empty.
 
-invokeBlock(eachIn({}, undefined), {
-  default(key, value) {
-    // This won't get called when no value, but gets default for keyof
-    expectTypeOf(key).toEqualTypeOf<string | number | symbol>();
-    expectTypeOf(value).toEqualTypeOf<never>();
-  },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  inverse(..._args: never) {
-    // This block receives no args
-  },
-});
+emitComponent(eachIn({}, undefined), (component) =>
+  bindBlocks(component.blockParams, {
+    default(key, value) {
+      // This won't get called when no value, but gets default for keyof
+      expectTypeOf(key).toEqualTypeOf<string | number | symbol>();
+      expectTypeOf(value).toEqualTypeOf<never>();
+    },
+    inverse(...args) {
+      expectTypeOf(args).toEqualTypeOf<[]>();
+    },
+  })
+);
 
-invokeBlock(eachIn({}, null), {
-  default(key, value) {
-    // This won't get called when no value, but gets default for keyof
-    expectTypeOf(key).toEqualTypeOf<string | number | symbol>();
-    expectTypeOf(value).toEqualTypeOf<never>();
-  },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  inverse(..._args: never) {
-    // This block receives no args
-  },
-});
+emitComponent(eachIn({}, null), (component) =>
+  bindBlocks(component.blockParams, {
+    default(key, value) {
+      // This won't get called when no value, but gets default for keyof
+      expectTypeOf(key).toEqualTypeOf<string | number | symbol>();
+      expectTypeOf(value).toEqualTypeOf<never>();
+    },
+    inverse(...args) {
+      expectTypeOf(args).toEqualTypeOf<[]>();
+    },
+  })
+);
 
-invokeBlock(eachIn({}, {}), {
-  default(key, value) {
-    // This won't get called when no value
-    expectTypeOf(key).toEqualTypeOf<never>();
-    expectTypeOf(value).toEqualTypeOf<never>();
-  },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  inverse(..._args: never) {
-    // This block receives no args
-  },
-});
+emitComponent(eachIn({}, {}), (component) =>
+  bindBlocks(component.blockParams, {
+    default(key, value) {
+      // This won't get called when no value
+      expectTypeOf(key).toEqualTypeOf<never>();
+      expectTypeOf(value).toEqualTypeOf<never>();
+    },
+    inverse(...args) {
+      expectTypeOf(args).toEqualTypeOf<[]>();
+    },
+  })
+);

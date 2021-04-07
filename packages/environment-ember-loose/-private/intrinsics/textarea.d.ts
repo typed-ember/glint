@@ -1,4 +1,4 @@
-import { AcceptsBlocks, ElementInvokable, EmptyObject } from '@glint/template/-private/integration';
+import { AcceptsBlocks, EmptyObject, Invokable } from '@glint/template/-private/integration';
 
 export interface TextareaArgs {
   value?: string;
@@ -10,7 +10,6 @@ export interface TextareaArgs {
   'key-press'?: (value: string, event: KeyboardEvent) => void;
 }
 
-export type TextareaComponent = new () => ElementInvokable<
-  HTMLTextAreaElement,
-  (args: TextareaArgs) => AcceptsBlocks<EmptyObject>
+export type TextareaComponent = new () => Invokable<
+  (args: TextareaArgs) => AcceptsBlocks<EmptyObject, HTMLTextAreaElement>
 >;

@@ -1,10 +1,11 @@
 import Component from '@glint/environment-glimmerx/component';
 import {
   template,
-  invokeBlock,
   resolve,
   ResolveContext,
   yieldToBlock,
+  bindBlocks,
+  emitComponent,
 } from '@glint/environment-glimmerx/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { EmptyObject } from '@glint/template/-private/integration';
@@ -16,16 +17,25 @@ import { EmptyObject } from '@glint/template/-private/integration';
     });
   }
 
-  // @ts-expect-error: extra named arg
-  resolve(NoArgsComponent)({ foo: 'bar' });
+  resolve(NoArgsComponent)({
+    // @ts-expect-error: extra named arg
+    foo: 'bar',
+  });
 
-  // @ts-expect-error: extra positional arg
-  resolve(NoArgsComponent)({}, 'oops');
+  resolve(NoArgsComponent)(
+    {},
+    // @ts-expect-error: extra positional arg
+    'oops'
+  );
 
-  // @ts-expect-error: never yields, so shouldn't accept blocks
-  invokeBlock(resolve(NoArgsComponent)({}), { default() {} });
+  emitComponent(resolve(NoArgsComponent)({}), (component) =>
+    bindBlocks(component.blockParams, {
+      // @ts-expect-error: never yields, so shouldn't accept blocks
+      default() {},
+    })
+  );
 
-  invokeBlock(resolve(NoArgsComponent)({}), {});
+  emitComponent(resolve(NoArgsComponent)({}), (component) => bindBlocks(component.blockParams, {}));
 }
 
 {
@@ -39,7 +49,9 @@ import { EmptyObject } from '@glint/template/-private/integration';
     });
   }
 
-  invokeBlock(resolve(StatefulComponent)({}), {});
+  emitComponent(resolve(StatefulComponent)({}), (component) =>
+    bindBlocks(component.blockParams, {})
+  );
 }
 
 {
@@ -66,31 +78,46 @@ import { EmptyObject } from '@glint/template/-private/integration';
     });
   }
 
-  // @ts-expect-error: missing required arg
-  resolve(YieldingComponent)({});
+  resolve(YieldingComponent)(
+    // @ts-expect-error: missing required arg
+    {}
+  );
 
-  // @ts-expect-error: incorrect type for arg
-  resolve(YieldingComponent)({ values: 'hello' });
-
-  // @ts-expect-error: extra arg
-  resolve(YieldingComponent)({ values: [1, 2, 3], oops: true });
-
-  // @ts-expect-error: invalid block name
-  invokeBlock(resolve(YieldingComponent)({ values: [] }), { *foo() {} }, 'foo');
-
-  invokeBlock(resolve(YieldingComponent)({ values: [1, 2, 3] }), {
-    default(value) {
-      expectTypeOf(value).toEqualTypeOf<number>();
-    },
+  resolve(YieldingComponent)({
+    // @ts-expect-error: incorrect type for arg
+    values: 'hello',
   });
 
-  invokeBlock(resolve(YieldingComponent)({ values: [1, 2, 3] }), {
-    default(...args) {
-      expectTypeOf(args).toEqualTypeOf<[number]>();
-    },
-
-    inverse(...args) {
-      expectTypeOf(args).toEqualTypeOf<[]>();
-    },
+  resolve(YieldingComponent)({
+    values: [1, 2, 3],
+    // @ts-expect-error: extra arg
+    oops: true,
   });
+
+  emitComponent(resolve(YieldingComponent)({ values: [] }), (component) =>
+    bindBlocks(component.blockParams, {
+      // @ts-expect-error: invalid block name
+      foo() {},
+    })
+  );
+
+  emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }), (component) =>
+    bindBlocks(component.blockParams, {
+      default(value) {
+        expectTypeOf(value).toEqualTypeOf<number>();
+      },
+    })
+  );
+
+  emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }), (component) =>
+    bindBlocks(component.blockParams, {
+      default(...args) {
+        expectTypeOf(args).toEqualTypeOf<[number]>();
+      },
+
+      inverse(...args) {
+        expectTypeOf(args).toEqualTypeOf<[]>();
+      },
+    })
+  );
 }

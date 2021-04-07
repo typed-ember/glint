@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 import {
   applySplattributes,
-  ElementForComponent,
+  emitComponent,
   Globals,
   resolve,
 } from '@glint/environment-ember-loose/-private/dsl';
@@ -16,7 +16,9 @@ Textarea({}), {};
 Textarea({ value: 'hello' });
 
 // Ensure we can apply <textarea>-specific attributes
-applySplattributes<HTMLTextAreaElement, ElementForComponent<Globals['Textarea']>>();
+emitComponent(Textarea({}), (𝛄) => {
+  applySplattributes(new HTMLTextAreaElement(), 𝛄.element);
+});
 
 // Event handlers
 Textarea({

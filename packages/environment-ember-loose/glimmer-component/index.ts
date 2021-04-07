@@ -2,7 +2,6 @@ import type {
   Context,
   Invoke,
   TemplateContext,
-  Element,
   AcceptsBlocks,
   EmptyObject,
 } from '@glint/template/-private/integration';
@@ -23,8 +22,7 @@ const Component = GlimmerComponent as new <T extends ComponentSignature = {}>(
 ) => Component<T>;
 
 interface Component<T extends ComponentSignature = {}> extends GlimmerComponent<Get<T, 'Args'>> {
-  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>;
-  [Element]: Get<T, 'Element', null>;
+  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>;
   [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }
 

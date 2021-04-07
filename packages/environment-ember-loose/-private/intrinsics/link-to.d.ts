@@ -1,8 +1,8 @@
 import {
   AcceptsBlocks,
   DirectInvokable,
-  ElementInvokable,
   EmptyObject,
+  Invokable,
 } from '@glint/template/-private/integration';
 
 export type LinkToKeyword = DirectInvokable<{
@@ -31,7 +31,6 @@ type LinkToArgs = RequireAtLeastOne<
   'route' | 'model' | 'models' | 'query'
 >;
 
-export type LinkToComponent = new () => ElementInvokable<
-  HTMLAnchorElement,
-  (args: LinkToArgs) => AcceptsBlocks<{ default: [] }>
+export type LinkToComponent = new () => Invokable<
+  (args: LinkToArgs) => AcceptsBlocks<{ default: [] }, HTMLAnchorElement>
 >;

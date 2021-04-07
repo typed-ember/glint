@@ -1,4 +1,4 @@
-import { AcceptsBlocks, ElementInvokable, EmptyObject } from '@glint/template/-private/integration';
+import { AcceptsBlocks, Invokable, EmptyObject } from '@glint/template/-private/integration';
 
 export interface CheckboxInputArgs {
   type: 'checkbox';
@@ -18,7 +18,6 @@ export interface TextInputArgs {
   'key-up'?: (value: string, event: KeyboardEvent) => void;
 }
 
-export type InputComponent = new () => ElementInvokable<
-  HTMLInputElement,
-  (args: CheckboxInputArgs | TextInputArgs) => AcceptsBlocks<EmptyObject>
+export type InputComponent = new () => Invokable<
+  (args: CheckboxInputArgs | TextInputArgs) => AcceptsBlocks<EmptyObject, HTMLInputElement>
 >;
