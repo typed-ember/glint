@@ -19,7 +19,9 @@ describe('Debug utilities', () => {
 
         class HelperComponent extends Component<{ Args: { foo: string } }> {
           static template = hbs\`
-            Hello, {{@foo}}
+            <p ...attributes>
+              Hello, {{@foo}}!
+            </p>
           \`;
         }
       `,
@@ -32,7 +34,7 @@ describe('Debug utilities', () => {
 
       | Mapping: Template
       |  hbs(0:50):    hbs\`\\\\n    <HelperComponent @foo={{this.bar}} />\\\\n  \`
-      |  ts(0:291):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\");\\\\n  return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<MyComponent>) {\\\\n    χ.invokeBlock(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), {});\\\\n    𝚪;\\\\n  });\\\\n})()
+      |  ts(0:344):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\");\\\\n  return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<MyComponent>) {\\\\n    χ.emitComponent(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), 𝛄 => {\\\\n      χ.bindBlocks(𝛄.blockParams, {});\\\\n    });\\\\n    𝚪;\\\\n  });\\\\n})()
       |
       | | Mapping: Identifier
       | |  hbs(0:0):
@@ -40,40 +42,35 @@ describe('Debug utilities', () => {
       | |
       | | Mapping: ElementNode
       | |  hbs(9:46):    <HelperComponent @foo={{this.bar}} />
-      | |  ts(200:273):  χ.invokeBlock(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), {});
+      | |  ts(200:326):  χ.emitComponent(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), 𝛄 => {\\\\n      χ.bindBlocks(𝛄.blockParams, {});\\\\n    });
       | |
-      | | | Mapping: ElementNode
-      | | |  hbs(9:46):    <HelperComponent @foo={{this.bar}} />
-      | | |  ts(200:273):  χ.invokeBlock(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar }), {});
+      | | | Mapping: Identifier
+      | | |  hbs(10:25):   HelperComponent
+      | | |  ts(230:245):  HelperComponent
+      | | |
+      | | | Mapping: AttrNode
+      | | |  hbs(26:43):   @foo={{this.bar}}
+      | | |  ts(249:265):  foo: 𝚪.this.bar
       | | |
       | | | | Mapping: Identifier
-      | | | |  hbs(10:25):   HelperComponent
-      | | | |  ts(228:243):  HelperComponent
+      | | | |  hbs(27:30):   foo
+      | | | |  ts(249:252):  foo
       | | | |
-      | | | | Mapping: AttrNode
-      | | | |  hbs(26:43):   @foo={{this.bar}}
-      | | | |  ts(247:263):  foo: 𝚪.this.bar
+      | | | | Mapping: MustacheStatement
+      | | | |  hbs(31:43):   {{this.bar}}
+      | | | |  ts(254:265):  𝚪.this.bar
       | | | |
-      | | | | | Mapping: Identifier
-      | | | | |  hbs(27:30):   foo
-      | | | | |  ts(247:250):  foo
+      | | | | | Mapping: PathExpression
+      | | | | |  hbs(33:41):   this.bar
+      | | | | |  ts(254:265):  𝚪.this.bar
       | | | | |
-      | | | | | Mapping: MustacheStatement
-      | | | | |  hbs(31:43):   {{this.bar}}
-      | | | | |  ts(252:263):  𝚪.this.bar
-      | | | | |
-      | | | | | | Mapping: PathExpression
-      | | | | | |  hbs(33:41):   this.bar
-      | | | | | |  ts(252:263):  𝚪.this.bar
+      | | | | | | Mapping: Identifier
+      | | | | | |  hbs(33:37):   this
+      | | | | | |  ts(257:261):  this
       | | | | | |
-      | | | | | | | Mapping: Identifier
-      | | | | | | |  hbs(33:37):   this
-      | | | | | | |  ts(255:259):  this
-      | | | | | | |
-      | | | | | | | Mapping: Identifier
-      | | | | | | |  hbs(38:41):   bar
-      | | | | | | |  ts(260:263):  bar
-      | | | | | | |
+      | | | | | | Mapping: Identifier
+      | | | | | |  hbs(38:41):   bar
+      | | | | | |  ts(262:265):  bar
       | | | | | |
       | | | | |
       | | | |
@@ -82,24 +79,33 @@ describe('Debug utilities', () => {
       |
 
       | Mapping: Template
-      |  hbs(0:28):    hbs\`\\\\n    Hello, {{@foo}}\\\\n  \`
-      |  ts(0:276):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\");\\\\n  return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<HelperComponent>) {\\\\n    χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    𝚪;\\\\n  });\\\\n})()
+      |  hbs(0:62):    hbs\`\\\\n    <p ...attributes>\\\\n      Hello, {{@foo}}!\\\\n    </p>\\\\n  \`
+      |  ts(0:368):    (() => {\\\\n  hbs;\\\\n  let χ!: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\");\\\\n  return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<HelperComponent>) {\\\\n    χ.emitElement(\\"p\\", 𝛄 => {\\\\n      χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n      χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    });\\\\n    𝚪;\\\\n  });\\\\n})()
       |
       | | Mapping: Identifier
       | |  hbs(0:0):
       | |  ts(184:199):  HelperComponent
       | |
-      | | Mapping: MustacheStatement
-      | |  hbs(16:24):   {{@foo}}
-      | |  ts(204:256):  χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}))
+      | | Mapping: ElementNode
+      | |  hbs(9:58):    <p ...attributes>\\\\n      Hello, {{@foo}}!\\\\n    </p>
+      | |  ts(204:350):  χ.emitElement(\\"p\\", 𝛄 => {\\\\n      χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n      χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    });
       | |
-      | | | Mapping: PathExpression
-      | | |  hbs(18:22):   @foo
-      | | |  ts(239:250):  𝚪.args.foo
+      | | | Mapping: AttrNode
+      | | |  hbs(12:25):   ...attributes
+      | | |  ts(235:286):  χ.applySplattributes(𝚪.element, 𝛄.element);
       | | |
-      | | | | Mapping: Identifier
-      | | | |  hbs(19:22):   foo
-      | | | |  ts(247:250):  foo
+      | | | Mapping: MustacheStatement
+      | | |  hbs(40:48):   {{@foo}}
+      | | |  ts(287:340):  χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}))
+      | | |
+      | | | | Mapping: PathExpression
+      | | | |  hbs(42:46):   @foo
+      | | | |  ts(323:334):  𝚪.args.foo
+      | | | |
+      | | | | | Mapping: Identifier
+      | | | | |  hbs(43:46):   foo
+      | | | | |  ts(331:334):  foo
+      | | | | |
       | | | |
       | | |
       | |
