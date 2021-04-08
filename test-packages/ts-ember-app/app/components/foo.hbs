@@ -30,6 +30,12 @@
 
 <WrapperComponent @value="req" as |WC|>
   <WC.InnerComponent @optional={{1}} class="custom" />
+
+  {{! should work, even though MaybeComponent might not be present }}
+  <WC.MaybeComponent @key="hi" />
+
+  {{! should fail, since a string is not invokable }}
+  <WC.stringValue />
 </WrapperComponent>
 
 {{repeat "foo" 3}}

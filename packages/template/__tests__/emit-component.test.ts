@@ -130,6 +130,19 @@ emitComponent(resolve(MyComponent)({ value: 123 }), (component) => {
 emitValue(resolve(MyComponent)({ value: 123 }));
 
 /**
+ * Ensure we can invoke a maybe-undefined component.
+ */
+declare const MaybeMyComponent: typeof MyComponent | undefined;
+
+emitComponent(resolve(MaybeMyComponent)({ value: 'hi' }), (component) => {
+  bindBlocks(component.blockParams, {});
+});
+
+emitComponent(resolveOrReturn(MaybeMyComponent)({ value: 'hi' }), (component) => {
+  bindBlocks(component.blockParams, {});
+});
+
+/**
  * Constrained type parameters can be tricky, and `expect-type` doesn't
  * work well with type assertions directly against them, but we can assert
  * against a property that the constraint dictates must exist to ensure
