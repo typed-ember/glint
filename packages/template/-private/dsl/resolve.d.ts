@@ -32,7 +32,7 @@ import { DirectInvokable, EmptyObject, Invokable, Invoke, InvokeDirect } from '.
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolve<Args extends unknown[], Instance extends Invokable>(
-  item: new (...args: Args) => Instance
+  item: (new (...args: Args) => Instance) | null | undefined
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 
 /*
@@ -47,6 +47,6 @@ export declare function resolve<Args extends unknown[], Instance extends Invokab
 
 export declare function resolveOrReturn<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolveOrReturn<Args extends unknown[], Instance extends Invokable>(
-  item: new (...args: Args) => Instance
+  item: (new (...args: Args) => Instance) | null | undefined
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 export declare function resolveOrReturn<T>(item: T): (args: EmptyObject) => T;
