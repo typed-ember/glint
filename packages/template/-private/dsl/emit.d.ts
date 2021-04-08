@@ -1,8 +1,5 @@
 import { AcceptsBlocks, AnyBlocks, AnyContext, BoundModifier } from '../integration';
-import { SafeString } from '@glimmer/runtime';
-import { ElementForTagName } from './types';
-
-export type EmittableValue = SafeString | Element | string | number | boolean | null | void;
+import { ElementForTagName, EmittableValue } from './types';
 
 /*
  * Emits the given value to the DOM. This corresponds to a mustache
@@ -13,9 +10,7 @@ export type EmittableValue = SafeString | Element | string | number | boolean | 
  *     <div data-x={{value foo=bar}}>
  *     <div data-x="hello {{value foo=bar}}">
  */
-export declare function emitValue<T extends AcceptsBlocks<{}, any> | EmittableValue>(
-  value: T
-): void;
+export declare function emitValue(value: AcceptsBlocks<{}, any> | EmittableValue): void;
 
 /*
  * Emits an element of the given name, providing a value to the
