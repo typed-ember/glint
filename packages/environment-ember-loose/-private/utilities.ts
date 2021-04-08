@@ -1,15 +1,11 @@
-import {
-  AcceptsBlocks,
-  ElementInvokable,
-  EmptyObject,
-  HasElement,
-  Invokable,
-} from '@glint/template/-private/integration';
+import { AcceptsBlocks, EmptyObject, Invokable } from '@glint/template/-private/integration';
 
 type Constructor<T> = new (...params: any) => T;
 type Get<T, K, Otherwise = EmptyObject> = K extends keyof T ? Exclude<T[K], undefined> : Otherwise;
 
-export type ElementOf<C extends ComponentLike> = C extends Constructor<HasElement<infer Element>>
+export type ElementOf<C extends ComponentLike> = C extends Constructor<
+  Invokable<(...args: any) => AcceptsBlocks<any, infer Element>>
+>
   ? Element
   : null;
 
@@ -20,7 +16,7 @@ export type ArgsOf<C extends ComponentLike> = C extends Constructor<
   : never;
 
 export type YieldsOf<C extends ComponentLike> = C extends Constructor<
-  Invokable<(args: any) => AcceptsBlocks<infer Yields>>
+  Invokable<(args: any) => AcceptsBlocks<infer Yields, any>>
 >
   ? Yields
   : never;
@@ -41,10 +37,7 @@ export type ComponentSignature = {
  * as are the values returned from the `{{component}}` helper.
  */
 export type ComponentLike<T extends ComponentSignature = any> = Constructor<
-  ElementInvokable<
-    Get<T, 'Element', null>,
-    (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>
-  >
+  Invokable<(args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>>
 >;
 
 /**

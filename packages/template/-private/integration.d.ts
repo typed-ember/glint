@@ -20,12 +20,6 @@ export type Invokable<T extends AnyFunction = AnyFunction> = { [Invoke]: T };
 export declare const Context: unique symbol;
 export type HasContext<T extends AnyContext = AnyContext> = { [Context]: T };
 
-/** Denotes a component-like item that is both invokable and may accept attributes/modifiers */
-export type ElementInvokable<
-  El extends Element | null | undefined,
-  T extends AnyFunction
-> = HasElement<El> & Invokable<T>;
-
 // These shenanigans are necessary to get TS to report when named args
 // are passed to a signature that doesn't expect any, because `{}` is
 // special-cased in the type system not to trigger EPC.
@@ -36,9 +30,6 @@ declare const Element: unique symbol;
 declare const Modifier: unique symbol;
 declare const Blocks: unique symbol;
 
-/** Denotes an invokable entity that may accept attributes and modifiers for HTML element(s) */
-export type HasElement<El extends Element | null | undefined> = { [Element]: El };
-
 /** Denotes a modifier whose arguments have been bound and is ready to be attached to an element. */
 export type BoundModifier<El extends Element> = { [Modifier]: (el: El) => void };
 
@@ -46,9 +37,10 @@ export type BoundModifier<El extends Element> = { [Modifier]: (el: El) => void }
  * Denotes that the associated entity may be invoked with the given
  * blocks, yielding params of the appropriate type.
  */
-export type AcceptsBlocks<BlockImpls extends AnyBlocks> = (
-  blocks: BlockImpls
-) => { [Blocks]: true };
+export type AcceptsBlocks<BlockImpls extends AnyBlocks, El extends Element | null = null> = {
+  [Element]: El;
+  (blocks: BlockImpls): { [Blocks]: true };
+};
 
 /**
  * Determines the type of `this` and any `@arg`s used in a template,

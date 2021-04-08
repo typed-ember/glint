@@ -1,53 +1,74 @@
 import {
   Globals,
   resolve,
-  invokeBlock,
   applySplattributes,
-  ElementForComponent,
+  emitComponent,
+  bindBlocks,
 } from '@glint/environment-ember-loose/-private/dsl';
+import { expectTypeOf } from 'expect-type';
 
 let linkTo = resolve(Globals['link-to']);
 let LinkTo = resolve(Globals['LinkTo']);
 
-invokeBlock(linkTo({}, 'index', 123), {});
-
-// Ensure we can apply <a>-specific attributes
-applySplattributes<HTMLAnchorElement, ElementForComponent<Globals['LinkTo']>>();
+emitComponent(linkTo({}, 'index', 123), (component) => bindBlocks(component.blockParams, {}));
 
 // @ts-expect-error: bad type for route name
 linkTo({}, 123);
 
-invokeBlock(LinkTo({ route: 'index', model: 123 }), {
-  default() {},
+emitComponent(LinkTo({ route: 'index', model: 123 }), (component) => {
+  expectTypeOf(component.element).toEqualTypeOf<HTMLAnchorElement>();
+  applySplattributes(new HTMLAnchorElement(), component.element);
+
+  bindBlocks(component.blockParams, {
+    default() {},
+  });
 });
 
-invokeBlock(LinkTo({ route: 'index' }), {
-  default() {},
-});
+emitComponent(LinkTo({ route: 'index' }), (component) =>
+  bindBlocks(component.blockParams, {
+    default() {},
+  })
+);
 
-invokeBlock(LinkTo({ route: 'index', query: { a: 123 } }), {
-  default() {},
-});
+emitComponent(LinkTo({ route: 'index', query: { a: 123 } }), (component) =>
+  bindBlocks(component.blockParams, {
+    default() {},
+  })
+);
 
-invokeBlock(LinkTo({ route: 'index', models: [123, 'abc'] }), {
-  default() {},
-});
+emitComponent(LinkTo({ route: 'index', models: [123, 'abc'] }), (component) =>
+  bindBlocks(component.blockParams, {
+    default() {},
+  })
+);
 
 // Requires at least one of `@route`, `@model`, `@models` or `@query`
 
-// @ts-expect-error: missing one of required props
-invokeBlock(LinkTo({}), {
-  default() {},
-});
+emitComponent(
+  LinkTo(
+    // @ts-expect-error: missing one of required props
+    {}
+  ),
+  (component) =>
+    bindBlocks(component.blockParams, {
+      default() {},
+    })
+);
 
-invokeBlock(LinkTo({ model: 123 }), {
-  default() {},
-});
+emitComponent(LinkTo({ model: 123 }), (component) =>
+  bindBlocks(component.blockParams, {
+    default() {},
+  })
+);
 
-invokeBlock(LinkTo({ models: [123] }), {
-  default() {},
-});
+emitComponent(LinkTo({ models: [123] }), (component) =>
+  bindBlocks(component.blockParams, {
+    default() {},
+  })
+);
 
-invokeBlock(LinkTo({ query: { a: 123 } }), {
-  default() {},
-});
+emitComponent(LinkTo({ query: { a: 123 } }), (component) =>
+  bindBlocks(component.blockParams, {
+    default() {},
+  })
+);

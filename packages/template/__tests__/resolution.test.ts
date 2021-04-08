@@ -1,7 +1,8 @@
 import { expectTypeOf } from 'expect-type';
 import { AcceptsBlocks, DirectInvokable, TemplateContext } from '../-private/integration';
 import {
-  invokeBlock,
+  emitComponent,
+  bindBlocks,
   resolve,
   ResolveContext,
   resolveOrReturn,
@@ -33,10 +34,12 @@ declare function value<T>(): T;
      * ```
      */
     public static template = template(function <T>(𝚪: ResolveContext<MyComponent<T>>) {
-      invokeBlock(resolve(globals.let)({}, 𝚪.this.state.ready), {
-        default(isReady) {
-          yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
-        },
+      emitComponent(resolve(globals.let)({}, 𝚪.this.state.ready), (component) => {
+        bindBlocks(component.blockParams, {
+          default(isReady) {
+            yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
+          },
+        });
       });
     });
   }

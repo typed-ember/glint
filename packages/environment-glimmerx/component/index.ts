@@ -5,7 +5,6 @@ export * from '@glimmerx/component';
 import type {
   AcceptsBlocks,
   Context,
-  Element,
   EmptyObject,
   Invoke,
   TemplateContext,
@@ -26,8 +25,7 @@ const Component = glimmerxComponent.default as new <
 >() => Component<T>;
 interface Component<T extends ComponentSignature = {}>
   extends glimmerxComponent.default<Get<T, 'Args'> & {}> {
-  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>;
-  [Element]: Get<T, 'Element', null>;
+  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>;
   [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }
 

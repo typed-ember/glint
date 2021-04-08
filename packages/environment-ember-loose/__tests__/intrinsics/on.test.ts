@@ -26,4 +26,7 @@ on({}, 'keyup', (event) => {
   expectTypeOf(event).toEqualTypeOf<KeyboardEvent>();
 });
 
-expectTypeOf(applyModifier(on({}, 'click', () => {}))).toEqualTypeOf<void>();
+applyModifier(
+  new HTMLElement(),
+  on({}, 'click', () => {})
+);

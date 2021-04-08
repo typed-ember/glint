@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 import {
   applySplattributes,
-  ElementForComponent,
+  emitComponent,
   Globals,
   resolve,
 } from '@glint/environment-ember-loose/-private/dsl';
@@ -12,7 +12,7 @@ let Input = resolve(Globals['Input']);
 // Both casings have the same signature
 expectTypeOf(input).toEqualTypeOf(Input);
 
-Input({}), {};
+Input({});
 Input({ value: 'hello' });
 Input({ type: 'text', value: 'hello' });
 Input({ type: 'text', value: undefined });
@@ -24,7 +24,9 @@ Input({ type: '', value: 'hello' });
 Input({ type: 'string', value: 'hello' });
 
 // Ensure we can apply <input>-specific attributes
-applySplattributes<HTMLInputElement, ElementForComponent<Globals['Input']>>();
+emitComponent(Input({}), (𝛄) => {
+  applySplattributes(new HTMLInputElement(), 𝛄.element);
+});
 
 // @ts-expect-error: `checked` only works with `@type=checkbox`
 Input({ checked: true });

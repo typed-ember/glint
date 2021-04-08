@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 import SumType from 'sums-up';
 import { AcceptsBlocks, DirectInvokable, EmptyObject } from '../-private/integration';
-import { invokeBlock, invokeEmit, resolve, resolveOrReturn } from '../-private/dsl';
+import { emitComponent, emitValue, bindBlocks, resolve, resolveOrReturn } from '../-private/dsl';
 
 ///////////////////////////////////////////////////////////////////////////////
 // This module exercises what's possible when declaring a signature for a
@@ -50,22 +50,28 @@ declare const caseOf: DirectInvokable<
  * {{/case-of}}
  * ```
  */
-invokeBlock(resolve(caseOf)({}, maybeValue), {
-  default(when) {
-    invokeBlock(resolve(when)({}, 'Just'), {
-      default(n) {
-        expectTypeOf(n).toEqualTypeOf<number>();
-        invokeEmit(resolveOrReturn(n)({}));
-      },
-      inverse() {
-        invokeBlock(resolve(when)({}, 'Nothing'), {
-          default() {
-            /* nothin */
+emitComponent(resolve(caseOf)({}, maybeValue), (component) => {
+  bindBlocks(component.blockParams, {
+    default(when) {
+      emitComponent(resolve(when)({}, 'Just'), (component) => {
+        bindBlocks(component.blockParams, {
+          default(n) {
+            expectTypeOf(n).toEqualTypeOf<number>();
+            emitValue(resolveOrReturn(n)({}));
+          },
+          inverse() {
+            emitComponent(resolve(when)({}, 'Nothing'), (component) => {
+              bindBlocks(component.blockParams, {
+                default() {
+                  /* nothin */
+                },
+              });
+            });
           },
         });
-      },
-    });
-  },
+      });
+    },
+  });
 });
 
 // Below is an alternative formulation using named block syntax.
@@ -90,12 +96,14 @@ declare const CaseOf: DirectInvokable<
  * </CaseOf>
  * ```
  */
-invokeBlock(resolve(CaseOf)({ value: maybeValue }), {
-  Just(value) {
-    expectTypeOf(value).toEqualTypeOf<number>();
-    invokeEmit(resolveOrReturn(value)({}));
-  },
-  Nothing() {
-    /* nothin */
-  },
+emitComponent(resolve(CaseOf)({ value: maybeValue }), (component) => {
+  bindBlocks(component.blockParams, {
+    Just(value) {
+      expectTypeOf(value).toEqualTypeOf<number>();
+      emitValue(resolveOrReturn(value)({}));
+    },
+    Nothing() {
+      /* nothin */
+    },
+  });
 });

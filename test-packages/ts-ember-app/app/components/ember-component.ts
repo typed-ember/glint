@@ -1,6 +1,7 @@
 import Component, { ArgsFor } from '@glint/environment-ember-loose/ember-component';
 
 export interface EmberComponentSignature {
+  Element: HTMLDivElement;
   Args: {
     required: string;
     hasDefault?: string;
@@ -24,5 +25,6 @@ export default class EmberComponent extends Component<EmberComponentSignature> {
 declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry {
     EmberComponent: typeof EmberComponent;
+    'ember-component': typeof EmberComponent;
   }
 }

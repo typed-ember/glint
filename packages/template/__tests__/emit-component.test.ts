@@ -1,9 +1,10 @@
 import { expectTypeOf } from 'expect-type';
 import {
   applyModifier,
-  ElementForTagName,
-  invokeBlock,
-  invokeEmit,
+  emitComponent,
+  emitElement,
+  emitValue,
+  bindBlocks,
   resolve,
   ResolveContext,
   resolveOrReturn,
@@ -40,33 +41,36 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
    * ```
    */
   public static template = template(function <T>(𝚪: ResolveContext<MyComponent<T>>) {
-    invokeBlock(resolve(globals.let)({}, 𝚪.this.state.ready), {
-      default(isReady) {
-        applyModifier<ElementForTagName<'div'>>(
-          resolve(globals.on)({}, 'click', 𝚪.this.wrapperClicked)
-        );
+    emitComponent(resolve(globals.let)({}, 𝚪.this.state.ready), (component) => {
+      bindBlocks(component.blockParams, {
+        default(isReady) {
+          emitElement('div', (𝛄) => {
+            expectTypeOf(𝛄).toEqualTypeOf<{ element: HTMLDivElement }>();
+            applyModifier(𝛄.element, resolve(globals.on)({}, 'click', 𝚪.this.wrapperClicked));
+          });
 
-        yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
+          yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
 
-        yieldToBlock(
-          𝚪,
-          // @ts-expect-error: bad block
-          'bad',
-          isReady,
-          𝚪.args.value
-        );
+          yieldToBlock(
+            𝚪,
+            // @ts-expect-error: bad block
+            'bad',
+            isReady,
+            𝚪.args.value
+          );
 
-        // @ts-expect-error: missing params
-        yieldToBlock(𝚪, 'body');
+          // @ts-expect-error: missing params
+          yieldToBlock(𝚪, 'body');
 
-        yieldToBlock(
-          𝚪,
-          'body',
-          isReady,
-          // @ts-expect-error: wrong param type
-          Symbol()
-        );
-      },
+          yieldToBlock(
+            𝚪,
+            'body',
+            isReady,
+            // @ts-expect-error: wrong param type
+            Symbol()
+          );
+        },
+      });
     });
   });
 }
@@ -81,14 +85,16 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
  *   </:body>
  * </MyComponent>
  */
-invokeBlock(resolve(MyComponent)({ value: 'hi' }), {
-  body(isReady, value) {
-    expectTypeOf(isReady).toEqualTypeOf<boolean>();
-    expectTypeOf(value).toEqualTypeOf<string>();
+emitComponent(resolve(MyComponent)({ value: 'hi' }), (component) => {
+  bindBlocks(component.blockParams, {
+    body(isReady, value) {
+      expectTypeOf(isReady).toEqualTypeOf<boolean>();
+      expectTypeOf(value).toEqualTypeOf<string>();
 
-    invokeEmit(resolveOrReturn(value)({}));
-    invokeEmit(resolveOrReturn(isReady)({}));
-  },
+      emitValue(resolveOrReturn(value)({}));
+      emitValue(resolveOrReturn(isReady)({}));
+    },
+  });
 });
 
 /**
@@ -101,14 +107,16 @@ invokeBlock(resolve(MyComponent)({ value: 'hi' }), {
  *   </:body>
  * </MyComponent>
  */
-invokeBlock(resolve(MyComponent)({ value: 123 }), {
-  body(isReady, value) {
-    expectTypeOf(isReady).toEqualTypeOf<boolean>();
-    expectTypeOf(value).toEqualTypeOf<number>();
+emitComponent(resolve(MyComponent)({ value: 123 }), (component) => {
+  bindBlocks(component.blockParams, {
+    body(isReady, value) {
+      expectTypeOf(isReady).toEqualTypeOf<boolean>();
+      expectTypeOf(value).toEqualTypeOf<number>();
 
-    invokeEmit(resolveOrReturn(value)({}));
-    invokeEmit(resolveOrReturn(isReady)({}));
-  },
+      emitValue(resolveOrReturn(value)({}));
+      emitValue(resolveOrReturn(isReady)({}));
+    },
+  });
 });
 
 /**
@@ -119,7 +127,7 @@ invokeBlock(resolve(MyComponent)({ value: 123 }), {
  * {{MyComponent value=123}}
  * ```
  */
-invokeEmit(resolve(MyComponent)({ value: 123 }));
+emitValue(resolve(MyComponent)({ value: 123 }));
 
 /**
  * Constrained type parameters can be tricky, and `expect-type` doesn't

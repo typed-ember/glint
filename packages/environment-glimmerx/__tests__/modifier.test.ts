@@ -22,7 +22,10 @@ import { expectTypeOf } from 'expect-type';
     expectTypeOf(event).toEqualTypeOf<MouseEvent>();
   });
 
-  expectTypeOf(applyModifier(on({}, 'click', () => {}))).toEqualTypeOf<void>();
+  applyModifier(
+    new HTMLElement(),
+    on({}, 'click', () => {})
+  );
 }
 
 // Custom modifier with a specific element type
@@ -35,8 +38,14 @@ import { expectTypeOf } from 'expect-type';
     }
   );
 
-  applyModifier<HTMLImageElement>(fetchImageData({}, (data) => console.log(data)));
+  applyModifier(
+    new HTMLImageElement(),
+    fetchImageData({}, (data) => console.log(data))
+  );
 
-  // @ts-expect-error: invalid element type
-  applyModifier<HTMLDivElement>(fetchImageData({}, (data) => console.log(data)));
+  applyModifier(
+    // @ts-expect-error: invalid element type
+    new HTMLDivElement(),
+    fetchImageData({}, (data) => console.log(data))
+  );
 }

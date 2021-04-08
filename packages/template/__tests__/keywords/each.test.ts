@@ -1,30 +1,36 @@
 import { expectTypeOf } from 'expect-type';
-import { invokeBlock, resolve } from '../../-private/dsl';
+import { emitComponent, bindBlocks, resolve } from '../../-private/dsl';
 import { EachKeyword } from '../../-private/keywords';
 
 const eachKeyword = resolve({} as EachKeyword);
 
 // Yield out array values and indices
 
-invokeBlock(eachKeyword({}, ['a', 'b', 'c']), {
-  default(value, index) {
-    expectTypeOf(value).toEqualTypeOf<string>();
-    expectTypeOf(index).toEqualTypeOf<number>();
-  },
+emitComponent(eachKeyword({}, ['a', 'b', 'c']), (component) => {
+  bindBlocks(component.blockParams, {
+    default(value, index) {
+      expectTypeOf(value).toEqualTypeOf<string>();
+      expectTypeOf(index).toEqualTypeOf<number>();
+    },
+  });
 });
 
 // Works for `readonly` arrays
 
-invokeBlock(eachKeyword({}, ['a', 'b', 'c'] as readonly string[]), {
-  default(value, index) {
-    expectTypeOf(value).toEqualTypeOf<string>();
-    expectTypeOf(index).toEqualTypeOf<number>();
-  },
+emitComponent(eachKeyword({}, ['a', 'b', 'c'] as readonly string[]), (component) => {
+  bindBlocks(component.blockParams, {
+    default(value, index) {
+      expectTypeOf(value).toEqualTypeOf<string>();
+      expectTypeOf(index).toEqualTypeOf<number>();
+    },
+  });
 });
 
 // Accept a `key` string
-invokeBlock(eachKeyword({ key: 'id' }, [{ id: 1 }]), {
-  default() {
-    // Don't yield
-  },
+emitComponent(eachKeyword({ key: 'id' }, [{ id: 1 }]), (component) => {
+  bindBlocks(component.blockParams, {
+    default() {
+      // Don't yield
+    },
+  });
 });

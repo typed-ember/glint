@@ -268,26 +268,13 @@ export function templateToTypescript(
       }
     }
 
-    type ElementNodeType = 'component' | 'element';
-
     function emitElementNode(node: AST.ElementNode): void {
       let firstCharacter = node.tag.charAt(0);
-      let nodeType: ElementNodeType =
-        firstCharacter.toUpperCase() === firstCharacter || node.tag.includes('.')
-          ? 'component'
-          : 'element';
-
-      emit.forNode(node, () => {
-        emitPlainAttributes(node, nodeType);
-        emitSplattributes(node, nodeType);
-        emitModifiers(node, nodeType);
-
-        if (nodeType === 'component') {
-          emitComponent(node);
-        } else {
-          emitPlainElement(node);
-        }
-      });
+      if (firstCharacter.toUpperCase() === firstCharacter || node.tag.includes('.')) {
+        emitComponent(node);
+      } else {
+        emitPlainElement(node);
+      }
     }
 
     function emitConcatStatement(node: AST.ConcatStatement): void {
@@ -345,7 +332,7 @@ export function templateToTypescript(
       emit.forNode(node, () => {
         let { start, path, kind } = tagNameToPathContents(node);
 
-        emit.text('χ.invokeBlock(χ.resolve(');
+        emit.text('χ.emitComponent(χ.resolve(');
         emitPathContents(path, start, kind);
         emit.text(')({');
 
@@ -382,7 +369,15 @@ export function templateToTypescript(
           }
         }
 
-        emit.text('}), {');
+        emit.text('}), 𝛄 => {');
+        emit.indent();
+        emit.newline();
+
+        emitSplattributes(node);
+        emitPlainAttributes(node);
+        emitModifiers(node);
+
+        emit.text('χ.bindBlocks(𝛄.blockParams, {');
 
         if (node.selfClosing) {
           emit.text('});');
@@ -426,6 +421,9 @@ export function templateToTypescript(
           emit.text(';');
         }
 
+        emit.newline();
+        emit.dedent();
+        emit.text('});');
         emit.newline();
       });
     }
@@ -492,38 +490,35 @@ export function templateToTypescript(
     }
 
     function emitPlainElement(node: AST.ElementNode): void {
-      for (let child of node.children) {
-        emitTopLevelStatement(child);
-      }
-    }
-
-    function emitElementTypeReference(node: AST.ElementNode, type: ElementNodeType): void {
-      let { start, path, kind } = tagNameToPathContents(node);
-
-      emit.text('import("');
-      emit.text(typesPath);
-      emit.text('").');
-      if (type === 'component') {
-        emit.text('ElementForComponent<typeof ');
-        emitPathContents(path, start, kind);
-        emit.text('>');
-      } else {
-        emit.text('ElementForTagName<');
+      emit.forNode(node, () => {
+        emit.text('χ.emitElement(');
         emit.text(JSON.stringify(node.tag));
-        emit.text('>');
-      }
+        emit.text(', 𝛄 => {');
+        emit.newline();
+        emit.indent();
+
+        emitSplattributes(node);
+        emitPlainAttributes(node);
+        emitModifiers(node);
+
+        for (let child of node.children) {
+          emitTopLevelStatement(child);
+        }
+
+        emit.dedent();
+        emit.text('});');
+        emit.newline();
+      });
     }
 
-    function emitPlainAttributes(node: AST.ElementNode, nodeType: ElementNodeType): void {
+    function emitPlainAttributes(node: AST.ElementNode): void {
       let attributes = node.attributes.filter(
         (attr) => !attr.name.startsWith('@') && attr.name !== SPLATTRIBUTES
       );
 
       if (!attributes.length) return;
 
-      emit.text('χ.applyAttributes<');
-      emitElementTypeReference(node, nodeType);
-      emit.text('>({');
+      emit.text('χ.applyAttributes(𝛄.element, {');
       emit.newline();
       emit.indent();
 
@@ -554,7 +549,7 @@ export function templateToTypescript(
       emit.newline();
     }
 
-    function emitSplattributes(node: AST.ElementNode, nodeType: ElementNodeType): void {
+    function emitSplattributes(node: AST.ElementNode): void {
       let splattributes = node.attributes.find((attr) => attr.name === SPLATTRIBUTES);
       if (!splattributes) return;
 
@@ -564,19 +559,16 @@ export function templateToTypescript(
       );
 
       emit.forNode(splattributes, () => {
-        emit.text('χ.applySplattributes<typeof 𝚪.element, ');
-        emitElementTypeReference(node, nodeType);
-        emit.text('>();');
-        emit.newline();
+        emit.text('χ.applySplattributes(𝚪.element, 𝛄.element);');
       });
+
+      emit.newline();
     }
 
-    function emitModifiers(node: AST.ElementNode, nodeType: ElementNodeType): void {
+    function emitModifiers(node: AST.ElementNode): void {
       for (let modifier of node.modifiers) {
         emit.forNode(modifier, () => {
-          emit.text('χ.applyModifier<');
-          emitElementTypeReference(node, nodeType);
-          emit.text('>(');
+          emit.text('χ.applyModifier(𝛄.element, ');
           emitResolve(modifier, 'resolve');
           emit.text(');');
           emit.newline();
@@ -612,7 +604,7 @@ export function templateToTypescript(
         if (!hasParams && position === 'arg') {
           emitExpression(node.path);
         } else if (isEmit) {
-          emit.text('χ.invokeEmit(');
+          emit.text('χ.emitValue(');
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
           emit.text(')');
         } else {
@@ -735,9 +727,13 @@ export function templateToTypescript(
       }
 
       emit.forNode(node, () => {
-        emit.text('χ.invokeBlock(');
+        emit.text('χ.emitComponent(');
         emitResolve(node, 'resolve');
-        emit.text(', {');
+        emit.text(', 𝛄 => {');
+        emit.newline();
+        emit.indent();
+
+        emit.text('χ.bindBlocks(𝛄.blockParams, {');
         emit.newline();
         emit.indent();
 
@@ -747,6 +743,10 @@ export function templateToTypescript(
           emitBlock('inverse', node.inverse);
         }
 
+        emit.dedent();
+        emit.text('});');
+
+        emit.newline();
         emit.dedent();
         emit.text('});');
 

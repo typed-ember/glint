@@ -1,10 +1,11 @@
 import Component, { ComponentSignature } from '@glint/environment-ember-loose/ember-component';
 import {
   template,
-  invokeBlock,
   resolve,
   ResolveContext,
   yieldToBlock,
+  emitComponent,
+  bindBlocks,
 } from '@glint/environment-ember-loose/-private/dsl';
 import { EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
@@ -16,16 +17,25 @@ import { expectTypeOf } from 'expect-type';
     });
   }
 
-  // @ts-expect-error: extra named arg
-  resolve(NoArgsComponent)({ foo: 'bar' });
+  resolve(NoArgsComponent)({
+    // @ts-expect-error: extra named arg
+    foo: 'bar',
+  });
 
-  // @ts-expect-error: extra positional arg
-  resolve(NoArgsComponent)({}, 'oops');
+  resolve(NoArgsComponent)(
+    {},
+    // @ts-expect-error: extra positional arg
+    'oops'
+  );
 
-  // @ts-expect-error: never yields, so shouldn't accept blocks
-  invokeBlock(resolve(NoArgsComponent)({}), { default() {} });
+  emitComponent(resolve(NoArgsComponent)({}), (component) =>
+    bindBlocks(component.blockParams, {
+      // @ts-expect-error: never yields, so shouldn't accept blocks
+      default() {},
+    })
+  );
 
-  invokeBlock(resolve(NoArgsComponent)({}), {});
+  emitComponent(resolve(NoArgsComponent)({}), (component) => bindBlocks(component.blockParams, {}));
 }
 
 {
@@ -39,7 +49,9 @@ import { expectTypeOf } from 'expect-type';
     });
   }
 
-  invokeBlock(resolve(StatefulComponent)({}), {});
+  emitComponent(resolve(StatefulComponent)({}), (component) =>
+    bindBlocks(component.blockParams, {})
+  );
 }
 
 {
@@ -80,22 +92,23 @@ import { expectTypeOf } from 'expect-type';
   // @ts-expect-error: extra arg
   resolve(YieldingComponent)({ values: [1, 2, 3], oops: true });
 
-  // @ts-expect-error: invalid block name
-  invokeBlock(resolve(YieldingComponent)({ values: [] }), { *foo() {} }, 'foo');
+  emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }), (component) =>
+    bindBlocks(component.blockParams, {
+      default(value) {
+        expectTypeOf(value).toEqualTypeOf<number>();
+      },
+    })
+  );
 
-  invokeBlock(resolve(YieldingComponent)({ values: [1, 2, 3] }), {
-    default(value) {
-      expectTypeOf(value).toEqualTypeOf<number>();
-    },
-  });
+  emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }), (component) =>
+    bindBlocks(component.blockParams, {
+      default(...args) {
+        expectTypeOf(args).toEqualTypeOf<[number]>();
+      },
 
-  invokeBlock(resolve(YieldingComponent)({ values: [1, 2, 3] }), {
-    default(...args) {
-      expectTypeOf(args).toEqualTypeOf<[number]>();
-    },
-
-    inverse(...args) {
-      expectTypeOf(args).toEqualTypeOf<[]>();
-    },
-  });
+      inverse(...args) {
+        expectTypeOf(args).toEqualTypeOf<[]>();
+      },
+    })
+  );
 }

@@ -7,7 +7,6 @@ import {
   BoundModifier,
   Context,
   DirectInvokable,
-  Element,
   EmptyObject,
   Invoke,
   TemplateContext,
@@ -36,7 +35,6 @@ export interface ComponentSignature {
 
 declare class TestComponent<T extends ComponentSignature = {}> {
   readonly args: Get<T, 'Args'>;
-  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>>;
-  [Element]: Get<T, 'Element', null>;
+  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>;
   [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }

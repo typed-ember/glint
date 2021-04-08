@@ -1,4 +1,4 @@
-import { HasContext, HasElement } from '@glint/template/-private/integration';
+import { HasContext } from '@glint/template/-private/integration';
 
 type Constructor<T> = new (...args: any) => T;
 
@@ -13,13 +13,6 @@ export type ElementForTagName<Name extends string> = Name extends keyof HTMLElem
   : Name extends keyof SVGElementTagNameMap
   ? SVGElementTagNameMap[Name]
   : Element;
-
-/** Given a component class, returns its `[Element]` type or `null` if it has none. */
-export type ElementForComponent<T extends Constructor<HasElement<any>>> = T extends Constructor<
-  HasElement<infer El>
->
-  ? El
-  : null;
 
 /**
  * Given the instance type of a component backing class, produces the appropriate

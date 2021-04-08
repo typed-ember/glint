@@ -237,10 +237,10 @@ describe('Source-to-source offset mapping', () => {
       test('named blocks', () => {
         let module = rewriteInlineTemplate({
           identifiersInScope: ['Foo'],
-          contents: '<Foo><:block>hi</:block></Foo>',
+          contents: '<Foo><:blockName>hi</:blockName></Foo>',
         });
         expectTokenMapping(module, 'Foo');
-        expectTokenMapping(module, 'block');
+        expectTokenMapping(module, 'blockName');
       });
 
       test('spinal-case named blocks', () => {

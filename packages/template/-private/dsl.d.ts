@@ -3,5 +3,5 @@
 // which environments construct their exports.
 
 export * from './dsl/resolve';
-export * from './dsl/invoke';
+export * from './dsl/emit';
 export * from './dsl/types';

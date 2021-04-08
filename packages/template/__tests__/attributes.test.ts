@@ -2,13 +2,13 @@ import { expectTypeOf } from 'expect-type';
 import {
   template,
   resolve,
-  invokeBlock,
   ResolveContext,
-  ElementForTagName,
   applyModifier,
   applySplattributes,
-  ElementForComponent,
   applyAttributes,
+  emitElement,
+  emitComponent,
+  bindBlocks,
 } from '../-private/dsl';
 import { BoundModifier, DirectInvokable, EmptyObject } from '../-private/integration';
 import TestComponent from './test-component';
@@ -36,55 +36,127 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   public static template = template(function (𝚪: ResolveContext<MyComponent>) {
     expectTypeOf(𝚪.element).toEqualTypeOf<HTMLImageElement>();
 
-    applyModifier<ElementForTagName<'img'>>(resolve(imageModifier)({}));
-    applySplattributes<typeof 𝚪.element, ElementForTagName<'img'>>();
+    emitElement('img', (ctx) => {
+      expectTypeOf(ctx.element).toEqualTypeOf<HTMLImageElement>();
+
+      applyModifier(ctx.element, resolve(imageModifier)({}));
+      applySplattributes(𝚪.element, ctx.element);
+    });
   });
 }
 
-// `ElementForComponent`
-expectTypeOf<ElementForComponent<typeof MyComponent>>().toEqualTypeOf<HTMLImageElement>();
-expectTypeOf<ElementForComponent<typeof GenericElementComponent>>().toEqualTypeOf<HTMLElement>();
-expectTypeOf<ElementForComponent<typeof SVGElementComponent>>().toEqualTypeOf<SVGSVGElement>();
-expectTypeOf<ElementForComponent<typeof SVGAElementComponent>>().toEqualTypeOf<SVGAElement>();
-expectTypeOf<ElementForComponent<typeof TestComponent>>().toEqualTypeOf<null>();
-
-// `ElementForTagName`
-expectTypeOf<ElementForTagName<'img'>>().toEqualTypeOf<HTMLImageElement>();
-expectTypeOf<ElementForTagName<'unknown'>>().toEqualTypeOf<Element>();
+// `emitElement` type resolution
+emitElement('img', (el) => expectTypeOf(el).toEqualTypeOf<{ element: HTMLImageElement }>());
+emitElement('unknown', (el) => expectTypeOf(el).toEqualTypeOf<{ element: Element }>());
 
 /**
  * ```handlebars
  * <MyComponent ...attributes foo="bar" />
  * ```
  */
-applySplattributes<ElementForTagName<'img'>, ElementForComponent<typeof MyComponent>>();
-applySplattributes<ElementForTagName<'svg'>, ElementForComponent<typeof SVGElementComponent>>();
-applySplattributes<SVGAElement, ElementForComponent<typeof SVGAElementComponent>>();
-applyAttributes<ElementForComponent<typeof MyComponent>>({ foo: 'bar' });
-invokeBlock(resolve(MyComponent)({}), {});
+emitComponent(resolve(MyComponent)({}), (component) => {
+  bindBlocks(component.blockParams, {});
+  applySplattributes(new HTMLImageElement(), component.element);
+  applyAttributes(component.element, { foo: 'bar' });
+});
 
-applyModifier<HTMLAnchorElement>(resolve(anchorModifier)({}));
-applyModifier<ElementForTagName<'a'>>(resolve(anchorModifier)({}));
+/**
+ * ```handlebars
+ * <SVGElementComponent ...attributes />
+ * ```
+ */
+emitComponent(resolve(SVGElementComponent)({}), (component) => {
+  bindBlocks(component.blockParams, {});
+  applySplattributes(new SVGSVGElement(), component.element);
+});
+
+/**
+ * ```handlebars
+ * <svg ...attributes></svg>
+ * ```
+ */
+emitElement('svg', (ctx) => applySplattributes(new SVGSVGElement(), ctx.element));
+
+/**
+ * ```handlebars
+ * <a {{anchorModifier}}></a>
+ * ```
+ */
+emitElement('a', (ctx) => {
+  expectTypeOf(ctx).toEqualTypeOf<{ element: HTMLAnchorElement & SVGAElement }>();
+  applyModifier(ctx.element, resolve(anchorModifier)({}));
+});
 
 // Error conditions:
 
-// @ts-expect-error: Trying to pass splattributes specialized for another element
-applySplattributes<ElementForTagName<'form'>, ElementForTagName<'unknown'>>();
-// @ts-expect-error: Trying to pass splattributes specialized for another element
-applySplattributes<ElementForTagName<'form'>, ElementForComponent<typeof MyComponent>>();
-// @ts-expect-error: Trying to apply splattributes to a component with no root element
-applySplattributes<ElementForTagName<'unknown'>, ElementForComponent<typeof TestComponent>>();
-// @ts-expect-error: Trying to apply splattributes for an HTML <a> to an SVG <a>
-applySplattributes<HTMLAnchorElement, ElementForComponent<typeof SVGAElementComponent>>();
+emitElement('unknown', (element) => {
+  applySplattributes(
+    new HTMLFormElement(),
+    // @ts-expect-error: Trying to pass splattributes specialized for another element
+    element
+  );
+});
 
-// @ts-expect-error: `imageModifier` expects an `HTMLImageElement`
-applyModifier<HTMLDivElement>(resolve(imageModifier)({}));
-// @ts-expect-error: `imageModifier` expects an `HTMLImageElement`d
-applyModifier<ElementForComponent<typeof GenericElementComponent>>(resolve(imageModifier)({}));
-// @ts-expect-error: Trying to apply a modifier to a component with no root element
-applyModifier<ElementForComponent<typeof TestComponent>>(resolve(imageModifier)({}));
-// @ts-expect-error: Can't apply modifier for HTML <a> to SVG <a>
-applyModifier<SVGAElement>(resolve(anchorModifier)({}));
+emitComponent(resolve(MyComponent)({}), (component) => {
+  applySplattributes(
+    new HTMLFormElement(),
+    // @ts-expect-error: Trying to pass splattributes specialized for another element
+    component.element
+  );
+});
 
-// @ts-expect-error: Trying to apply attributes to a component with no root element
-applyAttributes<typeof TestComponent>({ foo: 'bar' });
+emitComponent(resolve(TestComponent)({}), (component) => {
+  applySplattributes(
+    new HTMLUnknownElement(),
+    // @ts-expect-error: Trying to apply splattributes to a component with no root element
+    component.element
+  );
+});
+
+emitComponent(resolve(SVGAElementComponent)({}), (component) => {
+  applySplattributes(
+    new HTMLAnchorElement(),
+    // @ts-expect-error: Trying to apply splattributes for an HTML <a> to an SVG <a>
+    component.element
+  );
+});
+
+emitElement('div', (div) =>
+  applyModifier(
+    // @ts-expect-error: `imageModifier` expects an `HTMLImageElement`
+    div,
+    resolve(imageModifier)({})
+  )
+);
+
+emitComponent(resolve(GenericElementComponent)({}), (component) => {
+  applyModifier(
+    // @ts-expect-error: `imageModifier` expects an `HTMLImageElement`
+    component.element,
+    resolve(imageModifier)({})
+  );
+});
+
+emitComponent(resolve(TestComponent)({}), (component) => {
+  applyModifier(
+    // @ts-expect-error: Trying to apply a modifier to a component with no root element
+    component.element,
+    resolve(imageModifier)({})
+  );
+});
+
+emitComponent(resolve(SVGAElementComponent)({}), (component) => {
+  applyModifier(
+    // @ts-expect-error: Can't apply modifier for HTML <a> to SVG <a>
+    component.element,
+    resolve(anchorModifier)({})
+  );
+});
+
+emitComponent(resolve(TestComponent)({}), (component) => {
+  applyAttributes(
+    // @ts-expect-error: Trying to apply attributes to a component with no root element
+    component.element,
+    { foo: 'bar' }
+  );
+});
