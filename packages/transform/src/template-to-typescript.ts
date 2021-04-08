@@ -373,9 +373,7 @@ export function templateToTypescript(
         emit.indent();
         emit.newline();
 
-        emitSplattributes(node);
-        emitPlainAttributes(node);
-        emitModifiers(node);
+        emitAttributesAndModifiers(node);
 
         emit.text('χ.bindBlocks(𝛄.blockParams, {');
 
@@ -497,9 +495,7 @@ export function templateToTypescript(
         emit.newline();
         emit.indent();
 
-        emitSplattributes(node);
-        emitPlainAttributes(node);
-        emitModifiers(node);
+        emitAttributesAndModifiers(node);
 
         for (let child of node.children) {
           emitTopLevelStatement(child);
@@ -509,6 +505,18 @@ export function templateToTypescript(
         emit.text('});');
         emit.newline();
       });
+    }
+
+    function emitAttributesAndModifiers(node: AST.ElementNode): void {
+      if (!node.attributes.length && !node.modifiers.length) {
+        // Avoid unused-symbol diagnostics
+        emit.text('𝛄;');
+        emit.newline();
+      } else {
+        emitSplattributes(node);
+        emitPlainAttributes(node);
+        emitModifiers(node);
+      }
     }
 
     function emitPlainAttributes(node: AST.ElementNode): void {
