@@ -20,7 +20,7 @@ export function performCheck(
 
   program.emit();
 
-  let diagnostics = collectDiagnostics(program, transformManager);
+  let diagnostics = collectDiagnostics(program, transformManager, parsedConfig.options);
   for (let diagnostic of diagnostics) {
     console.error(transformManager.formatDiagnostic(diagnostic));
   }
@@ -30,13 +30,14 @@ export function performCheck(
 
 function collectDiagnostics(
   program: ts.Program,
-  transformManager: TransformManager
+  transformManager: TransformManager,
+  options: ts.CompilerOptions
 ): Array<ts.Diagnostic> {
   return [
     ...program.getSyntacticDiagnostics(),
     ...transformManager.getTransformDiagnostics(),
     ...program.getSemanticDiagnostics(),
-    ...program.getDeclarationDiagnostics(),
+    ...(options.declaration ? program.getDeclarationDiagnostics() : []),
   ];
 }
 
