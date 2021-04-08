@@ -14,6 +14,8 @@ expectTypeOf(textarea).toEqualTypeOf(Textarea);
 
 Textarea({}), {};
 Textarea({ value: 'hello' });
+Textarea({ value: undefined });
+Textarea({ value: null });
 
 // Ensure we can apply <textarea>-specific attributes
 applySplattributes<HTMLTextAreaElement, ElementForComponent<Globals['Textarea']>>();
