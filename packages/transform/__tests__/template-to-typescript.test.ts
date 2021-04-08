@@ -632,6 +632,7 @@ describe('rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "χ.emitElement(\\"div\\", 𝛄 => {
+          𝛄;
           χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}));
         });"
       `);
@@ -692,6 +693,7 @@ describe('rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "χ.emitComponent(χ.resolve(χ.Globals[\\"Foo\\"])({}), 𝛄 => {
+          𝛄;
           χ.bindBlocks(𝛄.blockParams, {
             default(bar) {
               χ.emitValue(χ.resolveOrReturn(bar)({}));
@@ -760,12 +762,14 @@ describe('rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "χ.emitComponent(χ.resolve(χ.Globals[\\"Foo\\"])({}), 𝛄 => {
+          𝛄;
           χ.bindBlocks(𝛄.blockParams, {
             head(h) {
               χ.emitValue(χ.resolveOrReturn(h)({}));
             },
             body(b) {
               χ.emitComponent(χ.resolve(b?.contents)({}), 𝛄 => {
+                𝛄;
                 χ.bindBlocks(𝛄.blockParams, {
                   default() {
                   },
@@ -799,6 +803,7 @@ describe('rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "χ.emitComponent(χ.resolve(χ.Globals[\\"Foo\\"])({}), 𝛄 => {
+          𝛄;
           χ.bindBlocks(𝛄.blockParams, {
             default(NS) {
               χ.emitComponent(χ.resolve(NS?.Nested?.Custom)({}), 𝛄 => {

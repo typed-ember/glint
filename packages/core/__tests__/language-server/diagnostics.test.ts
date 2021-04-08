@@ -25,7 +25,7 @@ describe('Language Server: Diagnostics', () => {
         private startupTime = new Date().toISOString();
 
         public static template = hbs\`
-          Welcome to app v{{@version}}.
+          Welcome to app <code>v{{@version}}</code>.
           The current time is {{this.startupTimee}}.
         \`;
       }
