@@ -1,4 +1,5 @@
 import type { Invoke, Invokable, EmptyObject } from '@glint/template/-private/integration';
+import type { AsObjectType } from '../-private/utilities';
 
 declare const Ember: { Helper: EmberHelperConstructor };
 
@@ -25,9 +26,10 @@ export interface HelperSignature {
 // Overriding `compute` directly is impossible because the base class has such
 // wide parameter types, so we explicitly exclude that from the interface we're
 // extending here so our override can "take" without an error.
-const Helper = (EmberHelper as unknown) as new <T extends HelperSignature>(
-  ...args: ConstructorParameters<EmberHelperConstructor>
-) => Helper<T>;
+const Helper = EmberHelper as AsObjectType<typeof EmberHelper> &
+  (new <T extends HelperSignature>(
+    ...args: ConstructorParameters<EmberHelperConstructor>
+  ) => Helper<T>);
 
 interface Helper<T extends HelperSignature> extends Omit<EmberHelper, 'compute'> {
   compute(
