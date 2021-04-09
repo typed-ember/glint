@@ -1,4 +1,4 @@
-import { AcceptsBlocks, AnyBlocks, AnyContext, BoundModifier } from '../integration';
+import { AcceptsBlocks, AnyContext, BoundModifier } from '../integration';
 import { ElementForTagName, EmittableValue } from './types';
 
 /*
@@ -28,9 +28,8 @@ export declare function emitValue(value: AcceptsBlocks<{}, any> | EmittableValue
  *     });
  */
 export declare function emitElement<Name extends string>(
-  name: Name,
-  handler: (elementContext: { element: ElementForTagName<Name> }) => void
-): void;
+  name: Name
+): { element: ElementForTagName<Name> };
 
 /*
  * Emits the given value as an entity that expects to receive blocks
@@ -45,17 +44,15 @@ export declare function emitElement<Name extends string>(
  * blocks bound to it. The final line above would produce code like:
  *
  *     emitComponent(resolve(Value)({ foo: bar })), (𝛄) => {
- *       bindBlocks(𝛄.blockParams, {});
  *       applyModifier(𝛄.element, resolve(baz)({}));
  *     });
  */
 export declare function emitComponent<T extends AcceptsBlocks<any, any>>(
-  component: T,
-  handler: (componentContext: {
-    element: T extends AcceptsBlocks<any, infer El> ? El : null;
-    blockParams: T extends AcceptsBlocks<infer Yields, any> ? Yields : never;
-  }) => void
-): void;
+  component: T
+): {
+  element: T extends AcceptsBlocks<any, infer El> ? El : null;
+  blockParams: T extends AcceptsBlocks<infer Yields, any> ? Required<Yields> : never;
+};
 
 /**
  * Acts as a top-level wrapper for translated template bodies.
@@ -106,17 +103,4 @@ export declare function applyAttributes(element: Element, attrs: Record<string, 
 export declare function applyModifier<TargetElement extends Element>(
   element: TargetElement,
   modifier: BoundModifier<TargetElement>
-): void;
-
-/*
- * Given a mapping of block names to the parameters they provide
- * `{ [name: string]: [...params] }`, binds the given block
- * implementations that will make use of those parameters, ensuring
- * they typecheck appropriately.
- */
-export declare function bindBlocks<T extends AnyBlocks>(
-  params: T,
-  blocks: {
-    [K in keyof T]: (...params: NonNullable<T[K]>) => void;
-  }
 ): void;
