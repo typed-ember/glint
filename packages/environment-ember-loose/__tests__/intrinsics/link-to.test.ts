@@ -3,72 +3,62 @@ import {
   resolve,
   applySplattributes,
   emitComponent,
-  bindBlocks,
 } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 let linkTo = resolve(Globals['link-to']);
 let LinkTo = resolve(Globals['LinkTo']);
 
-emitComponent(linkTo({}, 'index', 123), (component) => bindBlocks(component.blockParams, {}));
+emitComponent(linkTo({}, 'index', 123));
 
 // @ts-expect-error: bad type for route name
 linkTo({}, 123);
 
-emitComponent(LinkTo({ route: 'index', model: 123 }), (component) => {
+{
+  const component = emitComponent(LinkTo({ route: 'index', model: 123 }));
   expectTypeOf(component.element).toEqualTypeOf<HTMLAnchorElement>();
   applySplattributes(new HTMLAnchorElement(), component.element);
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
 
-  bindBlocks(component.blockParams, {
-    default() {},
-  });
-});
+{
+  const component = emitComponent(LinkTo({ route: 'index' }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
 
-emitComponent(LinkTo({ route: 'index' }), (component) =>
-  bindBlocks(component.blockParams, {
-    default() {},
-  })
-);
+{
+  const component = emitComponent(LinkTo({ route: 'index', query: { a: 123 } }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
 
-emitComponent(LinkTo({ route: 'index', query: { a: 123 } }), (component) =>
-  bindBlocks(component.blockParams, {
-    default() {},
-  })
-);
-
-emitComponent(LinkTo({ route: 'index', models: [123, 'abc'] }), (component) =>
-  bindBlocks(component.blockParams, {
-    default() {},
-  })
-);
+{
+  const component = emitComponent(LinkTo({ route: 'index', models: [123, 'abc'] }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
 
 // Requires at least one of `@route`, `@model`, `@models` or `@query`
 
-emitComponent(
-  LinkTo(
-    // @ts-expect-error: missing one of required props
-    {}
-  ),
-  (component) =>
-    bindBlocks(component.blockParams, {
-      default() {},
-    })
-);
+{
+  const component = emitComponent(
+    LinkTo(
+      // @ts-expect-error: missing one of required props
+      {}
+    )
+  );
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
 
-emitComponent(LinkTo({ model: 123 }), (component) =>
-  bindBlocks(component.blockParams, {
-    default() {},
-  })
-);
+{
+  const component = emitComponent(LinkTo({ model: 123 }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
 
-emitComponent(LinkTo({ models: [123] }), (component) =>
-  bindBlocks(component.blockParams, {
-    default() {},
-  })
-);
+{
+  const component = emitComponent(LinkTo({ models: [123] }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
 
-emitComponent(LinkTo({ query: { a: 123 } }), (component) =>
-  bindBlocks(component.blockParams, {
-    default() {},
-  })
-);
+{
+  const component = emitComponent(LinkTo({ query: { a: 123 } }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}

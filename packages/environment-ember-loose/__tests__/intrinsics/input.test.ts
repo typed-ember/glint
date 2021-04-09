@@ -24,9 +24,10 @@ Input({ type: '', value: 'hello' });
 Input({ type: 'string', value: 'hello' });
 
 // Ensure we can apply <input>-specific attributes
-emitComponent(Input({}), (𝛄) => {
+{
+  const 𝛄 = emitComponent(Input({}));
   applySplattributes(new HTMLInputElement(), 𝛄.element);
-});
+}
 
 // @ts-expect-error: `checked` only works with `@type=checkbox`
 Input({ checked: true });

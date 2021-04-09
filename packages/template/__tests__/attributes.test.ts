@@ -8,7 +8,6 @@ import {
   applyAttributes,
   emitElement,
   emitComponent,
-  bindBlocks,
 } from '../-private/dsl';
 import { BoundModifier, DirectInvokable, EmptyObject } from '../-private/integration';
 import TestComponent from './test-component';
@@ -36,127 +35,149 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   public static template = template(function (𝚪: ResolveContext<MyComponent>) {
     expectTypeOf(𝚪.element).toEqualTypeOf<HTMLImageElement>();
 
-    emitElement('img', (ctx) => {
+    {
+      const ctx = emitElement('img');
       expectTypeOf(ctx.element).toEqualTypeOf<HTMLImageElement>();
 
       applyModifier(ctx.element, resolve(imageModifier)({}));
       applySplattributes(𝚪.element, ctx.element);
-    });
+    }
   });
 }
 
 // `emitElement` type resolution
-emitElement('img', (el) => expectTypeOf(el).toEqualTypeOf<{ element: HTMLImageElement }>());
-emitElement('unknown', (el) => expectTypeOf(el).toEqualTypeOf<{ element: Element }>());
+{
+  const el = emitElement('img');
+  expectTypeOf(el).toEqualTypeOf<{ element: HTMLImageElement }>();
+}
+
+{
+  const el = emitElement('unknown');
+  expectTypeOf(el).toEqualTypeOf<{ element: Element }>();
+}
 
 /**
  * ```handlebars
  * <MyComponent ...attributes foo="bar" />
  * ```
  */
-emitComponent(resolve(MyComponent)({}), (component) => {
-  bindBlocks(component.blockParams, {});
+{
+  const component = emitComponent(resolve(MyComponent)({}));
   applySplattributes(new HTMLImageElement(), component.element);
   applyAttributes(component.element, { foo: 'bar' });
-});
+}
 
 /**
  * ```handlebars
  * <SVGElementComponent ...attributes />
  * ```
  */
-emitComponent(resolve(SVGElementComponent)({}), (component) => {
-  bindBlocks(component.blockParams, {});
+{
+  const component = emitComponent(resolve(SVGElementComponent)({}));
   applySplattributes(new SVGSVGElement(), component.element);
-});
+}
 
 /**
  * ```handlebars
  * <svg ...attributes></svg>
  * ```
  */
-emitElement('svg', (ctx) => applySplattributes(new SVGSVGElement(), ctx.element));
+{
+  const ctx = emitElement('svg');
+  applySplattributes(new SVGSVGElement(), ctx.element);
+}
 
 /**
  * ```handlebars
  * <a {{anchorModifier}}></a>
  * ```
  */
-emitElement('a', (ctx) => {
+{
+  const ctx = emitElement('a');
   expectTypeOf(ctx).toEqualTypeOf<{ element: HTMLAnchorElement & SVGAElement }>();
   applyModifier(ctx.element, resolve(anchorModifier)({}));
-});
+}
 
 // Error conditions:
 
-emitElement('unknown', (element) => {
+{
+  const element = emitElement('unknown');
   applySplattributes(
     new HTMLFormElement(),
     // @ts-expect-error: Trying to pass splattributes specialized for another element
     element
   );
-});
+}
 
-emitComponent(resolve(MyComponent)({}), (component) => {
+{
+  const component = emitComponent(resolve(MyComponent)({}));
   applySplattributes(
     new HTMLFormElement(),
     // @ts-expect-error: Trying to pass splattributes specialized for another element
     component.element
   );
-});
+}
 
-emitComponent(resolve(TestComponent)({}), (component) => {
+{
+  const component = emitComponent(resolve(TestComponent)({}));
   applySplattributes(
     new HTMLUnknownElement(),
     // @ts-expect-error: Trying to apply splattributes to a component with no root element
     component.element
   );
-});
+}
 
-emitComponent(resolve(SVGAElementComponent)({}), (component) => {
+{
+  const component = emitComponent(resolve(SVGAElementComponent)({}));
   applySplattributes(
     new HTMLAnchorElement(),
     // @ts-expect-error: Trying to apply splattributes for an HTML <a> to an SVG <a>
     component.element
   );
-});
+}
 
-emitElement('div', (div) =>
+{
+  const div = emitElement('div');
+
   applyModifier(
     // @ts-expect-error: `imageModifier` expects an `HTMLImageElement`
     div,
     resolve(imageModifier)({})
-  )
-);
+  );
+}
 
-emitComponent(resolve(GenericElementComponent)({}), (component) => {
+{
+  const component = emitComponent(resolve(GenericElementComponent)({}));
   applyModifier(
     // @ts-expect-error: `imageModifier` expects an `HTMLImageElement`
     component.element,
     resolve(imageModifier)({})
   );
-});
+}
 
-emitComponent(resolve(TestComponent)({}), (component) => {
+{
+  const component = emitComponent(resolve(TestComponent)({}));
   applyModifier(
     // @ts-expect-error: Trying to apply a modifier to a component with no root element
     component.element,
     resolve(imageModifier)({})
   );
-});
+}
 
-emitComponent(resolve(SVGAElementComponent)({}), (component) => {
+{
+  const component = emitComponent(resolve(SVGAElementComponent)({}));
   applyModifier(
     // @ts-expect-error: Can't apply modifier for HTML <a> to SVG <a>
     component.element,
     resolve(anchorModifier)({})
   );
-});
+}
 
-emitComponent(resolve(TestComponent)({}), (component) => {
+{
+  const component = emitComponent(resolve(TestComponent)({}));
   applyAttributes(
     // @ts-expect-error: Trying to apply attributes to a component with no root element
     component.element,
     { foo: 'bar' }
   );
-});
+}

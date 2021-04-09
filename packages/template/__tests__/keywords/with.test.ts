@@ -1,20 +1,26 @@
 import { expectTypeOf } from 'expect-type';
-import { emitComponent, bindBlocks, resolve } from '../../-private/dsl';
+import { emitComponent, resolve } from '../../-private/dsl';
 import { WithKeyword } from '../../-private/keywords';
 
 const withKeyword = resolve({} as WithKeyword);
 
 // Yields out the given value
-emitComponent(withKeyword({}, 'hello'), (component) => {
-  bindBlocks(component.blockParams, {
-    default(str) {
-      expectTypeOf(str).toEqualTypeOf<string>();
-    },
-    inverse() {
-      // Nothing
-    },
-  });
-});
+{
+  const component = emitComponent(withKeyword({}, 'hello'));
 
-// @ts-expect-error: Rejects multiple values
-withKeyword({}, 'hello', 'goodbye');
+  {
+    const [str] = component.blockParams.default;
+    expectTypeOf(str).toEqualTypeOf<string>();
+  }
+
+  {
+    component.blockParams.inverse;
+  }
+}
+
+withKeyword(
+  {},
+  'hello',
+  // @ts-expect-error: Rejects multiple values
+  'goodbye'
+);
