@@ -49,7 +49,7 @@ describe('CLI: single-pass typechecking', () => {
       export type MyComponentArgs = {
         foo?: () => {};
         bar?: string;
-        baz?: { value: string };
+        baz?: { value?: string };
       };
 
       export default class MyComponent extends Component<{ Args: MyComponentArgs }> { }
@@ -64,7 +64,7 @@ describe('CLI: single-pass typechecking', () => {
           <OtherComponent @value={{@bar}} />
         </LinkTo>
       {{/if}}
-      {{#if @baz}}
+      {{#if @baz.value}}
         <LinkTo @route="my-route">
           <OtherComponent @value={{@baz.value}} />
         </LinkTo>
