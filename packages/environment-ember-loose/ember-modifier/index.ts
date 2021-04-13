@@ -4,6 +4,7 @@ import type {
   BoundModifier,
   EmptyObject,
 } from '@glint/template/-private/integration';
+import type { AsObjectType } from '../-private/utilities';
 
 const EmberModifier = window.require('ember-modifier').default;
 type EmberModifier<T> = import('ember-modifier').default<T>;
@@ -27,9 +28,10 @@ export interface ModifierSignature {
   Element?: Element;
 }
 
-const Modifier = EmberModifier as new <T extends ModifierSignature>(
-  ...args: ConstructorParameters<EmberModifierConstructor>
-) => Modifier<T>;
+const Modifier = EmberModifier as AsObjectType<typeof EmberModifier> &
+  (new <T extends ModifierSignature>(
+    ...args: ConstructorParameters<EmberModifierConstructor>
+  ) => Modifier<T>);
 
 interface Modifier<T extends ModifierSignature>
   extends EmberModifier<{

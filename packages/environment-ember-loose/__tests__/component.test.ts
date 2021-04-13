@@ -1,3 +1,4 @@
+import UpstreamEmberComponent from '@ember/component';
 import Component, { ComponentSignature } from '@glint/environment-ember-loose/ember-component';
 import {
   template,
@@ -8,6 +9,9 @@ import {
 } from '@glint/environment-ember-loose/-private/dsl';
 import { EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
+
+// Our `Component` reexport should inherit static members
+expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
 
 {
   class NoArgsComponent extends Component {

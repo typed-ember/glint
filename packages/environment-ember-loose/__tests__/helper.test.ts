@@ -1,7 +1,11 @@
+import UpstreamEmberHelper from '@ember/component/helper';
 import Helper, { helper } from '@glint/environment-ember-loose/ember-component/helper';
 import { resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { EmptyObject } from '@glint/template/-private/integration';
+
+// Our `Helper` reexport should inherit static members
+expectTypeOf(Helper.extend).toEqualTypeOf(UpstreamEmberHelper.extend);
 
 // Functional helper: positional params
 {

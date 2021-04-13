@@ -5,6 +5,7 @@ import type {
   AcceptsBlocks,
   EmptyObject,
 } from '@glint/template/-private/integration';
+import { AsObjectType } from '../-private/utilities';
 
 import type { ComponentSignature } from '../-private';
 export type { ComponentSignature };
@@ -17,9 +18,10 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
   ? Exclude<T[Key], undefined>
   : Otherwise;
 
-const Component = GlimmerComponent as new <T extends ComponentSignature = {}>(
-  ...args: ConstructorParameters<GlimmerComponentConstructor>
-) => Component<T>;
+const Component = GlimmerComponent as AsObjectType<typeof GlimmerComponent> &
+  (new <T extends ComponentSignature = {}>(
+    ...args: ConstructorParameters<GlimmerComponentConstructor>
+  ) => Component<T>);
 
 interface Component<T extends ComponentSignature = {}> extends GlimmerComponent<Get<T, 'Args'>> {
   [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>;
