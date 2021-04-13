@@ -152,7 +152,7 @@ describe('Language Server: Completions', () => {
 
     let details = server.getCompletionDetails(letterCompletion!);
 
-    expect(details.detail).toEqual('(parameter) letter: string');
+    expect(details.detail).toEqual('const letter: string');
   });
 
   test('globals', () => {
@@ -242,6 +242,6 @@ describe('Language Server: Completions', () => {
 
     let details = server.getCompletionDetails(letterCompletion!);
 
-    expect(details.detail).toEqual('(parameter) letter: string');
+    expect(details.detail).toEqual('const letter: string');
   });
 });

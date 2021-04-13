@@ -19,4 +19,4 @@ let identity = <T>(x: T): T => x;
 expectTypeOf(fn({}, identity, 'hi')).toEqualTypeOf<() => string>();
 
 // Unbound type parameters survive to the output
-expectTypeOf(fn({}, identity)).toEqualTypeOf<<T>(x: T) => T>();
+expectTypeOf(fn({}, identity)).toEqualTypeOf<{ <T>(x: T): T }>();

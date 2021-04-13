@@ -5,7 +5,6 @@ import {
   ResolveContext,
   yieldToBlock,
   emitComponent,
-  bindBlocks,
 } from '@glint/environment-ember-loose/-private/dsl';
 import { EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
@@ -28,14 +27,16 @@ import { expectTypeOf } from 'expect-type';
     'oops'
   );
 
-  emitComponent(resolve(NoArgsComponent)({}), (component) =>
-    bindBlocks(component.blockParams, {
-      // @ts-expect-error: never yields, so shouldn't accept blocks
-      default() {},
-    })
-  );
+  {
+    const component = emitComponent(resolve(NoArgsComponent)({}));
 
-  emitComponent(resolve(NoArgsComponent)({}), (component) => bindBlocks(component.blockParams, {}));
+    {
+      // @ts-expect-error: never yields, so shouldn't accept blocks
+      component.blockParams.default;
+    }
+  }
+
+  emitComponent(resolve(NoArgsComponent)({}));
 }
 
 {
@@ -49,9 +50,7 @@ import { expectTypeOf } from 'expect-type';
     });
   }
 
-  emitComponent(resolve(StatefulComponent)({}), (component) =>
-    bindBlocks(component.blockParams, {})
-  );
+  emitComponent(resolve(StatefulComponent)({}));
 }
 
 {
@@ -92,23 +91,26 @@ import { expectTypeOf } from 'expect-type';
   // @ts-expect-error: extra arg
   resolve(YieldingComponent)({ values: [1, 2, 3], oops: true });
 
-  emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }), (component) =>
-    bindBlocks(component.blockParams, {
-      default(value) {
-        expectTypeOf(value).toEqualTypeOf<number>();
-      },
-    })
-  );
+  {
+    const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));
 
-  emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }), (component) =>
-    bindBlocks(component.blockParams, {
-      default(...args) {
-        expectTypeOf(args).toEqualTypeOf<[number]>();
-      },
+    {
+      const [value] = component.blockParams.default;
+      expectTypeOf(value).toEqualTypeOf<number>();
+    }
+  }
 
-      inverse(...args) {
-        expectTypeOf(args).toEqualTypeOf<[]>();
-      },
-    })
-  );
+  {
+    const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));
+
+    {
+      const [...args] = component.blockParams.default;
+      expectTypeOf(args).toEqualTypeOf<[number]>();
+    }
+
+    {
+      const [...args] = component.blockParams.inverse;
+      expectTypeOf(args).toEqualTypeOf<[]>();
+    }
+  }
 }

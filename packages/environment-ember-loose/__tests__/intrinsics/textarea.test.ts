@@ -18,9 +18,10 @@ Textarea({ value: undefined });
 Textarea({ value: null });
 
 // Ensure we can apply <textarea>-specific attributes
-emitComponent(Textarea({}), (𝛄) => {
+{
+  const 𝛄 = emitComponent(Textarea({}));
   applySplattributes(new HTMLTextAreaElement(), 𝛄.element);
-});
+}
 
 // Event handlers
 Textarea({

@@ -332,7 +332,11 @@ export function templateToTypescript(
       emit.forNode(node, () => {
         let { start, path, kind } = tagNameToPathContents(node);
 
-        emit.text('χ.emitComponent(χ.resolve(');
+        emit.text('{');
+        emit.newline();
+        emit.indent();
+
+        emit.text('const 𝛄 = χ.emitComponent(χ.resolve(');
         emitPathContents(path, start, kind);
         emit.text(')({');
 
@@ -369,20 +373,12 @@ export function templateToTypescript(
           }
         }
 
-        emit.text('}), 𝛄 => {');
-        emit.indent();
+        emit.text('}));');
         emit.newline();
 
         emitAttributesAndModifiers(node);
 
-        emit.text('χ.bindBlocks(𝛄.blockParams, {');
-
-        if (node.selfClosing) {
-          emit.text('});');
-        } else {
-          emit.newline();
-          emit.indent();
-
+        if (!node.selfClosing) {
           let blocks = determineBlockChildren(node);
           if (blocks.type === 'named') {
             for (let child of blocks.children) {
@@ -409,19 +405,15 @@ export function templateToTypescript(
             );
           }
 
-          emit.dedent();
-          emit.text('});');
-
           // Emit `ComponentName;` to represent the closing tag, so we have
           // an anchor for things like symbol renames.
-          emit.newline();
           emitPathContents(path, template.lastIndexOf(node.tag, rangeForNode(node).end), kind);
           emit.text(';');
+          emit.newline();
         }
 
-        emit.newline();
         emit.dedent();
-        emit.text('});');
+        emit.text('}');
         emit.newline();
       });
     }
@@ -489,11 +481,14 @@ export function templateToTypescript(
 
     function emitPlainElement(node: AST.ElementNode): void {
       emit.forNode(node, () => {
-        emit.text('χ.emitElement(');
-        emit.text(JSON.stringify(node.tag));
-        emit.text(', 𝛄 => {');
+        emit.text('{');
         emit.newline();
         emit.indent();
+
+        emit.text('const 𝛄 = χ.emitElement(');
+        emit.text(JSON.stringify(node.tag));
+        emit.text(');');
+        emit.newline();
 
         emitAttributesAndModifiers(node);
 
@@ -502,13 +497,14 @@ export function templateToTypescript(
         }
 
         emit.dedent();
-        emit.text('});');
+        emit.text('}');
         emit.newline();
       });
     }
 
     function emitAttributesAndModifiers(node: AST.ElementNode): void {
-      if (!node.attributes.length && !node.modifiers.length) {
+      let nonArgAttributes = node.attributes.filter((attr) => !attr.name.startsWith('@'));
+      if (!nonArgAttributes.length && !node.modifiers.length) {
         // Avoid unused-symbol diagnostics
         emit.text('𝛄;');
         emit.newline();
@@ -735,15 +731,14 @@ export function templateToTypescript(
       }
 
       emit.forNode(node, () => {
-        emit.text('χ.emitComponent(');
-        emitResolve(node, 'resolve');
-        emit.text(', 𝛄 => {');
+        emit.text('{');
         emit.newline();
         emit.indent();
 
-        emit.text('χ.bindBlocks(𝛄.blockParams, {');
+        emit.text('const 𝛄 = χ.emitComponent(');
+        emitResolve(node, 'resolve');
+        emit.text(');');
         emit.newline();
-        emit.indent();
 
         emitBlock('default', node.program);
 
@@ -751,22 +746,18 @@ export function templateToTypescript(
           emitBlock('inverse', node.inverse);
         }
 
-        emit.dedent();
-        emit.text('});');
-
-        emit.newline();
-        emit.dedent();
-        emit.text('});');
-
         // TODO: emit something corresponding to `{{/foo}}` like we do
         // for angle bracket components, so that symbol renames propagate?
         // A little hairier (ha) for mustaches, since they
         if (node.path.type === 'PathExpression') {
           let start = template.lastIndexOf(node.path.original, rangeForNode(node).end);
-          emit.newline();
           emitPathContents(node.path.parts, start, determinePathKind(node.path));
           emit.text(';');
+          emit.newline();
         }
+
+        emit.dedent();
+        emit.text('}');
       });
 
       emit.newline();
@@ -795,13 +786,11 @@ export function templateToTypescript(
 
       scope.push(blockParams);
 
-      if (nameOffset) {
-        emitHashKey(name, nameOffset);
-      } else {
-        emit.text(isSafeKey(name) ? name : JSON.stringify(name));
-      }
+      emit.text('{');
+      emit.newline();
+      emit.indent();
 
-      emit.text('(');
+      emit.text('const [');
 
       let start = blockParamsOffset;
       for (let [index, param] of blockParams.entries()) {
@@ -811,16 +800,17 @@ export function templateToTypescript(
         emit.identifier(param, start);
       }
 
-      emit.text(') {');
+      emit.text('] = 𝛄.blockParams');
+      emitPropertyAccesss(name, nameOffset);
+      emit.text(';');
       emit.newline();
-      emit.indent();
 
       for (let statement of children) {
         emitTopLevelStatement(statement);
       }
 
       emit.dedent();
-      emit.text('},');
+      emit.text('}');
       emit.newline();
       scope.pop();
     }
@@ -924,15 +914,27 @@ export function templateToTypescript(
       for (let i = 1; i < parts.length; i++) {
         let part = parts[i];
         start = template.indexOf(part, start);
-        emit.text('?.');
-        if (isSafeKey(part)) {
-          emit.identifier(part, start);
-        } else {
-          emit.text('["');
-          emit.identifier(JSON.stringify(part).slice(1, -1), start, part.length);
-          emit.text('"]');
-        }
+        emitPropertyAccesss(part, start, true);
         start += part.length;
+      }
+    }
+
+    function emitPropertyAccesss(name: string, offset?: number, optional?: boolean): void {
+      if (isSafeKey(name)) {
+        emit.text(optional ? '?.' : '.');
+        if (offset) {
+          emitHashKey(name, offset);
+        } else {
+          emit.text(name);
+        }
+      } else {
+        emit.text(optional ? '?.[' : '[');
+        if (offset) {
+          emitHashKey(name, offset);
+        } else {
+          emit.text(JSON.stringify(name));
+        }
+        emit.text(']');
       }
     }
 

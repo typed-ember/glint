@@ -117,7 +117,7 @@ describe('Language Server: Hover', () => {
 
     // {{index}} in the template matches back to the block param
     expect(indexInfo).toEqual({
-      contents: [{ language: 'ts', value: '(parameter) index: number' }],
+      contents: [{ language: 'ts', value: 'const index: number' }],
       range: {
         start: { line: 5, character: 14 },
         end: { line: 5, character: 19 },
@@ -131,7 +131,7 @@ describe('Language Server: Hover', () => {
 
     // {{item}} in the template matches back to the block param
     expect(itemInfo).toEqual({
-      contents: [{ language: 'ts', value: '(parameter) item: string' }],
+      contents: [{ language: 'ts', value: 'const item: string' }],
       range: {
         start: { line: 5, character: 25 },
         end: { line: 5, character: 29 },

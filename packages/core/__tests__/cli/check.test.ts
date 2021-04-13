@@ -40,6 +40,65 @@ describe('CLI: single-pass typechecking', () => {
     expect(checkResult.stderr).toEqual('');
   });
 
+  test('handles conditionals with yielding', async () => {
+    project.write('.glintrc', 'environment: ember-loose\n');
+
+    let script = stripIndent`
+      import Component from '@glint/environment-ember-loose/ember-component';
+
+      export type MyComponentArgs = {
+        foo?: () => {};
+        bar?: string;
+        baz?: { value?: string };
+      };
+
+      export default class MyComponent extends Component<{ Args: MyComponentArgs }> { }
+    `;
+
+    let template = stripIndent`
+      {{#if @foo}}
+        <button {{on "click" @foo}} type="button"></button>
+      {{/if}}
+      {{#if @bar}}
+        <LinkTo @route="my-route">
+          <OtherComponent @value={{@bar}} />
+        </LinkTo>
+      {{/if}}
+      {{#if @baz.value}}
+        <LinkTo @route="my-route">
+          <OtherComponent @value={{@baz.value}} />
+        </LinkTo>
+      {{/if}}
+    `;
+
+    let otherScript = stripIndent`
+      import Component from '@glint/environment-ember-loose/ember-component';
+
+      export type OtherComponentArgs = {
+        value: string;
+      };
+
+      export default class OtherComponent extends Component<{ Args: OtherComponentArgs }> { }
+
+
+      declare module '@glint/environment-ember-loose/registry' {
+        export default interface Registry {
+          OtherComponent: typeof OtherComponent;
+        }
+      }
+    `;
+
+    project.write('my-component.ts', script);
+    project.write('my-component.hbs', template);
+    project.write('other-component.ts', otherScript);
+
+    let checkResult = await project.check();
+
+    expect(checkResult.exitCode).toBe(0);
+    expect(checkResult.stdout).toEqual('');
+    expect(checkResult.stderr).toEqual('');
+  });
+
   test('reports diagnostics for a template syntax error', async () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';

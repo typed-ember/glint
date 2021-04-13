@@ -8,7 +8,7 @@ import { EmptyObject } from '@glint/template/-private/integration';
   let definition = helper(<T, U>([a, b]: [T, U]) => a || b);
   let or = resolve(definition);
 
-  expectTypeOf(or).toEqualTypeOf<<T, U>(args: EmptyObject, t: T, u: U) => T | U>();
+  expectTypeOf(or).toEqualTypeOf<{ <T, U>(args: EmptyObject, t: T, u: U): T | U }>();
 
   // @ts-expect-error: extra named arg
   or({ hello: true }, 'a', 'b');
@@ -32,7 +32,7 @@ import { EmptyObject } from '@glint/template/-private/integration';
 
   let repeat = resolve(definition);
 
-  expectTypeOf(repeat).toEqualTypeOf<<T>(args: { value: T; count?: number }) => Array<T>>();
+  expectTypeOf(repeat).toEqualTypeOf<{ <T>(args: { value: T; count?: number }): Array<T> }>();
 
   // @ts-expect-error: extra positional arg
   repeat({ word: 'hi' }, 123);
@@ -58,7 +58,7 @@ import { EmptyObject } from '@glint/template/-private/integration';
 
   let repeat = resolve(RepeatHelper);
 
-  expectTypeOf(repeat).toEqualTypeOf<<T>(args: { value: T; count?: number }) => Array<T>>();
+  expectTypeOf(repeat).toEqualTypeOf<{ <T>(args: { value: T; count?: number }): Array<T> }>();
 
   // @ts-expect-error: extra positional arg
   repeat({ word: 'hi' }, 123);

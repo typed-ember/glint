@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 import SumType from 'sums-up';
 import { AcceptsBlocks, DirectInvokable, EmptyObject } from '../-private/integration';
-import { emitComponent, emitValue, bindBlocks, resolve, resolveOrReturn } from '../-private/dsl';
+import { emitComponent, emitValue, resolve, resolveOrReturn } from '../-private/dsl';
 
 ///////////////////////////////////////////////////////////////////////////////
 // This module exercises what's possible when declaring a signature for a
@@ -50,29 +50,27 @@ declare const caseOf: DirectInvokable<
  * {{/case-of}}
  * ```
  */
-emitComponent(resolve(caseOf)({}, maybeValue), (component) => {
-  bindBlocks(component.blockParams, {
-    default(when) {
-      emitComponent(resolve(when)({}, 'Just'), (component) => {
-        bindBlocks(component.blockParams, {
-          default(n) {
-            expectTypeOf(n).toEqualTypeOf<number>();
-            emitValue(resolveOrReturn(n)({}));
-          },
-          inverse() {
-            emitComponent(resolve(when)({}, 'Nothing'), (component) => {
-              bindBlocks(component.blockParams, {
-                default() {
-                  /* nothin */
-                },
-              });
-            });
-          },
-        });
-      });
-    },
-  });
-});
+{
+  const component = emitComponent(resolve(caseOf)({}, maybeValue));
+  {
+    const [when] = component.blockParams.default;
+    {
+      const component = emitComponent(resolve(when)({}, 'Just'));
+      {
+        const [n] = component.blockParams.default;
+        expectTypeOf(n).toEqualTypeOf<number>();
+        emitValue(resolveOrReturn(n)({}));
+      }
+      {
+        component.blockParams.inverse;
+        {
+          const component = emitComponent(resolve(when)({}, 'Nothing'));
+          expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+        }
+      }
+    }
+  }
+}
 
 // Below is an alternative formulation using named block syntax.
 // This is a bit weird as it's really a control structure and looks here
@@ -96,14 +94,16 @@ declare const CaseOf: DirectInvokable<
  * </CaseOf>
  * ```
  */
-emitComponent(resolve(CaseOf)({ value: maybeValue }), (component) => {
-  bindBlocks(component.blockParams, {
-    Just(value) {
-      expectTypeOf(value).toEqualTypeOf<number>();
-      emitValue(resolveOrReturn(value)({}));
-    },
-    Nothing() {
-      /* nothin */
-    },
-  });
-});
+{
+  const component = emitComponent(resolve(CaseOf)({ value: maybeValue }));
+
+  {
+    const [value] = component.blockParams.Just;
+    expectTypeOf(value).toEqualTypeOf<number>();
+    emitValue(resolveOrReturn(value)({}));
+  }
+
+  {
+    component.blockParams.Nothing;
+  }
+}
