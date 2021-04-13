@@ -7,14 +7,11 @@ export interface OnModifierArgs {
 }
 
 export type OnModifier = DirectInvokable<{
+  // There may be a ver event types not covered in HTMLElementEventMap, but we'll just default to Event
   <Name extends keyof HTMLElementEventMap>(
     args: OnModifierArgs,
     name: Name,
     callback: (event: HTMLElementEventMap[Name]) => void
-  ): BoundModifier<HTMLElement>;
-  (
-    args: OnModifierArgs,
-    name: string,
-    callback: (event: Event) => void
-  ): BoundModifier<HTMLElement>;
+  ): BoundModifier<Element>;
+  (args: OnModifierArgs, name: string, callback: (event: Event) => void): BoundModifier<Element>;
 }>;

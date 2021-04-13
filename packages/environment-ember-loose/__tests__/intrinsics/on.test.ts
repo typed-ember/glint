@@ -30,3 +30,13 @@ applyModifier(
   new HTMLElement(),
   on({}, 'click', () => {})
 );
+
+applyModifier(
+  new SVGRectElement(),
+  on({}, 'click', () => {})
+);
+
+applyModifier(
+  new Element(),
+  on({}, 'click', () => {})
+);
