@@ -19,6 +19,22 @@ get(
   'hi'
 );
 
+interface Foo {
+  readonly [key: string]: number | undefined;
+}
+
+declare const maybeFoo: Foo | undefined;
+expectTypeOf(get({}, maybeFoo, 'bar')).toEqualTypeOf<number | undefined>();
+
+declare const mandatoryFoo: Foo;
+expectTypeOf(get({}, mandatoryFoo, 'bar')).toEqualTypeOf<number | undefined>();
+
+declare const maybeString: string | undefined;
+expectTypeOf(get({}, maybeString, 'length')).toEqualTypeOf<number | undefined>();
+
+declare const mandatoryString: string;
+expectTypeOf(get({}, mandatoryString, 'length')).toEqualTypeOf<number>();
+
 expectTypeOf(get({}, null, 'name')).toEqualTypeOf<undefined>();
 expectTypeOf(get({}, undefined, 'name')).toEqualTypeOf<undefined>();
 

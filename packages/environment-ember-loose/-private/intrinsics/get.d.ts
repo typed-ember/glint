@@ -3,6 +3,7 @@ import ObjectProxy from '@ember/object/proxy';
 
 export type GetHelper = DirectInvokable<{
   <T, K extends keyof T>(args: EmptyObject, obj: T, key: K): T[K];
+  <T, K extends keyof T>(args: EmptyObject, obj: T | null | undefined, key: K): T[K] | undefined;
   <T extends object, K extends keyof T>(
     args: EmptyObject,
     obj: ObjectProxy<T> | null | undefined,
