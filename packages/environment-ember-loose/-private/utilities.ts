@@ -28,9 +28,9 @@ export type YieldsOf<C extends ComponentLike> = C extends Constructor<
  * README for further details.
  */
 export type ComponentSignature = {
-  Args?: Partial<Record<string, unknown>>;
+  Args?: object;
   PositionalArgs?: Array<unknown>;
-  Yields?: Partial<Record<string, Array<unknown>>>;
+  Yields?: object;
   Element?: Element | null;
 };
 

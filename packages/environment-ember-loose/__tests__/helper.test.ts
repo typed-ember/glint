@@ -51,7 +51,7 @@ expectTypeOf(Helper.extend).toEqualTypeOf(UpstreamEmberHelper.extend);
   expectTypeOf(repeat({ value: 123, count: 3 })).toEqualTypeOf<Array<number>>();
 }
 
-// Class-based helper
+// Class-based helper: named args
 {
   type RepeatArgs<T> = { value: T; count?: number };
   class RepeatHelper<T> extends Helper<{ NamedArgs: RepeatArgs<T>; Return: Array<T> }> {
@@ -64,17 +64,59 @@ expectTypeOf(Helper.extend).toEqualTypeOf(UpstreamEmberHelper.extend);
 
   expectTypeOf(repeat).toEqualTypeOf<{ <T>(args: { value: T; count?: number }): Array<T> }>();
 
-  // @ts-expect-error: extra positional arg
-  repeat({ word: 'hi' }, 123);
+  repeat(
+    { word: 'hi' },
+    // @ts-expect-error: extra positional arg
+    123
+  );
 
   // @ts-expect-error: missing required named arg
   repeat({ count: 3 });
 
-  // @ts-expect-error: extra named arg
-  repeat({ word: 'hello', foo: true });
+  repeat({
+    value: 'hello',
+    // @ts-expect-error: extra named arg
+    foo: true,
+  });
 
   expectTypeOf(repeat({ value: 'hi' })).toEqualTypeOf<Array<string>>();
   expectTypeOf(repeat({ value: 123, count: 3 })).toEqualTypeOf<Array<number>>();
+}
+
+// Class-based helper: positional args
+{
+  type RepeatArgs<T> = [value: T, count?: number];
+  class RepeatHelper<T> extends Helper<{ PositionalArgs: RepeatArgs<T>; Return: Array<T> }> {
+    compute([value, count]: RepeatArgs<T>): Array<T> {
+      return Array.from({ length: count ?? 2 }, () => value);
+    }
+  }
+
+  let repeat = resolve(RepeatHelper);
+
+  expectTypeOf(repeat).toEqualTypeOf<{
+    <T>(args: EmptyObject, value: T, count?: number): Array<T>;
+  }>();
+
+  repeat(
+    // @ts-expect-error: extra named arg
+    { word: 'hi' },
+    'hello'
+  );
+
+  // @ts-expect-error: missing required positional arg
+  repeat({});
+
+  repeat(
+    {},
+    'hello',
+    123,
+    // @ts-expect-error: extra positional arg
+    'hi'
+  );
+
+  expectTypeOf(repeat({}, 'hi')).toEqualTypeOf<Array<string>>();
+  expectTypeOf(repeat({}, 123, 3)).toEqualTypeOf<Array<number>>();
 }
 
 // Class-based helpers can return undefined
