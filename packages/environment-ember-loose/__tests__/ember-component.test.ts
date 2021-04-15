@@ -116,3 +116,33 @@ expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
     }
   }
 }
+
+{
+  interface PositionalArgsComponentSignature {
+    Args: { key?: string };
+    PositionalArgs: [name: string, age?: number];
+  }
+
+  interface PositionalArgsComponent extends ArgsFor<PositionalArgsComponentSignature> {}
+  class PositionalArgsComponent extends Component<PositionalArgsComponentSignature> {}
+
+  // @ts-expect-error: missing required positional arg
+  resolve(PositionalArgsComponent)({});
+
+  resolve(PositionalArgsComponent)(
+    {},
+    // @ts-expect-error: incorrect type for positional arg
+    123
+  );
+
+  resolve(PositionalArgsComponent)(
+    {},
+    'a',
+    1,
+    // @ts-expect-error: extra positional arg
+    true
+  );
+
+  resolve(PositionalArgsComponent)({}, 'a');
+  resolve(PositionalArgsComponent)({}, 'a', 1);
+}
