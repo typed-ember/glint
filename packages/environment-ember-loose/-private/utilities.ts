@@ -29,6 +29,7 @@ export type YieldsOf<C extends ComponentLike> = C extends Constructor<
  */
 export type ComponentSignature = {
   Args?: Partial<Record<string, unknown>>;
+  PositionalArgs?: Array<unknown>;
   Yields?: Partial<Record<string, Array<unknown>>>;
   Element?: Element | null;
 };
@@ -39,7 +40,12 @@ export type ComponentSignature = {
  * as are the values returned from the `{{component}}` helper.
  */
 export type ComponentLike<T extends ComponentSignature = any> = Constructor<
-  Invokable<(args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>>
+  Invokable<
+    (
+      args: Get<T, 'Args'>,
+      ...positional: Get<T, 'PositionalArgs', []>
+    ) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>
+  >
 >;
 
 /**

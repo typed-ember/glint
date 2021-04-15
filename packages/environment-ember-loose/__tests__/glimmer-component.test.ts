@@ -1,5 +1,4 @@
-import UpstreamEmberComponent from '@ember/component';
-import Component, { ComponentSignature } from '@glint/environment-ember-loose/ember-component';
+import Component from '@glint/environment-ember-loose/glimmer-component';
 import {
   template,
   resolve,
@@ -10,15 +9,8 @@ import {
 import { EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
 
-// Our `Component` reexport should inherit static members
-expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
-
 {
-  class NoArgsComponent extends Component {
-    static template = template(function* (𝚪: ResolveContext<NoArgsComponent>) {
-      𝚪;
-    });
-  }
+  class NoArgsComponent extends Component {}
 
   resolve(NoArgsComponent)({
     // @ts-expect-error: extra named arg
@@ -51,6 +43,7 @@ expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
       expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
       expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
       expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
+      expectTypeOf(𝚪.this.args).toEqualTypeOf<EmptyObject>();
     });
   }
 
@@ -58,8 +51,6 @@ expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
 }
 
 {
-  type ArgsOf<T extends ComponentSignature> = 'Args' extends keyof T ? T['Args'] : EmptyObject;
-
   interface YieldingComponentSignature<T> {
     Args: {
       values: Array<T>;
@@ -70,13 +61,11 @@ expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
     };
   }
 
-  interface YieldingComponent<T> extends ArgsOf<YieldingComponentSignature<T>> {}
   class YieldingComponent<T> extends Component<YieldingComponentSignature<T>> {
     static template = template(function* <T>(𝚪: ResolveContext<YieldingComponent<T>>) {
       expectTypeOf(𝚪.this).toEqualTypeOf<YieldingComponent<T>>();
       expectTypeOf(𝚪.args).toEqualTypeOf<{ values: T[] }>();
-
-      expectTypeOf(𝚪.this.values).toEqualTypeOf<Array<T>>();
+      expectTypeOf(𝚪.this.args).toEqualTypeOf<{ values: T[] }>();
 
       if (𝚪.args.values.length) {
         yieldToBlock(𝚪, 'default', 𝚪.args.values[0]);
