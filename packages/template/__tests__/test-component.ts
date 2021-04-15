@@ -28,8 +28,8 @@ export declare const globals: {
 type Get<T, K, Otherwise = EmptyObject> = K extends keyof T ? Exclude<T[K], undefined> : Otherwise;
 
 export interface ComponentSignature {
-  Args?: Record<string, unknown>;
-  Yields?: Record<string, unknown[] | undefined>;
+  Args?: object;
+  Yields?: object;
   Element?: Element;
 }
 

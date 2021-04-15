@@ -23,7 +23,7 @@ type ModifierFactory = <El extends Element, Positional extends unknown[] = [], N
 export const modifier = emberModifier as ModifierFactory;
 
 export interface ModifierSignature {
-  NamedArgs?: Record<string, unknown>;
+  NamedArgs?: object;
   PositionalArgs?: Array<unknown>;
   Element?: Element;
 }

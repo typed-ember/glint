@@ -15,8 +15,8 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
   : Otherwise;
 
 export interface ComponentSignature {
-  Args?: Partial<Record<string, unknown>>;
-  Yields?: Partial<Record<string, Array<unknown>>>;
+  Args?: object;
+  Yields?: object;
   Element?: Element;
 }
 

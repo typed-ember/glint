@@ -18,7 +18,7 @@ type HelperFactory = <Positional extends unknown[] = [], Named = EmptyObject, Re
 export const helper = (emberHelper as unknown) as HelperFactory;
 
 export interface HelperSignature {
-  NamedArgs?: Record<string, unknown>;
+  NamedArgs?: object;
   PositionalArgs?: Array<unknown>;
   Return?: unknown;
 }
