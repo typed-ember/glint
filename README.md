@@ -221,6 +221,10 @@ export default class Greeting extends Component<GreetingSignature> {
 {{yield (concat @message ", " this.greetingTarget "!")}}
 ```
 
+Ember components also support `PositionalArgs` in their signature. Such usage is relatively rare, but components such as [`{{animated-if}}`](https://github.com/ember-animation/ember-animated) do take advantage of it. `PositionalArgs` are specified using a tuple type in the same way that block parameters are. You can also include `PositionalArgs` in the signature passed to `ComponentLike` (see below) when declaring types for third-party components.
+
+Note that both `Element` and `PositionalArgs` are not fully integrated with the string-based APIs on the `@ember/component` base class. This means, for example that there's no enforcement that `tagName = 'table'` and `Element: HTMLTableElement` are actually correlated to one another.
+
 #### Template Registry
 
 Because Ember's template resolution occurs dynamically at runtime today, Glint needs a way of mapping the names used in your templates to the actual backing value they'll be resolved to. This takes the form of a "type registry" similar to the one that powers Ember Data's types.
