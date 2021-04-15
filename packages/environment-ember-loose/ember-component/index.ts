@@ -29,8 +29,11 @@ const Component = EmberComponent as AsObjectType<typeof EmberComponent> &
   ) => Component<T>);
 
 interface Component<T extends ComponentSignature = {}> extends EmberComponent {
-  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>;
   [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
+  [Invoke]: (
+    args: Get<T, 'Args'>,
+    ...positional: Get<T, 'PositionalArgs', []>
+  ) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }
 
 export default Component;
