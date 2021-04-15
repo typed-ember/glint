@@ -48,7 +48,6 @@ jobs:
 
   test-windows:
     name: Test Windows
-    needs: [test]
     runs-on: windows-latest
     steps:
       - name: Checkout Code
