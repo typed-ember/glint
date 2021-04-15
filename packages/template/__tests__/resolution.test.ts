@@ -14,13 +14,13 @@ declare function value<T>(): T;
 
 // Component with a template
 {
-  type MyArgs<T> = {
+  interface MyArgs<T> {
     value: T;
-  };
+  }
 
-  type MyYields<T> = {
-    body: [boolean, T];
-  };
+  interface MyYields<T> {
+    body: [someFlag: boolean, someValue: T];
+  }
 
   class MyComponent<T> extends TestComponent<{ Args: MyArgs<T>; Yields: MyYields<T> }> {
     private state = { ready: false };
