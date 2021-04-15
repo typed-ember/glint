@@ -1,6 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 import { Globals, resolve } from '@glint/environment-ember-loose/-private/dsl';
 import ObjectProxy from '@ember/object/proxy';
+import EmberArray from '@ember/array';
 
 let get = resolve(Globals['get']);
 
@@ -52,3 +53,7 @@ expectTypeOf(get({}, optionalProxiedObject, 'name')).toEqualTypeOf<string | unde
 declare const nullProxiedObject: ObjectProxy<{ name: string }> | null;
 
 expectTypeOf(get({}, nullProxiedObject, 'name')).toEqualTypeOf<string | undefined>();
+
+declare const emberArray: EmberArray<any>;
+
+expectTypeOf(get({}, emberArray, 'length')).toEqualTypeOf<number>();
