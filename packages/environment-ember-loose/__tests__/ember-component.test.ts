@@ -1,5 +1,5 @@
 import UpstreamEmberComponent from '@ember/component';
-import Component, { ComponentSignature } from '@glint/environment-ember-loose/ember-component';
+import Component, { ArgsFor } from '@glint/environment-ember-loose/ember-component';
 import {
   template,
   resolve,
@@ -58,8 +58,6 @@ expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
 }
 
 {
-  type ArgsOf<T extends ComponentSignature> = 'Args' extends keyof T ? T['Args'] : EmptyObject;
-
   interface YieldingComponentSignature<T> {
     Args: {
       values: Array<T>;
@@ -70,7 +68,7 @@ expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
     };
   }
 
-  interface YieldingComponent<T> extends ArgsOf<YieldingComponentSignature<T>> {}
+  interface YieldingComponent<T> extends ArgsFor<YieldingComponentSignature<T>> {}
   class YieldingComponent<T> extends Component<YieldingComponentSignature<T>> {
     static template = template(function* <T>(𝚪: ResolveContext<YieldingComponent<T>>) {
       expectTypeOf(𝚪.this).toEqualTypeOf<YieldingComponent<T>>();
