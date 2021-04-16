@@ -213,6 +213,42 @@ describe('CLI: single-pass typechecking', () => {
     `);
   });
 
+  test('reports correct diagnostics given @glint-expect-error and @glint-ignore directives', async () => {
+    project.write('.glintrc', 'environment: ember-loose\n');
+
+    let script = stripIndent`
+      import Component from '@glint/environment-ember-loose/ember-component';
+
+      export default class MyComponent extends Component {}
+    `;
+
+    let template = stripIndent`
+      {{! @glint-ignore }}
+      {{@message}},
+
+      {{! @glint-expect-error }}
+      {{this.target}}
+
+      {{! @glint-expect-error }}
+      Hello.
+    `;
+
+    project.write('my-component.ts', script);
+    project.write('my-component.hbs', template);
+
+    let checkResult = await project.check({ reject: false });
+
+    expect(checkResult.exitCode).toBe(1);
+    expect(checkResult.stdout).toEqual('');
+    expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+      "my-component.hbs:7:1 - error TS0: Unused '@glint-expect-error' directive.
+
+      7 {{! @glint-expect-error }}
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+      "
+    `);
+  });
+
   test('honors .glintrc configuration', async () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';

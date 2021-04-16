@@ -33,7 +33,7 @@ export function templateToTypescript(
     preamble = [],
   }: TemplateToTypescriptOptions
 ): RewriteResult {
-  return mapTemplateContents(template, (ast, { emit, rangeForNode }) => {
+  return mapTemplateContents(template, (ast, { emit, record, rangeForLine, rangeForNode }) => {
     let scope = new ScopeStack(identifiersInScope);
 
     emit.text('(() => {');
@@ -81,10 +81,12 @@ export function templateToTypescript(
           throw new Error(`Internal error: unexpected top-level ${node.type}`);
 
         case 'TextNode':
-        case 'CommentStatement':
-        case 'MustacheCommentStatement':
           // Nothing to be done
           return;
+
+        case 'CommentStatement':
+        case 'MustacheCommentStatement':
+          return emitComment(node);
 
         case 'MustacheStatement':
           return emitTopLevelMustacheStatement(node);
@@ -97,6 +99,24 @@ export function templateToTypescript(
 
         default:
           unreachable(node);
+      }
+    }
+
+    function emitComment(node: AST.MustacheCommentStatement | AST.CommentStatement): void {
+      emit.nothing(node);
+
+      let text = node.value.trim();
+      let match = /^@glint-([a-z-]+)/i.exec(text);
+      if (!match) return;
+
+      let kind = match[1];
+      let location = rangeForNode(node);
+      if (kind === 'ignore') {
+        record.directive(kind, location, rangeForLine(node.loc.end.line + 1));
+      } else if (kind === 'expect-error') {
+        record.directive(kind, location, rangeForLine(node.loc.end.line + 1));
+      } else {
+        record.error(`Unknown directive @glint-${kind}`, location);
       }
     }
 
@@ -332,6 +352,10 @@ export function templateToTypescript(
       emit.forNode(node, () => {
         let { start, path, kind } = tagNameToPathContents(node);
 
+        for (let comment of node.comments) {
+          emitComment(comment);
+        }
+
         emit.text('{');
         emit.newline();
         emit.indent();
@@ -382,6 +406,11 @@ export function templateToTypescript(
           let blocks = determineBlockChildren(node);
           if (blocks.type === 'named') {
             for (let child of blocks.children) {
+              if (child.type === 'CommentStatement' || child.type === 'MustacheCommentStatement') {
+                emitComment(child);
+                continue;
+              }
+
               let childStart = rangeForNode(child).start;
               let nameStart = template.indexOf(child.tag, childStart) + ':'.length;
               let blockParamsStart = template.indexOf('|', childStart);
@@ -430,8 +459,9 @@ export function templateToTypescript(
       return node.type === 'ElementNode' && node.tag.startsWith(':');
     }
 
+    type NamedBlockChild = AST.ElementNode | AST.CommentStatement | AST.MustacheCommentStatement;
     type BlockChildren =
-      | { type: 'named'; children: AST.ElementNode[] }
+      | { type: 'named'; children: NamedBlockChild[] }
       | { type: 'default'; children: AST.TopLevelStatement[] };
 
     function determineBlockChildren(node: AST.ElementNode): BlockChildren {
@@ -456,8 +486,11 @@ export function templateToTypescript(
         return {
           type: 'named',
           children: node.children.filter(
-            // Filter out blank `TextNode`s, comments, etc
-            (child): child is AST.ElementNode => child.type === 'ElementNode'
+            // Filter out ignorable content between named blocks
+            (child): child is NamedBlockChild =>
+              child.type === 'ElementNode' ||
+              child.type === 'CommentStatement' ||
+              child.type === 'MustacheCommentStatement'
           ),
         };
       } else {
@@ -481,6 +514,10 @@ export function templateToTypescript(
 
     function emitPlainElement(node: AST.ElementNode): void {
       emit.forNode(node, () => {
+        for (let comment of node.comments) {
+          emitComment(comment);
+        }
+
         emit.text('{');
         emit.newline();
         emit.indent();

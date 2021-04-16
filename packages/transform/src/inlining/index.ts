@@ -1,11 +1,12 @@
 import { NodePath, types as t } from '@babel/core';
 import generate from '@babel/generator';
-import { CorrelatedSpan, TransformError } from '../transformed-module';
+import { CorrelatedSpan, Directive, TransformError } from '../transformed-module';
 
 export type PartialCorrelatedSpan = Omit<CorrelatedSpan, 'transformedStart' | 'transformedLength'>;
 
 export type CorrelatedSpansResult = {
   errors: Array<TransformError>;
+  directives: Array<Directive>;
   partialSpans: Array<PartialCorrelatedSpan>;
 };
 

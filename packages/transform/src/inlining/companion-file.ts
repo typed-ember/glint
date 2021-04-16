@@ -3,7 +3,7 @@ import { GlintEnvironment } from '@glint/config';
 import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } from '.';
 import MappingTree, { ParseError } from '../mapping-tree';
 import { templateToTypescript } from '../template-to-typescript';
-import { SourceFile, TransformError } from '../transformed-module';
+import { Directive, SourceFile, TransformError } from '../transformed-module';
 import { assert } from '../util';
 
 const STANDALONE_TEMPLATE_FIELD = `'~template'`;
@@ -15,6 +15,7 @@ export function calculateCompanionTemplateSpans(
   environment: GlintEnvironment
 ): CorrelatedSpansResult {
   let errors: Array<TransformError> = [];
+  let directives: Array<Directive> = [];
   let partialSpans: Array<PartialCorrelatedSpan> = [];
   let typesPath = environment.getTypesForStandaloneTemplate();
   if (!typesPath) {
@@ -24,7 +25,7 @@ export function calculateCompanionTemplateSpans(
       message: `Glint environment ${environment.name} does not support standalone template files`,
     });
 
-    return { errors, partialSpans };
+    return { errors, directives, partialSpans };
   }
 
   let targetPath = findCompanionTemplateTarget(path);
@@ -38,7 +39,7 @@ export function calculateCompanionTemplateSpans(
       },
     });
 
-    return { errors, partialSpans };
+    return { errors, directives, partialSpans };
   }
 
   let target = targetPath.node;
@@ -70,6 +71,15 @@ export function calculateCompanionTemplateSpans(
     );
 
     if (transformedTemplate.result) {
+      directives.push(
+        ...transformedTemplate.result.directives.map(({ kind, location, areaOfEffect }) => ({
+          kind,
+          location,
+          areaOfEffect,
+          source: template,
+        }))
+      );
+
       partialSpans.push(
         {
           originalFile: template,
@@ -115,7 +125,7 @@ export function calculateCompanionTemplateSpans(
     // TODO: handle opaque expression like an imported identifier or `templateOnlyComponent()`
   }
 
-  return { errors, partialSpans };
+  return { errors, directives, partialSpans };
 }
 
 type CompanionTemplateTarget = NodePath<t.Class> | NodePath<t.Expression> | null;

@@ -1,5 +1,6 @@
 import TransformManager from '../common/transform-manager';
 import { GlintConfig } from '@glint/config';
+import { buildDiagnosticFormatter } from './diagnostics';
 
 export function performWatch(
   ts: typeof import('typescript'),
@@ -8,12 +9,13 @@ export function performWatch(
   optionsToExtend: import('typescript').CompilerOptions
 ): void {
   let transformManager = new TransformManager(ts, glintConfig);
+  let formatDiagnostic = buildDiagnosticFormatter(ts);
   let host = ts.createWatchCompilerHost(
     tsconfigPath ?? 'tsconfig.json',
     optionsToExtend,
     sysForWatchCompilerHost(ts, transformManager),
     ts.createSemanticDiagnosticsBuilderProgram,
-    (diagnostic) => console.error(transformManager.formatDiagnostic(diagnostic))
+    (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
 
   patchWatchCompilerHost(host, transformManager);
@@ -44,10 +46,16 @@ function patchWatchCompilerHost(host: WatchCompilerHost, transformManager: Trans
 }
 
 function patchProgram(program: Program, transformManager: TransformManager): void {
-  let { getSyntacticDiagnostics } = program;
+  let { getSyntacticDiagnostics, getSemanticDiagnostics } = program;
+
   program.getSyntacticDiagnostics = function (sourceFile, cancelationToken) {
     let diagnostics = getSyntacticDiagnostics.call(program, sourceFile, cancelationToken);
     let transformDiagnostics = transformManager.getTransformDiagnostics(sourceFile?.fileName);
     return [...diagnostics, ...transformDiagnostics];
+  };
+
+  program.getSemanticDiagnostics = (sourceFile, cancellationToken) => {
+    let diagnostics = getSemanticDiagnostics.call(program, sourceFile, cancellationToken);
+    return transformManager.rewriteDiagnostics(diagnostics, sourceFile?.fileName);
   };
 }

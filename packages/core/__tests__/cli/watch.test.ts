@@ -216,4 +216,44 @@ describe('CLI: watched typechecking', () => {
 
     await watch.terminate();
   });
+
+  test('reports correct diagnostics given @glint-expect-error and @glint-ignore directives', async () => {
+    project.write('.glintrc', 'environment: ember-loose\n');
+
+    let script = stripIndent`
+      import Component from '@glint/environment-ember-loose/ember-component';
+
+      export default class MyComponent extends Component {
+        // private target = 'world';
+      }
+    `;
+
+    let template = stripIndent`
+      {{! @glint-ignore }}
+      {{@message}},
+
+      {{! @glint-expect-error }}
+      {{this.target}}
+    `;
+
+    project.write('my-component.ts', script);
+    project.write('my-component.hbs', template);
+
+    let watch = project.watch();
+
+    let output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 0 errors.');
+
+    project.write('my-component.ts', script.replace('// ', ''));
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 1 error.');
+
+    project.write('my-component.ts', script);
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 0 errors.');
+
+    await watch.terminate();
+  });
 });

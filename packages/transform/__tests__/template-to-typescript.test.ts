@@ -70,6 +70,111 @@ describe('rewriteTemplate', () => {
     });
   });
 
+  describe('directives', () => {
+    test('in a top-level mustache', () => {
+      let template = stripIndent`
+        {{! @glint-ignore: this is fine }}
+        <Foo as |bar|>
+          {{hello}}
+        </Foo>
+      `;
+
+      let { result, errors } = templateToTypescript(template, { typesPath: '@glint/template' });
+
+      expect(errors).toEqual([]);
+      expect(result?.directives).toEqual([
+        {
+          kind: 'ignore',
+          location: {
+            start: template.indexOf('{{!'),
+            end: template.indexOf('fine }}') + 'fine }}'.length,
+          },
+          areaOfEffect: {
+            start: template.indexOf('<Foo as'),
+            end: template.indexOf('|bar|>') + '|bar|>'.length + 1,
+          },
+        },
+      ]);
+    });
+
+    test('in an element bobdy', () => {
+      let template = stripIndent`
+        <Foo
+          {{! @glint-ignore: this is fine }}
+          @arg="hi"
+          as |bar|
+        >
+          {{hello}}
+        </Foo>
+      `;
+
+      let { result, errors } = templateToTypescript(template, { typesPath: '@glint/template' });
+
+      expect(errors).toEqual([]);
+      expect(result?.directives).toEqual([
+        {
+          kind: 'ignore',
+          location: {
+            start: template.indexOf('{{!'),
+            end: template.indexOf('fine }}') + 'fine }}'.length,
+          },
+          areaOfEffect: {
+            start: template.indexOf('  @arg='),
+            end: template.indexOf('"hi"') + '"hi"'.length + 1,
+          },
+        },
+      ]);
+    });
+
+    test('expect-error', () => {
+      let template = stripIndent`
+        {{! @glint-expect-error: this is fine }}
+        <Foo as |bar|>
+          {{hello}}
+        </Foo>
+      `;
+
+      let { result, errors } = templateToTypescript(template, { typesPath: '@glint/template' });
+
+      expect(errors).toEqual([]);
+      expect(result?.directives).toEqual([
+        {
+          kind: 'expect-error',
+          location: {
+            start: template.indexOf('{{!'),
+            end: template.indexOf('fine }}') + 'fine }}'.length,
+          },
+          areaOfEffect: {
+            start: template.indexOf('<Foo as'),
+            end: template.indexOf('|bar|>') + '|bar|>'.length + 1,
+          },
+        },
+      ]);
+    });
+
+    test('unknown type', () => {
+      let template = stripIndent`
+        {{! @glint-check }}
+        <Foo as |bar|>
+          {{hello}}
+        </Foo>
+      `;
+
+      let { result, errors } = templateToTypescript(template, { typesPath: '@glint/template' });
+
+      expect(result?.directives).toEqual([]);
+      expect(errors).toEqual([
+        {
+          message: 'Unknown directive @glint-check',
+          location: {
+            start: template.indexOf('{{!'),
+            end: template.indexOf('}}') + '}}'.length,
+          },
+        },
+      ]);
+    });
+  });
+
   describe('primitives', () => {
     describe('{{if}}', () => {
       test('without an alternate', () => {

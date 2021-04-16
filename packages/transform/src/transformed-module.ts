@@ -23,6 +23,14 @@ export type CorrelatedSpan = {
   mapping?: MappingTree;
 };
 
+export type DirectiveKind = 'ignore' | 'expect-error';
+export type Directive = {
+  kind: DirectiveKind;
+  source: SourceFile;
+  location: Range;
+  areaOfEffect: Range;
+};
+
 export type TransformError = {
   message: string;
   location: Range;
@@ -48,6 +56,7 @@ export default class TransformedModule {
   public constructor(
     public readonly transformedContents: string,
     public readonly errors: ReadonlyArray<TransformError>,
+    public readonly directives: ReadonlyArray<Directive>,
     private readonly correlatedSpans: Array<CorrelatedSpan>
   ) {}
 

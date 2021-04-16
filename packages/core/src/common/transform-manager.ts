@@ -1,4 +1,11 @@
-import { TransformedModule, rewriteModule, rewriteDiagnostic } from '@glint/transform';
+import {
+  TransformedModule,
+  rewriteModule,
+  rewriteDiagnostic,
+  Directive,
+  SourceFile,
+  Range,
+} from '@glint/transform';
 import type ts from 'typescript';
 import { GlintConfig } from '@glint/config';
 import { assert } from '@glint/transform/lib/util';
@@ -22,31 +29,46 @@ export default class TransformManager {
   public getTransformDiagnostics(fileName?: string): Array<ts.Diagnostic> {
     if (fileName) {
       let transformedModule = this.getTransformInfo(fileName)?.transformedModule;
-      return transformedModule ? this.buildDiagnostics(transformedModule) : [];
+      return transformedModule ? this.buildTransformDiagnostics(transformedModule) : [];
     }
 
     return [...this.transformCache.values()].flatMap((transformInfo) => {
       if (transformInfo.transformedModule) {
-        return this.buildDiagnostics(transformInfo.transformedModule);
+        return this.buildTransformDiagnostics(transformInfo.transformedModule);
       }
 
       return [];
     });
   }
 
-  public rewriteDiagnostic(diagnostic: ts.Diagnostic): ts.Diagnostic {
-    return rewriteDiagnostic(
-      this.ts,
-      diagnostic,
-      (fileName) => this.getTransformInfo(fileName)?.transformedModule
-    );
-  }
+  public rewriteDiagnostics(
+    diagnostics: ReadonlyArray<ts.Diagnostic>,
+    fileName?: string
+  ): ReadonlyArray<ts.Diagnostic> {
+    let unusedExpectErrors = new Set(this.getExpectErrorDirectives(fileName));
+    let allDiagnostics = [];
+    for (let diagnostic of diagnostics) {
+      let { rewrittenDiagnostic, appliedDirective } = this.rewriteDiagnostic(diagnostic);
+      if (rewrittenDiagnostic) {
+        allDiagnostics.push(rewrittenDiagnostic);
+      }
 
-  public formatDiagnostic(diagnostic: ts.Diagnostic): string {
-    return this.ts.formatDiagnosticsWithColorAndContext(
-      [this.rewriteDiagnostic(diagnostic)],
-      this.formatDiagnosticHost
-    );
+      if (appliedDirective?.kind === 'expect-error') {
+        unusedExpectErrors.delete(appliedDirective);
+      }
+    }
+
+    for (let directive of unusedExpectErrors) {
+      allDiagnostics.push(
+        this.buildDiagnostic(
+          directive.source,
+          `Unused '@glint-expect-error' directive.`,
+          directive.location
+        )
+      );
+    }
+
+    return this.ts.sortAndDeduplicateDiagnostics(allDiagnostics);
   }
 
   public getTransformedRange(
@@ -163,6 +185,48 @@ export default class TransformManager {
     }
   };
 
+  private getExpectErrorDirectives(filename?: string): Array<Directive> {
+    let transformInfos = filename
+      ? [this.getTransformInfo(filename)]
+      : [...this.transformCache.values()];
+
+    return transformInfos.flatMap((transformInfo) => {
+      if (!transformInfo.transformedModule) return [];
+
+      return transformInfo.transformedModule.directives.filter(
+        (directive) => directive.kind === 'expect-error'
+      );
+    });
+  }
+
+  private rewriteDiagnostic(
+    diagnostic: ts.Diagnostic
+  ): { rewrittenDiagnostic?: ts.Diagnostic; appliedDirective?: Directive } {
+    if (!diagnostic.file) return {};
+
+    let transformInfo = this.getTransformInfo(diagnostic.file?.fileName);
+    let rewrittenDiagnostic = rewriteDiagnostic(
+      this.ts,
+      diagnostic,
+      (fileName) => this.getTransformInfo(fileName)?.transformedModule
+    );
+
+    let appliedDirective = transformInfo.transformedModule?.directives.find(
+      (directive) =>
+        directive.source.filename === rewrittenDiagnostic.file?.fileName &&
+        directive.areaOfEffect.start <= rewrittenDiagnostic.start! &&
+        directive.areaOfEffect.end > rewrittenDiagnostic.start!
+    );
+
+    // All current directives have the effect of squashing any diagnostics they apply
+    // to, so if we have an applicable directive, we don't return the diagnostic.
+    if (appliedDirective) {
+      return { appliedDirective };
+    } else {
+      return { rewrittenDiagnostic };
+    }
+  }
+
   private findTransformInfoForOriginalFile(originalFileName: string): TransformInfo | null {
     let transformedFileName = isTemplate(originalFileName)
       ? this.documents.getCompanionDocumentPath(originalFileName)
@@ -209,24 +273,26 @@ export default class TransformManager {
     return cacheEntry;
   }
 
-  private readonly formatDiagnosticHost: ts.FormatDiagnosticsHost = {
-    getCanonicalFileName: (name) => name,
-    getCurrentDirectory: this.ts.sys.getCurrentDirectory,
-    getNewLine: () => this.ts.sys.newLine,
-  };
+  private buildTransformDiagnostics(
+    transformedModule: TransformedModule
+  ): Array<ts.DiagnosticWithLocation> {
+    return transformedModule.errors.map((error) =>
+      this.buildDiagnostic(error.source, error.message, error.location)
+    );
+  }
 
-  private buildDiagnostics(transformedModule: TransformedModule): Array<ts.DiagnosticWithLocation> {
-    return transformedModule.errors.map((error) => ({
+  private buildDiagnostic(
+    source: SourceFile,
+    message: string,
+    location: Range
+  ): ts.DiagnosticWithLocation {
+    return {
       category: this.ts.DiagnosticCategory.Error,
       code: 0,
-      file: this.ts.createSourceFile(
-        error.source.filename,
-        error.source.contents,
-        this.ts.ScriptTarget.Latest
-      ),
-      start: error.location.start,
-      length: error.location.end - error.location.start,
-      messageText: error.message,
-    }));
+      file: this.ts.createSourceFile(source.filename, source.contents, this.ts.ScriptTarget.Latest),
+      start: location.start,
+      length: location.end - location.start,
+      messageText: message,
+    };
   }
 }

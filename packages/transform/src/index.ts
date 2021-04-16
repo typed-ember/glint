@@ -6,12 +6,14 @@ import TransformedModule, {
   CorrelatedSpan,
   TransformError,
   SourceFile,
+  Directive,
+  Range,
 } from './transformed-module';
 import { CorrelatedSpansResult, PartialCorrelatedSpan } from './inlining';
 import { calculateTaggedTemplateSpans } from './inlining/tagged-strings';
 import { calculateCompanionTemplateSpans } from './inlining/companion-file';
 
-export { TransformedModule };
+export { TransformedModule, Directive, Range, SourceFile };
 
 /**
  * Given a TypeScript diagnostic object from a module that was rewritten
@@ -108,7 +110,7 @@ export function rewriteModule(
     return null;
   }
 
-  let { errors, partialSpans } = calculateCorrelatedSpans(
+  let { errors, directives, partialSpans } = calculateCorrelatedSpans(
     input.script,
     input.template,
     scriptAST,
@@ -122,7 +124,7 @@ export function rewriteModule(
   let sparseSpans = completeCorrelatedSpans(partialSpans);
   let { contents, correlatedSpans } = calculateTransformedSource(input.script, sparseSpans);
 
-  return new TransformedModule(contents, errors, correlatedSpans);
+  return new TransformedModule(contents, errors, directives, correlatedSpans);
 }
 
 /**
@@ -138,6 +140,7 @@ function calculateCorrelatedSpans(
   ast: t.File | t.Program,
   environment: GlintEnvironment
 ): CorrelatedSpansResult {
+  let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
   let partialSpans: Array<PartialCorrelatedSpan> = [];
   let defaultExportSeen = false;
@@ -146,6 +149,7 @@ function calculateCorrelatedSpans(
     TaggedTemplateExpression(path) {
       let result = calculateTaggedTemplateSpans(path, script, environment);
 
+      directives.push(...result.directives);
       errors.push(...result.errors);
       partialSpans.push(...result.partialSpans);
     },
@@ -161,6 +165,7 @@ function calculateCorrelatedSpans(
         let result = calculateCompanionTemplateSpans(declaration, script, template, environment);
 
         defaultExportSeen = true;
+        directives.push(...result.directives);
         errors.push(...result.errors);
         partialSpans.push(...result.partialSpans);
       }
@@ -175,7 +180,7 @@ function calculateCorrelatedSpans(
     });
   }
 
-  return { errors, partialSpans };
+  return { errors, directives, partialSpans };
 }
 
 /**
