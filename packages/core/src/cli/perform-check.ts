@@ -1,6 +1,7 @@
 import type ts from 'typescript';
 import TransformManager from '../common/transform-manager';
 import { GlintConfig } from '@glint/config';
+import { buildDiagnosticFormatter } from './diagnostics';
 
 export function performCheck(
   ts: typeof import('typescript'),
@@ -12,6 +13,7 @@ export function performCheck(
   let transformManager = new TransformManager(ts, glintConfig);
   let parsedConfig = loadTsconfig(ts, configPath, optionsToExtend);
   let compilerHost = createCompilerHost(ts, parsedConfig.options, transformManager);
+  let formatDiagnostic = buildDiagnosticFormatter(ts);
   let program = ts.createProgram({
     rootNames: rootNames.length ? rootNames : parsedConfig.fileNames,
     options: parsedConfig.options,
@@ -20,12 +22,13 @@ export function performCheck(
 
   program.emit();
 
-  let diagnostics = collectDiagnostics(program, transformManager, parsedConfig.options);
-  for (let diagnostic of diagnostics) {
-    console.error(transformManager.formatDiagnostic(diagnostic));
+  let baselineDiagnostics = collectDiagnostics(program, transformManager, parsedConfig.options);
+  let fullDiagnostics = transformManager.rewriteDiagnostics(baselineDiagnostics);
+  for (let diagnostic of fullDiagnostics) {
+    console.error(formatDiagnostic(diagnostic));
   }
 
-  process.exit(diagnostics.length ? 1 : 0);
+  process.exit(fullDiagnostics.length ? 1 : 0);
 }
 
 function collectDiagnostics(
