@@ -311,12 +311,14 @@ export default class GlintLanguageServer {
   }
 
   private findDiagnosticsSource(fileName: string): string | undefined {
-    if (isTemplate(fileName) && this.glintConfig.includesFile(fileName)) {
+    if (!isTemplate(fileName)) {
+      return fileName;
+    }
+
+    if (this.glintConfig.includesFile(fileName)) {
       let scriptPaths = this.glintConfig.environment.getPossibleScriptPaths(fileName);
       return scriptPaths.find((candidate) => this.documents.documentExists(candidate));
     }
-
-    return fileName;
   }
 
   private getTransformedOffset(
