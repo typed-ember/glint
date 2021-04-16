@@ -2,7 +2,7 @@ import { NodePath, types as t } from '@babel/core';
 import { GlintEnvironment } from '@glint/config';
 import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } from '.';
 import { templateToTypescript } from '../template-to-typescript';
-import { SourceFile, TransformError } from '../transformed-module';
+import { Directive, SourceFile, TransformError, Range } from '../transformed-module';
 import { assert } from '../util';
 
 export function calculateTaggedTemplateSpans(
@@ -10,12 +10,13 @@ export function calculateTaggedTemplateSpans(
   script: SourceFile,
   environment: GlintEnvironment
 ): CorrelatedSpansResult {
+  let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
   let partialSpans: Array<PartialCorrelatedSpan> = [];
   let tag = path.get('tag');
 
   if (!tag.isIdentifier()) {
-    return { errors, partialSpans };
+    return { errors, directives, partialSpans };
   }
 
   let typesPath = determineTypesPathForTag(tag, environment);
@@ -59,10 +60,7 @@ export function calculateTaggedTemplateSpans(
         errors.push({
           source: script,
           message,
-          location: {
-            start: path.node.start + location.start,
-            end: path.node.start + location.end,
-          },
+          location: addOffset(location, path.node.start),
         });
       } else {
         assert(path.node.tag.start, 'Missing location info');
@@ -80,20 +78,34 @@ export function calculateTaggedTemplateSpans(
     }
 
     if (transformedTemplate.result) {
-      let { code, mapping } = transformedTemplate.result;
+      for (let { kind, location, areaOfEffect } of transformedTemplate.result.directives) {
+        directives.push({
+          kind: kind,
+          source: script,
+          location: addOffset(location, path.node.start),
+          areaOfEffect: addOffset(areaOfEffect, path.node.start),
+        });
+      }
 
       partialSpans.push({
         originalFile: script,
         originalStart: path.node.start,
         originalLength: path.node.end - path.node.start,
         insertionPoint: path.node.start,
-        transformedSource: code,
-        mapping: mapping,
+        transformedSource: transformedTemplate.result.code,
+        mapping: transformedTemplate.result.mapping,
       });
     }
   }
 
-  return { errors, partialSpans };
+  return { errors, directives, partialSpans };
+}
+
+function addOffset(location: Range, offset: number): Range {
+  return {
+    start: location.start + offset,
+    end: location.end + offset,
+  };
 }
 
 function determineTypesPathForTag(
