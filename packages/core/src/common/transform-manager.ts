@@ -1,9 +1,15 @@
-import { TransformedModule, rewriteModule, rewriteDiagnostic } from '@glint/transform';
+import {
+  TransformedModule,
+  rewriteModule,
+  rewriteDiagnostic,
+  Directive,
+  SourceFile,
+  Range,
+} from '@glint/transform';
 import type ts from 'typescript';
 import { GlintConfig } from '@glint/config';
 import { assert } from '@glint/transform/lib/util';
 import DocumentCache, { isTemplate } from './document-cache';
-import { Directive, Range, SourceFile } from '@glint/transform/src/transformed-module';
 
 type TransformInfo = {
   version: string;

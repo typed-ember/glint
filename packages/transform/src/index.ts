@@ -7,12 +7,13 @@ import TransformedModule, {
   TransformError,
   SourceFile,
   Directive,
+  Range,
 } from './transformed-module';
 import { CorrelatedSpansResult, PartialCorrelatedSpan } from './inlining';
 import { calculateTaggedTemplateSpans } from './inlining/tagged-strings';
 import { calculateCompanionTemplateSpans } from './inlining/companion-file';
 
-export { TransformedModule };
+export { TransformedModule, Directive, Range, SourceFile };
 
 /**
  * Given a TypeScript diagnostic object from a module that was rewritten
