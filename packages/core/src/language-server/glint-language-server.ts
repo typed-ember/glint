@@ -88,27 +88,30 @@ export default class GlintLanguageServer {
     let sourcePath = this.findDiagnosticsSource(filePath);
     if (!sourcePath) return [];
 
-    return [
+    let diagnostics = [
       ...this.service.getSyntacticDiagnostics(sourcePath),
       ...this.transformManager.getTransformDiagnostics(sourcePath),
       ...this.service.getSemanticDiagnostics(sourcePath),
       ...this.service.getSuggestionDiagnostics(sourcePath),
-    ].flatMap((transformedDiagnostic) => {
-      let diagnostic = this.transformManager.rewriteDiagnostic(transformedDiagnostic);
-      let { start = 0, length = 0, messageText, file } = diagnostic;
-      if (!file || file.fileName !== filePath) return [];
+    ];
 
-      return {
-        severity: severityForDiagnostic(diagnostic),
-        message: this.ts.flattenDiagnosticMessageText(messageText, '\n'),
-        source: `glint${diagnostic.code ? `:ts(${diagnostic.code})` : ''}`,
-        tags: tagsForDiagnostic(diagnostic),
-        range: {
-          start: offsetToPosition(file.getText(), start),
-          end: offsetToPosition(file.getText(), start + length),
-        },
-      };
-    });
+    return this.transformManager
+      .rewriteDiagnostics(diagnostics, sourcePath)
+      .flatMap((diagnostic) => {
+        let { start = 0, length = 0, messageText, file } = diagnostic;
+        if (!file || file.fileName !== filePath) return [];
+
+        return {
+          severity: severityForDiagnostic(diagnostic),
+          message: this.ts.flattenDiagnosticMessageText(messageText, '\n'),
+          source: `glint${diagnostic.code ? `:ts(${diagnostic.code})` : ''}`,
+          tags: tagsForDiagnostic(diagnostic),
+          range: {
+            start: offsetToPosition(file.getText(), start),
+            end: offsetToPosition(file.getText(), start + length),
+          },
+        };
+      });
   }
 
   public findSymbols(query: string): Array<SymbolInformation> {
