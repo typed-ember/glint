@@ -55,16 +55,10 @@ export function calculateCompanionTemplateSpans(
       });
     }
 
-    let preamble = [];
-    if (className) {
-      preamble.push(`${className}[${STANDALONE_TEMPLATE_FIELD}];`);
-    }
-
     let transformedTemplate = templateToTypescript(template.contents, {
       typesPath,
       contextType,
       typeParams,
-      preamble,
     });
 
     errors.push(
@@ -82,7 +76,7 @@ export function calculateCompanionTemplateSpans(
           originalStart: 0,
           originalLength: 0,
           insertionPoint: target.end - 1,
-          transformedSource: `private static ${STANDALONE_TEMPLATE_FIELD} = `,
+          transformedSource: `protected static ${STANDALONE_TEMPLATE_FIELD} = `,
         },
         {
           originalFile: template,
