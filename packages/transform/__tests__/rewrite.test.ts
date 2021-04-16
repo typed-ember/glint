@@ -147,8 +147,7 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
         export default class MyComponent extends Component {
-        private static '~template' = (() => {
-          MyComponent['~template'];
+        protected static '~template' = (() => {
           let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
           return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>) {
             𝚪;
@@ -180,8 +179,7 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
         class MyComponent extends Component {
-        private static '~template' = (() => {
-          MyComponent['~template'];
+        protected static '~template' = (() => {
           let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
           return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>) {
             𝚪;
@@ -213,8 +211,7 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
         export default class MyComponent<K extends string> extends Component<{ value: K }> {
-        private static '~template' = (() => {
-          MyComponent['~template'];
+        protected static '~template' = (() => {
           let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
           return χ.template(function<K extends string>(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent<K>>) {
             𝚪;
@@ -255,7 +252,7 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
         export default class extends Component {
-        private static '~template' = (() => {
+        protected static '~template' = (() => {
           let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
           return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<unknown>) {
             𝚪;
@@ -353,8 +350,7 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
         export default class MyComponent extends Component {
-        private static '~template' = (() => {
-          MyComponent['~template'];
+        protected static '~template' = (() => {
           let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
           return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>) {
             𝚪;
