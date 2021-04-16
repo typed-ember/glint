@@ -13,6 +13,57 @@ describe('Language Server: Diagnostics', () => {
     await project.destroy();
   });
 
+  test('querying an excluded template', () => {
+    let script = stripIndent`
+      import Component from '@glint/environment-glimmerx/component';
+
+      type ApplicationArgs = {
+        version: string;
+      };
+
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
+        private startupTime = new Date().toISOString();
+      }
+    `;
+
+    let template = stripIndent`
+      Welcome to app v{{@nonexistentArg}}.
+      The current time is {{this.startupTime}}.
+    `;
+
+    project.write('.glintrc', 'environment: ember-loose\ninclude: []\n');
+    project.write('index.ts', script);
+    project.write('index.hbs', template);
+
+    let server = project.startLanguageServer();
+    let scriptDiagnostics = server.getDiagnostics(project.fileURI('index.ts'));
+    let templateDiagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
+
+    expect(templateDiagnostics).toEqual([]);
+    expect(scriptDiagnostics).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "message": "'startupTime' is declared but its value is never read.",
+          "range": Object {
+            "end": Object {
+              "character": 21,
+              "line": 7,
+            },
+            "start": Object {
+              "character": 10,
+              "line": 7,
+            },
+          },
+          "severity": 2,
+          "source": "glint:ts(6133)",
+          "tags": Array [
+            1,
+          ],
+        },
+      ]
+    `);
+  });
+
   test('reports diagnostics for an inline template type error', () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';
