@@ -1,6 +1,6 @@
 import { AST, preprocess } from '@glimmer/syntax';
 import MappingTree from './mapping-tree';
-import { Range } from './transformed-module';
+import { Directive, DirectiveKind, Range } from './transformed-module';
 import { assert } from './util';
 
 /**
@@ -24,6 +24,25 @@ export type Mapper = {
    */
   rangeForNode: (node: AST.Node) => Range;
 
+  /**
+   * Given a 0-based line number, returns the corresponding start and
+   * end offsets for that line.
+   */
+  rangeForLine: (line: number) => Range;
+
+  record: {
+    /**
+     * Captures the existence of a directive specified by the given source
+     * node and affecting the given range of text.
+     */
+    directive: (type: DirectiveKind, location: Range, areaOfEffect: Range) => void;
+
+    /**
+     * Records an error at the given location.
+     */
+    error: (message: string, location: Range) => void;
+  };
+
   emit: {
     /** Emit a newline in the transformed source */
     newline(): void;
@@ -44,6 +63,13 @@ export type Mapper = {
     synthetic(value: string): void;
 
     /**
+     * Essentially the inverse of `emit.synthetic`, this notes the
+     * presence of a template AST node at a given location while not
+     * emitting anything in the resulting TS translation.
+     */
+    nothing(node: AST.Node): void;
+
+    /**
      * Append the given value to the transformed source, mapping
      * that span back to the given offset in the original source.
      */
@@ -56,6 +82,8 @@ export type Mapper = {
     forNode(node: AST.Node, callback: () => void): void;
   };
 };
+
+type LocalDirective = Omit<Directive, 'source'>;
 
 /** The result of rewriting a template */
 export type RewriteResult = {
@@ -72,6 +100,7 @@ export type RewriteResult = {
    */
   result?: {
     code: string;
+    directives: Array<LocalDirective>;
     mapping: MappingTree;
   };
 };
@@ -111,6 +140,10 @@ export function mapTemplateContents(
   }
 
   let rangeForNode = buildRangeForNode(lineOffsets);
+  let rangeForLine = (line: number): Range => ({
+    start: lineOffsets[line],
+    end: lineOffsets[line + 1] ?? template.length,
+  });
 
   let segmentsStack: string[][] = [[]];
   let mappingsStack: MappingTree[][] = [[]];
@@ -118,6 +151,7 @@ export function mapTemplateContents(
   let offset = 0;
   let needsIndent = false;
   let errors: Array<{ message: string; location: Range }> = [];
+  let directives: Array<LocalDirective> = [];
 
   // Associates all content emitted during the given callback with the
   // given range in the template source and corresponding AST node.
@@ -157,6 +191,15 @@ export function mapTemplateContents(
     }
   };
 
+  let record = {
+    error(message: string, location: Range) {
+      errors.push({ message, location });
+    },
+    directive(kind: DirectiveKind, location: Range, areaOfEffect: Range) {
+      directives.push({ kind, location, areaOfEffect });
+    },
+  };
+
   let emit = {
     indent() {
       indent += '  ';
@@ -184,6 +227,9 @@ export function mapTemplateContents(
         emit.identifier(value, 0, 0);
       }
     },
+    nothing(node: AST.Node) {
+      captureMapping(rangeForNode(node), node, true, () => {});
+    },
     identifier(value: string, hbsOffset: number, hbsLength = value.length) {
       // If there's a pending indent, flush that so it's not included in
       // the range mapping for the identifier we're about to emit
@@ -200,7 +246,7 @@ export function mapTemplateContents(
     },
   };
 
-  callback(ast, { emit, rangeForNode });
+  callback(ast, { emit, record, rangeForLine, rangeForNode });
 
   assert(segmentsStack.length === 1);
 
@@ -212,7 +258,7 @@ export function mapTemplateContents(
     ast
   );
 
-  return { errors, result: { code, mapping } };
+  return { errors, result: { code, directives, mapping } };
 }
 
 const LEADING_WHITESPACE = /^\s+/;
