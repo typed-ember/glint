@@ -247,6 +247,30 @@ declare module '@glint/environment-ember-loose/registry' {
 }
 ```
 
+If you've nested your component inside folder(s), you'll need to add the full "strong" name of the component to the registry. And, if you're expecting to invoke your component with currlies or the `{{componet}}` helper, you'll need to add the component to the registry twice -- once using the `::` delimiter syntax and once using the `/` delimiter syntax. For example:
+
+```ts
+// app/components/grouping/my-component.ts
+export default class MyComponent extends Component {}
+export default interface Registry {
+  'Grouping::MyComponent': typeof MyComponent;
+  'grouping/my-component': typeof MyComponent;
+}
+```
+This would let glint understand the component if it's invoked in any of the following ways:
+```hbs
+<Grouping::MyComponent />
+
+{{grouping/my-component}}
+
+{{#let (component 'grouping/my-component') as |Foo|}}
+  <Foo />
+{{/let}}
+```
+
+With strict mode and template imports, the day is coming when we won't need this anymore, because any components/helpers/modifiers you use will already be statically in scope, but for now this is about the best we can do.
+
+
 #### Contextual Components
 
 When you yield a contextual component, e.g. `{{yield (component "my-component" foo="bar")}}`, you need some way to declare the type of that value in your component signature. For this you can use the `ComponentLike` type, or the `ComponentWithBoundArgs` shorthand.
