@@ -1,32 +1,59 @@
 {{this.name}}
 
+{{! @glint-expect-error: invalid property }}
 {{this.corge}}
 
 <Bar @grault={{0}} />
 
-<Bar @grault={{this.obj.a}} />
+<Bar
+  {{! @glint-expect-error: wrong type }}
+  @grault={{this.obj.a}}
+/>
 
-<Bar @fred={{2}} />
+<Bar
+  {{! @glint-expect-error: bad arg }}
+  @fred={{2}}
+/>
 
+{{! @glint-expect-error: missing required arg }}
 <Bar />
 
 <Baz />
 
 <Qux />
 
+{{! @glint-expect-error: missing required arg }}
 <EmberComponent />
 
 <EmberComponent @required="req" />
 
-<EmberComponent @required={{1}} />
+<EmberComponent
+  {{! @glint-expect-error: bad type for `required` }}
+  @required={{1}}
+/>
 
 <EmberComponent @required="req" @optional={{1}} />
 
-<EmberComponent @required="req" @optional="opt" />
+<EmberComponent
+  @required="req"
+
+  {{! @glint-expect-error: bad type for `optional` }}
+  @optional="opt"
+/>
 
 <EmberComponent @required="req" @hasDefault="override" />
 
-<EmberComponent @required="req" @hasDefault={{false}} />
+<EmberComponent
+  @required="req"
+
+  {{! @glint-expect-error: bad type for `hasDefault` }}
+  @hasDefault={{false}}
+/>
+
+<EmberComponent @required="hi">
+  {{! @glint-expect-error: bad named block }}
+  <:foo>hello</:foo>
+</EmberComponent>
 
 <WrapperComponent @value="req" as |WC|>
   <WC.InnerComponent @optional={{1}} class="custom" />
@@ -34,12 +61,14 @@
   {{! should work, even though MaybeComponent might not be present }}
   <WC.MaybeComponent @key="hi" />
 
-  {{! should fail, since a string is not invokable }}
+  {{! @glint-expect-error: strings aren't invokable }}
   <WC.stringValue />
 </WrapperComponent>
 
 {{repeat "foo" 3}}
 
+{{! @glint-expect-error: missing second arg }}
 {{repeat "foo"}}
 
+{{! @glint-expect-error: incorrect type for second arg }}
 {{repeat "foo" "bar"}}

@@ -16,7 +16,9 @@
     "lint:hbs": "ember-template-lint .",
     "lint:js": "eslint .",
     "start": "ember serve",
-    "test": "ember test"
+    "test": "npm-run-all typecheck test:browsers",
+    "typecheck": "glint",
+    "test:browsers": "ember test"
   },
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
@@ -41,6 +43,7 @@
     "ember-fetch": "^8.0.2",
     "ember-load-initializers": "^2.1.1",
     "ember-modifier": "^2.1.1",
+    "ember-named-blocks-polyfill": "^0.2.4",
     "ember-qunit": "^4.6.0",
     "ember-resolver": "^8.0.2",
     "ember-source": "~3.22.0",
