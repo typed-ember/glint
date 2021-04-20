@@ -10,6 +10,8 @@ import { ComponentWithBoundArgs, ComponentLike } from '@glint/environment-ember-
 
 const componentKeyword = resolve({} as ComponentKeyword<LocalRegistry>);
 
+declare function maybe<T>(arg: T): T | undefined;
+
 type LocalRegistry = {
   string: typeof StringComponent;
   parametric: typeof ParametricComponent;
@@ -24,6 +26,9 @@ class StringComponent extends Component<{
 const NoopCurriedStringComponent = componentKeyword({}, 'string');
 const ValueCurriedStringComponent = componentKeyword({ value: 'hello' }, 'string');
 
+const MaybeNoopCurriedStringComponent = componentKeyword({}, maybe('string'));
+const MaybeValueCurriedStringComponent = componentKeyword({ value: 'hello' }, maybe('string'));
+
 // Once value is curried, it should be optional in args
 expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
   ComponentLike<{
@@ -31,6 +36,12 @@ expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
     Args: { value?: string };
     Yields: { default?: [string] };
   }>
+>();
+
+// {{component maybeAString}} returns Component | null
+expectTypeOf(MaybeNoopCurriedStringComponent).toEqualTypeOf<null | typeof StringComponent>();
+expectTypeOf(MaybeValueCurriedStringComponent).toEqualTypeOf<
+  null | typeof ValueCurriedStringComponent
 >();
 
 // This is also equivalent to this `ComponentWithBoundArgs` shorthand:
@@ -220,6 +231,15 @@ const DoubleCurriedComponent = componentKeyword(
   { optional: 'hi' },
   RequiredValueCurriedParametricComponent
 );
+
+const MaybeDoubleCurriedParametricComponent = componentKeyword(
+  { optional: 'hi' },
+  maybe(RequiredValueCurriedParametricComponent)
+);
+
+expectTypeOf(MaybeDoubleCurriedParametricComponent).toEqualTypeOf<
+  null | typeof DoubleCurriedComponent
+>();
 
 // Invoking the component with no args
 {
