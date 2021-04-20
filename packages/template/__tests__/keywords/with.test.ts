@@ -14,7 +14,7 @@ const withKeyword = resolve({} as WithKeyword);
   }
 
   {
-    component.blockParams.inverse;
+    component.blockParams.else;
   }
 }
 

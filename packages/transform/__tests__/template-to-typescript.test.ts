@@ -291,7 +291,7 @@ describe('rewriteTemplate', () => {
                 χ.emitValue(χ.resolveOrReturn(ok)({}));
               }
               {
-                const [] = 𝛄.blockParams.inverse;
+                const [] = 𝛄.blockParams.else;
                 χ.emitValue(χ.resolveOrReturn(𝚪.args.nevermind)({}));
               }
               χ.Globals[\\"doAThing\\"];
@@ -353,6 +353,26 @@ describe('rewriteTemplate', () => {
 
         expect(templateBody(template)).toMatchInlineSnapshot(
           `"χ.yieldToBlock(𝚪, \\"body\\", 123);"`
+        );
+      });
+
+      test('{{yield}} to else', () => {
+        let template = stripIndent`
+          {{yield 123 to="else"}}
+        `;
+
+        expect(templateBody(template)).toMatchInlineSnapshot(
+          `"χ.yieldToBlock(𝚪, \\"else\\", 123);"`
+        );
+      });
+
+      test('{{yield}} to inverse', () => {
+        let template = stripIndent`
+          {{yield 123 to="inverse"}}
+        `;
+
+        expect(templateBody(template)).toMatchInlineSnapshot(
+          `"χ.yieldToBlock(𝚪, \\"else\\", 123);"`
         );
       });
     });
@@ -687,7 +707,7 @@ describe('rewriteTemplate', () => {
       `);
     });
 
-    test('invocation with an inverse block', () => {
+    test('invocation with an else block', () => {
       let template = stripIndent`
         {{#foo as |bar baz|}}
           {{bar}}: {{baz}}
@@ -705,7 +725,7 @@ describe('rewriteTemplate', () => {
             χ.emitValue(χ.resolveOrReturn(baz)({}));
           }
           {
-            const [] = 𝛄.blockParams.inverse;
+            const [] = 𝛄.blockParams.else;
             χ.emitValue(χ.resolveOrReturn(𝚪.args.oh)({}));
           }
           χ.Globals[\\"foo\\"];
@@ -713,7 +733,7 @@ describe('rewriteTemplate', () => {
       `);
     });
 
-    test('chained inverse', () => {
+    test('chained else', () => {
       let template = stripIndent`
         {{#foo as |bar baz|}}
           {{bar}}: {{baz}}
@@ -731,7 +751,7 @@ describe('rewriteTemplate', () => {
             χ.emitValue(χ.resolveOrReturn(baz)({}));
           }
           {
-            const [] = 𝛄.blockParams.inverse;
+            const [] = 𝛄.blockParams.else;
             χ.emitValue(χ.resolveOrReturn(𝚪.args.oh)({}));
           }
           χ.Globals[\\"foo\\"];

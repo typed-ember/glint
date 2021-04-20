@@ -16,7 +16,7 @@ let each = resolve(Globals['each']);
   }
 
   {
-    const [...args] = component.blockParams.inverse;
+    const [...args] = component.blockParams.else;
     expectTypeOf(args).toEqualTypeOf<[]>();
   }
 }

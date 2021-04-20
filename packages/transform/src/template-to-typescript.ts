@@ -671,7 +671,12 @@ export function templateToTypescript(
           to = toPair.value.value;
         }
 
+        if (to === 'inverse') {
+          to = 'else';
+        }
+
         emit.text('χ.yieldToBlock(𝚪, ');
+
         emit.text(JSON.stringify(to));
 
         for (let param of node.params) {
@@ -780,7 +785,7 @@ export function templateToTypescript(
         emitBlock('default', node.program);
 
         if (node.inverse) {
-          emitBlock('inverse', node.inverse);
+          emitBlock('else', node.inverse);
         }
 
         // TODO: emit something corresponding to `{{/foo}}` like we do
