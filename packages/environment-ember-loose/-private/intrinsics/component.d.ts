@@ -17,6 +17,12 @@ type RegistryComponentReturn<Registry, T extends keyof Registry> = Registry[T] e
   ? Return
   : unknown;
 
+type PartiallyAppliedComponent<AllArgs, GivenArgs, Return> = Invokable<
+  (
+    args: Omit<AllArgs, keyof GivenArgs> & Partial<Pick<AllArgs, keyof GivenArgs & keyof AllArgs>>
+  ) => Return
+>;
+
 export type ComponentKeyword<Registry> = DirectInvokable<{
   // {{component "some-name"}}
   <Name extends keyof Registry>(args: EmptyObject, component: Name): Registry[Name];
@@ -25,17 +31,11 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
   <Name extends keyof Registry, GivenArgs extends Partial<RegistryComponentArgs<Registry, Name>>>(
     args: GivenArgs,
     component: Name
-  ): new () => Invokable<{
-    (
-      args: Omit<RegistryComponentArgs<Registry, Name>, keyof GivenArgs> &
-        Partial<
-          Pick<
-            RegistryComponentArgs<Registry, Name>,
-            keyof GivenArgs & keyof RegistryComponentArgs<Registry, Name>
-          >
-        >
-    ): RegistryComponentReturn<Registry, Name>;
-  }>;
+  ): new () => PartiallyAppliedComponent<
+    RegistryComponentArgs<Registry, Name>,
+    GivenArgs,
+    RegistryComponentReturn<Registry, Name>
+  >;
 
   // {{component someCurriedComponent arg=value}}
   <
@@ -46,7 +46,5 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
   >(
     args: GivenArgs,
     component: new (...args: ConstructorArgs) => Invokable<(args: Args) => Return>
-  ): new () => Invokable<{
-    (args: Omit<Args, keyof GivenArgs> & Partial<Pick<Args, keyof GivenArgs & keyof Args>>): Return;
-  }>;
+  ): new () => PartiallyAppliedComponent<Args, GivenArgs, Return>;
 }>;
