@@ -93,6 +93,11 @@ import { EmptyObject } from '@glint/template/-private/integration';
     oops: true,
   });
 
+  type InferSignature<T> = T extends Component<infer Signature> ? Signature : never;
+  expectTypeOf<InferSignature<YieldingComponent<number>>>().toEqualTypeOf<
+    YieldingComponentSignature<number>
+  >();
+
   {
     const component = emitComponent(resolve(YieldingComponent)({ values: [] }));
 

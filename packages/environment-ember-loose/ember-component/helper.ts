@@ -2,6 +2,7 @@ import type { Invoke, Invokable, EmptyObject } from '@glint/template/-private/in
 import type { AsObjectType } from '../-private/utilities';
 
 declare const Ember: { Helper: EmberHelperConstructor };
+declare const GivenSignature: unique symbol;
 
 type EmberHelper = import('@ember/component/helper').default;
 type EmberHelperConstructor = typeof import('@ember/component/helper').default;
@@ -36,6 +37,9 @@ interface Helper<T extends HelperSignature> extends Omit<EmberHelper, 'compute'>
     params: Get<T, 'PositionalArgs', []>,
     hash: Get<T, 'NamedArgs'>
   ): Get<T, 'Return', undefined>;
+
+  // Allows `extends Helper<infer Signature>` clauses to work as expected
+  [GivenSignature]: T;
 
   [Invoke]: (
     named: Get<T, 'NamedArgs'>,

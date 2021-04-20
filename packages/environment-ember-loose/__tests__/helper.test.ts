@@ -81,6 +81,12 @@ expectTypeOf(Helper.extend).toEqualTypeOf(UpstreamEmberHelper.extend);
 
   expectTypeOf(repeat({ value: 'hi' })).toEqualTypeOf<Array<string>>();
   expectTypeOf(repeat({ value: 123, count: 3 })).toEqualTypeOf<Array<number>>();
+
+  type InferSignature<T> = T extends Helper<infer Signature> ? Signature : never;
+  expectTypeOf<InferSignature<RepeatHelper<number>>>().toEqualTypeOf<{
+    NamedArgs: RepeatArgs<number>;
+    Return: Array<number>;
+  }>();
 }
 
 // Class-based helper: positional args

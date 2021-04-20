@@ -14,6 +14,8 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
   ? Exclude<T[Key], undefined>
   : Otherwise;
 
+declare const GivenSignature: unique symbol;
+
 export interface ComponentSignature {
   Args?: object;
   Yields?: object;
@@ -25,6 +27,9 @@ const Component = glimmerxComponent.default as new <
 >() => Component<T>;
 interface Component<T extends ComponentSignature = {}>
   extends glimmerxComponent.default<Get<T, 'Args'> & {}> {
+  // Allows `extends Component<infer Signature>` clauses to work as expected
+  [GivenSignature]: T;
+
   [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>;
   [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
 }

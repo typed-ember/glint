@@ -10,6 +10,8 @@ const EmberModifier = window.require('ember-modifier').default;
 type EmberModifier<T> = import('ember-modifier').default<T>;
 type EmberModifierConstructor = typeof import('ember-modifier').default;
 
+declare const GivenSignature: unique symbol;
+
 const emberModifier = window.require('ember-modifier').modifier;
 
 type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
@@ -28,7 +30,7 @@ export interface ModifierSignature {
   Element?: Element;
 }
 
-const Modifier = EmberModifier as AsObjectType<typeof EmberModifier> &
+const Modifier = EmberModifier as AsObjectType<EmberModifierConstructor> &
   (new <T extends ModifierSignature>(
     ...args: ConstructorParameters<EmberModifierConstructor>
   ) => Modifier<T>);
@@ -39,6 +41,10 @@ interface Modifier<T extends ModifierSignature>
     positional: Extract<Get<T, 'PositionalArgs', []>, any[]>;
   }> {
   readonly element: Get<T, 'Element', Element>;
+
+  // Allows `extends Modifier<infer Signature>` clauses to work as expected
+  [GivenSignature]: T;
+
   [Invoke]: (
     args: Get<T, 'NamedArgs'>,
     ...positional: Get<T, 'PositionalArgs', []>

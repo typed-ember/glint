@@ -93,6 +93,11 @@ expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
   // @ts-expect-error: extra arg
   resolve(YieldingComponent)({ values: [1, 2, 3], oops: true });
 
+  type InferSignature<T> = T extends Component<infer Signature> ? Signature : never;
+  expectTypeOf<InferSignature<YieldingComponent<number>>>().toEqualTypeOf<
+    YieldingComponentSignature<number>
+  >();
+
   {
     const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));
 

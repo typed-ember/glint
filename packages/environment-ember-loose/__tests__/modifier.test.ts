@@ -5,11 +5,13 @@ import { BoundModifier } from '@glint/template/-private/integration';
 
 // Class-based modifier
 {
-  class NeatModifier extends Modifier<{
+  interface NeatModifierSignature {
     NamedArgs: { multiplier?: number };
     PositionalArgs: [input: string];
     Element: HTMLImageElement;
-  }> {
+  }
+
+  class NeatModifier extends Modifier<NeatModifierSignature> {
     private interval?: number;
 
     get lengthOfInput(): number {
@@ -41,6 +43,9 @@ import { BoundModifier } from '@glint/template/-private/integration';
 
   expectTypeOf(neat({}, 'hello')).toEqualTypeOf<BoundModifier<HTMLImageElement>>();
   expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<BoundModifier<HTMLImageElement>>();
+
+  type InferSignature<T> = T extends Modifier<infer Signature> ? Signature : never;
+  expectTypeOf<InferSignature<NeatModifier>>().toEqualTypeOf<NeatModifierSignature>();
 
   // @ts-expect-error: missing required positional arg
   neat({});
