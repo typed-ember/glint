@@ -36,6 +36,16 @@ linkTo({}, 123);
   expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
 }
 
+{
+  const component = emitComponent(LinkTo({ route: 'index', 'current-when': 'index' }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
+
+{
+  const component = emitComponent(LinkTo({ route: 'index', 'current-when': true }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
+
 // Requires at least one of `@route`, `@model`, `@models` or `@query`
 
 {

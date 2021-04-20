@@ -24,7 +24,7 @@ type LinkToArgs = RequireAtLeastOne<
     query?: Record<string, unknown>;
     disabled?: boolean;
     activeClass?: string;
-    'current-when'?: string;
+    'current-when'?: string | boolean;
     preventDefault?: boolean;
     tagName?: string;
   },
