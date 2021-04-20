@@ -14,6 +14,50 @@ emitComponent(linkTo({}, 'index', 123));
 // @ts-expect-error: bad type for route name
 linkTo({}, 123);
 
+// {{#link-to}}
+
+{
+  const component = emitComponent(linkTo({}, 'index'));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
+
+{
+  const component = emitComponent(linkTo({ route: 'index' }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
+
+{
+  const component = emitComponent(linkTo({ route: 'index', query: { a: 123 } }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
+
+{
+  const component = emitComponent(linkTo({ route: 'index', models: [123, 'abc'] }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
+
+{
+  const component = emitComponent(linkTo({ route: 'index', 'current-when': 'index' }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
+
+{
+  const component = emitComponent(linkTo({ route: 'index', 'current-when': true }));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
+
+{
+  const component = emitComponent(
+    linkTo(
+      // @ts-expect-error: either route/model/etc or positional params are required
+      {}
+    )
+  );
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
+}
+
+// <LinkTo>
+
 {
   const component = emitComponent(LinkTo({ route: 'index', model: 123 }));
   expectTypeOf(component.element).toEqualTypeOf<HTMLAnchorElement>();
