@@ -26,6 +26,9 @@ type PartiallyAppliedComponent<AllArgs, GivenArgs, Return> = Invokable<
 export type ComponentKeyword<Registry> = DirectInvokable<{
   // {{component "some-name"}}
   <Name extends keyof Registry>(args: EmptyObject, component: Name): Registry[Name];
+  <Name extends keyof Registry>(args: EmptyObject, component: Name | null | undefined):
+    | Registry[Name]
+    | null;
 
   // {{component "some-name" arg=value}}
   <Name extends keyof Registry, GivenArgs extends Partial<RegistryComponentArgs<Registry, Name>>>(
@@ -36,6 +39,16 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
     GivenArgs,
     RegistryComponentReturn<Registry, Name>
   >;
+  <Name extends keyof Registry, GivenArgs extends Partial<RegistryComponentArgs<Registry, Name>>>(
+    args: GivenArgs,
+    component: Name | null | undefined
+  ):
+    | null
+    | (new () => PartiallyAppliedComponent<
+        RegistryComponentArgs<Registry, Name>,
+        GivenArgs,
+        RegistryComponentReturn<Registry, Name>
+      >);
 
   // {{component someCurriedComponent arg=value}}
   <
@@ -47,4 +60,16 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
     args: GivenArgs,
     component: new (...args: ConstructorArgs) => Invokable<(args: Args) => Return>
   ): new () => PartiallyAppliedComponent<Args, GivenArgs, Return>;
+  <
+    Args,
+    GivenArgs extends Partial<Args>,
+    Return extends AcceptsBlocks<any, any>,
+    ConstructorArgs extends unknown[]
+  >(
+    args: GivenArgs,
+    component:
+      | (new (...args: ConstructorArgs) => Invokable<(args: Args) => Return>)
+      | null
+      | undefined
+  ): null | (new () => PartiallyAppliedComponent<Args, GivenArgs, Return>);
 }>;
