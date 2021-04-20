@@ -57,7 +57,7 @@ import { expectTypeOf } from 'expect-type';
     };
     Yields: {
       default: [T];
-      inverse?: [];
+      else?: [];
     };
   }
 
@@ -70,7 +70,7 @@ import { expectTypeOf } from 'expect-type';
       if (𝚪.args.values.length) {
         yieldToBlock(𝚪, 'default', 𝚪.args.values[0]);
       } else {
-        yieldToBlock(𝚪, 'inverse');
+        yieldToBlock(𝚪, 'else');
       }
     });
   }
@@ -107,7 +107,7 @@ import { expectTypeOf } from 'expect-type';
     }
 
     {
-      const [...args] = component.blockParams.inverse;
+      const [...args] = component.blockParams.else;
       expectTypeOf(args).toEqualTypeOf<[]>();
     }
   }

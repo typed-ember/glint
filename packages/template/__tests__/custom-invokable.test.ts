@@ -32,7 +32,7 @@ declare const caseOf: DirectInvokable<
           key: K
         ) => AcceptsBlocks<{
           default: SumVariants<T>[K];
-          inverse?: [];
+          else?: [];
         }>
       >
     ];
@@ -62,7 +62,7 @@ declare const caseOf: DirectInvokable<
         emitValue(resolveOrReturn(n)({}));
       }
       {
-        component.blockParams.inverse;
+        component.blockParams.else;
         {
           const component = emitComponent(resolve(when)({}, 'Nothing'));
           expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();

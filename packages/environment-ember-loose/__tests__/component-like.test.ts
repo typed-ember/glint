@@ -35,7 +35,7 @@ import { expectTypeOf } from 'expect-type';
     };
     Yields: {
       default: [number];
-      inverse?: [];
+      else?: [];
     };
   }
 
@@ -79,7 +79,7 @@ import { expectTypeOf } from 'expect-type';
     }
 
     {
-      const [...args] = component.blockParams.inverse;
+      const [...args] = component.blockParams.else;
       expectTypeOf(args).toEqualTypeOf<[]>();
     }
   }

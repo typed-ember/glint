@@ -27,12 +27,12 @@ declare const maybeVal: { a: number; b: number } | undefined;
   }
 
   {
-    const [...args] = component.blockParams.inverse;
+    const [...args] = component.blockParams.else;
     expectTypeOf(args).toEqualTypeOf<[]>();
   }
 }
 
-// Can render inverse when undefined, null, or empty.
+// Can render else when undefined, null, or empty.
 
 {
   const component = emitComponent(eachIn({}, undefined));
@@ -45,7 +45,7 @@ declare const maybeVal: { a: number; b: number } | undefined;
   }
 
   {
-    const [...args] = component.blockParams.inverse;
+    const [...args] = component.blockParams.else;
     expectTypeOf(args).toEqualTypeOf<[]>();
   }
 }
@@ -61,7 +61,7 @@ declare const maybeVal: { a: number; b: number } | undefined;
   }
 
   {
-    const [...args] = component.blockParams.inverse;
+    const [...args] = component.blockParams.else;
     expectTypeOf(args).toEqualTypeOf<[]>();
   }
 }
@@ -77,7 +77,7 @@ declare const maybeVal: { a: number; b: number } | undefined;
   }
 
   {
-    const [...args] = component.blockParams.inverse;
+    const [...args] = component.blockParams.else;
     expectTypeOf(args).toEqualTypeOf<[]>();
   }
 }
