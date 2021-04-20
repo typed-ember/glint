@@ -96,3 +96,22 @@ declare const arrayOrNull: string[] | null;
     expectTypeOf(index).toEqualTypeOf<number>();
   }
 }
+
+// Gives `any` given `any`
+{
+  const component = emitComponent(each({}, {} as any));
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[any, number]>();
+}
+
+// Gives `any` given an invalid iterable (avoiding a cascade of type errors)
+{
+  const component = emitComponent(
+    each(
+      {},
+      // @ts-expect-error: number is not a valid iterable
+      123
+    )
+  );
+
+  expectTypeOf(component.blockParams.default).toEqualTypeOf<[any, number]>();
+}
