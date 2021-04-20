@@ -12,6 +12,7 @@ import type { ComponentSignature } from '../-private';
 export type { ComponentSignature };
 
 declare const Ember: { Component: EmberComponentConstructor };
+declare const GivenSignature: unique symbol;
 
 const EmberComponent = Ember.Component;
 type EmberComponent = import('@ember/component').default;
@@ -29,6 +30,9 @@ const Component = EmberComponent as AsObjectType<typeof EmberComponent> &
   ) => Component<T>);
 
 interface Component<T extends ComponentSignature = {}> extends EmberComponent {
+  // Allows `extends Component<infer Signature>` clauses to work as expected
+  [GivenSignature]: T;
+
   [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
   [Invoke]: (
     args: Get<T, 'Args'>,
