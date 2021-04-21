@@ -12,8 +12,8 @@ describe('Smoke test: Ember', () => {
   });
 
   test('introducing an error', async () => {
-    let scriptURI = Uri.file(`${rootDir}/app/components/foo.ts`);
-    let templateURI = Uri.file(`${rootDir}/app/components/foo.hbs`);
+    let scriptURI = Uri.file(`${rootDir}/app/components/colocated-layout.ts`);
+    let templateURI = Uri.file(`${rootDir}/app/components/colocated-layout.hbs`);
 
     // Open the script and the template
     let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
@@ -35,7 +35,7 @@ describe('Smoke test: Ember', () => {
     expect(languages.getDiagnostics(scriptURI)).toEqual([]);
     expect(languages.getDiagnostics(templateURI)).toMatchObject([
       {
-        message: "Property 'message' does not exist on type 'MyComponent'.",
+        message: "Property 'message' does not exist on type 'ColocatedLayoutComponent'.",
         source: 'glint:ts(2339)',
         range: new Range(0, 7, 0, 14),
       },
