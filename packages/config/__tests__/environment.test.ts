@@ -60,7 +60,9 @@ describe('Environments', () => {
       let env = new GlintEnvironment('test-env', {
         template: {
           typesPath: '@glint/test-env/types',
-          getPossibleTemplatePaths: (script) => [script.replace('.ts', '.hbs')],
+          getPossibleTemplatePaths: (script) => [
+            { path: script.replace('.ts', '.hbs'), deferTo: ['another/script.ts'] },
+          ],
           getPossibleScriptPaths: (template) => [
             template.replace('.hbs', '.ts'),
             template.replace('.hbs', '.js'),
@@ -69,8 +71,14 @@ describe('Environments', () => {
       });
 
       expect(env.getTypesForStandaloneTemplate()).toEqual('@glint/test-env/types');
-      expect(env.getPossibleTemplatePaths('hello.ts')).toEqual(['hello.hbs']);
-      expect(env.getPossibleScriptPaths('hello.hbs')).toEqual(['hello.ts', 'hello.js']);
+      expect(env.getPossibleTemplatePaths('hello.ts')).toEqual([
+        { path: 'hello.hbs', deferTo: ['another/script.ts'] },
+      ]);
+
+      expect(env.getPossibleScriptPaths('hello.hbs')).toEqual([
+        { path: 'hello.ts', deferTo: [] },
+        { path: 'hello.js', deferTo: [] },
+      ]);
     });
   });
 

@@ -15,10 +15,19 @@ export type GlintTagsConfig = {
   };
 };
 
+export type PathCandidate = string | PathCandidateWithDeferral;
+export type PathCandidateWithDeferral = {
+  /** The path to be considered. */
+  path: string;
+
+  /** Other paths which, if present, should be preferred to this one. */
+  deferTo: Array<string>;
+};
+
 export type GlintTemplateConfig = {
   typesPath: string;
-  getPossibleTemplatePaths(scriptPath: string): Array<string>;
-  getPossibleScriptPaths(templatePath: string): Array<string>;
+  getPossibleTemplatePaths(scriptPath: string): Array<PathCandidate>;
+  getPossibleScriptPaths(templatePath: string): Array<PathCandidate>;
 };
 
 export class GlintEnvironment {
@@ -51,16 +60,20 @@ export class GlintEnvironment {
    * Given the path of a script, returns an array of candidate paths where
    * a template corresponding to that script might be located.
    */
-  public getPossibleTemplatePaths(scriptPath: string): Array<string> {
-    return this.standaloneTemplateConfig?.getPossibleTemplatePaths(scriptPath) ?? [];
+  public getPossibleTemplatePaths(scriptPath: string): Array<PathCandidateWithDeferral> {
+    return normalizePathCandidates(
+      this.standaloneTemplateConfig?.getPossibleTemplatePaths(scriptPath) ?? []
+    );
   }
 
   /**
    * Given the path of a template, returns an array of candidate paths where
    * a script corresponding to that script might be located.
    */
-  public getPossibleScriptPaths(templatePath: string): Array<string> {
-    return this.standaloneTemplateConfig?.getPossibleScriptPaths(templatePath) ?? [];
+  public getPossibleScriptPaths(templatePath: string): Array<PathCandidateWithDeferral> {
+    return normalizePathCandidates(
+      this.standaloneTemplateConfig?.getPossibleScriptPaths(templatePath) ?? []
+    );
   }
 
   /**
@@ -107,6 +120,14 @@ function locateEnvironment(name: string, basedir: string): string {
   }
 
   throw new Error(`Unable to resolve environment '${name}' from ${basedir}`);
+}
+
+function normalizePathCandidates(
+  candidates: Array<PathCandidate>
+): Array<PathCandidateWithDeferral> {
+  return candidates.map((candidate) =>
+    typeof candidate === 'string' ? { path: candidate, deferTo: [] } : candidate
+  );
 }
 
 function tryResolve(name: string, basedir: string): string | null {

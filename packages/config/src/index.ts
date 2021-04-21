@@ -3,7 +3,7 @@ import { cosmiconfigSync } from 'cosmiconfig';
 import { GlintConfig } from './config';
 
 export { GlintConfig } from './config';
-export { GlintEnvironment, GlintEnvironmentConfig } from './environment';
+export { GlintEnvironment, GlintEnvironmentConfig, PathCandidate } from './environment';
 
 /**
  * Loads glint configuration, starting from the given directory
