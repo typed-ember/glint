@@ -29,9 +29,11 @@ export default class DocumentCache {
       ? environment.getPossibleScriptPaths(path)
       : environment.getPossibleTemplatePaths(path);
 
-    for (let candidate of candidates) {
-      if (this.documentExists(candidate)) {
-        return candidate;
+    for (let { path, deferTo } of candidates) {
+      // If a candidate companions exist and no other module that would claim that
+      // companion with a higher priority exists, we've found our winner.
+      if (this.documentExists(path) && !deferTo.some((path) => this.documentExists(path))) {
+        return path;
       }
     }
   }
