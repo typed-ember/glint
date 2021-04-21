@@ -258,7 +258,9 @@ export default interface Registry {
   'grouping/my-component': typeof MyComponent;
 }
 ```
+
 This would let glint understand the component if it's invoked in any of the following ways:
+
 ```hbs
 <Grouping::MyComponent />
 
@@ -270,7 +272,6 @@ This would let glint understand the component if it's invoked in any of the foll
 ```
 
 With strict mode and template imports, the day is coming when we won't need this anymore, because any components/helpers/modifiers you use will already be statically in scope, but for now this is about the best we can do.
-
 
 #### Contextual Components
 
@@ -348,11 +349,9 @@ Once that's done, consumers should be able to import values the "normal" way dir
 
 Glint is not currently integrated with `ember-cli-typescript`, so typechecking performed during an `ember-cli` build will not take templates into account.
 
-In addition, only pod-based and colocated components with backing classes are currently supported. That is, the following are **not yet** checkable with Glint:
+In addition, only templates with backing classes are currently supported. That is, the following are **not yet** checkable with Glint:
 
 - template-only components
-- classic layout components
-- route templates
 - `render(...)` calls in tests
 
 Finally, the template registry described in the "With Ember.js" section above must currently be maintained by hand. A few possibilities for mitigating that pain have been discussed, but ultimately the best solution will be when [strict mode] comes to Ember and we no longer need to reckon with runtime resolution of template entities.
