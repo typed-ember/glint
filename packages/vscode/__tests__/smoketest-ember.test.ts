@@ -113,4 +113,82 @@ describe('Smoke test: Ember', () => {
       expect(positions[0].range).toEqual(new Range(3, 10, 3, 17));
     });
   });
+
+  describe('route/controller layout', () => {
+    test('classic route-only', async () => {
+      let scriptURI = Uri.file(`${rootDir}/app/routes/classic-lone-route.ts`);
+      let templateURI = Uri.file(`${rootDir}/app/templates/classic-lone-route.hbs`);
+
+      await window.showTextDocument(templateURI);
+
+      await waitUntil(() => extensions.getExtension('typed-ember.glint-vscode')?.isActive);
+
+      let positions = (await commands.executeCommand(
+        'vscode.executeDefinitionProvider',
+        templateURI,
+        new Position(0, 12)
+      )) as Array<Location>;
+
+      expect(positions.length).toBe(1);
+      expect(positions[0].uri.fsPath).toEqual(scriptURI.fsPath);
+      expect(positions[0].range).toEqual(new Range(3, 27, 3, 34));
+    });
+
+    test('classic route + controller', async () => {
+      let scriptURI = Uri.file(`${rootDir}/app/controllers/classic-controller-route.ts`);
+      let templateURI = Uri.file(`${rootDir}/app/templates/classic-controller-route.hbs`);
+
+      await window.showTextDocument(templateURI);
+
+      await waitUntil(() => extensions.getExtension('typed-ember.glint-vscode')?.isActive);
+
+      let positions = (await commands.executeCommand(
+        'vscode.executeDefinitionProvider',
+        templateURI,
+        new Position(0, 12)
+      )) as Array<Location>;
+
+      expect(positions.length).toBe(1);
+      expect(positions[0].uri.fsPath).toEqual(scriptURI.fsPath);
+      expect(positions[0].range).toEqual(new Range(3, 19, 3, 26));
+    });
+
+    test('pods route-only', async () => {
+      let scriptURI = Uri.file(`${rootDir}/app/pods/pod-lone-route/route.ts`);
+      let templateURI = Uri.file(`${rootDir}/app/pods/pod-lone-route/template.hbs`);
+
+      await window.showTextDocument(templateURI);
+
+      await waitUntil(() => extensions.getExtension('typed-ember.glint-vscode')?.isActive);
+
+      let positions = (await commands.executeCommand(
+        'vscode.executeDefinitionProvider',
+        templateURI,
+        new Position(0, 12)
+      )) as Array<Location>;
+
+      expect(positions.length).toBe(1);
+      expect(positions[0].uri.fsPath).toEqual(scriptURI.fsPath);
+      expect(positions[0].range).toEqual(new Range(3, 27, 3, 34));
+    });
+
+    test('pods route + controller', async () => {
+      let scriptURI = Uri.file(`${rootDir}/app/pods/pod-controller-route/controller.ts`);
+      let templateURI = Uri.file(`${rootDir}/app/pods/pod-controller-route/template.hbs`);
+
+      await window.showTextDocument(templateURI);
+
+      await waitUntil(() => extensions.getExtension('typed-ember.glint-vscode')?.isActive);
+
+      let positions = (await commands.executeCommand(
+        'vscode.executeDefinitionProvider',
+        templateURI,
+        new Position(0, 12)
+      )) as Array<Location>;
+
+      expect(positions.length).toBe(1);
+      expect(positions[0].uri.fsPath).toEqual(scriptURI.fsPath);
+      expect(positions[0].range).toEqual(new Range(3, 19, 3, 26));
+    });
+  });
 });
