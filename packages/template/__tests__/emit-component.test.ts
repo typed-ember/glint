@@ -138,6 +138,25 @@ emitComponent(resolve(MaybeMyComponent)({ value: 'hi' }));
 emitComponent(resolveOrReturn(MaybeMyComponent)({ value: 'hi' }));
 
 /**
+ * Invoking an `any` or `unknown` component should error at the invocation site
+ * if appropriate, but not produce cascading errors.
+ */
+{
+  let anyComponent = emitComponent({} as any);
+  let [anyComponentParam] = anyComponent.blockParams.default;
+
+  expectTypeOf(anyComponent.element).toBeAny();
+  expectTypeOf(anyComponentParam).toBeAny();
+
+  // @ts-expect-error: unknown is an invalid component
+  let unknownComponent = emitComponent({} as unknown);
+  let [unknownComponentParam] = unknownComponent.blockParams.default;
+
+  expectTypeOf(unknownComponent.element).toBeAny();
+  expectTypeOf(unknownComponentParam).toBeAny();
+}
+
+/**
  * Constrained type parameters can be tricky, and `expect-type` doesn't
  * work well with type assertions directly against them, but we can assert
  * against a property that the constraint dictates must exist to ensure
