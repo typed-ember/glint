@@ -13,6 +13,7 @@ TypeScript-powered tooling for Glimmer templates.
     - [Component Signatures](#component-signatures-1)
     - [Ember Components](#ember-components)
     - [Template Registry](#template-registry)
+    - [Route and Controller Templates](#route-and-controller-templates)
     - [Contextual Components](#contextual-components)
 - [Known Limitations](#known-limitations)
   - [Environment Re-exports](#environment-re-exports)
@@ -272,6 +273,43 @@ This would let glint understand the component if it's invoked in any of the foll
 ```
 
 With strict mode and template imports, the day is coming when we won't need this anymore, because any components/helpers/modifiers you use will already be statically in scope, but for now this is about the best we can do.
+
+#### Route and Controller Templates
+
+Templates associated with Ember routes and/or controllers will be typechecked against those backing classes without needing to import from Glint-specific paths.
+
+If a controller class exists, then `@model` in the corresponding template will have the type of the controller's declared `model` property, and `{{this}}` will be the type of the controller itself.
+
+```ts
+export default class MyController extends Controller {
+  declare model: MyModelType;
+
+  greeting = 'Hello, world!';
+}
+```
+
+```hbs
+{{this}} {{! MyController }}
+{{this.greeting}} {{! string }}
+{{this.model}} {{! MyModelType }}
+{{@model}} {{! MyModelType }}
+```
+
+If no controller exists but a route does, then `{{@model}}` will be the return type of the route's `model()` hook (unwrapping any promise if necessary), and `{{this}}` will be the type of an empty controller with a `model` property of the same type as `@model`.
+
+```ts
+export default class MyRoute extends Route {
+  async model(): Promise<MyModelType> {
+    // ...
+  }
+}
+```
+
+```hbs
+{{this}} {{! Controller & { model: MyModelType } }}
+{{this.model}} {{! MyModelType }}
+{{@model}} {{! MyModelType }}
+```
 
 #### Contextual Components
 
