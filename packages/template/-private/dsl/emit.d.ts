@@ -50,8 +50,8 @@ export declare function emitElement<Name extends string>(
 export declare function emitComponent<T extends AcceptsBlocks<any, any>>(
   component: T
 ): {
-  element: T extends AcceptsBlocks<any, infer El> ? El : null;
-  blockParams: T extends AcceptsBlocks<infer Yields, any> ? Required<Yields> : never;
+  element: T extends AcceptsBlocks<any, infer El> ? El : any;
+  blockParams: T extends AcceptsBlocks<infer Yields, any> ? Required<Yields> : any;
 };
 
 /**
