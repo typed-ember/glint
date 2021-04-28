@@ -14,6 +14,7 @@ type LinkToArgs = RequireAtLeastOne<
     disabled?: boolean;
     activeClass?: string;
     'current-when'?: string | boolean;
+    bubbles?: boolean;
     preventDefault?: boolean;
     tagName?: string;
   },
