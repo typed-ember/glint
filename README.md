@@ -251,7 +251,7 @@ declare module '@glint/environment-ember-loose/registry' {
 }
 ```
 
-If you've nested your component inside folder(s), you'll need to add the full "strong" name of the component to the registry. And, if you're expecting to invoke your component with currlies or the `{{componet}}` helper, you'll need to add the component to the registry twice -- once using the `::` delimiter syntax and once using the `/` delimiter syntax. For example:
+If you've nested your component inside folder(s), you'll need to add the full "strong" name of the component to the registry. And, if you're expecting to invoke your component with curlies or the `{{component}}` helper, you'll need to add the component to the registry twice—once using the `::` delimiter syntax and once using the `/` delimiter syntax. For example:
 
 ```ts
 // app/components/grouping/my-component.ts
