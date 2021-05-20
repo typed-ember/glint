@@ -36,41 +36,16 @@ export function templateToTypescript(
   return mapTemplateContents(template, (ast, { emit, record, rangeForLine, rangeForNode }) => {
     let scope = new ScopeStack(identifiersInScope);
 
-    emit.text('(() => {');
-    emit.indent();
-    emit.newline();
+    emitTemplateBoilerplate(() => {
+      for (let line of preamble) {
+        emit.text(line);
+        emit.newline();
+      }
 
-    for (let line of preamble) {
-      emit.text(line);
-      emit.newline();
-    }
-
-    emit.text(`let χ!: typeof import("${typesPath}");`);
-    emit.newline();
-
-    emit.text('return χ.template(function');
-    emit.synthetic(typeParams);
-    emit.text(`(𝚪: import("${typesPath}").ResolveContext<`);
-    emit.synthetic(contextType);
-    emit.text('>) {');
-    emit.newline();
-    emit.indent();
-
-    for (let statement of ast.body) {
-      emitTopLevelStatement(statement);
-    }
-
-    // Ensure the context variable is always consumed to prevent
-    // an unused variable warning
-    emit.text('𝚪;');
-    emit.newline();
-
-    emit.dedent();
-    emit.text('});');
-    emit.newline();
-
-    emit.dedent();
-    emit.text('})()');
+      for (let statement of ast.body) {
+        emitTopLevelStatement(statement);
+      }
+    });
 
     return;
 
@@ -100,6 +75,27 @@ export function templateToTypescript(
         default:
           unreachable(node);
       }
+    }
+
+    function emitTemplateBoilerplate(emitBody: () => void): void {
+      emit.text(`({} as typeof import("${typesPath}")).template(function`);
+      emit.synthetic(typeParams);
+      emit.text(`(𝚪: import("${typesPath}").ResolveContext<`);
+      emit.synthetic(contextType);
+      emit.text(`>, χ: typeof import("${typesPath}")) {`);
+
+      emit.newline();
+      emit.indent();
+
+      emitBody();
+
+      // Ensure the context and lib variables are always consumed to prevent
+      // an unused variable warning
+      emit.text('𝚪; χ;');
+      emit.newline();
+
+      emit.dedent();
+      emit.text('})');
     }
 
     function emitComment(node: AST.MustacheCommentStatement | AST.CommentStatement): void {

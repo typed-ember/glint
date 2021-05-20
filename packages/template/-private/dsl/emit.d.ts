@@ -55,9 +55,11 @@ export declare function emitComponent<T extends AcceptsBlocks<any, any>>(
 };
 
 /**
- * Acts as a top-level wrapper for translated template bodies.
+ * Acts as a top-level wrapper for translated template bodies. The given
+ * callback accepts a template context value as well as an instance of the
+ * environment's DSL export.
  */
-export declare function template(f: (𝚪: AnyContext) => void): void;
+export declare function template(f: (𝚪: AnyContext, χ: never) => void): void;
 
 /*
  * Used in template bodies to encode a `{{yield}}` statement.
