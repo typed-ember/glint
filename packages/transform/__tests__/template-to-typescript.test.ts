@@ -18,21 +18,18 @@ describe('rewriteTemplate', () => {
 
     return (result?.code ?? '')
       .split('\n')
-      .slice(3, -3)
+      .slice(1, -2)
       .join('\n')
-      .replace(/(^|\n) {4}/g, '$1');
+      .replace(/(^|\n) {2}/g, '$1');
   }
 
   describe('template boilerplate', () => {
     test('without any specified type parameters or context type', () => {
       expect(templateToTypescript('', { typesPath: '@glint/template' }).result?.code)
         .toMatchInlineSnapshot(`
-        "(() => {
-          let χ!: typeof import(\\"@glint/template\\");
-          return χ.template(function(𝚪: import(\\"@glint/template\\").ResolveContext<unknown>) {
-            𝚪;
-          });
-        })()"
+        "({} as typeof import(\\"@glint/template\\")).template(function(𝚪: import(\\"@glint/template\\").ResolveContext<unknown>, χ: typeof import(\\"@glint/template\\")) {
+          𝚪; χ;
+        })"
       `);
     });
 
@@ -44,12 +41,9 @@ describe('rewriteTemplate', () => {
         templateToTypescript('', { contextType, typeParams, typesPath: '@glint/template' }).result
           ?.code
       ).toMatchInlineSnapshot(`
-        "(() => {
-          let χ!: typeof import(\\"@glint/template\\");
-          return χ.template(function<T extends string>(𝚪: import(\\"@glint/template\\").ResolveContext<MyComponent<T>>) {
-            𝚪;
-          });
-        })()"
+        "({} as typeof import(\\"@glint/template\\")).template(function<T extends string>(𝚪: import(\\"@glint/template\\").ResolveContext<MyComponent<T>>, χ: typeof import(\\"@glint/template\\")) {
+          𝚪; χ;
+        })"
       `);
     });
 
@@ -58,14 +52,11 @@ describe('rewriteTemplate', () => {
 
       expect(templateToTypescript('', { preamble, typesPath: '@glint/template' }).result?.code)
         .toMatchInlineSnapshot(`
-        "(() => {
+        "({} as typeof import(\\"@glint/template\\")).template(function(𝚪: import(\\"@glint/template\\").ResolveContext<unknown>, χ: typeof import(\\"@glint/template\\")) {
           console.log(\\"hello!\\");
           throw new Error();
-          let χ!: typeof import(\\"@glint/template\\");
-          return χ.template(function(𝚪: import(\\"@glint/template\\").ResolveContext<unknown>) {
-            𝚪;
-          });
-        })()"
+          𝚪; χ;
+        })"
       `);
     });
   });

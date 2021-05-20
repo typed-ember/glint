@@ -23,13 +23,10 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component, { hbs } from '@glint/environment-glimmerx/component';
         export default class MyComponent extends Component {
-          static template = (() => {
+          static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
           hbs;
-          let χ!: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<MyComponent>) {
-            𝚪;
-          });
-        })();
+          𝚪; χ;
+        });
         }"
       `);
     });
@@ -51,13 +48,10 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component, { hbs } from '@glint/environment-glimmerx/component';
         export default class MyComponent<K extends string> extends Component<{ value: K }> {
-          static template = (() => {
+          static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).template(function<K extends string>(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<MyComponent<K>>, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
           hbs;
-          let χ!: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\");
-          return χ.template(function<K extends string>(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<MyComponent<K>>) {
-            𝚪;
-          });
-        })();
+          𝚪; χ;
+        });
         }"
       `);
     });
@@ -89,13 +83,10 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component, { hbs } from '@glint/environment-glimmerx/component';
         export default class extends Component {
-          static template = (() => {
+          static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<unknown>, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
           hbs;
-          let χ!: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<unknown>) {
-            𝚪;
-          });
-        })();
+          𝚪; χ;
+        });
         }"
       `);
     });
@@ -147,12 +138,9 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
         export default class MyComponent extends Component {
-        protected static '~template' = (() => {
-          let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>) {
-            𝚪;
-          });
-        })();
+        protected static '~template' = ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
+          𝚪; χ;
+        });
         }"
       `);
     });
@@ -179,12 +167,9 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
         class MyComponent extends Component {
-        protected static '~template' = (() => {
-          let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>) {
-            𝚪;
-          });
-        })();
+        protected static '~template' = ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
+          𝚪; χ;
+        });
         }
         export default MyComponent;"
       `);
@@ -211,12 +196,9 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
         export default class MyComponent<K extends string> extends Component<{ value: K }> {
-        protected static '~template' = (() => {
-          let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
-          return χ.template(function<K extends string>(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent<K>>) {
-            𝚪;
-          });
-        })();
+        protected static '~template' = ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function<K extends string>(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent<K>>, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
+          𝚪; χ;
+        });
         }"
       `);
     });
@@ -252,12 +234,9 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
         export default class extends Component {
-        protected static '~template' = (() => {
-          let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<unknown>) {
-            𝚪;
-          });
-        })();
+        protected static '~template' = ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<unknown>, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
+          𝚪; χ;
+        });
         }"
       `);
     });
@@ -350,12 +329,9 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
         export default class MyComponent extends Component {
-        protected static '~template' = (() => {
-          let χ!: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\");
-          return χ.template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>) {
-            𝚪;
-          });
-        })();
+        protected static '~template' = ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
+          𝚪; χ;
+        });
         }
         declare module '@glint/environment-ember-loose/registry' {
           export default interface Registry {
