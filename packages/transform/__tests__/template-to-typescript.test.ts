@@ -27,7 +27,7 @@ describe('rewriteTemplate', () => {
     test('without any specified type parameters or context type', () => {
       expect(templateToTypescript('', { typesPath: '@glint/template' }).result?.code)
         .toMatchInlineSnapshot(`
-        "({} as typeof import(\\"@glint/template\\")).template(function(𝚪: import(\\"@glint/template\\").ResolveContext<unknown>, χ: typeof import(\\"@glint/template\\")) {
+        "({} as typeof import(\\"@glint/template\\")).template(function(𝚪, χ: typeof import(\\"@glint/template\\")) {
           𝚪; χ;
         })"
       `);
@@ -43,7 +43,7 @@ describe('rewriteTemplate', () => {
       ).toMatchInlineSnapshot(`
         "({} as typeof import(\\"@glint/template\\")).template(function<T extends string>(𝚪: import(\\"@glint/template\\").ResolveContext<MyComponent<T>>, χ: typeof import(\\"@glint/template\\")) {
           𝚪; χ;
-        })"
+        }) as unknown"
       `);
     });
 
@@ -52,7 +52,7 @@ describe('rewriteTemplate', () => {
 
       expect(templateToTypescript('', { preamble, typesPath: '@glint/template' }).result?.code)
         .toMatchInlineSnapshot(`
-        "({} as typeof import(\\"@glint/template\\")).template(function(𝚪: import(\\"@glint/template\\").ResolveContext<unknown>, χ: typeof import(\\"@glint/template\\")) {
+        "({} as typeof import(\\"@glint/template\\")).template(function(𝚪, χ: typeof import(\\"@glint/template\\")) {
           console.log(\\"hello!\\");
           throw new Error();
           𝚪; χ;

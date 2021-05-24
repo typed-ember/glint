@@ -29,7 +29,7 @@ export function templateToTypescript(
     typesPath,
     identifiersInScope = [],
     typeParams = '',
-    contextType = 'unknown',
+    contextType,
     preamble = [],
   }: TemplateToTypescriptOptions
 ): RewriteResult {
@@ -80,9 +80,13 @@ export function templateToTypescript(
     function emitTemplateBoilerplate(emitBody: () => void): void {
       emit.text(`({} as typeof import("${typesPath}")).template(function`);
       emit.synthetic(typeParams);
-      emit.text(`(𝚪: import("${typesPath}").ResolveContext<`);
-      emit.synthetic(contextType);
-      emit.text(`>, χ: typeof import("${typesPath}")) {`);
+      emit.text('(𝚪');
+      if (contextType) {
+        emit.text(`: import("${typesPath}").ResolveContext<`);
+        emit.synthetic(contextType);
+        emit.text('>');
+      }
+      emit.text(`, χ: typeof import("${typesPath}")) {`);
 
       emit.newline();
       emit.indent();
@@ -96,6 +100,13 @@ export function templateToTypescript(
 
       emit.dedent();
       emit.text('})');
+
+      // If we have an explicit context type, we intentionally cast the template
+      // to `unknown` because we don't care about inference and want to avoid leaking
+      // internal type details.
+      if (contextType) {
+        emit.text(` as unknown`);
+      }
     }
 
     function emitComment(node: AST.MustacheCommentStatement | AST.CommentStatement): void {
