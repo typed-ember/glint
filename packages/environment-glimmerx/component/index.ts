@@ -22,6 +22,12 @@ export interface ComponentSignature {
   Element?: Element;
 }
 
+export type TC<T extends ComponentSignature = {}> = TemplateComponent<T>;
+export type TemplateComponent<T extends ComponentSignature = {}> = new () => {
+  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>;
+  [Context]: TemplateContext<null, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
+};
+
 const Component = glimmerxComponent.default as new <
   T extends ComponentSignature = {}
 >() => Component<T>;
