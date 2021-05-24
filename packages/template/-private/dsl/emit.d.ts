@@ -1,4 +1,13 @@
-import { AcceptsBlocks, AnyContext, BoundModifier } from '../integration';
+import {
+  AcceptsBlocks,
+  AnyContext,
+  AnyFunction,
+  BoundModifier,
+  EmptyObject,
+  HasContext,
+  Invokable,
+  TemplateContext,
+} from '../integration';
 import { ElementForTagName, EmittableValue } from './types';
 
 /*
@@ -59,7 +68,10 @@ export declare function emitComponent<T extends AcceptsBlocks<any, any>>(
  * callback accepts a template context value as well as an instance of the
  * environment's DSL export.
  */
-export declare function template(f: (𝚪: AnyContext, χ: never) => void): void;
+export declare function template<
+  Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
+  Context extends AnyContext = TemplateContext<null, EmptyObject, EmptyObject, null>
+>(f: (𝚪: Context, χ: never) => void): new () => Invokable<Signature> & HasContext<Context>;
 
 /*
  * Used in template bodies to encode a `{{yield}}` statement.
