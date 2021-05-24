@@ -8,6 +8,7 @@ TypeScript-powered tooling for Glimmer templates.
   - [With GlimmerX](#with-glimmerx)
     - [Import Paths](#import-paths)
     - [Component Signatures](#component-signatures)
+    - [Template Components](#template-components)
   - [With Ember.js](#with-emberjs)
     - [Import Paths](#import-paths-1)
     - [Component Signatures](#component-signatures-1)
@@ -130,6 +131,30 @@ export class Shout extends Component<ShoutSignature> {
 ```
 
 [yieldable named blocks rfc]: https://github.com/emberjs/rfcs/blob/master/text/0460-yieldable-named-blocks.md
+
+#### Template Components
+
+In GlimmerX, standalone templates can be invoked as components. Like class-based components, you can declare a signature for a template component in order for Glint to understand how it can be used.
+
+The class-based component above could as a template component like so:
+
+```ts
+import { TemplateComponent } from '@glint/environment-glimmerx/component';
+
+interface ShoutSignature {
+  /* same as above */
+}
+
+const shout = (message: string) => `${message.toUpperCase()}!`;
+
+const Shout: TemplateComponent<ShoutSignature> = hbs`
+  <div ...attributes>
+    {{yield (shout @message)}}
+  </div>
+`;
+```
+
+Note that, similar to React's `FunctionComponent` and `FC`, you can also import and use the `TC` type alias as a shorthand for `TemplateComponent`.
 
 ### With Ember.js
 
