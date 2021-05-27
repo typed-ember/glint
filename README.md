@@ -26,9 +26,12 @@ Glint is a set of tools to aid in developing code that uses the Glimmer VM for r
 
 ⚠️ Note: **Glint is still under active development!** Please bear with us and expect breaking changes and rough edges as we work toward a stable release. Also note that Glint is currently only compatible with TypeScript projects, but our aim is ultimately to support JavaScript as well, as TypeScript's tooling can provide best-in-class support for both TS and JS projects.
 
+As Glint is still quickly evolving, it's likely too soon for addons to begin shipping Glint-enabled type declarations themselves. To ease adoption and avoid repeated labor, the community has begun maintaining a shared [`glint-template-types`] repository with Glint-compatible type declarations for commonly used Ember addons. The README there contains information about how to take advantage of these shared declarations for addons you may use in your Ember projects.
+
 [ember.js]: https://www.emberjs.com
 [glimmerx]: https://github.com/glimmerjs/glimmer-experimental
 [vetur]: https://github.com/vuejs/vetur
+[`glint-template-types`]: https://github.com/Gavant/glint-template-types
 
 ## Getting Started
 
@@ -249,7 +252,7 @@ declare module '@glint/environment-ember-loose/registry' {
 }
 ```
 
-If you've nested your component inside folder(s), you'll need to add the full "strong" name of the component to the registry. And, if you're expecting to invoke your component with currlies or the `{{componet}}` helper, you'll need to add the component to the registry twice -- once using the `::` delimiter syntax and once using the `/` delimiter syntax. For example:
+If you've nested your component inside folder(s), you'll need to add the full "strong" name of the component to the registry. And, if you're expecting to invoke your component with curlies or the `{{component}}` helper, you'll need to add the component to the registry twice—once using the `::` delimiter syntax and once using the `/` delimiter syntax. For example:
 
 ```ts
 // app/components/grouping/my-component.ts

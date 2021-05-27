@@ -37,7 +37,7 @@ export type BoundModifier<El extends Element> = { [Modifier]: (el: El) => void }
  * Denotes that the associated entity may be invoked with the given
  * blocks, yielding params of the appropriate type.
  */
-export type AcceptsBlocks<BlockImpls extends AnyBlocks, El extends Element | null = null> = {
+export type AcceptsBlocks<BlockImpls, El extends Element | null = null> = {
   [Element]: El;
   (blocks: BlockImpls): { [Blocks]: true };
 };
