@@ -15,6 +15,7 @@ TypeScript-powered tooling for Glimmer templates.
     - [Ember Components](#ember-components)
     - [Template Registry](#template-registry)
     - [Route and Controller Templates](#route-and-controller-templates)
+    - [Rendering Tests](#rendering-tests)
     - [Contextual Components](#contextual-components)
 - [Known Limitations](#known-limitations)
   - [Environment Re-exports](#environment-re-exports)
@@ -343,6 +344,44 @@ export default class MyRoute extends Route {
 {{@model}} {{! MyModelType }}
 ```
 
+#### Rendering Tests
+
+Templates rendered in tests using `ember-cli-htmlbars`'s `hbs` tag will be checked the same way as standalone `hbs` files.
+
+```ts
+import { render } from '@ember/test-helpers';
+import { hbs } from 'ember-cli-htmlbars';
+
+test('MyComponent works', async function (assert) {
+  // If `@arg` is declared to be a string, you'll get a squiggle here
+  await render(hbs`<MyComponent @arg={{123}} />`);
+
+  assert.dom().hasText('...');
+});
+```
+
+In some TypeScript codebases it's common practice to define per-module (or even per-test) context types that include additional properties. If you do this and need to access these properties in your template, you can include the context type as a parameter to `render`.
+
+```ts
+import { render } from '@ember/test-helpers';
+import { hbs } from 'ember-cli-htmlbars';
+import type { TestContext } from 'ember-test-helpers';
+
+interface MyContext extends TestContext {
+  message: string;
+}
+
+test('MyComponent works', async function (this: MyContext, assert) {
+  this.message = 'hello';
+
+  await render<MyContext>(hbs`
+    <MyComponent @arg={{this.message}} />
+  `);
+
+  assert.dom().hasText('...');
+});
+```
+
 #### Contextual Components
 
 When you yield a contextual component, e.g. `{{yield (component "my-component" foo="bar")}}`, you need some way to declare the type of that value in your component signature. For this you can use the `ComponentLike` type, or the `ComponentWithBoundArgs` shorthand.
@@ -419,10 +458,7 @@ Once that's done, consumers should be able to import values the "normal" way dir
 
 Glint is not currently integrated with `ember-cli-typescript`, so typechecking performed during an `ember-cli` build will not take templates into account.
 
-In addition, only templates with backing classes are currently supported. That is, the following are **not yet** checkable with Glint:
-
-- template-only components
-- `render(...)` calls in tests
+In addition, only templates associated with (or embedded in) `.ts` files are currently supported. That is, template-only components are **not yet** checkable with Glint.
 
 Finally, the template registry described in the "With Ember.js" section above must currently be maintained by hand. A few possibilities for mitigating that pain have been discussed, but ultimately the best solution will be when [strict mode] comes to Ember and we no longer need to reckon with runtime resolution of template entities.
 
