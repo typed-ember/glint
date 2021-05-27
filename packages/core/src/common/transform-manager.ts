@@ -162,7 +162,7 @@ export default class TransformManager {
 
     if (this.glintConfig.includesFile(path) && templatePaths.length) {
       let templateWatchers = templatePaths.map((candidate) =>
-        watchFile(candidate, callback, pollingInterval, options)
+        watchFile(candidate.path, callback, pollingInterval, options)
       );
 
       return {
@@ -253,10 +253,7 @@ export default class TransformManager {
       config.includesFile(filename)
     ) {
       let mayHaveTaggedTemplates = config.environment.moduleMayHaveTagImports(contents);
-      let templateCandidates = config.environment.getPossibleTemplatePaths(filename);
-      let templatePath = templateCandidates.find((candidate) =>
-        this.documents.documentExists(candidate)
-      );
+      let templatePath = this.documents.getCompanionDocumentPath(filename);
 
       if (mayHaveTaggedTemplates || templatePath) {
         let script = { filename, contents };

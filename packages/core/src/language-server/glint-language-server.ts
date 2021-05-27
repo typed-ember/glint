@@ -319,8 +319,7 @@ export default class GlintLanguageServer {
     }
 
     if (this.glintConfig.includesFile(fileName)) {
-      let scriptPaths = this.glintConfig.environment.getPossibleScriptPaths(fileName);
-      return scriptPaths.find((candidate) => this.documents.documentExists(candidate));
+      return this.documents.getCompanionDocumentPath(fileName);
     }
   }
 
