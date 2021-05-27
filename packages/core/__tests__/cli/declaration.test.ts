@@ -45,7 +45,7 @@ describe('CLI: emitting declarations', () => {
           Args: ApplicationArgs;
       }> {
           private startupTime;
-          static template: void;
+          static template: unknown;
       }
       "
     `);

@@ -35,7 +35,7 @@ export function calculateTaggedTemplateSpans(
     let preamble = [`${tagName};`];
 
     let identifiersInScope = Object.keys(path.scope.getAllBindings());
-    let { typeParams, contextType } = getContainingTypeInfo(path);
+    let { inClass, className, typeParams, contextType } = getContainingTypeInfo(path);
     let transformedTemplate = templateToTypescript(template, {
       typesPath,
       preamble,
@@ -44,7 +44,7 @@ export function calculateTaggedTemplateSpans(
       contextType,
     });
 
-    if (!contextType) {
+    if (inClass && !className) {
       errors.push({
         source: script,
         message: 'Classes containing templates must have a name',

@@ -26,8 +26,9 @@ export type CorrelatedSpansResult = {
  */
 export function getContainingTypeInfo(
   path: NodePath<any>
-): { className?: string; contextType?: string; typeParams?: string } {
+): { className?: string; inClass: boolean; contextType?: string; typeParams?: string } {
   let container = findContainingClass(path);
+  let inClass = Boolean(container);
   let className = container?.id?.name;
   let contextType = className;
   let typeParams = undefined;
@@ -38,7 +39,7 @@ export function getContainingTypeInfo(
     contextType += `<${typeParamsNode.params.map((param) => param.name).join(', ')}>`;
   }
 
-  return { className, contextType, typeParams };
+  return { contextType, typeParams, className, inClass };
 }
 
 function findContainingClass(path: NodePath<any>): t.Class | null {
