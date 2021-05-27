@@ -112,6 +112,49 @@ describe('rewriteModule', () => {
       expect(transformedModule?.getOriginalOffset(100)).toEqual({ offset: 100, source: script });
       expect(transformedModule?.getTransformedOffset(script.filename, 100)).toEqual(100);
     });
+
+    test('outer variable capture', () => {
+      let testEnvironment = new GlintEnvironment('test', {
+        tags: {
+          '@glint/test-env': {
+            hbsCapture: { typesSource: '@glint/test-env', capturesOuterScope: true },
+            hbsIgnore: { typesSource: '@glint/test-env', capturesOuterScope: false },
+          },
+        },
+      });
+
+      let script = {
+        filename: 'test.ts',
+        contents: stripIndent`
+          import { hbsCapture, hbsIgnore } from '@glint/test-env';
+
+          const message = 'hello';
+
+          hbsCapture\`{{message}}\`;
+          hbsIgnore\`{{message}}\`;
+        `,
+      };
+
+      let transformedModule = rewriteModule({ script }, testEnvironment);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import { hbsCapture, hbsIgnore } from '@glint/test-env';
+
+        const message = 'hello';
+
+        ({} as typeof import(\\"@glint/test-env\\")).template(function(𝚪, χ: typeof import(\\"@glint/test-env\\")) {
+          hbsCapture;
+          χ.emitValue(χ.resolveOrReturn(message)({}));
+          𝚪; χ;
+        });
+        ({} as typeof import(\\"@glint/test-env\\")).template(function(𝚪, χ: typeof import(\\"@glint/test-env\\")) {
+          hbsIgnore;
+          χ.emitValue(χ.resolveOrReturn(χ.Globals[\\"message\\"])({}));
+          𝚪; χ;
+        });"
+      `);
+    });
   });
 
   describe('standalone companion template', () => {
