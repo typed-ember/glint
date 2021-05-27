@@ -139,7 +139,7 @@ In GlimmerX, standalone templates can be invoked as components. Like class-based
 The class-based component above could as a template component like so:
 
 ```ts
-import { TemplateComponent } from '@glint/environment-glimmerx/component';
+import type { TemplateComponent } from '@glint/environment-glimmerx/component';
 
 interface ShoutSignature {
   /* same as above */
@@ -154,7 +154,11 @@ const Shout: TemplateComponent<ShoutSignature> = hbs`
 `;
 ```
 
-Note that, similar to React's `FunctionComponent` and `FC`, you can also import and use the `TC` type alias as a shorthand for `TemplateComponent`.
+Note that, similar to React's `FunctionComponent` and `FC`, you can also import and use the `TC` type alias as a shorthand for `TemplateComponent`:
+
+```ts
+import type { TC } from '@glint/environment-glimmerx/component';
+```
 
 ### With Ember.js
 
