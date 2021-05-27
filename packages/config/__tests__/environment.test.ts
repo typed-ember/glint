@@ -7,7 +7,7 @@ describe('Environments', () => {
     test('locating a single tag', () => {
       let env = new GlintEnvironment('test-env', {
         tags: {
-          'my-cool-environment': { hbs: { typesSource: 'whatever' } },
+          'my-cool-environment': { hbs: { capturesOuterScope: false, typesSource: 'whatever' } },
         },
       });
 
@@ -17,9 +17,9 @@ describe('Environments', () => {
     test('locating one of several tags', () => {
       let env = new GlintEnvironment('test-env', {
         tags: {
-          'my-cool-environment': { hbs: { typesSource: 'whatever' } },
-          'another-env': { tagMe: { typesSource: 'over-here' } },
-          'and-this-one': { hbs: { typesSource: '✨' } },
+          'my-cool-environment': { hbs: { capturesOuterScope: false, typesSource: 'whatever' } },
+          'another-env': { tagMe: { capturesOuterScope: false, typesSource: 'over-here' } },
+          'and-this-one': { hbs: { capturesOuterScope: false, typesSource: '✨' } },
         },
       });
 
@@ -29,7 +29,7 @@ describe('Environments', () => {
     test('checking a module with no tags in use', () => {
       let env = new GlintEnvironment('test-env', {
         tags: {
-          'my-cool-environment': { hbs: { typesSource: 'whatever' } },
+          'my-cool-environment': { hbs: { capturesOuterScope: false, typesSource: 'whatever' } },
         },
       });
 
@@ -38,7 +38,12 @@ describe('Environments', () => {
 
     test('getting specified template tag config', () => {
       let tags = {
-        '@glimmerx/component': { hbs: { typesSource: '@glint/environment-glimmerx/-private/dsl' } },
+        '@glimmerx/component': {
+          hbs: {
+            capturesOuterScope: false,
+            typesSource: '@glint/environment-glimmerx/-private/dsl',
+          },
+        },
       };
 
       let env = new GlintEnvironment('test-env', { tags });
