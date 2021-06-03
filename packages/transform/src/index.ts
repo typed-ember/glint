@@ -51,8 +51,8 @@ export function rewriteDiagnostic<
     file: tsImpl.createSourceFile(source.filename, source.contents, tsImpl.ScriptTarget.Latest),
   };
 
-  if (hasRelatedInformation(diagnostic)) {
-    diagnostic.relatedInformation = diagnostic.relatedInformation?.map((relatedInfo) =>
+  if (hasRelatedInformation(diagnostic) && diagnostic.relatedInformation) {
+    diagnostic.relatedInformation = diagnostic.relatedInformation.map((relatedInfo) =>
       rewriteDiagnostic(tsImpl, relatedInfo, locateTransformedModule)
     );
   }
@@ -73,8 +73,8 @@ function hasRelatedInformation(
  *   template: a standalone template file
  */
 export type RewriteInput =
-  | { script?: SourceFile; template: SourceFile }
-  | { script: SourceFile; template?: SourceFile };
+  | { script?: SourceFile | undefined; template: SourceFile }
+  | { script: SourceFile; template?: SourceFile | undefined };
 
 /**
  * Given the script and/or template that together comprise a component module,

@@ -35,7 +35,7 @@ export type GlintTemplateConfig = {
 
 export class GlintEnvironment {
   private tagConfig: GlintTagsConfig;
-  private standaloneTemplateConfig?: GlintTemplateConfig;
+  private standaloneTemplateConfig: GlintTemplateConfig | undefined;
   private tagImportRegexp: RegExp;
 
   public constructor(public readonly name: string, config: GlintEnvironmentConfig) {

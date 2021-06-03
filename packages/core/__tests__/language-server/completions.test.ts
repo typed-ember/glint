@@ -36,7 +36,7 @@ describe('Language Server: Completions', () => {
         \`;
       }
 
-      class Inner extends Component<{ Args: { foo?: string; 'bar-baz'?: number } }> {}
+      class Inner extends Component<{ Args: { foo?: string; 'bar-baz'?: number | undefined } }> {}
     `;
 
     project.write('index.ts', code);

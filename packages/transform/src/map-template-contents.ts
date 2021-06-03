@@ -91,7 +91,7 @@ export type RewriteResult = {
    * Any errors discovered during rewriting, along with their location
    * in terms of the original source.
    */
-  errors: Array<{ message: string; location?: Range }>;
+  errors: Array<{ message: string; location: Range | undefined }>;
 
   /**
    * The source code and a `MappingTree` resulting from rewriting a
