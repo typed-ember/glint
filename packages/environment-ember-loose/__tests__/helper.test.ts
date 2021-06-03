@@ -91,7 +91,7 @@ expectTypeOf(Helper.extend).toEqualTypeOf(UpstreamEmberHelper.extend);
 
 // Class-based helper: positional args
 {
-  type RepeatArgs<T> = [value: T, count?: number];
+  type RepeatArgs<T> = [value: T, count?: number | undefined];
   class RepeatHelper<T> extends Helper<{ PositionalArgs: RepeatArgs<T>; Return: Array<T> }> {
     compute([value, count]: RepeatArgs<T>): Array<T> {
       return Array.from({ length: count ?? 2 }, () => value);
@@ -101,7 +101,7 @@ expectTypeOf(Helper.extend).toEqualTypeOf(UpstreamEmberHelper.extend);
   let repeat = resolve(RepeatHelper);
 
   expectTypeOf(repeat).toEqualTypeOf<{
-    <T>(args: EmptyObject, value: T, count?: number): Array<T>;
+    <T>(args: EmptyObject, value: T, count?: number | undefined): Array<T>;
   }>();
 
   repeat(

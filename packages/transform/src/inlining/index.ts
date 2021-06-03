@@ -10,6 +10,13 @@ export type CorrelatedSpansResult = {
   partialSpans: Array<PartialCorrelatedSpan>;
 };
 
+export type ContainingTypeInfo = {
+  inClass: boolean;
+  className: string | undefined;
+  contextType: string | undefined;
+  typeParams: string | undefined;
+};
+
 /**
  * Given an AST node for an embedded template, determines the appropriate
  * instance type to be passed to `@glint/template`'s `ResolveContext`, as well
@@ -24,9 +31,7 @@ export type CorrelatedSpansResult = {
  *       // ...
  *     })
  */
-export function getContainingTypeInfo(
-  path: NodePath<any>
-): { className?: string; inClass: boolean; contextType?: string; typeParams?: string } {
+export function getContainingTypeInfo(path: NodePath<any>): ContainingTypeInfo {
   let container = findContainingClass(path);
   let inClass = Boolean(container);
   let className = container?.id?.name;

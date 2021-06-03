@@ -1,13 +1,13 @@
 import { AcceptsBlocks, EmptyObject, Invokable } from '@glint/template/-private/integration';
 
 export interface TextareaArgs {
-  value?: string | null;
-  enter?: (value: string, event: KeyboardEvent) => void;
-  'insert-newline'?: (value: string, event: KeyboardEvent) => void;
-  'escape-press'?: (value: string, event: KeyboardEvent) => void;
-  'focus-in'?: (value: string, event: FocusEvent) => void;
-  'focus-out'?: (value: string, event: FocusEvent) => void;
-  'key-press'?: (value: string, event: KeyboardEvent) => void;
+  value?: string | null | undefined;
+  enter?: ((value: string, event: KeyboardEvent) => void) | undefined;
+  'insert-newline'?: ((value: string, event: KeyboardEvent) => void) | undefined;
+  'escape-press'?: ((value: string, event: KeyboardEvent) => void) | undefined;
+  'focus-in'?: ((value: string, event: FocusEvent) => void) | undefined;
+  'focus-out'?: ((value: string, event: FocusEvent) => void) | undefined;
+  'key-press'?: ((value: string, event: KeyboardEvent) => void) | undefined;
 }
 
 export type TextareaComponent = new () => Invokable<

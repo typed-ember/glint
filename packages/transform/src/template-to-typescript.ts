@@ -12,10 +12,10 @@ type BlockKeyword = typeof BLOCK_KEYWORDS[number];
 
 export type TemplateToTypescriptOptions = {
   typesPath: string;
-  identifiersInScope?: Array<string>;
-  contextType?: string;
-  typeParams?: string;
-  preamble?: Array<string>;
+  identifiersInScope?: Array<string> | undefined;
+  contextType?: string | undefined;
+  typeParams?: string | undefined;
+  preamble?: Array<string> | undefined;
 };
 
 /**
