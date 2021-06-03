@@ -1,5 +1,5 @@
 import { NodePath, types as t } from '@babel/core';
-import { GlintEnvironment } from '@glint/config';
+import { GlintEnvironment, GlintTagConfig } from '@glint/config';
 import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } from '.';
 import { templateToTypescript } from '../template-to-typescript';
 import { Directive, SourceFile, TransformError, Range } from '../transformed-module';
@@ -19,8 +19,9 @@ export function calculateTaggedTemplateSpans(
     return { errors, directives, partialSpans };
   }
 
-  let typesPath = determineTypesPathForTag(tag, environment);
-  if (typesPath) {
+  let tagConfig = getConfigForTag(tag, environment);
+  if (tagConfig) {
+    let { typesSource, capturesOuterScope } = tagConfig;
     let tagName = tag.node.name;
     let { quasis } = path.node.quasi;
 
@@ -34,10 +35,10 @@ export function calculateTaggedTemplateSpans(
     // Emit a use of the template tag so it's not considered unused
     let preamble = [`${tagName};`];
 
-    let identifiersInScope = Object.keys(path.scope.getAllBindings());
     let { inClass, className, typeParams, contextType } = getContainingTypeInfo(path);
+    let identifiersInScope = capturesOuterScope ? Object.keys(path.scope.getAllBindings()) : [];
     let transformedTemplate = templateToTypescript(template, {
-      typesPath,
+      typesPath: typesSource,
       preamble,
       identifiersInScope,
       typeParams,
@@ -108,14 +109,14 @@ function addOffset(location: Range, offset: number): Range {
   };
 }
 
-function determineTypesPathForTag(
+function getConfigForTag(
   path: NodePath<t.Identifier>,
   environment: GlintEnvironment
-): string | undefined {
+): GlintTagConfig | undefined {
   for (let [importSource, tags] of Object.entries(environment.getConfiguredTemplateTags())) {
     for (let [importSpecifier, tagConfig] of Object.entries(tags)) {
       if (path.referencesImport(importSource, importSpecifier)) {
-        return tagConfig.typesSource;
+        return tagConfig;
       }
     }
   }

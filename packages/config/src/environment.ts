@@ -7,11 +7,14 @@ export type GlintEnvironmentConfig = {
   template?: GlintTemplateConfig;
 };
 
+export type GlintTagConfig = {
+  readonly typesSource: string;
+  readonly capturesOuterScope: boolean;
+};
+
 export type GlintTagsConfig = {
   readonly [importSource: string]: {
-    readonly [importSpecifier: string]: {
-      readonly typesSource: string;
-    };
+    readonly [importSpecifier: string]: GlintTagConfig;
   };
 };
 

@@ -2,6 +2,14 @@ import { GlintEnvironmentConfig, PathCandidate } from '@glint/config';
 
 export default function glimmerxEnvironment(): GlintEnvironmentConfig {
   return {
+    tags: {
+      'ember-cli-htmlbars': {
+        hbs: {
+          typesSource: '@glint/environment-ember-loose/-private/dsl',
+          capturesOuterScope: false,
+        },
+      },
+    },
     template: {
       typesPath: '@glint/environment-ember-loose/-private/dsl',
 
