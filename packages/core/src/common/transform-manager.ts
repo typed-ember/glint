@@ -17,6 +17,8 @@ type TransformInfo = {
   transformedModule: TransformedModule | null;
 };
 
+type Diagnostic = ts.Diagnostic & { isGlintTransformDiagnostic?: boolean };
+
 export default class TransformManager {
   private transformCache = new Map<string, TransformInfo>();
 
@@ -26,7 +28,7 @@ export default class TransformManager {
     private documents: DocumentCache = new DocumentCache(ts, glintConfig)
   ) {}
 
-  public getTransformDiagnostics(fileName?: string): Array<ts.Diagnostic> {
+  public getTransformDiagnostics(fileName?: string): Array<Diagnostic> {
     if (fileName) {
       let transformedModule = this.getTransformInfo(fileName)?.transformedModule;
       return transformedModule ? this.buildTransformDiagnostics(transformedModule) : [];
@@ -42,7 +44,7 @@ export default class TransformManager {
   }
 
   public rewriteDiagnostics(
-    diagnostics: ReadonlyArray<ts.Diagnostic>,
+    diagnostics: ReadonlyArray<Diagnostic>,
     fileName?: string
   ): ReadonlyArray<ts.Diagnostic> {
     let unusedExpectErrors = new Set(this.getExpectErrorDirectives(fileName));
@@ -60,7 +62,7 @@ export default class TransformManager {
 
     for (let directive of unusedExpectErrors) {
       allDiagnostics.push(
-        this.buildDiagnostic(
+        this.buildTransformDiagnostic(
           directive.source,
           `Unused '@glint-expect-error' directive.`,
           directive.location
@@ -200,9 +202,15 @@ export default class TransformManager {
   }
 
   private rewriteDiagnostic(
-    diagnostic: ts.Diagnostic
+    diagnostic: Diagnostic
   ): { rewrittenDiagnostic?: ts.Diagnostic; appliedDirective?: Directive } {
     if (!diagnostic.file) return {};
+
+    // Transform diagnostics are already targeted at the original source and so
+    // don't need to be rewritten.
+    if ('isGlintTransformDiagnostic' in diagnostic && diagnostic.isGlintTransformDiagnostic) {
+      return { rewrittenDiagnostic: diagnostic };
+    }
 
     let transformInfo = this.getTransformInfo(diagnostic.file?.fileName);
     let rewrittenDiagnostic = rewriteDiagnostic(
@@ -270,20 +278,19 @@ export default class TransformManager {
     return cacheEntry;
   }
 
-  private buildTransformDiagnostics(
-    transformedModule: TransformedModule
-  ): Array<ts.DiagnosticWithLocation> {
+  private buildTransformDiagnostics(transformedModule: TransformedModule): Array<Diagnostic> {
     return transformedModule.errors.map((error) =>
-      this.buildDiagnostic(error.source, error.message, error.location)
+      this.buildTransformDiagnostic(error.source, error.message, error.location)
     );
   }
 
-  private buildDiagnostic(
+  private buildTransformDiagnostic(
     source: SourceFile,
     message: string,
     location: Range
-  ): ts.DiagnosticWithLocation {
+  ): Diagnostic {
     return {
+      isGlintTransformDiagnostic: true,
       category: this.ts.DiagnosticCategory.Error,
       code: 0,
       file: this.ts.createSourceFile(source.filename, source.contents, this.ts.ScriptTarget.Latest),
