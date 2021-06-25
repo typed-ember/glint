@@ -85,10 +85,6 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install Dependencies
         run: yarn add --dev -W typescript@next
-      - name: Configure Nightly TS
-        # Until upstream packages are ready, we need to disable strictOptionalProperties in nightly
-        run: |
-          sed 's|"strict": true,|&\n    "strictOptionalProperties": false,|' -i'' tsconfig.compileroptions.json
       - name: Build
         run: yarn build
       - name: Run Tests
