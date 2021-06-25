@@ -136,7 +136,7 @@ function normalizePathCandidates(
 function tryResolve(name: string, basedir: string): string | null {
   try {
     return resolve.sync(name, { basedir });
-  } catch (error) {
+  } catch (error: any) {
     if (error?.code === 'MODULE_NOT_FOUND') {
       return null;
     }
