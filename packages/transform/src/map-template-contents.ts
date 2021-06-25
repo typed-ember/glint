@@ -120,14 +120,15 @@ export function mapTemplateContents(
   try {
     ast = preprocess(template);
   } catch (error) {
+    let message = getErrorMessage(error);
     let location: Range | undefined;
-    if (error?.hash?.loc) {
+    if (isHBSSyntaxError(error)) {
       location = {
         start: lineOffsets[error.hash.loc.first_line] + error.hash.loc.first_column,
         end: lineOffsets[error.hash.loc.last_line] + error.hash.loc.last_column,
       };
     } else {
-      let match = /line (\d+) : column (\d+)/.exec(error.message ?? '');
+      let match = /line (\d+) : column (\d+)/.exec(message);
       if (match) {
         let offset = lineOffsets[Number(match[1])] + Number(match[2]);
         location = { start: offset, end: offset };
@@ -135,7 +136,7 @@ export function mapTemplateContents(
     }
 
     return {
-      errors: [{ message: error.message, location }],
+      errors: [{ message, location }],
     };
   }
 
@@ -173,7 +174,7 @@ export function mapTemplateContents(
     try {
       callback();
     } catch (error) {
-      errors.push({ message: error.message, location: hbsRange });
+      errors.push({ message: getErrorMessage(error), location: hbsRange });
       offset = start;
     }
     mappingsStack.shift();
@@ -299,4 +300,31 @@ function buildRangeForNode(offsets: Array<number>): (node: AST.Node) => Range {
 
     return { start, end };
   };
+}
+
+interface HBSSyntaxError extends Error {
+  hash: {
+    text: string;
+    token: string;
+    line: number;
+    loc: {
+      first_line: number;
+      last_line: number;
+      first_column: number;
+      last_column: number;
+    };
+  };
+}
+
+function getErrorMessage(error: unknown): string {
+  return (error as any)?.message ?? '(unknown error)';
+}
+
+function isHBSSyntaxError(error: unknown): error is HBSSyntaxError {
+  if (typeof error === 'object' && !!error && 'hash' in error) {
+    let { hash } = error as any;
+    return typeof hash?.loc === 'object';
+  }
+
+  return false;
 }

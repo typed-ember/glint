@@ -17,7 +17,7 @@ export function loadTypeScript(): ts {
 function tryResolve<T>(load: () => T): T | null {
   try {
     return load();
-  } catch (error) {
+  } catch (error: any) {
     if (error?.code === 'MODULE_NOT_FOUND') {
       return null;
     }

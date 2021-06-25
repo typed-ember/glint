@@ -105,7 +105,7 @@ function buildHelpers({ languageServer, documents, connection }: BindingArgs): B
     captureErrors(callback) {
       try {
         return callback();
-      } catch (error) {
+      } catch (error: any) {
         connection.console.error(error.stack ?? error);
       }
     },
