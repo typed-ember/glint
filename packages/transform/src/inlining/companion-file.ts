@@ -4,7 +4,7 @@ import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } f
 import MappingTree, { ParseError } from '../mapping-tree';
 import { templateToTypescript } from '../template-to-typescript';
 import { Directive, SourceFile, TransformError } from '../transformed-module';
-import { assert } from '../util';
+import { assert, isJsScript } from '../util';
 
 const STANDALONE_TEMPLATE_FIELD = `'~template'`;
 
@@ -60,6 +60,7 @@ export function calculateCompanionTemplateSpans(
       typesPath,
       contextType,
       typeParams,
+      useJsDoc: isJsScript(script.filename),
     });
 
     errors.push(

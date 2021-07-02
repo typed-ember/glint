@@ -100,7 +100,10 @@ export function rewriteModule(
       filename: input.script.filename,
       code: false,
       presets: [require.resolve('@babel/preset-typescript')],
-      plugins: [[require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]],
+      plugins: [
+        [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }],
+        require.resolve('@babel/plugin-syntax-class-properties'),
+      ],
     });
   } catch {
     // If parsing fails for any reason, we simply return null

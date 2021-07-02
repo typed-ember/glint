@@ -9,7 +9,7 @@ import {
 import type ts from 'typescript';
 import { GlintConfig } from '@glint/config';
 import { assert } from '@glint/transform/lib/util';
-import DocumentCache, { isTemplate } from './document-cache';
+import DocumentCache, { isScript, isTemplate } from './document-cache';
 
 type TransformInfo = {
   version: string;
@@ -248,7 +248,7 @@ export default class TransformManager {
 
     if (
       contents &&
-      filename.endsWith('.ts') &&
+      isScript(filename) &&
       !filename.endsWith('.d.ts') &&
       config.includesFile(filename)
     ) {

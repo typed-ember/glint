@@ -16,6 +16,7 @@ async function main() {
         '--user-data-dir',
         dataDir,
         `${__dirname}/../../__fixtures__/ember-app`,
+        `${__dirname}/../../__fixtures__/js-glimmerx-app`
       ],
     });
   } catch (error) {

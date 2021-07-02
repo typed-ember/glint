@@ -52,12 +52,17 @@ function addWorkspaceFolder(workspaceFolder: WorkspaceFolder, context: Extension
       },
       {
         scheme: 'file',
+        language: 'javascript',
+        pattern: `${folderPath}/**/*`,
+      },
+      {
+        scheme: 'file',
         language: 'typescript',
         pattern: `${folderPath}/**/*`,
       },
     ],
     synchronize: {
-      fileEvents: workspace.createFileSystemWatcher(`${folderPath}/**/*.{ts,hbs}`),
+      fileEvents: workspace.createFileSystemWatcher(`${folderPath}/**/*.{ts,js,hbs}`),
     },
   };
 

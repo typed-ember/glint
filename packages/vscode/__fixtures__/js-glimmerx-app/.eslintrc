@@ -1,0 +1,15 @@
+{
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "env": {
+    "browser": true
+  },
+  "plugins": [
+    "@glimmerx"
+  ],
+  "rules": {
+    "@glimmerx/template-vars": "error"
+  }
+}

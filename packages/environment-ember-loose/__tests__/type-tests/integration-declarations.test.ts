@@ -2,7 +2,7 @@ import Route from '@ember/routing/route';
 import Controller from '@ember/controller';
 import { expectTypeOf } from 'expect-type';
 import { EmptyObject } from '@glint/template/-private/integration';
-import { ResolveContext } from '../-private/dsl';
+import { ResolveContext } from '../../-private/dsl';
 
 class TestRoute extends Route {
   async model(): Promise<{ message: string }> {

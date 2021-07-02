@@ -5,23 +5,27 @@ import { loadTypeScript } from '../common/load-typescript';
 import GlintLanguageServer from './glint-language-server';
 import { parseConfigFile, uriToFilePath } from './util';
 import { bindLanguageServer } from './binding';
+import { isScript } from '../common/document-cache';
 
 const connection = createConnection(process.stdin, process.stdout);
 const documents = new TextDocuments(TextDocument);
 
 const ts = loadTypeScript();
 const glintConfig = findConfig(process.cwd());
-const tsconfigPath = ts.findConfigFile(process.cwd(), ts.sys.fileExists);
-const { fileNames, options } = parseConfigFile(ts, tsconfigPath);
+// try to find a jsconfig.json or a tsconfig.json
+const configPath =
+  ts.findConfigFile(process.cwd(), ts.sys.fileExists, 'jsconfig.json') ||
+  ts.findConfigFile(process.cwd(), ts.sys.fileExists);
+const { fileNames, options } = parseConfigFile(ts, configPath);
 
-const tsFileNames = fileNames.filter((fileName) => /\.ts$/.test(fileName));
-const baseProjectRoots = new Set(tsFileNames);
+const scriptFileNames = fileNames.filter((fileName) => isScript(fileName));
+const baseProjectRoots = new Set(scriptFileNames);
 const getRootFileNames = (): Array<string> => {
-  return tsFileNames.concat(
+  return scriptFileNames.concat(
     documents
       .all()
       .map((doc) => uriToFilePath(doc.uri))
-      .filter((path) => path.endsWith('.ts') && !baseProjectRoots.has(path))
+      .filter((path) => isScript(path) && !baseProjectRoots.has(path))
   );
 };
 
