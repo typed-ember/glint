@@ -7,3 +7,7 @@ export function assert(test: unknown, message = 'Internal error'): asserts test 
     throw new Error(message);
   }
 }
+
+export function isJsScript(uriOrFilePath: string): boolean {
+  return uriOrFilePath.endsWith('.js');
+}

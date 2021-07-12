@@ -1,5 +1,16 @@
 import { GlintEnvironmentConfig, PathCandidate } from '@glint/config';
 
+const REGEXES = {
+  JS_SCRIPT_EXT: /\.js$/,
+  POD_COMPONENT: /\/component\.(ts|js)$/,
+  POD_CONTROLLER: /\/controller\.(ts|js)$/,
+  POD_ROUTE: /\/route\.(ts|js)$/,
+  POD_TEMPLATE: /\/template\.hbs$/,
+  SCRIPT_EXT: /\.(ts|js)$/,
+  TEMPLATE_EXT: /\.hbs$/,
+  TS_SCRIPT_EXT: /\.ts$/,
+};
+
 export default function glimmerxEnvironment(): GlintEnvironmentConfig {
   return {
     tags: {
@@ -15,52 +26,62 @@ export default function glimmerxEnvironment(): GlintEnvironmentConfig {
 
       getPossibleScriptPaths(templatePath) {
         // Colocated script/template pair
-        let colocatedScriptPath = templatePath.replace(/\.hbs$/, '.ts');
-        let candidates = [colocatedScriptPath];
+        let colocatedTsScriptPath = templatePath.replace(REGEXES.TEMPLATE_EXT, '.ts');
+        let candidates = [colocatedTsScriptPath];
 
-        if (templatePath.endsWith('/template.hbs')) {
+        if (REGEXES.POD_TEMPLATE.test(templatePath)) {
           // Pod component/controller/route
           candidates.push(
-            templatePath.replace(/template\.hbs$/, 'component.ts'),
-            templatePath.replace(/template\.hbs$/, 'controller.ts'),
-            templatePath.replace(/template\.hbs$/, 'route.ts')
+            templatePath.replace(REGEXES.POD_TEMPLATE, '/component.ts'),
+            templatePath.replace(REGEXES.POD_TEMPLATE, '/controller.ts'),
+            templatePath.replace(REGEXES.POD_TEMPLATE, '/route.ts')
           );
         } else if (templatePath.includes('/templates/components/')) {
           // Classic component
-          candidates.push(colocatedScriptPath.replace('/templates/components/', '/components/'));
+          candidates.push(colocatedTsScriptPath.replace('/templates/components/', '/components/'));
         } else if (templatePath.includes('/templates/')) {
           // Classic controller/route
           candidates.push(
-            colocatedScriptPath.replace('/templates/', '/controllers/'),
-            colocatedScriptPath.replace('/templates/', '/routes/')
+            colocatedTsScriptPath.replace('/templates/', '/controllers/'),
+            colocatedTsScriptPath.replace('/templates/', '/routes/')
           );
         }
 
-        return candidates;
+        return candidates.flatMap((candidate) => [
+          candidate,
+          candidate.replace(REGEXES.TS_SCRIPT_EXT, '.js'),
+        ]);
       },
 
       getPossibleTemplatePaths(scriptPath) {
         // Colocated script/template pair
-        let colocatedTemplatePath = scriptPath.replace(/\.ts$/, '.hbs');
+        let colocatedTemplatePath = scriptPath.replace(REGEXES.SCRIPT_EXT, '.hbs');
         let candidates: Array<PathCandidate> = [colocatedTemplatePath];
 
-        if (scriptPath.endsWith('/component.ts')) {
+        if (REGEXES.POD_COMPONENT.test(scriptPath)) {
           // Pod component
-          candidates.push(scriptPath.replace(/component\.ts$/, 'template.hbs'));
-        } else if (scriptPath.endsWith('/route.ts')) {
+          candidates.push(scriptPath.replace(REGEXES.POD_COMPONENT, '/template.hbs'));
+        } else if (REGEXES.POD_ROUTE.test(scriptPath)) {
           // Pod route
+          const podRouteTemplate = scriptPath.replace(REGEXES.POD_ROUTE, '/template.hbs');
           candidates.push({
-            path: scriptPath.replace(/route\.ts$/, 'template.hbs'),
-            deferTo: [scriptPath.replace(/route\.ts$/, 'controller.ts')],
+            path: podRouteTemplate,
+            deferTo: [
+              scriptPath.replace(REGEXES.POD_ROUTE, '/controller.ts'),
+              scriptPath.replace(REGEXES.POD_ROUTE, '/controller.js'),
+            ],
           });
-        } else if (scriptPath.endsWith('/controller.ts')) {
+        } else if (REGEXES.POD_CONTROLLER.test(scriptPath)) {
           // Pod controller
-          candidates.push(scriptPath.replace(/controller\.ts$/, 'template.hbs'));
+          candidates.push(scriptPath.replace(REGEXES.POD_CONTROLLER, '/template.hbs'));
         } else if (scriptPath.includes('/routes/')) {
           // Classic route
           candidates.push({
             path: colocatedTemplatePath.replace('/routes/', '/templates/'),
-            deferTo: [scriptPath.replace('/routes/', '/controllers/')],
+            deferTo: [
+              scriptPath.replace('/routes/', '/controllers/').replace(REGEXES.SCRIPT_EXT, '.ts'),
+              scriptPath.replace('/routes/', '/controllers/').replace(REGEXES.SCRIPT_EXT, '.js'),
+            ],
           });
         } else if (scriptPath.includes('/controllers/')) {
           // Classic controller

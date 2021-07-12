@@ -111,5 +111,5 @@ export function isTemplate(path: string): boolean {
 }
 
 export function isScript(path: string): boolean {
-  return path.endsWith('.ts');
+  return /\.(ts|js)$/.test(path);
 }

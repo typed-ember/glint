@@ -1,28 +1,48 @@
-import Component, { hbs, tracked } from '@glimmerx/component';
-import { on, action } from '@glimmerx/modifier';
+import { hbs, tracked } from '@glimmerx/component';
+import Component from '@glint/environment-glimmerx/component';
+import { on, action } from '@glint/environment-glimmerx/modifier';
 
 import './App.css';
 import GreetingHeader from './GreetingHeader';
 
+/**
+ * Formats a name to include "the Great and Powerful" afterwards. This is
+ * a ridiculous helper!
+ *
+ * @param {string} name the name to format
+ * @returns {string} the formatted name
+ */
 function formatName(name) {
   return `${name} the Great and Powerful`;
 }
 
+/**
+ * @typedef FormattedNameSignature
+ * @property {object} Args
+ * @property {string} Args.name The name to be formatted
+ */
+/** @extends {Component<FormattedNameSignature>} */
 class FormattedName extends Component {
   static template = hbs`
     {{formatName this.args.name}}!
   `;
-
-  get name() {
-    return this.args.name || 'glimmerx';
-  }
 }
 
 const I_AM_CONSTANT = 'and I am a constant';
+
+/**
+ * @typedef ComponentAsArgSignature
+ * @property {object} Args
+ * @property {string} Args.title I really can't think of a good description
+ */
+/**
+ * @type {import('@glint/environment-glimmerx/component').TC<ComponentAsArgSignature>}
+ */
 const ComponentAsArg = hbs`
   <h1>I am {{@title}}</h1>
   {{I_AM_CONSTANT}}
 `;
+
 export default class HelloWorld extends Component {
   static template = hbs`
     <ComponentAsArg @title={{component FormattedName name="Oz"}}/>
@@ -31,7 +51,15 @@ export default class HelloWorld extends Component {
   `;
 }
 
+/**
+ * @typedef IncrementableButtonSignature
+ * @property {object} Args
+ * @property {number} Args.startCount The count to start at
+ */
+
+/** @extends {Component<IncrementableButtonSignature>} */
 class IncrementableButton extends Component {
+  /** @type {number} the incrementable count */
   @tracked count = this.args.startCount;
 
   @action increment() {

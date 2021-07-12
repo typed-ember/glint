@@ -29,7 +29,7 @@ export class GlintConfig {
       ? config.include
       : config.include
       ? [config.include]
-      : ['**/*.ts', '**/*.hbs'];
+      : ['**/*.ts', '**/*.js', '**/*.hbs'];
 
     let exclude = Array.isArray(config.exclude)
       ? config.exclude

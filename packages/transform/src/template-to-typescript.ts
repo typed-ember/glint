@@ -12,14 +12,15 @@ type BlockKeyword = typeof BLOCK_KEYWORDS[number];
 
 export type TemplateToTypescriptOptions = {
   typesPath: string;
-  identifiersInScope?: Array<string> | undefined;
-  contextType?: string | undefined;
-  typeParams?: string | undefined;
-  preamble?: Array<string> | undefined;
+  identifiersInScope?: Array<string>;
+  contextType?: string;
+  typeParams?: string;
+  preamble?: Array<string>;
+  useJsDoc?: boolean;
 };
 
 /**
- * Given the text contents of a a template, returns a  TypeScript representation
+ * Given the text contents of a template, returns a  TypeScript representation
  * of that template's contents, as well as a mapping of offsets and ranges between
  * the original and transformed contents.
  */
@@ -31,12 +32,13 @@ export function templateToTypescript(
     typeParams = '',
     contextType,
     preamble = [],
+    useJsDoc = false,
   }: TemplateToTypescriptOptions
 ): RewriteResult {
   return mapTemplateContents(template, (ast, { emit, record, rangeForLine, rangeForNode }) => {
     let scope = new ScopeStack(identifiersInScope);
 
-    emitTemplateBoilerplate(() => {
+    emitTemplateBoilerplate(useJsDoc, () => {
       for (let line of preamble) {
         emit.text(line);
         emit.newline();
@@ -77,16 +79,38 @@ export function templateToTypescript(
       }
     }
 
-    function emitTemplateBoilerplate(emitBody: () => void): void {
-      emit.text(`({} as typeof import("${typesPath}")).template(function`);
-      emit.synthetic(typeParams);
-      emit.text('(𝚪');
-      if (contextType) {
-        emit.text(`: import("${typesPath}").ResolveContext<`);
-        emit.synthetic(contextType);
-        emit.text('>');
+    function emitTemplateBoilerplate(useJsDoc: boolean, emitBody: () => void): void {
+      if (useJsDoc) {
+        if (contextType) {
+          emit.text('/** @type {unknown} */ (');
+        }
+        emit.text(`(/** @type {typeof import("${typesPath}")} */ ({})).template(function(`);
+      } else {
+        emit.text(`({} as typeof import("${typesPath}")).template(function`);
+        emit.synthetic(typeParams);
       }
-      emit.text(`, χ: typeof import("${typesPath}")) {`);
+      if (!useJsDoc) {
+        emit.text('(𝚪');
+      }
+
+      if (contextType) {
+        if (useJsDoc) {
+          emit.text(`/** @type {import("${typesPath}").ResolveContext<`);
+          emit.synthetic(contextType);
+          emit.text('>} */ ');
+        } else {
+          emit.text(`: import("${typesPath}").ResolveContext<`);
+          emit.synthetic(contextType);
+          emit.text('>');
+        }
+      }
+
+      if (useJsDoc) {
+        emit.text('𝚪');
+        emit.text(`, /** @type {typeof import("${typesPath}")} */ χ) {`);
+      } else {
+        emit.text(`, χ: typeof import("${typesPath}")) {`);
+      }
 
       emit.newline();
       emit.indent();
@@ -105,7 +129,11 @@ export function templateToTypescript(
       // to `unknown` because we don't care about inference and want to avoid leaking
       // internal type details.
       if (contextType) {
-        emit.text(` as unknown`);
+        if (useJsDoc) {
+          emit.text(')');
+        } else {
+          emit.text(` as unknown`);
+        }
       }
     }
 

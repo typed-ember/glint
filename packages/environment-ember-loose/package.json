@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "lint": "eslint . --max-warnings 0 && prettier --check .",
-    "test": "tsc --project __tests__",
+    "test": "tsc --project __tests__/type-tests && jest",
     "build": "tsc --build",
     "prepack": "yarn build"
   },
@@ -33,8 +33,11 @@
   "devDependencies": {
     "@glimmer/component": "^1.0.0",
     "@types/ember__component": "^3.0.0",
+    "@types/jest": "^26.0.13",
     "ember-modifier": "^2.1.1",
-    "expect-type": "0.11.0"
+    "expect-type": "0.11.0",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.3.0"
   },
   "publishConfig": {
     "access": "public"
