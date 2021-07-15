@@ -270,32 +270,43 @@ export default class TransformManager {
   }
 
   private getTransformInfo(filename: string, encoding?: string): TransformInfo {
+    let { documents, glintConfig } = this;
     let existing = this.transformCache.get(filename);
-    let version = this.documents.getCompoundDocumentVersion(filename);
+    let version = documents.getCompoundDocumentVersion(filename);
     if (existing?.version === version) {
       return existing;
     }
 
     let transformedModule: TransformedModule | null = null;
-    let contents = this.documents.getDocumentContents(filename, encoding);
-    let config = this.glintConfig;
+    if (isScript(filename) && glintConfig.includesFile(filename)) {
+      if (documents.documentExists(filename)) {
+        let contents = documents.getDocumentContents(filename, encoding);
+        let mayHaveTaggedTemplates = glintConfig.environment.moduleMayHaveTagImports(contents);
+        let templatePath = documents.getCompanionDocumentPath(filename);
 
-    if (
-      contents &&
-      isScript(filename) &&
-      !filename.endsWith('.d.ts') &&
-      config.includesFile(filename)
-    ) {
-      let mayHaveTaggedTemplates = config.environment.moduleMayHaveTagImports(contents);
-      let templatePath = this.documents.getCompanionDocumentPath(filename);
+        if (mayHaveTaggedTemplates || templatePath) {
+          let script = { filename, contents };
+          let template = templatePath
+            ? { filename: templatePath, contents: documents.getDocumentContents(templatePath) }
+            : undefined;
 
-      if (mayHaveTaggedTemplates || templatePath) {
-        let script = { filename, contents };
-        let template = templatePath
-          ? { filename: templatePath, contents: this.documents.getDocumentContents(templatePath) }
-          : undefined;
+          transformedModule = rewriteModule({ script, template }, glintConfig.environment);
+        }
+      } else {
+        let templatePath = templatePathForSynthesizedModule(filename);
+        if (
+          documents.documentExists(templatePath) &&
+          documents.getCompanionDocumentPath(templatePath) === filename
+        ) {
+          // The `.ts` file we were asked for doesn't exist, but a corresponding `.hbs` one does, and
+          // it doesn't have a companion script elsewhere.
+          let template = {
+            filename: templatePath,
+            contents: documents.getDocumentContents(templatePath),
+          };
 
-        transformedModule = rewriteModule({ script, template }, config.environment);
+          transformedModule = rewriteModule({ template }, glintConfig.environment);
+        }
       }
     }
 
