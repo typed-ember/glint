@@ -13,10 +13,11 @@ async function main() {
       extensionTestsPath: path.resolve(__dirname, 'vscode-runner.js'),
       launchArgs: [
         '--disable-extensions',
+        '--disable-workspace-trust',
         '--user-data-dir',
         dataDir,
         `${__dirname}/../../__fixtures__/ember-app`,
-        `${__dirname}/../../__fixtures__/js-glimmerx-app`
+        `${__dirname}/../../__fixtures__/js-glimmerx-app`,
       ],
     });
   } catch (error) {

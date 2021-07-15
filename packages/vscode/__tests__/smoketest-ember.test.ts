@@ -9,7 +9,9 @@ import {
   extensions,
   Location,
 } from 'vscode';
+import { promises as fs } from 'fs';
 import path from 'path';
+import { stripIndent } from 'common-tags';
 import { waitUntil } from './helpers/async';
 
 describe('Smoke test: Ember', () => {
@@ -137,6 +139,83 @@ describe('Smoke test: Ember', () => {
       expect(positions.length).toBe(1);
       expect(positions[0].uri.fsPath).toEqual(scriptURI.fsPath);
       expect(positions[0].range).toEqual(new Range(3, 10, 3, 17));
+    });
+
+    describe('template-only', () => {
+      const scriptURI = Uri.file(`${rootDir}/app/components/template-only.ts`);
+      const templateURI = Uri.file(`${rootDir}/app/components/template-only.hbs`);
+
+      afterEach(async () => {
+        await fs.rm(scriptURI.fsPath, { force: true });
+      });
+
+      function writeBackingModule(): Promise<void> {
+        return fs.writeFile(
+          scriptURI.fsPath,
+          stripIndent`
+            import templateOnly from '@glint/environment-ember-loose/ember-component/template-only';
+
+            interface TemplateOnlySignature {
+              Args: { foo: string };
+            }
+
+            export default templateOnly<TemplateOnlySignature>();
+          `
+        );
+      }
+
+      test('adding a backing module', async () => {
+        await window.showTextDocument(templateURI);
+        await waitUntil(() => languages.getDiagnostics(templateURI).length);
+
+        expect(languages.getDiagnostics(templateURI)).toMatchObject([
+          {
+            message: "Property 'foo' does not exist on type 'EmptyObject'.",
+            source: 'glint:ts(2339)',
+            range: new Range(0, 3, 0, 6),
+          },
+        ]);
+
+        await writeBackingModule();
+        await waitUntil(() => !languages.getDiagnostics(templateURI).length);
+
+        let positions = (await commands.executeCommand(
+          'vscode.executeDefinitionProvider',
+          templateURI,
+          new Position(0, 4)
+        )) as Array<Location>;
+
+        expect(positions.length).toBe(1);
+        expect(positions[0].uri.fsPath).toEqual(scriptURI.fsPath);
+        expect(positions[0].range).toEqual(new Range(3, 10, 3, 13));
+      });
+
+      test('removing a backing module', async () => {
+        await writeBackingModule();
+        await window.showTextDocument(templateURI);
+        await waitUntil(() => extensions.getExtension('typed-ember.glint-vscode')?.isActive);
+
+        let positions = (await commands.executeCommand(
+          'vscode.executeDefinitionProvider',
+          templateURI,
+          new Position(0, 4)
+        )) as Array<Location>;
+
+        expect(positions.length).toBe(1);
+        expect(positions[0].uri.fsPath).toEqual(scriptURI.fsPath);
+        expect(positions[0].range).toEqual(new Range(3, 10, 3, 13));
+
+        await fs.rm(scriptURI.fsPath);
+        await waitUntil(() => languages.getDiagnostics(templateURI).length);
+
+        expect(languages.getDiagnostics(templateURI)).toMatchObject([
+          {
+            message: "Property 'foo' does not exist on type 'EmptyObject'.",
+            source: 'glint:ts(2339)',
+            range: new Range(0, 3, 0, 6),
+          },
+        ]);
+      });
     });
   });
 
