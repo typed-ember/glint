@@ -13,16 +13,32 @@ describe('Language Server: References', () => {
     await project.destroy();
   });
 
-  test('querying an unaffiliated template', () => {
-    project.write('index.hbs', '{{foo}}');
+  test('querying a standalone template', () => {
+    project.write('.glintrc', 'environment: ember-loose');
+    project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
     let server = project.startLanguageServer();
     let references = server.getReferences(project.fileURI('index.hbs'), {
       line: 0,
-      character: 2,
+      character: 11,
     });
 
-    expect(references).toEqual([]);
+    expect(references).toEqual([
+      {
+        uri: project.fileURI('index.hbs'),
+        range: {
+          start: { line: 0, character: 9 },
+          end: { line: 0, character: 12 },
+        },
+      },
+      {
+        uri: project.fileURI('index.hbs'),
+        range: {
+          start: { line: 0, character: 16 },
+          end: { line: 0, character: 19 },
+        },
+      },
+    ]);
   });
 
   test('component references', () => {

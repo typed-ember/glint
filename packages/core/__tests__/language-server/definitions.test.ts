@@ -13,16 +13,25 @@ describe('Language Server: Definitions', () => {
     await project.destroy();
   });
 
-  test('querying an unaffiliated template', () => {
-    project.write('index.hbs', '{{foo}}');
+  test('querying a standalone template', () => {
+    project.write('.glintrc', 'environment: ember-loose');
+    project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
     let server = project.startLanguageServer();
     let definitions = server.getDefinition(project.fileURI('index.hbs'), {
       line: 0,
-      character: 2,
+      character: 17,
     });
 
-    expect(definitions).toEqual([]);
+    expect(definitions).toMatchObject([
+      {
+        uri: project.fileURI('index.hbs'),
+        range: {
+          start: { line: 0, character: 9 },
+          end: { line: 0, character: 12 },
+        },
+      },
+    ]);
   });
 
   test('component invocation', () => {
