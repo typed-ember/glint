@@ -82,9 +82,12 @@ export function bindLanguageServer(args: BindingArgs): void {
     return captureErrors(() => languageServer.findSymbols(query));
   });
 
-  connection.onDidChangeWatchedFiles(() => {
-    // TODO: use this to synchronize files that aren't open so we don't assume changes only
-    // happen in the editor.
+  connection.onDidChangeWatchedFiles(({ changes }) => {
+    for (let change of changes) {
+      languageServer.fileDidChange(change.uri);
+    }
+
+    scheduleDiagnostics();
   });
 }
 

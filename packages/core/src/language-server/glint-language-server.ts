@@ -83,6 +83,10 @@ export default class GlintLanguageServer {
     this.documents.removeDocument(uriToFilePath(uri));
   }
 
+  public fileDidChange(uri: string): void {
+    this.documents.markDocumentStale(uriToFilePath(uri));
+  }
+
   public getDiagnostics(uri: string): Array<Diagnostic> {
     let filePath = uriToFilePath(uri);
     let sourcePath = this.findDiagnosticsSource(filePath);

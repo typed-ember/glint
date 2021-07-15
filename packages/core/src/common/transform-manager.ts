@@ -155,7 +155,12 @@ export default class TransformManager {
     assert(watchFile);
 
     let callback: ts.FileWatcherCallback = (watchedPath, eventKind) => {
-      this.documents.markDocumentStale(watchedPath);
+      if (eventKind === this.ts.FileWatcherEventKind.Deleted) {
+        this.documents.removeDocument(watchedPath);
+      } else {
+        this.documents.markDocumentStale(watchedPath);
+      }
+
       return originalCallback(path, eventKind);
     };
 
