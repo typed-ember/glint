@@ -100,17 +100,25 @@ function buildHelpers({ languageServer, documents, connection }: BindingArgs): B
   return {
     scheduleDiagnostics: debounce(250, () => {
       for (let { uri } of documents.all()) {
-        const diagnostics = languageServer.getDiagnostics(uri);
-        connection.sendDiagnostics({ uri, diagnostics });
+        try {
+          const diagnostics = languageServer.getDiagnostics(uri);
+          connection.sendDiagnostics({ uri, diagnostics });
+        } catch (error) {
+          connection.console.error(`Error getting diagnostics for ${uri}.\n${errorMessage(error)}`);
+        }
       }
     }),
 
     captureErrors(callback) {
       try {
         return callback();
-      } catch (error: any) {
-        connection.console.error(error.stack ?? error);
+      } catch (error) {
+        connection.console.error(errorMessage(error));
       }
     },
   };
+}
+
+function errorMessage(error: unknown): string {
+  return (error instanceof Error && error.stack) || `${error}`;
 }
