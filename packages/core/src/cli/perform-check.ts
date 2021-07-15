@@ -11,7 +11,7 @@ export function performCheck(
   optionsToExtend: ts.CompilerOptions
 ): void {
   let transformManager = new TransformManager(ts, glintConfig);
-  let parsedConfig = loadTsconfig(ts, configPath, optionsToExtend);
+  let parsedConfig = loadTsconfig(ts, transformManager, configPath, optionsToExtend);
   let compilerHost = createCompilerHost(ts, parsedConfig.options, transformManager);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
   let program = ts.createProgram({
@@ -51,11 +51,13 @@ function createCompilerHost(
 ): ts.CompilerHost {
   let host = ts.createCompilerHost(options);
   host.readFile = transformManager.readTransformedFile;
+  host.readDirectory = transformManager.readDirectory;
   return host;
 }
 
 function loadTsconfig(
   ts: typeof import('typescript'),
+  transformManager: TransformManager,
   configPath: string | undefined,
   optionsToExtend: ts.CompilerOptions
 ): ts.ParsedCommandLine {
@@ -69,6 +71,7 @@ function loadTsconfig(
 
   let config = ts.getParsedCommandLineOfConfigFile(configPath, optionsToExtend, {
     ...ts.sys,
+    readDirectory: transformManager.readDirectory,
     onUnRecoverableConfigFileDiagnostic(diagnostic) {
       let { messageText } = diagnostic;
       if (typeof messageText !== 'string') {

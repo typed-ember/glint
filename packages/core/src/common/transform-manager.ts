@@ -9,7 +9,13 @@ import {
 import type ts from 'typescript';
 import { GlintConfig } from '@glint/config';
 import { assert } from '@glint/transform/lib/util';
-import DocumentCache, { isScript, isTemplate } from './document-cache';
+import DocumentCache, {
+  isScript,
+  isTemplate,
+  synthesizedModulePathForTemplate,
+  templatePathForSynthesizedModule,
+  TEMPLATE_EXTENSION,
+} from './document-cache';
 
 type TransformInfo = {
   version: string;
@@ -181,6 +187,21 @@ export default class TransformManager {
     }
 
     return rootWatcher;
+  };
+
+  public readDirectory = (
+    rootDir: string,
+    extensions: ReadonlyArray<string>,
+    excludes: ReadonlyArray<string> | undefined,
+    includes: ReadonlyArray<string>,
+    depth?: number | undefined
+  ): Array<string> => {
+    let allExtensions = [...extensions, TEMPLATE_EXTENSION];
+    return this.ts.sys
+      .readDirectory(rootDir, allExtensions, excludes, includes, depth)
+      .map((filename) =>
+        isTemplate(filename) ? synthesizedModulePathForTemplate(filename) : filename
+      );
   };
 
   public readTransformedFile = (filename: string, encoding?: string): string | undefined => {

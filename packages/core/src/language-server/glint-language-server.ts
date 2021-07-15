@@ -49,6 +49,7 @@ export default class GlintLanguageServer {
         }
       },
       readFile: this.transformManager.readTransformedFile,
+      readDirectory: this.transformManager.readDirectory,
       getCompilationSettings: () => options,
       // Yes, this looks like a mismatch, but built-in lib declarations don't resolve
       // correctly otherwise, and this is what the TS wiki uses in their code snippet.
@@ -56,7 +57,6 @@ export default class GlintLanguageServer {
       // TS defaults from here down
       getCurrentDirectory: ts.sys.getCurrentDirectory,
       fileExists: ts.sys.fileExists,
-      readDirectory: ts.sys.readDirectory,
       directoryExists: ts.sys.directoryExists,
       getDirectories: ts.sys.getDirectories,
     };

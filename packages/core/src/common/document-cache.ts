@@ -20,7 +20,14 @@ export default class DocumentCache {
   public constructor(private ts: typeof import('typescript'), private glintConfig: GlintConfig) {}
 
   public documentExists(path: string): boolean {
-    return this.documents.has(path) || this.ts.sys.fileExists(path);
+    let document = this.documents.get(path);
+
+    // If we have a document that's actually been read from disk, it definitely exists.
+    if (document && (document.version > 0 || !document.stale)) {
+      return true;
+    }
+
+    return this.ts.sys.fileExists(path);
   }
 
   public getCompanionDocumentPath(path: string): string | undefined {
@@ -30,11 +37,15 @@ export default class DocumentCache {
       : environment.getPossibleTemplatePaths(path);
 
     for (let { path, deferTo } of candidates) {
-      // If a candidate companions exist and no other module that would claim that
+      // If a candidate companion exist and no other module that would claim that
       // companion with a higher priority exists, we've found our winner.
       if (this.documentExists(path) && !deferTo.some((path) => this.documentExists(path))) {
         return path;
       }
+    }
+
+    if (isTemplate(path)) {
+      return synthesizedModulePathForTemplate(path);
     }
   }
 

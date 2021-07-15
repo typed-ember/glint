@@ -29,6 +29,7 @@ function sysForWatchCompilerHost(
 ): typeof ts.sys {
   return {
     ...ts.sys,
+    readDirectory: transformManager.readDirectory,
     watchFile: transformManager.watchTransformedFile,
     readFile: transformManager.readTransformedFile,
   };
