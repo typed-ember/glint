@@ -1,4 +1,4 @@
-import { parseSync, types as t, traverse } from '@babel/core';
+import { parseSync, types as t, traverse, NodePath } from '@babel/core';
 import type ts from 'typescript';
 import { GlintEnvironment } from '@glint/config';
 import { assert } from './util';
@@ -73,8 +73,9 @@ function hasRelatedInformation(
  *   template: a standalone template file
  */
 export type RewriteInput =
-  | { script?: SourceFile | undefined; template: SourceFile }
-  | { script: SourceFile; template?: SourceFile | undefined };
+  | { script?: undefined; template: SourceFile }
+  | { script: SourceFile; template?: undefined }
+  | { script: SourceFile; template: SourceFile };
 
 /**
  * Given the script and/or template that together comprise a component module,
@@ -86,37 +87,20 @@ export type RewriteInput =
  * no transformation to be done.
  */
 export function rewriteModule(
-  input: RewriteInput,
+  { script, template }: RewriteInput,
   environment: GlintEnvironment
 ): TransformedModule | null {
-  // TODO: handle template-only components
-  if (!input.script) return null;
-
-  let scriptAST: t.File | t.Program | null = null;
-  try {
-    scriptAST = parseSync(input.script.contents, {
-      babelrc: false,
-      configFile: false,
-      filename: input.script.filename,
-      code: false,
-      presets: [require.resolve('@babel/preset-typescript')],
-      plugins: [
-        [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }],
-        require.resolve('@babel/plugin-syntax-class-properties'),
-      ],
-    });
-  } catch {
-    // If parsing fails for any reason, we simply return null
-  }
-
-  if (!scriptAST) {
-    return null;
+  if (!script) {
+    assert(template, '`rewriteModule` requires at least a `script` or a `template`');
+    script = {
+      filename: template.filename.replace(/\.hbs$/, '.ts'),
+      contents: '',
+    };
   }
 
   let { errors, directives, partialSpans } = calculateCorrelatedSpans(
-    input.script,
-    input.template,
-    scriptAST,
+    script,
+    template,
     environment
   );
 
@@ -125,7 +109,7 @@ export function rewriteModule(
   }
 
   let sparseSpans = completeCorrelatedSpans(partialSpans);
-  let { contents, correlatedSpans } = calculateTransformedSource(input.script, sparseSpans);
+  let { contents, correlatedSpans } = calculateTransformedSource(script, sparseSpans);
 
   return new TransformedModule(contents, errors, directives, correlatedSpans);
 }
@@ -140,13 +124,17 @@ export function rewriteModule(
 function calculateCorrelatedSpans(
   script: SourceFile,
   template: SourceFile | undefined,
-  ast: t.File | t.Program,
   environment: GlintEnvironment
 ): CorrelatedSpansResult {
   let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
   let partialSpans: Array<PartialCorrelatedSpan> = [];
-  let defaultExportSeen = false;
+  let defaultExportDeclaration: NodePath<t.ExportDefaultDeclaration['declaration']> | null = null;
+
+  let ast = parseScript(script);
+  if (!ast) {
+    return { errors, partialSpans, directives };
+  }
 
   traverse(ast, {
     TaggedTemplateExpression(path) {
@@ -163,27 +151,43 @@ function calculateCorrelatedSpans(
     },
 
     ExportDefaultDeclaration(path) {
-      let declaration = path.get('declaration');
-      if (template && (declaration.isClass() || declaration.isExpression())) {
-        let result = calculateCompanionTemplateSpans(declaration, script, template, environment);
-
-        defaultExportSeen = true;
-        directives.push(...result.directives);
-        errors.push(...result.errors);
-        partialSpans.push(...result.partialSpans);
-      }
+      defaultExportDeclaration = path.get('declaration');
     },
   });
 
-  if (template && !defaultExportSeen) {
-    errors.push({
-      message: `Modules with an associated template must have a default export that is a class declaration or expression`,
-      source: script,
-      location: { start: 0, end: script.contents.length },
-    });
+  if (template) {
+    let result = calculateCompanionTemplateSpans(
+      defaultExportDeclaration,
+      script,
+      template,
+      environment
+    );
+
+    directives.push(...result.directives);
+    errors.push(...result.errors);
+    partialSpans.push(...result.partialSpans);
   }
 
   return { errors, directives, partialSpans };
+}
+
+function parseScript(script: SourceFile): t.File | t.Program | null {
+  try {
+    return parseSync(script.contents ?? '', {
+      babelrc: false,
+      configFile: false,
+      filename: script.filename,
+      code: false,
+      presets: [require.resolve('@babel/preset-typescript')],
+      plugins: [
+        [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }],
+        require.resolve('@babel/plugin-syntax-class-properties'),
+      ],
+    });
+  } catch {
+    // If parsing fails for any reason, we can't work with this module.
+    return null;
+  }
 }
 
 /**
