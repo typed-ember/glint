@@ -106,10 +106,28 @@ export default class DocumentCache {
   }
 }
 
+export const TEMPLATE_EXTENSION = '.hbs';
+
+export const TEMPLATE_EXTENSION_REGEX = /\.hbs$/;
+export const SCRIPT_EXTENSION_REGEX = /\.(ts|js)$/;
+export const DECLARATION_EXTENSION_REGEX = /\.d\.ts$/;
+
+export function templatePathForSynthesizedModule(path: string): string {
+  return path.replace(SCRIPT_EXTENSION_REGEX, '.hbs');
+}
+
+export function synthesizedModulePathForTemplate(path: string): string {
+  return path.replace(TEMPLATE_EXTENSION_REGEX, '.ts');
+}
+
 export function isTemplate(path: string): boolean {
-  return path.endsWith('.hbs');
+  return TEMPLATE_EXTENSION_REGEX.test(path);
 }
 
 export function isScript(path: string): boolean {
-  return /\.(ts|js)$/.test(path);
+  return SCRIPT_EXTENSION_REGEX.test(path) && !isDeclaration(path);
+}
+
+export function isDeclaration(path: string): boolean {
+  return DECLARATION_EXTENSION_REGEX.test(path);
 }
