@@ -90,6 +90,10 @@ export default class Project {
     }
   }
 
+  public readdir(dirName = '.'): Array<string> {
+    return fs.readdirSync(this.filePath(dirName));
+  }
+
   public read(fileName: string): string {
     return fs.readFileSync(this.filePath(fileName), 'utf-8');
   }
