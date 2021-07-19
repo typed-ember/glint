@@ -46,16 +46,6 @@ linkTo({}, 123);
   expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
 }
 
-{
-  const component = emitComponent(
-    linkTo(
-      // @ts-expect-error: either route/model/etc or positional params are required
-      {}
-    )
-  );
-  expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
-}
-
 // <LinkTo>
 
 {
