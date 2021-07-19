@@ -408,7 +408,7 @@ export function templateToTypescript(
           }
 
           emit.forNode(attr, () => {
-            start = template.indexOf(attr.name, start);
+            start = template.indexOf(attr.name, start + 1);
             emitHashKey(attr.name.slice(1), start + 1);
             emit.text(': ');
 
