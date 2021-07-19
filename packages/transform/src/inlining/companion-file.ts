@@ -1,6 +1,8 @@
+import path from 'path';
 import { NodePath, types as t } from '@babel/core';
 import { GlintEnvironment } from '@glint/config';
 import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } from '.';
+import { RewriteResult } from '../map-template-contents';
 import MappingTree, { ParseError } from '../mapping-tree';
 import { templateToTypescript } from '../template-to-typescript';
 import { Directive, SourceFile, TransformError } from '../transformed-module';
@@ -9,7 +11,7 @@ import { assert, isJsScript } from '../util';
 const STANDALONE_TEMPLATE_FIELD = `'~template'`;
 
 export function calculateCompanionTemplateSpans(
-  path: NodePath<t.Class> | NodePath<t.Expression>,
+  exportDeclarationPath: NodePath | null,
   script: SourceFile,
   template: SourceFile,
   environment: GlintEnvironment
@@ -28,26 +30,13 @@ export function calculateCompanionTemplateSpans(
     return { errors, directives, partialSpans };
   }
 
-  let targetPath = findCompanionTemplateTarget(path);
-  if (!targetPath) {
-    errors.push({
-      message: `Unable to resolve a class body to associate a template declaration to`,
-      source: script,
-      location: {
-        start: path.node.start ?? 0,
-        end: path.node.end ?? script.contents.length,
-      },
-    });
-
-    return { errors, directives, partialSpans };
-  }
-
-  let target = targetPath.node;
-
-  assert(target.start && target.end, 'Missing location info');
-
-  if (targetPath.isClass()) {
+  let targetPath = findCompanionTemplateTarget(exportDeclarationPath);
+  if (targetPath?.isClass()) {
     let { className, contextType, typeParams } = getContainingTypeInfo(targetPath);
+    let target = targetPath.node as t.Class;
+
+    assert(target.start && target.end, 'Missing location info');
+
     if (!className) {
       errors.push({
         source: script,
@@ -56,13 +45,44 @@ export function calculateCompanionTemplateSpans(
       });
     }
 
-    let transformedTemplate = templateToTypescript(template.contents, {
+    let rewriteResult = templateToTypescript(template.contents, {
       typesPath,
       contextType,
       typeParams,
       useJsDoc: isJsScript(script.filename),
     });
 
+    pushTransformedTemplate(rewriteResult, {
+      insertionPoint: target.end - 1,
+      prefix: `protected static ${STANDALONE_TEMPLATE_FIELD} = `,
+      suffix: ';\n',
+    });
+  } else {
+    let contextType: string | undefined;
+    if (targetPath) {
+      let moduleName = path.basename(script.filename, path.extname(script.filename));
+      contextType = `typeof import('./${moduleName}').default`;
+    }
+
+    let rewriteResult = templateToTypescript(template.contents, { typesPath, contextType });
+
+    pushTransformedTemplate(rewriteResult, {
+      insertionPoint: script.contents.length,
+      prefix: '\n',
+      suffix: ';\n',
+    });
+  }
+
+  return { errors, directives, partialSpans };
+
+  function pushTransformedTemplate(
+    transformedTemplate: RewriteResult,
+    options: {
+      insertionPoint: number;
+      prefix: string;
+      suffix: string;
+    }
+  ): void {
     errors.push(
       ...transformedTemplate.errors.map(({ message, location }) => ({
         message,
@@ -86,14 +106,14 @@ export function calculateCompanionTemplateSpans(
           originalFile: template,
           originalStart: 0,
           originalLength: 0,
-          insertionPoint: target.end - 1,
-          transformedSource: `protected static ${STANDALONE_TEMPLATE_FIELD} = `,
+          insertionPoint: options.insertionPoint,
+          transformedSource: options.prefix,
         },
         {
           originalFile: template,
           originalStart: 0,
           originalLength: template.contents.length,
-          insertionPoint: target.end - 1,
+          insertionPoint: options.insertionPoint,
           transformedSource: transformedTemplate.result.code,
           mapping: transformedTemplate.result.mapping,
         },
@@ -101,8 +121,8 @@ export function calculateCompanionTemplateSpans(
           originalFile: template,
           originalStart: template.contents.length - 1,
           originalLength: 0,
-          insertionPoint: target.end - 1,
-          transformedSource: `;\n`,
+          insertionPoint: options.insertionPoint,
+          transformedSource: options.suffix,
         }
       );
     } else {
@@ -117,30 +137,18 @@ export function calculateCompanionTemplateSpans(
         originalFile: template,
         originalStart: 0,
         originalLength: template.contents.length,
-        insertionPoint: target.end - 1,
+        insertionPoint: options.insertionPoint,
         transformedSource: '',
         mapping,
       });
     }
-  } else {
-    // TODO: handle opaque expression like an imported identifier or `templateOnlyComponent()`
   }
-
-  return { errors, directives, partialSpans };
 }
 
-type CompanionTemplateTarget = NodePath<t.Class> | NodePath<t.Expression> | null;
+type CompanionTemplateTarget = NodePath<any> | null | undefined;
 
-function findCompanionTemplateTarget(
-  declaration: NodePath<t.Class> | NodePath<t.Expression>
-): CompanionTemplateTarget {
-  let value = declaration.isIdentifier()
+function findCompanionTemplateTarget(declaration: NodePath | null): CompanionTemplateTarget {
+  return declaration?.isIdentifier()
     ? declaration.scope.getBinding(declaration.node.name)?.path
     : declaration;
-
-  if (value?.isClass() || value?.isExpression()) {
-    return value;
-  }
-
-  return null;
 }

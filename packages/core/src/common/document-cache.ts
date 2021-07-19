@@ -20,7 +20,14 @@ export default class DocumentCache {
   public constructor(private ts: typeof import('typescript'), private glintConfig: GlintConfig) {}
 
   public documentExists(path: string): boolean {
-    return this.documents.has(path) || this.ts.sys.fileExists(path);
+    let document = this.documents.get(path);
+
+    // If we have a document that's actually been read from disk, it definitely exists.
+    if (document && (document.version > 0 || !document.stale)) {
+      return true;
+    }
+
+    return this.ts.sys.fileExists(path);
   }
 
   public getCompanionDocumentPath(path: string): string | undefined {
@@ -30,11 +37,15 @@ export default class DocumentCache {
       : environment.getPossibleTemplatePaths(path);
 
     for (let { path, deferTo } of candidates) {
-      // If a candidate companions exist and no other module that would claim that
+      // If a candidate companion exist and no other module that would claim that
       // companion with a higher priority exists, we've found our winner.
       if (this.documentExists(path) && !deferTo.some((path) => this.documentExists(path))) {
         return path;
       }
+    }
+
+    if (isTemplate(path)) {
+      return synthesizedModulePathForTemplate(path);
     }
   }
 
@@ -106,10 +117,28 @@ export default class DocumentCache {
   }
 }
 
+export const TEMPLATE_EXTENSION = '.hbs';
+
+export const TEMPLATE_EXTENSION_REGEX = /\.hbs$/;
+export const SCRIPT_EXTENSION_REGEX = /\.(ts|js)$/;
+export const DECLARATION_EXTENSION_REGEX = /\.d\.ts$/;
+
+export function templatePathForSynthesizedModule(path: string): string {
+  return path.replace(SCRIPT_EXTENSION_REGEX, '.hbs');
+}
+
+export function synthesizedModulePathForTemplate(path: string): string {
+  return path.replace(TEMPLATE_EXTENSION_REGEX, '.ts');
+}
+
 export function isTemplate(path: string): boolean {
-  return path.endsWith('.hbs');
+  return TEMPLATE_EXTENSION_REGEX.test(path);
 }
 
 export function isScript(path: string): boolean {
-  return /\.(ts|js)$/.test(path);
+  return SCRIPT_EXTENSION_REGEX.test(path) && !isDeclaration(path);
+}
+
+export function isDeclaration(path: string): boolean {
+  return DECLARATION_EXTENSION_REGEX.test(path);
 }

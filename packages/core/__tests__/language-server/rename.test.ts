@@ -13,16 +13,37 @@ describe('Language Server: Renaming Symbols', () => {
     await project.destroy();
   });
 
-  test('querying an unaffiliated template', () => {
-    project.write('index.hbs', '{{foo}}');
+  test('querying an standalone template', () => {
+    project.write('.glintrc', 'environment: ember-loose');
+    project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
     let server = project.startLanguageServer();
-    let renameInfo = server.prepareRename(project.fileURI('index.hbs'), {
-      line: 0,
-      character: 2,
-    });
+    let workspaceEdits = server.getEditsForRename(
+      project.fileURI('index.hbs'),
+      { line: 0, character: 11 },
+      'bar'
+    );
 
-    expect(renameInfo).toBeUndefined();
+    expect(workspaceEdits).toEqual({
+      changes: {
+        [project.fileURI('index.hbs')]: [
+          {
+            newText: 'bar',
+            range: {
+              start: { line: 0, character: 9 },
+              end: { line: 0, character: 12 },
+            },
+          },
+          {
+            newText: 'bar',
+            range: {
+              start: { line: 0, character: 16 },
+              end: { line: 0, character: 19 },
+            },
+          },
+        ],
+      },
+    });
   });
 
   test('preparing rename-able and unrename-able elements', () => {

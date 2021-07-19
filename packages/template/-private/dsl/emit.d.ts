@@ -70,7 +70,7 @@ export declare function emitComponent<T extends AcceptsBlocks<any, any>>(
  */
 export declare function template<
   Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
-  Context extends AnyContext = TemplateContext<null, EmptyObject, EmptyObject, null>
+  Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(f: (𝚪: Context, χ: never) => void): new () => Invokable<Signature> & HasContext<Context>;
 
 /*

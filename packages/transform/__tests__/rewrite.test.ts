@@ -284,7 +284,7 @@ describe('rewriteModule', () => {
       `);
     });
 
-    test('with no default value export', () => {
+    test('with no default export', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
@@ -295,28 +295,50 @@ describe('rewriteModule', () => {
 
       let template = {
         filename: 'test.hbs',
+        contents: stripIndent`{{hello}}`,
+      };
+
+      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import Component from '@glimmer/component';
+        export class MyComponent extends Component {}
+        ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
+          χ.emitValue(χ.resolveOrReturn(χ.Globals[\\"hello\\"])({}));
+          𝚪; χ;
+        });
+        "
+      `);
+    });
+
+    test('with an opaque default export', () => {
+      let script = {
+        filename: 'test.ts',
+        contents: stripIndent`
+          import templateOnly from '@glimmer/component/template-only';
+
+          export default templateOnly();
+        `,
+      };
+
+      let template = {
+        filename: 'test.hbs',
         contents: stripIndent``,
       };
 
       let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
 
-      expect(transformedModule?.errors).toEqual([
-        {
-          message:
-            'Modules with an associated template must have a default export that is a class declaration or expression',
-          source: script,
-          location: {
-            start: 0,
-            end: script.contents.length,
-          },
-        },
-      ]);
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import templateOnly from '@glimmer/component/template-only';
 
-      expect(transformedModule?.getOriginalRange(0, script.contents.length)).toEqual({
-        source: script,
-        start: 0,
-        end: script.contents.length,
-      });
+        export default templateOnly();
+        ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<typeof import('./test').default>, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
+          𝚪; χ;
+        }) as unknown;
+        "
+      `);
     });
 
     test('with an unresolvable default export', () => {
@@ -329,21 +351,20 @@ describe('rewriteModule', () => {
 
       let template = {
         filename: 'test.hbs',
-        contents: stripIndent``,
+        contents: stripIndent`{{hello}}`,
       };
 
       let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
 
-      expect(transformedModule?.errors).toEqual([
-        {
-          message: 'Unable to resolve a class body to associate a template declaration to',
-          source: script,
-          location: {
-            start: script.contents.indexOf('Foo'),
-            end: script.contents.indexOf(';'),
-          },
-        },
-      ]);
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "export default Foo;
+        ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
+          χ.emitValue(χ.resolveOrReturn(χ.Globals[\\"hello\\"])({}));
+          𝚪; χ;
+        });
+        "
+      `);
     });
 
     test('with a class with default export in module augmentation', () => {

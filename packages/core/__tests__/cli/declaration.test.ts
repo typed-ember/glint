@@ -12,7 +12,7 @@ describe('CLI: emitting declarations', () => {
     await project.destroy();
   });
 
-  test('emit for a valid project', async () => {
+  test('emit for a valid project with embedded templates', async () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';
 
@@ -47,6 +47,91 @@ describe('CLI: emitting declarations', () => {
           private startupTime;
           static template: unknown;
       }
+      "
+    `);
+  });
+
+  test('emit for a valid project with standalone template files', async () => {
+    let classComponentScript = stripIndent`
+      import Component from '@glint/environment-ember-loose/glimmer-component';
+
+      export interface ClassComponentSignature {
+        Args: { version: string };
+      }
+
+      export default class ClassComponent extends Component<ClassComponentSignature> {
+        private startupTime = new Date().toISOString();
+      }
+    `;
+
+    let classComponentTemplate = stripIndent`
+      Welcome to app v{{@version}}.
+      The current time is {{this.startupTime}}.
+    `;
+
+    let signaturelessTemplate = stripIndent`
+      {{#let "Hello" as |message|}}
+        {{message}}, world!
+      {{/let}}
+    `;
+
+    let templateOnlyScript = stripIndent`
+      import templateOnly from '@glint/environment-ember-loose/ember-component/template-only';
+
+      export interface TemplateOnlySignature {
+        Args: { message: string };
+      }
+
+      export default templateOnly<TemplateOnlySignature>();
+    `;
+
+    let templateOnlyTemplate = stripIndent`
+      {{@message}}, world!
+    `;
+
+    project.write('.glintrc', 'environment: ember-loose');
+
+    project.write('class-component.ts', classComponentScript);
+    project.write('class-component.hbs', classComponentTemplate);
+
+    project.write('signatureless-component.hbs', signaturelessTemplate);
+
+    project.write('template-only.ts', templateOnlyScript);
+    project.write('template-only.hbs', templateOnlyTemplate);
+
+    let emitResult = await project.check({ flags: ['--declaration'] });
+
+    expect(emitResult.exitCode).toBe(0);
+    expect(project.readdir().filter((file) => file.endsWith('.d.ts'))).toEqual([
+      'class-component.d.ts',
+      'signatureless-component.d.ts',
+      'template-only.d.ts',
+    ]);
+
+    expect(project.read('class-component.d.ts')).toMatchInlineSnapshot(`
+      "import Component from '@glint/environment-ember-loose/glimmer-component';
+      export interface ClassComponentSignature {
+          Args: {
+              version: string;
+          };
+      }
+      export default class ClassComponent extends Component<ClassComponentSignature> {
+          private startupTime;
+          protected static '~template': unknown;
+      }
+      "
+    `);
+
+    expect(project.read('signatureless-component.d.ts')).toMatchInlineSnapshot(`""`);
+
+    expect(project.read('template-only.d.ts')).toMatchInlineSnapshot(`
+      "export interface TemplateOnlySignature {
+          Args: {
+              message: string;
+          };
+      }
+      declare const _default: import(\\"@glint/environment-ember-loose/ember-component/template-only\\").TemplateOnlyComponent<TemplateOnlySignature>;
+      export default _default;
       "
     `);
   });

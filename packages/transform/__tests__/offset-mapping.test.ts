@@ -45,17 +45,24 @@ describe('Source-to-source offset mapping', () => {
 
   function rewriteCompanionTemplate({
     contents,
+    backing,
   }: {
     contents: string;
-    identifiersInScope?: string[];
+    backing: 'class' | 'opaque' | 'none';
   }): RewrittenTestModule {
-    let script = {
-      filename: 'test.ts',
-      contents: stripIndent`
-        import Component from '@glimmer/component';
-        export default class MyComponent extends Component {}
-      `,
-    };
+    let script: SourceFile | undefined;
+
+    if (backing === 'class') {
+      script = {
+        filename: 'test.ts',
+        contents: 'export default class MyComponent {}',
+      };
+    } else if (backing === 'opaque') {
+      script = {
+        filename: 'test.ts',
+        contents: 'export default templateOnly();',
+      };
+    }
 
     let template = {
       filename: 'test.hbs',
@@ -141,17 +148,25 @@ describe('Source-to-source offset mapping', () => {
   describe('standalone companion template', () => {
     describe('path segments', () => {
       test('simple path', () => {
-        let module = rewriteCompanionTemplate({ contents: '{{foo.bar}}' });
+        let module = rewriteCompanionTemplate({ backing: 'class', contents: '{{foo.bar}}' });
         expectTokenMapping(module, 'foo');
         expectTokenMapping(module, 'bar');
       });
 
       test('paths with repeated subsequences', () => {
-        let module = rewriteCompanionTemplate({ contents: '{{this.tabState.tab}}' });
+        let module = rewriteCompanionTemplate({
+          backing: 'class',
+          contents: '{{this.tabState.tab}}',
+        });
         expectTokenMapping(module, 'this');
         expectTokenMapping(module, 'tabState');
         expectTokenMapping(module, 'tab', { occurrence: 1 });
       });
+    });
+
+    test.each(['class', 'opaque', 'none'] as const)('with backing expression: %s', (backing) => {
+      let module = rewriteCompanionTemplate({ backing, contents: '{{@foo}}' });
+      expectTokenMapping(module, 'foo');
     });
   });
 

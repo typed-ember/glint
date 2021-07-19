@@ -13,16 +13,23 @@ describe('Language Server: Hover', () => {
     await project.destroy();
   });
 
-  test('querying an unaffiliated template', () => {
-    project.write('index.hbs', '{{foo}}');
+  test('querying a standalone template', () => {
+    project.write('.glintrc', 'environment: ember-loose');
+    project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
     let server = project.startLanguageServer();
     let info = server.getHover(project.fileURI('index.hbs'), {
       line: 0,
-      character: 2,
+      character: 17,
     });
 
-    expect(info).toBeUndefined();
+    expect(info).toEqual({
+      contents: [{ language: 'ts', value: 'const foo: any' }],
+      range: {
+        start: { line: 0, character: 16 },
+        end: { line: 0, character: 19 },
+      },
+    });
   });
 
   test('using private properties', () => {

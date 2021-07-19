@@ -9,13 +9,21 @@ import {
 import type ts from 'typescript';
 import { GlintConfig } from '@glint/config';
 import { assert } from '@glint/transform/lib/util';
-import DocumentCache, { isScript, isTemplate } from './document-cache';
+import DocumentCache, {
+  isScript,
+  isTemplate,
+  synthesizedModulePathForTemplate,
+  templatePathForSynthesizedModule,
+  TEMPLATE_EXTENSION,
+} from './document-cache';
 
 type TransformInfo = {
   version: string;
   transformedFileName: string;
   transformedModule: TransformedModule | null;
 };
+
+type Diagnostic = ts.Diagnostic & { isGlintTransformDiagnostic?: boolean };
 
 export default class TransformManager {
   private transformCache = new Map<string, TransformInfo>();
@@ -26,7 +34,7 @@ export default class TransformManager {
     private documents: DocumentCache = new DocumentCache(ts, glintConfig)
   ) {}
 
-  public getTransformDiagnostics(fileName?: string): Array<ts.Diagnostic> {
+  public getTransformDiagnostics(fileName?: string): Array<Diagnostic> {
     if (fileName) {
       let transformedModule = this.getTransformInfo(fileName)?.transformedModule;
       return transformedModule ? this.buildTransformDiagnostics(transformedModule) : [];
@@ -42,7 +50,7 @@ export default class TransformManager {
   }
 
   public rewriteDiagnostics(
-    diagnostics: ReadonlyArray<ts.Diagnostic>,
+    diagnostics: ReadonlyArray<Diagnostic>,
     fileName?: string
   ): ReadonlyArray<ts.Diagnostic> {
     let unusedExpectErrors = new Set(this.getExpectErrorDirectives(fileName));
@@ -60,7 +68,7 @@ export default class TransformManager {
 
     for (let directive of unusedExpectErrors) {
       allDiagnostics.push(
-        this.buildDiagnostic(
+        this.buildTransformDiagnostic(
           directive.source,
           `Unused '@glint-expect-error' directive.`,
           directive.location
@@ -153,7 +161,12 @@ export default class TransformManager {
     assert(watchFile);
 
     let callback: ts.FileWatcherCallback = (watchedPath, eventKind) => {
-      this.documents.markDocumentStale(watchedPath);
+      if (eventKind === this.ts.FileWatcherEventKind.Deleted) {
+        this.documents.removeDocument(watchedPath);
+      } else {
+        this.documents.markDocumentStale(watchedPath);
+      }
+
       return originalCallback(path, eventKind);
     };
 
@@ -174,6 +187,21 @@ export default class TransformManager {
     }
 
     return rootWatcher;
+  };
+
+  public readDirectory = (
+    rootDir: string,
+    extensions: ReadonlyArray<string>,
+    excludes: ReadonlyArray<string> | undefined,
+    includes: ReadonlyArray<string>,
+    depth?: number | undefined
+  ): Array<string> => {
+    let allExtensions = [...extensions, TEMPLATE_EXTENSION];
+    return this.ts.sys
+      .readDirectory(rootDir, allExtensions, excludes, includes, depth)
+      .map((filename) =>
+        isTemplate(filename) ? synthesizedModulePathForTemplate(filename) : filename
+      );
   };
 
   public readTransformedFile = (filename: string, encoding?: string): string | undefined => {
@@ -200,9 +228,15 @@ export default class TransformManager {
   }
 
   private rewriteDiagnostic(
-    diagnostic: ts.Diagnostic
+    diagnostic: Diagnostic
   ): { rewrittenDiagnostic?: ts.Diagnostic; appliedDirective?: Directive } {
     if (!diagnostic.file) return {};
+
+    // Transform diagnostics are already targeted at the original source and so
+    // don't need to be rewritten.
+    if ('isGlintTransformDiagnostic' in diagnostic && diagnostic.isGlintTransformDiagnostic) {
+      return { rewrittenDiagnostic: diagnostic };
+    }
 
     let transformInfo = this.getTransformInfo(diagnostic.file?.fileName);
     let rewrittenDiagnostic = rewriteDiagnostic(
@@ -236,32 +270,43 @@ export default class TransformManager {
   }
 
   private getTransformInfo(filename: string, encoding?: string): TransformInfo {
+    let { documents, glintConfig } = this;
     let existing = this.transformCache.get(filename);
-    let version = this.documents.getCompoundDocumentVersion(filename);
+    let version = documents.getCompoundDocumentVersion(filename);
     if (existing?.version === version) {
       return existing;
     }
 
     let transformedModule: TransformedModule | null = null;
-    let contents = this.documents.getDocumentContents(filename, encoding);
-    let config = this.glintConfig;
+    if (isScript(filename) && glintConfig.includesFile(filename)) {
+      if (documents.documentExists(filename)) {
+        let contents = documents.getDocumentContents(filename, encoding);
+        let mayHaveTaggedTemplates = glintConfig.environment.moduleMayHaveTagImports(contents);
+        let templatePath = documents.getCompanionDocumentPath(filename);
 
-    if (
-      contents &&
-      isScript(filename) &&
-      !filename.endsWith('.d.ts') &&
-      config.includesFile(filename)
-    ) {
-      let mayHaveTaggedTemplates = config.environment.moduleMayHaveTagImports(contents);
-      let templatePath = this.documents.getCompanionDocumentPath(filename);
+        if (mayHaveTaggedTemplates || templatePath) {
+          let script = { filename, contents };
+          let template = templatePath
+            ? { filename: templatePath, contents: documents.getDocumentContents(templatePath) }
+            : undefined;
 
-      if (mayHaveTaggedTemplates || templatePath) {
-        let script = { filename, contents };
-        let template = templatePath
-          ? { filename: templatePath, contents: this.documents.getDocumentContents(templatePath) }
-          : undefined;
+          transformedModule = rewriteModule({ script, template }, glintConfig.environment);
+        }
+      } else {
+        let templatePath = templatePathForSynthesizedModule(filename);
+        if (
+          documents.documentExists(templatePath) &&
+          documents.getCompanionDocumentPath(templatePath) === filename
+        ) {
+          // The `.ts` file we were asked for doesn't exist, but a corresponding `.hbs` one does, and
+          // it doesn't have a companion script elsewhere.
+          let template = {
+            filename: templatePath,
+            contents: documents.getDocumentContents(templatePath),
+          };
 
-        transformedModule = rewriteModule({ script, template }, config.environment);
+          transformedModule = rewriteModule({ template }, glintConfig.environment);
+        }
       }
     }
 
@@ -270,20 +315,19 @@ export default class TransformManager {
     return cacheEntry;
   }
 
-  private buildTransformDiagnostics(
-    transformedModule: TransformedModule
-  ): Array<ts.DiagnosticWithLocation> {
+  private buildTransformDiagnostics(transformedModule: TransformedModule): Array<Diagnostic> {
     return transformedModule.errors.map((error) =>
-      this.buildDiagnostic(error.source, error.message, error.location)
+      this.buildTransformDiagnostic(error.source, error.message, error.location)
     );
   }
 
-  private buildDiagnostic(
+  private buildTransformDiagnostic(
     source: SourceFile,
     message: string,
     location: Range
-  ): ts.DiagnosticWithLocation {
+  ): Diagnostic {
     return {
+      isGlintTransformDiagnostic: true,
       category: this.ts.DiagnosticCategory.Error,
       code: 0,
       file: this.ts.createSourceFile(source.filename, source.contents, this.ts.ScriptTarget.Latest),

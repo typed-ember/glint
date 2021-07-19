@@ -14,16 +14,23 @@ describe('Language Server: Completions', () => {
     await project.destroy();
   });
 
-  test('querying an unaffiliated template', () => {
-    project.write('index.hbs', '{{foo}}');
+  test('querying a standalone template', () => {
+    project.write('.glintrc', 'environment: ember-loose');
+    project.write('index.hbs', '<Foo as |foo|>{{fo}}</Foo>');
 
     let server = project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.hbs'), {
       line: 0,
-      character: 2,
+      character: 17,
     });
 
-    expect(completions).toBeUndefined();
+    let completion = completions?.find((item) => item.label === 'foo');
+
+    expect(completion?.kind).toEqual(CompletionItemKind.Variable);
+
+    let details = server.getCompletionDetails(completion!);
+
+    expect(details.detail).toEqual('const foo: any');
   });
 
   test('passing component args', () => {

@@ -213,6 +213,28 @@ describe('CLI: single-pass typechecking', () => {
     `);
   });
 
+  test('reports diagnostics for a template-only type error', async () => {
+    project.write('.glintrc', 'environment: ember-loose\n');
+
+    let template = stripIndent`
+      {{this.someProperty}}
+    `;
+
+    project.write('my-component.hbs', template);
+
+    let checkResult = await project.check({ reject: false });
+
+    expect(checkResult.exitCode).toBe(1);
+    expect(checkResult.stdout).toEqual('');
+    expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+      "my-component.hbs:1:8 - error TS2339: Property 'someProperty' does not exist on type 'void'.
+
+      1 {{this.someProperty}}
+               ~~~~~~~~~~~~
+      "
+    `);
+  });
+
   test('reports correct diagnostics given @glint-expect-error and @glint-ignore directives', async () => {
     project.write('.glintrc', 'environment: ember-loose\n');
 

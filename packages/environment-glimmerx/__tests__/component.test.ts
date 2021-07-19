@@ -133,8 +133,8 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
 
 {
   const NoAnnotationTC = template(function (𝚪) {
-    expectTypeOf(𝚪.this).toBeNull();
-    expectTypeOf(𝚪.element).toBeNull();
+    expectTypeOf(𝚪.this).toBeVoid();
+    expectTypeOf(𝚪.element).toBeVoid();
     expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
     expectTypeOf(𝚪.yields).toEqualTypeOf<EmptyObject>();
   });

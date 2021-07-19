@@ -15,6 +15,7 @@ TypeScript-powered tooling for Glimmer templates.
     - [Ember Components](#ember-components)
     - [Template Registry](#template-registry)
     - [Route and Controller Templates](#route-and-controller-templates)
+    - [Template-Only Components](#template-only-components)
     - [Rendering Tests](#rendering-tests)
     - [Contextual Components](#contextual-components)
 - [Known Limitations](#known-limitations)
@@ -167,12 +168,13 @@ import type { TC } from '@glint/environment-glimmerx/component';
 
 In order for GlimmerX entities to be interpretable by Glint, you currently need to use Glint-specific import paths for `@glimmer/component`, `@ember/component` and `ember-modifier`. Note that [this is not a long-term restriction](#environment-re-exports), but a temporary workaround for the current state of the ecosystem.
 
-| Vanilla Ember             | Ember + Glint                                           |
-| ------------------------- | ------------------------------------------------------- |
-| `@glimmer/component`      | `@glint/environment-ember-loose/glimmer-component`      |
-| `@ember/component`        | `@glint/environment-ember-loose/ember-component`        |
-| `@ember/component/helper` | `@glint/environment-ember-loose/ember-component/helper` |
-| `ember-modifier`          | `@glint/environment-ember-loose/ember-modifier`         |
+| Vanilla Ember                    | Ember + Glint                                                  |
+| -------------------------------- | -------------------------------------------------------------- |
+| `@glimmer/component`             | `@glint/environment-ember-loose/glimmer-component`             |
+| `@ember/component`               | `@glint/environment-ember-loose/ember-component`               |
+| `@ember/component/helper`        | `@glint/environment-ember-loose/ember-component/helper`        |
+| `@ember/component/template-only` | `@glint/environment-ember-loose/ember-component/template-only` |
+| `ember-modifier`                 | `@glint/environment-ember-loose/ember-modifier`                |
 
 #### Component Signatures
 
@@ -344,6 +346,36 @@ export default class MyRoute extends Route {
 {{@model}} {{! MyModelType }}
 ```
 
+#### Template-Only Components
+
+A template-only component is any template for which Ember (and Glint) can't locate a backing TS or JS module. In Glint, these are treated very similarly to a component with an empty signature: it has no args, and it can't yield to blocks or apply `...attributes` anywhere. Additionally, the value of `{{this}}` in such a template will be `void`.
+
+While it's possible to do some simple things like invoking other components from these templates, typically you'll want to create a backing module for your template so you can declare its signature, add it to the template registry, and so on.
+
+```ts
+import templateOnlyComponent from '@glint/environment-ember-loose/ember-component/template-only';
+
+interface ShoutSignature {
+  Element: HTMLDivElement;
+  Args: { message: string };
+  Yields: {
+    default: [shoutedMessage: string];
+  };
+}
+
+const Shout = templateOnlyComponent<ShoutSignature>();
+
+export default Shout;
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    Shout: typeof Shout;
+  }
+}
+```
+
+Note that the runtime content of this module (effectively `export default templateOnlyComponent();`) is exactly what Ember generates at build time when creating a backing module for a template-only component.
+
 #### Rendering Tests
 
 Templates rendered in tests using `ember-cli-htmlbars`'s `hbs` tag will be checked the same way as standalone `hbs` files.
@@ -458,9 +490,7 @@ Once that's done, consumers should be able to import values the "normal" way dir
 
 Glint is not currently integrated with `ember-cli-typescript`, so typechecking performed during an `ember-cli` build will not take templates into account.
 
-In addition, only templates associated with (or embedded in) `.ts` files are currently supported. That is, template-only components are **not yet** checkable with Glint.
-
-Finally, the template registry described in the "With Ember.js" section above must currently be maintained by hand. A few possibilities for mitigating that pain have been discussed, but ultimately the best solution will be when [strict mode] comes to Ember and we no longer need to reckon with runtime resolution of template entities.
+In addition, the template registry described in the "With Ember.js" section above must currently be maintained by hand. A few possibilities for mitigating that pain have been discussed, but ultimately the best solution will be when [strict mode] comes to Ember and we no longer need to reckon with runtime resolution of template entities.
 
 [strict mode]: http://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html
 
