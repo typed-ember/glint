@@ -13,6 +13,22 @@ let eachIn = resolve(Globals['each-in']);
   }
 }
 
+// Only gives string keys
+
+{
+  const b: unique symbol = Symbol('b');
+  const value = { a: 'hi', [b]: 123 };
+  const component = emitComponent(eachIn({}, value));
+
+  {
+    const [key, value] = component.blockParams.default;
+
+    // {{each-in}} internally uses `Object.keys`, so only string keys are included
+    expectTypeOf(key).toEqualTypeOf<'a'>();
+    expectTypeOf(value).toEqualTypeOf<string>();
+  }
+}
+
 // Can render maybe undefined
 
 declare const maybeVal: { a: number; b: number } | undefined;
@@ -39,8 +55,8 @@ declare const maybeVal: { a: number; b: number } | undefined;
 
   {
     const [key, value] = component.blockParams.default;
-    // This won't get called when no value, but gets default for keyof
-    expectTypeOf(key).toEqualTypeOf<string | number | symbol>();
+    // This won't get called when no value, but gets default key type
+    expectTypeOf(key).toEqualTypeOf<string>();
     expectTypeOf(value).toEqualTypeOf<never>();
   }
 
@@ -55,8 +71,8 @@ declare const maybeVal: { a: number; b: number } | undefined;
 
   {
     const [key, value] = component.blockParams.default;
-    // This won't get called when no value, but gets default for keyof
-    expectTypeOf(key).toEqualTypeOf<string | number | symbol>();
+    // This won't get called when no value, but gets default key type
+    expectTypeOf(key).toEqualTypeOf<string>();
     expectTypeOf(value).toEqualTypeOf<never>();
   }
 
