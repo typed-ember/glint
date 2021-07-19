@@ -1,14 +1,14 @@
+import { Ember } from './-ember';
 import type { Invoke, Invokable, EmptyObject } from '@glint/template/-private/integration';
 import type { AsObjectType } from '../-private/utilities';
 
-declare const Ember: { Helper: EmberHelperConstructor };
 declare const GivenSignature: unique symbol;
 
 type EmberHelper = import('@ember/component/helper').default;
 type EmberHelperConstructor = typeof import('@ember/component/helper').default;
 
-const EmberHelper = Ember.Helper;
-const emberHelper = Ember.Helper.helper;
+const EmberHelper: EmberHelperConstructor = Ember.Helper;
+const emberHelper = EmberHelper.helper;
 
 type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T ? T[Key] : Otherwise;
 
