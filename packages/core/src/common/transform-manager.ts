@@ -227,9 +227,10 @@ export default class TransformManager {
     });
   }
 
-  private rewriteDiagnostic(
-    diagnostic: Diagnostic
-  ): { rewrittenDiagnostic?: ts.Diagnostic; appliedDirective?: Directive } {
+  private rewriteDiagnostic(diagnostic: Diagnostic): {
+    rewrittenDiagnostic?: ts.Diagnostic;
+    appliedDirective?: Directive;
+  } {
     if (!diagnostic.file) return {};
 
     // Transform diagnostics are already targeted at the original source and so

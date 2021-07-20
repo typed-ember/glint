@@ -356,9 +356,11 @@ export function templateToTypescript(
       }
     }
 
-    function tagNameToPathContents(
-      node: AST.ElementNode
-    ): { start: number; kind: PathKind; path: Array<string> } {
+    function tagNameToPathContents(node: AST.ElementNode): {
+      start: number;
+      kind: PathKind;
+      path: Array<string>;
+    } {
       let tagName = node.tag;
       let start = template.indexOf(tagName, rangeForNode(node).start);
 

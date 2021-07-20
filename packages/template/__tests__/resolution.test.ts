@@ -44,9 +44,7 @@ declare function value<T>(): T;
     });
   }
 
-  type ExpectedSignature = <T>(
-    args: MyArgs<T>
-  ) => AcceptsBlocks<{
+  type ExpectedSignature = <T>(args: MyArgs<T>) => AcceptsBlocks<{
     body: [boolean, T];
   }>;
 

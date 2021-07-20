@@ -16,4 +16,4 @@ type OnModifier = DirectInvokable<
   ) => BoundModifier<HTMLElement>
 >;
 
-export const on = (glimmerxModifier.on as unknown) as OnModifier;
+export const on = glimmerxModifier.on as unknown as OnModifier;
