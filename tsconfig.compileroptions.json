@@ -4,6 +4,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "strict": true,
+    "noImplicitOverride": true,
     "esModuleInterop": true,
     "composite": true,
     "declaration": true,

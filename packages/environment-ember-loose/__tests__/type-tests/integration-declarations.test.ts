@@ -5,7 +5,7 @@ import { EmptyObject } from '@glint/template/-private/integration';
 import { ResolveContext } from '../../-private/dsl';
 
 class TestRoute extends Route {
-  async model(): Promise<{ message: string }> {
+  override async model(): Promise<{ message: string }> {
     return { message: 'hello' };
   }
 }

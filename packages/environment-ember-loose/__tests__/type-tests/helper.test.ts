@@ -55,7 +55,7 @@ expectTypeOf(Helper.extend).toEqualTypeOf(UpstreamEmberHelper.extend);
 {
   type RepeatArgs<T> = { value: T; count?: number };
   class RepeatHelper<T> extends Helper<{ NamedArgs: RepeatArgs<T>; Return: Array<T> }> {
-    compute(_: [], { value, count }: RepeatArgs<T>): Array<T> {
+    override compute(_: [], { value, count }: RepeatArgs<T>): Array<T> {
       return Array.from({ length: count ?? 2 }, () => value);
     }
   }
@@ -93,7 +93,7 @@ expectTypeOf(Helper.extend).toEqualTypeOf(UpstreamEmberHelper.extend);
 {
   type RepeatArgs<T> = [value: T, count?: number | undefined];
   class RepeatHelper<T> extends Helper<{ PositionalArgs: RepeatArgs<T>; Return: Array<T> }> {
-    compute([value, count]: RepeatArgs<T>): Array<T> {
+    override compute([value, count]: RepeatArgs<T>): Array<T> {
       return Array.from({ length: count ?? 2 }, () => value);
     }
   }
@@ -128,7 +128,7 @@ expectTypeOf(Helper.extend).toEqualTypeOf(UpstreamEmberHelper.extend);
 // Class-based helpers can return undefined
 {
   class MaybeStringHelper extends Helper<{ Return: string | undefined }> {
-    compute(): string | undefined {
+    override compute(): string | undefined {
       if (Math.random() > 0.5) {
         return 'ok';
       }
