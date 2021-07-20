@@ -14,6 +14,7 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
     "noEmitOnError": false,
     "noEmit": true,
     "inlineSourceMap": true,
