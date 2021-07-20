@@ -200,7 +200,9 @@ export default class TransformManager {
     return this.ts.sys
       .readDirectory(rootDir, allExtensions, excludes, includes, depth)
       .map((filename) =>
-        isTemplate(filename) ? synthesizedModulePathForTemplate(filename) : filename
+        isTemplate(filename)
+          ? synthesizedModulePathForTemplate(filename, this.glintConfig)
+          : filename
       );
   };
 

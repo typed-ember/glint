@@ -18,18 +18,20 @@ const configPath =
   ts.findConfigFile(process.cwd(), ts.sys.fileExists);
 const { fileNames, options } = parseConfigFile(ts, configPath);
 
-const baseProjectRoots = new Set(fileNames);
-const getRootFileNames = (): Array<string> => {
-  return fileNames.concat(
-    documents
-      .all()
-      .map((doc) => uriToFilePath(doc.uri))
-      .map((path) => (isTemplate(path) ? synthesizedModulePathForTemplate(path) : path))
-      .filter((path) => isScript(path) && !baseProjectRoots.has(path))
-  );
-};
-
 if (glintConfig) {
+  const baseProjectRoots = new Set(fileNames);
+  const getRootFileNames = (): Array<string> => {
+    return fileNames.concat(
+      documents
+        .all()
+        .map((doc) => uriToFilePath(doc.uri))
+        .map((path) =>
+          isTemplate(path) ? synthesizedModulePathForTemplate(path, glintConfig) : path
+        )
+        .filter((path) => isScript(path) && !baseProjectRoots.has(path))
+    );
+  };
+
   const languageServer = new GlintLanguageServer(ts, glintConfig, getRootFileNames, options);
 
   bindLanguageServer({ languageServer, documents, connection });
