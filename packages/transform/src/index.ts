@@ -72,10 +72,7 @@ function hasRelatedInformation(
  *           embedded templates depending on the environment
  *   template: a standalone template file
  */
-export type RewriteInput =
-  | { script?: undefined; template: SourceFile }
-  | { script: SourceFile; template?: undefined }
-  | { script: SourceFile; template: SourceFile };
+export type RewriteInput = { script: SourceFile; template?: SourceFile };
 
 /**
  * Given the script and/or template that together comprise a component module,
@@ -90,14 +87,6 @@ export function rewriteModule(
   { script, template }: RewriteInput,
   environment: GlintEnvironment
 ): TransformedModule | null {
-  if (!script) {
-    assert(template, '`rewriteModule` requires at least a `script` or a `template`');
-    script = {
-      filename: template.filename.replace(/\.hbs$/, '.ts'),
-      contents: '',
-    };
-  }
-
   let { errors, directives, partialSpans } = calculateCorrelatedSpans(
     script,
     template,

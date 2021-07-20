@@ -50,19 +50,15 @@ describe('Source-to-source offset mapping', () => {
     contents: string;
     backing: 'class' | 'opaque' | 'none';
   }): RewrittenTestModule {
-    let script: SourceFile | undefined;
-
-    if (backing === 'class') {
-      script = {
-        filename: 'test.ts',
-        contents: 'export default class MyComponent {}',
-      };
-    } else if (backing === 'opaque') {
-      script = {
-        filename: 'test.ts',
-        contents: 'export default templateOnly();',
-      };
-    }
+    let script = {
+      filename: 'script.ts',
+      contents:
+        backing === 'class'
+          ? 'export default class MyComponent {}'
+          : backing === 'opaque'
+          ? 'export default templateOnly();'
+          : '',
+    };
 
     let template = {
       filename: 'test.hbs',
