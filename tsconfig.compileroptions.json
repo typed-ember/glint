@@ -4,6 +4,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
     "esModuleInterop": true,
     "composite": true,
     "declaration": true,

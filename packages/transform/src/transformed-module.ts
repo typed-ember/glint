@@ -146,9 +146,10 @@ export default class TransformedModule {
     return { start, end };
   }
 
-  private determineOriginalOffsetAndSpan(
-    transformedOffset: number
-  ): { originalOffset: number; correlatedSpan: CorrelatedSpan } {
+  private determineOriginalOffsetAndSpan(transformedOffset: number): {
+    originalOffset: number;
+    correlatedSpan: CorrelatedSpan;
+  } {
     for (let span of this.correlatedSpans) {
       if (
         transformedOffset >= span.transformedStart &&

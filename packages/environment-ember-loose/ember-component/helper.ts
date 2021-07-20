@@ -16,7 +16,7 @@ type HelperFactory = <Positional extends unknown[] = [], Named = EmptyObject, Re
   fn: (params: Positional, hash: Named) => Return
 ) => new () => Invokable<(named: Named, ...positional: Positional) => Return>;
 
-export const helper = (emberHelper as unknown) as HelperFactory;
+export const helper = emberHelper as unknown as HelperFactory;
 
 export interface HelperSignature {
   NamedArgs?: object;

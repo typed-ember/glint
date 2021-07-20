@@ -26,7 +26,7 @@ import { BoundModifier } from '@glint/template/-private/integration';
       return this.args.named.multiplier;
     }
 
-    didReceiveArguments(): void {
+    override didReceiveArguments(): void {
       expectTypeOf(this.element).toEqualTypeOf<HTMLImageElement>();
 
       this.interval = window.setInterval(() => {
@@ -34,7 +34,7 @@ import { BoundModifier } from '@glint/template/-private/integration';
       }, this.multiplier * this.lengthOfInput);
     }
 
-    willDestroy(): void {
+    override willDestroy(): void {
       window.clearInterval(this.interval);
     }
   }

@@ -8,8 +8,6 @@ import { templateToTypescript } from '../template-to-typescript';
 import { Directive, SourceFile, TransformError } from '../transformed-module';
 import { assert, isJsScript } from '../util';
 
-const STANDALONE_TEMPLATE_FIELD = `'~template'`;
-
 export function calculateCompanionTemplateSpans(
   exportDeclarationPath: NodePath | null,
   script: SourceFile,
@@ -52,9 +50,14 @@ export function calculateCompanionTemplateSpans(
       useJsDoc: isJsScript(script.filename),
     });
 
+    // This allows us to avoid issues with `noImplicitOverride` for subclassed components,
+    // but is ultimately kind of a kludge. TS 4.4 will support class static blocks, at
+    // which point we won't need to invent a field at all and we can remove this.
+    let standaloneTemplateField = `'~template:${className}'`;
+
     pushTransformedTemplate(rewriteResult, {
       insertionPoint: target.end - 1,
-      prefix: `protected static ${STANDALONE_TEMPLATE_FIELD} = `,
+      prefix: `protected static ${standaloneTemplateField} = `,
       suffix: ';\n',
     });
   } else {

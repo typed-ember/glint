@@ -150,7 +150,7 @@ emitComponent(resolveOrReturn(MaybeMyComponent)({ value: 'hi' }));
 
   // @ts-expect-error: unknown is an invalid component
   let unknownComponent = emitComponent({} as unknown);
-  let [unknownComponentParam] = unknownComponent.blockParams.default;
+  let [unknownComponentParam] = unknownComponent.blockParams['default'];
 
   expectTypeOf(unknownComponent.element).toBeAny();
   expectTypeOf(unknownComponentParam).toBeAny();

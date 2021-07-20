@@ -278,11 +278,11 @@ describe('rewriteTemplate', () => {
             {
               const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"doAThing\\"])({}));
               {
-                const [ok] = 𝛄.blockParams.default;
+                const [ok] = 𝛄.blockParams[\\"default\\"];
                 χ.emitValue(χ.resolveOrReturn(ok)({}));
               }
               {
-                const [] = 𝛄.blockParams.else;
+                const [] = 𝛄.blockParams[\\"else\\"];
                 χ.emitValue(χ.resolveOrReturn(𝚪.args.nevermind)({}));
               }
               χ.Globals[\\"doAThing\\"];
@@ -689,7 +689,7 @@ describe('rewriteTemplate', () => {
         "{
           const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"foo\\"])({}));
           {
-            const [bar, baz] = 𝛄.blockParams.default;
+            const [bar, baz] = 𝛄.blockParams[\\"default\\"];
             χ.emitValue(χ.resolveOrReturn(bar)({}));
             χ.emitValue(χ.resolveOrReturn(baz)({}));
           }
@@ -711,12 +711,12 @@ describe('rewriteTemplate', () => {
         "{
           const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"foo\\"])({}));
           {
-            const [bar, baz] = 𝛄.blockParams.default;
+            const [bar, baz] = 𝛄.blockParams[\\"default\\"];
             χ.emitValue(χ.resolveOrReturn(bar)({}));
             χ.emitValue(χ.resolveOrReturn(baz)({}));
           }
           {
-            const [] = 𝛄.blockParams.else;
+            const [] = 𝛄.blockParams[\\"else\\"];
             χ.emitValue(χ.resolveOrReturn(𝚪.args.oh)({}));
           }
           χ.Globals[\\"foo\\"];
@@ -737,12 +737,12 @@ describe('rewriteTemplate', () => {
         "{
           const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"foo\\"])({}));
           {
-            const [bar, baz] = 𝛄.blockParams.default;
+            const [bar, baz] = 𝛄.blockParams[\\"default\\"];
             χ.emitValue(χ.resolveOrReturn(bar)({}));
             χ.emitValue(χ.resolveOrReturn(baz)({}));
           }
           {
-            const [] = 𝛄.blockParams.else;
+            const [] = 𝛄.blockParams[\\"else\\"];
             χ.emitValue(χ.resolveOrReturn(𝚪.args.oh)({}));
           }
           χ.Globals[\\"foo\\"];
@@ -826,7 +826,7 @@ describe('rewriteTemplate', () => {
           const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"Foo\\"])({}));
           𝛄;
           {
-            const [bar] = 𝛄.blockParams.default;
+            const [bar] = 𝛄.blockParams[\\"default\\"];
             χ.emitValue(χ.resolveOrReturn(bar)({}));
           }
           χ.Globals[\\"Foo\\"];
@@ -898,16 +898,16 @@ describe('rewriteTemplate', () => {
           const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"Foo\\"])({}));
           𝛄;
           {
-            const [h] = 𝛄.blockParams.head;
+            const [h] = 𝛄.blockParams[\\"head\\"];
             χ.emitValue(χ.resolveOrReturn(h)({}));
           }
           {
-            const [b] = 𝛄.blockParams.body;
+            const [b] = 𝛄.blockParams[\\"body\\"];
             {
               const 𝛄 = χ.emitComponent(χ.resolve(b?.contents)({}));
               𝛄;
               {
-                const [] = 𝛄.blockParams.default;
+                const [] = 𝛄.blockParams[\\"default\\"];
               }
               b?.contents;
             }
@@ -941,7 +941,7 @@ describe('rewriteTemplate', () => {
           const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"Foo\\"])({}));
           𝛄;
           {
-            const [NS] = 𝛄.blockParams.default;
+            const [NS] = 𝛄.blockParams[\\"default\\"];
             {
               const 𝛄 = χ.emitComponent(χ.resolve(NS?.Nested?.Custom)({}));
               χ.applyAttributes(𝛄.element, {

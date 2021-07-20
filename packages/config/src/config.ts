@@ -67,21 +67,21 @@ export function normalizePath(fileName: string): string {
 
 function validateConfigInput(input: Record<string, unknown>): asserts input is GlintConfigInput {
   assert(
-    typeof input.environment === 'string',
+    typeof input['environment'] === 'string',
     'Glint config must specify an `environment` string'
   );
 
   assert(
-    Array.isArray(input.include)
-      ? input.include.every((item) => typeof item === 'string')
-      : !input.include || typeof input.include === 'string',
+    Array.isArray(input['include'])
+      ? input['include'].every((item) => typeof item === 'string')
+      : !input['include'] || typeof input['include'] === 'string',
     'If defined, `include` must be a string or array of strings'
   );
 
   assert(
-    Array.isArray(input.exclude)
-      ? input.exclude.every((item) => typeof item === 'string')
-      : !input.exclude || typeof input.exclude === 'string',
+    Array.isArray(input['exclude'])
+      ? input['exclude'].every((item) => typeof item === 'string')
+      : !input['exclude'] || typeof input['exclude'] === 'string',
     'If defined, `exclude` must be a string or array of strings'
   );
 }

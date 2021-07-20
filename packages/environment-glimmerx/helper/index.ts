@@ -38,5 +38,5 @@ type FnHelper = DirectInvokable<{
   ): (...rest: Args) => Ret;
 }>;
 
-export const fn = (glimmerxHelper.fn as unknown) as FnHelper;
-export const helper = (glimmerxHelper.helper as unknown) as HelperFactory;
+export const fn = glimmerxHelper.fn as unknown as FnHelper;
+export const helper = glimmerxHelper.helper as unknown as HelperFactory;
