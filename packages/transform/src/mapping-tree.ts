@@ -74,25 +74,32 @@ export default class MappingTree {
     return this;
   }
 
-  public toDebugString(originalSource: string, transformedSource: string, indent = '| '): string {
+  public toDebugString(options: {
+    originalStart: number;
+    originalSource: string;
+    transformedStart: number;
+    transformedSource: string;
+    indent?: string;
+  }): string {
+    let { originalSource, transformedSource, indent = '| ' } = options;
     let { sourceNode, originalRange, transformedRange, children } = this;
+    let hbsStart = options.originalStart + originalRange.start;
+    let hbsEnd = options.originalStart + originalRange.end;
+    let tsStart = options.transformedStart + transformedRange.start;
+    let tsEnd = options.transformedStart + transformedRange.end;
     let lines = [];
 
     lines.push(`${indent}Mapping: ${sourceNode.type}`);
 
     lines.push(
-      `${indent}${` hbs(${originalRange.start}:${originalRange.end}):`.padEnd(
-        15
-      )}${originalSource
+      `${indent}${` hbs(${hbsStart}:${hbsEnd}):`.padEnd(15)}${originalSource
         .slice(originalRange.start, originalRange.end)
         .trim()
         .replace(/\n/g, '\\n')}`
     );
 
     lines.push(
-      `${indent}${` ts(${transformedRange.start}:${transformedRange.end}):`.padEnd(
-        15
-      )}${transformedSource
+      `${indent}${` ts(${tsStart}:${tsEnd}):`.padEnd(15)}${transformedSource
         .slice(transformedRange.start, transformedRange.end)
         .trim()
         .replace(/\n/g, '\\n')}`
@@ -101,7 +108,7 @@ export default class MappingTree {
     lines.push(indent);
 
     for (let child of children) {
-      lines.push(child.toDebugString(originalSource, transformedSource, indent + '| '));
+      lines.push(child.toDebugString({ ...options, indent: indent + '| ' }));
     }
 
     if (children.length) {

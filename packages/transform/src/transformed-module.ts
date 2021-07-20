@@ -62,13 +62,15 @@ export default class TransformedModule {
 
   public toDebugString(): string {
     let mappingStrings = this.correlatedSpans.map((span) =>
-      span.mapping?.toDebugString(
-        span.originalFile.contents.slice(
+      span.mapping?.toDebugString({
+        originalStart: span.originalStart,
+        originalSource: span.originalFile.contents.slice(
           span.originalStart,
           span.originalStart + span.originalLength
         ),
-        span.transformedSource
-      )
+        transformedStart: span.transformedStart,
+        transformedSource: span.transformedSource,
+      })
     );
 
     return `TransformedModule\n\n${mappingStrings.filter(Boolean).join('\n\n')}`;

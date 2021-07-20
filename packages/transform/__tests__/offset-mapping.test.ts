@@ -371,6 +371,16 @@ describe('Source-to-source offset mapping', () => {
         expectTokenMapping(module, 'bar', { occurrence: 0 });
         expectTokenMapping(module, 'bar', { occurrence: 1 });
       });
+
+      test('args with repeated subsequences', () => {
+        let module = rewriteInlineTemplate({
+          contents: '<Foo @nameThatIsLong="one" @name="two" />',
+        });
+
+        expectTokenMapping(module, 'Foo');
+        expectTokenMapping(module, 'nameThatIsLong');
+        expectTokenMapping(module, 'name', { occurrence: 1 });
+      });
     });
   });
 

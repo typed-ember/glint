@@ -1,4 +1,4 @@
-import { AcceptsBlocks, DirectInvokable, Invokable } from '@glint/template/-private/integration';
+import { ComponentLike } from '../utilities';
 
 type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
   {
@@ -20,13 +20,15 @@ type LinkToArgs = RequireAtLeastOne<
   'route' | 'model' | 'models' | 'query'
 >;
 
-export type LinkToKeyword = DirectInvokable<{
-  (args: LinkToArgs): AcceptsBlocks<{ default: [] }>;
-  (args: Partial<LinkToArgs>, route: string, ...params: unknown[]): AcceptsBlocks<{
-    default?: [];
-  }>;
+export type LinkToKeyword = ComponentLike<{
+  Args: Partial<LinkToArgs>;
+  PositionalArgs: [route?: string, ...params: unknown[]];
+  Element: HTMLAnchorElement;
+  Yields: { default: [] };
 }>;
 
-export type LinkToComponent = new () => Invokable<
-  (args: LinkToArgs) => AcceptsBlocks<{ default: [] }, HTMLAnchorElement>
->;
+export type LinkToComponent = ComponentLike<{
+  Args: LinkToArgs;
+  Yields: { default: [] };
+  Element: HTMLAnchorElement;
+}>;

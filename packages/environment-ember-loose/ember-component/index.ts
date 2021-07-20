@@ -1,3 +1,4 @@
+import { Ember } from './-ember';
 import type {
   Context,
   Invoke,
@@ -11,12 +12,12 @@ import type { ComponentSignature } from '../-private';
 
 export type { ComponentSignature };
 
-declare const Ember: { Component: EmberComponentConstructor };
 declare const GivenSignature: unique symbol;
 
-const EmberComponent = Ember.Component;
 type EmberComponent = import('@ember/component').default;
 type EmberComponentConstructor = typeof import('@ember/component').default;
+
+const EmberComponent: EmberComponentConstructor = Ember.Component;
 
 type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
   ? Exclude<T[Key], undefined>
