@@ -4,6 +4,7 @@ import { GlintEnvironment } from './environment';
 
 export type GlintConfigInput = {
   environment: string;
+  checkStandaloneTemplates?: boolean;
   include?: string | Array<string>;
   exclude?: string | Array<string>;
 };
@@ -15,6 +16,7 @@ export type GlintConfigInput = {
 export class GlintConfig {
   public readonly rootDir: string;
   public readonly environment: GlintEnvironment;
+  public readonly checkStandaloneTemplates: boolean;
 
   private includeMatchers: Array<IMinimatch>;
   private excludeMatchers: Array<IMinimatch>;
@@ -24,6 +26,7 @@ export class GlintConfig {
 
     this.rootDir = normalizePath(rootDir);
     this.environment = GlintEnvironment.load(config.environment, { rootDir });
+    this.checkStandaloneTemplates = config.checkStandaloneTemplates ?? true;
 
     let include = Array.isArray(config.include)
       ? config.include
@@ -69,6 +72,12 @@ function validateConfigInput(input: Record<string, unknown>): asserts input is G
   assert(
     typeof input['environment'] === 'string',
     'Glint config must specify an `environment` string'
+  );
+
+  assert(
+    input['checkStandaloneTemplates'] === undefined ||
+      typeof input['checkStandaloneTemplates'] === 'boolean',
+    'If defined, `checkStandaloneTemplates` must be a boolean'
   );
 
   assert(
