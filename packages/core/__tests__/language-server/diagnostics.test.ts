@@ -64,6 +64,82 @@ describe('Language Server: Diagnostics', () => {
     `);
   });
 
+  describe('checkStandaloneTemplates', () => {
+    beforeEach(() => {
+      let registry = stripIndent`
+        import { ComponentLike } from '@glint/environment-ember-loose';
+
+        declare module '@glint/environment-ember-loose/registry' {
+          export default interface Registry {
+            Foo: ComponentLike<{ Args: { name: string } }>;
+          }
+        }
+      `;
+
+      let template = stripIndent`
+        {{@missingArg}}
+
+        <Foo @name={{123}} />
+      `;
+
+      project.write('registry.d.ts', registry);
+      project.write('my-component.hbs', template);
+    });
+
+    test('disabled', () => {
+      project.write('.glintrc', `environment: ember-loose\ncheckStandaloneTemplates: false`);
+
+      let server = project.startLanguageServer();
+      let templateDiagnostics = server.getDiagnostics(project.fileURI('my-component.hbs'));
+
+      expect(templateDiagnostics).toEqual([]);
+    });
+
+    test('enabled', () => {
+      project.write('.glintrc', `environment: ember-loose\ncheckStandaloneTemplates: true`);
+
+      let server = project.startLanguageServer();
+      let templateDiagnostics = server.getDiagnostics(project.fileURI('my-component.hbs'));
+
+      expect(templateDiagnostics).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "message": "Property 'missingArg' does not exist on type 'EmptyObject'.",
+            "range": Object {
+              "end": Object {
+                "character": 13,
+                "line": 0,
+              },
+              "start": Object {
+                "character": 3,
+                "line": 0,
+              },
+            },
+            "severity": 1,
+            "source": "glint:ts(2339)",
+            "tags": Array [],
+          },
+          Object {
+            "message": "Type 'number' is not assignable to type 'string'.",
+            "range": Object {
+              "end": Object {
+                "character": 10,
+                "line": 2,
+              },
+              "start": Object {
+                "character": 6,
+                "line": 2,
+              },
+            },
+            "severity": 1,
+            "source": "glint:ts(2322)",
+            "tags": Array [],
+          },
+        ]
+      `);
+    });
+  });
+
   test('reports diagnostics for an inline template type error', () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';

@@ -60,6 +60,8 @@ export default class Project {
         module: 'es2015',
         moduleResolution: 'node',
         skipLibCheck: true,
+        allowJs: true,
+        checkJs: false,
         ...compilerOptions,
       },
     };
