@@ -35,7 +35,7 @@ describe('Debug utilities', () => {
 
         | Mapping: Template
         |  hbs(0:123):   {{#each (array \\"world\\" \\"planet\\" \\"universe\\") as |target index|}}\\\\n  #{{add index 1}}: {{this.message}}, {{target}}!\\\\n{{/each}}
-        |  ts(195:825):  ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {\\\\n  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"each\\"])({}, [\\"world\\", \\"planet\\", \\"universe\\"]));\\\\n    {\\\\n      const [target, index] = 𝛄.blockParams.default;\\\\n      χ.emitValue(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1));\\\\n      χ.emitValue(χ.resolveOrReturn(𝚪.this.message)({}));\\\\n      χ.emitValue(χ.resolveOrReturn(target)({}));\\\\n    }\\\\n    χ.Globals[\\"each\\"];\\\\n  }\\\\n  𝚪; χ;\\\\n}) as unknown
+        |  ts(195:828):  ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {\\\\n  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"each\\"])({}, [\\"world\\", \\"planet\\", \\"universe\\"]));\\\\n    {\\\\n      const [target, index] = 𝛄.blockParams[\\"default\\"];\\\\n      χ.emitValue(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1));\\\\n      χ.emitValue(χ.resolveOrReturn(𝚪.this.message)({}));\\\\n      χ.emitValue(χ.resolveOrReturn(target)({}));\\\\n    }\\\\n    χ.Globals[\\"each\\"];\\\\n  }\\\\n  𝚪; χ;\\\\n}) as unknown
         |
         | | Mapping: Identifier
         | |  hbs(0:0):
@@ -43,7 +43,7 @@ describe('Debug utilities', () => {
         | |
         | | Mapping: BlockStatement
         | |  hbs(0:123):   {{#each (array \\"world\\" \\"planet\\" \\"universe\\") as |target index|}}\\\\n  #{{add index 1}}: {{this.message}}, {{target}}!\\\\n{{/each}}
-        | |  ts(436:802):  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"each\\"])({}, [\\"world\\", \\"planet\\", \\"universe\\"]));\\\\n    {\\\\n      const [target, index] = 𝛄.blockParams.default;\\\\n      χ.emitValue(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1));\\\\n      χ.emitValue(χ.resolveOrReturn(𝚪.this.message)({}));\\\\n      χ.emitValue(χ.resolveOrReturn(target)({}));\\\\n    }\\\\n    χ.Globals[\\"each\\"];\\\\n  }
+        | |  ts(436:805):  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"each\\"])({}, [\\"world\\", \\"planet\\", \\"universe\\"]));\\\\n    {\\\\n      const [target, index] = 𝛄.blockParams[\\"default\\"];\\\\n      χ.emitValue(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1));\\\\n      χ.emitValue(χ.resolveOrReturn(𝚪.this.message)({}));\\\\n      χ.emitValue(χ.resolveOrReturn(target)({}));\\\\n    }\\\\n    χ.Globals[\\"each\\"];\\\\n  }
         | |
         | | | Mapping: PathExpression
         | | |  hbs(3:7):     each
@@ -81,66 +81,66 @@ describe('Debug utilities', () => {
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(67:82):   {{add index 1}}
-        | | |  ts(599:659):  χ.emitValue(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1))
+        | | |  ts(602:662):  χ.emitValue(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1))
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(69:72):   add
-        | | | |  ts(627:643):  χ.Globals[\\"add\\"]
+        | | | |  ts(630:646):  χ.Globals[\\"add\\"]
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(69:72):   add
-        | | | | |  ts(638:641):  add
+        | | | | |  ts(641:644):  add
         | | | | |
         | | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(73:78):   index
-        | | | |  ts(649:654):  index
+        | | | |  ts(652:657):  index
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(73:78):   index
-        | | | | |  ts(649:654):  index
+        | | | | |  ts(652:657):  index
         | | | | |
         | | | |
         | | | | Mapping: NumberLiteral
         | | | |  hbs(79:80):   1
-        | | | |  ts(656:657):  1
+        | | | |  ts(659:660):  1
         | | | |
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(84:100):  {{this.message}}
-        | | |  ts(661:718):  χ.emitValue(χ.resolveOrReturn(𝚪.this.message)({}))
+        | | |  ts(664:721):  χ.emitValue(χ.resolveOrReturn(𝚪.this.message)({}))
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(86:98):   this.message
-        | | | |  ts(697:712):  𝚪.this.message
+        | | | |  ts(700:715):  𝚪.this.message
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(86:90):   this
-        | | | | |  ts(700:704):  this
+        | | | | |  ts(703:707):  this
         | | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(91:98):   message
-        | | | | |  ts(705:712):  message
+        | | | | |  ts(708:715):  message
         | | | | |
         | | | |
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(102:112): {{target}}
-        | | |  ts(720:768):  χ.emitValue(χ.resolveOrReturn(target)({}))
+        | | |  ts(723:771):  χ.emitValue(χ.resolveOrReturn(target)({}))
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(104:110): target
-        | | | |  ts(756:762):  target
+        | | | |  ts(759:765):  target
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(104:110): target
-        | | | | |  ts(756:762):  target
+        | | | | |  ts(759:765):  target
         | | | | |
         | | | |
         | | |
         | | | Mapping: Identifier
         | | |  hbs(117:121): each
-        | | |  ts(791:795):  each
+        | | |  ts(794:798):  each
         | | |
         | |
         |"

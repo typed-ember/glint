@@ -346,12 +346,12 @@ export function templateToTypescript(
       });
     }
 
-    function emitIdentifierReference(name: string, hbsOffset: number, hbsLength?: number): void {
+    function emitIdentifierReference(name: string, hbsOffset: number): void {
       if (scope.hasMatchingBinding(name)) {
-        emit.identifier(name, hbsOffset, hbsLength);
+        emit.identifier(name, hbsOffset);
       } else {
         emit.text('χ.Globals["');
-        emit.identifier(JSON.stringify(name).slice(1, -1), hbsOffset, hbsLength ?? name.length);
+        emit.identifier(JSON.stringify(name).slice(1, -1), hbsOffset, name.length);
         emit.text('"]');
       }
     }
@@ -440,7 +440,7 @@ export function templateToTypescript(
         if (!node.selfClosing) {
           let blocks = determineBlockChildren(node);
           if (blocks.type === 'named') {
-            for (let child of blocks.children) {
+            for (const child of blocks.children) {
               if (child.type === 'CommentStatement' || child.type === 'MustacheCommentStatement') {
                 emitComment(child);
                 continue;
@@ -450,12 +450,15 @@ export function templateToTypescript(
               let nameStart = template.indexOf(child.tag, childStart) + ':'.length;
               let blockParamsStart = template.indexOf('|', childStart);
               let name = child.tag.slice(1);
-              emitBlockContents(
-                name,
-                nameStart,
-                child.blockParams,
-                blockParamsStart,
-                child.children
+
+              emit.forNode(child, () =>
+                emitBlockContents(
+                  name,
+                  nameStart,
+                  child.blockParams,
+                  blockParamsStart,
+                  child.children
+                )
               );
             }
           } else {
@@ -878,7 +881,7 @@ export function templateToTypescript(
       }
 
       emit.text('] = 𝛄.blockParams');
-      emitPropertyAccesss(name, nameOffset);
+      emitPropertyAccesss(name, { offset: nameOffset, synthetic: true });
       emit.text(';');
       emit.newline();
 
@@ -991,23 +994,35 @@ export function templateToTypescript(
       for (let i = 1; i < parts.length; i++) {
         let part = parts[i];
         start = template.indexOf(part, start);
-        emitPropertyAccesss(part, start, true);
+        emitPropertyAccesss(part, { offset: start, optional: true });
         start += part.length;
       }
     }
 
-    function emitPropertyAccesss(name: string, offset?: number, optional?: boolean): void {
-      if (isSafeKey(name)) {
+    type PropertyAccessOptions = {
+      offset?: number;
+      optional?: boolean;
+      synthetic?: boolean;
+    };
+
+    function emitPropertyAccesss(
+      name: string,
+      { offset, optional, synthetic }: PropertyAccessOptions = {}
+    ): void {
+      // Synthetic accesses should always use `[]` notation to avoid incidentally triggering
+      // `noPropertyAccessFromIndexSignature`. Emitting `{{foo.bar}}` property accesses, however,
+      // should use `.` notation for exactly the same reason.
+      if (!synthetic && isSafeKey(name)) {
         emit.text(optional ? '?.' : '.');
         if (offset) {
-          emitHashKey(name, offset);
+          emit.identifier(name, offset);
         } else {
           emit.text(name);
         }
       } else {
         emit.text(optional ? '?.[' : '[');
         if (offset) {
-          emitHashKey(name, offset);
+          emitIdentifierString(name, offset);
         } else {
           emit.text(JSON.stringify(name));
         }
@@ -1019,10 +1034,14 @@ export function templateToTypescript(
       if (isSafeKey(name)) {
         emit.identifier(name, start);
       } else {
-        emit.text('"');
-        emit.identifier(JSON.stringify(name).slice(1, -1), start, name.length);
-        emit.text('"');
+        emitIdentifierString(name, start);
       }
+    }
+
+    function emitIdentifierString(name: string, start: number): void {
+      emit.text('"');
+      emit.identifier(JSON.stringify(name).slice(1, -1), start, name.length);
+      emit.text('"');
     }
 
     function emitLiteral(node: AST.Literal): void {
