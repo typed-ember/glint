@@ -18,6 +18,7 @@ TypeScript-powered tooling for Glimmer templates.
     - [Template-Only Components](#template-only-components)
     - [Rendering Tests](#rendering-tests)
     - [Contextual Components](#contextual-components)
+  - [With JS rather than TS](#with-js-rather-than-ts)
 - [Known Limitations](#known-limitations)
   - [Environment Re-exports](#environment-re-exports)
   - [Ember-Specific](#ember-specific)
@@ -473,6 +474,40 @@ const Ember: AcceptsAFooString = class extends EmberComponent<{ Args: { foo: str
 const Glimmer: AcceptsAFooString = class extends GlimmerComponent<{ Args: { foo: string } }> {};
 const Bound: AcceptsAFooString = /* the result of `{{component "ember-component"}}` */
 ```
+
+### With JS rather than TS
+
+If you have not yet migrated your project to TypeScript or you are in the process of migrating your project, the Glint CLI and language server will still function properly. All the Glint setup steps are identical, except that to receive equivalent rich editor support for component JS files in your project, you will need to document your components with valid JSDoc. For example:
+
+```js
+// SimpleComponent.js
+
+import Component from '@glint/environment-glimmerx/component';
+import { hbs } from '@glimmerx/component';
+import { helper } from '@glint/environment-glimmerx/helper';
+
+const or = helper(
+  /** @param {[a: *, b: *]} param */
+  ([a, b]) => a || b
+);
+
+/**
+ * @typedef SimpleComponentSignature
+ * @property {object} Args
+ * @property {string} Args.message
+ */
+
+/** @extends {Component<SimpleComponentSignature>} */
+export default class SimpleComponent extends Component {
+  static template = hbs`
+    <h1>This is my simple message: {{or @message 'hello'}}</h1>
+  `;
+}
+```
+
+Undocumented component JS files will behave exactly as regular undocumented JS behaves: no information will be provided for editor support apart from what can be derived from the context.
+
+To allow the Glint CLI and language server to report type errors in your JS files, you can leverage [@ts-check](https://www.typescriptlang.org/docs/handbook/intro-to-js-ts.html#ts-check) on a file-by-file basis or [checkJs](https://www.typescriptlang.org/tsconfig#checkJs) in your jsconfig/tsconfig.json to enable typechecking for all JS files.
 
 ## Known Limitations
 
