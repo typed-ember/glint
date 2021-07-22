@@ -5,8 +5,9 @@ import {
   ResolveContext,
   emitComponent,
 } from '@glint/environment-ember-loose/-private/dsl';
-import { EmptyObject } from '@glint/template/-private/integration';
+import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
+import { ComponentKeyword } from '../../-private/intrinsics/component';
 
 {
   const NoArgsComponent = templateOnlyComponent();
@@ -97,4 +98,29 @@ import { expectTypeOf } from 'expect-type';
     expectTypeOf(𝚪.element).toEqualTypeOf<YieldingComponentSignature['Element']>();
     expectTypeOf(𝚪.yields).toEqualTypeOf<YieldingComponentSignature['Yields']>();
   });
+}
+
+// Template-only components can be the target of `{{component}}`
+{
+  interface CurriedComponentSignature {
+    Args: {
+      a: string;
+      b: number;
+    };
+  }
+
+  const CurriedComponent = templateOnlyComponent<CurriedComponentSignature>();
+  const componentKeyword = null as unknown as ComponentKeyword<{
+    'curried-component': typeof CurriedComponent;
+  }>;
+
+  const CurriedWithNothing = resolve(componentKeyword)({}, 'curried-component');
+  expectTypeOf(resolve(CurriedWithNothing)).toEqualTypeOf<
+    (args: { a: string; b: number }) => AcceptsBlocks<EmptyObject>
+  >();
+
+  const CurriedWithA = resolve(componentKeyword)({ a: 'hi' }, 'curried-component');
+  expectTypeOf(resolve(CurriedWithA)).toEqualTypeOf<
+    (args: { a?: string; b: number }) => AcceptsBlocks<EmptyObject>
+  >();
 }
