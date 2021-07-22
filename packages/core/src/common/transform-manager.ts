@@ -200,7 +200,9 @@ export default class TransformManager {
     return this.ts.sys
       .readDirectory(rootDir, allExtensions, excludes, includes, depth)
       .map((filename) =>
-        isTemplate(filename) ? synthesizedModulePathForTemplate(filename) : filename
+        isTemplate(filename)
+          ? synthesizedModulePathForTemplate(filename, this.glintConfig)
+          : filename
       );
   };
 
@@ -299,14 +301,15 @@ export default class TransformManager {
           documents.documentExists(templatePath) &&
           documents.getCompanionDocumentPath(templatePath) === filename
         ) {
-          // The `.ts` file we were asked for doesn't exist, but a corresponding `.hbs` one does, and
+          // The script we were asked for doesn't exist, but a corresponding template does, and
           // it doesn't have a companion script elsewhere.
+          let script = { filename, contents: '' };
           let template = {
             filename: templatePath,
             contents: documents.getDocumentContents(templatePath),
           };
 
-          transformedModule = rewriteModule({ template }, glintConfig.environment);
+          transformedModule = rewriteModule({ script, template }, glintConfig.environment);
         }
       }
     }

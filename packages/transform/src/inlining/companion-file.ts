@@ -28,6 +28,7 @@ export function calculateCompanionTemplateSpans(
     return { errors, directives, partialSpans };
   }
 
+  let useJsDoc = isJsScript(script.filename);
   let targetPath = findCompanionTemplateTarget(exportDeclarationPath);
   if (targetPath?.isClass()) {
     let { className, contextType, typeParams } = getContainingTypeInfo(targetPath);
@@ -47,7 +48,7 @@ export function calculateCompanionTemplateSpans(
       typesPath,
       contextType,
       typeParams,
-      useJsDoc: isJsScript(script.filename),
+      useJsDoc,
     });
 
     // This allows us to avoid issues with `noImplicitOverride` for subclassed components,
@@ -67,7 +68,11 @@ export function calculateCompanionTemplateSpans(
       contextType = `typeof import('./${moduleName}').default`;
     }
 
-    let rewriteResult = templateToTypescript(template.contents, { typesPath, contextType });
+    let rewriteResult = templateToTypescript(template.contents, {
+      typesPath,
+      contextType,
+      useJsDoc,
+    });
 
     pushTransformedTemplate(rewriteResult, {
       insertionPoint: script.contents.length,

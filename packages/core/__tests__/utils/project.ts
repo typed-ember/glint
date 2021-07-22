@@ -39,7 +39,9 @@ export default class Project {
     let rootFileNames = glob('**/*.{ts,js,hbs}', {
       cwd: this.rootDir,
       absolute: true,
-    }).map((file) => (isTemplate(file) ? synthesizedModulePathForTemplate(file) : file));
+    }).map((file) =>
+      isTemplate(file) ? synthesizedModulePathForTemplate(file, glintConfig) : file
+    );
 
     return (this.server = new GlintLanguageServer(
       ts,
@@ -58,6 +60,8 @@ export default class Project {
         module: 'es2015',
         moduleResolution: 'node',
         skipLibCheck: true,
+        allowJs: true,
+        checkJs: false,
         ...compilerOptions,
       },
     };

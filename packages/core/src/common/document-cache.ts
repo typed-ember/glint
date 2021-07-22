@@ -45,7 +45,7 @@ export default class DocumentCache {
     }
 
     if (isTemplate(path)) {
-      return synthesizedModulePathForTemplate(path);
+      return synthesizedModulePathForTemplate(path, this.glintConfig);
     }
   }
 
@@ -127,8 +127,9 @@ export function templatePathForSynthesizedModule(path: string): string {
   return path.replace(SCRIPT_EXTENSION_REGEX, '.hbs');
 }
 
-export function synthesizedModulePathForTemplate(path: string): string {
-  return path.replace(TEMPLATE_EXTENSION_REGEX, '.ts');
+export function synthesizedModulePathForTemplate(path: string, config: GlintConfig): string {
+  let extension = config.checkStandaloneTemplates ? '.ts' : '.js';
+  return path.replace(TEMPLATE_EXTENSION_REGEX, extension);
 }
 
 export function isTemplate(path: string): boolean {
