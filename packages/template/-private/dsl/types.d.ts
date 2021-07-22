@@ -15,10 +15,14 @@ export type ElementForTagName<Name extends string> = Name extends keyof HTMLElem
   : Element;
 
 /**
- * Given the instance type of a component backing class, produces the appropriate
+ * Given the constructor or instance type of a component backing class, produces the appropriate
  * `TemplateContext` type for its template.
  */
-export type ResolveContext<T> = T extends HasContext<infer Context> ? Context : unknown;
+export type ResolveContext<T> = T extends HasContext<infer Context>
+  ? Context
+  : T extends Constructor<HasContext<infer Context>>
+  ? Context
+  : unknown;
 
 // This encompasses both @glimmer/runtime and @ember/template's notion of `SafeString`s,
 // and this coverage is tested in `emit-value.test.ts`.
