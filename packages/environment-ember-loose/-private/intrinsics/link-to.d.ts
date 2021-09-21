@@ -11,7 +11,7 @@ type LinkToArgs = RequireAtLeastOne<
     model?: unknown;
     models?: unknown[];
     query?: Record<string, unknown>;
-    disabled?: boolean;
+    disabled?: boolean | undefined;
     activeClass?: string;
     'current-when'?: string | boolean;
     preventDefault?: boolean;
