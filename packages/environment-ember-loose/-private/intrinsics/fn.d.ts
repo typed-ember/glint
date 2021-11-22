@@ -31,4 +31,23 @@ export type FnHelper = DirectInvokable<{
     c: C,
     d: D
   ): (...rest: Args) => Ret;
+  <A, B, C, D, E, Ret, Args extends unknown[]>(
+    args: EmptyObject,
+    f: (a: A, b: B, c: C, d: D, e: E, ...rest: Args) => Ret,
+    a: A,
+    b: B,
+    c: C,
+    d: D,
+    e: E
+  ): (...rest: Args) => Ret;
+  <A, B, C, D, E, G, Ret, Args extends unknown[]>(
+    args: EmptyObject,
+    f: (a: A, b: B, c: C, d: D, e: E, g: G, ...rest: Args) => Ret,
+    a: A,
+    b: B,
+    c: C,
+    d: D,
+    e: E,
+    g: G
+  ): (...rest: Args) => Ret;
 }>;
