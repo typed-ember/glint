@@ -54,19 +54,10 @@ describe('Language Server: Completions', () => {
       character: 12,
     });
 
-    expect(completions).toMatchObject([
-      {
-        kind: CompletionItemKind.Field,
-        label: 'foo',
-      },
-      {
-        kind: CompletionItemKind.Field,
-        label: 'bar-baz',
-      },
-    ]);
+    let labels = completions?.map((completion) => completion.label);
+    expect(new Set(labels)).toEqual(new Set(['foo', 'bar-baz']));
 
-    let details = server.getCompletionDetails(completions![1]);
-
+    let details = server.getCompletionDetails(completions!.find((c) => c.label === 'bar-baz')!);
     expect(details.detail).toEqual("(property) 'bar-baz'?: number | undefined");
   });
 
