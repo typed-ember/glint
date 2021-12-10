@@ -140,6 +140,77 @@ describe('Language Server: Diagnostics', () => {
     });
   });
 
+  describe('external file changes', () => {
+    const scriptContents = stripIndent`
+      import templateOnly from '@glint/environment-ember-loose/ember-component/template-only';
+
+      interface TemplateOnlySignature {
+        Args: { foo: string };
+      }
+
+      export default templateOnly<TemplateOnlySignature>();
+    `;
+
+    beforeEach(() => {
+      project.write('.glintrc', 'environment: ember-loose\n');
+    });
+
+    test('adding a backing module', () => {
+      project.write('component.hbs', '{{@foo}}');
+
+      let server = project.startLanguageServer();
+      let diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
+
+      expect(diagnostics).toMatchObject([
+        {
+          message: "Property 'foo' does not exist on type 'EmptyObject'.",
+          source: 'glint:ts(2339)',
+        },
+      ]);
+
+      project.write('component.ts', scriptContents);
+      server.fileDidChange(project.fileURI('component.ts'));
+
+      diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
+
+      expect(diagnostics).toEqual([]);
+
+      let defs = server.getDefinition(project.fileURI('component.hbs'), { line: 0, character: 5 });
+
+      expect(defs).toEqual([
+        {
+          uri: project.fileURI('component.ts'),
+          range: {
+            start: { line: 3, character: 10 },
+            end: { line: 3, character: 13 },
+          },
+        },
+      ]);
+    });
+
+    test('removing a backing module', () => {
+      project.write('component.hbs', '{{@foo}}');
+      project.write('component.ts', scriptContents);
+
+      let server = project.startLanguageServer();
+      let diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
+
+      expect(diagnostics).toEqual([]);
+
+      project.remove('component.ts');
+      server.fileDidChange(project.fileURI('component.ts'));
+
+      diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
+
+      expect(diagnostics).toMatchObject([
+        {
+          message: "Property 'foo' does not exist on type 'EmptyObject'.",
+          source: 'glint:ts(2339)',
+        },
+      ]);
+    });
+  });
+
   test('reports diagnostics for an inline template type error', () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';
