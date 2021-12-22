@@ -22,7 +22,9 @@ export function calculateCompanionTemplateSpans(
     errors.push({
       source: template,
       location: { start: 0, end: template.contents.length },
-      message: `Glint environment ${environment.name} does not support standalone template files`,
+      message: `No active Glint environment (${environment.names.join(
+        ', '
+      )}) supports standalone template files`,
     });
 
     return { errors, directives, partialSpans };
