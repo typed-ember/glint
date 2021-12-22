@@ -3,7 +3,7 @@ import { Minimatch, IMinimatch } from 'minimatch';
 import { GlintEnvironment } from './environment';
 
 export type GlintConfigInput = {
-  environment: string;
+  environment: string | Array<string>;
   checkStandaloneTemplates?: boolean;
   include?: string | Array<string>;
   exclude?: string | Array<string>;
@@ -70,8 +70,10 @@ export function normalizePath(fileName: string): string {
 
 function validateConfigInput(input: Record<string, unknown>): asserts input is GlintConfigInput {
   assert(
-    typeof input['environment'] === 'string',
-    'Glint config must specify an `environment` string'
+    Array.isArray(input['environment'])
+      ? input['environment'].every((env) => typeof env === 'string')
+      : typeof input['environment'] === 'string',
+    'Glint config must specify an `environment` that is a string or an array of strings'
   );
 
   assert(
