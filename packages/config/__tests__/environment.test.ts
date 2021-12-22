@@ -151,6 +151,57 @@ describe('Environments', () => {
 
       expect(env.getConfiguredTemplateTags()).toEqual({ internal: {} });
     });
+
+    describe('merging multiple environments', () => {
+      function createEnvironment(config: string): string {
+        let name = Math.random().toString(36).slice(2);
+        let dir = `${testDir}/node_modules/@glint/environment-${name}`;
+
+        fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(`${dir}/env.js`, `module.exports = () => (${config})`);
+        fs.writeFileSync(
+          `${dir}/package.json`,
+          JSON.stringify({
+            name: '@glint/environment-a',
+            'glint-environment': 'env',
+          })
+        );
+
+        return name;
+      }
+
+      test('loading compatible environments', () => {
+        let envA = createEnvironment('{ tags: { "foo-bar": { hbs: {} } } }');
+        let envB = createEnvironment(
+          '{ tags: { "foo-bar": { tpl: {} }, "baz": { hbs: {} } }, template: { typesPath: "foo" } }'
+        );
+
+        let env = GlintEnvironment.load([envA, envB], { rootDir: testDir });
+
+        expect(env.getTypesForStandaloneTemplate()).toEqual('foo');
+        expect(env.getConfiguredTemplateTags()).toEqual({
+          'foo-bar': { hbs: {}, tpl: {} },
+          baz: { hbs: {} },
+        });
+      });
+
+      test('loading conflicting standalone template config', () => {
+        let envA = createEnvironment('{ template: { typesPath: "foo" } }');
+        let envB = createEnvironment('{ template: { typesPath: "bar" } }');
+
+        expect(() => GlintEnvironment.load([envA, envB], { rootDir: testDir })).toThrow(
+          'Multiple configured Glint environments attempted to define behavior for standalone template files'
+        );
+      });
+
+      test('loading conflicting tags config', () => {
+        let envA = createEnvironment('{ tags: { foo: { hbs: {} } } }');
+        let envB = createEnvironment('{ tags: { foo: { hbs: {} } } }');
+
+        expect(() => GlintEnvironment.load([envA, envB], { rootDir: testDir })).toThrow(
+          "Multiple configured Glint environments attempted to define behavior for the tag `hbs` in module 'foo'"
+        );
+      });
     });
   });
 });
