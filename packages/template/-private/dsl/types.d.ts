@@ -1,6 +1,12 @@
-import { HasContext } from '@glint/template/-private/integration';
+import { EmptyObject, HasContext } from '@glint/template/-private/integration';
 
 type Constructor<T> = new (...args: any) => T;
+
+/**
+ * A utility for constructing the type of an environment's `resolveOrReturn` from
+ * the type of its `resolve` function.
+ */
+export type ResolveOrReturn<T> = T & (<U>(item: U) => (args: EmptyObject) => U);
 
 /**
  * Given a tag name, returns an appropriate `Element` subtype.
