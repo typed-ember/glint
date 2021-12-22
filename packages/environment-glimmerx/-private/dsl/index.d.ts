@@ -19,6 +19,7 @@ export { Globals } from './globals';
  * further details on resolution.
  */
 
+import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {
   BoundModifier,
   DirectInvokable,
@@ -45,14 +46,4 @@ export declare function resolve<Args extends unknown[], T>(
   item: (...args: Args) => T
 ): (named: EmptyObject, ...args: Args) => T;
 
-export declare function resolveOrReturn<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
-export declare function resolveOrReturn<Args extends unknown[], Instance extends Invokable>(
-  item: new (...args: Args) => Instance
-): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
-export declare function resolveOrReturn<Value, Args extends unknown[], T extends Value>(
-  item: (value: Value, ...args: Args) => value is T
-): (named: EmptyObject, value: Value, ...args: Args) => value is T;
-export declare function resolveOrReturn<Args extends unknown[], T>(
-  item: (...args: Args) => T
-): (named: EmptyObject, ...args: Args) => T;
-export declare function resolveOrReturn<T>(item: T): (args: EmptyObject) => T;
+export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
