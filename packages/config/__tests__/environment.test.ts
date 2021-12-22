@@ -5,7 +5,7 @@ import { GlintEnvironment } from '../src';
 describe('Environments', () => {
   describe('template tags config', () => {
     test('locating a single tag', () => {
-      let env = new GlintEnvironment('test-env', {
+      let env = new GlintEnvironment(['test-env'], {
         tags: {
           'my-cool-environment': { hbs: { capturesOuterScope: false, typesSource: 'whatever' } },
         },
@@ -15,7 +15,7 @@ describe('Environments', () => {
     });
 
     test('locating one of several tags', () => {
-      let env = new GlintEnvironment('test-env', {
+      let env = new GlintEnvironment(['test-env'], {
         tags: {
           'my-cool-environment': { hbs: { capturesOuterScope: false, typesSource: 'whatever' } },
           'another-env': { tagMe: { capturesOuterScope: false, typesSource: 'over-here' } },
@@ -27,7 +27,7 @@ describe('Environments', () => {
     });
 
     test('checking a module with no tags in use', () => {
-      let env = new GlintEnvironment('test-env', {
+      let env = new GlintEnvironment(['test-env'], {
         tags: {
           'my-cool-environment': { hbs: { capturesOuterScope: false, typesSource: 'whatever' } },
         },
@@ -46,7 +46,7 @@ describe('Environments', () => {
         },
       };
 
-      let env = new GlintEnvironment('test-env', { tags });
+      let env = new GlintEnvironment(['test-env'], { tags });
 
       expect(env.getConfiguredTemplateTags()).toBe(tags);
     });
@@ -54,7 +54,7 @@ describe('Environments', () => {
 
   describe('standalone template config', () => {
     test('no standalone template support', () => {
-      let env = new GlintEnvironment('test-env', {});
+      let env = new GlintEnvironment(['test-env'], {});
 
       expect(env.getTypesForStandaloneTemplate()).toBeUndefined();
       expect(env.getPossibleScriptPaths('hello.hbs')).toEqual([]);
@@ -62,7 +62,7 @@ describe('Environments', () => {
     });
 
     test('reflecting specified configuration', () => {
-      let env = new GlintEnvironment('test-env', {
+      let env = new GlintEnvironment(['test-env'], {
         template: {
           typesPath: '@glint/test-env/types',
           getPossibleTemplatePaths: (script) => [
@@ -103,7 +103,7 @@ describe('Environments', () => {
       const envDir = `${testDir}/node_modules/@glint/environment-test-env`;
 
       fs.mkdirSync(envDir, { recursive: true });
-      fs.writeFileSync(`${envDir}/env.js`, 'module.exports = () => ({ tags: "hello" });');
+      fs.writeFileSync(`${envDir}/env.js`, 'module.exports = () => ({ tags: { hello: {} } });');
       fs.writeFileSync(
         `${envDir}/package.json`,
         JSON.stringify({
@@ -114,14 +114,17 @@ describe('Environments', () => {
 
       let env = GlintEnvironment.load('test-env', { rootDir: testDir });
 
-      expect(env.getConfiguredTemplateTags()).toEqual('hello');
+      expect(env.getConfiguredTemplateTags()).toEqual({ hello: {} });
     });
 
     test('loading an environment from some other package', () => {
       const envDir = `${testDir}/node_modules/some-other-environment`;
 
       fs.mkdirSync(envDir, { recursive: true });
-      fs.writeFileSync(`${envDir}/third-party-env.js`, 'module.exports = () => ({ tags: "hi" });');
+      fs.writeFileSync(
+        `${envDir}/third-party-env.js`,
+        'module.exports = () => ({ tags: { hi: {} } });'
+      );
       fs.writeFileSync(
         `${envDir}/package.json`,
         JSON.stringify({
@@ -132,7 +135,7 @@ describe('Environments', () => {
 
       let env = GlintEnvironment.load('some-other-environment', { rootDir: testDir });
 
-      expect(env.getConfiguredTemplateTags()).toEqual('hi');
+      expect(env.getConfiguredTemplateTags()).toEqual({ hi: {} });
     });
 
     test('loading an environment from an explicit path', () => {
@@ -141,12 +144,13 @@ describe('Environments', () => {
       fs.mkdirSync(envDir, { recursive: true });
       fs.writeFileSync(
         `${envDir}/my-internal-env.js`,
-        'module.exports = () => ({ tags: "internal" });'
+        'module.exports = () => ({ tags: { internal: {} } });'
       );
 
       let env = GlintEnvironment.load('./lib/my-internal-env', { rootDir: testDir });
 
-      expect(env.getConfiguredTemplateTags()).toEqual('internal');
+      expect(env.getConfiguredTemplateTags()).toEqual({ internal: {} });
+    });
     });
   });
 });
