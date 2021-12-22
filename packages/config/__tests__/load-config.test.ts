@@ -11,7 +11,7 @@ describe('loadConfig', () => {
     fs.mkdirSync(testDir);
     fs.writeFileSync(
       `${testDir}/local-env.js`,
-      `module.exports = () => ({ tags: { test: true } });\n`
+      `module.exports = () => ({ tags: { test: {} } });\n`
     );
   });
 
@@ -34,7 +34,7 @@ describe('loadConfig', () => {
     let config = loadConfig(`${testDir}/deeply/nested/directory`);
 
     expect(config.rootDir).toBe(normalizePath(`${testDir}/deeply`));
-    expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: true });
+    expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: {} });
     expect(config.includesFile(`${testDir}/deeply/index.ts`)).toBe(false);
     expect(config.includesFile(`${testDir}/deeply/index.root.ts`)).toBe(false);
     expect(config.includesFile(`${testDir}/deeply/index.nested.ts`)).toBe(true);
@@ -60,7 +60,7 @@ describe('loadConfig', () => {
 
       let config = loadConfig(testDir);
 
-      expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: true });
+      expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: {} });
       expect(config.includesFile(`${testDir}/index.ts`)).toBe(false);
       expect(config.includesFile(`${testDir}/index.from-pkg.ts`)).toBe(true);
     });
@@ -73,7 +73,7 @@ describe('loadConfig', () => {
 
       let config = loadConfig(testDir);
 
-      expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: true });
+      expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: {} });
       expect(config.includesFile(`${testDir}/index.ts`)).toBe(false);
       expect(config.includesFile(`${testDir}/index.extensionless.ts`)).toBe(true);
     });
@@ -86,7 +86,7 @@ describe('loadConfig', () => {
 
       let config = loadConfig(testDir);
 
-      expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: true });
+      expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: {} });
       expect(config.includesFile(`${testDir}/index.ts`)).toBe(false);
       expect(config.includesFile(`${testDir}/index.jsrc.ts`)).toBe(true);
     });
@@ -99,7 +99,7 @@ describe('loadConfig', () => {
 
       let config = loadConfig(testDir);
 
-      expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: true });
+      expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: {} });
       expect(config.includesFile(`${testDir}/index.ts`)).toBe(false);
       expect(config.includesFile(`${testDir}/index.config.ts`)).toBe(true);
     });

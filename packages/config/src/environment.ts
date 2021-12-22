@@ -8,13 +8,13 @@ export type GlintEnvironmentConfig = {
 };
 
 export type GlintTagConfig = {
-  readonly typesSource: string;
-  readonly capturesOuterScope: boolean;
+  typesSource: string;
+  capturesOuterScope: boolean;
 };
 
 export type GlintTagsConfig = {
-  readonly [importSource: string]: {
-    readonly [importSpecifier: string]: GlintTagConfig;
+  [importSource: string]: {
+    [importSpecifier: string]: GlintTagConfig;
   };
 };
 
@@ -38,16 +38,16 @@ export class GlintEnvironment {
   private standaloneTemplateConfig: GlintTemplateConfig | undefined;
   private tagImportRegexp: RegExp;
 
-  public constructor(public readonly name: string, config: GlintEnvironmentConfig) {
+  public constructor(public readonly names: Array<string>, config: GlintEnvironmentConfig) {
     this.tagConfig = config.tags ?? {};
     this.standaloneTemplateConfig = config.template;
     this.tagImportRegexp = this.buildTagImportRegexp();
   }
 
-  public static load(name: string, { rootDir = '.' } = {}): GlintEnvironment {
-    let envModule = require(locateEnvironment(name, rootDir));
-    let envFunction = envModule.default ?? envModule;
-    return new GlintEnvironment(name, envFunction());
+  public static load(name: string | Array<string>, { rootDir = '.' } = {}): GlintEnvironment {
+    let names = Array.isArray(name) ? name : [name];
+    let config = loadMergedEnvironmentConfig(names, rootDir);
+    return new GlintEnvironment(names, config);
   }
 
   /**
@@ -104,6 +104,50 @@ export class GlintEnvironment {
     let regexpSource = importSources.map(escapeStringRegexp).join('|');
     return new RegExp(regexpSource);
   }
+}
+
+function loadMergedEnvironmentConfig(
+  envNames: Array<string>,
+  rootDir: string
+): GlintEnvironmentConfig {
+  let tags: GlintTagsConfig = {};
+  let template: GlintTemplateConfig | undefined;
+  for (let name of envNames) {
+    let envModule = require(locateEnvironment(name, rootDir));
+    let envFunction = envModule.default ?? envModule;
+    let config = envFunction() as GlintEnvironmentConfig;
+
+    if (config.template) {
+      if (template) {
+        throw new Error(
+          'Multiple configured Glint environments attempted to define behavior for standalone template files.'
+        );
+      }
+
+      template = config.template;
+    }
+
+    if (config.tags) {
+      for (let [importSource, specifiers] of Object.entries(config.tags)) {
+        tags[importSource] ??= {};
+        for (let [importSpecifier, tagConfig] of Object.entries(specifiers)) {
+          if (importSpecifier in tags[importSource]) {
+            throw new Error(
+              'Multiple configured Glint environments attempted to define behavior for the tag `' +
+                importSpecifier +
+                "` in module '" +
+                importSource +
+                "'."
+            );
+          }
+
+          tags[importSource][importSpecifier] = tagConfig;
+        }
+      }
+    }
+  }
+
+  return { tags, template };
 }
 
 function locateEnvironment(name: string, basedir: string): string {

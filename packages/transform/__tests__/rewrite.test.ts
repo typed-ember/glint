@@ -114,7 +114,7 @@ describe('rewriteModule', () => {
     });
 
     test('outer variable capture', () => {
-      let testEnvironment = new GlintEnvironment('test', {
+      let testEnvironment = new GlintEnvironment(['test'], {
         tags: {
           '@glint/test-env': {
             hbsCapture: { typesSource: '@glint/test-env', capturesOuterScope: true },
