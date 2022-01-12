@@ -40,8 +40,9 @@ export function getContainingTypeInfo(path: NodePath<any>): ContainingTypeInfo {
 
   let typeParamsNode = container?.typeParameters;
   if (t.isTSTypeParameterDeclaration(typeParamsNode)) {
-    typeParams = generate(typeParamsNode).code;
-    contextType += `<${typeParamsNode.params.map((param) => param.name).join(', ')}>`;
+    let { params } = typeParamsNode;
+    typeParams = `<${params.map((param) => generate(param).code).join(', ')}>`;
+    contextType += `<${params.map((param) => param.name).join(', ')}>`;
   }
 
   return { contextType, typeParams, className, inClass };
