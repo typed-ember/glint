@@ -49,7 +49,7 @@ export function getContainingTypeInfo(path: NodePath<any>): ContainingTypeInfo {
 }
 
 function findContainingClass(path: NodePath<any>): t.Class | null {
-  let current: NodePath<any> = path;
+  let current: NodePath<any> | null = path;
   do {
     if (t.isClass(current.node)) {
       return current.node;
