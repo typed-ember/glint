@@ -50,6 +50,8 @@ jobs:
         with:
           run: yarn test
 
+  # The Windows runner can be super flaky both with Yarn installs and
+  # when launching browser tests, so we allow for retries in those steps.
   test-windows:
     name: Test Windows
     runs-on: windows-latest
@@ -61,11 +63,19 @@ jobs:
         with:
           node-version: 12
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        uses: nick-invision/retry@v2
+        with:
+          max_attempts: 2
+          timeout_minutes: 10
+          command: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
       - name: Run Tests
-        run: yarn test
+        uses: nick-invision/retry@v2
+        with:
+          max_attempts: 2
+          timeout_minutes: 15
+          command: yarn test
 
   test-floating-deps:
     name: Test Floating Dependencies
