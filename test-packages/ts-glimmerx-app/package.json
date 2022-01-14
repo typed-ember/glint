@@ -11,7 +11,8 @@
     "lint": "eslint . --cache",
     "start": "webpack-dev-server",
     "typecheck": "glint",
-    "test": "npm-run-all typecheck test:browsers",
+    "test": "npm-run-all typecheck test:tsc test:browsers",
+    "test:tsc": "tsc --noEmit",
     "test:browsers": "testem ci",
     "test:watch": "testem"
   },
