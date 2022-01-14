@@ -5,6 +5,8 @@
   "description": "A Glint environment to support GlimmerX projects",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
+  "main": "-private/index.js",
+  "types": "-private/index.d.ts",
   "glint-environment": "-private/environment/index.js",
   "keywords": [
     "glint-environment"
