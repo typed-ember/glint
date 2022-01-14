@@ -34,5 +34,5 @@ const optionsToExtend = determineOptionsToExtend(argv);
 if (argv.watch) {
   performWatch(ts, glintConfig, tsconfigPath, optionsToExtend);
 } else {
-  performCheck(ts, argv._, glintConfig, tsconfigPath, optionsToExtend);
+  performCheck(ts, argv._.map(String), glintConfig, tsconfigPath, optionsToExtend);
 }
