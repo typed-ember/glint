@@ -104,6 +104,20 @@ function buildHelpers({ languageServer, documents, connection }: BindingArgs): B
           const diagnostics = languageServer.getDiagnostics(uri);
           connection.sendDiagnostics({ uri, diagnostics });
         } catch (error) {
+          connection.sendDiagnostics({
+            uri,
+            diagnostics: [
+              {
+                range: { start: { line: 0, character: 0 }, end: { line: 0, character: 1 } },
+                message:
+                  'Glint encountered an error computing diagnostics for this file. ' +
+                  'This is likely a bug in Glint; please file an issue, including any ' +
+                  'code and/or steps to follow to reproduce the error.\n\n' +
+                  errorMessage(error),
+              },
+            ],
+          });
+
           connection.console.error(`Error getting diagnostics for ${uri}.\n${errorMessage(error)}`);
         }
       }

@@ -3,8 +3,8 @@ import {
   rewriteModule,
   rewriteDiagnostic,
   Directive,
-  SourceFile,
-  Range,
+  Diagnostic,
+  createTransformDiagnostic,
 } from '@glint/transform';
 import type ts from 'typescript';
 import { GlintConfig } from '@glint/config';
@@ -22,8 +22,6 @@ type TransformInfo = {
   transformedFileName: string;
   transformedModule: TransformedModule | null;
 };
-
-type Diagnostic = ts.Diagnostic & { isGlintTransformDiagnostic?: boolean };
 
 export default class TransformManager {
   private transformCache = new Map<string, TransformInfo>();
@@ -68,7 +66,8 @@ export default class TransformManager {
 
     for (let directive of unusedExpectErrors) {
       allDiagnostics.push(
-        this.buildTransformDiagnostic(
+        createTransformDiagnostic(
+          this.ts,
           directive.source,
           `Unused '@glint-expect-error' directive.`,
           directive.location
@@ -321,23 +320,7 @@ export default class TransformManager {
 
   private buildTransformDiagnostics(transformedModule: TransformedModule): Array<Diagnostic> {
     return transformedModule.errors.map((error) =>
-      this.buildTransformDiagnostic(error.source, error.message, error.location)
+      createTransformDiagnostic(this.ts, error.source, error.message, error.location)
     );
-  }
-
-  private buildTransformDiagnostic(
-    source: SourceFile,
-    message: string,
-    location: Range
-  ): Diagnostic {
-    return {
-      isGlintTransformDiagnostic: true,
-      category: this.ts.DiagnosticCategory.Error,
-      code: 0,
-      file: this.ts.createSourceFile(source.filename, source.contents, this.ts.ScriptTarget.Latest),
-      start: location.start,
-      length: location.end - location.start,
-      messageText: message,
-    };
   }
 }

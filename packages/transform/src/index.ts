@@ -1,7 +1,7 @@
 import { parseSync, types as t, traverse, NodePath } from '@babel/core';
 import type ts from 'typescript';
 import { GlintEnvironment } from '@glint/config';
-import { assert } from './util';
+import { assert, createSyntheticSourceFile } from './util';
 import TransformedModule, {
   CorrelatedSpan,
   TransformError,
@@ -48,7 +48,7 @@ export function rewriteDiagnostic<
     ...(transformedDiagnostic as T),
     start,
     length,
-    file: tsImpl.createSourceFile(source.filename, source.contents, tsImpl.ScriptTarget.Latest),
+    file: createSyntheticSourceFile(tsImpl, source),
   };
 
   if (hasRelatedInformation(diagnostic) && diagnostic.relatedInformation) {
@@ -58,6 +58,25 @@ export function rewriteDiagnostic<
   }
 
   return diagnostic;
+}
+
+export type Diagnostic = ts.Diagnostic & { isGlintTransformDiagnostic?: boolean };
+
+export function createTransformDiagnostic(
+  tsImpl: typeof ts,
+  source: SourceFile,
+  message: string,
+  location: Range
+): Diagnostic {
+  return {
+    isGlintTransformDiagnostic: true,
+    category: tsImpl.DiagnosticCategory.Error,
+    code: 0,
+    file: createSyntheticSourceFile(tsImpl, source),
+    start: location.start,
+    length: location.end - location.start,
+    messageText: message,
+  };
 }
 
 function hasRelatedInformation(

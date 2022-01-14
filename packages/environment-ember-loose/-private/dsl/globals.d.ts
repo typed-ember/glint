@@ -42,7 +42,7 @@ interface Keywords {
 
     [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/component?anchor=component
    */
-  component: ComponentKeyword<Registry>;
+  component: ComponentKeyword<Globals>;
 
   /**
     Execute the `debugger` statement in the current template's context.

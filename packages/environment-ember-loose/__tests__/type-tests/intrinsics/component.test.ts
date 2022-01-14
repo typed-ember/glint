@@ -3,6 +3,7 @@ import {
   resolve,
   applySplattributes,
   emitComponent,
+  Globals,
 } from '@glint/environment-ember-loose/-private/dsl';
 import Component from '@glint/environment-ember-loose/ember-component';
 import { ComponentKeyword } from '@glint/environment-ember-loose/-private/intrinsics/component';
@@ -267,3 +268,14 @@ emitComponent(
     foo: 'bar',
   })
 );
+
+{
+  // This 'real' version of `{{component}}` uses the definition available to downstream consumers,
+  // rather than the one above that's tied to our isolated testing registry so we can ensure
+  // appropriate global values are available to consumers.
+  const realComponentKeyword = resolve(Globals['component']);
+
+  expectTypeOf(realComponentKeyword({}, 'input')).toEqualTypeOf(Globals.input);
+  expectTypeOf(realComponentKeyword({}, 'link-to')).toEqualTypeOf(Globals['link-to']);
+  expectTypeOf(realComponentKeyword({}, 'textarea')).toEqualTypeOf(Globals['textarea']);
+}

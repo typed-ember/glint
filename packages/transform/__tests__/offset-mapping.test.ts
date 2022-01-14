@@ -549,4 +549,38 @@ describe('Diagnostic offset mapping', () => {
       ],
     });
   });
+
+  test('with a companion template', () => {
+    let script = { filename: 'test.ts', contents: '' };
+    let template = {
+      filename: 'test.hbs',
+      contents: stripIndent`
+        {{foo-bar type 'in'}}
+      `,
+    };
+
+    let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment)!;
+    let category = ts.DiagnosticCategory.Error;
+    let messageText = '`foo-bar` is no good';
+    let code = 1234;
+
+    let original: ts.DiagnosticWithLocation = {
+      category,
+      code,
+      messageText,
+      file: { fileName: 'test.ts' } as ts.SourceFile,
+      start: transformedModule?.transformedContents.indexOf('foo-bar'),
+      length: 7,
+    };
+
+    let rewritten = rewriteDiagnostic(ts, original, () => transformedModule);
+
+    expect(rewritten).toMatchObject({
+      category,
+      code,
+      messageText,
+      start: template.contents.indexOf('foo-bar'),
+      length: 7,
+    });
+  });
 });
