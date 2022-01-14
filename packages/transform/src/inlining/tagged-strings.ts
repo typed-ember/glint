@@ -29,8 +29,16 @@ export function calculateTaggedTemplateSpans(
     assert(path.node.start, 'Missing location info');
     assert(path.node.end, 'Missing location info');
 
+    let contentStart = quasis[0].start;
+    let contentEnd = quasis[0].end;
+    assert(contentStart && contentEnd, 'Missing location info');
+
+    // Access the contents directly from source rather than the AST node, as
+    // template literals' line endings are subject to normalization during parse.
+    let contents = script.contents.slice(contentStart, contentEnd);
+
     // Pad the template to account for the tag and surrounding ` characters
-    let template = `${''.padStart(tagName.length)} ${quasis[0].value.raw} `;
+    let template = `${''.padStart(tagName.length)} ${contents} `;
 
     // Emit a use of the template tag so it's not considered unused
     let preamble = [`${tagName};`];
