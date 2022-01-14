@@ -16,8 +16,9 @@
     "lint:hbs": "ember-template-lint .",
     "lint:js": "eslint .",
     "start": "ember serve",
-    "test": "npm-run-all typecheck test:browsers",
+    "test": "npm-run-all typecheck test:tsc test:browsers",
     "typecheck": "glint",
+    "test:tsc": "tsc --noEmit",
     "test:browsers": "ember test"
   },
   "devDependencies": {

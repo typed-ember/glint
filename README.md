@@ -81,6 +81,8 @@ The language server can also enable your editor to provide other richer help, su
 
 ### With GlimmerX
 
+To minimize spurious errors when typechecking with vanilla `tsc` or your editor's TypeScript integration, you should add `import '@glint/environment-glimmerx';` somewhere in your project's source or type declarations. You may also choose to disable TypeScript's "unused symbol" warnings in your editor, since `tsserver` won't understand that templates actually are using them.
+
 #### Import Paths
 
 In order for GlimmerX entities to be interpretable by Glint, you currently need to use Glint-specific import paths for `@glimmerx/modifier`, `@glimmerx/helper` and `@glimmerx/component`. Note that [this is not a long-term restriction](#environment-re-exports), but a temporary workaround for the current state of the ecosystem.
@@ -163,6 +165,8 @@ import type { TC } from '@glint/environment-glimmerx/component';
 ```
 
 ### With Ember.js
+
+To minimize spurious errors when typechecking with vanilla `tsc` or your editor's TypeScript integration, you should add `import '@glint/environment-ember-loose';` somewhere in your project's source or type declarations. You may also choose to disable TypeScript's "unused symbol" warnings in your editor, since `tsserver` won't understand that templates actually are using them.
 
 #### Import Paths
 
