@@ -164,6 +164,16 @@ describe('Source-to-source offset mapping', () => {
       let module = rewriteCompanionTemplate({ backing, contents: '{{@foo}}' });
       expectTokenMapping(module, 'foo');
     });
+
+    test('Windows line endings', () => {
+      let module = rewriteCompanionTemplate({
+        backing: 'none',
+        contents: `Hello, <World />!\r\n\r\n{{this.foo}}\r\n`,
+      });
+
+      expectTokenMapping(module, 'World');
+      expectTokenMapping(module, 'foo');
+    });
   });
 
   describe('inline template', () => {
@@ -377,6 +387,15 @@ describe('Source-to-source offset mapping', () => {
         expectTokenMapping(module, 'nameThatIsLong');
         expectTokenMapping(module, 'name', { occurrence: 1 });
       });
+    });
+
+    test('Windows line endings', () => {
+      let module = rewriteInlineTemplate({
+        contents: `Hello, <World />!\r\n\r\n{{this.foo}}\r\n`,
+      });
+
+      expectTokenMapping(module, 'World');
+      expectTokenMapping(module, 'foo');
     });
   });
 

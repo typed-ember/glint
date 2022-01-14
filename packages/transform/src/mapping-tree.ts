@@ -92,17 +92,17 @@ export default class MappingTree {
     lines.push(`${indent}Mapping: ${sourceNode.type}`);
 
     lines.push(
-      `${indent}${` hbs(${hbsStart}:${hbsEnd}):`.padEnd(15)}${originalSource
-        .slice(originalRange.start, originalRange.end)
-        .trim()
-        .replace(/\n/g, '\\n')}`
+      `${indent}${` hbs(${hbsStart}:${hbsEnd}):`.padEnd(15)}${this.getSourceRange(
+        originalSource,
+        originalRange
+      )}`
     );
 
     lines.push(
-      `${indent}${` ts(${tsStart}:${tsEnd}):`.padEnd(15)}${transformedSource
-        .slice(transformedRange.start, transformedRange.end)
-        .trim()
-        .replace(/\n/g, '\\n')}`
+      `${indent}${` ts(${tsStart}:${tsEnd}):`.padEnd(15)}${this.getSourceRange(
+        transformedSource,
+        transformedRange
+      )}`
     );
 
     lines.push(indent);
@@ -116,5 +116,9 @@ export default class MappingTree {
     }
 
     return lines.map((line) => line.trimEnd()).join('\n');
+  }
+
+  private getSourceRange(source: string, range: Range): string {
+    return source.slice(range.start, range.end).trim().replace(/\n/g, '\\n').replace(/\r/g, '\\r');
   }
 }
