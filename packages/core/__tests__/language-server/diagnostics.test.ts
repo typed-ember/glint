@@ -298,12 +298,12 @@ describe('Language Server: Diagnostics', () => {
     `;
 
     project.write('.glintrc', 'environment: ember-loose\n');
-    project.write('index.ts', script);
-    project.write('index.hbs', template);
+    project.write('controllers/foo.ts', script);
+    project.write('templates/foo.hbs', template);
 
     let server = project.startLanguageServer();
-    let scriptDiagnostics = server.getDiagnostics(project.fileURI('index.ts'));
-    let templateDiagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
+    let scriptDiagnostics = server.getDiagnostics(project.fileURI('controllers/foo.ts'));
+    let templateDiagnostics = server.getDiagnostics(project.fileURI('templates/foo.hbs'));
 
     expect(scriptDiagnostics).toMatchInlineSnapshot(`
       Array [
@@ -349,14 +349,14 @@ describe('Language Server: Diagnostics', () => {
       ]
     `);
 
-    server.openFile(project.fileURI('index.hbs'), template);
+    server.openFile(project.fileURI('templates/foo.hbs'), template);
     server.updateFile(
-      project.fileURI('index.hbs'),
+      project.fileURI('templates/foo.hbs'),
       template.replace('startupTimee', 'startupTime')
     );
 
-    expect(server.getDiagnostics(project.fileURI('index.ts'))).toEqual([]);
-    expect(server.getDiagnostics(project.fileURI('index.hbs'))).toEqual([]);
+    expect(server.getDiagnostics(project.fileURI('controllers/foo.ts'))).toEqual([]);
+    expect(server.getDiagnostics(project.fileURI('templates/foo.hbs'))).toEqual([]);
   });
 
   test('honors @glint-ignore and @glint-expect-error', () => {
