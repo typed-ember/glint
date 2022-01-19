@@ -2,9 +2,25 @@ import resolve from 'resolve';
 import path from 'path';
 import escapeStringRegexp from 'escape-string-regexp';
 
+export const DEFAULT_EXTENSIONS: GlintExtensionsConfig = {
+  '.hbs': { kind: 'template' },
+  '.js': { kind: 'untyped-script' },
+  '.ts': { kind: 'typed-script' },
+};
+
 export type GlintEnvironmentConfig = {
   tags?: GlintTagsConfig;
   template?: GlintTemplateConfig;
+  extensions?: GlintExtensionsConfig;
+};
+
+export type SourceKind = 'typed-script' | 'untyped-script' | 'template';
+export type GlintExtensionConfig = {
+  kind: SourceKind;
+};
+
+export type GlintExtensionsConfig = {
+  [extension: string]: GlintExtensionConfig;
 };
 
 export type GlintTagConfig = {
@@ -35,19 +51,66 @@ export type GlintTemplateConfig = {
 
 export class GlintEnvironment {
   private tagConfig: GlintTagsConfig;
+  private extensionsConfig: GlintExtensionsConfig;
   private standaloneTemplateConfig: GlintTemplateConfig | undefined;
   private tagImportRegexp: RegExp;
 
+  public typedScriptExtensions: ReadonlyArray<string>;
+  public untypedScriptExtensions: ReadonlyArray<string>;
+  public templateExtensions: ReadonlyArray<string>;
+
   public constructor(public readonly names: Array<string>, config: GlintEnvironmentConfig) {
     this.tagConfig = config.tags ?? {};
+    this.extensionsConfig = config.extensions ?? {};
     this.standaloneTemplateConfig = config.template;
     this.tagImportRegexp = this.buildTagImportRegexp();
+
+    this.typedScriptExtensions = this.extensionsOfType('typed-script');
+    this.untypedScriptExtensions = this.extensionsOfType('untyped-script');
+    this.templateExtensions = this.extensionsOfType('template');
   }
 
   public static load(name: string | Array<string>, { rootDir = '.' } = {}): GlintEnvironment {
     let names = Array.isArray(name) ? name : [name];
     let config = loadMergedEnvironmentConfig(names, rootDir);
     return new GlintEnvironment(names, config);
+  }
+
+  public getSourceKind(fileName: string): SourceKind | 'unknown' {
+    let extension = path.extname(fileName);
+    return this.extensionsConfig[extension]?.kind ?? 'unknown';
+  }
+
+  public isTypedScript(path: string): boolean {
+    return this.getSourceKind(path) === 'typed-script';
+  }
+
+  public isUntypedScript(path: string): boolean {
+    return this.getSourceKind(path) === 'untyped-script';
+  }
+
+  public isScript(path: string): boolean {
+    let kind = this.getSourceKind(path);
+    return kind === 'typed-script' || kind === 'untyped-script';
+  }
+
+  public isTemplate(path: string): boolean {
+    return this.getSourceKind(path) === 'template';
+  }
+
+  /**
+   * Returns an array of custom file extensions that the active environment
+   * is able to handle.
+   */
+  public getConfiguredFileExtensions(): Array<string> {
+    return Object.keys(this.extensionsConfig);
+  }
+
+  /**
+   * Returns any custom configuration for the given file extension.
+   */
+  public getConfigForExtension(extension: string): GlintExtensionConfig | undefined {
+    return this.extensionsConfig[extension];
   }
 
   /**
@@ -80,13 +143,13 @@ export class GlintEnvironment {
   }
 
   /**
-   * Indicates whether the given module _may_ import one of the template tags this
-   * configuration is set up to cover. Note that this method is intended to be a
-   * cheaper initial pass to avoid needlessly parsing modules that definitely don't
-   * require rewriting. It therefore may produce false positives, but should never
-   * give a false negative.
+   * Indicates whether the given module _may_ have embedded templates in it.
+   *
+   * Note that this method is intended to be a cheaper initial pass to avoid needlessly
+   * parsing modules that definitely don't require rewriting. It therefore may produce
+   * false positives, but should never give a false negative.
    */
-  public moduleMayHaveTagImports(moduleContents: string): boolean {
+  public moduleMayHaveEmbeddedTemplates(modulePath: string, moduleContents: string): boolean {
     return this.tagImportRegexp.test(moduleContents);
   }
 
@@ -104,6 +167,12 @@ export class GlintEnvironment {
     let regexpSource = importSources.map(escapeStringRegexp).join('|');
     return new RegExp(regexpSource);
   }
+
+  private extensionsOfType(kind: SourceKind): Array<string> {
+    return Object.keys(this.extensionsConfig).filter(
+      (key) => this.extensionsConfig[key].kind === kind
+    );
+  }
 }
 
 function loadMergedEnvironmentConfig(
@@ -111,6 +180,7 @@ function loadMergedEnvironmentConfig(
   rootDir: string
 ): GlintEnvironmentConfig {
   let tags: GlintTagsConfig = {};
+  let extensions: GlintExtensionsConfig = { ...DEFAULT_EXTENSIONS };
   let template: GlintTemplateConfig | undefined;
   for (let name of envNames) {
     let envModule = require(locateEnvironment(name, rootDir));
@@ -145,14 +215,28 @@ function loadMergedEnvironmentConfig(
         }
       }
     }
+
+    if (config.extensions) {
+      for (let [extension, extensionConfig] of Object.entries(config.extensions)) {
+        if (extension in extensions) {
+          throw new Error(
+            'Multiple configured Glint environments attempted to define handling for the ' +
+              extension +
+              ' file extension.'
+          );
+        }
+
+        extensions[extension] = extensionConfig;
+      }
+    }
   }
 
-  return { tags, template };
+  return { tags, extensions, template };
 }
 
 function locateEnvironment(name: string, basedir: string): string {
   // Resolve a package name, either shorthand or explicit
-  for (let candidate of [`@glint/environment-${name}`, name]) {
+  for (let candidate of [`@glint/environment-${name}`, `glint-environment-${name}`, name]) {
     let pkg = tryResolve(`${candidate}/package.json`, basedir);
     if (pkg) {
       let relativePath = require(pkg)['glint-environment'] ?? '.';

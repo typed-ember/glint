@@ -11,7 +11,9 @@ describe('Environments', () => {
         },
       });
 
-      expect(env.moduleMayHaveTagImports('import foo from "my-cool-environment"\n')).toBe(true);
+      expect(
+        env.moduleMayHaveEmbeddedTemplates('foo.ts', 'import foo from "my-cool-environment"\n')
+      ).toBe(true);
     });
 
     test('locating one of several tags', () => {
@@ -23,7 +25,9 @@ describe('Environments', () => {
         },
       });
 
-      expect(env.moduleMayHaveTagImports('import foo from "another-env"\n')).toBe(true);
+      expect(env.moduleMayHaveEmbeddedTemplates('foo.ts', 'import foo from "another-env"\n')).toBe(
+        true
+      );
     });
 
     test('checking a module with no tags in use', () => {
@@ -33,7 +37,9 @@ describe('Environments', () => {
         },
       });
 
-      expect(env.moduleMayHaveTagImports('import { hbs } from "another-env"\n')).toBe(false);
+      expect(
+        env.moduleMayHaveEmbeddedTemplates('foo.ts', 'import { hbs } from "another-env"\n')
+      ).toBe(false);
     });
 
     test('getting specified template tag config', () => {
@@ -84,6 +90,42 @@ describe('Environments', () => {
         { path: 'hello.ts', deferTo: [] },
         { path: 'hello.js', deferTo: [] },
       ]);
+    });
+  });
+
+  describe('extensions config', () => {
+    let env = new GlintEnvironment(['test'], {
+      extensions: {
+        '.ts': { kind: 'typed-script' },
+        '.gts': { kind: 'typed-script' },
+        '.hbs': { kind: 'template' },
+      },
+    });
+
+    test('listing configured extensions', () => {
+      expect(env.getConfiguredFileExtensions()).toEqual(['.ts', '.gts', '.hbs']);
+    });
+
+    test('identifying scripts and templates', () => {
+      expect(env.isTemplate('foo.hbs')).toBeTruthy();
+      expect(env.isTemplate('foo.ts')).toBeFalsy();
+      expect(env.isTypedScript('foo.ts')).toBeTruthy();
+      expect(env.isTypedScript('foo.gts')).toBeTruthy();
+      expect(env.isTypedScript('foo.js')).toBeFalsy();
+      expect(env.isUntypedScript('foo.ts')).toBeFalsy();
+      expect(env.isUntypedScript('foo.hbs')).toBeFalsy();
+      expect(env.isScript('foo.ts')).toBeTruthy();
+      expect(env.isScript('foo.gts')).toBeTruthy();
+      expect(env.isScript('foo.js')).toBeFalsy();
+      expect(env.isScript('foo.hbs')).toBeFalsy();
+    });
+
+    test('fetching config for an extension', () => {
+      expect(env.getConfigForExtension('.js')).toBeUndefined();
+      expect(env.getConfigForExtension('.hbs')).toEqual({ kind: 'template' });
+      expect(env.getConfigForExtension('.gts')).toEqual({
+        kind: 'typed-script',
+      });
     });
   });
 

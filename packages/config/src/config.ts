@@ -28,11 +28,12 @@ export class GlintConfig {
     this.environment = GlintEnvironment.load(config.environment, { rootDir });
     this.checkStandaloneTemplates = config.checkStandaloneTemplates ?? true;
 
+    let extensions = this.environment.getConfiguredFileExtensions();
     let include = Array.isArray(config.include)
       ? config.include
       : config.include
       ? [config.include]
-      : ['**/*.ts', '**/*.js', '**/*.hbs'];
+      : extensions.map((ext) => `**/*${ext}`);
 
     let exclude = Array.isArray(config.exclude)
       ? config.exclude
