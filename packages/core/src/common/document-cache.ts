@@ -1,38 +1,70 @@
 import { GlintConfig } from '@glint/config';
+import path from 'path';
+import { v4 as uuid } from 'uuid';
 
 export type Document = {
+  /** A unique identifier shared by all possible paths that may point to a document. */
+  id: string;
+  /** The "true" path where this document's source of truth can be found. */
+  canonicalPath: string;
+  /** Incremented each time the contents of a document changes (used by TS itself). */
   version: number;
+  /** The current string contents of this document. */
   contents: string;
+  /**
+   * Whether this document is a placeholder for something that might exist, or has actually
+   * been read from disk or opened in an editor.
+   */
+  speculative: boolean;
+  /** Whether this document has changed on disk since the last time we read it. */
   stale: boolean;
 };
 
 /**
  * A read-through cache for workspace document contents.
  *
- * This cache is aware (via the glint configuration it's instantiated with)
- * of the relationship between certain `.ts` and `.hbs` files, and will
- * treat a change to one member of such pairs as affecting the version
- * of both.
+ * Via the Glint configuration it's instantiated with, this cache is aware
+ * of two things:
+ *   - the relationship between companion script and template files, treating
+ *     a change to one member of such pairs as affecting the version of both
+ *   - the existence of custom extensions that would result in multiple
+ *     potential on-disk paths corresponding to a single logical TS module,
+ *     where one path must win out.
  */
 export default class DocumentCache {
   private readonly documents = new Map<string, Document>();
 
   public constructor(private ts: typeof import('typescript'), private glintConfig: GlintConfig) {}
 
-  public documentExists(path: string): boolean {
-    let document = this.documents.get(path);
+  public getDocumentID(path: string): string {
+    return this.getDocument(path).id;
+  }
 
+  public getCanonicalDocumentPath(path: string): string {
+    return this.getDocument(path).canonicalPath;
+  }
+
+  public documentExists(path: string): boolean {
     // If we have a document that's actually been read from disk, it definitely exists.
-    if (document && (document.version > 0 || !document.stale)) {
+    if (this.documents.get(path)?.speculative === false) {
       return true;
     }
 
-    return this.ts.sys.fileExists(path);
+    return this.getCandidateDocumentPaths(path).some((candidate) =>
+      this.ts.sys.fileExists(candidate)
+    );
+  }
+
+  public getCandidateDocumentPaths(filename: string): Array<string> {
+    let extension = path.extname(filename);
+    let filenameWithoutExtension = filename.slice(0, filename.lastIndexOf(extension));
+
+    return this.getCandidateExtensions(filename).map((ext) => `${filenameWithoutExtension}${ext}`);
   }
 
   public getCompanionDocumentPath(path: string): string | undefined {
     let { environment } = this.glintConfig;
-    let candidates = isTemplate(path)
+    let candidates = environment.isTemplate(path)
       ? environment.getPossibleScriptPaths(path)
       : environment.getPossibleTemplatePaths(path);
 
@@ -44,8 +76,8 @@ export default class DocumentCache {
       }
     }
 
-    if (isTemplate(path)) {
-      return synthesizedModulePathForTemplate(path, this.glintConfig);
+    if (environment.isTemplate(path)) {
+      return this.glintConfig.getSynthesizedScriptPathForTS(path);
     }
   }
 
@@ -54,16 +86,28 @@ export default class DocumentCache {
 
     let document = this.getDocument(path);
     if (document.stale) {
-      document.contents = this.ts.sys.readFile(path, encoding) ?? '';
+      let onDiskPath = this.getCandidateDocumentPaths(path).find((path) =>
+        this.ts.sys.fileExists(path)
+      );
+
       document.stale = false;
+
+      if (onDiskPath) {
+        document.contents = this.ts.sys.readFile(onDiskPath, encoding) ?? '';
+        document.canonicalPath = onDiskPath;
+        document.speculative = false;
+      } else {
+        document.speculative = true;
+      }
     }
 
     return document.contents;
   }
 
   public getCompoundDocumentVersion(path: string): string {
-    let template = isTemplate(path) ? this.getDocument(path) : this.findCompanionDocument(path);
-    let script = isTemplate(path) ? this.findCompanionDocument(path) : this.getDocument(path);
+    let env = this.glintConfig.environment;
+    let template = env.isTemplate(path) ? this.getDocument(path) : this.findCompanionDocument(path);
+    let script = env.isTemplate(path) ? this.findCompanionDocument(path) : this.getDocument(path);
 
     return `${script?.version}:${template?.version}`;
   }
@@ -76,7 +120,9 @@ export default class DocumentCache {
     let document = this.getDocument(path);
 
     document.stale = false;
+    document.speculative = false;
     document.contents = contents;
+    document.canonicalPath = path;
     document.version++;
 
     this.incrementCompanionVersion(path);
@@ -86,13 +132,16 @@ export default class DocumentCache {
     let document = this.getDocument(path);
 
     document.stale = true;
+    document.speculative = true;
     document.version++;
 
     this.incrementCompanionVersion(path);
   }
 
   public removeDocument(path: string): void {
-    this.documents.delete(path);
+    for (let candidate of this.getCandidateDocumentPaths(path)) {
+      this.documents.delete(candidate);
+    }
   }
 
   private incrementCompanionVersion(path: string): void {
@@ -110,36 +159,39 @@ export default class DocumentCache {
   private getDocument(path: string): Document {
     let document = this.documents.get(path);
     if (!document) {
-      document = { version: 0, contents: '', stale: true };
-      this.documents.set(path, document);
+      document = {
+        id: uuid(),
+        canonicalPath: path,
+        version: 0,
+        contents: '',
+        stale: true,
+        speculative: true,
+      };
+
+      for (let candidate of this.getCandidateDocumentPaths(path)) {
+        this.documents.set(candidate, document);
+      }
     }
     return document;
   }
+
+  private getCandidateExtensions(filename: string): ReadonlyArray<string> {
+    let { environment } = this.glintConfig;
+    switch (environment.getSourceKind(filename)) {
+      case 'template':
+        return environment.templateExtensions;
+      case 'typed-script':
+        return environment.typedScriptExtensions;
+      case 'untyped-script':
+        return environment.untypedScriptExtensions;
+      default:
+        return [path.extname(filename)];
+    }
+  }
 }
 
-export const TEMPLATE_EXTENSION = '.hbs';
-
-export const TEMPLATE_EXTENSION_REGEX = /\.hbs$/;
-export const SCRIPT_EXTENSION_REGEX = /\.(ts|js)$/;
-export const DECLARATION_EXTENSION_REGEX = /\.d\.ts$/;
+const SCRIPT_EXTENSION_REGEX = /\.(ts|js)$/;
 
 export function templatePathForSynthesizedModule(path: string): string {
   return path.replace(SCRIPT_EXTENSION_REGEX, '.hbs');
-}
-
-export function synthesizedModulePathForTemplate(path: string, config: GlintConfig): string {
-  let extension = config.checkStandaloneTemplates ? '.ts' : '.js';
-  return path.replace(TEMPLATE_EXTENSION_REGEX, extension);
-}
-
-export function isTemplate(path: string): boolean {
-  return TEMPLATE_EXTENSION_REGEX.test(path);
-}
-
-export function isScript(path: string): boolean {
-  return SCRIPT_EXTENSION_REGEX.test(path) && !isDeclaration(path);
-}
-
-export function isDeclaration(path: string): boolean {
-  return DECLARATION_EXTENSION_REGEX.test(path);
 }

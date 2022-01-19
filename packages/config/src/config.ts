@@ -56,6 +56,23 @@ export class GlintConfig {
     );
   }
 
+  // Given the path of a template or script (potentially with a custom extension),
+  // returns the corresponding .js or .ts path we present to the TS language service.
+  public getSynthesizedScriptPathForTS(filename: string): string {
+    let extension = path.extname(filename);
+    let filenameWithoutExtension = filename.slice(0, filename.lastIndexOf(extension));
+    switch (this.environment.getSourceKind(filename)) {
+      case 'template':
+        return `${filenameWithoutExtension}${this.checkStandaloneTemplates ? '.ts' : '.js'}`;
+      case 'typed-script':
+        return `${filenameWithoutExtension}.ts`;
+      case 'untyped-script':
+        return `${filenameWithoutExtension}.js`;
+      default:
+        return filename;
+    }
+  }
+
   private buildMatchers(globs: Array<string>): Array<IMinimatch> {
     return globs.map((glob) => new Minimatch(normalizePath(path.resolve(this.rootDir, glob))));
   }
