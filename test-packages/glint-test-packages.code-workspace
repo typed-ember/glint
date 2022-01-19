@@ -1,0 +1,16 @@
+{
+  "folders": [
+    {
+      "path": "ts-ember-app"
+    },
+    {
+      "path": "ts-glimmerx-app"
+    },
+    {
+      "path": "js-glimmerx-app"
+    },
+    {
+      "path": "ts-custom-app"
+    }
+  ]
+}
