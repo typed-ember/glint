@@ -11,10 +11,6 @@ export function assert(test: unknown, message = 'Internal error'): asserts test 
   }
 }
 
-export function isJsScript(uriOrFilePath: string): boolean {
-  return uriOrFilePath.endsWith('.js');
-}
-
 export function createSyntheticSourceFile(tsImpl: typeof ts, source: SourceFile): ts.SourceFile {
   return Object.assign(tsImpl.createSourceFile(source.filename, '', tsImpl.ScriptTarget.Latest), {
     text: source.contents,
