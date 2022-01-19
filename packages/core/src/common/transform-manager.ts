@@ -9,13 +9,7 @@ import {
 import type ts from 'typescript';
 import { GlintConfig } from '@glint/config';
 import { assert } from '@glint/transform/lib/util';
-import DocumentCache, {
-  isScript,
-  isTemplate,
-  synthesizedModulePathForTemplate,
-  templatePathForSynthesizedModule,
-  TEMPLATE_EXTENSION,
-} from './document-cache';
+import DocumentCache, { templatePathForSynthesizedModule } from './document-cache';
 
 type TransformInfo = {
   version: string;
@@ -112,9 +106,10 @@ export default class TransformManager {
     transformedEnd: number
   ): { originalFileName: string; originalStart: number; originalEnd: number } {
     let transformInfo = this.getTransformInfo(transformedFileName);
+    let { documents } = this;
     if (!transformInfo?.transformedModule) {
       return {
-        originalFileName: transformedFileName,
+        originalFileName: documents.getCanonicalDocumentPath(transformedFileName),
         originalStart: transformedStart,
         originalEnd: transformedEnd,
       };
@@ -126,7 +121,7 @@ export default class TransformManager {
     );
 
     return {
-      originalFileName: original.source.filename,
+      originalFileName: documents.getCanonicalDocumentPath(original.source.filename),
       originalStart: original.start,
       originalEnd: original.end,
     };
@@ -247,6 +242,12 @@ export default class TransformManager {
       (fileName) => this.getTransformInfo(fileName)?.transformedModule
     );
 
+    if (rewrittenDiagnostic.file) {
+      rewrittenDiagnostic.file.fileName = this.documents.getCanonicalDocumentPath(
+        rewrittenDiagnostic.file.fileName
+      );
+    }
+
     let appliedDirective = transformInfo.transformedModule?.directives.find(
       (directive) =>
         directive.source.filename === rewrittenDiagnostic.file?.fileName &&
@@ -264,7 +265,7 @@ export default class TransformManager {
   }
 
   private findTransformInfoForOriginalFile(originalFileName: string): TransformInfo | null {
-    let transformedFileName = isTemplate(originalFileName)
+    let transformedFileName = this.glintConfig.environment.isTemplate(originalFileName)
       ? this.documents.getCompanionDocumentPath(originalFileName)
       : originalFileName;
 
@@ -273,26 +274,31 @@ export default class TransformManager {
 
   private getTransformInfo(filename: string, encoding?: string): TransformInfo {
     let { documents, glintConfig } = this;
-    let existing = this.transformCache.get(filename);
+    let { environment } = glintConfig;
+    let documentID = documents.getDocumentID(filename);
+    let existing = this.transformCache.get(documentID);
     let version = documents.getCompoundDocumentVersion(filename);
     if (existing?.version === version) {
       return existing;
     }
 
     let transformedModule: TransformedModule | null = null;
-    if (isScript(filename) && glintConfig.includesFile(filename)) {
+    if (environment.isScript(filename) && glintConfig.includesFile(filename)) {
       if (documents.documentExists(filename)) {
         let contents = documents.getDocumentContents(filename, encoding);
-        let mayHaveTaggedTemplates = glintConfig.environment.moduleMayHaveTagImports(contents);
         let templatePath = documents.getCompanionDocumentPath(filename);
+        let mayHaveEmbeds = environment.moduleMayHaveEmbeddedTemplates(filename, contents);
 
-        if (mayHaveTaggedTemplates || templatePath) {
+        if (mayHaveEmbeds || templatePath) {
           let script = { filename, contents };
           let template = templatePath
-            ? { filename: templatePath, contents: documents.getDocumentContents(templatePath) }
+            ? {
+                filename: templatePath,
+                contents: documents.getDocumentContents(templatePath, encoding),
+              }
             : undefined;
 
-          transformedModule = rewriteModule({ script, template }, glintConfig.environment);
+          transformedModule = rewriteModule({ script, template }, environment);
         }
       } else {
         let templatePath = templatePathForSynthesizedModule(filename);
@@ -305,7 +311,7 @@ export default class TransformManager {
           let script = { filename, contents: '' };
           let template = {
             filename: templatePath,
-            contents: documents.getDocumentContents(templatePath),
+            contents: documents.getDocumentContents(templatePath, encoding),
           };
 
           transformedModule = rewriteModule({ script, template }, glintConfig.environment);
@@ -313,8 +319,9 @@ export default class TransformManager {
       }
     }
 
-    let cacheEntry = { version, transformedFileName: filename, transformedModule };
-    this.transformCache.set(filename, cacheEntry);
+    let transformedFileName = glintConfig.getSynthesizedScriptPathForTS(filename);
+    let cacheEntry = { version, transformedFileName, transformedModule };
+    this.transformCache.set(documentID, cacheEntry);
     return cacheEntry;
   }
 
