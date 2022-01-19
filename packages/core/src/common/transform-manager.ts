@@ -154,6 +154,7 @@ export default class TransformManager {
     const { watchFile } = this.ts.sys;
     assert(watchFile);
 
+    let { glintConfig, documents } = this;
     let callback: ts.FileWatcherCallback = (watchedPath, eventKind) => {
       if (eventKind === this.ts.FileWatcherEventKind.Deleted) {
         this.documents.removeDocument(watchedPath);
@@ -164,23 +165,24 @@ export default class TransformManager {
       return originalCallback(path, eventKind);
     };
 
-    let rootWatcher = watchFile(path, callback, pollingInterval, options);
-    let templatePaths = this.glintConfig.environment.getPossibleTemplatePaths(path);
-
-    if (this.glintConfig.includesFile(path) && templatePaths.length) {
-      let templateWatchers = templatePaths.map((candidate) =>
-        watchFile(candidate.path, callback, pollingInterval, options)
-      );
-
-      return {
-        close() {
-          rootWatcher.close();
-          templateWatchers.forEach((watcher) => watcher.close());
-        },
-      };
+    if (!glintConfig.includesFile(path)) {
+      return watchFile(path, callback, pollingInterval, options);
     }
 
-    return rootWatcher;
+    let allPaths = [
+      ...glintConfig.environment.getPossibleTemplatePaths(path).map((candidate) => candidate.path),
+      ...documents.getCandidateDocumentPaths(path),
+    ];
+
+    let allWatchers = allPaths.map((candidate) =>
+      watchFile(candidate, callback, pollingInterval, options)
+    );
+
+    return {
+      close() {
+        allWatchers.forEach((watcher) => watcher.close());
+      },
+    };
   };
 
   public readDirectory = (
@@ -190,14 +192,11 @@ export default class TransformManager {
     includes: ReadonlyArray<string>,
     depth?: number | undefined
   ): Array<string> => {
-    let allExtensions = [...extensions, TEMPLATE_EXTENSION];
+    let env = this.glintConfig.environment;
+    let allExtensions = [...new Set([...extensions, ...env.getConfiguredFileExtensions()])];
     return this.ts.sys
       .readDirectory(rootDir, allExtensions, excludes, includes, depth)
-      .map((filename) =>
-        isTemplate(filename)
-          ? synthesizedModulePathForTemplate(filename, this.glintConfig)
-          : filename
-      );
+      .map((filename) => this.glintConfig.getSynthesizedScriptPathForTS(filename));
   };
 
   public readTransformedFile = (filename: string, encoding?: string): string | undefined => {

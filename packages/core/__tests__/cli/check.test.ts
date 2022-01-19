@@ -235,6 +235,29 @@ describe('CLI: single-pass typechecking', () => {
     `);
   });
 
+  test('reports diagnostics from custom extensions', async () => {
+    project.write('.glintrc', `environment: custom-test`);
+
+    project.write(
+      'my-component.custom',
+      stripIndent`
+        export let x: string = 123;
+      `
+    );
+
+    let checkResult = await project.check({ reject: false });
+
+    expect(checkResult.exitCode).toBe(1);
+    expect(checkResult.stdout).toEqual('');
+    expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+      "my-component.custom:1:12 - error TS2322: Type 'number' is not assignable to type 'string'.
+
+      1 export let x: string = 123;
+                   ~
+      "
+    `);
+  });
+
   test('reports correct diagnostics given @glint-expect-error and @glint-ignore directives', async () => {
     project.write('.glintrc', 'environment: ember-loose\n');
 
