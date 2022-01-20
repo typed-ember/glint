@@ -23,9 +23,10 @@ async function main() {
         // Point at an empty directory so we don't have to contend with any local user preferences
         '--user-data-dir',
         emptyTempDir,
-        // Load the Ember and GlimmerX app fixtures
+        // Load the app fixtures
         `${__dirname}/../../__fixtures__/ember-app`,
         `${__dirname}/../../__fixtures__/js-glimmerx-app`,
+        `${__dirname}/../../__fixtures__/custom-app`,
       ],
     });
   } catch (error) {
