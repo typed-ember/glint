@@ -53,7 +53,7 @@ jobs:
   # when launching browser tests, so we allow for retries in those steps.
   test-windows:
     name: Test Windows
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
