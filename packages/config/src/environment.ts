@@ -70,10 +70,13 @@ export class GlintEnvironment {
     this.templateExtensions = this.extensionsOfType('template');
   }
 
-  public static load(name: string | Array<string>, { rootDir = '.' } = {}): GlintEnvironment {
-    let names = Array.isArray(name) ? name : [name];
-    let config = loadMergedEnvironmentConfig(names, rootDir);
-    return new GlintEnvironment(names, config);
+  public static load(
+    specifier: string | Array<string> | Record<string, unknown>,
+    { rootDir = '.' } = {}
+  ): GlintEnvironment {
+    let envs = normalizeEnvironmentSpecifier(specifier);
+    let config = loadMergedEnvironmentConfig(envs, rootDir);
+    return new GlintEnvironment(Object.keys(envs), config);
   }
 
   public getSourceKind(fileName: string): SourceKind | 'unknown' {
@@ -175,17 +178,29 @@ export class GlintEnvironment {
   }
 }
 
+function normalizeEnvironmentSpecifier(
+  specifier: string | string[] | Record<string, unknown>
+): Record<string, unknown> {
+  if (typeof specifier === 'string') {
+    return { [specifier]: null };
+  } else if (Array.isArray(specifier)) {
+    return specifier.reduce((obj, name) => ({ ...obj, [name]: null }), {});
+  }
+
+  return specifier;
+}
+
 function loadMergedEnvironmentConfig(
-  envNames: Array<string>,
+  envs: Record<string, unknown>,
   rootDir: string
 ): GlintEnvironmentConfig {
   let tags: GlintTagsConfig = {};
   let extensions: GlintExtensionsConfig = { ...DEFAULT_EXTENSIONS };
   let template: GlintTemplateConfig | undefined;
-  for (let name of envNames) {
-    let envModule = require(locateEnvironment(name, rootDir));
+  for (let [envName, envUserConfig] of Object.entries(envs)) {
+    let envModule = require(locateEnvironment(envName, rootDir));
     let envFunction = envModule.default ?? envModule;
-    let config = envFunction() as GlintEnvironmentConfig;
+    let config = envFunction(envUserConfig ?? {}) as GlintEnvironmentConfig;
 
     if (config.template) {
       if (template) {
