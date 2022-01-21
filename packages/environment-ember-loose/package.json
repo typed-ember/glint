@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@glimmer/component": "^1.0.0",
-    "@types/ember__component": "^3.0.0",
+    "@types/ember__component": "~4.0.0",
     "@types/jest": "^26.0.13",
     "ember-modifier": "^2.1.1",
     "expect-type": "0.11.0",

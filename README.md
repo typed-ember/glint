@@ -401,7 +401,7 @@ In some TypeScript codebases it's common practice to define per-module (or even 
 ```ts
 import { render } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
-import type { TestContext } from 'ember-test-helpers';
+import type { TestContext } from '@ember/test-helpers';
 
 interface MyContext extends TestContext {
   message: string;
