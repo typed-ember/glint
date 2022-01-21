@@ -14,18 +14,11 @@ describe('Source-to-source offset mapping', () => {
     transformedModule: TransformedModule;
   };
 
-  function rewriteInlineTemplate({
-    contents,
-    identifiersInScope = [],
-  }: {
-    contents: string;
-    identifiersInScope?: string[];
-  }): RewrittenTestModule {
+  function rewriteInlineTemplate({ contents }: { contents: string }): RewrittenTestModule {
     let script = {
       filename: 'test.ts',
       contents: stripIndent`
         import Component, { hbs } from '@glint/environment-glimmerx/component';
-        import { ${identifiersInScope.join(', ')} } from 'dummy';
 
         export default class MyComponent extends Component {
           static template = hbs\`
@@ -180,7 +173,6 @@ describe('Source-to-source offset mapping', () => {
     describe('path segments', () => {
       test('simple in-scope paths', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['foo'],
           contents: '{{foo.bar}}',
         });
         expectTokenMapping(module, 'foo');
@@ -217,7 +209,6 @@ describe('Source-to-source offset mapping', () => {
     describe('keys', () => {
       test('named params to mustaches', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['foo', 'hello'],
           contents: '{{foo bar=hello}}',
         });
         expectTokenMapping(module, 'foo');
@@ -227,7 +218,6 @@ describe('Source-to-source offset mapping', () => {
 
       test('named spinal-case params to mustaches', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['foo', 'hello'],
           contents: '{{foo bar-baz=hello}}',
         });
         expectTokenMapping(module, 'foo');
@@ -237,7 +227,6 @@ describe('Source-to-source offset mapping', () => {
 
       test('component args', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['Foo', 'hello'],
           contents: '<Foo @bar={{hello}} />',
         });
         expectTokenMapping(module, 'Foo');
@@ -247,7 +236,6 @@ describe('Source-to-source offset mapping', () => {
 
       test('spinal-case component args', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['Foo', 'hello'],
           contents: '<Foo @bar-baz={{hello}} />',
         });
         expectTokenMapping(module, 'Foo');
@@ -257,7 +245,6 @@ describe('Source-to-source offset mapping', () => {
 
       test('named blocks', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['Foo'],
           contents: '<Foo><:blockName>hi</:blockName></Foo>',
         });
         expectTokenMapping(module, 'Foo');
@@ -266,7 +253,6 @@ describe('Source-to-source offset mapping', () => {
 
       test('spinal-case named blocks', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['Foo'],
           contents: '<Foo><:block-name>hi</:block-name></Foo>',
         });
         expectTokenMapping(module, 'Foo');
@@ -294,7 +280,6 @@ describe('Source-to-source offset mapping', () => {
 
       test('angle bracket params', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['Foo'],
           contents: '<Foo as |bar baz|></Foo>',
         });
         expectTokenMapping(module, 'Foo');
@@ -306,7 +291,6 @@ describe('Source-to-source offset mapping', () => {
     describe('block mustaches', () => {
       test('simple identifiers', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['foo'],
           contents: '{{#foo}}{{/foo}}',
         });
         expectTokenMapping(module, 'foo', { occurrence: 0 });
@@ -315,7 +299,6 @@ describe('Source-to-source offset mapping', () => {
 
       test('simple paths', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['foo'],
           contents: '{{#foo.bar}}{{/foo.bar}}',
         });
         expectTokenMapping(module, 'foo', { occurrence: 0 });
@@ -344,7 +327,6 @@ describe('Source-to-source offset mapping', () => {
     describe('angle bracket components', () => {
       test('simple identifiers', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['Foo'],
           contents: '<Foo></Foo>',
         });
         expectTokenMapping(module, 'Foo', { occurrence: 0 });
@@ -353,7 +335,6 @@ describe('Source-to-source offset mapping', () => {
 
       test('simple paths', () => {
         let module = rewriteInlineTemplate({
-          identifiersInScope: ['foo'],
           contents: '<foo.bar></foo.bar>',
         });
         expectTokenMapping(module, 'foo', { occurrence: 0 });
@@ -490,8 +471,8 @@ describe('Diagnostic offset mapping', () => {
       code,
       messageText,
       file: transformedContentsFile,
-      start: transformedModule.transformedContents.indexOf('"foo"'),
-      length: 5,
+      start: transformedModule.transformedContents.indexOf('foo'),
+      length: 3,
     };
 
     let rewritten = rewriteDiagnostic(ts, original, () => transformedModule);

@@ -21,7 +21,7 @@ export function calculateTaggedTemplateSpans(
 
   let tagConfig = getConfigForTag(tag, environment);
   if (tagConfig) {
-    let { typesSource, capturesOuterScope } = tagConfig;
+    let { typesSource, globals } = tagConfig;
     let tagName = tag.node.name;
     let { quasis } = path.node.quasi;
 
@@ -44,11 +44,10 @@ export function calculateTaggedTemplateSpans(
     let preamble = [`${tagName};`];
 
     let { inClass, className, typeParams, contextType } = getContainingTypeInfo(path);
-    let identifiersInScope = capturesOuterScope ? Object.keys(path.scope.getAllBindings()) : [];
     let transformedTemplate = templateToTypescript(template, {
       typesPath: typesSource,
       preamble,
-      identifiersInScope,
+      globals,
       typeParams,
       contextType,
       useJsDoc: environment.isUntypedScript(script.filename),

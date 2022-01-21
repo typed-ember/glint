@@ -12,7 +12,7 @@ type BlockKeyword = typeof BLOCK_KEYWORDS[number];
 
 export type TemplateToTypescriptOptions = {
   typesPath: string;
-  identifiersInScope?: Array<string>;
+  globals?: Array<string> | undefined;
   contextType?: string;
   typeParams?: string;
   preamble?: Array<string>;
@@ -28,7 +28,7 @@ export function templateToTypescript(
   template: string,
   {
     typesPath,
-    identifiersInScope = [],
+    globals,
     typeParams = '',
     contextType,
     preamble = [],
@@ -36,7 +36,7 @@ export function templateToTypescript(
   }: TemplateToTypescriptOptions
 ): RewriteResult {
   return mapTemplateContents(template, (ast, { emit, record, rangeForLine, rangeForNode }) => {
-    let scope = new ScopeStack(identifiersInScope);
+    let scope = new ScopeStack([]);
 
     emitTemplateBoilerplate(useJsDoc, () => {
       for (let line of preamble) {
@@ -347,12 +347,27 @@ export function templateToTypescript(
     }
 
     function emitIdentifierReference(name: string, hbsOffset: number): void {
-      if (scope.hasMatchingBinding(name)) {
-        emit.identifier(name, hbsOffset);
-      } else {
+      if (treatAsGlobal(name)) {
         emit.text('χ.Globals["');
         emit.identifier(JSON.stringify(name).slice(1, -1), hbsOffset, name.length);
         emit.text('"]');
+      } else {
+        emit.identifier(name, hbsOffset);
+      }
+    }
+
+    function treatAsGlobal(name: string): boolean {
+      if (globals) {
+        // If we have a known set of global identifiers, we should only treat
+        // members of that set as global and assume everything else is local.
+        // This is typically true in environments that capture scope, like
+        // GlimmerX or strict-mode Ember.
+        return globals.includes(name);
+      } else {
+        // Otherwise, we assume everything is global unless we can see it
+        // in scope as a block variable. This is the case in resolver-based
+        // environments like loose-mode Ember.
+        return !scope.hasBinding(name);
       }
     }
 

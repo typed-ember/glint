@@ -3,7 +3,7 @@ import { Minimatch, IMinimatch } from 'minimatch';
 import { GlintEnvironment } from './environment';
 
 export type GlintConfigInput = {
-  environment: string | Array<string>;
+  environment: string | Array<string> | Record<string, unknown>;
   checkStandaloneTemplates?: boolean;
   include?: string | Array<string>;
   exclude?: string | Array<string>;
@@ -90,8 +90,10 @@ function validateConfigInput(input: Record<string, unknown>): asserts input is G
   assert(
     Array.isArray(input['environment'])
       ? input['environment'].every((env) => typeof env === 'string')
-      : typeof input['environment'] === 'string',
-    'Glint config must specify an `environment` that is a string or an array of strings'
+      : typeof input['environment'] === 'string' ||
+          (typeof input['environment'] === 'object' && input['environment']),
+    'Glint config must specify an `environment` that is a string, array of strings, or an object ' +
+      'mapping environment names to their config.'
   );
 
   assert(
