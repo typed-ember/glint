@@ -28,7 +28,7 @@ describe('Source-to-source offset mapping', () => {
       `,
     };
 
-    let transformedModule = rewriteModule({ script }, glimmerxEnvironment);
+    let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
     if (!transformedModule) {
       throw new Error('Expected module to have rewritten contents');
     }
@@ -58,7 +58,7 @@ describe('Source-to-source offset mapping', () => {
       contents: contents,
     };
 
-    let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+    let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
     if (!transformedModule) {
       throw new Error('Expected module to have rewritten contents');
     }
@@ -398,7 +398,7 @@ describe('Source-to-source offset mapping', () => {
       `,
     };
 
-    const rewritten = rewriteModule({ script: source }, glimmerxEnvironment)!;
+    const rewritten = rewriteModule(ts, { script: source }, glimmerxEnvironment)!;
 
     test('bounds that cross a rewritten span', () => {
       let originalStart = source.contents.indexOf('// start');
@@ -458,7 +458,7 @@ describe('Diagnostic offset mapping', () => {
     `,
   };
 
-  const transformedModule = rewriteModule({ script: source }, glimmerxEnvironment);
+  const transformedModule = rewriteModule(ts, { script: source }, glimmerxEnvironment);
   assert(transformedModule);
 
   test('without related information', () => {
@@ -540,7 +540,7 @@ describe('Diagnostic offset mapping', () => {
       `,
     };
 
-    let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment)!;
+    let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment)!;
     let category = ts.DiagnosticCategory.Error;
     let messageText = '`foo-bar` is no good';
     let code = 1234;
