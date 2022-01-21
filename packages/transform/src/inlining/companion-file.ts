@@ -1,15 +1,16 @@
+import type ts from 'typescript';
 import path from 'path';
-import { NodePath, types as t } from '@babel/core';
 import { GlintEnvironment } from '@glint/config';
 import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } from '.';
 import { RewriteResult } from '../map-template-contents';
 import MappingTree, { ParseError } from '../mapping-tree';
 import { templateToTypescript } from '../template-to-typescript';
 import { Directive, SourceFile, TransformError } from '../transformed-module';
-import { assert } from '../util';
+import { TSLib } from '../util';
 
 export function calculateCompanionTemplateSpans(
-  exportDeclarationPath: NodePath | null,
+  ts: TSLib,
+  ast: ts.SourceFile,
   script: SourceFile,
   template: SourceFile,
   environment: GlintEnvironment
@@ -31,17 +32,14 @@ export function calculateCompanionTemplateSpans(
   }
 
   let useJsDoc = environment.isUntypedScript(script.filename);
-  let targetPath = findCompanionTemplateTarget(exportDeclarationPath);
-  if (targetPath?.isClass()) {
-    let { className, contextType, typeParams } = getContainingTypeInfo(targetPath);
-    let target = targetPath.node as t.Class;
-
-    assert(target.start && target.end, 'Missing location info');
+  let targetNode = findCompanionTemplateTarget(ts, ast);
+  if (targetNode && ts.isClassLike(targetNode)) {
+    let { className, contextType, typeParams } = getContainingTypeInfo(ts, targetNode);
 
     if (!className) {
       errors.push({
         source: script,
-        location: { start: target.start, end: target.end },
+        location: { start: targetNode.getStart(), end: targetNode.getEnd() },
         message: 'Classes with an associated template must have a name',
       });
     }
@@ -59,13 +57,13 @@ export function calculateCompanionTemplateSpans(
     let standaloneTemplateField = `'~template:${className}'`;
 
     pushTransformedTemplate(rewriteResult, {
-      insertionPoint: target.end - 1,
+      insertionPoint: targetNode.getEnd() - 1,
       prefix: `protected static ${standaloneTemplateField} = `,
       suffix: ';\n',
     });
   } else {
     let contextType: string | undefined;
-    if (targetPath) {
+    if (targetNode) {
       let moduleName = path.basename(script.filename, path.extname(script.filename));
       contextType = `typeof import('./${moduleName}').default`;
     }
@@ -155,10 +153,36 @@ export function calculateCompanionTemplateSpans(
   }
 }
 
-type CompanionTemplateTarget = NodePath<any> | null | undefined;
+function findCompanionTemplateTarget(
+  ts: TSLib,
+  sourceFile: ts.SourceFile
+): ts.ClassLikeDeclaration | ts.Expression | null {
+  let classes: Record<string, ts.ClassLikeDeclaration> = Object.create(null);
+  for (let statement of sourceFile.statements) {
+    if (ts.isClassLike(statement)) {
+      let mods = statement.modifiers;
+      if (
+        mods?.some((mod) => mod.kind === ts.SyntaxKind.DefaultKeyword) &&
+        mods.some((mod) => mod.kind === ts.SyntaxKind.ExportKeyword)
+      ) {
+        return statement;
+      }
 
-function findCompanionTemplateTarget(declaration: NodePath | null): CompanionTemplateTarget {
-  return declaration?.isIdentifier()
-    ? declaration.scope.getBinding(declaration.node.name)?.path
-    : declaration;
+      if (statement.name) {
+        classes[statement.name.text] = statement;
+      }
+    }
+  }
+
+  for (let statement of sourceFile.statements) {
+    if (ts.isExportAssignment(statement) && !statement.isExportEquals) {
+      if (ts.isIdentifier(statement.expression) && statement.expression.text in classes) {
+        return classes[statement.expression.text];
+      } else {
+        return statement.expression;
+      }
+    }
+  }
+
+  return null;
 }

@@ -1,6 +1,6 @@
-import { NodePath, types as t } from '@babel/core';
-import generate from '@babel/generator';
+import type ts from 'typescript';
 import { CorrelatedSpan, Directive, TransformError } from '../transformed-module';
+import { TSLib } from '../util';
 
 export type PartialCorrelatedSpan = Omit<CorrelatedSpan, 'transformedStart' | 'transformedLength'>;
 
@@ -31,29 +31,28 @@ export type ContainingTypeInfo = {
  *       // ...
  *     })
  */
-export function getContainingTypeInfo(path: NodePath<any>): ContainingTypeInfo {
-  let container = findContainingClass(path);
+export function getContainingTypeInfo(ts: TSLib, node: ts.Node): ContainingTypeInfo {
+  let container = findContainingClass(ts, node);
   let inClass = Boolean(container);
-  let className = container?.id?.name;
+  let className = container?.name?.text;
   let contextType = className;
   let typeParams = undefined;
 
-  let typeParamsNode = container?.typeParameters;
-  if (t.isTSTypeParameterDeclaration(typeParamsNode)) {
-    let { params } = typeParamsNode;
-    typeParams = `<${params.map((param) => generate(param).code).join(', ')}>`;
-    contextType += `<${params.map((param) => param.name).join(', ')}>`;
+  if (container?.typeParameters) {
+    let params = container.typeParameters;
+    typeParams = `<${params.map((param) => param.getText()).join(', ')}>`;
+    contextType += `<${params.map((param) => param.name.getText()).join(', ')}>`;
   }
 
   return { contextType, typeParams, className, inClass };
 }
 
-function findContainingClass(path: NodePath<any>): t.Class | null {
-  let current: NodePath<any> | null = path;
+function findContainingClass(ts: TSLib, node: ts.Node): ts.ClassLikeDeclaration | null {
+  let current: ts.Node | null = node;
   do {
-    if (t.isClass(current.node)) {
-      return current.node;
+    if (ts.isClassLike(current)) {
+      return current;
     }
-  } while ((current = current.parentPath));
+  } while ((current = current.parent));
   return null;
 }
