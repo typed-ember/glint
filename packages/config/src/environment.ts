@@ -25,7 +25,7 @@ export type GlintExtensionsConfig = {
 
 export type GlintTagConfig = {
   typesSource: string;
-  capturesOuterScope: boolean;
+  globals?: Array<string>;
 };
 
 export type GlintTagsConfig = {
