@@ -5,7 +5,6 @@ import { loadTypeScript } from '../common/load-typescript';
 import GlintLanguageServer from './glint-language-server';
 import { parseConfigFile, uriToFilePath } from './util';
 import { bindLanguageServer } from './binding';
-import { isScript, isTemplate, synthesizedModulePathForTemplate } from '../common/document-cache';
 
 const connection = createConnection(process.stdin, process.stdout);
 const documents = new TextDocuments(TextDocument);
@@ -19,16 +18,15 @@ const configPath =
 const { fileNames, options } = parseConfigFile(ts, configPath);
 
 if (glintConfig) {
+  const env = glintConfig.environment;
   const baseProjectRoots = new Set(fileNames);
   const getRootFileNames = (): Array<string> => {
     return fileNames.concat(
       documents
         .all()
         .map((doc) => uriToFilePath(doc.uri))
-        .map((path) =>
-          isTemplate(path) ? synthesizedModulePathForTemplate(path, glintConfig) : path
-        )
-        .filter((path) => isScript(path) && !baseProjectRoots.has(path))
+        .map((path) => glintConfig.getSynthesizedScriptPathForTS(path))
+        .filter((path) => env.isScript(path) && !baseProjectRoots.has(path))
     );
   };
 

@@ -6,7 +6,7 @@ import { RewriteResult } from '../map-template-contents';
 import MappingTree, { ParseError } from '../mapping-tree';
 import { templateToTypescript } from '../template-to-typescript';
 import { Directive, SourceFile, TransformError } from '../transformed-module';
-import { assert, isJsScript } from '../util';
+import { assert } from '../util';
 
 export function calculateCompanionTemplateSpans(
   exportDeclarationPath: NodePath | null,
@@ -30,7 +30,7 @@ export function calculateCompanionTemplateSpans(
     return { errors, directives, partialSpans };
   }
 
-  let useJsDoc = isJsScript(script.filename);
+  let useJsDoc = environment.isUntypedScript(script.filename);
   let targetPath = findCompanionTemplateTarget(exportDeclarationPath);
   if (targetPath?.isClass()) {
     let { className, contextType, typeParams } = getContainingTypeInfo(targetPath);

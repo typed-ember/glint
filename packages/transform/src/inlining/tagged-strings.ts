@@ -3,7 +3,7 @@ import { GlintEnvironment, GlintTagConfig } from '@glint/config';
 import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } from '.';
 import { templateToTypescript } from '../template-to-typescript';
 import { Directive, SourceFile, TransformError, Range } from '../transformed-module';
-import { assert, isJsScript } from '../util';
+import { assert } from '../util';
 
 export function calculateTaggedTemplateSpans(
   path: NodePath<t.TaggedTemplateExpression>,
@@ -51,7 +51,7 @@ export function calculateTaggedTemplateSpans(
       identifiersInScope,
       typeParams,
       contextType,
-      useJsDoc: isJsScript(script.filename),
+      useJsDoc: environment.isUntypedScript(script.filename),
     });
 
     if (inClass && !className) {

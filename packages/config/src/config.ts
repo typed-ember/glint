@@ -28,11 +28,12 @@ export class GlintConfig {
     this.environment = GlintEnvironment.load(config.environment, { rootDir });
     this.checkStandaloneTemplates = config.checkStandaloneTemplates ?? true;
 
+    let extensions = this.environment.getConfiguredFileExtensions();
     let include = Array.isArray(config.include)
       ? config.include
       : config.include
       ? [config.include]
-      : ['**/*.ts', '**/*.js', '**/*.hbs'];
+      : extensions.map((ext) => `**/*${ext}`);
 
     let exclude = Array.isArray(config.exclude)
       ? config.exclude
@@ -53,6 +54,23 @@ export class GlintConfig {
       this.excludeMatchers.every((matcher) => !matcher.match(fileName)) &&
       this.includeMatchers.some((matcher) => matcher.match(fileName))
     );
+  }
+
+  // Given the path of a template or script (potentially with a custom extension),
+  // returns the corresponding .js or .ts path we present to the TS language service.
+  public getSynthesizedScriptPathForTS(filename: string): string {
+    let extension = path.extname(filename);
+    let filenameWithoutExtension = filename.slice(0, filename.lastIndexOf(extension));
+    switch (this.environment.getSourceKind(filename)) {
+      case 'template':
+        return `${filenameWithoutExtension}${this.checkStandaloneTemplates ? '.ts' : '.js'}`;
+      case 'typed-script':
+        return `${filenameWithoutExtension}.ts`;
+      case 'untyped-script':
+        return `${filenameWithoutExtension}.js`;
+      default:
+        return filename;
+    }
   }
 
   private buildMatchers(globs: Array<string>): Array<IMinimatch> {

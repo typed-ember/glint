@@ -6,7 +6,6 @@ import { loadConfig } from '@glint/config';
 import { sync as glob } from 'glob';
 import GlintLanguageServer from '../../src/language-server/glint-language-server';
 import { filePathToUri, normalizeFilePath } from '../../src/language-server/util';
-import { isTemplate, synthesizedModulePathForTemplate } from '../../src/common/document-cache';
 
 const ROOT = path.resolve(__dirname, '../../../../test-packages/ephemeral');
 
@@ -36,12 +35,12 @@ export default class Project {
     );
 
     let glintConfig = loadConfig(this.rootDir);
-    let rootFileNames = glob('**/*.{ts,js,hbs}', {
+    let env = glintConfig.environment;
+
+    let rootFileNames = glob(`**/*{${env.getConfiguredFileExtensions().join(',')}}`, {
       cwd: this.rootDir,
       absolute: true,
-    }).map((file) =>
-      isTemplate(file) ? synthesizedModulePathForTemplate(file, glintConfig) : file
-    );
+    }).map((file) => glintConfig.getSynthesizedScriptPathForTS(file));
 
     return (this.server = new GlintLanguageServer(
       ts,
@@ -90,6 +89,7 @@ export default class Project {
     }
 
     for (let [fileName, fileContent] of Object.entries(files)) {
+      fs.mkdirSync(path.dirname(this.filePath(fileName)), { recursive: true });
       fs.writeFileSync(this.filePath(fileName), fileContent);
     }
   }

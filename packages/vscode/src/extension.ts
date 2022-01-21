@@ -6,6 +6,7 @@ import {
   ServerOptions,
 } from 'vscode-languageclient/node';
 import { sync as resolve } from 'resolve';
+import type { GlintConfig } from '@glint/config';
 
 module.exports = {
   activate(context: ExtensionContext) {
@@ -41,28 +42,19 @@ function addWorkspaceFolder(workspaceFolder: WorkspaceFolder, context: Extension
     debug: debugExecutable,
   };
 
+  let { loadConfig } = require(resolve('@glint/config', { basedir: folderPath }));
+  let config: GlintConfig = loadConfig(folderPath);
+
+  // Older versions of Glint won't have `getConfiguredFileExtensions`, so fallback to safe defaults.
+  let extensions = config.environment.getConfiguredFileExtensions?.() ?? ['.js', '.ts', '.hbs'];
+  let filePattern = `${folderPath}/**/*{${extensions.join(',')}}`;
+
   let clientOptions: LanguageClientOptions = {
     workspaceFolder,
     outputChannel,
-    documentSelector: [
-      {
-        scheme: 'file',
-        language: 'handlebars',
-        pattern: `${folderPath}/**/*`,
-      },
-      {
-        scheme: 'file',
-        language: 'javascript',
-        pattern: `${folderPath}/**/*`,
-      },
-      {
-        scheme: 'file',
-        language: 'typescript',
-        pattern: `${folderPath}/**/*`,
-      },
-    ],
+    documentSelector: [{ scheme: 'file', pattern: filePattern }],
     synchronize: {
-      fileEvents: workspace.createFileSystemWatcher(`${folderPath}/**/*.{ts,js,hbs}`),
+      fileEvents: workspace.createFileSystemWatcher(filePattern),
     },
   };
 
