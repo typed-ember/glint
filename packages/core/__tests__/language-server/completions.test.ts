@@ -16,21 +16,21 @@ describe('Language Server: Completions', () => {
 
   test('querying a standalone template', () => {
     project.write('.glintrc', 'environment: ember-loose');
-    project.write('index.hbs', '<Foo as |foo|>{{fo}}</Foo>');
+    project.write('index.hbs', '<LinkT />');
 
     let server = project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.hbs'), {
       line: 0,
-      character: 17,
+      character: 6,
     });
 
-    let completion = completions?.find((item) => item.label === 'foo');
+    let completion = completions?.find((item) => item.label === 'LinkTo');
 
-    expect(completion?.kind).toEqual(CompletionItemKind.Variable);
+    expect(completion?.kind).toEqual(CompletionItemKind.Field);
 
     let details = server.getCompletionDetails(completion!);
 
-    expect(details.detail).toEqual('const foo: any');
+    expect(details.detail).toEqual('(property) Globals.LinkTo: LinkToComponent');
   });
 
   test('passing component args', () => {
@@ -151,33 +151,6 @@ describe('Language Server: Completions', () => {
     let details = server.getCompletionDetails(letterCompletion!);
 
     expect(details.detail).toEqual('const letter: string');
-  });
-
-  test('globals', () => {
-    let code = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
-
-      export default class MyComponent extends Component {
-        static template = hbs\`
-          {{deb}}
-        \`;
-      }
-    `;
-
-    project.write('index.ts', code);
-
-    let server = project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.ts'), {
-      line: 4,
-      character: 9,
-    });
-
-    let completion = completions?.find((completion) => completion.label === 'debugger');
-
-    expect(completion).toMatchObject({
-      kind: CompletionItemKind.Field,
-      label: 'debugger',
-    });
   });
 
   test('referencing module-scope identifiers', async () => {
