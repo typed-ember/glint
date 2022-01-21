@@ -297,7 +297,7 @@ export default class TransformManager {
               }
             : undefined;
 
-          transformedModule = rewriteModule({ script, template }, environment);
+          transformedModule = rewriteModule(this.ts, { script, template }, environment);
         }
       } else {
         let templatePath = templatePathForSynthesizedModule(filename);
@@ -313,7 +313,7 @@ export default class TransformManager {
             contents: documents.getDocumentContents(templatePath, encoding),
           };
 
-          transformedModule = rewriteModule({ script, template }, glintConfig.environment);
+          transformedModule = rewriteModule(this.ts, { script, template }, glintConfig.environment);
         }
       }
     }
