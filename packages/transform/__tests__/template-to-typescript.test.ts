@@ -390,7 +390,7 @@ describe('rewriteTemplate', () => {
           {{log (array 1 true "free")}}
         `;
 
-        expect(templateBody(template, { identifiersInScope: ['log'] })).toMatchInlineSnapshot(
+        expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
           `"χ.emitValue(χ.resolve(log)({}, [1, true, \\"free\\"]));"`
         );
       });
@@ -423,7 +423,7 @@ describe('rewriteTemplate', () => {
           {{log (hash a=1 b="ok")}}
         `;
 
-        expect(templateBody(template, { identifiersInScope: ['log'] })).toMatchInlineSnapshot(`
+        expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
           "χ.emitValue(χ.resolve(log)({}, ({
             a: 1,
             b: \\"ok\\",
@@ -445,28 +445,25 @@ describe('rewriteTemplate', () => {
         });
 
         test('in-scope identifier', () => {
-          let identifiersInScope = ['message'];
           let template = '{{message}}';
 
-          expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
+          expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
             `"χ.emitValue(χ.resolveOrReturn(message)({}));"`
           );
         });
 
         test('chained path', () => {
-          let identifiersInScope = ['obj'];
           let template = '{{obj.foo.bar}}';
 
-          expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
+          expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
             `"χ.emitValue(χ.resolveOrReturn(obj?.foo?.bar)({}));"`
           );
         });
 
         test('chained path with a spinal-case key', () => {
-          let identifiersInScope = ['obj'];
           let template = '{{obj.foo-bar.baz}}';
 
-          expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
+          expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
             `"χ.emitValue(χ.resolveOrReturn(obj?.[\\"foo-bar\\"]?.baz)({}));"`
           );
         });
@@ -496,10 +493,9 @@ describe('rewriteTemplate', () => {
         });
 
         test('passed as an attr', () => {
-          let identifiersInScope = ['Foo', 'helper'];
           let template = '<Foo data-bar={{helper param=true}} />';
 
-          expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+          expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
             "{
               const 𝛄 = χ.emitComponent(χ.resolve(Foo)({}));
               χ.applyAttributes(𝛄.element, {
@@ -510,10 +506,9 @@ describe('rewriteTemplate', () => {
         });
 
         test('passed as an @arg', () => {
-          let identifiersInScope = ['Foo', 'helper'];
           let template = '<Foo @bar={{helper param=true}} />';
 
-          expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+          expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
             "{
               const 𝛄 = χ.emitComponent(χ.resolve(Foo)({ bar: χ.resolve(helper)({ param: true }) }));
               𝛄;
@@ -558,10 +553,9 @@ describe('rewriteTemplate', () => {
         });
 
         test('as an @arg value', () => {
-          let identifiersInScope = ['Greet'];
           let template = '<Greet @message={{@arg}} />';
 
-          expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+          expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
             "{
               const 𝛄 = χ.emitComponent(χ.resolve(Greet)({ message: 𝚪.args.arg }));
               𝛄;
@@ -607,28 +601,25 @@ describe('rewriteTemplate', () => {
 
     describe('helper and inline-curly component invocations', () => {
       test('positional params', () => {
-        let identifiersInScope = ['doSomething'];
         let template = '{{doSomething "hello" 123}}';
 
-        expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
+        expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
           `"χ.emitValue(χ.resolve(doSomething)({}, \\"hello\\", 123));"`
         );
       });
 
       test('named params', () => {
-        let identifiersInScope = ['doSomething'];
         let template = '{{doSomething a=123 b="ok"}}';
 
-        expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
+        expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
           `"χ.emitValue(χ.resolve(doSomething)({ a: 123, b: \\"ok\\" }));"`
         );
       });
 
       test('named and positional params', () => {
-        let identifiersInScope = ['doSomething'];
         let template = '{{doSomething "one" true 3 four=4}}';
 
-        expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(
+        expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
           `"χ.emitValue(χ.resolve(doSomething)({ four: 4 }, \\"one\\", true, 3));"`
         );
       });
@@ -637,10 +628,9 @@ describe('rewriteTemplate', () => {
 
   describe('modifiers', () => {
     test('on a plain element', () => {
-      let identifiersInScope = ['modifier'];
       let template = `<div {{modifier foo="bar"}}></div>`;
 
-      expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+      expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
           const 𝛄 = χ.emitElement(\\"div\\");
           χ.applyModifier(𝛄.element, χ.resolve(modifier)({ foo: \\"bar\\" }));
@@ -649,10 +639,9 @@ describe('rewriteTemplate', () => {
     });
 
     test('on a component', () => {
-      let identifiersInScope = ['MyComponent', 'modifier'];
       let template = `<MyComponent {{modifier foo="bar"}}/>`;
 
-      expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+      expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
           const 𝛄 = χ.emitComponent(χ.resolve(MyComponent)({}));
           χ.applyModifier(𝛄.element, χ.resolve(modifier)({ foo: \\"bar\\" }));
@@ -663,10 +652,9 @@ describe('rewriteTemplate', () => {
 
   describe('subexpressions', () => {
     test('resolution', () => {
-      let identifiersInScope = ['concat', 'foo'];
       let template = `<div data-attr={{concat (foo 1) (foo true)}}></div>`;
 
-      expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+      expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
           const 𝛄 = χ.emitElement(\\"div\\");
           χ.applyAttributes(𝛄.element, {
@@ -835,10 +823,9 @@ describe('rewriteTemplate', () => {
     });
 
     test('with splattributes', () => {
-      let identifiersInScope = ['Foo'];
       let template = '<Foo ...attributes />';
 
-      expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+      expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
           const 𝛄 = χ.emitComponent(χ.resolve(Foo)({}));
           χ.applySplattributes(𝚪.element, 𝛄.element);
@@ -847,10 +834,9 @@ describe('rewriteTemplate', () => {
     });
 
     test('with a path for a name', () => {
-      let identifiersInScope = ['foo'];
       let template = '<foo.bar @arg="hello" />';
 
-      expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+      expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
           const 𝛄 = χ.emitComponent(χ.resolve(foo?.bar)({ arg: \\"hello\\" }));
           𝛄;
@@ -918,10 +904,9 @@ describe('rewriteTemplate', () => {
     });
 
     test('with concat args', () => {
-      let identifiersInScope = ['Foo', 'baz'];
       let template = `<Foo @arg="bar-{{baz}}" />`;
 
-      expect(templateBody(template, { identifiersInScope })).toMatchInlineSnapshot(`
+      expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
           const 𝛄 = χ.emitComponent(χ.resolve(Foo)({ arg: \`\${χ.emitValue(χ.resolveOrReturn(baz)({}))}\` }));
           𝛄;

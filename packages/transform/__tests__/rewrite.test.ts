@@ -117,8 +117,9 @@ describe('rewriteModule', () => {
       let testEnvironment = new GlintEnvironment(['test'], {
         tags: {
           '@glint/test-env': {
-            hbsCapture: { typesSource: '@glint/test-env', capturesOuterScope: true },
-            hbsIgnore: { typesSource: '@glint/test-env', capturesOuterScope: false },
+            hbsCaptureAll: { typesSource: '@glint/test-env', globals: [] },
+            hbsCaptureSome: { typesSource: '@glint/test-env', globals: ['global'] },
+            hbsCaptureNone: { typesSource: '@glint/test-env' },
           },
         },
       });
@@ -126,12 +127,13 @@ describe('rewriteModule', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
-          import { hbsCapture, hbsIgnore } from '@glint/test-env';
+          import { hbsCaptureAll, hbsCaptureSome, hbsCaptureNone } from '@glint/test-env';
 
           const message = 'hello';
 
-          hbsCapture\`{{message}}\`;
-          hbsIgnore\`{{message}}\`;
+          hbsCaptureAll\`{{global}} {{message}}\`;
+          hbsCaptureSome\`{{global}} {{message}}\`;
+          hbsCaptureNone\`{{global}} {{message}}\`;
         `,
       };
 
@@ -139,17 +141,25 @@ describe('rewriteModule', () => {
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import { hbsCapture, hbsIgnore } from '@glint/test-env';
+        "import { hbsCaptureAll, hbsCaptureSome, hbsCaptureNone } from '@glint/test-env';
 
         const message = 'hello';
 
         ({} as typeof import(\\"@glint/test-env\\")).template(function(𝚪, χ: typeof import(\\"@glint/test-env\\")) {
-          hbsCapture;
+          hbsCaptureAll;
+          χ.emitValue(χ.resolveOrReturn(global)({}));
           χ.emitValue(χ.resolveOrReturn(message)({}));
           𝚪; χ;
         });
         ({} as typeof import(\\"@glint/test-env\\")).template(function(𝚪, χ: typeof import(\\"@glint/test-env\\")) {
-          hbsIgnore;
+          hbsCaptureSome;
+          χ.emitValue(χ.resolveOrReturn(χ.Globals[\\"global\\"])({}));
+          χ.emitValue(χ.resolveOrReturn(message)({}));
+          𝚪; χ;
+        });
+        ({} as typeof import(\\"@glint/test-env\\")).template(function(𝚪, χ: typeof import(\\"@glint/test-env\\")) {
+          hbsCaptureNone;
+          χ.emitValue(χ.resolveOrReturn(χ.Globals[\\"global\\"])({}));
           χ.emitValue(χ.resolveOrReturn(χ.Globals[\\"message\\"])({}));
           𝚪; χ;
         });"
