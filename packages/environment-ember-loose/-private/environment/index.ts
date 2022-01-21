@@ -17,7 +17,6 @@ export default function glimmerxEnvironment(): GlintEnvironmentConfig {
       'ember-cli-htmlbars': {
         hbs: {
           typesSource: '@glint/environment-ember-loose/-private/dsl',
-          capturesOuterScope: false,
         },
       },
     },
