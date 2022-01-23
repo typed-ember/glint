@@ -1,3 +1,4 @@
+import ts from 'typescript';
 import { rewriteModule } from '../src';
 import { stripIndent } from 'common-tags';
 import { GlintEnvironment } from '@glint/config';
@@ -17,7 +18,7 @@ describe('rewriteModule', () => {
         `,
       };
 
-      let transformedModule = rewriteModule({ script }, glimmerxEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -42,7 +43,7 @@ describe('rewriteModule', () => {
         `,
       };
 
-      let transformedModule = rewriteModule({ script }, glimmerxEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -67,7 +68,7 @@ describe('rewriteModule', () => {
         `,
       };
 
-      let transformedModule = rewriteModule({ script }, glimmerxEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
 
       expect(transformedModule?.errors).toEqual([
         {
@@ -104,7 +105,7 @@ describe('rewriteModule', () => {
         `,
       };
 
-      let transformedModule = rewriteModule({ script }, glimmerxEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
 
       expect(transformedModule?.errors.length).toBe(1);
       expect(transformedModule?.transformedContents).toBe(script.contents);
@@ -137,7 +138,7 @@ describe('rewriteModule', () => {
         `,
       };
 
-      let transformedModule = rewriteModule({ script }, testEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, testEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -185,7 +186,7 @@ describe('rewriteModule', () => {
         contents: stripIndent``,
       };
 
-      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -214,7 +215,7 @@ describe('rewriteModule', () => {
         contents: stripIndent``,
       };
 
-      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -243,7 +244,7 @@ describe('rewriteModule', () => {
         contents: stripIndent``,
       };
 
-      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -271,14 +272,14 @@ describe('rewriteModule', () => {
         contents: stripIndent``,
       };
 
-      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
 
       expect(transformedModule?.errors).toEqual([
         {
           message: 'Classes with an associated template must have a name',
           source: script,
           location: {
-            start: script.contents.indexOf('class'),
+            start: script.contents.indexOf('export default'),
             end: script.contents.lastIndexOf('}') + 1,
           },
         },
@@ -308,7 +309,7 @@ describe('rewriteModule', () => {
         contents: stripIndent`{{hello}}`,
       };
 
-      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -337,7 +338,7 @@ describe('rewriteModule', () => {
         contents: stripIndent``,
       };
 
-      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -364,15 +365,15 @@ describe('rewriteModule', () => {
         contents: stripIndent`{{hello}}`,
       };
 
-      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "export default Foo;
-        ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
+        ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<typeof import('./test').default>, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
           χ.emitValue(χ.resolveOrReturn(χ.Globals[\\"hello\\"])({}));
           𝚪; χ;
-        });
+        }) as unknown;
         "
       `);
     });
@@ -397,7 +398,7 @@ describe('rewriteModule', () => {
         contents: stripIndent``,
       };
 
-      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -432,7 +433,7 @@ describe('rewriteModule', () => {
         `,
       };
 
-      let transformedModule = rewriteModule({ script, template }, emberLooseEnvironment);
+      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
 
       expect(transformedModule?.errors.length).toBe(1);
       expect(transformedModule?.transformedContents).toBe(script.contents);

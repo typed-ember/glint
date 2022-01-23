@@ -18,14 +18,10 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "@babel/core": "^7.11.6",
-    "@babel/plugin-proposal-decorators": "7.10.5",
-    "@babel/preset-typescript": "^7.10.4",
     "@glimmer/syntax": "^0.68.1",
     "@glint/config": "^0.6.3"
   },
   "devDependencies": {
-    "@types/babel__core": "^7.1.7",
     "@types/common-tags": "^1.8.0",
     "@types/debug": "^4.1.5",
     "@types/jest": "^26.0.13",

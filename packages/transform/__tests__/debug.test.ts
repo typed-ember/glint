@@ -1,3 +1,4 @@
+import ts from 'typescript';
 import { rewriteModule } from '../src';
 import { stripIndent } from 'common-tags';
 import { GlintEnvironment } from '@glint/config';
@@ -26,6 +27,7 @@ describe('Debug utilities', () => {
       };
 
       let transformedModule = rewriteModule(
+        ts,
         { script, template },
         GlintEnvironment.load('ember-loose')
       );
@@ -174,7 +176,7 @@ describe('Debug utilities', () => {
         `,
       };
 
-      let transformedModule = rewriteModule({ script }, GlintEnvironment.load('glimmerx'));
+      let transformedModule = rewriteModule(ts, { script }, GlintEnvironment.load('glimmerx'));
 
       expect(transformedModule?.toDebugString()).toMatchInlineSnapshot(`
         "TransformedModule
@@ -305,7 +307,7 @@ describe('Debug utilities', () => {
         `.replace(/\n/g, '\r\n'),
       };
 
-      let transformedModule = rewriteModule({ script }, GlintEnvironment.load('glimmerx'));
+      let transformedModule = rewriteModule(ts, { script }, GlintEnvironment.load('glimmerx'));
 
       expect(transformedModule?.toDebugString()).toMatchInlineSnapshot(`
         "TransformedModule

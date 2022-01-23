@@ -1,7 +1,6 @@
-import { parseSync, types as t, traverse, NodePath } from '@babel/core';
 import type ts from 'typescript';
 import { GlintEnvironment } from '@glint/config';
-import { assert, createSyntheticSourceFile } from './util';
+import { assert, createSyntheticSourceFile, TSLib } from './util';
 import TransformedModule, {
   CorrelatedSpan,
   TransformError,
@@ -24,7 +23,7 @@ export { TransformedModule, Directive, Range, SourceFile };
 export function rewriteDiagnostic<
   T extends ts.DiagnosticWithLocation | ts.DiagnosticRelatedInformation
 >(
-  tsImpl: typeof ts,
+  ts: TSLib,
   transformedDiagnostic: T,
   locateTransformedModule: (fileName: string) => TransformedModule | null | undefined
 ): T {
@@ -48,12 +47,12 @@ export function rewriteDiagnostic<
     ...(transformedDiagnostic as T),
     start,
     length,
-    file: createSyntheticSourceFile(tsImpl, source),
+    file: createSyntheticSourceFile(ts, source),
   };
 
   if (hasRelatedInformation(diagnostic) && diagnostic.relatedInformation) {
     diagnostic.relatedInformation = diagnostic.relatedInformation.map((relatedInfo) =>
-      rewriteDiagnostic(tsImpl, relatedInfo, locateTransformedModule)
+      rewriteDiagnostic(ts, relatedInfo, locateTransformedModule)
     );
   }
 
@@ -63,16 +62,16 @@ export function rewriteDiagnostic<
 export type Diagnostic = ts.Diagnostic & { isGlintTransformDiagnostic?: boolean };
 
 export function createTransformDiagnostic(
-  tsImpl: typeof ts,
+  ts: TSLib,
   source: SourceFile,
   message: string,
   location: Range
 ): Diagnostic {
   return {
     isGlintTransformDiagnostic: true,
-    category: tsImpl.DiagnosticCategory.Error,
+    category: ts.DiagnosticCategory.Error,
     code: 0,
-    file: createSyntheticSourceFile(tsImpl, source),
+    file: createSyntheticSourceFile(ts, source),
     start: location.start,
     length: location.end - location.start,
     messageText: message,
@@ -103,10 +102,12 @@ export type RewriteInput = { script: SourceFile; template?: SourceFile };
  * no transformation to be done.
  */
 export function rewriteModule(
+  ts: TSLib,
   { script, template }: RewriteInput,
   environment: GlintEnvironment
 ): TransformedModule | null {
   let { errors, directives, partialSpans } = calculateCorrelatedSpans(
+    ts,
     script,
     template,
     environment
@@ -130,6 +131,7 @@ export function rewriteModule(
  * string.
  */
 function calculateCorrelatedSpans(
+  ts: TSLib,
   script: SourceFile,
   template: SourceFile | undefined,
   environment: GlintEnvironment
@@ -137,39 +139,32 @@ function calculateCorrelatedSpans(
   let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
   let partialSpans: Array<PartialCorrelatedSpan> = [];
-  let defaultExportDeclaration: NodePath<t.ExportDefaultDeclaration['declaration']> | null = null;
 
-  let ast = parseScript(script);
+  let ast = parseScript(ts, script);
   if (!ast) {
     return { errors, partialSpans, directives };
   }
 
-  traverse(ast, {
-    TaggedTemplateExpression(path) {
-      let result = calculateTaggedTemplateSpans(path, script, environment);
+  ts.transform(ast, [
+    (context) =>
+      function visit<T extends ts.Node>(node: T): T {
+        if (ts.isTaggedTemplateExpression(node)) {
+          let result = calculateTaggedTemplateSpans(ts, node, script, environment);
 
-      directives.push(...result.directives);
-      errors.push(...result.errors);
-      partialSpans.push(...result.partialSpans);
-    },
+          directives.push(...result.directives);
+          errors.push(...result.errors);
+          partialSpans.push(...result.partialSpans);
+        } else if (ts.isModuleDeclaration(node)) {
+          // don't traverse into declare module
+          return node;
+        }
 
-    TSModuleDeclaration(path) {
-      // don't traverse into declare module
-      path.skip();
-    },
-
-    ExportDefaultDeclaration(path) {
-      defaultExportDeclaration = path.get('declaration');
-    },
-  });
+        return ts.visitEachChild(node, visit, context);
+      },
+  ]);
 
   if (template) {
-    let result = calculateCompanionTemplateSpans(
-      defaultExportDeclaration,
-      script,
-      template,
-      environment
-    );
+    let result = calculateCompanionTemplateSpans(ts, ast, script, template, environment);
 
     directives.push(...result.directives);
     errors.push(...result.errors);
@@ -179,19 +174,14 @@ function calculateCorrelatedSpans(
   return { errors, directives, partialSpans };
 }
 
-function parseScript(script: SourceFile): t.File | t.Program | null {
+function parseScript(ts: TSLib, script: SourceFile): ts.SourceFile | null {
   try {
-    return parseSync(script.contents ?? '', {
-      babelrc: false,
-      configFile: false,
-      filename: script.filename,
-      code: false,
-      presets: [require.resolve('@babel/preset-typescript')],
-      plugins: [
-        [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }],
-        require.resolve('@babel/plugin-syntax-class-properties'),
-      ],
-    });
+    return ts.createSourceFile(
+      script.filename,
+      script.contents,
+      ts.ScriptTarget.Latest,
+      true // setParentNodes
+    );
   } catch {
     // If parsing fails for any reason, we can't work with this module.
     return null;
