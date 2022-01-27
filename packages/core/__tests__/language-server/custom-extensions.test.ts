@@ -176,4 +176,77 @@ describe('Language Server: custom file extensions', () => {
       },
     ]);
   });
+
+  describe('external file changes', () => {
+    beforeEach(() => {
+      project.write('.glintrc', `environment: custom-test`);
+      project.write(
+        'index.custom',
+        stripIndent`
+          import { foo } from "./other";
+          console.log(foo);
+        `
+      );
+    });
+
+    test('adding a missing module', () => {
+      let server = project.startLanguageServer();
+      let diagnostics = server.getDiagnostics(project.fileURI('index.custom'));
+
+      expect(diagnostics).toMatchObject([
+        {
+          message: "Cannot find module './other' or its corresponding type declarations.",
+          source: 'glint:ts(2307)',
+        },
+      ]);
+
+      project.write('other.custom', 'export const foo = 123;');
+      server.watchedFileWasAdded(project.fileURI('other.custom'));
+
+      diagnostics = server.getDiagnostics(project.fileURI('index.custom'));
+
+      expect(diagnostics).toEqual([]);
+    });
+
+    test('changing an imported module', () => {
+      project.write('other.custom', 'export const foo = 123;');
+
+      let server = project.startLanguageServer();
+      let info = server.getHover(project.fileURI('index.custom'), { line: 0, character: 10 });
+
+      expect(info?.contents).toEqual([
+        { language: 'ts', value: '(alias) const foo: 123\nimport foo' },
+      ]);
+
+      project.write('other.custom', 'export const foo = "hi";');
+      server.watchedFileDidChange(project.fileURI('other.custom'));
+
+      info = server.getHover(project.fileURI('index.custom'), { line: 0, character: 10 });
+
+      expect(info?.contents).toEqual([
+        { language: 'ts', value: '(alias) const foo: "hi"\nimport foo' },
+      ]);
+    });
+
+    test('removing an imported module', () => {
+      project.write('other.custom', 'export const foo = 123;');
+
+      let server = project.startLanguageServer();
+      let diagnostics = server.getDiagnostics(project.fileURI('index.custom'));
+
+      expect(diagnostics).toEqual([]);
+
+      project.remove('other.custom');
+      server.watchedFileWasRemoved(project.fileURI('other.custom'));
+
+      diagnostics = server.getDiagnostics(project.fileURI('index.custom'));
+
+      expect(diagnostics).toMatchObject([
+        {
+          message: "Cannot find module './other' or its corresponding type declarations.",
+          source: 'glint:ts(2307)',
+        },
+      ]);
+    });
+  });
 });
