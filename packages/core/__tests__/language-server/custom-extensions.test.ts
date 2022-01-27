@@ -101,7 +101,7 @@ describe('Language Server: custom file extensions', () => {
     `);
 
     project.write('index.custom', contents.replace('"hello"', '123'));
-    server.fileDidChange(project.fileURI('index.custom'));
+    server.watchedFileDidChange(project.fileURI('index.custom'));
 
     hover = server.getHover(project.fileURI('index.custom'), { line: 0, character: 8 });
 
@@ -127,7 +127,7 @@ describe('Language Server: custom file extensions', () => {
     `);
   });
 
-  test('resolving conflicts beween overlapping extensions', () => {
+  test('resolving conflicts between overlapping extensions', () => {
     let contents = 'export let identifier = 123`;';
 
     project.write('.glintrc', `environment: custom-test`);
@@ -153,7 +153,7 @@ describe('Language Server: custom file extensions', () => {
     expect(diagnostics).toEqual([]);
 
     project.remove('index.ts');
-    server.fileDidChange(project.fileURI('index.ts'));
+    server.watchedFileDidChange(project.fileURI('index.ts'));
 
     definitions = server.getDefinition(consumerURI, { line: 2, character: 4 });
     diagnostics = server.getDiagnostics(consumerURI);
@@ -162,13 +162,13 @@ describe('Language Server: custom file extensions', () => {
     expect(diagnostics).toEqual([]);
 
     project.remove('index.custom');
-    server.fileDidChange(project.fileURI('index.custom'));
+    server.watchedFileWasRemoved(project.fileURI('index.custom'));
 
     diagnostics = server.getDiagnostics(consumerURI);
 
     expect(diagnostics).toMatchObject([
       {
-        source: 'glint:ts(2306)',
+        source: 'glint:ts(2307)',
         range: {
           start: { line: 0, character: 27 },
           end: { line: 0, character: 36 },

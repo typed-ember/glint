@@ -1,5 +1,6 @@
 import {
   Connection,
+  FileChangeType,
   ServerCapabilities,
   TextDocuments,
   TextDocumentSyncKind,
@@ -84,7 +85,13 @@ export function bindLanguageServer(args: BindingArgs): void {
 
   connection.onDidChangeWatchedFiles(({ changes }) => {
     for (let change of changes) {
-      languageServer.fileDidChange(change.uri);
+      if (change.type === FileChangeType.Created) {
+        languageServer.watchedFileWasAdded(change.uri);
+      } else if (change.type === FileChangeType.Deleted) {
+        languageServer.watchedFileWasRemoved(change.uri);
+      } else {
+        languageServer.watchedFileDidChange(change.uri);
+      }
     }
 
     scheduleDiagnostics();

@@ -169,7 +169,7 @@ describe('Language Server: Diagnostics', () => {
       ]);
 
       project.write('component.ts', scriptContents);
-      server.fileDidChange(project.fileURI('component.ts'));
+      server.watchedFileDidChange(project.fileURI('component.ts'));
 
       diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
 
@@ -198,7 +198,7 @@ describe('Language Server: Diagnostics', () => {
       expect(diagnostics).toEqual([]);
 
       project.remove('component.ts');
-      server.fileDidChange(project.fileURI('component.ts'));
+      server.watchedFileWasRemoved(project.fileURI('component.ts'));
 
       diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
 
