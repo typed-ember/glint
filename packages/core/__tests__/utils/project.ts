@@ -3,9 +3,10 @@ import fs from 'fs';
 import execa, { ExecaChildProcess, Options } from 'execa';
 import ts from 'typescript';
 import { loadConfig } from '@glint/config';
-import { sync as glob } from 'glob';
 import GlintLanguageServer from '../../src/language-server/glint-language-server';
-import { filePathToUri, normalizeFilePath } from '../../src/language-server/util';
+import { filePathToUri, normalizeFilePath, parseConfigFile } from '../../src/language-server/util';
+import DocumentCache from '../../src/common/document-cache';
+import TransformManager from '../../src/common/transform-manager';
 
 const ROOT = path.resolve(__dirname, '../../../../test-packages/ephemeral');
 
@@ -28,25 +29,17 @@ export default class Project {
       throw new Error('Language server is already running');
     }
 
-    let tsConfig = ts.parseJsonConfigFileContent(
-      JSON.parse(this.read('tsconfig.json')),
-      ts.sys,
-      this.rootDir
-    );
-
     let glintConfig = loadConfig(this.rootDir);
-    let env = glintConfig.environment;
-
-    let rootFileNames = glob(`**/*{${env.getConfiguredFileExtensions().join(',')}}`, {
-      cwd: this.rootDir,
-      absolute: true,
-    }).map((file) => glintConfig.getSynthesizedScriptPathForTS(file));
+    let documents = new DocumentCache(ts, glintConfig);
+    let transformManager = new TransformManager(ts, glintConfig, documents);
+    let tsConfig = parseConfigFile(ts, transformManager, this.rootDir);
 
     return (this.server = new GlintLanguageServer(
       ts,
       glintConfig,
-      () => rootFileNames,
-      tsConfig.options
+      documents,
+      transformManager,
+      tsConfig
     ));
   }
 
