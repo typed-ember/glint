@@ -28,19 +28,21 @@ import { TextEdit } from 'vscode-languageserver-textdocument';
 
 export default class GlintLanguageServer {
   private service: ts.LanguageService;
-  private transformManager: TransformManager;
-  private documents: DocumentCache;
+  private openFileNames: Set<string>;
+  private rootFileNames: Set<string>;
 
   constructor(
     private ts: typeof import('typescript'),
     private glintConfig: GlintConfig,
-    getRootFileNames: () => Array<string>,
-    options: ts.CompilerOptions
+    private documents: DocumentCache,
+    private transformManager: TransformManager,
+    parsedConfig: ts.ParsedCommandLine
   ) {
-    this.documents = new DocumentCache(ts, glintConfig);
-    this.transformManager = new TransformManager(ts, glintConfig, this.documents);
-    const serviceHost: ts.LanguageServiceHost = {
-      getScriptFileNames: getRootFileNames,
+    this.openFileNames = new Set();
+    this.rootFileNames = new Set(parsedConfig.fileNames);
+
+    let serviceHost: ts.LanguageServiceHost = {
+      getScriptFileNames: () => [...new Set(this.allKnownFileNames())],
       getScriptVersion: (fileName) => this.documents.getDocumentVersion(fileName),
       getScriptSnapshot: (fileName) => {
         let contents = this.transformManager.readTransformedFile(fileName);
@@ -50,7 +52,7 @@ export default class GlintLanguageServer {
       },
       readFile: this.transformManager.readTransformedFile,
       readDirectory: this.transformManager.readDirectory,
-      getCompilationSettings: () => options,
+      getCompilationSettings: () => parsedConfig.options,
       // Yes, this looks like a mismatch, but built-in lib declarations don't resolve
       // correctly otherwise, and this is what the TS wiki uses in their code snippet.
       getDefaultLibFileName: ts.getDefaultLibFilePath,
@@ -347,5 +349,21 @@ export default class GlintLanguageServer {
 
   private isTemplate(fileName: string): boolean {
     return this.glintConfig.environment.isTemplate(fileName);
+  }
+
+  private *allKnownFileNames(): Iterable<string> {
+    let { environment } = this.glintConfig;
+
+    for (let name of this.rootFileNames) {
+      if (environment.isScript(name)) {
+        yield name;
+      }
+    }
+
+    for (let name of this.openFileNames) {
+      if (environment.isScript(name)) {
+        yield name;
+      }
+    }
   }
 }
