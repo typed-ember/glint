@@ -304,10 +304,11 @@ export default class TransformManager {
       if (documents.documentExists(filename)) {
         let contents = documents.getDocumentContents(filename, encoding);
         let templatePath = documents.getCompanionDocumentPath(filename);
-        let mayHaveEmbeds = environment.moduleMayHaveEmbeddedTemplates(filename, contents);
+        let canonicalPath = documents.getCanonicalDocumentPath(filename);
+        let mayHaveEmbeds = environment.moduleMayHaveEmbeddedTemplates(canonicalPath, contents);
 
         if (mayHaveEmbeds || templatePath) {
-          let script = { filename, contents };
+          let script = { filename: canonicalPath, contents };
           let template = templatePath
             ? {
                 filename: templatePath,
