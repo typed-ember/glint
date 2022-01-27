@@ -30,6 +30,8 @@ function sysForWatchCompilerHost(
   return {
     ...ts.sys,
     readDirectory: transformManager.readDirectory,
+    watchDirectory: transformManager.watchDirectory,
+    fileExists: transformManager.fileExists,
     watchFile: transformManager.watchTransformedFile,
     readFile: transformManager.readTransformedFile,
   };
