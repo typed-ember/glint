@@ -7,9 +7,9 @@ import { parseConfigFile, uriToFilePath } from './util';
 import { bindLanguageServer } from './binding';
 
 const connection = createConnection(process.stdin, process.stdout);
-const documents = new TextDocuments(TextDocument);
 
 const ts = loadTypeScript();
+const openDocuments = new TextDocuments(TextDocument);
 const glintConfig = findConfig(process.cwd());
 // try to find a jsconfig.json or a tsconfig.json
 const configPath =
@@ -32,9 +32,9 @@ if (glintConfig) {
 
   const languageServer = new GlintLanguageServer(ts, glintConfig, getRootFileNames, options);
 
-  bindLanguageServer({ languageServer, documents, connection });
+  bindLanguageServer({ languageServer, openDocuments, connection });
 
-  documents.listen(connection);
+  openDocuments.listen(connection);
   connection.listen();
 } else {
   connection.console.info(`No Glint config found from ${process.cwd()}`);
