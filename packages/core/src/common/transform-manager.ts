@@ -185,6 +185,20 @@ export default class TransformManager {
     };
   };
 
+  public watchDirectory = (
+    path: string,
+    originalCallback: ts.DirectoryWatcherCallback,
+    recursive?: boolean,
+    options?: ts.WatchOptions
+  ): ts.FileWatcher => {
+    assert(this.ts.sys.watchDirectory);
+
+    let callback: ts.DirectoryWatcherCallback = (filename) =>
+      originalCallback(this.glintConfig.getSynthesizedScriptPathForTS(filename));
+
+    return this.ts.sys.watchDirectory(path, callback, recursive, options);
+  };
+
   public readDirectory = (
     rootDir: string,
     extensions: ReadonlyArray<string>,
@@ -197,6 +211,10 @@ export default class TransformManager {
     return this.ts.sys
       .readDirectory(rootDir, allExtensions, excludes, includes, depth)
       .map((filename) => this.glintConfig.getSynthesizedScriptPathForTS(filename));
+  };
+
+  public fileExists = (filename: string): boolean => {
+    return this.documents.documentExists(filename);
   };
 
   public readTransformedFile = (filename: string, encoding?: string): string | undefined => {
