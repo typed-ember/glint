@@ -41,12 +41,7 @@ module.exports = () => ({
                 f.createImportClause(
                   false,
                   undefined,
-                  f.createNamedImports([
-                    f.createImportSpecifier(
-                      f.createIdentifier('hbs'),
-                      f.createIdentifier(TAG_NAME)
-                    ),
-                  ])
+                  f.createNamedImports([makeImportSpecifier(f)])
                 ),
                 f.createStringLiteral('glint-environment-custom-test')
               ),
@@ -63,3 +58,18 @@ module.exports = () => ({
     },
   },
 });
+
+// 🙄 TS 4.5 prepended a new param to `createImportSpecifier`
+function makeImportSpecifier(f) {
+  let local = f.createIdentifier(TAG_NAME);
+  let foreign = f.createIdentifier('hbs');
+
+  // TS >= 4.5 (isTypeOnly, propertyName, name)
+  let node = f.createImportSpecifier(false, foreign, local);
+  if (node.propertyName === false) {
+    // TS <= 4.4 (propertyName, name)
+    node = f.createImportSpecifier(foreign, local);
+  }
+
+  return node;
+}
