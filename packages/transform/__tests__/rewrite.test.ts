@@ -445,4 +445,137 @@ describe('rewriteModule', () => {
       );
     });
   });
+
+  describe('custom file format', () => {
+    test('embedded gts-like templates', () => {
+      let customEnv = GlintEnvironment.load('custom-test');
+      let script = {
+        filename: 'foo.custom',
+        contents: stripIndent`
+          class MyComponent {
+            public template = <template>
+              Hello, {{this.target}}!
+            </template>
+
+            private target = 'World';
+          }
+        `,
+      };
+
+      let rewritten = rewriteModule(ts, { script }, customEnv);
+      let roundTripOffset = (offset: number): number | undefined =>
+        rewritten?.getOriginalOffset(rewritten.getTransformedOffset(script.filename, offset))
+          .offset;
+
+      let classOffset = script.contents.indexOf('MyComponent');
+      let accessOffset = script.contents.indexOf('this.target');
+      let fieldOffset = script.contents.indexOf('private target');
+
+      expect(roundTripOffset(classOffset)).toEqual(classOffset);
+      expect(roundTripOffset(accessOffset)).toEqual(accessOffset);
+      expect(roundTripOffset(fieldOffset)).toEqual(fieldOffset);
+
+      expect(rewritten?.toDebugString()).toMatchInlineSnapshot(`
+        "TransformedModule
+
+        | Mapping: Template
+        |  hbs(40:92):   <template>\\\\n    Hello, {{this.target}}!\\\\n  </template>
+        |  ts(40:348):   ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {\\\\n  χ.emitValue(χ.resolveOrReturn(𝚪.this.target)({}));\\\\n  𝚪; χ;\\\\n}) as unknown
+        |
+        | | Mapping: Identifier
+        | |  hbs(40:40):
+        | |  ts(194:205):  MyComponent
+        | |
+        | | Mapping: MustacheStatement
+        | |  hbs(62:77):   {{this.target}}
+        | |  ts(272:324):  χ.emitValue(χ.resolveOrReturn(𝚪.this.target)({}))
+        | |
+        | | | Mapping: PathExpression
+        | | |  hbs(64:75):   this.target
+        | | |  ts(304:318):  𝚪.this.target
+        | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(64:68):   this
+        | | | |  ts(307:311):  this
+        | | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(69:75):   target
+        | | | |  ts(312:318):  target
+        | | | |
+        | | |
+        | |
+        |"
+      `);
+    });
+
+    test('emit metadata', () => {
+      let metadataEnv = new GlintEnvironment(['test'], {
+        tags: {
+          '@glint/test': {
+            hbs: {
+              typesSource: '@glint/test/dsl',
+              globals: [],
+            },
+          },
+        },
+        extensions: {
+          '.custom': {
+            kind: 'typed-script',
+            transform: (data, { ts, context, setEmitMetadata }) =>
+              function visit(original) {
+                let node: ts.Node = ts.visitEachChild(original, visit, context);
+
+                if (ts.isTaggedTemplateExpression(node)) {
+                  setEmitMetadata(node, {
+                    prepend: `({ customWrappedTemplate: `,
+                    append: ` })`,
+                  });
+                }
+
+                return node;
+              },
+          },
+        },
+      });
+
+      let script = {
+        filename: 'foo.custom',
+        contents: stripIndent`
+          import { hbs } from '@glint/test';
+
+          let target = 'world';
+
+          export default hbs\`
+            Hello, {{target}}.
+          \`;
+        `,
+      };
+
+      let rewritten = rewriteModule(ts, { script }, metadataEnv);
+
+      expect(rewritten?.toDebugString()).toMatchInlineSnapshot(`
+        "TransformedModule
+
+        | Mapping: Template
+        |  hbs(74:101):  hbs\`\\\\n  Hello, {{target}}.\\\\n\`
+        |  ts(74:269):   ({ customWrappedTemplate: ({} as typeof import(\\"@glint/test/dsl\\")).template(function(𝚪, χ: typeof import(\\"@glint/test/dsl\\")) {\\\\n  hbs;\\\\n  χ.emitValue(χ.resolveOrReturn(target)({}));\\\\n  𝚪; χ;\\\\n}) })
+        |
+        | | Mapping: MustacheStatement
+        | |  hbs(88:98):   {{target}}
+        | |  ts(209:253):  χ.emitValue(χ.resolveOrReturn(target)({}))
+        | |
+        | | | Mapping: PathExpression
+        | | |  hbs(90:96):   target
+        | | |  ts(241:247):  target
+        | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(90:96):   target
+        | | | |  ts(241:247):  target
+        | | | |
+        | | |
+        | |
+        |"
+      `);
+    });
+  });
 });
