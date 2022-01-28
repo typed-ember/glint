@@ -28,19 +28,21 @@ import { TextEdit } from 'vscode-languageserver-textdocument';
 
 export default class GlintLanguageServer {
   private service: ts.LanguageService;
-  private transformManager: TransformManager;
-  private documents: DocumentCache;
+  private openFileNames: Set<string>;
+  private rootFileNames: Set<string>;
 
   constructor(
     private ts: typeof import('typescript'),
     private glintConfig: GlintConfig,
-    getRootFileNames: () => Array<string>,
-    options: ts.CompilerOptions
+    private documents: DocumentCache,
+    private transformManager: TransformManager,
+    parsedConfig: ts.ParsedCommandLine
   ) {
-    this.documents = new DocumentCache(ts, glintConfig);
-    this.transformManager = new TransformManager(ts, glintConfig, this.documents);
-    const serviceHost: ts.LanguageServiceHost = {
-      getScriptFileNames: getRootFileNames,
+    this.openFileNames = new Set();
+    this.rootFileNames = new Set(parsedConfig.fileNames);
+
+    let serviceHost: ts.LanguageServiceHost = {
+      getScriptFileNames: () => [...new Set(this.allKnownFileNames())],
       getScriptVersion: (fileName) => this.documents.getDocumentVersion(fileName),
       getScriptSnapshot: (fileName) => {
         let contents = this.transformManager.readTransformedFile(fileName);
@@ -48,15 +50,15 @@ export default class GlintLanguageServer {
           return ts.ScriptSnapshot.fromString(contents);
         }
       },
+      fileExists: this.transformManager.fileExists,
       readFile: this.transformManager.readTransformedFile,
       readDirectory: this.transformManager.readDirectory,
-      getCompilationSettings: () => options,
+      getCompilationSettings: () => parsedConfig.options,
       // Yes, this looks like a mismatch, but built-in lib declarations don't resolve
       // correctly otherwise, and this is what the TS wiki uses in their code snippet.
       getDefaultLibFileName: ts.getDefaultLibFilePath,
       // TS defaults from here down
       getCurrentDirectory: ts.sys.getCurrentDirectory,
-      fileExists: ts.sys.fileExists,
       directoryExists: ts.sys.directoryExists,
       getDirectories: ts.sys.getDirectories,
     };
@@ -72,7 +74,9 @@ export default class GlintLanguageServer {
   }
 
   public openFile(uri: string, contents: string): void {
-    this.documents.updateDocument(uriToFilePath(uri), contents);
+    let path = uriToFilePath(uri);
+    this.documents.updateDocument(path, contents);
+    this.openFileNames.add(this.glintConfig.getSynthesizedScriptPathForTS(path));
   }
 
   public updateFile(uri: string, contents: string): void {
@@ -80,11 +84,30 @@ export default class GlintLanguageServer {
   }
 
   public closeFile(uri: string): void {
-    this.documents.removeDocument(uriToFilePath(uri));
+    let path = uriToFilePath(uri);
+    this.documents.removeDocument(path);
+    this.openFileNames.delete(this.glintConfig.getSynthesizedScriptPathForTS(path));
   }
 
-  public fileDidChange(uri: string): void {
+  public watchedFileWasAdded(uri: string): void {
+    this.rootFileNames.add(this.glintConfig.getSynthesizedScriptPathForTS(uriToFilePath(uri)));
+  }
+
+  public watchedFileDidChange(uri: string): void {
     this.documents.markDocumentStale(uriToFilePath(uri));
+  }
+
+  public watchedFileWasRemoved(uri: string): void {
+    let path = uriToFilePath(uri);
+
+    this.documents.markDocumentStale(path);
+
+    // We need to be slightly careful here, because if `foo.ts` and `foo.hbs` both exist and
+    // only one is deleted, we shouldn't remove their joint document from `rootFileNames`.
+    let companionPath = this.documents.getCompanionDocumentPath(path);
+    if (!companionPath || this.glintConfig.getSynthesizedScriptPathForTS(companionPath) !== path) {
+      this.rootFileNames.delete(this.glintConfig.getSynthesizedScriptPathForTS(path));
+    }
   }
 
   public getDiagnostics(uri: string): Array<Diagnostic> {
@@ -347,5 +370,21 @@ export default class GlintLanguageServer {
 
   private isTemplate(fileName: string): boolean {
     return this.glintConfig.environment.isTemplate(fileName);
+  }
+
+  private *allKnownFileNames(): Iterable<string> {
+    let { environment } = this.glintConfig;
+
+    for (let name of this.rootFileNames) {
+      if (environment.isScript(name)) {
+        yield name;
+      }
+    }
+
+    for (let name of this.openFileNames) {
+      if (environment.isScript(name)) {
+        yield name;
+      }
+    }
   }
 }

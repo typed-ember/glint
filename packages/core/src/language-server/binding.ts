@@ -1,5 +1,6 @@
 import {
   Connection,
+  FileChangeType,
   ServerCapabilities,
   TextDocuments,
   TextDocumentSyncKind,
@@ -24,26 +25,26 @@ export const capabilities: ServerCapabilities = {
 
 export type BindingArgs = {
   languageServer: GlintLanguageServer;
-  documents: TextDocuments<TextDocument>;
+  openDocuments: TextDocuments<TextDocument>;
   connection: Connection;
 };
 
 export function bindLanguageServer(args: BindingArgs): void {
-  let { connection, languageServer, documents } = args;
+  let { connection, languageServer, openDocuments } = args;
   let { scheduleDiagnostics, captureErrors } = buildHelpers(args);
 
   connection.onInitialize(() => ({ capabilities }));
 
-  documents.onDidOpen(({ document }) => {
+  openDocuments.onDidOpen(({ document }) => {
     languageServer.openFile(document.uri, document.getText());
     scheduleDiagnostics();
   });
 
-  documents.onDidClose(({ document }) => {
+  openDocuments.onDidClose(({ document }) => {
     languageServer.closeFile(document.uri);
   });
 
-  documents.onDidChangeContent(({ document }) => {
+  openDocuments.onDidChangeContent(({ document }) => {
     languageServer.updateFile(document.uri, document.getText());
     scheduleDiagnostics();
   });
@@ -84,7 +85,13 @@ export function bindLanguageServer(args: BindingArgs): void {
 
   connection.onDidChangeWatchedFiles(({ changes }) => {
     for (let change of changes) {
-      languageServer.fileDidChange(change.uri);
+      if (change.type === FileChangeType.Created) {
+        languageServer.watchedFileWasAdded(change.uri);
+      } else if (change.type === FileChangeType.Deleted) {
+        languageServer.watchedFileWasRemoved(change.uri);
+      } else {
+        languageServer.watchedFileDidChange(change.uri);
+      }
     }
 
     scheduleDiagnostics();
@@ -96,10 +103,10 @@ type BindingHelpers = {
   captureErrors: <T>(callback: () => T) => T | undefined;
 };
 
-function buildHelpers({ languageServer, documents, connection }: BindingArgs): BindingHelpers {
+function buildHelpers({ languageServer, openDocuments, connection }: BindingArgs): BindingHelpers {
   return {
     scheduleDiagnostics: debounce(250, () => {
-      for (let { uri } of documents.all()) {
+      for (let { uri } of openDocuments.all()) {
         try {
           const diagnostics = languageServer.getDiagnostics(uri);
           connection.sendDiagnostics({ uri, diagnostics });
