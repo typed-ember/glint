@@ -1,3 +1,4 @@
+import path from 'path';
 import type ts from 'typescript';
 import { GlintEnvironment } from '@glint/config';
 import { assert, createSyntheticSourceFile, TSLib } from './util';
@@ -11,6 +12,7 @@ import TransformedModule, {
 import { CorrelatedSpansResult, PartialCorrelatedSpan } from './inlining';
 import { calculateTaggedTemplateSpans } from './inlining/tagged-strings';
 import { calculateCompanionTemplateSpans } from './inlining/companion-file';
+import { GlintEmitMetadata } from '@glint/config/src/environment';
 
 export { TransformedModule, Directive, Range, SourceFile };
 
@@ -140,16 +142,14 @@ function calculateCorrelatedSpans(
   let errors: Array<TransformError> = [];
   let partialSpans: Array<PartialCorrelatedSpan> = [];
 
-  let ast = parseScript(ts, script);
-  if (!ast) {
-    return { errors, partialSpans, directives };
-  }
+  let { ast, emitMetadata } = parseScript(ts, script, environment);
 
   ts.transform(ast, [
     (context) =>
       function visit<T extends ts.Node>(node: T): T {
         if (ts.isTaggedTemplateExpression(node)) {
-          let result = calculateTaggedTemplateSpans(ts, node, script, environment);
+          let meta = emitMetadata.get(node);
+          let result = calculateTaggedTemplateSpans(ts, node, meta, script, environment);
 
           directives.push(...result.directives);
           errors.push(...result.errors);
@@ -174,18 +174,37 @@ function calculateCorrelatedSpans(
   return { errors, directives, partialSpans };
 }
 
-function parseScript(ts: TSLib, script: SourceFile): ts.SourceFile | null {
-  try {
-    return ts.createSourceFile(
-      script.filename,
-      script.contents,
-      ts.ScriptTarget.Latest,
-      true // setParentNodes
-    );
-  } catch {
-    // If parsing fails for any reason, we can't work with this module.
-    return null;
+type ParseResult = {
+  ast: ts.SourceFile;
+  emitMetadata: WeakMap<ts.Node, GlintEmitMetadata>;
+};
+
+function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironment): ParseResult {
+  let { filename, contents } = script;
+  let extension = path.extname(filename);
+  let emitMetadata = new WeakMap<ts.Node, GlintEmitMetadata>();
+  let setEmitMetadata = (node: ts.Node, data: GlintEmitMetadata): void =>
+    void emitMetadata.set(node, data);
+
+  let { preprocess, transform } = environment.getConfigForExtension(extension) ?? {};
+  let preprocessed = preprocess?.(contents, filename) ?? { contents };
+  let ast = ts.createSourceFile(
+    filename,
+    preprocessed.contents,
+    ts.ScriptTarget.Latest,
+    true // setParentNodes
+  );
+
+  if (transform) {
+    let { transformed } = ts.transform(ast, [
+      (context) => transform!(preprocessed.data, { ts, context, setEmitMetadata }),
+    ]);
+
+    assert(transformed.length === 1 && ts.isSourceFile(transformed[0]));
+    ast = transformed[0];
   }
+
+  return { ast, emitMetadata };
 }
 
 /**

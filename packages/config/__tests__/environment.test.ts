@@ -1,6 +1,6 @@
 import fs from 'fs';
 import os from 'os';
-import { GlintEnvironment } from '../src';
+import { GlintEnvironment, GlintExtensionPreprocess, GlintExtensionTransform } from '../src';
 
 describe('Environments', () => {
   describe('template tags config', () => {
@@ -93,10 +93,13 @@ describe('Environments', () => {
   });
 
   describe('extensions config', () => {
+    type Data = { contents: string };
+    let preprocess: GlintExtensionPreprocess<Data> = () => ({ contents: 'hi' });
+    let transform: GlintExtensionTransform<Data> = () => (node) => node;
     let env = new GlintEnvironment(['test'], {
       extensions: {
         '.ts': { kind: 'typed-script' },
-        '.gts': { kind: 'typed-script' },
+        '.gts': { kind: 'typed-script', preprocess, transform },
         '.hbs': { kind: 'template' },
       },
     });
@@ -124,6 +127,8 @@ describe('Environments', () => {
       expect(env.getConfigForExtension('.hbs')).toEqual({ kind: 'template' });
       expect(env.getConfigForExtension('.gts')).toEqual({
         kind: 'typed-script',
+        preprocess,
+        transform,
       });
     });
   });

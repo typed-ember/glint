@@ -1,0 +1,15 @@
+import { TC } from '@glint/environment-glimmerx/component';
+
+const Target: TC = <template>World</template>;
+
+export interface GreetingSignature {
+  Args: {
+    message: string;
+  };
+}
+
+const Greeting: TC<GreetingSignature> = <template>
+  {{@message}}, <Target />!
+</template>
+
+export default Greeting;

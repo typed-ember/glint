@@ -1,6 +1,9 @@
 import resolve from 'resolve';
 import path from 'path';
 import escapeStringRegexp from 'escape-string-regexp';
+import type ts from 'typescript';
+
+type TSLib = typeof ts;
 
 export const DEFAULT_EXTENSIONS: GlintExtensionsConfig = {
   '.hbs': { kind: 'template' },
@@ -14,9 +17,30 @@ export type GlintEnvironmentConfig = {
   extensions?: GlintExtensionsConfig;
 };
 
+export type GlintExtensionPreprocess<T> = (
+  source: string,
+  filePath: string
+) => { contents: string; data?: T };
+
+export type GlintEmitMetadata = {
+  prepend?: string;
+  append?: string;
+};
+
+export type GlintExtensionTransform<T> = (
+  data: T,
+  state: {
+    ts: TSLib;
+    context: ts.TransformationContext;
+    setEmitMetadata: (node: ts.TaggedTemplateExpression, meta: GlintEmitMetadata) => void;
+  }
+) => ts.Transformer<ts.Node>;
+
 export type SourceKind = 'typed-script' | 'untyped-script' | 'template';
-export type GlintExtensionConfig = {
+export type GlintExtensionConfig<PreprocessData = any> = {
   kind: SourceKind;
+  preprocess?: GlintExtensionPreprocess<PreprocessData>;
+  transform?: GlintExtensionTransform<PreprocessData>;
 };
 
 export type GlintExtensionsConfig = {
@@ -153,7 +177,10 @@ export class GlintEnvironment {
    * false positives, but should never give a false negative.
    */
   public moduleMayHaveEmbeddedTemplates(modulePath: string, moduleContents: string): boolean {
-    return this.tagImportRegexp.test(moduleContents);
+    let config = this.getConfigForExtension(path.extname(modulePath));
+    return Boolean(
+      config?.preprocess || config?.transform || this.tagImportRegexp.test(moduleContents)
+    );
   }
 
   /**

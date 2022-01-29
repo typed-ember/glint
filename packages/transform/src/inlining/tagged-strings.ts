@@ -4,10 +4,12 @@ import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } f
 import { templateToTypescript } from '../template-to-typescript';
 import { Directive, SourceFile, TransformError, Range } from '../transformed-module';
 import { assert, TSLib } from '../util';
+import { GlintEmitMetadata } from '@glint/config/src/environment';
 
 export function calculateTaggedTemplateSpans(
   ts: TSLib,
   node: ts.TaggedTemplateExpression,
+  meta: GlintEmitMetadata | undefined,
   script: SourceFile,
   environment: GlintEnvironment
 ): CorrelatedSpansResult {
@@ -20,26 +22,29 @@ export function calculateTaggedTemplateSpans(
     return { errors, directives, partialSpans };
   }
 
-  let tagConfig = getConfigForTag(ts, tag, environment);
-  if (tagConfig) {
+  let info = resolveTagInfo(ts, tag, environment);
+  if (info) {
     assert(
       ts.isNoSubstitutionTemplateLiteral(node.template),
       'No interpolated values in template strings'
     );
 
-    let { typesSource, globals } = tagConfig;
+    let { typesSource, globals } = info.tagConfig;
     let tagName = tag.text;
     let contents = node.template.rawText ?? node.template.text;
 
     // Pad the template to account for the tag and surrounding ` characters
     let template = `${''.padStart(tagName.length)} ${contents} `;
 
-    // Emit a use of the template tag so it's not considered unused
-    let preamble = [`${tagName};`];
+    let preamble = [];
+    if (!info.importedBinding.synthetic) {
+      preamble.push(`${tagName};`);
+    }
 
     let { inClass, className, typeParams, contextType } = getContainingTypeInfo(ts, node);
     let transformedTemplate = templateToTypescript(template, {
       typesPath: typesSource,
+      meta,
       preamble,
       globals,
       typeParams,
@@ -108,11 +113,11 @@ function addOffset(location: Range, offset: number): Range {
   };
 }
 
-function getConfigForTag(
+function resolveTagInfo(
   ts: TSLib,
   tag: ts.Identifier,
   environment: GlintEnvironment
-): GlintTagConfig | undefined {
+): { importedBinding: ImportedBinding; tagConfig: GlintTagConfig } | undefined {
   let importedBindings = collectImportedBindings(ts, tag.getSourceFile());
   let importedBinding = importedBindings[tag.text];
   if (!importedBinding) {
@@ -125,13 +130,14 @@ function getConfigForTag(
         importSource === importedBinding.source &&
         importSpecifier === importedBinding.specifier
       ) {
-        return tagConfig;
+        return { importedBinding, tagConfig };
       }
     }
   }
 }
 
-type ImportedBindings = Record<string, { specifier: string; source: string }>;
+type ImportedBinding = { specifier: string; source: string; synthetic: boolean };
+type ImportedBindings = Record<string, ImportedBinding>;
 
 function collectImportedBindings(ts: TSLib, sourceFile: ts.SourceFile): ImportedBindings {
   let result: ImportedBindings = {};
@@ -142,10 +148,13 @@ function collectImportedBindings(ts: TSLib, sourceFile: ts.SourceFile): Imported
       let { importClause } = statement;
       if (!importClause) continue;
 
+      let synthetic = statement.pos === statement.end;
+
       if (importClause.name) {
         result[importClause.name.text] = {
           specifier: 'default',
           source: statement.moduleSpecifier.text,
+          synthetic,
         };
       }
 
@@ -154,6 +163,7 @@ function collectImportedBindings(ts: TSLib, sourceFile: ts.SourceFile): Imported
           result[binding.name.text] = {
             specifier: binding.propertyName?.text ?? binding.name.text,
             source: statement.moduleSpecifier.text,
+            synthetic,
           };
         }
       }

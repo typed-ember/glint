@@ -1,1 +1,5 @@
-let x: number = 123;
+import Greeting from './Greeting';
+
+export default <template>
+  <Greeting @message="hi" />
+</template>

@@ -2,6 +2,7 @@ import { AST } from '@glimmer/syntax';
 import { unreachable, assert } from './util';
 import { mapTemplateContents, RewriteResult } from './map-template-contents';
 import ScopeStack from './scope-stack';
+import { GlintEmitMetadata } from '@glint/config/src/environment';
 
 const SPLATTRIBUTES = '...attributes';
 const INLINE_KEYWORDS = ['if', 'yield', 'hash', 'array', 'unless'] as const;
@@ -12,6 +13,7 @@ type BlockKeyword = typeof BLOCK_KEYWORDS[number];
 
 export type TemplateToTypescriptOptions = {
   typesPath: string;
+  meta?: GlintEmitMetadata | undefined;
   globals?: Array<string> | undefined;
   contextType?: string;
   typeParams?: string;
@@ -29,6 +31,7 @@ export function templateToTypescript(
   {
     typesPath,
     globals,
+    meta,
     typeParams = '',
     contextType,
     preamble = [],
@@ -38,7 +41,7 @@ export function templateToTypescript(
   return mapTemplateContents(template, (ast, { emit, record, rangeForLine, rangeForNode }) => {
     let scope = new ScopeStack([]);
 
-    emitTemplateBoilerplate(useJsDoc, () => {
+    emitTemplateBoilerplate(() => {
       for (let line of preamble) {
         emit.text(line);
         emit.newline();
@@ -79,7 +82,11 @@ export function templateToTypescript(
       }
     }
 
-    function emitTemplateBoilerplate(useJsDoc: boolean, emitBody: () => void): void {
+    function emitTemplateBoilerplate(emitBody: () => void): void {
+      if (meta?.prepend) {
+        emit.text(meta.prepend);
+      }
+
       if (useJsDoc) {
         if (contextType) {
           emit.text('/** @type {unknown} */ (');
@@ -134,6 +141,10 @@ export function templateToTypescript(
         } else {
           emit.text(` as unknown`);
         }
+      }
+
+      if (meta?.append) {
+        emit.text(meta.append);
       }
     }
 

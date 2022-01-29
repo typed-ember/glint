@@ -7,6 +7,8 @@ export {
   GlintEnvironment,
   GlintEnvironmentConfig,
   GlintTagConfig,
+  GlintExtensionPreprocess,
+  GlintExtensionTransform,
   PathCandidate,
 } from './environment';
 

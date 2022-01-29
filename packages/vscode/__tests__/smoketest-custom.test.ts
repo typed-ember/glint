@@ -24,7 +24,7 @@ describe('Smoke test: Custom Environment', () => {
 
       // Replace a string with a number
       await scriptEditor.edit((edit) => {
-        edit.replace(new Range(0, 18, 0, 25), '123');
+        edit.replace(new Range(3, 20, 3, 27), '{{123}}');
       });
 
       // Wait for the diagnostic to show up
@@ -35,7 +35,7 @@ describe('Smoke test: Custom Environment', () => {
         {
           message: "Type 'number' is not assignable to type 'string'.",
           source: 'glint:ts(2322)',
-          range: new Range(0, 4, 0, 7),
+          range: new Range(3, 13, 3, 19),
         },
       ]);
     });
