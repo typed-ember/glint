@@ -1,4 +1,4 @@
-import { AST } from '@glimmer/syntax';
+import { ASTv2 } from '@glimmer/syntax';
 import { unreachable, assert } from './util';
 import { mapTemplateContents, RewriteResult } from './map-template-contents';
 import ScopeStack from './scope-stack';
@@ -54,28 +54,32 @@ export function templateToTypescript(
 
     return;
 
-    function emitTopLevelStatement(node: AST.TopLevelStatement): void {
+    function emitTopLevelStatement(node: ASTv2.ContentNode): void {
       switch (node.type) {
-        case 'Block':
-        case 'PartialStatement':
-          throw new Error(`Internal error: unexpected top-level ${node.type}`);
-
-        case 'TextNode':
+        case 'HtmlText':
+        case 'HtmlComment':
           // Nothing to be done
           return;
 
-        case 'CommentStatement':
-        case 'MustacheCommentStatement':
+        // {{! foo }}
+        case 'GlimmerComment':
           return emitComment(node);
 
-        case 'MustacheStatement':
+        // {{foo}}
+        case 'AppendContent':
           return emitTopLevelMustacheStatement(node);
 
-        case 'BlockStatement':
+        // {{#foo}}{{/foo}}
+        case 'InvokeBlock':
           return emitBlockStatement(node);
 
-        case 'ElementNode':
-          return emitElementNode(node);
+        // <Foo></Foo>
+        case 'InvokeComponent':
+          return emitComponent(node);
+
+        // <foo></foo>
+        case 'SimpleElement':
+          return emitPlainElement(node);
 
         default:
           unreachable(node);
@@ -148,10 +152,10 @@ export function templateToTypescript(
       }
     }
 
-    function emitComment(node: AST.MustacheCommentStatement | AST.CommentStatement): void {
+    function emitComment(node: ASTv2.GlimmerComment): void {
       emit.nothing(node);
 
-      let text = node.value.trim();
+      let text = node.text.chars.trim();
       let match = /^@glint-([a-z-]+)/i.exec(text);
       if (!match) return;
 
@@ -172,7 +176,7 @@ export function templateToTypescript(
     // evaluates a helper or returns it also depends on the location it's in.
     type InvokePosition = 'top-level' | 'attr' | 'arg' | 'concat' | 'sexpr';
 
-    function emitTopLevelMustacheStatement(node: AST.MustacheStatement): void {
+    function emitTopLevelMustacheStatement(node: ASTv2.AppendContent): void {
       emitMustacheStatement(node, 'top-level');
       emit.text(';');
       emit.newline();
@@ -180,7 +184,7 @@ export function templateToTypescript(
 
     function emitInlineKeywordStatement(
       keyword: InlineKeyword,
-      node: AST.MustacheStatement | AST.SubExpression,
+      node: ASTv2.AppendContent | ASTv2.CallExpression,
       position: InvokePosition
     ): void {
       switch (keyword) {
@@ -204,11 +208,11 @@ export function templateToTypescript(
       }
     }
 
-    function emitHashExpression(node: AST.MustacheStatement | AST.SubExpression): void {
+    function emitHashExpression(node: ASTv2.AppendContent | ASTv2.CallExpression): void {
       emit.forNode(node, () => {
-        assert(node.params.length === 0, '{{hash}} only accepts named parameters');
+        assert(node.args.positional.isEmpty(), '{{hash}} only accepts named parameters');
 
-        if (!node.hash.pairs.length) {
+        if (node.args.named.isEmpty()) {
           emit.text('{}');
           return;
         }
@@ -218,11 +222,11 @@ export function templateToTypescript(
         emit.newline();
 
         let start = template.indexOf('hash', rangeForNode(node).start) + 4;
-        for (let pair of node.hash.pairs) {
-          start = template.indexOf(pair.key, start);
-          emitHashKey(pair.key, start);
+        for (let namedArg of node.args.named.entries) {
+          start = template.indexOf(namedArg.name.chars, start);
+          emitHashKey(namedArg.name.chars, start);
           emit.text(': ');
-          emitExpression(pair.value);
+          emitExpression(namedArg.value);
           emit.text(',');
           emit.newline();
         }
@@ -232,16 +236,16 @@ export function templateToTypescript(
       });
     }
 
-    function emitArrayExpression(node: AST.MustacheStatement | AST.SubExpression): void {
+    function emitArrayExpression(node: ASTv2.AppendContent | ASTv2.CallExpression): void {
       emit.forNode(node, () => {
-        assert(node.hash.pairs.length === 0, '{{array}} only accepts positional parameters');
+        assert(node.args.named.isEmpty(), '{{array}} only accepts positional parameters');
 
         emit.text('[');
 
-        for (let [index, param] of node.params.entries()) {
+        for (let [index, param] of node.args.positional.exprs.entries()) {
           emitExpression(param);
 
-          if (index < node.params.length - 1) {
+          if (index < node.args.positional.size - 1) {
             emit.text(', ');
           }
         }
@@ -250,18 +254,19 @@ export function templateToTypescript(
       });
     }
 
-    function emitIfExpression(node: AST.MustacheStatement | AST.SubExpression): void {
+    function emitIfExpression(node: ASTv2.AppendContent | ASTv2.CallExpression): void {
       emit.forNode(node, () => {
-        assert(node.params.length >= 2, '{{if}} requires at least two parameters');
+        let params = node.args.positional;
+        assert(params.size >= 2, '{{if}} requires at least two parameters');
 
         emit.text('(');
-        emitExpression(node.params[0]);
+        emitExpression(params.exprs[0]);
         emit.text(') ? (');
-        emitExpression(node.params[1]);
+        emitExpression(params.exprs[1]);
         emit.text(') : (');
 
-        if (node.params[2]) {
-          emitExpression(node.params[2]);
+        if (params.exprs[2]) {
+          emitExpression(params.exprs[2]);
         } else {
           emit.text('undefined');
         }
@@ -270,18 +275,19 @@ export function templateToTypescript(
       });
     }
 
-    function emitUnlessExpression(node: AST.MustacheStatement | AST.SubExpression): void {
+    function emitUnlessExpression(node: ASTv2.AppendContent | ASTv2.CallExpression): void {
       emit.forNode(node, () => {
-        assert(node.params.length >= 2, '{{unless}} requires at least two parameters');
+        let params = node.args.positional;
+        assert(params.size >= 2, '{{unless}} requires at least two parameters');
 
         emit.text('!(');
-        emitExpression(node.params[0]);
+        emitExpression(params.exprs[0]);
         emit.text(') ? (');
-        emitExpression(node.params[1]);
+        emitExpression(params.exprs[1]);
         emit.text(') : (');
 
-        if (node.params[2]) {
-          emitExpression(node.params[2]);
+        if (params.exprs[2]) {
+          emitExpression(params.exprs[2]);
         } else {
           emit.text('undefined');
         }
@@ -291,10 +297,14 @@ export function templateToTypescript(
     }
 
     function getInlineKeyword(
-      node: AST.MustacheStatement | AST.SubExpression
+      node: ASTv2.AppendContent | ASTv2.CallExpression
     ): InlineKeyword | null {
-      if (node.path.type === 'PathExpression' && node.path.parts.length === 1) {
-        let name = node.path.parts[0] as InlineKeyword;
+      if (
+        node.callee.type === 'Path' &&
+        node.callee.tail.length === 0 &&
+        node.callee.ref.type === 'Free'
+      ) {
+        let name = node.callee.ref.name as InlineKeyword;
         if (INLINE_KEYWORDS.includes(name)) {
           return name;
         }
@@ -303,9 +313,13 @@ export function templateToTypescript(
       return null;
     }
 
-    function getBlockKeyword(node: AST.BlockStatement): BlockKeyword | null {
-      if (node.path.type === 'PathExpression' && node.path.parts.length === 1) {
-        let name = node.path.parts[0] as BlockKeyword;
+    function getBlockKeyword(node: ASTv2.InvokeBlock): BlockKeyword | null {
+      if (
+        node.callee.type === 'Path' &&
+        node.callee.tail.length === 0 &&
+        node.callee.ref.type === 'Free'
+      ) {
+        let name = node.callee.ref.name as BlockKeyword;
         if (BLOCK_KEYWORDS.includes(name)) {
           return name;
         }
@@ -314,19 +328,21 @@ export function templateToTypescript(
       return null;
     }
 
-    function emitExpression(node: AST.Expression): void {
+    function emitExpression(node: ASTv2.ExpressionNode): void {
       switch (node.type) {
-        case 'PathExpression':
+        case 'Path':
           return emitPath(node);
 
-        case 'SubExpression':
+        case 'Call':
           return emitSubExpression(node);
 
-        case 'BooleanLiteral':
-        case 'NullLiteral':
-        case 'NumberLiteral':
-        case 'StringLiteral':
-        case 'UndefinedLiteral':
+        case 'DeprecatedCall':
+          return emitAmbiguousCall(node);
+
+        case 'Interpolate':
+          return emitConcatStatement(node);
+
+        case 'Literal':
           return emitLiteral(node);
 
         default:
@@ -334,22 +350,14 @@ export function templateToTypescript(
       }
     }
 
-    function emitElementNode(node: AST.ElementNode): void {
-      let firstCharacter = node.tag.charAt(0);
-      if (firstCharacter.toUpperCase() === firstCharacter || node.tag.includes('.')) {
-        emitComponent(node);
-      } else {
-        emitPlainElement(node);
-      }
-    }
-
-    function emitConcatStatement(node: AST.ConcatStatement): void {
+    function emitConcatStatement(node: ASTv2.InterpolateExpression): void {
       emit.forNode(node, () => {
         emit.text('`');
         for (let part of node.parts) {
-          if (part.type === 'MustacheStatement') {
+          if (part.type !== 'Literal') {
             emit.text('$' + '{');
-            emitMustacheStatement(part, 'concat');
+            // TODO: position = 'concat' matters still?
+            emitExpression(part);
             emit.text('}');
           }
         }
@@ -382,12 +390,12 @@ export function templateToTypescript(
       }
     }
 
-    function tagNameToPathContents(node: AST.ElementNode): {
+    function tagNameToPathContents(node: ASTv2.InvokeComponent): {
       start: number;
       kind: PathKind;
       path: Array<string>;
     } {
-      let tagName = node.tag;
+      let tagName = node.callee.
       let start = template.indexOf(tagName, rangeForNode(node).start);
 
       if (tagName.startsWith('@')) {

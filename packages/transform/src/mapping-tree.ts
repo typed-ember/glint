@@ -1,4 +1,4 @@
-import { AST } from '@glimmer/syntax';
+import { ASTv2 } from '@glimmer/syntax';
 import { Range } from './transformed-module';
 import { Identifier } from './map-template-contents';
 
@@ -31,7 +31,7 @@ export default class MappingTree {
     public transformedRange: Range,
     public originalRange: Range,
     public children: Array<MappingTree> = [],
-    public sourceNode: AST.Node | Identifier | ParseError
+    public sourceNode: ASTv2.BaseNodeFields | Identifier | ParseError
   ) {}
 
   /**
@@ -89,7 +89,7 @@ export default class MappingTree {
     let tsEnd = options.transformedStart + transformedRange.end;
     let lines = [];
 
-    lines.push(`${indent}Mapping: ${sourceNode.type}`);
+    lines.push(`${indent}Mapping: ${this.getNodeType(sourceNode)}`);
 
     lines.push(
       `${indent}${` hbs(${hbsStart}:${hbsEnd}):`.padEnd(15)}${this.getSourceRange(
@@ -120,5 +120,13 @@ export default class MappingTree {
 
   private getSourceRange(source: string, range: Range): string {
     return source.slice(range.start, range.end).trim().replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+  }
+
+  private getNodeType(node: ASTv2.BaseNodeFields | Identifier | ParseError): string {
+    if ('type' in node && typeof node.type === 'string') {
+      return node.type;
+    } else {
+      return node.constructor.name;
+    }
   }
 }

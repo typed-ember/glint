@@ -1,4 +1,4 @@
-import { AST, preprocess } from '@glimmer/syntax';
+import { ASTv2, normalize, Source } from '@glimmer/syntax';
 import MappingTree from './mapping-tree';
 import { Directive, DirectiveKind, Range } from './transformed-module';
 import { assert } from './util';
@@ -22,7 +22,7 @@ export type Mapper = {
    * Given a @glimmer/syntax AST node, returns the corresponding start
    * and end offsets of that node in the original source.
    */
-  rangeForNode: (node: AST.Node) => Range;
+  rangeForNode: (node: ASTv2.BaseNodeFields) => Range;
 
   /**
    * Given a 0-based line number, returns the corresponding start and
@@ -67,7 +67,7 @@ export type Mapper = {
      * presence of a template AST node at a given location while not
      * emitting anything in the resulting TS translation.
      */
-    nothing(node: AST.Node): void;
+    nothing(node: ASTv2.BaseNodeFields): void;
 
     /**
      * Append the given value to the transformed source, mapping
@@ -79,7 +79,7 @@ export type Mapper = {
      * Map all content emitted in the given callback to the span
      * corresponding to the given AST node in the original source.
      */
-    forNode(node: AST.Node, callback: () => void): void;
+    forNode(node: ASTv2.BaseNodeFields, callback: () => void): void;
   };
 };
 
@@ -113,12 +113,12 @@ export type RewriteResult = {
  */
 export function mapTemplateContents(
   template: string,
-  callback: (ast: AST.Template, mapper: Mapper) => void
+  callback: (ast: ASTv2.Template, mapper: Mapper) => void
 ): RewriteResult {
-  let ast: AST.Template;
+  let ast: ASTv2.Template;
   let lineOffsets = calculateLineOffsets(template);
   try {
-    ast = preprocess(template);
+    ast = normalize(new Source(template))[0];
   } catch (error) {
     let message = getErrorMessage(error);
     let location: Range | undefined;
@@ -161,7 +161,7 @@ export function mapTemplateContents(
   // will be emitted.
   let captureMapping = (
     hbsRange: Range,
-    source: AST.Node | Identifier,
+    source: ASTv2.BaseNodeFields | Identifier,
     allowEmpty: boolean,
     callback: () => void
   ): void => {
@@ -201,7 +201,7 @@ export function mapTemplateContents(
     },
   };
 
-  let emit = {
+  let emit: Mapper['emit'] = {
     indent() {
       indent += '  ';
     },
@@ -213,7 +213,7 @@ export function mapTemplateContents(
       segmentsStack[0].push('\n');
       needsIndent = true;
     },
-    text(value: string) {
+    text(value) {
       if (needsIndent) {
         offset += indent.length;
         segmentsStack[0].push(indent);
@@ -223,15 +223,15 @@ export function mapTemplateContents(
       offset += value.length;
       segmentsStack[0].push(value);
     },
-    synthetic(value: string) {
+    synthetic(value) {
       if (value.length) {
         emit.identifier(value, 0, 0);
       }
     },
-    nothing(node: AST.Node) {
+    nothing(node) {
       captureMapping(rangeForNode(node), node, true, () => {});
     },
-    identifier(value: string, hbsOffset: number, hbsLength = value.length) {
+    identifier(value, hbsOffset, hbsLength = value.length) {
       // If there's a pending indent, flush that so it's not included in
       // the range mapping for the identifier we're about to emit
       if (needsIndent) {
@@ -242,7 +242,7 @@ export function mapTemplateContents(
       let source = new Identifier(value);
       captureMapping(hbsRange, source, true, () => emit.text(value));
     },
-    forNode(node: AST.Node, callback: () => void) {
+    forNode(node, callback) {
       captureMapping(rangeForNode(node), node, false, callback);
     },
   };
@@ -279,7 +279,7 @@ function calculateLineOffsets(template: string): Array<number> {
   return offsets;
 }
 
-function buildRangeForNode(offsets: Array<number>): (node: AST.Node) => Range {
+function buildRangeForNode(offsets: Array<number>): (node: ASTv2.BaseNodeFields) => Range {
   return (node) => {
     let { loc } = node;
     let start = offsets[loc.start.line] + loc.start.column;
@@ -288,7 +288,7 @@ function buildRangeForNode(offsets: Array<number>): (node: AST.Node) => Range {
     // This makes error reporting for illegal text nodes (e.g. alongside named blocks)
     // a bit nicer by only highlighting the content rather than all the surrounding
     // newlines and attendant whitespace
-    if (node.type === 'TextNode') {
+    if (node instanceof ASTv2.HtmlText) {
       let leading = LEADING_WHITESPACE.exec(node.chars)?.[0].length ?? 0;
       let trailing = TRAILING_WHITESPACE.exec(node.chars)?.[0].length ?? 0;
 

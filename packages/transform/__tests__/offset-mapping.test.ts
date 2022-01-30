@@ -151,6 +151,16 @@ describe('Source-to-source offset mapping', () => {
         expectTokenMapping(module, 'tabState');
         expectTokenMapping(module, 'tab', { occurrence: 1 });
       });
+
+      test('named params with repeated subsequences', () => {
+        let module = rewriteCompanionTemplate({
+          backing: 'none',
+          contents: '{{foo aa="qwe" a="qwe"}}',
+        });
+
+        expectTokenMapping(module, 'aa');
+        expectTokenMapping(module, 'a', { occurrence: 1 });
+      });
     });
 
     test.each(['class', 'opaque', 'none'] as const)('with backing expression: %s', (backing) => {
