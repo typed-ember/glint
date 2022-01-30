@@ -1,6 +1,6 @@
 {
   "name": "@glint/core",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "repository": "typed-ember/glint",
   "description": "A CLI for performing typechecking on Glimmer templates",
   "license": "MIT",
@@ -21,8 +21,8 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "@glint/config": "^0.6.3",
-    "@glint/transform": "^0.6.3",
+    "@glint/config": "^0.7.0",
+    "@glint/transform": "^0.7.0",
     "resolve": "^1.17.0",
     "uuid": "^8.3.2",
     "vscode-languageserver": "^7.0.0",
