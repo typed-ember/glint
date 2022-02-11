@@ -313,7 +313,7 @@ This would let glint understand the component if it's invoked in any of the foll
 
 With strict mode and template imports, the day is coming when we won't need this anymore, because any components/helpers/modifiers you use will already be statically in scope, but for now this is about the best we can do.
 
-### Functional helpers
+#### Functional helpers
 
 ```ts
 import { helper } from '@glint/environment-ember-loose/ember-component/helper';
@@ -331,7 +331,7 @@ declare module '@glint/environment-ember-loose/registry' {
 }
 ```
 
-### Class helpers
+#### Class helpers
 
 ```ts
 import Helper from '@glint/environment-ember-loose/ember-component/helper';
@@ -353,6 +353,50 @@ export default class MyHelper extends Helper<MyHelperSignature> {
 declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry {
     'my-helper': typeof MyHelper;
+  }
+}
+```
+
+#### Functional modifiers
+
+```ts
+import { modifier } from '@glint/environment-ember-loose/ember-modifier';
+
+const myModifier = modifier((element: Element, args: [string], named: { value: string }) => {
+  element.setAttribute(args[0], value);
+});
+
+export default myModifier;
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    'my-modifier': typeof myModifier;
+  }
+}
+```
+
+#### Class modifiers
+
+```ts
+import Modifier from '@glint/environment-ember-loose/ember-modifier';
+
+interface ModifierSignature {
+  NamedArgs: {
+    attribute: string
+  };
+  PositionalArgs: [string];
+  Element: Element;
+}
+
+export default class MyMOdifier extends Modifier<ModifierSignature> {
+  didInstall() {
+    this.element.setAttribute(this.named.attribute, this.args.positional[0]);
+  }
+}
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    'my-modifier': typeof MyModifier;
   }
 }
 ```
