@@ -388,7 +388,7 @@ interface ModifierSignature {
   Element: Element;
 }
 
-export default class MyMOdifier extends Modifier<ModifierSignature> {
+export default class MyModifier extends Modifier<ModifierSignature> {
   didInstall() {
     this.element.setAttribute(this.named.attribute, this.args.positional[0]);
   }
