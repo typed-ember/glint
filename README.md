@@ -313,6 +313,94 @@ This would let glint understand the component if it's invoked in any of the foll
 
 With strict mode and template imports, the day is coming when we won't need this anymore, because any components/helpers/modifiers you use will already be statically in scope, but for now this is about the best we can do.
 
+#### Functional helpers
+
+```ts
+import { helper } from '@glint/environment-ember-loose/ember-component/helper';
+
+const myHelper = helper(function myHelper(args: [number], named: { x: number }) {
+  return args[0] + named.x;
+});
+
+export default myHelper;
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    'my-helper': typeof myHelper;
+  }
+}
+```
+
+#### Class helpers
+
+```ts
+import Helper from '@glint/environment-ember-loose/ember-component/helper';
+
+interface MyHelperSignature {
+  PositionalArgs: [number];
+  NamedArgs: {
+    x: number;
+  };
+  Return: number;
+}
+
+export default class MyHelper extends Helper<MyHelperSignature> {
+  compute(args: [number], named: { x: number }) {
+    return (args[0] + named.x);
+  }
+}
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    'my-helper': typeof MyHelper;
+  }
+}
+```
+
+#### Functional modifiers
+
+```ts
+import { modifier } from '@glint/environment-ember-loose/ember-modifier';
+
+const myModifier = modifier((element: Element, args: [string], named: { value: string }) => {
+  element.setAttribute(args[0], value);
+});
+
+export default myModifier;
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    'my-modifier': typeof myModifier;
+  }
+}
+```
+
+#### Class modifiers
+
+```ts
+import Modifier from '@glint/environment-ember-loose/ember-modifier';
+
+interface ModifierSignature {
+  NamedArgs: {
+    attribute: string
+  };
+  PositionalArgs: [string];
+  Element: Element;
+}
+
+export default class MyModifier extends Modifier<ModifierSignature> {
+  didInstall() {
+    this.element.setAttribute(this.named.attribute, this.args.positional[0]);
+  }
+}
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    'my-modifier': typeof MyModifier;
+  }
+}
+```
+
 #### Route and Controller Templates
 
 Templates associated with Ember routes and/or controllers will be typechecked against those backing classes without needing to import from Glint-specific paths.
