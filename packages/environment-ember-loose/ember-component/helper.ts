@@ -1,3 +1,4 @@
+import { Opaque } from 'ember/-private/type-utils';
 import { Ember } from './-ember';
 import type { Invoke, Invokable, EmptyObject } from '@glint/template/-private/integration';
 import type { AsObjectType } from '../-private/utilities';
@@ -30,7 +31,7 @@ export interface HelperSignature {
 const Helper = EmberHelper as AsObjectType<typeof EmberHelper> &
   (new <T extends HelperSignature>(
     ...args: ConstructorParameters<EmberHelperConstructor>
-  ) => Helper<T>);
+  ) => Helper<T> & Opaque<T>);
 
 interface Helper<T extends HelperSignature> extends Omit<EmberHelper, 'compute'> {
   compute(
