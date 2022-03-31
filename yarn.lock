@@ -2133,14 +2133,13 @@
     "@types/ember__object" "*"
 
 "@types/ember__component@*", "@types/ember__component@~4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@types/ember__component/-/ember__component-4.0.0.tgz#c549ca7c666276946bccb0d9659e41c91219b0b9"
-  integrity sha512-0T/qaKqC2XiKoui8Fmg6pKkrNU98kdlCH8/Z0duUoneJAfbXoV02L0bXKqJgnB8Ve8qgs1CXvSVPX9msDR3nLg==
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/@types/ember__component/-/ember__component-4.0.6.tgz#5cf681e1eb037ec0a418f13efc7a375cd321b672"
+  integrity sha512-mc9ezW4bo3+ifUz+aoXPHdKO+GTk/G/pprP1qq5VPVW6YIiDD+UYJFKqb7Ws7iXhJ0r2jNTtux3wAaUsWhyuuw==
   dependencies:
     "@types/ember" "*"
     "@types/ember__component" "*"
     "@types/ember__object" "*"
-    "@types/jquery" "*"
 
 "@types/ember__controller@*":
   version "4.0.0"
@@ -2349,13 +2348,6 @@
     jest-diff "^25.2.1"
     pretty-format "^25.2.1"
 
-"@types/jquery@*":
-  version "3.3.34"
-  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.34.tgz#0d3b94057063d3854adaeb579652048fec07ba6c"
-  integrity sha512-lW9vsVL53Xu/Nj4gi2hNmHGc4u3KKghjqTkAlO0kF5GIOPxbqqnQpgqJBzmn3yXLrPqHb6cmNJ6URnS23Vtvbg==
-  dependencies:
-    "@types/sizzle" "*"
-
 "@types/json-schema@^7.0.4", "@types/json-schema@^7.0.7":
   version "7.0.8"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.8.tgz#edf1bf1dbf4e04413ca8e5b17b3b7d7d54b59818"
@@ -2459,11 +2451,6 @@
   dependencies:
     "@types/mime" "^1"
     "@types/node" "*"
-
-"@types/sizzle@*":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.2.tgz#a811b8c18e2babab7d542b3365887ae2e4d9de47"
-  integrity sha512-7EJYyKTL7tFR8+gDbB6Wwz/arpGa0Mywk1TJbNzKzHtzbwVmY4HR9WqS5VV7dsBUKQmPNr192jHr/VpBluj/hg==
 
 "@types/source-list-map@*":
   version "0.1.2"
