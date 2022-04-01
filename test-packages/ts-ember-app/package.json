@@ -24,7 +24,7 @@
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.2.8",
-    "@glimmer/component": "^1.0.2",
+    "@glimmer/component": "^1.1.0",
     "@glimmer/tracking": "^1.0.2",
     "@glint/core": "^0.7.1",
     "@glint/environment-ember-loose": "^0.7.1",
@@ -44,7 +44,7 @@
     "ember-cli-typescript": "^4.0.0",
     "ember-fetch": "^8.0.2",
     "ember-load-initializers": "^2.1.1",
-    "ember-modifier": "^2.1.1",
+    "ember-modifier": "^3.2.1",
     "ember-named-blocks-polyfill": "^0.2.4",
     "ember-qunit": "^5.1.4",
     "ember-resolver": "^8.0.2",
