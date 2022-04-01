@@ -30,10 +30,17 @@ export interface ModifierSignature {
   Element?: Element;
 }
 
-const Modifier = EmberModifier as AsObjectType<EmberModifierConstructor> &
-  (new <T extends ModifierSignature>(
+// Factoring this into a standalone type prevents `tsc` from expanding the
+// `ConstructorParameters` type inline when producing `.d.ts` files, which
+// breaks consumers depending on whether they're on v2 or v3 of the
+// `ember-modifier` package.
+type ModifierConstructor = {
+  new <T extends ModifierSignature>(
     ...args: ConstructorParameters<EmberModifierConstructor>
-  ) => Modifier<T>);
+  ): Modifier<T>;
+};
+
+const Modifier = EmberModifier as AsObjectType<EmberModifierConstructor> & ModifierConstructor;
 
 interface Modifier<T extends ModifierSignature>
   extends EmberModifier<{
