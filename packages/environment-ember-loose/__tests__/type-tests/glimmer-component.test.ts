@@ -43,7 +43,7 @@ import { expectTypeOf } from 'expect-type';
       expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
       expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
       expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
-      expectTypeOf(𝚪.this.args).toEqualTypeOf<EmptyObject>();
+      expectTypeOf(𝚪.this.args).toEqualTypeOf<Readonly<EmptyObject>>();
     });
   }
 
@@ -65,7 +65,7 @@ import { expectTypeOf } from 'expect-type';
     static template = template(function* <T>(𝚪: ResolveContext<YieldingComponent<T>>) {
       expectTypeOf(𝚪.this).toEqualTypeOf<YieldingComponent<T>>();
       expectTypeOf(𝚪.args).toEqualTypeOf<{ values: T[] }>();
-      expectTypeOf(𝚪.this.args).toEqualTypeOf<{ values: T[] }>();
+      expectTypeOf(𝚪.this.args).toEqualTypeOf<Readonly<{ values: T[] }>>();
 
       if (𝚪.args.values.length) {
         yieldToBlock(𝚪, 'default', 𝚪.args.values[0]);

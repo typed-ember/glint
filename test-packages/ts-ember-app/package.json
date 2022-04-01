@@ -24,7 +24,7 @@
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.2.8",
-    "@glimmer/component": "^1.0.2",
+    "@glimmer/component": "^1.1.0",
     "@glimmer/tracking": "^1.0.2",
     "@glint/core": "^0.7.1",
     "@glint/environment-ember-loose": "^0.7.1",

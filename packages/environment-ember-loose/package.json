@@ -31,7 +31,7 @@
     "@glint/template": "^0.7.1"
   },
   "devDependencies": {
-    "@glimmer/component": "^1.0.0",
+    "@glimmer/component": "^1.1.0",
     "@types/ember__component": "~4.0.0",
     "@types/jest": "^26.0.13",
     "ember-modifier": "^3.2.1",

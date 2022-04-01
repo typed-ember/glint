@@ -16,7 +16,7 @@
     "*.d.ts"
   ],
   "devDependencies": {
-    "@glimmer/component": "^1.0.2",
+    "@glimmer/component": "^1.1.0",
     "@glimmerx/component": "^0.4.2",
     "@types/ember__component": "~4.0.0",
     "expect-type": "0.11.0",
