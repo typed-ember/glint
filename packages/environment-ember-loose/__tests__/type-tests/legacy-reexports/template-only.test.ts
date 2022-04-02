@@ -7,7 +7,7 @@ import {
 } from '@glint/environment-ember-loose/-private/dsl';
 import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
-import { ComponentKeyword } from '../../-private/intrinsics/component';
+import { ComponentKeyword } from '../../../-private/intrinsics/component';
 
 {
   const NoArgsComponent = templateOnlyComponent();
