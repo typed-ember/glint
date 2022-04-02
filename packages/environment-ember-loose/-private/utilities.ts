@@ -3,7 +3,7 @@ import { AcceptsBlocks, EmptyObject, Invokable } from '@glint/template/-private/
 type Constructor<T> = new (...params: any) => T;
 type Get<T, K, Otherwise = EmptyObject> = K extends keyof T ? Exclude<T[K], undefined> : Otherwise;
 
-export type AsObjectType<T> = { [K in keyof T]: T[K] };
+export type StaticSide<T> = { [K in Exclude<keyof T, 'prototype'>]: T[K] };
 
 export type ElementOf<C extends ComponentLike> = C extends Constructor<
   Invokable<(...args: any) => AcceptsBlocks<any, infer Element>>

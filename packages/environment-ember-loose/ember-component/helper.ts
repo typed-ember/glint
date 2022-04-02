@@ -1,7 +1,6 @@
-import { Opaque } from 'ember/-private/type-utils';
 import { Ember } from './-ember';
 import type { Invoke, Invokable, EmptyObject } from '@glint/template/-private/integration';
-import type { AsObjectType } from '../-private/utilities';
+import type { StaticSide } from '../-private/utilities';
 
 declare const GivenSignature: unique symbol;
 
@@ -25,13 +24,19 @@ export interface HelperSignature {
   Return?: unknown;
 }
 
+// Factoring this into a standalone type prevents `tsc` from expanding the
+// `ConstructorParameters` type inline when producing `.d.ts` files, which
+// breaks consumers depending on their version of the upstream types.
+type HelperConstructor = {
+  new <T extends HelperSignature = {}>(
+    ...args: ConstructorParameters<EmberHelperConstructor>
+  ): Helper<T>;
+};
+
 // Overriding `compute` directly is impossible because the base class has such
 // wide parameter types, so we explicitly exclude that from the interface we're
 // extending here so our override can "take" without an error.
-const Helper = EmberHelper as AsObjectType<typeof EmberHelper> &
-  (new <T extends HelperSignature>(
-    ...args: ConstructorParameters<EmberHelperConstructor>
-  ) => Helper<T> & Opaque<T>);
+const Helper = EmberHelper as unknown as StaticSide<typeof EmberHelper> & HelperConstructor;
 
 interface Helper<T extends HelperSignature> extends Omit<EmberHelper, 'compute'> {
   compute(
