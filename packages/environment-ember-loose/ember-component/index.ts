@@ -37,7 +37,9 @@ type ComponentConstructor = {
 const Component = EmberComponent as unknown as StaticSide<typeof EmberComponent> &
   ComponentConstructor;
 
-interface Component<T extends ComponentSignature = {}> extends EmberComponent {
+type Component<T extends ComponentSignature = {}> = EmberComponent & ComponentIntegration<T>;
+
+interface ComponentIntegration<T extends ComponentSignature> {
   // Allows `extends Component<infer Signature>` clauses to work as expected
   [GivenSignature]: T;
 

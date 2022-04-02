@@ -47,10 +47,13 @@ expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
   class StatefulComponent extends Component {
     private foo = 'hello';
 
+    // Ensure lifecycle methods can be overridden
+    override didUpdate(): void {}
+
     static template = template(function* (𝚪: ResolveContext<StatefulComponent>) {
       expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
       expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
-      expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
+      expectTypeOf(𝚪.args).toMatchTypeOf<EmptyObject>();
     });
   }
 
@@ -72,7 +75,7 @@ expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
   class YieldingComponent<T> extends Component<YieldingComponentSignature<T>> {
     static template = template(function* <T>(𝚪: ResolveContext<YieldingComponent<T>>) {
       expectTypeOf(𝚪.this).toEqualTypeOf<YieldingComponent<T>>();
-      expectTypeOf(𝚪.args).toEqualTypeOf<{ values: T[] }>();
+      expectTypeOf(𝚪.args).toMatchTypeOf<{ values: T[] }>();
 
       expectTypeOf(𝚪.this.values).toEqualTypeOf<Array<T>>();
 
