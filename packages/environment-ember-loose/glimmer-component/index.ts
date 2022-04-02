@@ -5,7 +5,7 @@ import type {
   AcceptsBlocks,
   EmptyObject,
 } from '@glint/template/-private/integration';
-import { AsObjectType } from '../-private/utilities';
+import { StaticSide } from '../-private/utilities';
 
 import type { ComponentSignature } from '../-private';
 export type { ComponentSignature };
@@ -20,10 +20,17 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
   ? Exclude<T[Key], undefined>
   : Otherwise;
 
-const Component = GlimmerComponent as AsObjectType<GlimmerComponentConstructor> &
-  (new <T extends ComponentSignature = {}>(
+// Factoring this into a standalone type prevents `tsc` from expanding the
+// `ConstructorParameters` type inline when producing `.d.ts` files, which
+// breaks consumers depending on their version of the upstream types.
+type ComponentConstructor = {
+  new <T extends ComponentSignature = {}>(
     ...args: ConstructorParameters<GlimmerComponentConstructor>
-  ) => Component<T>);
+  ): Component<T>;
+};
+
+const Component = GlimmerComponent as unknown as StaticSide<GlimmerComponentConstructor> &
+  ComponentConstructor;
 
 interface Component<T extends ComponentSignature = {}> extends GlimmerComponent<Get<T, 'Args'>> {
   // Allows `extends Component<infer Signature>` clauses to work as expected

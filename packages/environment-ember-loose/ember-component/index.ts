@@ -7,7 +7,7 @@ import type {
   EmptyObject,
 } from '@glint/template/-private/integration';
 
-import type { AsObjectType } from '../-private/utilities';
+import type { StaticSide } from '../-private/utilities';
 import type { ComponentSignature } from '../-private';
 
 export type { ComponentSignature };
@@ -25,10 +25,17 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
 
 export type ArgsFor<T extends ComponentSignature> = 'Args' extends keyof T ? T['Args'] : {};
 
-const Component = EmberComponent as AsObjectType<typeof EmberComponent> &
-  (new <T extends ComponentSignature = {}>(
+// Factoring this into a standalone type prevents `tsc` from expanding the
+// `ConstructorParameters` type inline when producing `.d.ts` files, which
+// breaks consumers depending on their version of the upstream types.
+type ComponentConstructor = {
+  new <T extends ComponentSignature = {}>(
     ...args: ConstructorParameters<EmberComponentConstructor>
-  ) => Component<T>);
+  ): Component<T>;
+};
+
+const Component = EmberComponent as unknown as StaticSide<typeof EmberComponent> &
+  ComponentConstructor;
 
 interface Component<T extends ComponentSignature = {}> extends EmberComponent {
   // Allows `extends Component<infer Signature>` clauses to work as expected
