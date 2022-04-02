@@ -24,7 +24,8 @@
     "ember-component/**/*.{js,d.ts}",
     "ember-modifier/**/*.{js,d.ts}",
     "glimmer-component/**/*.{js,d.ts}",
-    "registry/**/*.{js,d.ts}"
+    "registry/**/*.{js,d.ts}",
+    "native-integration.{js,d.ts}"
   ],
   "dependencies": {
     "@glint/config": "^0.7.3",
