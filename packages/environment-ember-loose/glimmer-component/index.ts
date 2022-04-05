@@ -22,7 +22,7 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
 
 const Component = GlimmerComponent as AsObjectType<GlimmerComponentConstructor> &
   (new <T extends ComponentSignature = {}>(
-    ...args: ConstructorParameters<GlimmerComponentConstructor>
+    owner: unknown, args: unknown
   ) => Component<T>);
 
 interface Component<T extends ComponentSignature = {}> extends GlimmerComponent<Get<T, 'Args'>> {
