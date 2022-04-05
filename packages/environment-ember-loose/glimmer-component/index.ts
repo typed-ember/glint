@@ -24,9 +24,7 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
 // `ConstructorParameters` type inline when producing `.d.ts` files, which
 // breaks consumers depending on their version of the upstream types.
 type ComponentConstructor = {
-  new <T extends ComponentSignature = {}>(
-    ...args: ConstructorParameters<GlimmerComponentConstructor>
-  ): Component<T>;
+  new <T extends ComponentSignature = {}>(owner: unknown, args: unknown): Component<T>;
 };
 
 const Component = GlimmerComponent as unknown as StaticSide<GlimmerComponentConstructor> &
