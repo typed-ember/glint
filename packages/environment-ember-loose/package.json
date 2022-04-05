@@ -1,6 +1,6 @@
 {
   "name": "@glint/environment-ember-loose",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "repository": "typed-ember/glint",
   "description": "A Glint environment to support loose-mode Ember.js projects",
   "license": "MIT",
@@ -27,8 +27,8 @@
     "registry/**/*.{js,d.ts}"
   ],
   "dependencies": {
-    "@glint/config": "^0.7.2",
-    "@glint/template": "^0.7.2"
+    "@glint/config": "^0.7.3",
+    "@glint/template": "^0.7.3"
   },
   "devDependencies": {
     "@glimmer/component": "^1.1.0",
