@@ -1,5 +1,5 @@
-import { ComponentLike, ComponentWithBoundArgs } from '@glint/environment-ember-loose';
-import Component from '@glint/environment-ember-loose/glimmer-component';
+import { ComponentLike, WithBoundArgs } from '@glint/template';
+import Component from '@ember/component';
 import EmberComponent from './ember-component';
 
 interface WrapperComponentSignature {
@@ -7,10 +7,10 @@ interface WrapperComponentSignature {
   Args: {
     value: string;
   };
-  Yields: {
+  Blocks: {
     default: [
       {
-        InnerComponent: ComponentWithBoundArgs<typeof EmberComponent, 'required'>;
+        InnerComponent: WithBoundArgs<typeof EmberComponent, 'required'>;
         MaybeComponent?: ComponentLike<{ Args: { key: string } }>;
         stringValue?: string;
       }
