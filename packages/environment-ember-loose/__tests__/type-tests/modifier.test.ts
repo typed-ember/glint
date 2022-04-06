@@ -3,6 +3,7 @@ import Modifier, { modifier } from 'ember-modifier';
 import { resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { BoundModifier } from '@glint/template/-private/integration';
+import { ModifierLike } from '@glint/template';
 
 // Class-based modifier
 {
@@ -91,4 +92,21 @@ import { BoundModifier } from '@glint/template/-private/integration';
 
   // @ts-expect-error: invalid named arg
   neat({ hello: 123 }, 'message');
+}
+
+// Modifiers are `ModifierLike`
+{
+  interface TestSignature {
+    Args: {
+      Named: { count: number };
+      Positional: [value: string];
+    };
+    Element: HTMLCanvasElement;
+  }
+
+  class MyModifier extends Modifier<TestSignature> {}
+  const myModifier = modifier<TestSignature>(() => {}, { eager: false });
+
+  expectTypeOf(MyModifier).toMatchTypeOf<ModifierLike<TestSignature>>();
+  expectTypeOf(myModifier).toMatchTypeOf<ModifierLike<TestSignature>>();
 }

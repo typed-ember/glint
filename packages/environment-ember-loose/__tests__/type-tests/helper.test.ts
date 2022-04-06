@@ -2,6 +2,7 @@ import '@glint/environment-ember-loose/native-integration';
 import Helper, { helper, EmptyObject } from '@ember/component/helper';
 import { resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
+import { HelperLike } from '@glint/template';
 
 // Functional helper: fixed signature params
 {
@@ -169,4 +170,21 @@ import { expectTypeOf } from 'expect-type';
   let maybeString = resolve(MaybeStringHelper);
 
   expectTypeOf(maybeString).toEqualTypeOf<(args: EmptyObject) => string | undefined>();
+}
+
+// Helpers are `HelperLike`
+{
+  interface TestSignature {
+    Args: {
+      Named: { count: number };
+      Positional: [value: string];
+    };
+    Return: Array<string>;
+  }
+
+  class MyHelper extends Helper<TestSignature> {}
+  const myHelper = helper<TestSignature>(() => []);
+
+  expectTypeOf(MyHelper).toMatchTypeOf<HelperLike<TestSignature>>();
+  expectTypeOf(myHelper).toMatchTypeOf<HelperLike<TestSignature>>();
 }
