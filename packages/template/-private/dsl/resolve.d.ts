@@ -33,7 +33,7 @@ import { ResolveOrReturn } from './types';
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolve<Args extends unknown[], Instance extends Invokable>(
-  item: (new (...args: Args) => Instance) | null | undefined
+  item: (abstract new (...args: Args) => Instance) | null | undefined
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 
 /*

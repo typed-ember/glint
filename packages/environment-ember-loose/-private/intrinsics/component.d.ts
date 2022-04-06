@@ -5,15 +5,16 @@ import {
   Invokable,
 } from '@glint/template/-private/integration';
 
-type RegistryComponentArgs<Registry, T extends keyof Registry> = Registry[T] extends new (
-  ...args: any
+type RegistryComponentArgs<Registry, T extends keyof Registry> = Registry[T] extends abstract new (
+  ...args: never[]
 ) => Invokable<(args: infer Args, ...rest: any) => any>
   ? Args
   : EmptyObject;
 
-type RegistryComponentReturn<Registry, T extends keyof Registry> = Registry[T] extends new (
-  ...args: any
-) => Invokable<(...args: any) => infer Return>
+type RegistryComponentReturn<
+  Registry,
+  T extends keyof Registry
+> = Registry[T] extends abstract new (...args: never[]) => Invokable<(...args: any) => infer Return>
   ? Return
   : unknown;
 
