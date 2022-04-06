@@ -14,6 +14,7 @@ TypeScript-powered tooling for Glimmer templates.
     - [Component Signatures](#component-signatures-1)
     - [Ember Components](#ember-components)
     - [Template Registry](#template-registry)
+    - [Typing Your Dependencies](#your-dependencies)
     - [Route and Controller Templates](#route-and-controller-templates)
     - [Template-Only Components](#template-only-components)
     - [Rendering Tests](#rendering-tests)
@@ -312,6 +313,31 @@ This would let glint understand the component if it's invoked in any of the foll
 ```
 
 With strict mode and template imports, the day is coming when we won't need this anymore, because any components/helpers/modifiers you use will already be statically in scope, but for now this is about the best we can do.
+
+#### Typing Your Dependencies
+
+You may want to write types for some components, helpers, or modifiers that are provided by your dependencies. You can do this from a `.d.ts` file.
+
+Here's an example that provides types for the `page-title` helper and the `WelcomePage` component that are present in a newly-generated Ember app:
+
+```ts
+// types/global.d.ts
+import Helper from '@glint/environment-ember-loose/ember-component/helper';
+import { ComponentLike } from '@glint/environment-ember-loose';
+import '@glint/environment-ember-loose/registry';
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    WelcomePage: ComponentLike;
+    'page-title': new () => Helper<{
+      PositionalArgs: [string];
+      Return: void;
+    }>;
+  }
+}
+
+```
+
 
 #### Functional helpers
 
