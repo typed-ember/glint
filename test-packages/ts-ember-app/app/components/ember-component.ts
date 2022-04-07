@@ -1,15 +1,17 @@
-import Component, { ArgsFor } from '@glint/environment-ember-loose/ember-component';
+import Component from '@ember/component';
+
+export interface EmberComponentArgs {
+  required: string;
+  hasDefault?: string;
+  optional?: number;
+}
 
 export interface EmberComponentSignature {
   Element: HTMLDivElement;
-  Args: {
-    required: string;
-    hasDefault?: string;
-    optional?: number;
-  };
+  Args: EmberComponentArgs;
 }
 
-export default interface EmberComponent extends ArgsFor<EmberComponentSignature> {}
+export default interface EmberComponent extends EmberComponentArgs {}
 export default class EmberComponent extends Component<EmberComponentSignature> {
   public hasDefault = 'defaultValue';
 

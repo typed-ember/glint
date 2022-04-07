@@ -9,6 +9,7 @@ import {
 } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/component';
+import type { ComponentLike } from '@glint/template';
 
 {
   class NoArgsComponent extends Component {
@@ -155,4 +156,19 @@ import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/compon
 
   resolve(PositionalArgsComponent)({}, 'a');
   resolve(PositionalArgsComponent)({}, 'a', 1);
+}
+
+// Components are `ComponentLike`
+{
+  interface TestSignature {
+    Args: { key: string };
+    Blocks: {
+      default: [value: string];
+    };
+    Element: HTMLDivElement;
+  }
+
+  class TestComponent extends Component<TestSignature> {}
+
+  expectTypeOf(TestComponent).toMatchTypeOf<ComponentLike<TestSignature>>();
 }

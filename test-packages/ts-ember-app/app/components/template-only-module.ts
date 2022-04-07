@@ -1,8 +1,8 @@
-import templateOnlyComponent from '@glint/environment-ember-loose/ember-component/template-only';
+import templateOnlyComponent from '@ember/component/template-only';
 
 interface TemplateOnlyModuleSignature {
   Args: { message: string };
-  Yields: { default: [] };
+  Blocks: { default: [] };
 }
 
 const TemplateOnlyModule = templateOnlyComponent<TemplateOnlyModuleSignature>();

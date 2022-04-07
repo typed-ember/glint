@@ -1,4 +1,4 @@
-import Component from '@glint/environment-ember-loose/glimmer-component';
+import Component from '@ember/component';
 
 export interface BazSignature {
   Args: { optional?: string };

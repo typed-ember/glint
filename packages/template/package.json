@@ -5,7 +5,7 @@
   "description": "Type definitions to back typechecking for Glimmer templates",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
-  "types": "index.d.ts",
+  "types": "-private/index.d.ts",
   "scripts": {
     "lint": "eslint . --max-warnings 0 && prettier --check .",
     "test": "tsc --project __tests__"

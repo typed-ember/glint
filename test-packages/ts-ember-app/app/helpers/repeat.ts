@@ -1,4 +1,4 @@
-import { helper } from '@glint/environment-ember-loose/ember-component/helper';
+import { helper } from '@ember/component/helper';
 
 function repeat(params: [string, number] /*, hash*/) {
   return params[0].repeat(params[1]);
