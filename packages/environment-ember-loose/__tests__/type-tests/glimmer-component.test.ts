@@ -1,4 +1,5 @@
-import Component from '@glint/environment-ember-loose/glimmer-component';
+import '@glint/environment-ember-loose/native-integration';
+import Component from '@glimmer/component';
 import {
   template,
   resolve,
@@ -6,7 +7,7 @@ import {
   yieldToBlock,
   emitComponent,
 } from '@glint/environment-ember-loose/-private/dsl';
-import { EmptyObject } from '@glint/template/-private/integration';
+import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/component';
 import { expectTypeOf } from 'expect-type';
 
 {
@@ -55,9 +56,9 @@ import { expectTypeOf } from 'expect-type';
     Args: {
       values: Array<T>;
     };
-    Yields: {
+    Blocks: {
       default: [T];
-      else?: [];
+      else: [];
     };
   }
 
@@ -83,11 +84,6 @@ import { expectTypeOf } from 'expect-type';
 
   // @ts-expect-error: extra arg
   resolve(YieldingComponent)({ values: [1, 2, 3], oops: true });
-
-  type InferSignature<T> = T extends Component<infer Signature> ? Signature : never;
-  expectTypeOf<InferSignature<YieldingComponent<number>>>().toEqualTypeOf<
-    YieldingComponentSignature<number>
-  >();
 
   {
     const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));

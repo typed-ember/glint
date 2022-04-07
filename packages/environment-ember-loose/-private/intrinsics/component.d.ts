@@ -5,15 +5,16 @@ import {
   Invokable,
 } from '@glint/template/-private/integration';
 
-type RegistryComponentArgs<Registry, T extends keyof Registry> = Registry[T] extends new (
-  ...args: any
+type RegistryComponentArgs<Registry, T extends keyof Registry> = Registry[T] extends abstract new (
+  ...args: never[]
 ) => Invokable<(args: infer Args, ...rest: any) => any>
   ? Args
   : EmptyObject;
 
-type RegistryComponentReturn<Registry, T extends keyof Registry> = Registry[T] extends new (
-  ...args: any
-) => Invokable<(...args: any) => infer Return>
+type RegistryComponentReturn<
+  Registry,
+  T extends keyof Registry
+> = Registry[T] extends abstract new (...args: never[]) => Invokable<(...args: any) => infer Return>
   ? Return
   : unknown;
 
@@ -34,7 +35,7 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
   <Name extends keyof Registry, GivenArgs extends Partial<RegistryComponentArgs<Registry, Name>>>(
     args: GivenArgs,
     component: Name
-  ): new () => PartiallyAppliedComponent<
+  ): abstract new () => PartiallyAppliedComponent<
     RegistryComponentArgs<Registry, Name>,
     GivenArgs,
     RegistryComponentReturn<Registry, Name>
@@ -44,7 +45,7 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
     component: Name | null | undefined
   ):
     | null
-    | (new () => PartiallyAppliedComponent<
+    | (abstract new () => PartiallyAppliedComponent<
         RegistryComponentArgs<Registry, Name>,
         GivenArgs,
         RegistryComponentReturn<Registry, Name>
@@ -58,8 +59,8 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
     ConstructorArgs extends unknown[]
   >(
     args: GivenArgs,
-    component: new (...args: ConstructorArgs) => Invokable<(args: Args) => Return>
-  ): new () => PartiallyAppliedComponent<Args, GivenArgs, Return>;
+    component: abstract new (...args: ConstructorArgs) => Invokable<(args: Args) => Return>
+  ): abstract new () => PartiallyAppliedComponent<Args, GivenArgs, Return>;
   <
     Args,
     GivenArgs extends Partial<Args>,
@@ -68,8 +69,8 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
   >(
     args: GivenArgs,
     component:
-      | (new (...args: ConstructorArgs) => Invokable<(args: Args) => Return>)
+      | (abstract new (...args: ConstructorArgs) => Invokable<(args: Args) => Return>)
       | null
       | undefined
-  ): null | (new () => PartiallyAppliedComponent<Args, GivenArgs, Return>);
+  ): null | (abstract new () => PartiallyAppliedComponent<Args, GivenArgs, Return>);
 }>;

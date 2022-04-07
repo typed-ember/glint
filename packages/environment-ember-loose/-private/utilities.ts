@@ -1,6 +1,6 @@
 import { AcceptsBlocks, EmptyObject, Invokable } from '@glint/template/-private/integration';
 
-type Constructor<T> = new (...params: any) => T;
+type Constructor<T> = abstract new (...params: never[]) => T;
 type Get<T, K, Otherwise = EmptyObject> = K extends keyof T ? Exclude<T[K], undefined> : Otherwise;
 
 export type StaticSide<T> = { [K in Exclude<keyof T, 'prototype'>]: T[K] };

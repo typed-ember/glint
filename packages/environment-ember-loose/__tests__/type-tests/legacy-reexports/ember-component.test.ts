@@ -1,5 +1,5 @@
-import '@glint/environment-ember-loose/native-integration';
-import Component from '@ember/component';
+import UpstreamEmberComponent from '@ember/component';
+import Component, { ArgsFor } from '@glint/environment-ember-loose/ember-component';
 import {
   template,
   resolve,
@@ -7,8 +7,11 @@ import {
   yieldToBlock,
   emitComponent,
 } from '@glint/environment-ember-loose/-private/dsl';
+import { EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
-import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/component';
+
+// Our `Component` reexport should inherit static members
+expectTypeOf(Component.extend).toEqualTypeOf(UpstreamEmberComponent.extend);
 
 {
   class NoArgsComponent extends Component {
@@ -44,10 +47,13 @@ import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/compon
   class StatefulComponent extends Component {
     private foo = 'hello';
 
+    // Ensure lifecycle methods can be overridden
+    override didUpdate(): void {}
+
     static template = template(function* (𝚪: ResolveContext<StatefulComponent>) {
       expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
       expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
-      expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
+      expectTypeOf(𝚪.args).toMatchTypeOf<EmptyObject>();
     });
   }
 
@@ -55,23 +61,21 @@ import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/compon
 }
 
 {
-  interface YieldingComponentArgs<T> {
-    values: Array<T>;
-  }
-
   interface YieldingComponentSignature<T> {
-    Args: YieldingComponentArgs<T>;
-    Blocks: {
+    Args: {
+      values: Array<T>;
+    };
+    Yields: {
       default: [T];
-      else: [];
+      else?: [];
     };
   }
 
-  interface YieldingComponent<T> extends YieldingComponentArgs<T> {}
+  interface YieldingComponent<T> extends ArgsFor<YieldingComponentSignature<T>> {}
   class YieldingComponent<T> extends Component<YieldingComponentSignature<T>> {
     static template = template(function* <T>(𝚪: ResolveContext<YieldingComponent<T>>) {
       expectTypeOf(𝚪.this).toEqualTypeOf<YieldingComponent<T>>();
-      expectTypeOf(𝚪.args).toEqualTypeOf<{ values: T[] }>();
+      expectTypeOf(𝚪.args).toMatchTypeOf<{ values: T[] }>();
 
       expectTypeOf(𝚪.this.values).toEqualTypeOf<Array<T>>();
 
@@ -122,18 +126,12 @@ import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/compon
 }
 
 {
-  interface PositionalComponentNamedArgs {
-    key?: string;
-  }
-
   interface PositionalArgsComponentSignature {
-    Args: {
-      Named: PositionalComponentNamedArgs;
-      Positional: [name: string, age?: number];
-    };
+    Args: { key?: string };
+    PositionalArgs: [name: string, age?: number];
   }
 
-  interface PositionalArgsComponent extends PositionalComponentNamedArgs {}
+  interface PositionalArgsComponent extends ArgsFor<PositionalArgsComponentSignature> {}
   class PositionalArgsComponent extends Component<PositionalArgsComponentSignature> {}
 
   // @ts-expect-error: missing required positional arg

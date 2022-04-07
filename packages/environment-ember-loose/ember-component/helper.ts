@@ -38,7 +38,9 @@ type HelperConstructor = {
 // extending here so our override can "take" without an error.
 const Helper = EmberHelper as unknown as StaticSide<typeof EmberHelper> & HelperConstructor;
 
-interface Helper<T extends HelperSignature> extends Omit<EmberHelper, 'compute'> {
+type Helper<T extends HelperSignature> = Omit<EmberHelper, 'compute'> & HelperIntegration<T>;
+
+interface HelperIntegration<T extends HelperSignature> {
   compute(
     params: Get<T, 'PositionalArgs', []>,
     hash: Get<T, 'NamedArgs'>

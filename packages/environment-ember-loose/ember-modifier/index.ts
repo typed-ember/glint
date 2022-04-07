@@ -42,11 +42,16 @@ type ModifierConstructor = {
 
 const Modifier = EmberModifier as StaticSide<EmberModifierConstructor> & ModifierConstructor;
 
-interface Modifier<T extends ModifierSignature>
-  extends EmberModifier<{
-    named: Extract<Get<T, 'NamedArgs'>, Record<string, any>>;
-    positional: Extract<Get<T, 'PositionalArgs', []>, any[]>;
-  }> {
+type Modifier<T extends ModifierSignature> = EmberModifier<{
+  named: Extract<Get<T, 'NamedArgs'>, Record<string, any>>;
+  positional: Extract<Get<T, 'PositionalArgs', []>, any[]>;
+  // We include this just in case we're on a new-enough version of `ember-modifier`
+  // that it knows what `Element` is and would conflict with our own declaration.
+  Element: Get<T, 'Element', Element>;
+}> &
+  ModifierIntegration<T>;
+
+interface ModifierIntegration<T extends ModifierSignature> {
   readonly element: Get<T, 'Element', Element>;
 
   // Allows `extends Modifier<infer Signature>` clauses to work as expected

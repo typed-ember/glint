@@ -1,6 +1,6 @@
 import { EmptyObject, HasContext } from '@glint/template/-private/integration';
 
-type Constructor<T> = new (...args: any) => T;
+type Constructor<T> = abstract new (...args: never[]) => T;
 
 /**
  * A utility for constructing the type of an environment's `resolveOrReturn` from

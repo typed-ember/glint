@@ -31,7 +31,7 @@ import {
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolve<Args extends unknown[], Instance extends Invokable>(
-  item: new (...args: Args) => Instance
+  item: abstract new (...args: Args) => Instance
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 export declare function resolve<Value, Args extends unknown[], T extends Value>(
   item: (value: Value, ...args: Args) => value is T

@@ -1,50 +1,13 @@
-import '@glint/environment-ember-loose/native-integration';
-import Helper, { helper, EmptyObject } from '@ember/component/helper';
+import UpstreamEmberHelper from '@ember/component/helper';
+import Helper, { helper } from '@glint/environment-ember-loose/ember-component/helper';
 import { resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
+import { EmptyObject } from '@glint/template/-private/integration';
 
-// Functional helper: fixed signature params
-{
-  interface InfoSignature {
-    Args: {
-      Named: { age: number };
-      Positional: [name: string];
-    };
-    Return: string;
-  }
+// Our `Helper` reexport should inherit static members
+expectTypeOf(Helper.extend).toEqualTypeOf(UpstreamEmberHelper.extend);
 
-  let definition = helper<InfoSignature>(
-    ([name]: [string], { age }: { age: number }) => `${name}: ${age}`
-  );
-  let info = resolve(definition);
-
-  expectTypeOf(info).toEqualTypeOf<(named: { age: number }, name: string) => string>();
-
-  info(
-    // @ts-expect-error: missing named arg
-    {},
-    'Tom'
-  );
-
-  info(
-    {
-      // @ts-expect-error: extra named arg
-      hello: true,
-      age: 123,
-    },
-    'Tom'
-  );
-
-  // @ts-expect-error: missing positional arg
-  info({ age: 123 });
-
-  // @ts-expect-error: extra positional arg
-  info({ age: 123 }, 'Tom', 'Ster');
-
-  expectTypeOf(info({ age: 123 }, 'Tom')).toEqualTypeOf<string>();
-}
-
-// Functional helper: generic positional params
+// Functional helper: positional params
 {
   let definition = helper(<T, U>([a, b]: [T, U]) => a || b);
   let or = resolve(definition);
@@ -65,7 +28,7 @@ import { expectTypeOf } from 'expect-type';
   expectTypeOf(or({}, false, true)).toEqualTypeOf<boolean>();
 }
 
-// Functional helper: generic named params
+// Functional helper: named params
 {
   let definition = helper(<T>(_: [], { value, count }: { value: T; count?: number }) => {
     return Array.from({ length: count ?? 2 }, () => value);
@@ -91,7 +54,7 @@ import { expectTypeOf } from 'expect-type';
 // Class-based helper: named args
 {
   type RepeatArgs<T> = { value: T; count?: number };
-  class RepeatHelper<T> extends Helper<{ Args: { Named: RepeatArgs<T> }; Return: Array<T> }> {
+  class RepeatHelper<T> extends Helper<{ NamedArgs: RepeatArgs<T>; Return: Array<T> }> {
     override compute(_: [], { value, count }: RepeatArgs<T>): Array<T> {
       return Array.from({ length: count ?? 2 }, () => value);
     }
@@ -118,12 +81,18 @@ import { expectTypeOf } from 'expect-type';
 
   expectTypeOf(repeat({ value: 'hi' })).toEqualTypeOf<Array<string>>();
   expectTypeOf(repeat({ value: 123, count: 3 })).toEqualTypeOf<Array<number>>();
+
+  type InferSignature<T> = T extends Helper<infer Signature> ? Signature : never;
+  expectTypeOf<InferSignature<RepeatHelper<number>>>().toEqualTypeOf<{
+    NamedArgs: RepeatArgs<number>;
+    Return: Array<number>;
+  }>();
 }
 
 // Class-based helper: positional args
 {
   type RepeatArgs<T> = [value: T, count?: number | undefined];
-  class RepeatHelper<T> extends Helper<{ Args: { Positional: RepeatArgs<T> }; Return: Array<T> }> {
+  class RepeatHelper<T> extends Helper<{ PositionalArgs: RepeatArgs<T>; Return: Array<T> }> {
     override compute([value, count]: RepeatArgs<T>): Array<T> {
       return Array.from({ length: count ?? 2 }, () => value);
     }

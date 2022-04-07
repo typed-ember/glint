@@ -1,5 +1,4 @@
-import '@glint/environment-ember-loose/native-integration';
-import Component from '@ember/component';
+import Component from '@glint/environment-ember-loose/glimmer-component';
 import {
   template,
   resolve,
@@ -7,15 +6,11 @@ import {
   yieldToBlock,
   emitComponent,
 } from '@glint/environment-ember-loose/-private/dsl';
+import { EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
-import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/component';
 
 {
-  class NoArgsComponent extends Component {
-    static template = template(function* (𝚪: ResolveContext<NoArgsComponent>) {
-      𝚪;
-    });
-  }
+  class NoArgsComponent extends Component {}
 
   resolve(NoArgsComponent)({
     // @ts-expect-error: extra named arg
@@ -48,6 +43,7 @@ import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/compon
       expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
       expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
       expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
+      expectTypeOf(𝚪.this.args).toEqualTypeOf<Readonly<EmptyObject>>();
     });
   }
 
@@ -55,25 +51,21 @@ import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/compon
 }
 
 {
-  interface YieldingComponentArgs<T> {
-    values: Array<T>;
-  }
-
   interface YieldingComponentSignature<T> {
-    Args: YieldingComponentArgs<T>;
-    Blocks: {
+    Args: {
+      values: Array<T>;
+    };
+    Yields: {
       default: [T];
-      else: [];
+      else?: [];
     };
   }
 
-  interface YieldingComponent<T> extends YieldingComponentArgs<T> {}
   class YieldingComponent<T> extends Component<YieldingComponentSignature<T>> {
     static template = template(function* <T>(𝚪: ResolveContext<YieldingComponent<T>>) {
       expectTypeOf(𝚪.this).toEqualTypeOf<YieldingComponent<T>>();
       expectTypeOf(𝚪.args).toEqualTypeOf<{ values: T[] }>();
-
-      expectTypeOf(𝚪.this.values).toEqualTypeOf<Array<T>>();
+      expectTypeOf(𝚪.this.args).toEqualTypeOf<Readonly<{ values: T[] }>>();
 
       if (𝚪.args.values.length) {
         yieldToBlock(𝚪, 'default', 𝚪.args.values[0]);
@@ -119,40 +111,4 @@ import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/compon
       expectTypeOf(args).toEqualTypeOf<[]>();
     }
   }
-}
-
-{
-  interface PositionalComponentNamedArgs {
-    key?: string;
-  }
-
-  interface PositionalArgsComponentSignature {
-    Args: {
-      Named: PositionalComponentNamedArgs;
-      Positional: [name: string, age?: number];
-    };
-  }
-
-  interface PositionalArgsComponent extends PositionalComponentNamedArgs {}
-  class PositionalArgsComponent extends Component<PositionalArgsComponentSignature> {}
-
-  // @ts-expect-error: missing required positional arg
-  resolve(PositionalArgsComponent)({});
-
-  resolve(PositionalArgsComponent)(
-    {},
-    // @ts-expect-error: incorrect type for positional arg
-    123
-  );
-
-  resolve(PositionalArgsComponent)(
-    {},
-    'a',
-    1,
-    // @ts-expect-error: extra positional arg
-    true
-  );
-
-  resolve(PositionalArgsComponent)({}, 'a');
-  resolve(PositionalArgsComponent)({}, 'a', 1);
 }
