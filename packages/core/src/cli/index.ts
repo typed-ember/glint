@@ -7,7 +7,7 @@ import { loadTypeScript } from '../common/load-typescript';
 
 const { argv } = yargs
   .scriptName('glint')
-  .usage('$0 [options] [file...]')
+  .usage('$0 [options]')
   .option('project', {
     alias: 'p',
     string: true,
@@ -34,5 +34,5 @@ const optionsToExtend = determineOptionsToExtend(argv);
 if (argv.watch) {
   performWatch(ts, glintConfig, tsconfigPath, optionsToExtend);
 } else {
-  performCheck(ts, argv._.map(String), glintConfig, tsconfigPath, optionsToExtend);
+  performCheck(ts, glintConfig, tsconfigPath, optionsToExtend);
 }
