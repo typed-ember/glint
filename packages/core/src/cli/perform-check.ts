@@ -5,7 +5,6 @@ import { buildDiagnosticFormatter } from './diagnostics';
 
 export function performCheck(
   ts: typeof import('typescript'),
-  rootNames: string[],
   glintConfig: GlintConfig,
   configPath: string | undefined,
   optionsToExtend: ts.CompilerOptions
@@ -15,7 +14,7 @@ export function performCheck(
   let compilerHost = createCompilerHost(ts, parsedConfig.options, transformManager);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
   let program = ts.createProgram({
-    rootNames: rootNames.length ? rootNames : parsedConfig.fileNames,
+    rootNames: parsedConfig.fileNames,
     options: parsedConfig.options,
     host: compilerHost,
   });
