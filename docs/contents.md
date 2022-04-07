@@ -20,4 +20,5 @@
   - [Imports](glimmerx/imports.md)
   - [Component Signatures](glimmerx/signatures.md)
   - [Template Components](glimmerx/template-components.md)
+- [Migrating](migrating.md)
 - [Known Limitations](known-limitations.md)
