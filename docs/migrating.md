@@ -65,7 +65,8 @@ For components, there are two key changes (see [the relevant section](https://gi
 - `Yields` has become `Blocks`. This key has a more complex notional desugaring, but the shorthand is compatible with
   how `Yields` worked before.
 - `Args` and `PositionalArgs` have been merged into `Args: { Named: ...; Positional: ... }`. If your component only has
-  named args, the wrapping layer can be skipped and you can continue to use `Args: MyNamedArgs` as before.
+  named args (which is true for all Glimmer components and most Ember components), the wrapping layer can be skipped
+  and you can continue to use `Args: MyNamedArgs` as before.
 
 {% tabs %}
 {% tab title="Glimmer Component Before" %}
@@ -158,8 +159,6 @@ export default class MyComponent extends Component<MyComponentSignature> {
 For helpers, `NamedArgs` and `PositionalArgs` have been merged into `Args: { Named: ...; Positional: ... }`, similar to
 the change for components. Unlike components, however, since neither type of argument is privileged over the other in
 the way helpers are defined today, there is no shorthand.
-
-For helpers and modifiers, NamedArgs and PositionalArgs have been merged into Args: { Named: ...; Positional: ... } similar to the change for components. However, since neither named nor positional args are more privileged in today's implementation of helpers and modifiers, there is no shorthand.
 
 {% tabs %}
 {% tab title="Helper Before" %}
