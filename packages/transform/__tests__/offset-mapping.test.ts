@@ -370,6 +370,71 @@ describe('Source-to-source offset mapping', () => {
       });
     });
 
+    describe('location inference stress tests', () => {
+      test('matching in/out arg names', () => {
+        let { source, transformedModule } =
+          rewriteInlineTemplate({
+            contents: stripIndent`
+              <Foo
+                @foo={{@a}}
+                @a="bar" />
+            `,
+          }) ?? {};
+
+        let passedArgSourceOffset = source.contents.indexOf('{{@a}}') + '{{@'.length;
+        let passedArgTransformedOffset =
+          transformedModule.transformedContents.indexOf('args.a') + 'args.'.length;
+
+        expect(transformedModule.getOriginalOffset(passedArgTransformedOffset).offset).toBe(
+          passedArgSourceOffset
+        );
+
+        expect(transformedModule.getTransformedOffset(source.filename, passedArgSourceOffset)).toBe(
+          passedArgTransformedOffset
+        );
+
+        let argNameSourceOffset = source.contents.indexOf('@a=') + '@'.length;
+        let argNameTransformedOffset =
+          transformedModule.transformedContents.indexOf(', a:') + ', '.length;
+
+        expect(transformedModule.getOriginalOffset(argNameTransformedOffset).offset).toBe(
+          argNameSourceOffset
+        );
+
+        expect(transformedModule.getTransformedOffset(source.filename, argNameSourceOffset)).toBe(
+          argNameTransformedOffset
+        );
+      });
+
+      test('arg name subsequences', () => {
+        let { source, transformedModule } =
+          rewriteInlineTemplate({ contents: `{{foo aa="qwe" a="qwe"}}` }) ?? {};
+
+        let doubleASourceOFfset = source.contents.indexOf('aa=');
+        let doubleATransformedOffset = transformedModule.transformedContents.indexOf('aa:');
+
+        expect(transformedModule.getOriginalOffset(doubleATransformedOffset).offset).toBe(
+          doubleASourceOFfset
+        );
+
+        expect(transformedModule.getTransformedOffset(source.filename, doubleASourceOFfset)).toBe(
+          doubleATransformedOffset
+        );
+
+        let singleASourceOffset = source.contents.indexOf(' a=') + ' '.length;
+        let singleATransformedOFfset =
+          transformedModule.transformedContents.indexOf(' a:') + ' '.length;
+
+        expect(transformedModule.getOriginalOffset(singleATransformedOFfset).offset).toBe(
+          singleASourceOffset
+        );
+
+        expect(transformedModule.getTransformedOffset(source.filename, singleASourceOffset)).toBe(
+          singleATransformedOFfset
+        );
+      });
+    });
+
     test('Windows line endings', () => {
       let module = rewriteInlineTemplate({
         contents: `Hello, <World />!\r\n\r\n{{this.foo}}\r\n`,

@@ -455,6 +455,8 @@ export function templateToTypescript(
             }
           });
 
+          start = rangeForNode(attr.value).end;
+
           if (index === dataAttrs.length - 1) {
             emit.text(' ');
           }
@@ -965,6 +967,8 @@ export function templateToTypescript(
         if (index === node.hash.pairs.length - 1) {
           emit.text(' ');
         }
+
+        start = rangeForNode(pair.value).end;
       }
 
       emit.text('}');
