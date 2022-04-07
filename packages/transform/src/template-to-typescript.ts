@@ -995,12 +995,9 @@ export function templateToTypescript(
         let thisStart = template.indexOf('this', start);
         emit.text('𝚪.');
         emit.identifier('this', thisStart);
-        if (parts.length) {
-          emit.text('.');
-        }
         start = template.indexOf('.', thisStart) + 1;
       } else if (kind === 'arg') {
-        emit.text('𝚪.args.');
+        emit.text('𝚪.args');
         start = template.indexOf('@', start) + 1;
       }
 
@@ -1014,7 +1011,7 @@ export function templateToTypescript(
       if (kind === 'free') {
         emitIdentifierReference(head, start);
       } else {
-        emit.identifier(head, start);
+        emitPropertyAccesss(head, { offset: start, optional: false });
       }
 
       start += head.length;
