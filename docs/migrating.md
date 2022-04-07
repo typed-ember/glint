@@ -68,7 +68,7 @@ For components, there are two key changes (see [the relevant section](https://gi
   named args, the wrapping layer can be skipped and you can continue to use `Args: MyNamedArgs` as before.
 
 {% tabs %}
-{% tab title="Before" %}
+{% tab title="Glimmer Component Before" %}
 
 ```typescript
 import Component from '@glint/environment-ember-loose/glimmer-component';
@@ -85,7 +85,7 @@ export default class MyComponent extends Component<MyComponentSignature> {
 ```
 
 {% endtab %}
-{% tab title="After" %}
+{% tab title="Glimmer Component After" %}
 
 ```typescript
 import Component from '@glimmer/component';
@@ -111,7 +111,7 @@ You can instead define your named args in a dedicated type declaration, or write
 project if you wish.
 
 {% tabs %}
-{% tab title="Before" %}
+{% tab title="Ember Component Before" %}
 
 ```typescript
 import Component, { ArgsFor } from '@glint/environment-ember-loose/ember-component';
@@ -128,7 +128,7 @@ export default class MyComponent extends Component<MyComponentSignature> {
 ```
 
 {% endtab %}
-{% tab title="After" %}
+{% tab title="Ember Component After" %}
 
 ```typescript
 import Component from '@ember/component';
@@ -162,7 +162,7 @@ the way helpers are defined today, there is no shorthand.
 For helpers and modifiers, NamedArgs and PositionalArgs have been merged into Args: { Named: ...; Positional: ... } similar to the change for components. However, since neither named nor positional args are more privileged in today's implementation of helpers and modifiers, there is no shorthand.
 
 {% tabs %}
-{% tab title="Before" %}
+{% tab title="Helper Before" %}
 
 ```typescript
 import Helper from '@glint/environment-ember-loose/ember-component/helper';
@@ -179,7 +179,7 @@ export default class MyHelper extends Helper<MyHelperSignature> {
 ```
 
 {% endtab %}
-{% tab title="After" %}
+{% tab title="Helper After" %}
 
 ```typescript
 import Helper from '@ember/component/helper';
@@ -207,7 +207,7 @@ merged into `Args: { Named: ...; Positional: ... }`, and similarly there is no s
 named or only positional args.
 
 {% tabs %}
-{% tab title="Before" %}
+{% tab title="Modifier Before" %}
 
 ```typescript
 import Modifier from '@glint/environment-ember-loose/ember-modifier';
@@ -224,7 +224,7 @@ export default class MyModifier extends Modifier<MyModifierSignature> {
 ```
 
 {% endtab %}
-{% tab title="After" %}
+{% tab title="Modifier After" %}
 
 ```typescript
 import Modifier from 'modifier';
@@ -256,7 +256,7 @@ there, along with a `WithBoundArgs` type that will work with any of the above, a
 definitions.
 
 {% tabs %}
-{% tab title="Before" %}
+{% tab title="Contextual Components Before" %}
 
 ```typescript
 import { ComponentLike, ComponentWithBoundArgs } from '@glint/environment-ember-loose';
@@ -277,7 +277,7 @@ export interface MyComponentSignature {
 ```
 
 {% endtab %}
-{% tab title="After" %}
+{% tab title="Contextual Components After" %}
 
 ```typescript
 import { ComponentLike, WithBoundArgs } from '@glint/template';
