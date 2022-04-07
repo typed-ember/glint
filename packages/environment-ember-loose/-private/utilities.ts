@@ -26,6 +26,8 @@ export type YieldsOf<C extends ComponentLike> = C extends Constructor<
 /**
  * The basic shape of a valid component signature. See the
  * README for further details.
+ *
+ * @deprecated Define signatures with no parent interface.
  */
 export type ComponentSignature = {
   Args?: object;
@@ -38,6 +40,8 @@ export type ComponentSignature = {
  * A value that is invokable like a component in a template. Notably,
  * subclasses of `EmberComponent` and `GlimmerComponent` are `ComponentLike`,
  * as are the values returned from the `{{component}}` helper.
+ *
+ * @deprecated Use `ComponentLike` from `@glint/template`.
  */
 export type ComponentLike<T extends ComponentSignature = any> = Constructor<
   Invokable<
@@ -83,6 +87,8 @@ export type ComponentLike<T extends ComponentSignature = any> = Constructor<
  * in a place where you said to expect the `foo` arg to already be
  * bound, that won't be flagged as an error if `strictFunctionTypes`
  * is disabled.
+ *
+ * @deprecated Use `WithBoundArgs` from `@glint/template`.
  */
 export type ComponentWithBoundArgs<
   T extends ComponentLike,
