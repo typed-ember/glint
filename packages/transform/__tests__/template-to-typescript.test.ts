@@ -484,11 +484,27 @@ describe('rewriteTemplate', () => {
           );
         });
 
+        test('chained `this` path with a spinal-case key', () => {
+          let template = '{{this.foo-bar}}';
+
+          expect(templateBody(template)).toMatchInlineSnapshot(
+            `"χ.emitValue(χ.resolveOrReturn(𝚪.this[\\"foo-bar\\"])({}));"`
+          );
+        });
+
         test('`@arg` path', () => {
           let template = '{{@foo}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
             `"χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}));"`
+          );
+        });
+
+        test('`@arg` path with a spinal-case name', () => {
+          let template = '{{@foo-bar}}';
+
+          expect(templateBody(template)).toMatchInlineSnapshot(
+            `"χ.emitValue(χ.resolveOrReturn(𝚪.args[\\"foo-bar\\"])({}));"`
           );
         });
 
