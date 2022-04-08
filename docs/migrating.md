@@ -105,6 +105,9 @@ export default class MyComponent extends Component<MyComponentSignature> {
 {% endtab %}
 {% endtabs %}
 
+Template only components should now be imported directly from `@ember/component/template-only` instead of from
+`@glint/environment-ember-loose/ember-component/template-only`.
+
 Note that for `EmberComponent` subclasses, there is no native `ArgsFor` equivalent, and the `ArgsFor` helper type will
 be removed in Glint `0.8.0` along with the rest of the `@glint/envrionment-ember-loose/ember-component` module.
 
