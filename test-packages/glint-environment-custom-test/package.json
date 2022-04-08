@@ -1,6 +1,6 @@
 {
   "name": "glint-environment-custom-test",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "license": "MIT",
   "private": true,
   "description": "Used by the @glint/core test suite and `ts-custom-app`",

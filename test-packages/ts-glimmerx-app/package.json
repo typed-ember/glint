@@ -1,6 +1,6 @@
 {
   "name": "ts-glimmerx-app",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "A brand new Glimmer app.",
   "directories": {
     "doc": "doc",
@@ -31,8 +31,8 @@
     "@glimmerx/helper": "^0.4.2",
     "@glimmerx/modifier": "^0.4.2",
     "@glimmerx/service": "^0.4.2",
-    "@glint/core": "^0.7.3",
-    "@glint/environment-glimmerx": "^0.7.3",
+    "@glint/core": "^0.7.4",
+    "@glint/environment-glimmerx": "^0.7.4",
     "@types/qunit": "^2.9.1",
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
