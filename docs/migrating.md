@@ -226,7 +226,7 @@ export default class MyModifier extends Modifier<MyModifierSignature> {
 {% tab title="Modifier After" %}
 
 ```typescript
-import Modifier from 'modifier';
+import Modifier from 'ember-modifier';
 
 export interface MyModifierSignature {
   Args: {
