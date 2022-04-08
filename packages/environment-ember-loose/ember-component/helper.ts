@@ -16,8 +16,10 @@ type HelperFactory = <Positional extends unknown[] = [], Named = EmptyObject, Re
   fn: (params: Positional, hash: Named) => Return
 ) => new () => Invokable<(named: Named, ...positional: Positional) => Return>;
 
+/** @deprecated Import directly from `@ember/component/helper` instead. */
 export const helper = emberHelper as unknown as HelperFactory;
 
+/** @deprecated Define signatures with no parent interface. */
 export interface HelperSignature {
   NamedArgs?: object;
   PositionalArgs?: Array<unknown>;
@@ -36,6 +38,7 @@ type HelperConstructor = {
 // Overriding `compute` directly is impossible because the base class has such
 // wide parameter types, so we explicitly exclude that from the interface we're
 // extending here so our override can "take" without an error.
+/** @deprecated Import directly from `@ember/component/helper`. */
 const Helper = EmberHelper as unknown as StaticSide<typeof EmberHelper> & HelperConstructor;
 
 type Helper<T extends HelperSignature> = Omit<EmberHelper, 'compute'> & HelperIntegration<T>;

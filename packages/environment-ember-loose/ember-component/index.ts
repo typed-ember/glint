@@ -23,6 +23,7 @@ type Get<T, Key, Otherwise = EmptyObject> = Key extends keyof T
   ? Exclude<T[Key], undefined>
   : Otherwise;
 
+/** @deprecated Define your named args in an interface and extend that. */
 export type ArgsFor<T extends ComponentSignature> = 'Args' extends keyof T ? T['Args'] : {};
 
 // Factoring this into a standalone type prevents `tsc` from expanding the
@@ -34,6 +35,7 @@ type ComponentConstructor = {
   ): Component<T>;
 };
 
+/** @deprecated Import directly from `@ember/component`. */
 const Component = EmberComponent as unknown as StaticSide<typeof EmberComponent> &
   ComponentConstructor;
 

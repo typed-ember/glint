@@ -27,6 +27,7 @@ type ComponentConstructor = {
   new <T extends ComponentSignature = {}>(owner: unknown, args: unknown): Component<T>;
 };
 
+/** @deprecated Import directly from `@glimmer/component`. */
 const Component = GlimmerComponent as unknown as StaticSide<GlimmerComponentConstructor> &
   ComponentConstructor;
 

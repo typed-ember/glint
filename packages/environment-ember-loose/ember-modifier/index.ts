@@ -22,8 +22,10 @@ type ModifierFactory = <El extends Element, Positional extends unknown[] = [], N
   fn: (element: El, positional: Positional, named: Named) => unknown
 ) => new () => Invokable<(named: Named, ...positional: Positional) => BoundModifier<El>>;
 
+/** @deprecated Import directly from `ember-modifier`. */
 export const modifier = emberModifier as ModifierFactory;
 
+/** @deprecated Define signatures with no parent interface.  */
 export interface ModifierSignature {
   NamedArgs?: object;
   PositionalArgs?: Array<unknown>;
@@ -40,6 +42,7 @@ type ModifierConstructor = {
   ): Modifier<T>;
 };
 
+/** @deprecated Import directly from `ember-modifier`. */
 const Modifier = EmberModifier as StaticSide<EmberModifierConstructor> & ModifierConstructor;
 
 type Modifier<T extends ModifierSignature> = EmberModifier<{
