@@ -21,7 +21,8 @@
     "cosmiconfig": "^6.0.0",
     "escape-string-regexp": "^4.0.0",
     "minimatch": "^3.0.4",
-    "resolve": "^1.17.0"
+    "resolve": "^1.17.0",
+    "silent-error": "^1.1.1"
   },
   "devDependencies": {
     "@types/jest": "^26.0.13",

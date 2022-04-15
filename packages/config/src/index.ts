@@ -1,6 +1,7 @@
 import path from 'path';
 import { cosmiconfigSync } from 'cosmiconfig';
 import { GlintConfig } from './config';
+import SilentError from 'silent-error';
 
 export { GlintConfig } from './config';
 export {
@@ -20,7 +21,7 @@ export {
 export function loadConfig(from: string): GlintConfig {
   let config = findConfig(from);
   if (!config) {
-    throw new Error(`Unable to find Glint configuration for ${from}`);
+    throw new SilentError(`Unable to find Glint configuration for ${from}`);
   }
 
   return config;
