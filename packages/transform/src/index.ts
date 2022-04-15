@@ -122,6 +122,8 @@ export function rewriteModule(
   let sparseSpans = completeCorrelatedSpans(partialSpans);
   let { contents, correlatedSpans } = calculateTransformedSource(script, sparseSpans);
 
+  (globalThis as any).GLINT_DEBUG_IR?.(script.filename, contents);
+
   return new TransformedModule(contents, errors, directives, correlatedSpans);
 }
 
