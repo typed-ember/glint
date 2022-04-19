@@ -577,5 +577,82 @@ describe('rewriteModule', () => {
         |"
       `);
     });
+
+    test('with preprocessing and setEmitMetadata: templateLocation', () => {
+      let metadataEnv = new GlintEnvironment(['test'], {
+        tags: {
+          '@glint/test': {
+            hbs: {
+              typesSource: '@glint/test/dsl',
+              globals: [],
+            },
+          },
+        },
+        extensions: {
+          '.custom': {
+            kind: 'typed-script',
+            preprocess: (source) => (
+              // this intentionally does not pad so that an offset of 2 is required for the debug string to line up
+              // (even though this makes the hbs line in Mapping: Template weird)
+              { contents: source.replace('<tmpl>', 'hbs`').replace('</tmpl>', '`') }
+            ),
+            transform: (data, { ts, context, setEmitMetadata }) =>
+              function visit(original) {
+                let node: ts.Node = ts.visitEachChild(original, visit, context);
+
+                if (ts.isTaggedTemplateExpression(node)) {
+                  setEmitMetadata(node, {
+                    templateLocation: {
+                      start: node.getStart() + 2,
+                      end: node.getEnd() + 2,
+                    },
+                  });
+                }
+
+                return node;
+              },
+          },
+        },
+      });
+
+      let script = {
+        filename: 'foo.custom',
+        contents: stripIndent`
+          import { hbs } from '@glint/test';
+
+          let target = 'world';
+
+          export default <tmpl>
+            Hello, {{target}}.
+          </tmpl>
+        `,
+      };
+
+      let rewritten = rewriteModule(ts, { script }, metadataEnv);
+
+      expect(rewritten?.toDebugString()).toMatchInlineSnapshot(`
+        "TransformedModule
+
+        | Mapping: Template
+        |  hbs(76:103):  mpl>\\\\n  Hello, {{target}}.\\\\n<
+        |  ts(76:242):   ({} as typeof import(\\"@glint/test/dsl\\")).template(function(𝚪, χ: typeof import(\\"@glint/test/dsl\\")) {\\\\n  hbs;\\\\n  χ.emitValue(χ.resolveOrReturn(target)({}));\\\\n  𝚪; χ;\\\\n})
+        |
+        | | Mapping: MustacheStatement
+        | |  hbs(90:100):  {{target}}
+        | |  ts(185:229):  χ.emitValue(χ.resolveOrReturn(target)({}))
+        | |
+        | | | Mapping: PathExpression
+        | | |  hbs(92:98):   target
+        | | |  ts(217:223):  target
+        | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(92:98):   target
+        | | | |  ts(217:223):  target
+        | | | |
+        | | |
+        | |
+        |"
+      `);
+    });
   });
 });
