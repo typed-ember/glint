@@ -25,6 +25,10 @@ export type GlintExtensionPreprocess<T> = (
 export type GlintEmitMetadata = {
   prepend?: string;
   append?: string;
+  templateLocation?: {
+    start: number;
+    end: number;
+  };
 };
 
 export type GlintExtensionTransform<T> = (

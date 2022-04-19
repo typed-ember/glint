@@ -36,6 +36,15 @@ export function calculateTaggedTemplateSpans(
     // Pad the template to account for the tag and surrounding ` characters
     let template = `${''.padStart(tagName.length)} ${contents} `;
 
+    // environment-specific transforms may emit templateLocation in meta, in
+    // which case we use that. Otherwise we use the reported location from the
+    // node itself (which is presumably correct because no transform has messed
+    // with it).
+    let templateLocation = meta?.templateLocation ?? {
+      start: node.getStart(),
+      end: node.getEnd(),
+    };
+
     let preamble = [];
     if (!info.importedBinding.synthetic) {
       preamble.push(`${tagName};`);
@@ -56,10 +65,7 @@ export function calculateTaggedTemplateSpans(
       errors.push({
         source: script,
         message: 'Classes containing templates must have a name',
-        location: {
-          start: node.getStart(),
-          end: node.getEnd(),
-        },
+        location: templateLocation,
       });
     }
 
@@ -68,7 +74,7 @@ export function calculateTaggedTemplateSpans(
         errors.push({
           source: script,
           message,
-          location: addOffset(location, node.getStart()),
+          location: addOffset(location, templateLocation.start),
         });
       } else {
         errors.push({
@@ -87,16 +93,16 @@ export function calculateTaggedTemplateSpans(
         directives.push({
           kind: kind,
           source: script,
-          location: addOffset(location, node.getStart()),
-          areaOfEffect: addOffset(areaOfEffect, node.getStart()),
+          location: addOffset(location, templateLocation.start),
+          areaOfEffect: addOffset(areaOfEffect, templateLocation.start),
         });
       }
 
       partialSpans.push({
         originalFile: script,
-        originalStart: node.getStart(),
-        originalLength: node.getEnd() - node.getStart(),
-        insertionPoint: node.getStart(),
+        originalStart: templateLocation.start,
+        originalLength: templateLocation.end - templateLocation.start,
+        insertionPoint: templateLocation.start,
         transformedSource: transformedTemplate.result.code,
         mapping: transformedTemplate.result.mapping,
       });
