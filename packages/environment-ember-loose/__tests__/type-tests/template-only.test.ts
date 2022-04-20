@@ -1,4 +1,3 @@
-import '@glint/environment-ember-loose/native-integration';
 import templateOnlyComponent from '@ember/component/template-only';
 import {
   template,

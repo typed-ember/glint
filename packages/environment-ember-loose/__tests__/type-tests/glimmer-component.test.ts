@@ -1,4 +1,3 @@
-import '@glint/environment-ember-loose/native-integration';
 import Component from '@glimmer/component';
 import {
   template,
