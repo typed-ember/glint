@@ -5,7 +5,7 @@ import {
   emitComponent,
   Globals,
 } from '@glint/environment-ember-loose/-private/dsl';
-import Component from '@glint/environment-ember-loose/ember-component';
+import Component from '@ember/component';
 import { ComponentKeyword } from '@glint/environment-ember-loose/-private/intrinsics/component';
 import { ComponentWithBoundArgs, ComponentLike } from '@glint/environment-ember-loose';
 

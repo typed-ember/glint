@@ -172,7 +172,7 @@ describe('CLI: watched typechecking', () => {
     project.write('index.ts', 'import "@glint/environment-ember-loose/types";');
 
     let script = stripIndent`
-      import Component from '@glint/environment-ember-loose/ember-component';
+      import Component from '@ember/component';
 
       export type MyComponentArgs = {
         message: string;
@@ -253,7 +253,7 @@ describe('CLI: watched typechecking', () => {
     project.write('.glintrc', 'environment: ember-loose\n');
 
     let script = stripIndent`
-      import Component from '@glint/environment-ember-loose/ember-component';
+      import Component from '@ember/component';
 
       export default class MyComponent extends Component {
         // private target = 'world';

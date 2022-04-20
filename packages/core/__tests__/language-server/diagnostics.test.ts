@@ -142,7 +142,7 @@ describe('Language Server: Diagnostics', () => {
 
   describe('external file changes', () => {
     const scriptContents = stripIndent`
-      import templateOnly from '@glint/environment-ember-loose/ember-component/template-only';
+      import templateOnly from '@ember/component/template-only';
 
       interface TemplateOnlySignature {
         Args: { foo: string };
