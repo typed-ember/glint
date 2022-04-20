@@ -21,9 +21,6 @@
     "README.md",
     "-private/**/*.{js,d.ts}",
     "environment/**/*.{js,d.ts}",
-    "ember-component/**/*.{js,d.ts}",
-    "ember-modifier/**/*.{js,d.ts}",
-    "glimmer-component/**/*.{js,d.ts}",
     "registry/**/*.{js,d.ts}",
     "native-integration.{js,d.ts}"
   ],
