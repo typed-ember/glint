@@ -55,6 +55,14 @@ module('Integration | Component | foo', function (hooks) {
       'req',
       '1',
       'foofoofoo',
+      'refueling',
+      'refuel',
+      'fueling',
+      'fuel',
+      'reundefineding',
+      'refueling',
+      '1fueling',
+      'refuel',
     ]);
   });
 });
