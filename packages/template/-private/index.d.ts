@@ -6,7 +6,7 @@ import {
   FlattenBlockParams,
   Invokable,
 } from './integration';
-import { ExpandSignature } from '@glimmer/component/dist/types/addon/-private/component';
+import { ExpandSignature } from '@glimmer/component/-private/component';
 
 /**
  * A value that is invokable like a component in a template. In an

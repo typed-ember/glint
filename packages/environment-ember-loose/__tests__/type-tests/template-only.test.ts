@@ -8,7 +8,7 @@ import {
 import { AcceptsBlocks } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
 import { ComponentKeyword } from '../../-private/intrinsics/component';
-import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/component';
+import { EmptyObject } from '@glimmer/component/-private/component';
 
 {
   const NoArgsComponent = templateOnlyComponent();
