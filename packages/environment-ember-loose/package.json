@@ -20,9 +20,7 @@
   "files": [
     "README.md",
     "-private/**/*.{js,d.ts}",
-    "environment/**/*.{js,d.ts}",
-    "registry/**/*.{js,d.ts}",
-    "native-integration.{js,d.ts}"
+    "registry/**/*.{js,d.ts}"
   ],
   "dependencies": {
     "@glint/config": "^0.7.5",
