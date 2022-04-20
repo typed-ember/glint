@@ -235,11 +235,11 @@ describe('CLI: single-pass typechecking', () => {
     `);
   });
 
-  test('reports diagnostics from custom extensions', async () => {
-    project.write('.glintrc', `environment: custom-test`);
+  test('reports diagnostics from .gts extensions', async () => {
+    project.write('.glintrc', `environment: ember-template-imports`);
 
     project.write(
-      'my-component.custom',
+      'my-component.gts',
       stripIndent`
         export let x: string = 123;
       `
@@ -250,7 +250,7 @@ describe('CLI: single-pass typechecking', () => {
     expect(checkResult.exitCode).toBe(1);
     expect(checkResult.stdout).toEqual('');
     expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-      "my-component.custom:1:12 - error TS2322: Type 'number' is not assignable to type 'string'.
+      "my-component.gts:1:12 - error TS2322: Type 'number' is not assignable to type 'string'.
 
       1 export let x: string = 123;
                    ~
