@@ -53,16 +53,10 @@ export type TemplateContext<This, Args, Yields, Element> = {
   element: Element;
 };
 
-// This is a workaround for the fact that @glimmer/component initially shipped
-// with a bug that causes blocks to expand as `{ default: { Positional: [] } }` rather
-// thatn `{ default: { Params: { Positional: [] } } }`. Once a fix is released,
-// we can require at least that version starting in Glint 0.8 and drop this wrapper.
-type MaybeBlockParams<T> = T | { Params: T };
-
 /**
  * Flattens the fully expanded signature format for Blocks down to a mapping from
  * each block name to a corresponding tuple of parameter types.
  */
 export type FlattenBlockParams<T> = {
-  [K in keyof T]: T[K] extends MaybeBlockParams<{ Positional: infer U }> ? U : T[K];
+  [K in keyof T]: T[K] extends { Params: { Positional: infer U } } ? U : T[K];
 };
