@@ -1,4 +1,4 @@
-import { ComponentLike } from '../utilities';
+import { ComponentLike } from '@glint/template';
 
 type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
   {

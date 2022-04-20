@@ -7,7 +7,7 @@ import {
 } from '@glint/environment-ember-loose/-private/dsl';
 import Component from '@ember/component';
 import { ComponentKeyword } from '@glint/environment-ember-loose/-private/intrinsics/component';
-import { ComponentWithBoundArgs, ComponentLike } from '@glint/environment-ember-loose';
+import { WithBoundArgs, ComponentLike } from '@glint/template';
 
 const componentKeyword = resolve({} as ComponentKeyword<LocalRegistry>);
 
@@ -47,7 +47,7 @@ expectTypeOf(MaybeValueCurriedStringComponent).toEqualTypeOf<
 
 // This is also equivalent to this `ComponentWithBoundArgs` shorthand:
 expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
-  ComponentWithBoundArgs<typeof ValueCurriedStringComponent, 'value'>
+  WithBoundArgs<typeof ValueCurriedStringComponent, 'value'>
 >();
 
 // Invoking the noop-curried component

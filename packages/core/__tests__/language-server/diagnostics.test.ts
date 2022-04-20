@@ -67,7 +67,7 @@ describe('Language Server: Diagnostics', () => {
   describe('checkStandaloneTemplates', () => {
     beforeEach(() => {
       let registry = stripIndent`
-        import { ComponentLike } from '@glint/environment-ember-loose';
+        import { ComponentLike } from '@glint/template';
 
         declare module '@glint/environment-ember-loose/registry' {
           export default interface Registry {
