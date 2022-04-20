@@ -15,6 +15,9 @@
     "-private",
     "*.d.ts"
   ],
+  "peerDependencies": {
+    "@glimmer/component": "^1.1.2"
+  },
   "devDependencies": {
     "@glimmer/component": "^1.1.2",
     "@glimmerx/component": "^0.4.2",
