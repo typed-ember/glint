@@ -17,14 +17,14 @@ describe('CLI: custom extensions', () => {
   test('reporting one-shot diagnostics', async () => {
     let code = 'let identifier: string = 123;';
 
-    project.write('.glintrc', 'environment: custom-test');
-    project.write('index.custom', code);
+    project.write('.glintrc', 'environment: ember-template-imports');
+    project.write('index.gts', code);
 
     let result = await project.check({ reject: false });
 
     expect(result.exitCode).toBe(1);
     expect(stripAnsi(result.stderr)).toMatchInlineSnapshot(`
-      "index.custom:1:5 - error TS2322: Type 'number' is not assignable to type 'string'.
+      "index.gts:1:5 - error TS2322: Type 'number' is not assignable to type 'string'.
 
       1 let identifier: string = 123;
             ~~~~~~~~~~
@@ -35,8 +35,8 @@ describe('CLI: custom extensions', () => {
   test('reporting watched diagnostics', async () => {
     let code = 'let identifier: string = 123;';
 
-    project.write('.glintrc', 'environment: custom-test');
-    project.write('index.custom', code);
+    project.write('.glintrc', 'environment: ember-template-imports');
+    project.write('index.gts', code);
 
     let watch = project.watch();
     let output = await watch.awaitOutput('Watching for file changes.');
@@ -45,13 +45,13 @@ describe('CLI: custom extensions', () => {
 
     let stripped = stripAnsi(output);
     let error = stripped.slice(
-      stripped.indexOf('index.custom'),
+      stripped.indexOf('index.gts'),
       stripped.lastIndexOf(`~~~${os.EOL}`) + 3
     );
 
     expect(output).toMatch('Found 1 error.');
     expect(error.replace(/\r/g, '')).toMatchInlineSnapshot(`
-      "index.custom:1:5 - error TS2322: Type 'number' is not assignable to type 'string'.
+      "index.gts:1:5 - error TS2322: Type 'number' is not assignable to type 'string'.
 
       1 let identifier: string = 123;
             ~~~~~~~~~~"
@@ -60,9 +60,9 @@ describe('CLI: custom extensions', () => {
 
   describe('external file changes', () => {
     beforeEach(() => {
-      project.write('.glintrc', `environment: custom-test`);
+      project.write('.glintrc', `environment: ember-template-imports`);
       project.write(
-        'index.custom',
+        'index.gts',
         stripIndent`
           import { foo } from "./other";
           console.log(foo - 1);
@@ -79,21 +79,21 @@ describe('CLI: custom extensions', () => {
         "Cannot find module './other' or its corresponding type declarations."
       );
 
-      project.write('other.custom', 'export const foo = 123;');
+      project.write('other.gjs', 'export const foo = 123;');
 
       await watch.awaitOutput('Found 0 errors.');
       await watch.terminate();
     });
 
     test('changing an imported module', async () => {
-      project.write('other.custom', 'export const foo = 123;');
+      project.write('other.gjs', 'export const foo = 123;');
 
       let watch = project.watch();
       let output = await watch.awaitOutput('Watching for file changes.');
 
       expect(output).toMatch('Found 0 errors.');
 
-      project.write('other.custom', 'export const foo = "hi";');
+      project.write('other.gjs', 'export const foo = "hi";');
       output = await watch.awaitOutput('Watching for file changes.');
 
       expect(output).toMatch('Found 1 error.');
@@ -103,14 +103,14 @@ describe('CLI: custom extensions', () => {
     });
 
     test('removing an imported module', async () => {
-      project.write('other.custom', 'export const foo = 123;');
+      project.write('other.gjs', 'export const foo = 123;');
 
       let watch = project.watch();
       let output = await watch.awaitOutput('Watching for file changes.');
 
       expect(output).toMatch('Found 0 errors.');
 
-      project.remove('other.custom');
+      project.remove('other.gjs');
       output = await watch.awaitOutput('Watching for file changes.');
 
       expect(output).toMatch('Found 1 error.');
