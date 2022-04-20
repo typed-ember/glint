@@ -29,12 +29,12 @@ type Get<T, K, Otherwise = EmptyObject> = K extends keyof T ? Exclude<T[K], unde
 
 export interface ComponentSignature {
   Args?: object;
-  Yields?: object;
+  Blocks?: object;
   Element?: Element;
 }
 
 declare class TestComponent<T extends ComponentSignature = {}> {
   readonly args: Get<T, 'Args'>;
-  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Yields'>, Get<T, 'Element', null>>;
-  [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Yields'>, Get<T, 'Element', null>>;
+  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Blocks'>, Get<T, 'Element', null>>;
+  [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Blocks'>, Get<T, 'Element', null>>;
 }

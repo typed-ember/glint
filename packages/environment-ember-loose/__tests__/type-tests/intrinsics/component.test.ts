@@ -21,7 +21,7 @@ type LocalRegistry = {
 class StringComponent extends Component<{
   Element: HTMLFormElement;
   Args: { value: string };
-  Yields: { default?: [string] };
+  Blocks: { default?: [string] };
 }> {}
 
 const NoopCurriedStringComponent = componentKeyword({}, 'string');
@@ -35,7 +35,7 @@ expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
   ComponentLike<{
     Element: HTMLFormElement;
     Args: { value?: string };
-    Yields: { default?: [string] };
+    Blocks: { default?: [string] };
   }>
 >();
 
@@ -109,7 +109,7 @@ componentKeyword({ value: 123 }, StringComponent);
 class ParametricComponent<T> extends Component<{
   Element: HTMLFormElement;
   Args: { values: Array<T>; optional?: string };
-  Yields: { default?: [T, number] };
+  Blocks: { default?: [T, number] };
 }> {}
 
 const NoopCurriedParametricComponent = componentKeyword({}, 'parametric');

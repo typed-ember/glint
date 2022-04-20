@@ -17,7 +17,7 @@ type MyComponentSignature<T> = {
     name?: string;
     value: T;
   };
-  Yields: {
+  Blocks: {
     body?: [boolean, T];
   };
   Element: HTMLDivElement;

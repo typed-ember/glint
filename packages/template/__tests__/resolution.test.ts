@@ -18,11 +18,11 @@ declare function value<T>(): T;
     value: T;
   }
 
-  interface MyYields<T> {
+  interface MyBlocks<T> {
     body: [someFlag: boolean, someValue: T];
   }
 
-  class MyComponent<T> extends TestComponent<{ Args: MyArgs<T>; Yields: MyYields<T> }> {
+  class MyComponent<T> extends TestComponent<{ Args: MyArgs<T>; Blocks: MyBlocks<T> }> {
     private state = { ready: false };
 
     /**
@@ -48,7 +48,7 @@ declare function value<T>(): T;
     body: [boolean, T];
   }>;
 
-  type ExpectedContext<T> = TemplateContext<MyComponent<T>, MyArgs<T>, MyYields<T>, null>;
+  type ExpectedContext<T> = TemplateContext<MyComponent<T>, MyArgs<T>, MyBlocks<T>, null>;
 
   // Template has the correct type
   expectTypeOf(resolve(MyComponent)).toEqualTypeOf<ExpectedSignature>();
