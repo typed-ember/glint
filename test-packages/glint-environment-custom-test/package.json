@@ -10,6 +10,6 @@
     "lint": "true"
   },
   "volta": {
-    "node": "14.19.1"
+    "extends": "../../package.json"
   }
 }
