@@ -1,4 +1,3 @@
-import '@glint/environment-ember-loose/native-integration';
 import Component from '@glimmer/component';
 import {
   template,
@@ -7,7 +6,7 @@ import {
   yieldToBlock,
   emitComponent,
 } from '@glint/environment-ember-loose/-private/dsl';
-import { EmptyObject } from '@glimmer/component/dist/types/addon/-private/component';
+import { EmptyObject } from '@glimmer/component/-private/component';
 import { expectTypeOf } from 'expect-type';
 import { ComponentLike } from '@glint/template';
 

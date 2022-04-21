@@ -53,7 +53,7 @@ describe('CLI: emitting declarations', () => {
 
   test('emit for a valid project with standalone template files', async () => {
     let classComponentScript = stripIndent`
-      import Component from '@glint/environment-ember-loose/glimmer-component';
+      import Component from '@glimmer/component';
 
       export interface ClassComponentSignature {
         Args: { version: string };
@@ -76,7 +76,7 @@ describe('CLI: emitting declarations', () => {
     `;
 
     let templateOnlyScript = stripIndent`
-      import templateOnly from '@glint/environment-ember-loose/ember-component/template-only';
+      import templateOnly from '@ember/component/template-only';
 
       export interface TemplateOnlySignature {
         Args: { message: string };
@@ -109,7 +109,7 @@ describe('CLI: emitting declarations', () => {
     ]);
 
     expect(project.read('class-component.d.ts')).toMatchInlineSnapshot(`
-      "import Component from '@glint/environment-ember-loose/glimmer-component';
+      "import Component from '@glimmer/component';
       export interface ClassComponentSignature {
           Args: {
               version: string;
@@ -130,7 +130,7 @@ describe('CLI: emitting declarations', () => {
               message: string;
           };
       }
-      declare const _default: import(\\"@glint/environment-ember-loose/ember-component/template-only\\").TemplateOnlyComponent<TemplateOnlySignature>;
+      declare const _default: import(\\"@ember/component/template-only\\").TemplateOnlyComponent<TemplateOnlySignature>;
       export default _default;
       "
     `);

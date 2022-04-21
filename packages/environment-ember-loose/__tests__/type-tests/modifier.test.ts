@@ -1,4 +1,3 @@
-import '@glint/environment-ember-loose/native-integration';
 import Modifier, { modifier } from 'ember-modifier';
 import { resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';

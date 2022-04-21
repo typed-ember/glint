@@ -1,8 +1,8 @@
-import '@glint/environment-ember-loose/native-integration';
 import Helper, { helper, EmptyObject } from '@ember/component/helper';
 import { resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { HelperLike } from '@glint/template';
+import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integration';
 
 // Functional helper: fixed signature params
 {
@@ -133,7 +133,7 @@ import { HelperLike } from '@glint/template';
   let repeat = resolve(RepeatHelper);
 
   expectTypeOf(repeat).toEqualTypeOf<{
-    <T>(args: EmptyObject, value: T, count?: number | undefined): Array<T>;
+    <T>(args: GlintEmptyObject, value: T, count?: number | undefined): Array<T>;
   }>();
 
   repeat(
@@ -169,7 +169,7 @@ import { HelperLike } from '@glint/template';
 
   let maybeString = resolve(MaybeStringHelper);
 
-  expectTypeOf(maybeString).toEqualTypeOf<(args: EmptyObject) => string | undefined>();
+  expectTypeOf(maybeString).toEqualTypeOf<(args: GlintEmptyObject) => string | undefined>();
 }
 
 // Helpers are `HelperLike`

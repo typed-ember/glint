@@ -5,9 +5,9 @@ import {
   emitComponent,
   Globals,
 } from '@glint/environment-ember-loose/-private/dsl';
-import Component from '@glint/environment-ember-loose/ember-component';
+import Component from '@ember/component';
 import { ComponentKeyword } from '@glint/environment-ember-loose/-private/intrinsics/component';
-import { ComponentWithBoundArgs, ComponentLike } from '@glint/environment-ember-loose';
+import { WithBoundArgs, ComponentLike } from '@glint/template';
 
 const componentKeyword = resolve({} as ComponentKeyword<LocalRegistry>);
 
@@ -21,7 +21,7 @@ type LocalRegistry = {
 class StringComponent extends Component<{
   Element: HTMLFormElement;
   Args: { value: string };
-  Yields: { default?: [string] };
+  Blocks: { default?: [string] };
 }> {}
 
 const NoopCurriedStringComponent = componentKeyword({}, 'string');
@@ -35,7 +35,7 @@ expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
   ComponentLike<{
     Element: HTMLFormElement;
     Args: { value?: string };
-    Yields: { default?: [string] };
+    Blocks: { default?: [string] };
   }>
 >();
 
@@ -47,7 +47,7 @@ expectTypeOf(MaybeValueCurriedStringComponent).toEqualTypeOf<
 
 // This is also equivalent to this `ComponentWithBoundArgs` shorthand:
 expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
-  ComponentWithBoundArgs<typeof ValueCurriedStringComponent, 'value'>
+  WithBoundArgs<typeof ValueCurriedStringComponent, 'value'>
 >();
 
 // Invoking the noop-curried component
@@ -109,7 +109,7 @@ componentKeyword({ value: 123 }, StringComponent);
 class ParametricComponent<T> extends Component<{
   Element: HTMLFormElement;
   Args: { values: Array<T>; optional?: string };
-  Yields: { default?: [T, number] };
+  Blocks: { default?: [T, number] };
 }> {}
 
 const NoopCurriedParametricComponent = componentKeyword({}, 'parametric');

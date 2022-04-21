@@ -44,7 +44,7 @@ describe('CLI: single-pass typechecking', () => {
     project.write('.glintrc', 'environment: ember-loose\n');
 
     let script = stripIndent`
-      import Component from '@glint/environment-ember-loose/ember-component';
+      import Component from '@ember/component';
 
       export type MyComponentArgs = {
         foo?: () => {};
@@ -72,7 +72,7 @@ describe('CLI: single-pass typechecking', () => {
     `;
 
     let otherScript = stripIndent`
-      import Component from '@glint/environment-ember-loose/ember-component';
+      import Component from '@ember/component';
 
       export type OtherComponentArgs = {
         value: string;
@@ -177,7 +177,7 @@ describe('CLI: single-pass typechecking', () => {
     project.write('.glintrc', 'environment: ember-loose\n');
 
     let script = stripIndent`
-      import Component from '@glint/environment-ember-loose/ember-component';
+      import Component from '@ember/component';
 
       export type MyComponentArgs = {
         message: string;
@@ -262,7 +262,7 @@ describe('CLI: single-pass typechecking', () => {
     project.write('.glintrc', 'environment: ember-loose\n');
 
     let script = stripIndent`
-      import Component from '@glint/environment-ember-loose/ember-component';
+      import Component from '@ember/component';
 
       export default class MyComponent extends Component {}
     `;

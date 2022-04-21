@@ -4,5 +4,3 @@
 
 /// <reference path="../registry/index.d.ts" />
 /// <reference path="./dsl/integration-declarations.d.ts" />
-
-export { ComponentSignature, ComponentLike, ComponentWithBoundArgs } from './utilities';

@@ -20,22 +20,22 @@
   "files": [
     "README.md",
     "-private/**/*.{js,d.ts}",
-    "environment/**/*.{js,d.ts}",
-    "ember-component/**/*.{js,d.ts}",
-    "ember-modifier/**/*.{js,d.ts}",
-    "glimmer-component/**/*.{js,d.ts}",
-    "registry/**/*.{js,d.ts}",
-    "native-integration.{js,d.ts}"
+    "registry/**/*.{js,d.ts}"
   ],
   "dependencies": {
     "@glint/config": "^0.7.5",
     "@glint/template": "^0.7.5"
   },
+  "peerDependencies": {
+    "@glimmer/component": "^1.1.2",
+    "ember-cli-htmlbars": "^6.0.1",
+    "ember-modifier": "^3.2.7"
+  },
   "devDependencies": {
-    "@glimmer/component": "^1.1.0",
-    "@types/ember__component": "~4.0.0",
+    "@glimmer/component": "^1.1.2",
+    "@types/ember__component": "~4.0.8",
     "@types/jest": "^26.0.13",
-    "ember-modifier": "^3.2.1",
+    "ember-modifier": "^3.2.7",
     "expect-type": "0.11.0",
     "jest": "^26.4.2",
     "ts-jest": "^26.3.0"

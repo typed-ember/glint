@@ -67,7 +67,7 @@ describe('Language Server: Diagnostics', () => {
   describe('checkStandaloneTemplates', () => {
     beforeEach(() => {
       let registry = stripIndent`
-        import { ComponentLike } from '@glint/environment-ember-loose';
+        import { ComponentLike } from '@glint/template';
 
         declare module '@glint/environment-ember-loose/registry' {
           export default interface Registry {
@@ -142,7 +142,7 @@ describe('Language Server: Diagnostics', () => {
 
   describe('external file changes', () => {
     const scriptContents = stripIndent`
-      import templateOnly from '@glint/environment-ember-loose/ember-component/template-only';
+      import templateOnly from '@ember/component/template-only';
 
       interface TemplateOnlySignature {
         Args: { foo: string };
