@@ -72,3 +72,23 @@
 
 {{! @glint-expect-error: incorrect type for second arg }}
 {{repeat "foo" "bar"}}
+
+{{affix "fuel" prefix="re" suffix="ing"}}
+
+{{affix "fuel" prefix="re"}}
+
+{{affix "fuel" suffix="ing"}}
+
+{{affix "fuel"}}
+
+{{! @glint-expect-error: missing positional arg }}
+{{affix prefix="re" suffix="ing"}}
+
+{{! @glint-expect-error: extra positional arg }}
+{{affix "fuel" "up" prefix="re" suffix="ing"}}
+
+{{! @glint-expect-error: incorrect type for named arg }}
+{{affix "fuel" prefix=1 suffix="ing"}}
+
+{{! @glint-expect-error: incorrect named arg given }}
+{{affix "fuel" prefix="re" suff="ing"}}
