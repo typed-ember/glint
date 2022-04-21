@@ -3,12 +3,12 @@ A template-only component is any template for which Ember (and Glint) can't loca
 While it's possible to do some simple things like invoking other components from these templates, typically you'll want to create a backing module for your template so you can declare its signature, add it to the template registry, and so on.
 
 ```typescript
-import templateOnlyComponent from '@glint/environment-ember-loose/ember-component/template-only';
+import templateOnlyComponent from '@ember/component/template-only';
 
 interface ShoutSignature {
   Element: HTMLDivElement;
   Args: { message: string };
-  Yields: {
+  Blocks: {
     default: [shoutedMessage: string];
   };
 }
