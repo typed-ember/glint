@@ -1,19 +1,22 @@
 import Helper from '@ember/component/helper';
 
+type Positional = [string];
+type Named = { prefix?: string, suffix?: string };
+
 export interface AffixHelperSignature {
   Args: {
-    Named: { prefix?: string, suffix?: string };
-    Positional: [string];
+    Positional: Positional;
+    Named: Named;
   },
   Return: string;
 }
 
 export default class AffixHelper extends Helper<AffixHelperSignature> {
   override compute(
-    params: AffixHelperSignature['Args']['Positional'],
-    { prefix, suffix }: AffixHelperSignature['Args']['Named']
-  ): AffixHelperSignature['Return'] {
-    return `${prefix ?? ''}${params[0]}${suffix ?? ''}`;
+    [base]: Positional,
+    { prefix, suffix }: Named
+  ): string {
+    return `${prefix ?? ''}${base}${suffix ?? ''}`;
   }
 }
 
