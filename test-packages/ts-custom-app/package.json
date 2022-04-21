@@ -6,5 +6,8 @@
   "scripts": {
     "lint": "true",
     "test": "glint"
+  },
+  "volta": {
+    "node": "14.19.1"
   }
 }

@@ -8,5 +8,8 @@
   "scripts": {
     "test": "true",
     "lint": "true"
+  },
+  "volta": {
+    "node": "14.19.1"
   }
 }
