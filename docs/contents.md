@@ -8,6 +8,7 @@
 - Ember
   - [Installation](ember/installation.md)
   - [Component Signatures](ember/component-signatures.md)
+  - [Helper and Modifier Signatures](ember/helper-and-modifier-signatures.md)
   - [Template Registry](ember/template-registry.md)
   - [Routes and Controllers](ember/routes-and-controllers.md)
   - [Template-Only Components](ember/template-only-components.md)
