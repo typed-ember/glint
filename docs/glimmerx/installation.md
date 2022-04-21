@@ -34,4 +34,8 @@ include:
 
 Note that specifying `include` globs is optional, but may be a useful way to incrementally migrate your project to Glint over time.
 
+{% hint style="info" %}
+
 To minimize spurious errors when typechecking with vanilla `tsc` or your editor's TypeScript integration, you should add `import '@glint/environment-glimmerx';` somewhere in your project's source or type declarations. You may also choose to disable TypeScript's "unused symbol" warnings in your editor, since `tsserver` won't understand that templates actually are using them.
+
+{% endhint %}
