@@ -126,7 +126,10 @@
     ]
   },
   "engines": {
-    "node": ">= 12.0"
+    "node": ">= 14.0"
   },
-  "private": true
+  "private": true,
+  "volta": {
+    "extends": "../../package.json"
+  }
 }

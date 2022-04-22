@@ -6,5 +6,8 @@
   "scripts": {
     "lint": "true",
     "test": "glint"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }
