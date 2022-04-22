@@ -42,7 +42,7 @@ Blocks: {
 
 If you had pre-bound multiple args, you could union them together with the `|` type operator, e.g. `'value' | 'count'`.
 
-Note that `tWithBoundArgs` is effectively shorthand for writing out a `ComponentLike<Signature>` type, which is a generic type that any Glimmer component, Ember component or `{{component}}` return value is assignable to, assuming it has a matching signature.
+Note that `WithBoundArgs` is effectively shorthand for writing out a `ComponentLike<Signature>` type (a generic type to which any Glimmer component, Ember component or `{{component}}` return value can be assigned, assuming it has a matching signature).
 
 ```typescript
 import { ComponentLike } from '@glint/template';
