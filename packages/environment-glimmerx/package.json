@@ -1,6 +1,7 @@
 {
   "name": "@glint/environment-glimmerx",
   "version": "0.7.5",
+  "private": true,
   "repository": "typed-ember/glint",
   "description": "A Glint environment to support GlimmerX projects",
   "license": "MIT",
