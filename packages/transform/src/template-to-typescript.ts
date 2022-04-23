@@ -66,7 +66,7 @@ export function templateToTypescript(
 
         case 'CommentStatement':
         case 'MustacheCommentStatement':
-          return emitComment(node, template.length);
+          return emitComment(node);
 
         case 'MustacheStatement':
           return emitTopLevelMustacheStatement(node);
@@ -148,10 +148,7 @@ export function templateToTypescript(
       }
     }
 
-    function emitComment(
-      node: AST.MustacheCommentStatement | AST.CommentStatement,
-      templateLength?: number
-    ): void {
+    function emitComment(node: AST.MustacheCommentStatement | AST.CommentStatement): void {
       emit.nothing(node);
 
       let text = node.value.trim();
@@ -164,8 +161,8 @@ export function templateToTypescript(
         record.directive(kind, location, rangeForLine(node.loc.end.line + 1));
       } else if (kind === 'expect-error') {
         record.directive(kind, location, rangeForLine(node.loc.end.line + 1));
-      } else if (kind === 'nocheck' && templateLength) {
-        record.directive('ignore', location, { start: 0, end: templateLength - 1 });
+      } else if (kind === 'nocheck') {
+        record.directive('ignore', location, { start: 0, end: template.length - 1 });
       } else {
         record.error(`Unknown directive @glint-${kind}`, location);
       }
