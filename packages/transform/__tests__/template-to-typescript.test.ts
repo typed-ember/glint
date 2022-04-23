@@ -117,6 +117,20 @@ describe('rewriteTemplate', () => {
       ]);
     });
 
+    test('nocheck', () => {
+      let template = stripIndent`
+        {{! @glint-nocheck }}
+        <Foo />
+        {{foo-bar}}
+        {{this.baz}}
+      `;
+
+      let { result, errors } = templateToTypescript(template, { typesPath: '@glint/template' });
+
+      expect(errors).toEqual([]);
+      expect(result?.code).toMatchInlineSnapshot(`""`);
+    });
+
     test('expect-error', () => {
       let template = stripIndent`
         {{! @glint-expect-error: this is fine }}
