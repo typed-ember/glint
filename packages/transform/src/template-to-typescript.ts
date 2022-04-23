@@ -41,6 +41,14 @@ export function templateToTypescript(
   return mapTemplateContents(template, (ast, { emit, record, rangeForLine, rangeForNode }) => {
     let scope = new ScopeStack([]);
 
+    const firstNode = ast.body[0];
+    if (firstNode?.type === 'MustacheCommentStatement') {
+      let text = firstNode.value.trim();
+      if (/^@glint-nocheck/i.test(text)) {
+        return;
+      }
+    }
+
     emitTemplateBoilerplate(() => {
       for (let line of preamble) {
         emit.text(line);
