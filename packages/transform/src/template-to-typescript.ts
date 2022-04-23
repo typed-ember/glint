@@ -41,14 +41,6 @@ export function templateToTypescript(
   return mapTemplateContents(template, (ast, { emit, record, rangeForLine, rangeForNode }) => {
     let scope = new ScopeStack([]);
 
-    const firstNode = ast.body[0];
-    if (firstNode?.type === 'MustacheCommentStatement') {
-      let text = firstNode.value.trim();
-      if (/^@glint-nocheck/i.test(text)) {
-        return;
-      }
-    }
-
     emitTemplateBoilerplate(() => {
       for (let line of preamble) {
         emit.text(line);
@@ -74,7 +66,7 @@ export function templateToTypescript(
 
         case 'CommentStatement':
         case 'MustacheCommentStatement':
-          return emitComment(node);
+          return emitComment(node, template.length);
 
         case 'MustacheStatement':
           return emitTopLevelMustacheStatement(node);
@@ -156,7 +148,10 @@ export function templateToTypescript(
       }
     }
 
-    function emitComment(node: AST.MustacheCommentStatement | AST.CommentStatement): void {
+    function emitComment(
+      node: AST.MustacheCommentStatement | AST.CommentStatement,
+      templateLength?: number
+    ): void {
       emit.nothing(node);
 
       let text = node.value.trim();
@@ -169,6 +164,8 @@ export function templateToTypescript(
         record.directive(kind, location, rangeForLine(node.loc.end.line + 1));
       } else if (kind === 'expect-error') {
         record.directive(kind, location, rangeForLine(node.loc.end.line + 1));
+      } else if (kind === 'nocheck' && templateLength) {
+        record.directive('ignore', location, { start: 0, end: templateLength - 1 });
       } else {
         record.error(`Unknown directive @glint-${kind}`, location);
       }
