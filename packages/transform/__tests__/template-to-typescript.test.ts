@@ -119,7 +119,7 @@ describe('rewriteTemplate', () => {
 
     test('nocheck', () => {
       let template = stripIndent`
-        {{! @glint-nocheck }}
+        {{! @glint-nocheck: don't check this whole template }}
         <Foo />
         {{foo-bar}}
         {{this.baz}}
@@ -128,7 +128,27 @@ describe('rewriteTemplate', () => {
       let { result, errors } = templateToTypescript(template, { typesPath: '@glint/template' });
 
       expect(errors).toEqual([]);
-      expect(result?.code).toMatchInlineSnapshot(`""`);
+      expect(result?.directives).toEqual([
+        {
+          kind: 'ignore',
+          location: {
+            start: 0,
+            end: template.indexOf('template }}') + 'template }}'.length,
+          },
+          areaOfEffect: {
+            start: 0,
+            end: template.length -1,
+          },
+        },
+      ]);
+      expect(templateBody(template)).toMatchInlineSnapshot(`
+        "{
+          const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"Foo\\"])({}));
+          𝛄;
+        }
+        χ.emitValue(χ.resolveOrReturn(χ.Globals[\\"foo-bar\\"])({}));
+        χ.emitValue(χ.resolveOrReturn(𝚪.this.baz)({}));"
+      `);
     });
 
     test('expect-error', () => {
