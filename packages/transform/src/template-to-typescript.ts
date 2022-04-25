@@ -161,6 +161,8 @@ export function templateToTypescript(
         record.directive(kind, location, rangeForLine(node.loc.end.line + 1));
       } else if (kind === 'expect-error') {
         record.directive(kind, location, rangeForLine(node.loc.end.line + 1));
+      } else if (kind === 'nocheck') {
+        record.directive('ignore', location, { start: 0, end: template.length - 1 });
       } else {
         record.error(`Unknown directive @glint-${kind}`, location);
       }
