@@ -1,13 +1,5 @@
 **Glint is not yet stable** and is still under active development. As such, there are currently several known limitations to be aware of.
 
-### Environment Re-exports
-
-Currently, users must import Glint-aware versions of `Component` and other values that are re-exported from their Glint environment rather than being able to directly use the "native" versions. The details of this requirement are explained in dedicated environment-specific `Imports` pages.
-
-This is not a permanent limitation, but rather a result of the base types for those entities not (yet) being extensible in the ways necessary to capture their template behavior. As we're able to make adjustments to those upstream types across the ecosystem to ensure they're extensible, we should be able to shift to use declaration merging instead of completely re-exporting.
-
-Once that's done, consumers should be able to import values the "normal" way directly from the sources packages like `@glimmer/component`.
-
 ### Ember-Specific
 
 Glint is not currently integrated with `ember-cli-typescript`, so typechecking performed during an `ember-cli` build will not take templates into account.
