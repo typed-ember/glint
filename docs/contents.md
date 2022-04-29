@@ -14,7 +14,8 @@
   - [Template-Only Components](ember/template-only-components.md)
   - [Rendering Tests](ember/rendering-tests.md)
   - [Contextual Components](ember/contextual-components.md)
-  - [Typing Your Dependencies](ember/typing-your-dependencies.md)
+  - [Using Addons](ember/using-addons.md)
+  - [Authoring Addons](ember/authoring-addons.md)
 - GlimmerX
   - [Installation](glimmerx/installation.md)
   - [Imports](glimmerx/imports.md)
