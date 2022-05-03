@@ -21,4 +21,5 @@
   - [Component Signatures](glimmerx/component-signatures.md)
   - [Template Components](glimmerx/template-components.md)
 - [Migrating](migrating.md)
+- [Diagnosing Common Error Messages](diagnosing-common-error-messages.md)
 - [Known Limitations](known-limitations.md)
