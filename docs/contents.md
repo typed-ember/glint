@@ -20,5 +20,6 @@
   - [Imports](glimmerx/imports.md)
   - [Component Signatures](glimmerx/component-signatures.md)
   - [Template Components](glimmerx/template-components.md)
+- [@glint Directives](directives.md)
 - [Migrating](migrating.md)
 - [Known Limitations](known-limitations.md)
