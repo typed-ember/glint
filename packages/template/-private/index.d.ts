@@ -2,7 +2,7 @@ import {
   AcceptsBlocks,
   AnyFunction,
   BoundModifier,
-  EmptyObject,
+  GuardEmpty,
   FlattenBlockParams,
   Invokable,
 } from './integration';
@@ -14,12 +14,12 @@ import { ExpandSignature } from '@glimmer/component/-private/component';
  * `GlimmerComponent` are examples of `ComponentLike` values, as are
  * the values returned from the `{{component}}` helper.
  *
- * The `S` signature paramter here is of the same form as the one
+ * The `S` signature parameter here is of the same form as the one
  * accepted by both the Ember and Glimmer `Component` base classes.
  */
 export type ComponentLike<S = unknown> = InvokableConstructor<
   (
-    named: ExpandSignature<S>['Args']['Named'],
+    named: GuardEmpty<ExpandSignature<S>['Args']['Named']>,
     ...positional: ExpandSignature<S>['Args']['Positional']
   ) => AcceptsBlocks<
     FlattenBlockParams<ExpandSignature<S>['Blocks']>,
@@ -89,7 +89,7 @@ export type WithBoundArgs<
 >
   ? InvokableConstructor<
       (
-        named: Omit<Named, BoundArgs> & Partial<Pick<Named, BoundArgs & keyof Named>>,
+        named: GuardEmpty<Omit<Named, BoundArgs> & Partial<Pick<Named, BoundArgs & keyof Named>>>,
         ...positional: Positional
       ) => Result
     >
@@ -109,6 +109,6 @@ type Constrain<T, Constraint, Otherwise = Constraint> = T extends Constraint ? T
 // different layers of possible shorthand, but modifiers and helpers only have
 // one structure they can specify their args in, so this utility is sufficient.
 type InvokableArgs<S> = [
-  named: Get<Get<S, 'Args'>, 'Named', EmptyObject>,
+  named: GuardEmpty<Get<Get<S, 'Args'>, 'Named'>>,
   ...positional: Constrain<Get<Get<S, 'Args'>, 'Positional'>, Array<unknown>, []>
 ];
