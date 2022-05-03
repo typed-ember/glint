@@ -25,6 +25,7 @@ export type HasContext<T extends AnyContext = AnyContext> = { [Context]: T };
 // special-cased in the type system not to trigger EPC.
 declare const EmptyObject: unique symbol;
 export type EmptyObject = { [EmptyObject]?: void };
+export type GuardEmpty<T> = T extends any ? (keyof T extends never ? EmptyObject : T) : never;
 
 declare const Element: unique symbol;
 declare const Modifier: unique symbol;
