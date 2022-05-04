@@ -1,4 +1,4 @@
-Your app likely uses already a lot of addons, most if not all of them will not ship with Glint-compatible types yet. This means that for all the components, helpers or modifiers that you use, you will need to add some types so Glint can understand them.
+Your app likely uses already a lot of addons, and most if not all of them will not ship with Glint-compatible types yet. This means that for all the components, helpers or modifiers that you use, you will need to add some types so Glint can understand them.
 
 The community has begun maintaining a shared [`glint-template-types`] repository with Glint-compatible type declarations for commonly used Ember addons. The README there contains information about how to take advantage of these shared declarations for addons you may use in your Ember projects.
 
@@ -46,9 +46,9 @@ to typecheck.
 
 ## Using Glint-enabled addons
 
-For addons that already ship with Glint-compatible types there is only little to do. Their README might contain some specific instructions. But if the addon follows Glint's recommendations for [authoring addons][authoring], the basic steps are as follows.
+For addons that already ship with Glint-compatible types there is only a little to do. Their README might contain some specific instructions, but if the addon follows Glint's recommendations for [authoring addons][authoring], the basic steps are as follows.
 
-In case you are already using [strict mode] templates (via [first class component templates]), you are already explicitly importing all the components, helpers and modifiers in use by the template, so Glint already has all the typing information at hand, nothing more is required!
+If you are already using [strict mode] templates (via [first class component templates]), you are already explicitly importing all the components, helpers and modifiers in use by the template, so Glint already has all the typing information at hand, and nothing more is required!
 
 But more likely you are still using classic `.hbs` template files, for which Glint needs to know e.g. which component *name* maps to which component *class* and hence its type. This is managed by the [Template Registry], which needs to be extended for all the components, helpers and modifiers provided by the addon.
 
@@ -74,11 +74,11 @@ For any other component, helper or modifier that you use from the addon as-is, y
 {% code title="types/global.d.ts" %}
 
 ```typescript
-import type ResponsiveImageComponent from 'ember-responsive-image/components/responsive-image';
+import type ResponsiveImage from 'ember-responsive-image/components/responsive-image';
 
 declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry {
-    ResponsiveImage: typeof ResponsiveImageComponent;
+    ResponsiveImage: typeof ResponsiveImage;
     // ...
   }
 }
