@@ -118,20 +118,20 @@ Ember components also support positional arguments in their signature. Such usag
 ```typescript
 // ...
 
-export interface GreetingArgs {
-  message: string;
-  target?: string;
-}
-
 export interface GreetingSignature {
   Args: {
-    Named: GreetingArgs;
+    Named: {
+      message: string;
+      target?: string;
+    };
     Positional: [extraSpecialPreamble: string];
   };
   Blocks: {
     default: [greeting: string];
   };
 }
+
+type GreetingArgs = GreetingSignature['Args']['Named'];
 
 export default interface Greeting extends GreetingArgs {}
 export default class Greeting extends Component<GreetingSignature> {
