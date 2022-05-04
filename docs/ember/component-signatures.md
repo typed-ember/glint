@@ -77,18 +77,18 @@ Since Ember components don't have `this.args`, it takes slightly more boilerplat
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 
-// We break out the args into their own interface to reference below:
-export interface GreetingArgs {
-  message: string;
-  target?: string;
-}
-
 export interface GreetingSignature {
-  Args: GreetingArgs;
+  Args: {
+    message: string;
+    target?: string;
+  };
   Blocks: {
     default: [greeting: string];
   };
 }
+
+// We define this type alias so that we can extend it below:
+type GreetingArgs = GreetingSignature['Args'];
 
 // This line declares that our component's args will be 'splatted' on to the instance:
 export default interface Greeting extends GreetingArgs {}
