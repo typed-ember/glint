@@ -37,8 +37,7 @@ In that case, you can use the `ComponentLike` or `WithBoundArgs` helpers as disc
 
 ```typescript
 import Component from '@glimmer/component';
-import type { WithBoundArgs } from './some-other-component';
-import type { ComponentLike } from '@glint/template';
+import type { WithBoundArgs } from '@glint/template';
 
 interface MySignature {
   Blocks: {
