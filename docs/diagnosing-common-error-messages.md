@@ -23,14 +23,14 @@ export default class MyComponent extends Component<MySignature> {}
 
 declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry {
-    MySignature: typeof MySignature;
-    'my-signature': typeof MySignature;
+    MyComponent: typeof MyComponent;
+    'my-component': typeof MyComponent;
   }
 }
 ```
 
 ```handlebars
-{{yield (component 'my-signature' someArg=true)}}
+{{yield (component 'my-component' someArg=true)}}
 ```
 
 In that case, you can use the `ComponentLike` or `WithBoundArgs` helpers as discussed in [Contextual Components](ember/contextual-components.md):
@@ -49,8 +49,8 @@ export default class MyComponent extends Component<MySignature> {}
 
 declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry {
-    MySignature: typeof MySignature;
-    'my-signature': typeof MySignature;
+    MyComponent: typeof MyComponent;
+    'my-component': typeof MyComponent;
   }
 }
 ```
