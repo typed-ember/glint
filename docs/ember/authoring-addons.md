@@ -37,6 +37,62 @@ Note: in apps, we generally define the registry entries right in the actual file
 
 A real world example of this setup can be seen in [`ember-responsive-image`][eri]
 
+## Adding Glint types to addons not written in TypeScript
+
+Even if an addon author has choosen not to adopt TypeScript, the addon can still ship Glint types! The setup, however, will be slightly different. First, without [`ember-cli-typescript`][ect], types in `addon/glint.ts` won't be emitted to `glint.d.ts` on publish, so you'll need to do what you would have done in `addon/glint.d.ts` in `glint.d.ts` instead. Also, since the components, helpers, and modifiers are not written in TypeScript, we can't add type signatures to them directly. Instead we'll need to create declaration files for them. And these files will need to use the importable path directly from the root of the addon (not under `addon/`). Here's an example:
+
+{% code title="components/awesome-button.d.ts" %}
+
+```typescript
+import Component from '@glimmer/component';
+
+interface AwesomeButtonSignature {
+  Element: HTMLButtonElement;
+  Args: {
+    label: string;
+  };
+}
+
+export default class AwesomeButton extends Component<AwesomeButtonSignature> {}
+```
+
+{% endcode %}
+
+{% code title="helpers/awesome-sauce.d.ts" %}
+
+```typescript
+import Helper from '@ember/component/helper';
+
+interface AwesomeSauceSignature {
+  Args: {
+    Positional: [string];
+  };
+  Return: string;
+}
+
+export default class AwesomeSauce extends Helper<AwesomeSauceSignature> {}
+```
+
+{% endcode %}
+
+{% code title="glint.d.ts" %}
+
+```typescript
+import type AwesomeButton from './components/awesome-button';
+import type AwesomeSauce from './helpers/awesome-sauce';
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    AwesomeButton: typeof AwesomeButton;
+    'awesome-sauce': typeof AwesomeSauce;
+    // ...
+  }
+}
+```
+
+{% endcode %}
+
+By defining the component, helper, and modifier types in separate importable files (rather than just directly in `glint.d.ts`), consumers can import them individually and manually add to the registry if they so choose.
 
 ## Stability Note
 
