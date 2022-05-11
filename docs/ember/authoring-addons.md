@@ -39,7 +39,7 @@ A real world example of this setup can be seen in [`ember-responsive-image`][eri
 
 ## Adding Glint types to addons not written in TypeScript
 
-Even if an addon author has choosen not to adopt TypeScript, the addon can still ship Glint types! The setup, however, will be slightly different. First, without [`ember-cli-typescript`][ect], types in `/addon/glint.ts` won't be emitted to `/glint.d.ts` on publish, so you'll need to do what you would have done in `/addon/glint.d.ts` in `/glint.d.ts` instead. Also, since the components, helpers, and modifiers are not written in TypeScript, we can't add type signatures to them directly. Instead we'll need to create declaration files for them. And these files will need to use the importable path directly from the root of the addon (not under `/addon/`). Here's an example:
+Even if an addon author has choosen not to adopt TypeScript, the addon can still ship Glint types! The setup, however, will be slightly different. First, without [`ember-cli-typescript`][ect], types in `/addon/glint.ts` won't be emitted to `/glint.d.ts` on publish, so you'll need to do what you would have done in `/addon/glint.ts` in `/glint.d.ts` instead. Also, since the components, helpers, and modifiers are not written in TypeScript, we can't add type signatures to them directly. Instead we'll need to create declaration files for them. And these files will need to use the importable path directly from the root of the addon (not under `/addon/`). Here's an example:
 
 {% code title="/components/awesome-button.d.ts" %}
 
