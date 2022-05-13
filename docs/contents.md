@@ -24,3 +24,4 @@
 - [Migrating](migrating.md)
 - [Diagnosing Common Error Messages](diagnosing-common-error-messages.md)
 - [Known Limitations](known-limitations.md)
+- [Glint Language Server](glint-language-server.md)
