@@ -39,7 +39,7 @@ You can also use the `glint` command locally with the `--watch` flag to monitor 
 
 ### Glint Editor Extensions
 
-You can install an editor extension to display Glint's diagnostics inline in your templates and provide richer editor support, powered by `glint-language-server`:
+You can install an editor extension to display Glint's diagnostics inline in your templates and provide richer editor support&mdash;typechecking, type information on hover, automated refactoring, and more&mdash;powered by `glint-language-server`:
 
 - Install the [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=typed-ember.glint-vscode).
 - Learn more about the [Glint Language Server](glint-language-server.md).
