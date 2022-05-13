@@ -1,19 +1,13 @@
 ## Setup
 
-You'll first need to add `@glint/core` and an appropriate Glint environment to your project's `devDependencies`.
-Check the section in the sidebar to the left for details about the specifics of working with Glint in a GlimmerX or Ember.js project.
+First, add `@glint/core` and an appropriate Glint environment to your project's `devDependencies`.
 
-Next, you'll add a `.glintrc.yml` file to the root of your project (typically alongside your `tsconfig.json` file). This file tells Glint what environment you're working in and, optionally, which files it should include in its typechecking:
+Then, add a `.glintrc.yml` file to the root of your project (typically alongside your `tsconfig.json` file). This file tells Glint what environment you're working in and, optionally, which files it should include in its typechecking.
 
-{% code title=".glintrc.yml" %}
+For setup instructions specific to your project type, check out the links below:
 
-```yaml
-environment: a-glint-environment
-include:
-  - 'app/**'
-```
-
-{% endcode %}
+- [GlimmerX Installation](glimmerx/installation.md)
+- [Ember.js Installation](ember/installation.md)
 
 Finally, you may choose to install an editor extension to display Glint's diagnostics inline in your templates and provide richer editor support, such as the [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=typed-ember.glint-vscode).
 
