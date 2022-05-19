@@ -11,7 +11,7 @@ const REGEXES = {
   TS_SCRIPT_EXT: /\.ts$/,
 };
 
-export default function glimmerxEnvironment(): GlintEnvironmentConfig {
+export default function emberLooseEnvironment(): GlintEnvironmentConfig {
   return {
     tags: {
       'ember-cli-htmlbars': {
