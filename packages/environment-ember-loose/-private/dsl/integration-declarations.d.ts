@@ -41,10 +41,13 @@ interface TemplateOnlyComponentInstance<S> extends InstanceType<ComponentLike<S>
   [Context]: ComponentContext<void, S>;
 }
 
+// As with other abstract constructor types, this allows us to provide a class
+// and therefore have InstanceType work as needed, while forbidding construction
+// by end users.
+type TemplateOnlyConstructor<S> = abstract new () => TemplateOnlyComponentInstance<S>;
+
 declare module '@ember/component/template-only' {
-  export interface TemplateOnlyComponent<S> {
-    new (...args: [never]): TemplateOnlyComponentInstance<S>;
-  }
+  export interface TemplateOnlyComponent<S> extends TemplateOnlyConstructor<S> {}
 }
 
 //////////////////////////////////////////////////////////////////////
