@@ -9,6 +9,7 @@ import { AcceptsBlocks } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
 import { ComponentKeyword } from '../../-private/intrinsics/component';
 import { EmptyObject } from '@glimmer/component/-private/component';
+import { ComponentLike, WithBoundArgs } from '@glint/template';
 
 {
   const NoArgsComponent = templateOnlyComponent();
@@ -124,4 +125,23 @@ import { EmptyObject } from '@glimmer/component/-private/component';
   expectTypeOf(resolve(CurriedWithA)).toEqualTypeOf<
     (args: { a?: string; b: number }) => AcceptsBlocks<EmptyObject>
   >();
+}
+
+// Template-only components are `ComponentLike`
+{
+  interface TestSignature {
+    Args: {
+      item: string;
+    };
+    Blocks: {
+      default: [greeting: string];
+    };
+    Element: HTMLParagraphElement;
+  }
+
+  const BasicTOC = templateOnlyComponent<TestSignature>();
+  expectTypeOf(BasicTOC).toMatchTypeOf<ComponentLike<TestSignature>>();
+
+  // and therefore works correctly with `WithBoundArgs`
+  expectTypeOf<WithBoundArgs<typeof BasicTOC, 'item'>>().not.toBeNever();
 }
