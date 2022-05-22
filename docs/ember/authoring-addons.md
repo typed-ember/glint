@@ -39,9 +39,37 @@ A real world example of this setup can be seen in [`ember-responsive-image`][eri
 
 ## Adding Glint types to addons not written in TypeScript
 
-Even if an addon author has choosen not to adopt TypeScript, the addon can still ship Glint types! The setup, however, will be slightly different. First, without [`ember-cli-typescript`][ect], types in `/addon/glint.ts` won't be emitted to `/glint.d.ts` on publish, so you'll need to do what you would have done in `/addon/glint.ts` in `/glint.d.ts` instead. Also, since the components, helpers, and modifiers are not written in TypeScript, we can't add type signatures to them directly. Instead we'll need to create declaration files for them. And these files will need to use the importable path directly from the root of the addon (not under `/addon/`). Here's an example:
+Even if an addon author has choosen not to adopt TypeScript, the addon can still ship Glint types! The setup, however, differs from the one above. 
 
-{% code title="/components/awesome-button.d.ts" %}
+Because the addon has no TypeScript, TypeScript—and subsequently Glint—does not know where to look for published types. Furthermore, because the addon's components, helpers, and modifiers are not written in TypeScript, we can't add type signatures to them directly. Finally, because the addon does not use [`ember-cli-typescript`][ect], any types added in `/addon/glint.ts` would not be emitted to `/glint.d.ts` on publish. 
+
+We can address the three issues by, first, using the `typesVersions` field in the addon's `package.json` file to announce the location of the addon's types. Next, we can create a `types/` directory for the addon and create separate declaration files for each component, helper, and modifier in the `types/components`, `types/helpers`, and `types/modifiers` directories, respectively. Finally, we can include all of the addon's registry entries in a `types/glint.d.ts` file.
+
+### Using `typesVersions` to publish types
+
+Add the following `typesVersions` field to the addon's `package.json` file. For v2 addons, this should be the "own JavaScript" `package.json`, typically located in `/addon` or in `/packages/addon-name/`. For v1 addons, this will be the root-level `package.json`.
+
+{% code title="/package.json"}
+
+```json
+"typesVersions": {
+  "*": {
+    "*": [
+      "types/*"
+    ]
+  }
+}
+```
+
+{% endcode %}
+
+This field tells TypeScript to look in the `types/` directory (relative to the addon's `package.json` file) for types for all versions of TypeScript. _The TypeScript Handbook_ has [more documentation about using `typesVersions` to publish types][typesVersions].
+
+### Declare components, helpers, and modifiers in `types/`
+
+Using `typesVersions`, we can store each component's, helper's, and modifier's declaration file neatly within their corresponding directories in the `types/` directory. This lets the consuming app use a sensible importable path without cluttering the root level of the addon. For example:
+
+{% code title="types/components/awesome-button.d.ts" %}
 
 ```typescript
 import Component from '@glimmer/component';
@@ -58,7 +86,7 @@ export default class AwesomeButton extends Component<AwesomeButtonSignature> {}
 
 {% endcode %}
 
-{% code title="/helpers/awesome-sauce.d.ts" %}
+{% code title="types/helpers/awesome-sauce.d.ts" %}
 
 ```typescript
 import Helper from '@ember/component/helper';
@@ -75,7 +103,11 @@ export default class AwesomeSauce extends Helper<AwesomeSauceSignature> {}
 
 {% endcode %}
 
-{% code title="/glint.d.ts" %}
+Helper declarations may still cause type-checking errors in the consuming app or in your editor because Ember does not yet ship with published types. As such, it is advisable to add [`@types/ember__component`][types-ember-component] to the addon's `devDependencies` if the addon includes helpers. Components and modifiers have their types already built in and need no additional dependencies.
+
+### Collecting registry entries in `types/glint.d.ts`.
+
+{% code title="types/glint.d.ts" %}
 
 ```typescript
 import type AwesomeButton from './components/awesome-button';
@@ -107,3 +139,5 @@ Note: **Glint is still under active development!** Please bear with us and expec
 [Using Addons]: using-addons.md
 [ect]: https://github.com/typed-ember/ember-cli-typescript
 [eri]: https://github.com/kaliber5/ember-responsive-image
+[typesVersions]: https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html#version-selection-with-typesversions
+[types-ember-component]: https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/ember__component
