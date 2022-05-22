@@ -18,7 +18,7 @@ declare module '@glint/environment-ember-loose/registry' {
     WelcomePage: ComponentLike;
     'page-title': HelperLike<{
       Args: { Positional: [title: string] };
-      Return: void;
+      Return: '';
     }>;
   }
 }
