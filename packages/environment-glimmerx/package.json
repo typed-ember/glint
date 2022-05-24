@@ -1,6 +1,6 @@
 {
   "name": "@glint/environment-glimmerx",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "repository": "typed-ember/glint",
   "description": "A Glint environment to support GlimmerX projects",
@@ -27,8 +27,8 @@
     "component/**/*.{js,d.ts}"
   ],
   "dependencies": {
-    "@glint/config": "^0.8.0",
-    "@glint/template": "^0.8.0"
+    "@glint/config": "^0.9.0",
+    "@glint/template": "^0.9.0"
   },
   "devDependencies": {
     "@glimmerx/component": "^0.4.2",
