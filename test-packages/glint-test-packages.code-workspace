@@ -10,7 +10,7 @@
       "path": "js-glimmerx-app"
     },
     {
-      "path": "ts-custom-app"
+      "path": "ts-template-imports-app"
     }
   ]
 }

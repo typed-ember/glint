@@ -1,5 +1,5 @@
 import Greeting from './Greeting';
 
 export default <template>
-  <Greeting @message="hi" />
+  <Greeting @target="World" />
 </template>
