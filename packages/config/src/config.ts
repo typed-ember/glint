@@ -1,6 +1,7 @@
 import path from 'path';
 import { Minimatch, IMinimatch } from 'minimatch';
 import { GlintEnvironment } from './environment';
+import SilentError from 'silent-error';
 
 export type GlintConfigInput = {
   environment: string | Array<string> | Record<string, unknown>;
@@ -119,6 +120,6 @@ function validateConfigInput(input: Record<string, unknown>): asserts input is G
 
 function assert(test: unknown, message: string): asserts test {
   if (!test) {
-    throw new Error(`@glint/config: ${message}`);
+    throw new SilentError(`@glint/config: ${message}`);
   }
 }
