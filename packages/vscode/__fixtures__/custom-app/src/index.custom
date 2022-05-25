@@ -1,4 +1,4 @@
-import Greeting from './greeting';
+import Greeting from './Greeting';
 
 <template>
   <Greeting @target="World" />
