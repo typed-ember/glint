@@ -5,6 +5,6 @@ export function debounce(threshold: number, f: () => void): () => void {
       clearTimeout(pending);
     }
 
-    setTimeout(f, threshold);
+    pending = setTimeout(f, threshold);
   };
 }
