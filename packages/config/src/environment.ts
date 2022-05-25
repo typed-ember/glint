@@ -2,6 +2,7 @@ import resolve from 'resolve';
 import path from 'path';
 import escapeStringRegexp from 'escape-string-regexp';
 import type ts from 'typescript';
+import SilentError from 'silent-error';
 
 type TSLib = typeof ts;
 
@@ -229,13 +230,21 @@ function loadMergedEnvironmentConfig(
   let extensions: GlintExtensionsConfig = { ...DEFAULT_EXTENSIONS };
   let template: GlintTemplateConfig | undefined;
   for (let [envName, envUserConfig] of Object.entries(envs)) {
-    let envModule = require(locateEnvironment(envName, rootDir));
-    let envFunction = envModule.default ?? envModule;
+    let envPath = locateEnvironment(envName, rootDir);
+    let envModule = require(envPath);
+    let envFunction = envModule?.default ?? envModule;
+    if (typeof envFunction !== 'function') {
+      throw new SilentError(
+        `The specified environment '${envName}', which was loaded from ${envPath}, ` +
+          `does not appear to be a Glint environment package.`
+      );
+    }
+
     let config = envFunction(envUserConfig ?? {}) as GlintEnvironmentConfig;
 
     if (config.template) {
       if (template) {
-        throw new Error(
+        throw new SilentError(
           'Multiple configured Glint environments attempted to define behavior for standalone template files.'
         );
       }
@@ -248,7 +257,7 @@ function loadMergedEnvironmentConfig(
         tags[importSource] ??= {};
         for (let [importSpecifier, tagConfig] of Object.entries(specifiers)) {
           if (importSpecifier in tags[importSource]) {
-            throw new Error(
+            throw new SilentError(
               'Multiple configured Glint environments attempted to define behavior for the tag `' +
                 importSpecifier +
                 "` in module '" +
@@ -265,7 +274,7 @@ function loadMergedEnvironmentConfig(
     if (config.extensions) {
       for (let [extension, extensionConfig] of Object.entries(config.extensions)) {
         if (extension in extensions) {
-          throw new Error(
+          throw new SilentError(
             'Multiple configured Glint environments attempted to define handling for the ' +
               extension +
               ' file extension.'
@@ -296,7 +305,7 @@ function locateEnvironment(name: string, basedir: string): string {
     return literalPath;
   }
 
-  throw new Error(`Unable to resolve environment '${name}' from ${basedir}`);
+  throw new SilentError(`Unable to resolve environment '${name}' from ${basedir}`);
 }
 
 function normalizePathCandidates(
