@@ -134,8 +134,8 @@ export default class GlintLanguageServer {
           source: `glint${diagnostic.code ? `:ts(${diagnostic.code})` : ''}`,
           tags: tagsForDiagnostic(diagnostic),
           range: {
-            start: offsetToPosition(file.getText(), start),
-            end: offsetToPosition(file.getText(), start + length),
+            start: offsetToPosition(file.text, start),
+            end: offsetToPosition(file.text, start + length),
           },
         };
       });
