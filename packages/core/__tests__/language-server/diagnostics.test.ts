@@ -213,6 +213,7 @@ describe('Language Server: Diagnostics', () => {
 
   test('reports diagnostics for an inline template type error', () => {
     let code = stripIndent`
+      // Here's a leading comment to make sure we handle trivia right
       import Component, { hbs } from '@glint/environment-glimmerx/component';
 
       type ApplicationArgs = {
@@ -241,11 +242,11 @@ describe('Language Server: Diagnostics', () => {
           "range": Object {
             "end": Object {
               "character": 21,
-              "line": 7,
+              "line": 8,
             },
             "start": Object {
               "character": 10,
-              "line": 7,
+              "line": 8,
             },
           },
           "severity": 2,
@@ -259,11 +260,11 @@ describe('Language Server: Diagnostics', () => {
           "range": Object {
             "end": Object {
               "character": 43,
-              "line": 11,
+              "line": 12,
             },
             "start": Object {
               "character": 31,
-              "line": 11,
+              "line": 12,
             },
           },
           "severity": 1,
