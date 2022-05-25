@@ -6372,10 +6372,10 @@ ember-source@~3.27.5:
     semver "^7.3.4"
     silent-error "^1.1.1"
 
-ember-template-imports@^2.0.0:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/ember-template-imports/-/ember-template-imports-2.0.1.tgz#942fbda0ae9a806eb2f83ebd61743704c4c66d90"
-  integrity sha512-2J0p3NU1hyP9VW6FX7/IAQtJPP0jDg/4zS3E2aYGND7uzuFbGJRgz9Ifze7yKkgWd7EAGnCjDQYCm5jTLu8Fvg==
+ember-template-imports@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/ember-template-imports/-/ember-template-imports-3.0.0.tgz#d2aaa1303c3472eb0d18e088106871511e6744bd"
+  integrity sha512-DqP+/ZsDF326pifwBqGSMaKI0vH0GHSXXa4DaTKq+/GZjx/leSNuR0T11v+p6I9MIJG/9BlomDfWNmBKTUxjvQ==
   dependencies:
     babel-import-util "^0.2.0"
     broccoli-stew "^3.0.0"

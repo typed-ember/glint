@@ -5,12 +5,17 @@ import './integration-declarations';
 
 import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {
+  AcceptsBlocks,
+  AnyContext,
+  AnyFunction,
   BoundModifier,
   DirectInvokable,
   EmptyObject,
+  HasContext,
   Invokable,
   Invoke,
   InvokeDirect,
+  TemplateContext,
 } from '@glint/template/-private/integration';
 
 type OptNamed<N extends Record<string, unknown> | undefined> = N extends undefined
@@ -74,3 +79,17 @@ export declare function resolve<P extends unknown[], T>(
 ): (named: EmptyObject, ...positional: P) => T;
 
 export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
+
+// We customize the top-level `template` wrapper function for this environment to
+// return a type that's assignable to `TemplateOnlyComponent` from '@ember/component/template-only'.
+// Longer term we should rationalize this to a type that doesn't carry extra baggage
+// and likely comes from a more sensible path.
+
+import { TemplateOnlyComponent } from '@ember/component/template-only';
+
+export declare function template<
+  Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
+  Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
+>(
+  f: (𝚪: Context, χ: never) => void
+): TemplateOnlyComponent<never> & (new () => Invokable<Signature> & HasContext<Context>);

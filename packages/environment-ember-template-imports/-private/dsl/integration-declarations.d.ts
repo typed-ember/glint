@@ -1,4 +1,3 @@
-import './ember-template-imports';
 import { Globals } from '@glint/environment-ember-loose/-private/dsl';
 
 import '@ember/modifier';
@@ -31,4 +30,9 @@ import '@ember/routing';
 type EELLinkTo = typeof Globals.LinkTo;
 declare module '@ember/routing' {
   export interface LinkTo extends EELLinkTo {}
+}
+
+import 'ember-template-imports';
+declare module 'ember-template-imports' {
+  export function hbs(contents: TemplateStringsArray): unknown;
 }

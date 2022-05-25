@@ -1,12 +1,12 @@
 import { GlintExtensionPreprocess } from '@glint/config';
-import { parseTemplates } from 'ember-template-imports/lib/parse-templates';
+import { parseTemplates } from 'ember-template-imports';
 import { GLOBAL_TAG, PreprocessData, TemplateLocation } from './common';
 
 const TEMPLATE_START = `[${GLOBAL_TAG}\``;
 const TEMPLATE_END = '`]';
 
 export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, path) => {
-  let templates = parseTemplates(source, path, 'template').filter(
+  let templates = parseTemplates(source, path, { templateTag: 'template' }).filter(
     (match) => match.type === 'template-tag'
   );
 

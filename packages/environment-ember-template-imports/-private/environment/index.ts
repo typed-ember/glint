@@ -7,7 +7,7 @@ export default function emberTemplateImportsEnvironment(): GlintEnvironmentConfi
     tags: {
       'ember-template-imports': {
         hbs: {
-          typesSource: 'glint-environment-ember-template-imports/-private/dsl',
+          typesSource: '@glint/environment-ember-template-imports/-private/dsl',
           globals: [
             'action',
             'debugger',

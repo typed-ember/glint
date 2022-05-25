@@ -1,13 +1,13 @@
 {
   "name": "@glint/environment-ember-template-imports",
-  "version": "0.7.4",
+  "version": "0.8.1",
   "repository": "typed-ember/glint",
   "description": "A Glint environment to support ember-template-imports projects",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
-  "glint-environment": "lib/environment",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "glint-environment": "-private/environment",
+  "main": "-private/index.js",
+  "types": "-private/index.d.ts",
   "keywords": [
     "glint-environment"
   ],
@@ -19,25 +19,23 @@
   },
   "files": [
     "README.md",
-    "lib"
+    "-private/**/*.{js,d.ts}"
   ],
   "peerDependencies": {
-    "@glint/environment-ember-loose": "^0.7.4",
-    "ember-template-imports": "^2.0.0"
+    "@glint/environment-ember-loose": "^0.8.1",
+    "ember-template-imports": "^3.0.0"
   },
   "devDependencies": {
-    "@glint/config": "^0.7.4",
-    "@glint/core": "^0.7.4",
-    "@glint/environment-ember-loose": "^0.7.4",
-    "@glint/template": "^0.7.4",
-    "@glint/transform": "^0.7.4",
     "@types/ember": "^4.0.0",
     "@types/ember__helper": "^4.0.0",
     "@types/ember__modifier": "^4.0.0",
-    "ember-template-imports": "^2.0.0",
+    "ember-template-imports": "^3.0.0",
     "expect-type": "0.11.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }
