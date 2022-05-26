@@ -1,0 +1,6 @@
+*.js
+*.d.ts
+tsconfig.tsbuildinfo
+
+!jest.config.js
+!-private/dsl/**/*.d.ts

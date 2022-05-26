@@ -16,12 +16,12 @@ describe('Language Server: custom file extensions', () => {
   test('reporting diagnostics', () => {
     let contents = 'let identifier: string = 123;';
 
-    project.write('.glintrc', `environment: custom-test`);
-    project.write('index.custom', contents);
+    project.write('.glintrc', `environment: ember-template-imports`);
+    project.write('index.gts', contents);
 
     let server = project.startLanguageServer();
 
-    expect(server.getDiagnostics(project.fileURI('index.custom'))).toMatchInlineSnapshot(`
+    expect(server.getDiagnostics(project.fileURI('index.gts'))).toMatchInlineSnapshot(`
       Array [
         Object {
           "message": "Type 'number' is not assignable to type 'string'.",
@@ -42,9 +42,9 @@ describe('Language Server: custom file extensions', () => {
       ]
     `);
 
-    server.openFile(project.fileURI('index.custom'), contents);
+    server.openFile(project.fileURI('index.gts'), contents);
 
-    expect(server.getDiagnostics(project.fileURI('index.custom'))).toMatchInlineSnapshot(`
+    expect(server.getDiagnostics(project.fileURI('index.gts'))).toMatchInlineSnapshot(`
       Array [
         Object {
           "message": "Type 'number' is not assignable to type 'string'.",
@@ -65,19 +65,19 @@ describe('Language Server: custom file extensions', () => {
       ]
     `);
 
-    server.updateFile(project.fileURI('index.custom'), contents.replace('123', '"hi"'));
+    server.updateFile(project.fileURI('index.gts'), contents.replace('123', '"hi"'));
 
-    expect(server.getDiagnostics(project.fileURI('index.custom'))).toEqual([]);
+    expect(server.getDiagnostics(project.fileURI('index.gts'))).toEqual([]);
   });
 
   test('providing hover info', () => {
     let contents = 'let identifier = "hello";';
 
-    project.write('.glintrc', `environment: custom-test`);
-    project.write('index.custom', contents);
+    project.write('.glintrc', `environment: ember-template-imports`);
+    project.write('index.gts', contents);
 
     let server = project.startLanguageServer();
-    let hover = server.getHover(project.fileURI('index.custom'), { line: 0, character: 8 });
+    let hover = server.getHover(project.fileURI('index.gts'), { line: 0, character: 8 });
 
     expect(hover).toMatchInlineSnapshot(`
       Object {
@@ -100,10 +100,10 @@ describe('Language Server: custom file extensions', () => {
       }
     `);
 
-    project.write('index.custom', contents.replace('"hello"', '123'));
-    server.watchedFileDidChange(project.fileURI('index.custom'));
+    project.write('index.gts', contents.replace('"hello"', '123'));
+    server.watchedFileDidChange(project.fileURI('index.gts'));
 
-    hover = server.getHover(project.fileURI('index.custom'), { line: 0, character: 8 });
+    hover = server.getHover(project.fileURI('index.gts'), { line: 0, character: 8 });
 
     expect(hover).toMatchInlineSnapshot(`
       Object {
@@ -130,9 +130,9 @@ describe('Language Server: custom file extensions', () => {
   test('resolving conflicts between overlapping extensions', () => {
     let contents = 'export let identifier = 123`;';
 
-    project.write('.glintrc', `environment: custom-test`);
+    project.write('.glintrc', `environment: ember-template-imports`);
     project.write('index.ts', contents);
-    project.write('index.custom', contents);
+    project.write('index.gts', contents);
 
     project.write(
       'consumer.ts',
@@ -158,11 +158,11 @@ describe('Language Server: custom file extensions', () => {
     definitions = server.getDefinition(consumerURI, { line: 2, character: 4 });
     diagnostics = server.getDiagnostics(consumerURI);
 
-    expect(definitions).toMatchObject([{ uri: project.fileURI('index.custom') }]);
+    expect(definitions).toMatchObject([{ uri: project.fileURI('index.gts') }]);
     expect(diagnostics).toEqual([]);
 
-    project.remove('index.custom');
-    server.watchedFileWasRemoved(project.fileURI('index.custom'));
+    project.remove('index.gts');
+    server.watchedFileWasRemoved(project.fileURI('index.gts'));
 
     diagnostics = server.getDiagnostics(consumerURI);
 
@@ -179,9 +179,9 @@ describe('Language Server: custom file extensions', () => {
 
   describe('external file changes', () => {
     beforeEach(() => {
-      project.write('.glintrc', `environment: custom-test`);
+      project.write('.glintrc', `environment: ember-template-imports`);
       project.write(
-        'index.custom',
+        'index.gts',
         stripIndent`
           import { foo } from "./other";
           console.log(foo);
@@ -191,7 +191,7 @@ describe('Language Server: custom file extensions', () => {
 
     test('adding a missing module', () => {
       let server = project.startLanguageServer();
-      let diagnostics = server.getDiagnostics(project.fileURI('index.custom'));
+      let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
       expect(diagnostics).toMatchObject([
         {
@@ -200,28 +200,28 @@ describe('Language Server: custom file extensions', () => {
         },
       ]);
 
-      project.write('other.custom', 'export const foo = 123;');
-      server.watchedFileWasAdded(project.fileURI('other.custom'));
+      project.write('other.gjs', 'export const foo = 123;');
+      server.watchedFileWasAdded(project.fileURI('other.gjs'));
 
-      diagnostics = server.getDiagnostics(project.fileURI('index.custom'));
+      diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
       expect(diagnostics).toEqual([]);
     });
 
     test('changing an imported module', () => {
-      project.write('other.custom', 'export const foo = 123;');
+      project.write('other.gjs', 'export const foo = 123;');
 
       let server = project.startLanguageServer();
-      let info = server.getHover(project.fileURI('index.custom'), { line: 0, character: 10 });
+      let info = server.getHover(project.fileURI('index.gts'), { line: 0, character: 10 });
 
       expect(info?.contents).toEqual([
         { language: 'ts', value: '(alias) const foo: 123\nimport foo' },
       ]);
 
-      project.write('other.custom', 'export const foo = "hi";');
-      server.watchedFileDidChange(project.fileURI('other.custom'));
+      project.write('other.gjs', 'export const foo = "hi";');
+      server.watchedFileDidChange(project.fileURI('other.gjs'));
 
-      info = server.getHover(project.fileURI('index.custom'), { line: 0, character: 10 });
+      info = server.getHover(project.fileURI('index.gts'), { line: 0, character: 10 });
 
       expect(info?.contents).toEqual([
         { language: 'ts', value: '(alias) const foo: "hi"\nimport foo' },
@@ -229,17 +229,17 @@ describe('Language Server: custom file extensions', () => {
     });
 
     test('removing an imported module', () => {
-      project.write('other.custom', 'export const foo = 123;');
+      project.write('other.gjs', 'export const foo = 123;');
 
       let server = project.startLanguageServer();
-      let diagnostics = server.getDiagnostics(project.fileURI('index.custom'));
+      let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
       expect(diagnostics).toEqual([]);
 
-      project.remove('other.custom');
-      server.watchedFileWasRemoved(project.fileURI('other.custom'));
+      project.remove('other.gjs');
+      server.watchedFileWasRemoved(project.fileURI('other.gjs'));
 
-      diagnostics = server.getDiagnostics(project.fileURI('index.custom'));
+      diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
       expect(diagnostics).toMatchObject([
         {

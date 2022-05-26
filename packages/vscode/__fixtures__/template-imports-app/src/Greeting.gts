@@ -5,7 +5,9 @@ export interface GreetingSignature {
 }
 
 export default class Greeting extends Component<GreetingSignature> {
-  public template = <template>
-    Hello, {{@target}}!
-  </template>;
+  private message = 'Hello';
+
+  <template>
+    {{this.message}}, {{@target}}!
+  </template>
 }

@@ -217,8 +217,8 @@ describe('CLI: watched typechecking', () => {
     await watch.terminate();
   });
 
-  test('reports on errors introduced and cleared in a script with a custom extension', async () => {
-    project.write('.glintrc', `environment: custom-test`);
+  test('reports on errors introduced and cleared in a script with a .gts extension', async () => {
+    project.write('.glintrc', `environment: ember-template-imports`);
 
     let code = stripIndent`
       export default class MyClass {
@@ -230,18 +230,18 @@ describe('CLI: watched typechecking', () => {
       }
     `;
 
-    project.write('index.custom', code);
+    project.write('index.gts', code);
 
     let watch = project.watch({ reject: true });
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
-    project.write('index.custom', code.replace('this.startupTime', 'this.startupTimee'));
+    project.write('index.gts', code.replace('this.startupTime', 'this.startupTimee'));
 
     output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 1 error.');
 
-    project.write('index.custom', code);
+    project.write('index.gts', code);
 
     output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');

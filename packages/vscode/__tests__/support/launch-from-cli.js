@@ -26,7 +26,7 @@ async function main() {
         // Load the app fixtures
         `${__dirname}/../../__fixtures__/ember-app`,
         `${__dirname}/../../__fixtures__/js-glimmerx-app`,
-        `${__dirname}/../../__fixtures__/custom-app`,
+        `${__dirname}/../../__fixtures__/template-imports-app`,
       ],
     });
   } catch (error) {

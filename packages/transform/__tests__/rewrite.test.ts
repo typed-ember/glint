@@ -446,14 +446,14 @@ describe('rewriteModule', () => {
     });
   });
 
-  describe('custom file format', () => {
-    test('embedded gts-like templates', () => {
-      let customEnv = GlintEnvironment.load('custom-test');
+  describe('ember-template-imports', () => {
+    test('embedded gts templates', () => {
+      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
       let script = {
-        filename: 'foo.custom',
+        filename: 'foo.gts',
         contents: stripIndent`
           class MyComponent {
-            public template = <template>
+            <template>
               Hello, {{this.target}}!
             </template>
 
@@ -479,98 +479,28 @@ describe('rewriteModule', () => {
         "TransformedModule
 
         | Mapping: Template
-        |  hbs(40:92):   <template>\\\\n    Hello, {{this.target}}!\\\\n  </template>
-        |  ts(40:348):   ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {\\\\n  χ.emitValue(χ.resolveOrReturn(𝚪.this.target)({}));\\\\n  𝚪; χ;\\\\n}) as unknown
+        |  hbs(22:74):   <template>\\\\n    Hello, {{this.target}}!\\\\n  </template>
+        |  ts(22:383):   static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-template-imports/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitValue(χ.resolveOrReturn(𝚪.this.target)({}));\\\\n  𝚪; χ;\\\\n}) as unknown }
         |
         | | Mapping: Identifier
-        | |  hbs(40:40):
-        | |  ts(194:205):  MyComponent
+        | |  hbs(22:22):
+        | |  ts(213:224):  MyComponent
         | |
         | | Mapping: MustacheStatement
-        | |  hbs(62:77):   {{this.target}}
-        | |  ts(272:324):  χ.emitValue(χ.resolveOrReturn(𝚪.this.target)({}))
+        | |  hbs(44:59):   {{this.target}}
+        | |  ts(305:357):  χ.emitValue(χ.resolveOrReturn(𝚪.this.target)({}))
         | |
         | | | Mapping: PathExpression
-        | | |  hbs(64:75):   this.target
-        | | |  ts(304:318):  𝚪.this.target
+        | | |  hbs(46:57):   this.target
+        | | |  ts(337:351):  𝚪.this.target
         | | |
         | | | | Mapping: Identifier
-        | | | |  hbs(64:68):   this
-        | | | |  ts(307:311):  this
+        | | | |  hbs(46:50):   this
+        | | | |  ts(340:344):  this
         | | | |
         | | | | Mapping: Identifier
-        | | | |  hbs(69:75):   target
-        | | | |  ts(312:318):  target
-        | | | |
-        | | |
-        | |
-        |"
-      `);
-    });
-
-    test('emit metadata', () => {
-      let metadataEnv = new GlintEnvironment(['test'], {
-        tags: {
-          '@glint/test': {
-            hbs: {
-              typesSource: '@glint/test/dsl',
-              globals: [],
-            },
-          },
-        },
-        extensions: {
-          '.custom': {
-            kind: 'typed-script',
-            transform: (data, { ts, context, setEmitMetadata }) =>
-              function visit(original) {
-                let node: ts.Node = ts.visitEachChild(original, visit, context);
-
-                if (ts.isTaggedTemplateExpression(node)) {
-                  setEmitMetadata(node, {
-                    prepend: `({ customWrappedTemplate: `,
-                    append: ` })`,
-                  });
-                }
-
-                return node;
-              },
-          },
-        },
-      });
-
-      let script = {
-        filename: 'foo.custom',
-        contents: stripIndent`
-          import { hbs } from '@glint/test';
-
-          let target = 'world';
-
-          export default hbs\`
-            Hello, {{target}}.
-          \`;
-        `,
-      };
-
-      let rewritten = rewriteModule(ts, { script }, metadataEnv);
-
-      expect(rewritten?.toDebugString()).toMatchInlineSnapshot(`
-        "TransformedModule
-
-        | Mapping: Template
-        |  hbs(74:101):  hbs\`\\\\n  Hello, {{target}}.\\\\n\`
-        |  ts(74:269):   ({ customWrappedTemplate: ({} as typeof import(\\"@glint/test/dsl\\")).template(function(𝚪, χ: typeof import(\\"@glint/test/dsl\\")) {\\\\n  hbs;\\\\n  χ.emitValue(χ.resolveOrReturn(target)({}));\\\\n  𝚪; χ;\\\\n}) })
-        |
-        | | Mapping: MustacheStatement
-        | |  hbs(88:98):   {{target}}
-        | |  ts(209:253):  χ.emitValue(χ.resolveOrReturn(target)({}))
-        | |
-        | | | Mapping: PathExpression
-        | | |  hbs(90:96):   target
-        | | |  ts(241:247):  target
-        | | |
-        | | | | Mapping: Identifier
-        | | | |  hbs(90:96):   target
-        | | | |  ts(241:247):  target
+        | | | |  hbs(51:57):   target
+        | | | |  ts(345:351):  target
         | | | |
         | | |
         | |
@@ -578,76 +508,114 @@ describe('rewriteModule', () => {
       `);
     });
 
-    test('with preprocessing and setEmitMetadata: templateLocation', () => {
-      let metadataEnv = new GlintEnvironment(['test'], {
-        tags: {
-          '@glint/test': {
-            hbs: {
-              typesSource: '@glint/test/dsl',
-              globals: [],
-            },
-          },
-        },
-        extensions: {
-          '.custom': {
-            kind: 'typed-script',
-            preprocess: (source) => (
-              // this intentionally does not pad so that an offset of 2 is required for the debug string to line up
-              // (even though this makes the hbs line in Mapping: Template weird)
-              { contents: source.replace('<tmpl>', 'hbs`').replace('</tmpl>', '`') }
-            ),
-            transform: (data, { ts, context, setEmitMetadata }) =>
-              function visit(original) {
-                let node: ts.Node = ts.visitEachChild(original, visit, context);
-
-                if (ts.isTaggedTemplateExpression(node)) {
-                  setEmitMetadata(node, {
-                    templateLocation: {
-                      start: node.getStart() + 2,
-                      end: node.getEnd() + 2,
-                    },
-                  });
-                }
-
-                return node;
-              },
-          },
-        },
-      });
-
+    test('implicit default export', () => {
+      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
       let script = {
-        filename: 'foo.custom',
+        filename: 'foo.gts',
         contents: stripIndent`
-          import { hbs } from '@glint/test';
-
-          let target = 'world';
-
-          export default <tmpl>
-            Hello, {{target}}.
-          </tmpl>
+          <template>
+            Hello, {{@target}}!
+          </template>
         `,
       };
 
-      let rewritten = rewriteModule(ts, { script }, metadataEnv);
+      expect(rewriteModule(ts, { script }, customEnv)?.toDebugString()).toMatchInlineSnapshot(`
+        "TransformedModule
+
+        | Mapping: Template
+        |  hbs(0:44):    <template>\\\\n  Hello, {{@target}}!\\\\n</template>
+        |  ts(0:260):    export default ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).template(function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitValue(χ.resolveOrReturn(𝚪.args.target)({}));\\\\n  𝚪; χ;\\\\n})
+        |
+        | | Mapping: MustacheStatement
+        | |  hbs(20:31):   {{@target}}
+        | |  ts(195:247):  χ.emitValue(χ.resolveOrReturn(𝚪.args.target)({}))
+        | |
+        | | | Mapping: PathExpression
+        | | |  hbs(22:29):   @target
+        | | |  ts(227:241):  𝚪.args.target
+        | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(23:29):   target
+        | | | |  ts(235:241):  target
+        | | | |
+        | | |
+        | |
+        |"
+      `);
+    });
+
+    test('mixed expression and class uses', () => {
+      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let script = {
+        filename: 'foo.gts',
+        contents: stripIndent`
+          import Component from '@glimmer/component';
+          console.log(<template>{{@message}}</template>);
+          export class MyComponent extends Component {
+            <template>{{this.title}}</template>
+          }
+        `,
+      };
+
+      let rewritten = rewriteModule(ts, { script }, customEnv);
+      let roundTripOffset = (offset: number): number | undefined =>
+        rewritten?.getOriginalOffset(rewritten.getTransformedOffset(script.filename, offset))
+          .offset;
+
+      let classOffset = script.contents.indexOf('MyComponent');
+      let firstTemplateOffset = script.contents.indexOf('@message');
+      let secondTemplateOffset = script.contents.indexOf('this.title');
+
+      expect(roundTripOffset(classOffset)).toEqual(classOffset);
+      expect(roundTripOffset(firstTemplateOffset)).toEqual(firstTemplateOffset);
+      expect(roundTripOffset(secondTemplateOffset)).toEqual(secondTemplateOffset);
 
       expect(rewritten?.toDebugString()).toMatchInlineSnapshot(`
         "TransformedModule
 
         | Mapping: Template
-        |  hbs(76:103):  mpl>\\\\n  Hello, {{target}}.\\\\n<
-        |  ts(76:242):   ({} as typeof import(\\"@glint/test/dsl\\")).template(function(𝚪, χ: typeof import(\\"@glint/test/dsl\\")) {\\\\n  hbs;\\\\n  χ.emitValue(χ.resolveOrReturn(target)({}));\\\\n  𝚪; χ;\\\\n})
+        |  hbs(56:89):   <template>{{@message}}</template>
+        |  ts(56:302):   ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).template(function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitValue(χ.resolveOrReturn(𝚪.args.message)({}));\\\\n  𝚪; χ;\\\\n})
         |
         | | Mapping: MustacheStatement
-        | |  hbs(90:100):  {{target}}
-        | |  ts(185:229):  χ.emitValue(χ.resolveOrReturn(target)({}))
+        | |  hbs(66:78):   {{@message}}
+        | |  ts(236:289):  χ.emitValue(χ.resolveOrReturn(𝚪.args.message)({}))
         | |
         | | | Mapping: PathExpression
-        | | |  hbs(92:98):   target
-        | | |  ts(217:223):  target
+        | | |  hbs(68:76):   @message
+        | | |  ts(268:283):  𝚪.args.message
         | | |
         | | | | Mapping: Identifier
-        | | | |  hbs(92:98):   target
-        | | | |  ts(217:223):  target
+        | | | |  hbs(69:76):   message
+        | | | |  ts(276:283):  message
+        | | | |
+        | | |
+        | |
+        |
+
+        | Mapping: Template
+        |  hbs(139:174): <template>{{this.title}}</template>
+        |  ts(352:712):  static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-template-imports/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitValue(χ.resolveOrReturn(𝚪.this.title)({}));\\\\n  𝚪; χ;\\\\n}) as unknown }
+        |
+        | | Mapping: Identifier
+        | |  hbs(139:139):
+        | |  ts(543:554):  MyComponent
+        | |
+        | | Mapping: MustacheStatement
+        | |  hbs(149:163): {{this.title}}
+        | |  ts(635:686):  χ.emitValue(χ.resolveOrReturn(𝚪.this.title)({}))
+        | |
+        | | | Mapping: PathExpression
+        | | |  hbs(151:161): this.title
+        | | |  ts(667:680):  𝚪.this.title
+        | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(151:155): this
+        | | | |  ts(670:674):  this
+        | | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(156:161): title
+        | | | |  ts(675:680):  title
         | | | |
         | | |
         | |

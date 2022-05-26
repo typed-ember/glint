@@ -186,7 +186,7 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
   let extension = path.extname(filename);
   let emitMetadata = new WeakMap<ts.Node, GlintEmitMetadata>();
   let setEmitMetadata = (node: ts.Node, data: GlintEmitMetadata): void =>
-    void emitMetadata.set(node, data);
+    void emitMetadata.set(node, Object.assign(emitMetadata.get(node) ?? {}, data));
 
   let { preprocess, transform } = environment.getConfigForExtension(extension) ?? {};
   let preprocessed = preprocess?.(contents, filename) ?? { contents };
