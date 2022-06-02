@@ -61,6 +61,7 @@ export default class GlintLanguageServer {
       getCurrentDirectory: ts.sys.getCurrentDirectory,
       directoryExists: ts.sys.directoryExists,
       getDirectories: ts.sys.getDirectories,
+      realpath: ts.sys.realpath,
     };
 
     this.service = ts.createLanguageService(serviceHost);
