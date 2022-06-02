@@ -9,6 +9,7 @@ export function determineOptionsToExtend(argv: {
     options.emitDeclarationOnly = Boolean(argv.declaration);
   } else {
     options.noEmit = true;
+    options.declaration = false;
   }
 
   return options;
