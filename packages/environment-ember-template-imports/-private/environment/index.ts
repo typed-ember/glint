@@ -10,6 +10,7 @@ export default function emberTemplateImportsEnvironment(): GlintEnvironmentConfi
           typesSource: '@glint/environment-ember-template-imports/-private/dsl',
           globals: [
             'action',
+            'component',
             'debugger',
             'each',
             'each-in',
