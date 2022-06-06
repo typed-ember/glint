@@ -31,6 +31,14 @@
     "ember-cli-htmlbars": "^6.0.1",
     "ember-modifier": "^3.2.7"
   },
+  "peerDependenciesMeta": {
+    "ember-cli-htmlbars": {
+      "optional": true
+    },
+    "ember-modifier": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@glimmer/component": "^1.1.2",
     "@types/ember__component": "~4.0.8",

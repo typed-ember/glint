@@ -43,7 +43,7 @@ import { expectTypeOf } from 'expect-type';
   or({}, 'a', 'b', 'c');
 
   expectTypeOf(or({}, 'a', 'b')).toEqualTypeOf<string>();
-  expectTypeOf(or({}, 'a', true)).toEqualTypeOf<string | boolean>();
+  expectTypeOf(or({}, 'a' as string, true as boolean)).toEqualTypeOf<string | boolean>();
   expectTypeOf(or({}, false, true)).toEqualTypeOf<boolean>();
 }
 

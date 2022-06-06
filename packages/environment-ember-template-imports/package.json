@@ -21,6 +21,9 @@
     "README.md",
     "-private/**/*.{js,d.ts}"
   ],
+  "dependencies": {
+    "@glint/template": "^0.8.2"
+  },
   "peerDependencies": {
     "@glint/environment-ember-loose": "^0.8.2",
     "ember-template-imports": "^3.0.0"
