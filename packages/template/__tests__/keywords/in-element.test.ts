@@ -4,9 +4,13 @@ import { InElementKeyword } from '../../-private/keywords';
 const inElementKeyword = resolve({} as InElementKeyword);
 
 declare const element: HTMLElement;
+declare const shadow: ShadowRoot;
 
 // Can be invoked with an element
 emitComponent(inElementKeyword({}, element));
+
+// Can be invoked with a ShadowRoot
+emitComponent(inElementKeyword({}, shadow));
 
 // Accepts an `insertBefore` argument
 emitComponent(inElementKeyword({ insertBefore: null }, element));
