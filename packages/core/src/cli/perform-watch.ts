@@ -3,6 +3,7 @@ import { GlintConfig } from '@glint/config';
 import { buildDiagnosticFormatter } from './diagnostics';
 import type ts from 'typescript';
 import { sysForWatchCompilerHost } from './utils/sys-for-watch';
+import { patchProgram } from './utils/patch-program';
 
 export type TypeScript = typeof ts;
 
@@ -34,20 +35,5 @@ function patchWatchCompilerHost(host: WatchCompilerHost, transformManager: Trans
   host.afterProgramCreate = (program) => {
     patchProgram(program, transformManager);
     afterProgramCreate?.call(host, program);
-  };
-}
-
-function patchProgram(program: Program, transformManager: TransformManager): void {
-  let { getSyntacticDiagnostics, getSemanticDiagnostics } = program;
-
-  program.getSyntacticDiagnostics = function (sourceFile, cancelationToken) {
-    let diagnostics = getSyntacticDiagnostics.call(program, sourceFile, cancelationToken);
-    let transformDiagnostics = transformManager.getTransformDiagnostics(sourceFile?.fileName);
-    return [...diagnostics, ...transformDiagnostics];
-  };
-
-  program.getSemanticDiagnostics = (sourceFile, cancellationToken) => {
-    let diagnostics = getSemanticDiagnostics.call(program, sourceFile, cancellationToken);
-    return transformManager.rewriteDiagnostics(diagnostics, sourceFile?.fileName);
   };
 }
