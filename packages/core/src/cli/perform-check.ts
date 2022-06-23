@@ -3,6 +3,8 @@ import TransformManager from '../common/transform-manager';
 import { GlintConfig } from '@glint/config';
 import { buildDiagnosticFormatter } from './diagnostics';
 
+type TypeScript = typeof ts;
+
 export function performCheck(glintConfig: GlintConfig, optionsToExtend: ts.CompilerOptions): void {
   let { ts } = glintConfig;
   let transformManager = new TransformManager(glintConfig);
@@ -40,7 +42,7 @@ function collectDiagnostics(
 }
 
 function createCompilerHost(
-  ts: typeof import('typescript'),
+  ts: TypeScript,
   options: ts.CompilerOptions,
   transformManager: TransformManager
 ): ts.CompilerHost {
@@ -52,7 +54,7 @@ function createCompilerHost(
 }
 
 function loadTsconfig(
-  ts: typeof import('typescript'),
+  ts: TypeScript,
   transformManager: TransformManager,
   configPath: string | undefined,
   optionsToExtend: ts.CompilerOptions
