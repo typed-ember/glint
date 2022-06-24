@@ -26,6 +26,15 @@ import {
 } from './util/protocol';
 import { TextEdit } from 'vscode-languageserver-textdocument';
 
+export interface GlintCompletionItem extends CompletionItem {
+  data: {
+    uri: string;
+    transformedFileName: string;
+    transformedOffset: number;
+    source: string | undefined;
+  };
+}
+
 export default class GlintLanguageServer {
   private service: ts.LanguageService;
   private openFileNames: Set<string>;
@@ -155,7 +164,7 @@ export default class GlintLanguageServer {
       .filter((info): info is SymbolInformation => Boolean(info));
   }
 
-  public getCompletions(uri: string, position: Position): CompletionItem[] | undefined {
+  public getCompletions(uri: string, position: Position): GlintCompletionItem[] | undefined {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
     if (this.isTemplate(transformedFileName)) return;
 
@@ -168,11 +177,11 @@ export default class GlintLanguageServer {
     return completions?.entries.map((completionEntry) => ({
       label: completionEntry.name,
       kind: scriptElementKindToCompletionItemKind(completionEntry.kind),
-      data: { transformedFileName, transformedOffset, source: completionEntry.source },
+      data: { uri, transformedFileName, transformedOffset, source: completionEntry.source },
     }));
   }
 
-  public getCompletionDetails(item: CompletionItem): CompletionItem {
+  public getCompletionDetails(item: GlintCompletionItem): GlintCompletionItem {
     let { label, data } = item;
     if (!data) {
       return item;
