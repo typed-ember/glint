@@ -19,12 +19,14 @@ type TransformInfo = {
 
 export default class TransformManager {
   private transformCache = new Map<string, TransformInfo>();
+  private readonly ts: typeof import('typescript');
 
   constructor(
-    private ts: typeof import('typescript'),
     private glintConfig: GlintConfig,
-    private documents: DocumentCache = new DocumentCache(ts, glintConfig)
-  ) {}
+    private documents: DocumentCache = new DocumentCache(glintConfig)
+  ) {
+    this.ts = glintConfig.ts;
+  }
 
   public getTransformDiagnostics(fileName?: string): Array<Diagnostic> {
     if (fileName) {

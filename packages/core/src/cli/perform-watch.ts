@@ -3,15 +3,14 @@ import { GlintConfig } from '@glint/config';
 import { buildDiagnosticFormatter } from './diagnostics';
 
 export function performWatch(
-  ts: typeof import('typescript'),
   glintConfig: GlintConfig,
-  tsconfigPath: string | undefined,
   optionsToExtend: import('typescript').CompilerOptions
 ): void {
-  let transformManager = new TransformManager(ts, glintConfig);
+  let { ts } = glintConfig;
+  let transformManager = new TransformManager(glintConfig);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
   let host = ts.createWatchCompilerHost(
-    tsconfigPath ?? 'tsconfig.json',
+    glintConfig.configPath,
     optionsToExtend,
     sysForWatchCompilerHost(ts, transformManager),
     ts.createSemanticDiagnosticsBuilderProgram,

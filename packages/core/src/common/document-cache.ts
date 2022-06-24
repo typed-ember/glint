@@ -33,8 +33,11 @@ export type Document = {
  */
 export default class DocumentCache {
   private readonly documents = new Map<string, Document>();
+  private readonly ts: typeof import('typescript');
 
-  public constructor(private ts: typeof import('typescript'), private glintConfig: GlintConfig) {}
+  public constructor(private glintConfig: GlintConfig) {
+    this.ts = glintConfig.ts;
+  }
 
   public getDocumentID(path: string): string {
     return this.getDocument(path).id;
