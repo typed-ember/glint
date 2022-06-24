@@ -23,20 +23,13 @@
     "module": "es6",
     "experimentalDecorators": true,
     "paths": {
-      "ts-ember-app/tests/*": [
-        "tests/*"
-      ],
-      "ts-ember-app/*": [
-        "app/*"
-      ],
-      "*": [
-        "types/*"
-      ]
+      "ts-ember-app/tests/*": ["tests/*"],
+      "ts-ember-app/*": ["app/*"],
+      "*": ["types/*"]
     }
   },
-  "include": [
-    "app/**/*",
-    "tests/**/*",
-    "types/**/*"
-  ]
+  "include": ["app/**/*", "tests/**/*", "types/**/*"],
+  "glint": {
+    "environment": "ember-loose"
+  }
 }

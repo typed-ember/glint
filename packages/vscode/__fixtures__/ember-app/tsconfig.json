@@ -5,5 +5,8 @@
     "module": "es2015",
     "moduleResolution": "node",
     "skipLibCheck": true
+  },
+  "glint": {
+    "environment": "ember-loose"
   }
 }

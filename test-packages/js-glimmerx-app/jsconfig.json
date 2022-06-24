@@ -15,5 +15,8 @@
     "node_modules",
     "tmp",
     "dist"
-  ]
+  ],
+  "glint": {
+    "environment": "glimmerx"
+  }
 }

@@ -5,5 +5,8 @@
     "noEmit": true,
     "types": ["qunit"]
   },
-  "exclude": ["node_modules", "tmp", "dist"]
+  "exclude": ["node_modules", "tmp", "dist"],
+  "glint": {
+    "environment": "glimmerx"
+  }
 }
