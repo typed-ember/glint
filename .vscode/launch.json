@@ -10,7 +10,7 @@
       "runtimeExecutable": "${execPath}",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-        "${workspaceFolder}/test-packages/glint-test-packages.code-workspace"
+        "${workspaceFolder}/test-packages"
       ]
     }
   ]
