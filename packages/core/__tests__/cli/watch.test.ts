@@ -168,7 +168,7 @@ describe('CLI: watched typechecking', () => {
   });
 
   test('reports on errors introduced and cleared in a companion template', async () => {
-    project.write('.glintrc', 'environment: ember-loose\n');
+    project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.ts', 'import "@glint/environment-ember-loose/types";');
 
     let script = stripIndent`
@@ -218,7 +218,7 @@ describe('CLI: watched typechecking', () => {
   });
 
   test('reports on errors introduced and cleared in a script with a .gts extension', async () => {
-    project.write('.glintrc', `environment: ember-template-imports`);
+    project.setGlintConfig({ environment: 'ember-template-imports' });
 
     let code = stripIndent`
       export default class MyClass {
@@ -250,7 +250,7 @@ describe('CLI: watched typechecking', () => {
   });
 
   test('reports correct diagnostics given @glint-expect-error and @glint-ignore directives', async () => {
-    project.write('.glintrc', 'environment: ember-loose\n');
+    project.setGlintConfig({ environment: 'ember-loose' });
 
     let script = stripIndent`
       import Component from '@ember/component';

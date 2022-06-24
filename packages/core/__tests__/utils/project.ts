@@ -2,11 +2,12 @@ import path from 'path';
 import fs from 'fs';
 import execa, { ExecaChildProcess, Options } from 'execa';
 import ts from 'typescript';
-import { loadConfig } from '@glint/config';
+import { ConfigLoader } from '@glint/config';
 import GlintLanguageServer from '../../src/language-server/glint-language-server';
-import { filePathToUri, normalizeFilePath, parseConfigFile } from '../../src/language-server/util';
+import { filePathToUri, normalizeFilePath } from '../../src/language-server/util';
 import DocumentCache from '../../src/common/document-cache';
 import TransformManager from '../../src/common/transform-manager';
+import { parseTsconfig } from '../../src/language-server/pool';
 
 const ROOT = path.resolve(__dirname, '../../../../test-packages/ephemeral');
 
@@ -29,13 +30,12 @@ export default class Project {
       throw new Error('Language server is already running');
     }
 
-    let glintConfig = loadConfig(this.rootDir);
-    let documents = new DocumentCache(ts, glintConfig);
-    let transformManager = new TransformManager(ts, glintConfig, documents);
-    let tsConfig = parseConfigFile(ts, transformManager, this.rootDir);
+    let glintConfig = new ConfigLoader().configForDirectory(this.rootDir)!;
+    let documents = new DocumentCache(glintConfig);
+    let transformManager = new TransformManager(glintConfig, documents);
+    let tsConfig = parseTsconfig(glintConfig, transformManager);
 
     return (this.server = new GlintLanguageServer(
-      ts,
       glintConfig,
       documents,
       transformManager,
@@ -56,19 +56,27 @@ export default class Project {
         checkJs: false,
         ...compilerOptions,
       },
+      glint: {
+        environment: 'glimmerx',
+      },
     };
 
     fs.rmdirSync(project.rootDir, { recursive: true });
     fs.mkdirSync(project.rootDir, { recursive: true });
 
     fs.writeFileSync(path.join(project.rootDir, 'package.json'), '{}');
-    fs.writeFileSync(path.join(project.rootDir, '.glintrc'), 'environment: glimmerx\n');
     fs.writeFileSync(
       path.join(project.rootDir, 'tsconfig.json'),
       JSON.stringify(tsconfig, null, 2)
     );
 
     return project;
+  }
+
+  public setGlintConfig(config: unknown): void {
+    let tsconfig = JSON.parse(this.read('tsconfig.json'));
+    tsconfig.glint = config;
+    this.write('tsconfig.json', JSON.stringify(tsconfig, null, 2));
   }
 
   public write(files: Record<string, string>): void;

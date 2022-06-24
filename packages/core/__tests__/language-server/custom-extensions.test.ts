@@ -16,7 +16,7 @@ describe('Language Server: custom file extensions', () => {
   test('reporting diagnostics', () => {
     let contents = 'let identifier: string = 123;';
 
-    project.write('.glintrc', `environment: ember-template-imports`);
+    project.setGlintConfig({ environment: 'ember-template-imports' });
     project.write('index.gts', contents);
 
     let server = project.startLanguageServer();
@@ -73,7 +73,7 @@ describe('Language Server: custom file extensions', () => {
   test('providing hover info', () => {
     let contents = 'let identifier = "hello";';
 
-    project.write('.glintrc', `environment: ember-template-imports`);
+    project.setGlintConfig({ environment: 'ember-template-imports' });
     project.write('index.gts', contents);
 
     let server = project.startLanguageServer();
@@ -130,7 +130,7 @@ describe('Language Server: custom file extensions', () => {
   test('resolving conflicts between overlapping extensions', () => {
     let contents = 'export let identifier = 123`;';
 
-    project.write('.glintrc', `environment: ember-template-imports`);
+    project.setGlintConfig({ environment: 'ember-template-imports' });
     project.write('index.ts', contents);
     project.write('index.gts', contents);
 
@@ -179,7 +179,7 @@ describe('Language Server: custom file extensions', () => {
 
   describe('external file changes', () => {
     beforeEach(() => {
-      project.write('.glintrc', `environment: ember-template-imports`);
+      project.setGlintConfig({ environment: 'ember-template-imports' });
       project.write(
         'index.gts',
         stripIndent`

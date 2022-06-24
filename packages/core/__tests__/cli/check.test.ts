@@ -41,7 +41,7 @@ describe('CLI: single-pass typechecking', () => {
   });
 
   test('handles conditionals with yielding', async () => {
-    project.write('.glintrc', 'environment: ember-loose\n');
+    project.setGlintConfig({ environment: 'ember-loose' });
 
     let script = stripIndent`
       import Component from '@ember/component';
@@ -174,7 +174,7 @@ describe('CLI: single-pass typechecking', () => {
   });
 
   test('reports diagnostics for a companion template type error', async () => {
-    project.write('.glintrc', 'environment: ember-loose\n');
+    project.setGlintConfig({ environment: 'ember-loose' });
 
     let script = stripIndent`
       import Component from '@ember/component';
@@ -214,7 +214,7 @@ describe('CLI: single-pass typechecking', () => {
   });
 
   test('reports diagnostics for a template-only type error', async () => {
-    project.write('.glintrc', 'environment: ember-loose\n');
+    project.setGlintConfig({ environment: 'ember-loose' });
 
     let template = stripIndent`
       {{this.someProperty}}
@@ -236,7 +236,7 @@ describe('CLI: single-pass typechecking', () => {
   });
 
   test('reports diagnostics from .gts extensions', async () => {
-    project.write('.glintrc', `environment: ember-template-imports`);
+    project.setGlintConfig({ environment: 'ember-template-imports' });
 
     project.write(
       'my-component.gts',
@@ -259,7 +259,7 @@ describe('CLI: single-pass typechecking', () => {
   });
 
   test('reports correct diagnostics given @glint-expect-error and @glint-ignore directives', async () => {
-    project.write('.glintrc', 'environment: ember-loose\n');
+    project.setGlintConfig({ environment: 'ember-loose' });
 
     let script = stripIndent`
       import Component from '@ember/component';
@@ -294,7 +294,7 @@ describe('CLI: single-pass typechecking', () => {
     `);
   });
 
-  test('honors .glintrc configuration', async () => {
+  test('honors transform include/exclude configuration', async () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';
 
@@ -306,7 +306,7 @@ describe('CLI: single-pass typechecking', () => {
     `;
 
     project.write('index.ts', code);
-    project.write('.glintrc', 'environment: glimmerx\nexclude: "index.ts"\n');
+    project.setGlintConfig({ environment: 'glimmerx', transform: { exclude: ['index.ts'] } });
 
     let checkResult = await project.check();
 

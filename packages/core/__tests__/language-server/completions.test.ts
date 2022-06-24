@@ -15,7 +15,7 @@ describe('Language Server: Completions', () => {
   });
 
   test('querying a standalone template', () => {
-    project.write('.glintrc', 'environment: ember-loose');
+    project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<LinkT />');
 
     let server = project.startLanguageServer();
