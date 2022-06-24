@@ -1,11 +1,13 @@
-import { GlintConfig } from '../src';
+import ts from 'typescript';
+import { GlintConfig } from '../src/config';
 
 describe('include/exclude configuration', () => {
   const root = process.cwd();
+  const configPath = `${root}/tsconfig.json`;
   const environment = 'glimmerx';
 
   describe('defaults', () => {
-    const config = new GlintConfig(root, { environment });
+    const config = new GlintConfig(ts, configPath, { environment });
 
     test('includes all .ts files within the root', () => {
       expect(config.includesFile(`${root}/file.ts`)).toBe(true);
@@ -40,29 +42,40 @@ describe('include/exclude configuration', () => {
 
   describe('custom configuration', () => {
     test('include glob', () => {
-      let config = new GlintConfig(root, { environment, include: 'src/**/*.txt' });
+      let config = new GlintConfig(ts, configPath, {
+        environment,
+        transform: { include: 'src/**/*.txt' },
+      });
       expect(config.includesFile(`${root}/src/file.txt`)).toBe(true);
       expect(config.includesFile(`${root}/file.txt`)).toBe(false);
       expect(config.includesFile(`${root}/src/index.ts`)).toBe(false);
     });
 
     test('include array', () => {
-      let config = new GlintConfig(root, { environment, include: ['**/*.txt', '**/*.ts'] });
+      let config = new GlintConfig(ts, configPath, {
+        environment,
+        transform: { include: ['**/*.txt', '**/*.ts'] },
+      });
       expect(config.includesFile(`${root}/hello/there.txt`)).toBe(true);
       expect(config.includesFile(`${root}/index.ts`)).toBe(true);
       expect(config.includesFile(`${root}/file.js`)).toBe(false);
     });
 
     test('exclude glob', () => {
-      let config = new GlintConfig(root, { environment, exclude: 'dist/**/*.ts' });
+      let config = new GlintConfig(ts, configPath, {
+        environment,
+        transform: { exclude: 'dist/**/*.ts' },
+      });
       expect(config.includesFile(`${root}/dist/file.ts`)).toBe(false);
       expect(config.includesFile(`${root}/file.ts`)).toBe(true);
     });
 
     test('exclude array', () => {
-      let config = new GlintConfig(root, {
+      let config = new GlintConfig(ts, configPath, {
         environment,
-        exclude: ['dist/**/*.ts', 'vendor/**/*.ts'],
+        transform: {
+          exclude: ['dist/**/*.ts', 'vendor/**/*.ts'],
+        },
       });
       expect(config.includesFile(`${root}/dist/file.ts`)).toBe(false);
       expect(config.includesFile(`${root}/vendor/file.ts`)).toBe(false);
@@ -70,10 +83,12 @@ describe('include/exclude configuration', () => {
     });
 
     test('excludes override includes', () => {
-      let config = new GlintConfig(root, {
+      let config = new GlintConfig(ts, configPath, {
         environment,
-        include: 'src/**/*.ts',
-        exclude: 'src/**/*.generated.ts',
+        transform: {
+          include: 'src/**/*.ts',
+          exclude: 'src/**/*.generated.ts',
+        },
       });
 
       expect(config.includesFile(`${root}/file.ts`)).toBe(false);
