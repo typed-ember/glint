@@ -1,4 +1,4 @@
-import { GlintEnvironment } from '@glint/config';
+import { GlintEnvironment } from '@glint/config/lib/environment';
 
 describe('Environments: Ember Loose', () => {
   test.each(['ts', 'js'])('finds possible template paths for %s script paths', (ext) => {
