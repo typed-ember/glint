@@ -5,6 +5,7 @@
 
 ## Using Glint
 
+- [Configuration](configuration.md)
 - Ember
   - [Installation](ember/installation.md)
   - [Component Signatures](ember/component-signatures.md)

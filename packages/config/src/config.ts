@@ -12,8 +12,8 @@ export type GlintConfigInput = {
 };
 
 /**
- * This class represents a parsed `.glintrc` file, with methods for interrogating
- * project configuration based on the contents of the file.
+ * This class represents parsed Glint configuration from a `tsconfig` or `jsconfig` file,
+ * with methods for interrogating project configuration based on its contents.
  */
 export class GlintConfig {
   public declare readonly ts: typeof import('typescript');

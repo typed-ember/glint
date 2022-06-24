@@ -3,7 +3,7 @@ Note: GlimmerX is currently not compatible with Glint 0.8. Please use the latest
 GlimmerX projects for the time being.
 {% endhint %}
 
-To use Glint with [GlimmerX](https://github.com/glimmerjs/glimmer-experimental), you'll add the `@glint/core` and `@glint/environment-glimmerx` packages to your project's `devDependencies`, then create a `.glintrc.yml` in the root of your project.
+To use Glint with [GlimmerX](https://github.com/glimmerjs/glimmer-experimental), you'll add the `@glint/core` and `@glint/environment-glimmerx` packages to your project's `devDependencies`, then add a `"glint"` key to your project's `tsconfig.json`.
 
 {% tabs %}
 {% tab title="Yarn" %}
@@ -22,17 +22,20 @@ npm install -D @glint/core @glint/environment-glimmerx
 {% endtab %}
 {% endtabs %}
 
-{% code title="file.js" %}
+{% code title="tsconfig.json" %}
 
-```yaml
-environment: glimmerx
-include:
-  - 'src/**'
+```javascript
+{
+  "compilerOptions": { /* ... */ },
+  "glint": {
+    "environment": "glimmerx"
+  }
+}
 ```
 
 {% endcode %}
 
-Note that specifying `include` globs is optional, but may be a useful way to incrementally migrate your project to Glint over time.
+Note that, by default, Glint will assume you want it to analyze all templates in the codebase that are covered by your `tsconfig.json`. See the [Configuration](../configuration.md) guide for further details on configuring Glint's behavior.
 
 {% hint style="info" %}
 
