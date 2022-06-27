@@ -137,7 +137,7 @@ describe('rewriteTemplate', () => {
           },
           areaOfEffect: {
             start: 0,
-            end: template.length -1,
+            end: template.length - 1,
           },
         },
       ]);
@@ -613,12 +613,12 @@ describe('rewriteTemplate', () => {
           `);
         });
 
-        // `@glimmer/syntax` doesn't accept this yet, though it will be required
-        // for template strict mode to invoke param-less helpers passed as args
-        test.skip('as a subexpression', () => {
+        test('as a subexpression', () => {
           let template = '{{(@foo)}}';
 
-          expect(templateBody(template)).toMatchInlineSnapshot();
+          expect(templateBody(template)).toMatchInlineSnapshot(
+            `"χ.emitValue(χ.resolveOrReturn(χ.resolve(𝚪.args.foo)({}))({}));"`
+          );
         });
       });
     });
@@ -1003,7 +1003,7 @@ describe('rewriteTemplate', () => {
             Parse error on line 1:
             <Foo @attr={{\"123}} />
             -------------^
-            Expecting 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
+            Expecting 'OPEN_SEXPR', 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
           `,
         },
       ]);
