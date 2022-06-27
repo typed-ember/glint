@@ -1,6 +1,11 @@
 import { ConfigLoader, GlintConfig } from '@glint/config';
 import type ts from 'typescript';
-import { Connection, TextDocuments } from 'vscode-languageserver';
+import {
+  Connection,
+  MessageType,
+  ShowMessageNotification,
+  TextDocuments,
+} from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import DocumentCache from '../common/document-cache';
 import { debounce } from '../common/scheduling';
@@ -30,15 +35,7 @@ export class LanguageServerPool {
   }
 
   public withServerForURI<T>(uri: string, callback: (details: ServerDetails) => T): T | undefined {
-    let config = this.configForURI(uri);
-    if (!config) return;
-
-    let details = this.servers.get(config);
-    if (!details) {
-      details = this.launchServer(config);
-      this.servers.set(config, details);
-    }
-
+    let details = this.getServerDetailsForURI(uri);
     if (details) {
       return this.runWithCapturedErrors(callback, details);
     }
@@ -57,6 +54,26 @@ export class LanguageServerPool {
 
   private configForURI(uri: string): GlintConfig | null {
     return this.configLoader.configForFile(uriToFilePath(uri));
+  }
+
+  private getServerDetailsForURI(uri: string): ServerDetails | undefined {
+    try {
+      let config = this.configForURI(uri);
+      if (!config) return;
+
+      let details = this.servers.get(config);
+      if (!details) {
+        details = this.launchServer(config);
+        this.servers.set(config, details);
+      }
+
+      return details;
+    } catch (error) {
+      this.sendMessage(
+        MessageType.Error,
+        `Unable to start Glint language service for ${uriToFilePath(uri)}.\n${errorMessage(error)}`
+      );
+    }
   }
 
   private launchServer(glintConfig: GlintConfig): ServerDetails {
@@ -104,6 +121,10 @@ export class LanguageServerPool {
         }
       }
     });
+  }
+
+  private sendMessage(type: MessageType, message: string): void {
+    this.connection.sendNotification(ShowMessageNotification.type, { message, type });
   }
 }
 

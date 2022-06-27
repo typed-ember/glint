@@ -24,11 +24,22 @@ function addWorkspaceFolder(workspaceFolder: WorkspaceFolder, context: Extension
   let folderPath = workspaceFolder.uri.fsPath;
   if (clients.has(folderPath)) return;
 
-  let nodeArgs = [resolve('@glint/core/bin/glint-language-server', { basedir: folderPath })];
+  let serverArgs = [];
+  try {
+    serverArgs.unshift(resolve('@glint/core/bin/glint-language-server', { basedir: folderPath }));
+  } catch {
+    // Many workspaces with `tsconfig` files won't be Glint projects, so it's totally fine for us to
+    // just bail out if we don't see `@glint/core`. If someone IS expecting Glint to run for this
+    // project, though, we leave a message in our channel explaining why we didn't launch.
+    outputChannel.appendLine(
+      `Unable to resolve @glint/core from ${folderPath} — not launching Glint for this directory.`
+    );
+    return;
+  }
 
   let serverOptions: ServerOptions = {
-    run: { command: 'node', args: nodeArgs },
-    debug: { command: 'node', args: ['--nolazy', `--inspect`, ...nodeArgs] },
+    run: { command: 'node', args: serverArgs },
+    debug: { command: 'node', args: ['--nolazy', `--inspect`, ...serverArgs] },
   };
 
   let extensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
