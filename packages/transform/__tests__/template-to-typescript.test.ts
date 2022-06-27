@@ -602,15 +602,57 @@ describe('rewriteTemplate', () => {
           `);
         });
 
-        test('as an @arg value', () => {
-          let template = '<Greet @message={{@arg}} />';
+        describe('passed to an @arg', () => {
+          test('an @arg', () => {
+            let template = '<Greet @message={{@arg}} />';
 
-          expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
-            "{
-              const 𝛄 = χ.emitComponent(χ.resolve(Greet)({ message: 𝚪.args.arg }));
-              𝛄;
-            }"
-          `);
+            expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
+              "{
+                const 𝛄 = χ.emitComponent(χ.resolve(Greet)({ message: 𝚪.args.arg }));
+                𝛄;
+              }"
+            `);
+          });
+
+          test('a global identifier', () => {
+            let template = '<Greet @message={{foo}} />';
+
+            expect(templateBody(template, { globals: ['foo'] })).toMatchInlineSnapshot(`
+              "{
+                const 𝛄 = χ.emitComponent(χ.resolve(Greet)({ message: χ.resolveOrReturn(χ.Globals[\\"foo\\"])({}) }));
+                𝛄;
+              }"
+            `);
+          });
+
+          test('an in-scope identifier', () => {
+            let template = '<Greet @message={{foo}} />';
+
+            expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
+              "{
+                const 𝛄 = χ.emitComponent(χ.resolve(Greet)({ message: foo }));
+                𝛄;
+              }"
+            `);
+          });
+
+          test('a shadowed global identifier', () => {
+            let template = '{{#let foo as |bar|}}<Greet @message={{bar}} />{{/let}}';
+
+            expect(templateBody(template, { globals: ['foo'] })).toMatchInlineSnapshot(`
+              "{
+                const 𝛄 = χ.emitComponent(χ.resolve(let)({}, χ.Globals[\\"foo\\"]));
+                {
+                  const [bar] = 𝛄.blockParams[\\"default\\"];
+                  {
+                    const 𝛄 = χ.emitComponent(χ.resolve(Greet)({ message: bar }));
+                    𝛄;
+                  }
+                }
+                let;
+              }"
+            `);
+          });
         });
 
         test('as a subexpression', () => {
