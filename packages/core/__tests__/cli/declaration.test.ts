@@ -89,7 +89,7 @@ describe('CLI: emitting declarations', () => {
       {{@message}}, world!
     `;
 
-    project.write('.glintrc', 'environment: ember-loose');
+    project.setGlintConfig({ environment: 'ember-loose' });
 
     project.write('class-component.ts', classComponentScript);
     project.write('class-component.hbs', classComponentTemplate);

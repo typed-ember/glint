@@ -1,4 +1,4 @@
-To use Glint with [Ember](https://github.com/emberjs/ember.js), you'll add the `@glint/core` and `@glint/environment-ember-loose` packages to your project's `devDependencies`, then create a `.glintrc.yml` in the root of your project.
+To use Glint with [Ember](https://github.com/emberjs/ember.js), you'll add the `@glint/core` and `@glint/environment-ember-loose` packages to your project's `devDependencies`, then add a `"glint"` key to your project's `tsconfig.json`.
 
 {% tabs %}
 {% tab title="Yarn" %}
@@ -17,17 +17,20 @@ npm install -D @glint/core @glint/environment-ember-loose
 {% endtab %}
 {% endtabs %}
 
-{% code title=".glintrc.yml" %}
+{% code title="tsconfig.json" %}
 
-```yaml
-environment: ember-loose
-include:
-  - 'app/**'
+```javascript
+{
+  "compilerOptions": { /* ... */ },
+  "glint": {
+    "environment": "ember-loose"
+  }
+}
 ```
 
 {% endcode %}
 
-Note that specifying `include` globs is optional, but may be a useful way to incrementally migrate your project to Glint over time.
+Note that, by default, Glint will assume you want it to analyze all templates in the codebase that are covered by your `tsconfig.json`. See the [Configuration](../configuration.md) guide for further details on configuring Glint's behavior.
 
 {% hint style="info" %}
 

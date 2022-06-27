@@ -16,7 +16,7 @@ TypeScript-powered tooling for Glimmer templates.
 
 ## Getting Started
 
-Glint is broken into several different packages that you may use, depending on the details of your project. Typically you'll add `@glint/core` and a Glint environment package that reflects the type of project you're working on, then add a `.glintrc.yml` file to your project to tell Glint what it should look at.
+Glint is broken into several different packages that you may use, depending on the details of your project. Typically you'll add `@glint/core` and a Glint environment package that reflects the type of project you're working on, then add a `"glint"` key to your `tsconfig.json` that tells Glint what it should look at.
 
 For more specific details on setting up Glint in your project, take a look at [the documentation], in particular the Installation pages [for Ember.js projects] and [for GlimmerX projects].
 

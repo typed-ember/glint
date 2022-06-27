@@ -1,6 +1,10 @@
 import fs from 'fs';
 import os from 'os';
-import { GlintEnvironment, GlintExtensionPreprocess, GlintExtensionTransform } from '../src';
+import {
+  GlintEnvironment,
+  GlintExtensionPreprocess,
+  GlintExtensionTransform,
+} from '../src/environment';
 
 describe('Environments', () => {
   describe('template tags config', () => {

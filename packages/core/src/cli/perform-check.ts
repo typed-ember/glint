@@ -3,14 +3,10 @@ import TransformManager from '../common/transform-manager';
 import { GlintConfig } from '@glint/config';
 import { buildDiagnosticFormatter } from './diagnostics';
 
-export function performCheck(
-  ts: typeof import('typescript'),
-  glintConfig: GlintConfig,
-  configPath: string | undefined,
-  optionsToExtend: ts.CompilerOptions
-): void {
-  let transformManager = new TransformManager(ts, glintConfig);
-  let parsedConfig = loadTsconfig(ts, transformManager, configPath, optionsToExtend);
+export function performCheck(glintConfig: GlintConfig, optionsToExtend: ts.CompilerOptions): void {
+  let { ts } = glintConfig;
+  let transformManager = new TransformManager(glintConfig);
+  let parsedConfig = loadTsconfig(ts, transformManager, glintConfig.configPath, optionsToExtend);
   let compilerHost = createCompilerHost(ts, parsedConfig.options, transformManager);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
   let program = ts.createProgram({

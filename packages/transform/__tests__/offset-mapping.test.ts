@@ -3,7 +3,7 @@ import { stripIndent } from 'common-tags';
 import { Range, SourceFile } from '../src/transformed-module';
 import ts from 'typescript';
 import { assert } from '../src/util';
-import { GlintEnvironment } from '@glint/config';
+import { GlintEnvironment } from '@glint/config/lib/environment';
 
 const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
 const emberLooseEnvironment = GlintEnvironment.load('ember-loose');

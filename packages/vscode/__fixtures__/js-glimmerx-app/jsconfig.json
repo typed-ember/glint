@@ -5,5 +5,8 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "checkJs": true
+  },
+  "glint": {
+    "environment": "glimmerx"
   }
 }

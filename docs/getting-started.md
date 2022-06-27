@@ -2,9 +2,9 @@
 
 First, add `@glint/core` and an appropriate Glint environment to your project's `devDependencies`.
 
-Then, add a `.glintrc.yml` file to the root of your project (typically alongside your `tsconfig.json` file). This file tells Glint what environment you're working in and, optionally, which files it should include in its typechecking.
+Then, add a `"glint"` key in your `tsconfig.json` that tells Glint what environment you're working in and, optionally, which files it should include in its typechecking.
 
-For setup instructions specific to your project type, check out the links below:
+See the [Configuration](configuration.md) page for more details about options you can specify under the `"glint"` key. For setup instructions specific to your project type, check out the links below:
 
 - [GlimmerX Installation](glimmerx/installation.md)
 - [Ember.js Installation](ember/installation.md)

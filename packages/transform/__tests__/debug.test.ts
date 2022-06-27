@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import { rewriteModule } from '../src';
 import { stripIndent } from 'common-tags';
-import { GlintEnvironment } from '@glint/config';
+import { GlintEnvironment } from '@glint/config/lib/environment';
 
 describe('Debug utilities', () => {
   describe('TransformedModule#toDebugString', () => {

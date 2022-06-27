@@ -31,7 +31,7 @@ describe('Language Server: Diagnostics', () => {
       The current time is {{this.startupTime}}.
     `;
 
-    project.write('.glintrc', 'environment: ember-loose\ninclude: []\n');
+    project.setGlintConfig({ environment: 'ember-loose', transform: { include: [] } });
     project.write('index.ts', script);
     project.write('index.hbs', template);
 
@@ -87,7 +87,10 @@ describe('Language Server: Diagnostics', () => {
     });
 
     test('disabled', () => {
-      project.write('.glintrc', `environment: ember-loose\ncheckStandaloneTemplates: false`);
+      project.setGlintConfig({
+        environment: 'ember-loose',
+        checkStandaloneTemplates: false,
+      });
 
       let server = project.startLanguageServer();
       let templateDiagnostics = server.getDiagnostics(project.fileURI('my-component.hbs'));
@@ -96,7 +99,10 @@ describe('Language Server: Diagnostics', () => {
     });
 
     test('enabled', () => {
-      project.write('.glintrc', `environment: ember-loose\ncheckStandaloneTemplates: true`);
+      project.setGlintConfig({
+        environment: 'ember-loose',
+        checkStandaloneTemplates: true,
+      });
 
       let server = project.startLanguageServer();
       let templateDiagnostics = server.getDiagnostics(project.fileURI('my-component.hbs'));
@@ -152,7 +158,7 @@ describe('Language Server: Diagnostics', () => {
     `;
 
     beforeEach(() => {
-      project.write('.glintrc', 'environment: ember-loose\n');
+      project.setGlintConfig({ environment: 'ember-loose' });
     });
 
     test('adding a backing module', () => {
@@ -298,7 +304,7 @@ describe('Language Server: Diagnostics', () => {
       The current time is {{this.startupTimee}}.
     `;
 
-    project.write('.glintrc', 'environment: ember-loose\n');
+    project.setGlintConfig({ environment: 'ember-loose' });
     project.write('controllers/foo.ts', script);
     project.write('templates/foo.hbs', template);
 

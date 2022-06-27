@@ -14,7 +14,7 @@ describe('Language Server: Renaming Symbols', () => {
   });
 
   test('querying an standalone template', () => {
-    project.write('.glintrc', 'environment: ember-loose');
+    project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
     let server = project.startLanguageServer();

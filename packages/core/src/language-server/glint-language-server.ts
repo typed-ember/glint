@@ -26,18 +26,28 @@ import {
 } from './util/protocol';
 import { TextEdit } from 'vscode-languageserver-textdocument';
 
+export interface GlintCompletionItem extends CompletionItem {
+  data: {
+    uri: string;
+    transformedFileName: string;
+    transformedOffset: number;
+    source: string | undefined;
+  };
+}
+
 export default class GlintLanguageServer {
   private service: ts.LanguageService;
   private openFileNames: Set<string>;
   private rootFileNames: Set<string>;
+  private ts: typeof import('typescript');
 
   constructor(
-    private ts: typeof import('typescript'),
     private glintConfig: GlintConfig,
     private documents: DocumentCache,
     private transformManager: TransformManager,
     parsedConfig: ts.ParsedCommandLine
   ) {
+    this.ts = glintConfig.ts;
     this.openFileNames = new Set();
     this.rootFileNames = new Set(parsedConfig.fileNames);
 
@@ -47,7 +57,7 @@ export default class GlintLanguageServer {
       getScriptSnapshot: (fileName) => {
         let contents = this.transformManager.readTransformedFile(fileName);
         if (typeof contents === 'string') {
-          return ts.ScriptSnapshot.fromString(contents);
+          return this.ts.ScriptSnapshot.fromString(contents);
         }
       },
       fileExists: this.transformManager.fileExists,
@@ -56,15 +66,15 @@ export default class GlintLanguageServer {
       getCompilationSettings: () => parsedConfig.options,
       // Yes, this looks like a mismatch, but built-in lib declarations don't resolve
       // correctly otherwise, and this is what the TS wiki uses in their code snippet.
-      getDefaultLibFileName: ts.getDefaultLibFilePath,
+      getDefaultLibFileName: this.ts.getDefaultLibFilePath,
       // TS defaults from here down
-      getCurrentDirectory: ts.sys.getCurrentDirectory,
-      directoryExists: ts.sys.directoryExists,
-      getDirectories: ts.sys.getDirectories,
-      realpath: ts.sys.realpath,
+      getCurrentDirectory: this.ts.sys.getCurrentDirectory,
+      directoryExists: this.ts.sys.directoryExists,
+      getDirectories: this.ts.sys.getDirectories,
+      realpath: this.ts.sys.realpath,
     };
 
-    this.service = ts.createLanguageService(serviceHost);
+    this.service = this.ts.createLanguageService(serviceHost);
 
     // Kickstart typechecking
     this.service.getProgram();
@@ -154,7 +164,7 @@ export default class GlintLanguageServer {
       .filter((info): info is SymbolInformation => Boolean(info));
   }
 
-  public getCompletions(uri: string, position: Position): CompletionItem[] | undefined {
+  public getCompletions(uri: string, position: Position): GlintCompletionItem[] | undefined {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
     if (this.isTemplate(transformedFileName)) return;
 
@@ -167,11 +177,11 @@ export default class GlintLanguageServer {
     return completions?.entries.map((completionEntry) => ({
       label: completionEntry.name,
       kind: scriptElementKindToCompletionItemKind(completionEntry.kind),
-      data: { transformedFileName, transformedOffset, source: completionEntry.source },
+      data: { uri, transformedFileName, transformedOffset, source: completionEntry.source },
     }));
   }
 
-  public getCompletionDetails(item: CompletionItem): CompletionItem {
+  public getCompletionDetails(item: GlintCompletionItem): GlintCompletionItem {
     let { label, data } = item;
     if (!data) {
       return item;

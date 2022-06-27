@@ -1,10 +1,9 @@
-import path from 'path';
-import { cosmiconfigSync } from 'cosmiconfig';
-import { GlintConfig } from './config';
 import SilentError from 'silent-error';
+import { GlintConfig } from './config';
+import { ConfigLoader } from './loader';
 
-export { GlintConfig } from './config';
-export {
+export type { GlintConfig } from './config';
+export type {
   GlintEnvironment,
   GlintEnvironmentConfig,
   GlintTagConfig,
@@ -12,6 +11,8 @@ export {
   GlintExtensionTransform,
   PathCandidate,
 } from './environment';
+
+export { ConfigLoader } from './loader';
 
 /**
  * Loads glint configuration, starting from the given directory
@@ -33,10 +34,5 @@ export function loadConfig(from: string): GlintConfig {
  * found.
  */
 export function findConfig(from: string): GlintConfig | null {
-  let result = cosmiconfigSync('glint').search(from);
-  if (result) {
-    return new GlintConfig(path.dirname(result.filepath), result.config);
-  }
-
-  return null;
+  return new ConfigLoader().configForDirectory(from);
 }

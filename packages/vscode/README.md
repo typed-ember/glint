@@ -9,12 +9,12 @@ A Visual Studio Code extension for the [Glint] language server.
 See the [Glint home page] for a more detailed Getting Started guide.
 
 1. Add `@glint/core` and an appropriate environment package to your project's `devDependencies`.
-1. Create a `.glintrc` file in the root of your project specifying your environment and any other relevant configuration.
+1. Add a `"glint"` key to your project's `tsconfig.json` or `jsconfig.json` specifying your environment and any other relevant configuration.
 1. Consider disabling the built-in `vscode.typescript-language-features` extension for any workspaces where you use Glint to avoid extraneous diagnostics. <details><summary>Screenshot</summary>
 <img src="https://user-images.githubusercontent.com/108688/111069039-6dc84100-84cb-11eb-8339-18a589be2ac5.png" width="500">
 </details>
 
-[glint home page]: https://github.com/typed-ember/glint
+[glint home page]: https://typed-ember.gitbook.io/glint
 
 ## Usage
 

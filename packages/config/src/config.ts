@@ -1,44 +1,52 @@
 import path from 'path';
 import { Minimatch, IMinimatch } from 'minimatch';
 import { GlintEnvironment } from './environment';
-import SilentError from 'silent-error';
 
 export type GlintConfigInput = {
   environment: string | Array<string> | Record<string, unknown>;
   checkStandaloneTemplates?: boolean;
-  include?: string | Array<string>;
-  exclude?: string | Array<string>;
+  transform?: {
+    include?: string | Array<string>;
+    exclude?: string | Array<string>;
+  };
 };
 
 /**
- * This class represents a parsed `.glintrc` file, with methods for interrogating
- * project configuration based on the contents of the file.
+ * This class represents parsed Glint configuration from a `tsconfig` or `jsconfig` file,
+ * with methods for interrogating project configuration based on its contents.
  */
 export class GlintConfig {
+  public declare readonly ts: typeof import('typescript');
   public readonly rootDir: string;
+  public readonly configPath: string;
   public readonly environment: GlintEnvironment;
   public readonly checkStandaloneTemplates: boolean;
 
   private includeMatchers: Array<IMinimatch>;
   private excludeMatchers: Array<IMinimatch>;
 
-  public constructor(rootDir: string, config: Record<string, unknown> = {}) {
-    validateConfigInput(config);
-
-    this.rootDir = normalizePath(rootDir);
-    this.environment = GlintEnvironment.load(config.environment, { rootDir });
+  public constructor(
+    ts: typeof import('typescript'),
+    configPath: string,
+    config: GlintConfigInput
+  ) {
+    Object.defineProperty(this, 'ts', { value: ts });
+    this.configPath = normalizePath(configPath);
+    this.rootDir = path.dirname(configPath);
+    this.environment = GlintEnvironment.load(config.environment, { rootDir: this.rootDir });
     this.checkStandaloneTemplates = config.checkStandaloneTemplates ?? true;
 
     let extensions = this.environment.getConfiguredFileExtensions();
-    let include = Array.isArray(config.include)
-      ? config.include
-      : config.include
-      ? [config.include]
+    let transform = config.transform ?? {};
+    let include = Array.isArray(transform.include)
+      ? transform.include
+      : transform.include
+      ? [transform.include]
       : extensions.map((ext) => `**/*${ext}`);
 
-    let exclude = Array.isArray(config.exclude)
-      ? config.exclude
-      : [config.exclude ?? '**/node_modules/**'];
+    let exclude = Array.isArray(transform.exclude)
+      ? transform.exclude
+      : [transform.exclude ?? '**/node_modules/**'];
 
     this.includeMatchers = this.buildMatchers(include);
     this.excludeMatchers = this.buildMatchers(exclude);
@@ -85,41 +93,4 @@ export function normalizePath(fileName: string): string {
   }
 
   return fileName;
-}
-
-function validateConfigInput(input: Record<string, unknown>): asserts input is GlintConfigInput {
-  assert(
-    Array.isArray(input['environment'])
-      ? input['environment'].every((env) => typeof env === 'string')
-      : typeof input['environment'] === 'string' ||
-          (typeof input['environment'] === 'object' && input['environment']),
-    'Glint config must specify an `environment` that is a string, array of strings, or an object ' +
-      'mapping environment names to their config.'
-  );
-
-  assert(
-    input['checkStandaloneTemplates'] === undefined ||
-      typeof input['checkStandaloneTemplates'] === 'boolean',
-    'If defined, `checkStandaloneTemplates` must be a boolean'
-  );
-
-  assert(
-    Array.isArray(input['include'])
-      ? input['include'].every((item) => typeof item === 'string')
-      : !input['include'] || typeof input['include'] === 'string',
-    'If defined, `include` must be a string or array of strings'
-  );
-
-  assert(
-    Array.isArray(input['exclude'])
-      ? input['exclude'].every((item) => typeof item === 'string')
-      : !input['exclude'] || typeof input['exclude'] === 'string',
-    'If defined, `exclude` must be a string or array of strings'
-  );
-}
-
-function assert(test: unknown, message: string): asserts test {
-  if (!test) {
-    throw new SilentError(`@glint/config: ${message}`);
-  }
 }

@@ -17,7 +17,7 @@ describe('CLI: custom extensions', () => {
   test('reporting one-shot diagnostics', async () => {
     let code = 'let identifier: string = 123;';
 
-    project.write('.glintrc', 'environment: ember-template-imports');
+    project.setGlintConfig({ environment: 'ember-template-imports' });
     project.write('index.gts', code);
 
     let result = await project.check({ reject: false });
@@ -35,7 +35,7 @@ describe('CLI: custom extensions', () => {
   test('reporting watched diagnostics', async () => {
     let code = 'let identifier: string = 123;';
 
-    project.write('.glintrc', 'environment: ember-template-imports');
+    project.setGlintConfig({ environment: 'ember-template-imports' });
     project.write('index.gts', code);
 
     let watch = project.watch();
@@ -60,7 +60,7 @@ describe('CLI: custom extensions', () => {
 
   describe('external file changes', () => {
     beforeEach(() => {
-      project.write('.glintrc', `environment: ember-template-imports`);
+      project.setGlintConfig({ environment: 'ember-template-imports' });
       project.write(
         'index.gts',
         stripIndent`
