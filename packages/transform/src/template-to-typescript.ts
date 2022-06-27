@@ -712,7 +712,7 @@ export function templateToTypescript(
         let hasParams = Boolean(node.hash.pairs.length || node.params.length);
         let isEmit = position === 'top-level' || position === 'attr' || position === 'concat';
 
-        if (!hasParams && position === 'arg') {
+        if (!hasParams && position === 'arg' && !isGlobal(node.path)) {
           emitExpression(node.path);
         } else if (isEmit) {
           emit.text('χ.emitValue(');
@@ -722,6 +722,15 @@ export function templateToTypescript(
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
         }
       });
+    }
+
+    function isGlobal(path: AST.Expression): boolean {
+      return Boolean(
+        path.type === 'PathExpression' &&
+          path.head.type === 'VarHead' &&
+          globals?.includes(path.head.name) &&
+          !scope.hasBinding(path.head.name)
+      );
     }
 
     function emitYieldStatement(

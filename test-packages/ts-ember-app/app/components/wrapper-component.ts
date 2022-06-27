@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-classic-components, ember/require-tagless-components */
 import { ComponentLike, WithBoundArgs } from '@glint/template';
 import Component from '@ember/component';
 import EmberComponent from './ember-component';
