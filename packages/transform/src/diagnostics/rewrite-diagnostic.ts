@@ -1,9 +1,7 @@
-import type ts from 'typescript';
 import { assert, createSyntheticSourceFile, TSLib } from '../util';
 import TransformedModule from '../template/transformed-module';
-import MappingTree from '../template/mapping-tree';
-import { MappingSource } from '../template/map-template-contents';
 import type { Diagnostic } from '.';
+import { augmentDiagnostic } from './augmentation';
 
 /**
  * Given a TypeScript diagnostic object from a module that was rewritten
@@ -36,20 +34,14 @@ export function rewriteDiagnostic<T extends Diagnostic>(
     start,
     length,
     file: createSyntheticSourceFile(ts, source),
+    relatedInformation: transformedDiagnostic.relatedInformation?.map((relatedInfo) =>
+      rewriteDiagnostic(ts, relatedInfo, locateTransformedModule)
+    ),
   };
 
-  if (hasRelatedInformation(diagnostic) && diagnostic.relatedInformation) {
-    diagnostic.relatedInformation = diagnostic.relatedInformation.map((relatedInfo) =>
-      rewriteDiagnostic(ts, relatedInfo, locateTransformedModule)
-    );
+  if (mapping) {
+    diagnostic = augmentDiagnostic(diagnostic, mapping);
   }
 
   return diagnostic;
 }
-
-function hasRelatedInformation(
-  value: ts.DiagnosticWithLocation | ts.DiagnosticRelatedInformation
-): value is ts.DiagnosticWithLocation {
-  return 'relatedInformation' in value && Boolean(value.relatedInformation);
-}
-
