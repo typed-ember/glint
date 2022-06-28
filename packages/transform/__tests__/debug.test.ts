@@ -37,7 +37,7 @@ describe('Debug utilities', () => {
 
         | Mapping: Template
         |  hbs(0:123):   {{#each (array \\"world\\" \\"planet\\" \\"universe\\") as |target index|}}\\\\n  #{{add index 1}}: {{this.message}}, {{target}}!\\\\n{{/each}}
-        |  ts(165:798):  ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {\\\\n  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"each\\"])({}, [\\"world\\", \\"planet\\", \\"universe\\"]));\\\\n    {\\\\n      const [target, index] = 𝛄.blockParams[\\"default\\"];\\\\n      χ.emitValue(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1));\\\\n      χ.emitValue(χ.resolveOrReturn(𝚪.this.message)({}));\\\\n      χ.emitValue(χ.resolveOrReturn(target)({}));\\\\n    }\\\\n    χ.Globals[\\"each\\"];\\\\n  }\\\\n  𝚪; χ;\\\\n}) as unknown
+        |  ts(165:804):  ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-ember-loose/-private/dsl\\").ResolveContext<MyComponent>, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {\\\\n  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"each\\"])({}, [\\"world\\", \\"planet\\", \\"universe\\"]));\\\\n    {\\\\n      const [target, index] = 𝛄.blockParams[\\"default\\"];\\\\n      χ.emitContent(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1));\\\\n      χ.emitContent(χ.resolveOrReturn(𝚪.this.message)({}));\\\\n      χ.emitContent(χ.resolveOrReturn(target)({}));\\\\n    }\\\\n    χ.Globals[\\"each\\"];\\\\n  }\\\\n  𝚪; χ;\\\\n}) as unknown
         |
         | | Mapping: Identifier
         | |  hbs(0:0):
@@ -45,7 +45,7 @@ describe('Debug utilities', () => {
         | |
         | | Mapping: BlockStatement
         | |  hbs(0:123):   {{#each (array \\"world\\" \\"planet\\" \\"universe\\") as |target index|}}\\\\n  #{{add index 1}}: {{this.message}}, {{target}}!\\\\n{{/each}}
-        | |  ts(406:775):  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"each\\"])({}, [\\"world\\", \\"planet\\", \\"universe\\"]));\\\\n    {\\\\n      const [target, index] = 𝛄.blockParams[\\"default\\"];\\\\n      χ.emitValue(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1));\\\\n      χ.emitValue(χ.resolveOrReturn(𝚪.this.message)({}));\\\\n      χ.emitValue(χ.resolveOrReturn(target)({}));\\\\n    }\\\\n    χ.Globals[\\"each\\"];\\\\n  }
+        | |  ts(406:781):  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"each\\"])({}, [\\"world\\", \\"planet\\", \\"universe\\"]));\\\\n    {\\\\n      const [target, index] = 𝛄.blockParams[\\"default\\"];\\\\n      χ.emitContent(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1));\\\\n      χ.emitContent(χ.resolveOrReturn(𝚪.this.message)({}));\\\\n      χ.emitContent(χ.resolveOrReturn(target)({}));\\\\n    }\\\\n    χ.Globals[\\"each\\"];\\\\n  }
         | |
         | | | Mapping: PathExpression
         | | |  hbs(3:7):     each
@@ -83,66 +83,66 @@ describe('Debug utilities', () => {
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(67:82):   {{add index 1}}
-        | | |  ts(572:632):  χ.emitValue(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1))
+        | | |  ts(572:634):  χ.emitContent(χ.resolve(χ.Globals[\\"add\\"])({}, index, 1))
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(69:72):   add
-        | | | |  ts(600:616):  χ.Globals[\\"add\\"]
+        | | | |  ts(602:618):  χ.Globals[\\"add\\"]
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(69:72):   add
-        | | | | |  ts(611:614):  add
+        | | | | |  ts(613:616):  add
         | | | | |
         | | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(73:78):   index
-        | | | |  ts(622:627):  index
+        | | | |  ts(624:629):  index
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(73:78):   index
-        | | | | |  ts(622:627):  index
+        | | | | |  ts(624:629):  index
         | | | | |
         | | | |
         | | | | Mapping: NumberLiteral
         | | | |  hbs(79:80):   1
-        | | | |  ts(629:630):  1
+        | | | |  ts(631:632):  1
         | | | |
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(84:100):  {{this.message}}
-        | | |  ts(634:691):  χ.emitValue(χ.resolveOrReturn(𝚪.this.message)({}))
+        | | |  ts(636:695):  χ.emitContent(χ.resolveOrReturn(𝚪.this.message)({}))
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(86:98):   this.message
-        | | | |  ts(670:685):  𝚪.this.message
+        | | | |  ts(674:689):  𝚪.this.message
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(86:90):   this
-        | | | | |  ts(673:677):  this
+        | | | | |  ts(677:681):  this
         | | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(91:98):   message
-        | | | | |  ts(678:685):  message
+        | | | | |  ts(682:689):  message
         | | | | |
         | | | |
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(102:112): {{target}}
-        | | |  ts(693:741):  χ.emitValue(χ.resolveOrReturn(target)({}))
+        | | |  ts(697:747):  χ.emitContent(χ.resolveOrReturn(target)({}))
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(104:110): target
-        | | | |  ts(729:735):  target
+        | | | |  ts(735:741):  target
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(104:110): target
-        | | | | |  ts(729:735):  target
+        | | | | |  ts(735:741):  target
         | | | | |
         | | | |
         | | |
         | | | Mapping: Identifier
         | | |  hbs(117:121): each
-        | | |  ts(764:768):  each
+        | | |  ts(770:774):  each
         | | |
         | |
         |"
@@ -229,7 +229,7 @@ describe('Debug utilities', () => {
 
         | Mapping: Template
         |  hbs(313:437): hbs\`\\\\n    <p ...attributes>\\\\n      Hello, {{@foo}}!\\\\n\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\n      {{@bar}}\\\\n    </p>\\\\n  \`
-        |  ts(622:1086): ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<HelperComponent>, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {\\\\n  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    χ.emitValue(χ.resolveOrReturn(𝚪.args.bar)({}));\\\\n  }\\\\n  𝚪; χ;\\\\n}) as unknown
+        |  ts(622:1090): ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<HelperComponent>, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {\\\\n  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)({}));\\\\n  }\\\\n  𝚪; χ;\\\\n}) as unknown
         |
         | | Mapping: Identifier
         | |  hbs(313:313):
@@ -237,7 +237,7 @@ describe('Debug utilities', () => {
         | |
         | | Mapping: ElementNode
         | |  hbs(322:433): <p ...attributes>\\\\n      Hello, {{@foo}}!\\\\n\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\n      {{@bar}}\\\\n    </p>
-        | |  ts(865:1064): {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    χ.emitValue(χ.resolveOrReturn(𝚪.args.bar)({}));\\\\n  }
+        | |  ts(865:1068): {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)({}));\\\\n  }
         | |
         | | | Mapping: AttrNode
         | | |  hbs(325:338): ...attributes
@@ -245,33 +245,33 @@ describe('Debug utilities', () => {
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(353:361): {{@foo}}
-        | | |  ts(954:1005): χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}))
+        | | |  ts(954:1007): χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)({}))
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(355:359): @foo
-        | | | |  ts(988:999):  𝚪.args.foo
+        | | | |  ts(990:1001): 𝚪.args.foo
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(356:359): foo
-        | | | | |  ts(996:999):  foo
+        | | | | |  ts(998:1001): foo
         | | | | |
         | | | |
         | | |
         | | | Mapping: MustacheCommentStatement
         | | |  hbs(370:409): {{! @glint-expect-error: no @bar arg }}
-        | | |  ts(1007:1007):
+        | | |  ts(1009:1009):
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(416:424): {{@bar}}
-        | | |  ts(1007:1058):χ.emitValue(χ.resolveOrReturn(𝚪.args.bar)({}))
+        | | |  ts(1009:1062):χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)({}))
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(418:422): @bar
-        | | | |  ts(1041:1052):𝚪.args.bar
+        | | | |  ts(1045:1056):𝚪.args.bar
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(419:422): bar
-        | | | | |  ts(1049:1052):bar
+        | | | | |  ts(1053:1056):bar
         | | | | |
         | | | |
         | | |
@@ -360,7 +360,7 @@ describe('Debug utilities', () => {
 
         | Mapping: Template
         |  hbs(324:455): hbs\`\\\\r\\\\n    <p ...attributes>\\\\r\\\\n      Hello, {{@foo}}!\\\\r\\\\n\\\\r\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\r\\\\n      {{@bar}}\\\\r\\\\n    </p>\\\\r\\\\n  \`
-        |  ts(631:1095): ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<HelperComponent>, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {\\\\n  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    χ.emitValue(χ.resolveOrReturn(𝚪.args.bar)({}));\\\\n  }\\\\n  𝚪; χ;\\\\n}) as unknown
+        |  ts(631:1099): ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).template(function(𝚪: import(\\"@glint/environment-glimmerx/-private/dsl\\").ResolveContext<HelperComponent>, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {\\\\n  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)({}));\\\\n  }\\\\n  𝚪; χ;\\\\n}) as unknown
         |
         | | Mapping: Identifier
         | |  hbs(324:324):
@@ -368,7 +368,7 @@ describe('Debug utilities', () => {
         | |
         | | Mapping: ElementNode
         | |  hbs(334:450): <p ...attributes>\\\\r\\\\n      Hello, {{@foo}}!\\\\r\\\\n\\\\r\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\r\\\\n      {{@bar}}\\\\r\\\\n    </p>
-        | |  ts(874:1073): {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    χ.emitValue(χ.resolveOrReturn(𝚪.args.bar)({}));\\\\n  }
+        | |  ts(874:1077): {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)({}));\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)({}));\\\\n  }
         | |
         | | | Mapping: AttrNode
         | | |  hbs(337:350): ...attributes
@@ -376,33 +376,33 @@ describe('Debug utilities', () => {
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(366:374): {{@foo}}
-        | | |  ts(963:1014): χ.emitValue(χ.resolveOrReturn(𝚪.args.foo)({}))
+        | | |  ts(963:1016): χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)({}))
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(368:372): @foo
-        | | | |  ts(997:1008): 𝚪.args.foo
+        | | | |  ts(999:1010): 𝚪.args.foo
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(369:372): foo
-        | | | | |  ts(1005:1008):foo
+        | | | | |  ts(1007:1010):foo
         | | | | |
         | | | |
         | | |
         | | | Mapping: MustacheCommentStatement
         | | |  hbs(385:424): {{! @glint-expect-error: no @bar arg }}
-        | | |  ts(1016:1016):
+        | | |  ts(1018:1018):
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(432:440): {{@bar}}
-        | | |  ts(1016:1067):χ.emitValue(χ.resolveOrReturn(𝚪.args.bar)({}))
+        | | |  ts(1018:1071):χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)({}))
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(434:438): @bar
-        | | | |  ts(1050:1061):𝚪.args.bar
+        | | | |  ts(1054:1065):𝚪.args.bar
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(435:438): bar
-        | | | | |  ts(1058:1061):bar
+        | | | | |  ts(1062:1065):bar
         | | | | |
         | | | |
         | | |
