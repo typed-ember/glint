@@ -292,23 +292,17 @@ export function templateToTypescript(
       });
     }
 
-    function getInlineKeyword(
-      node: AST.MustacheStatement | AST.SubExpression
-    ): InlineKeyword | null {
-      if (node.path.type === 'PathExpression' && node.path.parts.length === 1) {
-        let name = node.path.parts[0] as InlineKeyword;
-        if (INLINE_KEYWORDS.includes(name)) {
-          return name;
-        }
-      }
-
-      return null;
-    }
-
-    function getBlockKeyword(node: AST.BlockStatement): BlockKeyword | null {
-      if (node.path.type === 'PathExpression' && node.path.parts.length === 1) {
-        let name = node.path.parts[0] as BlockKeyword;
-        if (BLOCK_KEYWORDS.includes(name)) {
+    function getKeyword<K extends string>(
+      node: AST.CallNode,
+      keywords: ReadonlyArray<K>
+    ): K | null {
+      if (
+        node.path.type === 'PathExpression' &&
+        node.path.head.type === 'VarHead' &&
+        !node.path.tail.length
+      ) {
+        let name = node.path.head.name as K;
+        if (keywords.includes(name)) {
           return name;
         }
       }
@@ -688,7 +682,7 @@ export function templateToTypescript(
     }
 
     function emitMustacheStatement(node: AST.MustacheStatement, position: InvokePosition): void {
-      let keyword = getInlineKeyword(node);
+      let keyword = getKeyword(node, INLINE_KEYWORDS);
       if (keyword) {
         emitInlineKeywordStatement(keyword, node, position);
         return;
@@ -843,7 +837,7 @@ export function templateToTypescript(
     }
 
     function emitBlockStatement(node: AST.BlockStatement): void {
-      let keyword = getBlockKeyword(node);
+      let keyword = getKeyword(node, BLOCK_KEYWORDS);
       if (keyword) {
         emitBlockKeywordStatement(keyword, node);
         return;
@@ -935,7 +929,7 @@ export function templateToTypescript(
     }
 
     function emitSubExpression(node: AST.SubExpression): void {
-      let keyword = getInlineKeyword(node);
+      let keyword = getKeyword(node, INLINE_KEYWORDS);
       if (keyword) {
         emitInlineKeywordStatement(keyword, node, 'sexpr');
         return;
