@@ -17,6 +17,8 @@ export class Identifier {
   public constructor(public readonly name: string) {}
 }
 
+export type MappingSource = Identifier | AST.Node;
+
 export type Mapper = {
   /**
    * Given a @glimmer/syntax AST node, returns the corresponding start
@@ -161,7 +163,7 @@ export function mapTemplateContents(
   // will be emitted.
   let captureMapping = (
     hbsRange: Range,
-    source: AST.Node | Identifier,
+    source: MappingSource,
     allowEmpty: boolean,
     callback: () => void
   ): void => {
