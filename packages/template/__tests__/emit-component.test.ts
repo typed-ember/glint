@@ -3,7 +3,7 @@ import {
   applyModifier,
   emitComponent,
   emitElement,
-  emitValue,
+  emitContent,
   resolve,
   ResolveContext,
   resolveOrReturn,
@@ -90,8 +90,8 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
     expectTypeOf(isReady).toEqualTypeOf<boolean>();
     expectTypeOf(value).toEqualTypeOf<string>();
 
-    emitValue(resolveOrReturn(value)({}));
-    emitValue(resolveOrReturn(isReady)({}));
+    emitContent(resolveOrReturn(value)({}));
+    emitContent(resolveOrReturn(isReady)({}));
   }
 }
 
@@ -113,8 +113,8 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
     expectTypeOf(isReady).toEqualTypeOf<boolean>();
     expectTypeOf(value).toEqualTypeOf<number>();
 
-    emitValue(resolveOrReturn(value)({}));
-    emitValue(resolveOrReturn(isReady)({}));
+    emitContent(resolveOrReturn(value)({}));
+    emitContent(resolveOrReturn(isReady)({}));
   }
 }
 
@@ -126,7 +126,7 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
  * {{MyComponent value=123}}
  * ```
  */
-emitValue(resolve(MyComponent)({ value: 123 }));
+emitContent(resolve(MyComponent)({ value: 123 }));
 
 /**
  * Ensure we can invoke a maybe-undefined component.

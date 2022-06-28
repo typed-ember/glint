@@ -9,6 +9,36 @@ import {
 import { ExpandSignature } from '@glimmer/component/-private/component';
 
 /**
+ * Any value that can be safely emitted into the DOM as top-level content,
+ * i.e. as `<div>{{value}}</div>`.
+ *
+ * This includes primitives like strings, numbers and booleans; "nothing"
+ * values like `null` and `undefined`; DOM nodes; and blockless curly
+ * component invocations.
+ */
+export type ContentValue =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | void
+  | SafeString
+  | Node
+  | ArglessCurlyComponent;
+
+/**
+ * Any value that can be safely set as an HTML attribute on a DOM node.
+ * This includes strings, numbers, booleans and `null`/`undefined`.
+ *
+ * Note that this does not include functions, as writing something like
+ * `onclick={{this.handleClick}}` in a template ultimately relies on
+ * fallback behavior in the VM to set the `onclick` property, and is
+ * better performed using the `{{on}}` modifier.
+ */
+export type AttrValue = string | number | boolean | null | undefined | SafeString;
+
+/**
  * A value that is invokable like a component in a template. In an
  * appropriate Glint environment, subclasses of `EmberComponent` and
  * `GlimmerComponent` are examples of `ComponentLike` values, as are
@@ -112,3 +142,13 @@ type InvokableArgs<S> = [
   named: GuardEmpty<Get<Get<S, 'Args'>, 'Named'>>,
   ...positional: Constrain<Get<Get<S, 'Args'>, 'Positional'>, Array<unknown>, []>
 ];
+
+// This encompasses both @glimmer/runtime and @ember/template's notion of `SafeString`s,
+// and this coverage is tested in `emit-content.test.ts`.
+type SafeString = { toHTML(): string };
+
+// `{{foo}}` becomes `emitContent(resolveOrReturn(foo)({})`, which means if `foo`
+// is a component that accepts no args, then this is a valid invocation.
+type ArglessCurlyComponent = AcceptsBlocks<{}, any>;
+
+export {};

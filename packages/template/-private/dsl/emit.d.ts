@@ -1,3 +1,4 @@
+import { AttrValue, ContentValue } from '..';
 import {
   AcceptsBlocks,
   AnyContext,
@@ -8,18 +9,18 @@ import {
   Invokable,
   TemplateContext,
 } from '../integration';
-import { ElementForTagName, EmittableValue } from './types';
+import { ElementForTagName } from './types';
 
 /*
- * Emits the given value to the DOM. This corresponds to a mustache
- * statement either at the top level:
+ * Emits the given value as top-level content to the DOM. This:
  *
- *     {{value}}
- *     {{value foo=bar}}
- *     <div data-x={{value foo=bar}}>
- *     <div data-x="hello {{value foo=bar}}">
+ *     Hello, {{world}}
+ *
+ * Would produce code like:
+ *
+ *     emitContent(resolveOrReturn(value)({}))
  */
-export declare function emitValue(value: AcceptsBlocks<{}, any> | EmittableValue): void;
+export declare function emitContent(value: ContentValue): void;
 
 /*
  * Emits an element of the given name, providing a value to the
@@ -106,7 +107,7 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
-export declare function applyAttributes(element: Element, attrs: Record<string, unknown>): void;
+export declare function applyAttributes(element: Element, attrs: Record<string, AttrValue>): void;
 
 /*
  * Applies a modifier to an element or component.

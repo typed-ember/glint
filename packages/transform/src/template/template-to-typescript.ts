@@ -710,12 +710,10 @@ export function templateToTypescript(
         // passed directly as a value; otherwise it's invoked if it's a
         // component/helper, and returned as a value otherwise.
         let hasParams = Boolean(node.hash.pairs.length || node.params.length);
-        let isEmit = position === 'top-level' || position === 'attr' || position === 'concat';
-
         if (!hasParams && position === 'arg' && !isGlobal(node.path)) {
           emitExpression(node.path);
-        } else if (isEmit) {
-          emit.text('χ.emitValue(');
+        } else if (position === 'top-level') {
+          emit.text('χ.emitContent(');
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
           emit.text(')');
         } else {
