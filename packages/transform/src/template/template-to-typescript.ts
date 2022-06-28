@@ -1,5 +1,5 @@
 import { AST } from '@glimmer/syntax';
-import { unreachable, assert } from './util';
+import { unreachable, assert } from '../util';
 import { mapTemplateContents, RewriteResult } from './map-template-contents';
 import ScopeStack from './scope-stack';
 import { GlintEmitMetadata } from '@glint/config/src/environment';

@@ -1,5 +1,8 @@
 import { stripIndent } from 'common-tags';
-import { templateToTypescript, TemplateToTypescriptOptions } from '../src/template-to-typescript';
+import {
+  templateToTypescript,
+  TemplateToTypescriptOptions,
+} from '../src/template/template-to-typescript';
 
 describe('rewriteTemplate', () => {
   // Slices out the template boilerplate to return only the code representing
