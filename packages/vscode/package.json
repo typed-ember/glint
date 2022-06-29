@@ -41,6 +41,12 @@
     "workspaceContains:**/jsconfig.json"
   ],
   "contributes": {
+    "commands": [
+      {
+        "title": "Glint: Restart Glint Server",
+        "command": "glint.restart-language-server"
+      }
+    ],
     "configuration": [
       {
         "title": "Glint",

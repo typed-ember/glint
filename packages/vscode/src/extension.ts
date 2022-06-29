@@ -18,6 +18,9 @@ export function activate(context: ExtensionContext): void {
   let watcher = workspace.createFileSystemWatcher(filePattern);
 
   context.subscriptions.push(watcher);
+  context.subscriptions.push(
+    commands.registerCommand('glint.restart-language-server', restartClients)
+  );
 
   workspace.workspaceFolders?.forEach((folder) => addWorkspaceFolder(folder, watcher));
   workspace.onDidChangeWorkspaceFolders(({ added, removed }) => {
@@ -30,6 +33,10 @@ export async function deactivate(): Promise<void> {
   await Promise.all([...clients.values()].map((client) => client.stop()));
 }
 
+async function restartClients(): Promise<void> {
+  outputChannel.appendLine(`Restarting Glint language server...`);
+  await Promise.all([...clients.values()].map((client) => client.restart()));
+}
 
 async function addWorkspaceFolder(
   workspaceFolder: WorkspaceFolder,
