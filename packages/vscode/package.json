@@ -40,6 +40,25 @@
     "workspaceContains:**/tsconfig.json",
     "workspaceContains:**/jsconfig.json"
   ],
+  "contributes": {
+    "configuration": [
+      {
+        "title": "Glint",
+        "properties": {
+          "glint.trace.server": {
+            "description": "Traces communication between VS Code and the Glint language server.",
+            "type": "string",
+            "default": "off",
+            "enum": [
+              "off",
+              "messages",
+              "verbose"
+            ]
+          }
+        }
+      }
+    ]
+  },
   "icon": "assets/glint.png",
   "galleryBanner": {
     "color": "#1E293B",
