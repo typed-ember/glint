@@ -329,6 +329,14 @@ export default class GlintLanguageServer {
     return this.calculateOriginalLocations(references);
   }
 
+  public getTransformedContents(uri: string): string | null {
+    let filePath = uriToFilePath(uri);
+    let source = this.findDiagnosticsSource(filePath);
+    if (source !== filePath) return null;
+
+    return this.transformManager.readTransformedFile(filePath) ?? null;
+  }
+
   private calculateOriginalLocations(spans: ReadonlyArray<ts.DocumentSpan>): Array<Location> {
     return spans
       .map((span) => this.textSpanToLocation(span.fileName, span.textSpan))

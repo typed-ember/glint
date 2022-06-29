@@ -24,6 +24,18 @@ describe('Smoke test: Ember', () => {
     }
   });
 
+  describe('debugging commands', () => {
+    test('showing IR', async () => {
+      let scriptURI = Uri.file(`${rootDir}/app/components/colocated-layout.ts`);
+      let editor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
+
+      await commands.executeCommand('glint.show-debug-ir');
+      await waitUntil(() => editor.document.getText().includes('𝚪'));
+
+      expect(editor.document.getText()).toMatch('𝚪.this.message');
+    });
+  });
+
   describe('diagnostics for errors', () => {
     test('component template', async () => {
       let scriptURI = Uri.file(`${rootDir}/app/components/colocated-layout.ts`);

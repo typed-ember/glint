@@ -5,9 +5,15 @@ import {
   WorkspaceFolder,
   FileSystemWatcher,
   commands,
+  TextEditor,
+  Range,
 } from 'vscode';
 import { LanguageClient, ServerOptions } from 'vscode-languageclient/node';
 import { sync as resolve } from 'resolve';
+import type { Request, GetIRRequest } from '@glint/core/lib/language-server/messages';
+
+///////////////////////////////////////////////////////////////////////////////
+// Setup and extension lifecycle
 
 const outputChannel = window.createOutputChannel('Glint Language Server');
 const clients = new Map<string, LanguageClient>();
@@ -19,7 +25,8 @@ export function activate(context: ExtensionContext): void {
 
   context.subscriptions.push(watcher);
   context.subscriptions.push(
-    commands.registerCommand('glint.restart-language-server', restartClients)
+    commands.registerCommand('glint.restart-language-server', restartClients),
+    commands.registerTextEditorCommand('glint.show-debug-ir', showDebugIR)
   );
 
   workspace.workspaceFolders?.forEach((folder) => addWorkspaceFolder(folder, watcher));
@@ -33,10 +40,39 @@ export async function deactivate(): Promise<void> {
   await Promise.all([...clients.values()].map((client) => client.stop()));
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Commands
+
 async function restartClients(): Promise<void> {
   outputChannel.appendLine(`Restarting Glint language server...`);
   await Promise.all([...clients.values()].map((client) => client.restart()));
 }
+
+async function showDebugIR(editor: TextEditor): Promise<void> {
+  let workspaceFolder = workspace.getWorkspaceFolder(editor.document.uri);
+  if (!workspaceFolder) {
+    return;
+  }
+
+  let { document } = editor;
+  let client = clients.get(workspaceFolder.uri.fsPath);
+  let request = requestKey<typeof GetIRRequest>('glint/getIR');
+  let response = await client?.sendRequest(request, { uri: document.uri.toString() });
+  if (!response) {
+    return;
+  }
+
+  let start = document.positionAt(0);
+  let end = document.positionAt(document.getText().length);
+  let transformedContents = response;
+
+  await editor.edit((edit) => {
+    edit.replace(new Range(start, end), transformedContents);
+  });
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Workspace folder management
 
 async function addWorkspaceFolder(
   workspaceFolder: WorkspaceFolder,
@@ -70,6 +106,9 @@ async function removeWorkspaceFolder(workspaceFolder: WorkspaceFolder): Promise<
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Utilities
+
 function findLanguageServer(basedir: string): string | null {
   try {
     return resolve('@glint/core/bin/glint-language-server', { basedir });
@@ -83,4 +122,11 @@ function findLanguageServer(basedir: string): string | null {
 
     return null;
   }
+}
+
+// This allows us to just use a bare string key for performing a request while maintaining
+// type information for the request _without_ forcing us to import runtime code from
+// `@glint/core` into the extension.
+function requestKey<R extends Request<string, unknown>>(name: R['name']): R['type'] {
+  return name as unknown as R['type'];
 }

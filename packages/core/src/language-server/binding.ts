@@ -9,6 +9,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { GlintCompletionItem } from './glint-language-server';
 import { LanguageServerPool } from './pool';
+import { GetIRRequest } from './messages';
 
 export const capabilities: ServerCapabilities = {
   textDocumentSync: TextDocumentSyncKind.Full,
@@ -106,6 +107,10 @@ export function bindLanguageServerPool({ connection, pool, openDocuments }: Bind
       symbols.push(...server.findSymbols(query));
     });
     return symbols;
+  });
+
+  connection.onRequest(GetIRRequest.type, ({ uri }) => {
+    return pool.withServerForURI(uri, ({ server }) => server.getTransformedContents(uri));
   });
 
   connection.onDidChangeWatchedFiles(({ changes }) => {
