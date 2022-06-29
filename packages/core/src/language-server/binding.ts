@@ -9,7 +9,6 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { GlintCompletionItem } from './glint-language-server';
 import { LanguageServerPool } from './pool';
-import { uriToFilePath } from './util';
 
 export const capabilities: ServerCapabilities = {
   textDocumentSync: TextDocumentSyncKind.Full,
@@ -110,12 +109,8 @@ export function bindLanguageServerPool({ connection, pool, openDocuments }: Bind
   });
 
   connection.onDidChangeWatchedFiles(({ changes }) => {
-    let changePaths = changes.map((change) => ({ change, path: uriToFilePath(change.uri) }));
-
-    pool.forEachServer(({ server, rootDir, scheduleDiagnostics }) => {
-      for (let { change, path } of changePaths) {
-        if (!path.startsWith(rootDir)) continue;
-
+    pool.forEachServer(({ server, scheduleDiagnostics }) => {
+      for (let change of changes) {
         if (change.type === FileChangeType.Created) {
           server.watchedFileWasAdded(change.uri);
         } else if (change.type === FileChangeType.Deleted) {
