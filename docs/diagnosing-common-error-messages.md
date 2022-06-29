@@ -68,6 +68,6 @@ The key here is `Property '[Invoke]' is missing in type...`. This usually means 
 
 - You don’t have the latest version of Glint
 - You don’t have the latest version of the `@glimmer/component` or `@types/ember__component` packages
-- You are missing your environment import (e.g. `import '@glint/ember-environment-loose'`)
+- You are missing your environment import (e.g. `import '@glint/environment-ember-loose'`)
 
 As a special case of the missing environment import: if you are using a shared base `tsconfig.json` but overriding it in a Yarn workspace or similar setup, if your `"include"` key does not include the file which adds the environment import, it will not work (`include`s are not merged even when using TypeScript's `extends` option, but rather completely override the values from the base config).
