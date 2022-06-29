@@ -8,7 +8,7 @@ import {
   TextEditor,
   Range,
 } from 'vscode';
-import { LanguageClient, ServerOptions } from 'vscode-languageclient/node';
+import { Disposable, LanguageClient, ServerOptions } from 'vscode-languageclient/node';
 import { sync as resolve } from 'resolve';
 import type { Request, GetIRRequest } from '@glint/core/lib/language-server/messages';
 
@@ -21,17 +21,17 @@ const extensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
 const filePattern = `**/*{${extensions.join(',')}}`;
 
 export function activate(context: ExtensionContext): void {
-  let watcher = workspace.createFileSystemWatcher(filePattern);
+  let fileWatcher = workspace.createFileSystemWatcher(filePattern);
 
-  context.subscriptions.push(watcher);
+  context.subscriptions.push(fileWatcher, createConfigWatcher());
   context.subscriptions.push(
     commands.registerCommand('glint.restart-language-server', restartClients),
     commands.registerTextEditorCommand('glint.show-debug-ir', showDebugIR)
   );
 
-  workspace.workspaceFolders?.forEach((folder) => addWorkspaceFolder(folder, watcher));
+  workspace.workspaceFolders?.forEach((folder) => addWorkspaceFolder(folder, fileWatcher));
   workspace.onDidChangeWorkspaceFolders(({ added, removed }) => {
-    added.forEach((folder) => addWorkspaceFolder(folder, watcher));
+    added.forEach((folder) => addWorkspaceFolder(folder, fileWatcher));
     removed.forEach((folder) => removeWorkspaceFolder(folder));
   });
 }
@@ -122,6 +122,17 @@ function findLanguageServer(basedir: string): string | null {
 
     return null;
   }
+}
+
+// Automatically restart running servers when config files in the workspace change
+function createConfigWatcher(): Disposable {
+  let configWatcher = workspace.createFileSystemWatcher('**/{ts,js}config*.json');
+
+  configWatcher.onDidCreate(restartClients);
+  configWatcher.onDidChange(restartClients);
+  configWatcher.onDidDelete(restartClients);
+
+  return configWatcher;
 }
 
 // This allows us to just use a bare string key for performing a request while maintaining
