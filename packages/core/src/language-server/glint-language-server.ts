@@ -101,7 +101,10 @@ export default class GlintLanguageServer {
   }
 
   public watchedFileWasAdded(uri: string): void {
-    this.rootFileNames.add(this.glintConfig.getSynthesizedScriptPathForTS(uriToFilePath(uri)));
+    let filePath = uriToFilePath(uri);
+    if (filePath.startsWith(this.glintConfig.rootDir)) {
+      this.rootFileNames.add(this.glintConfig.getSynthesizedScriptPathForTS(filePath));
+    }
   }
 
   public watchedFileDidChange(uri: string): void {
@@ -324,6 +327,14 @@ export default class GlintLanguageServer {
       this.service.getReferencesAtPosition(transformedFileName, transformedOffset) ?? [];
 
     return this.calculateOriginalLocations(references);
+  }
+
+  public getTransformedContents(uri: string): string | null {
+    let filePath = uriToFilePath(uri);
+    let source = this.findDiagnosticsSource(filePath);
+    if (source !== filePath) return null;
+
+    return this.transformManager.readTransformedFile(filePath) ?? null;
   }
 
   private calculateOriginalLocations(spans: ReadonlyArray<ts.DocumentSpan>): Array<Location> {
