@@ -53,7 +53,7 @@ export type GlintExtensionsConfig = {
 };
 
 export type GlintTagConfig = {
-  typesSource: string;
+  typesModule: string;
   globals?: Array<string>;
 };
 
@@ -73,7 +73,7 @@ export type PathCandidateWithDeferral = {
 };
 
 export type GlintTemplateConfig = {
-  typesPath: string;
+  typesModule: string;
   getPossibleTemplatePaths(scriptPath: string): Array<PathCandidate>;
   getPossibleScriptPaths(templatePath: string): Array<PathCandidate>;
 };
@@ -151,7 +151,7 @@ export class GlintEnvironment {
    * environment supports such templates.
    */
   public getTypesForStandaloneTemplate(): string | undefined {
-    return this.standaloneTemplateConfig?.typesPath;
+    return this.standaloneTemplateConfig?.typesModule;
   }
 
   /**

@@ -18,8 +18,8 @@ export function calculateCompanionTemplateSpans(
   let errors: Array<TransformError> = [];
   let directives: Array<Directive> = [];
   let partialSpans: Array<PartialCorrelatedSpan> = [];
-  let typesPath = environment.getTypesForStandaloneTemplate();
-  if (!typesPath) {
+  let typesModule = environment.getTypesForStandaloneTemplate();
+  if (!typesModule) {
     errors.push({
       source: template,
       location: { start: 0, end: template.contents.length },
@@ -45,7 +45,7 @@ export function calculateCompanionTemplateSpans(
     }
 
     let rewriteResult = templateToTypescript(template.contents, {
-      typesPath,
+      typesModule,
       contextType,
       typeParams,
       useJsDoc,
@@ -69,7 +69,7 @@ export function calculateCompanionTemplateSpans(
     }
 
     let rewriteResult = templateToTypescript(template.contents, {
-      typesPath,
+      typesModule,
       contextType,
       useJsDoc,
     });

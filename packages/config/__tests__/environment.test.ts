@@ -11,7 +11,7 @@ describe('Environments', () => {
     test('locating a single tag', () => {
       let env = new GlintEnvironment(['test-env'], {
         tags: {
-          'my-cool-environment': { hbs: { typesSource: 'whatever' } },
+          'my-cool-environment': { hbs: { typesModule: 'whatever' } },
         },
       });
 
@@ -23,9 +23,9 @@ describe('Environments', () => {
     test('locating one of several tags', () => {
       let env = new GlintEnvironment(['test-env'], {
         tags: {
-          'my-cool-environment': { hbs: { typesSource: 'whatever' } },
-          'another-env': { tagMe: { typesSource: 'over-here' } },
-          'and-this-one': { hbs: { typesSource: '✨' } },
+          'my-cool-environment': { hbs: { typesModule: 'whatever' } },
+          'another-env': { tagMe: { typesModule: 'over-here' } },
+          'and-this-one': { hbs: { typesModule: '✨' } },
         },
       });
 
@@ -37,7 +37,7 @@ describe('Environments', () => {
     test('checking a module with no tags in use', () => {
       let env = new GlintEnvironment(['test-env'], {
         tags: {
-          'my-cool-environment': { hbs: { typesSource: 'whatever' } },
+          'my-cool-environment': { hbs: { typesModule: 'whatever' } },
         },
       });
 
@@ -50,7 +50,7 @@ describe('Environments', () => {
       let tags = {
         '@glimmerx/component': {
           hbs: {
-            typesSource: '@glint/environment-glimmerx/-private/dsl',
+            typesModule: '@glint/environment-glimmerx/-private/dsl',
           },
         },
       };
@@ -73,7 +73,7 @@ describe('Environments', () => {
     test('reflecting specified configuration', () => {
       let env = new GlintEnvironment(['test-env'], {
         template: {
-          typesPath: '@glint/test-env/types',
+          typesModule: '@glint/test-env/types',
           getPossibleTemplatePaths: (script) => [
             { path: script.replace('.ts', '.hbs'), deferTo: ['another/script.ts'] },
           ],
@@ -223,7 +223,7 @@ describe('Environments', () => {
       test('loading compatible environments', () => {
         let envA = createEnvironment('() => ({ tags: { "foo-bar": { hbs: {} } } })');
         let envB = createEnvironment(
-          '() => ({ tags: { "foo-bar": { tpl: {} }, "baz": { hbs: {} } }, template: { typesPath: "foo" } })'
+          '() => ({ tags: { "foo-bar": { tpl: {} }, "baz": { hbs: {} } }, template: { typesModule: "foo" } })'
         );
 
         let env = GlintEnvironment.load([envA, envB], { rootDir: testDir });
@@ -236,8 +236,8 @@ describe('Environments', () => {
       });
 
       test('loading conflicting standalone template config', () => {
-        let envA = createEnvironment('() => ({ template: { typesPath: "foo" } })');
-        let envB = createEnvironment('() => ({ template: { typesPath: "bar" } })');
+        let envA = createEnvironment('() => ({ template: { typesModule: "foo" } })');
+        let envB = createEnvironment('() => ({ template: { typesModule: "bar" } })');
 
         expect(() => GlintEnvironment.load([envA, envB], { rootDir: testDir })).toThrow(
           'Multiple configured Glint environments attempted to define behavior for standalone template files'

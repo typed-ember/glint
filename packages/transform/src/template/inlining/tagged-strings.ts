@@ -29,7 +29,7 @@ export function calculateTaggedTemplateSpans(
       'No interpolated values in template strings'
     );
 
-    let { typesSource, globals } = info.tagConfig;
+    let { typesModule, globals } = info.tagConfig;
     let tagName = tag.text;
     let contents = node.template.rawText ?? node.template.text;
 
@@ -52,7 +52,7 @@ export function calculateTaggedTemplateSpans(
 
     let { inClass, className, typeParams, contextType } = getContainingTypeInfo(ts, node);
     let transformedTemplate = templateToTypescript(template, {
-      typesPath: typesSource,
+      typesModule: typesModule,
       meta,
       preamble,
       globals,

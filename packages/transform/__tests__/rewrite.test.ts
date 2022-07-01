@@ -118,9 +118,9 @@ describe('rewriteModule', () => {
       let testEnvironment = new GlintEnvironment(['test'], {
         tags: {
           '@glint/test-env': {
-            hbsCaptureAll: { typesSource: '@glint/test-env', globals: [] },
-            hbsCaptureSome: { typesSource: '@glint/test-env', globals: ['global'] },
-            hbsCaptureNone: { typesSource: '@glint/test-env' },
+            hbsCaptureAll: { typesModule: '@glint/test-env', globals: [] },
+            hbsCaptureSome: { typesModule: '@glint/test-env', globals: ['global'] },
+            hbsCaptureNone: { typesModule: '@glint/test-env' },
           },
         },
       });

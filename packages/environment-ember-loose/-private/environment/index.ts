@@ -16,12 +16,12 @@ export default function emberLooseEnvironment(): GlintEnvironmentConfig {
     tags: {
       'ember-cli-htmlbars': {
         hbs: {
-          typesSource: '@glint/environment-ember-loose/-private/dsl',
+          typesModule: '@glint/environment-ember-loose/-private/dsl',
         },
       },
     },
     template: {
-      typesPath: '@glint/environment-ember-loose/-private/dsl',
+      typesModule: '@glint/environment-ember-loose/-private/dsl',
 
       getPossibleScriptPaths(templatePath) {
         // Colocated script/template pair
