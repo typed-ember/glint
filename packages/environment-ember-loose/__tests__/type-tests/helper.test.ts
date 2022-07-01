@@ -1,5 +1,6 @@
 import Helper, { helper, EmptyObject } from '@ember/component/helper';
 import { resolve } from '@glint/environment-ember-loose/-private/dsl';
+import { resolve as resolveWithoutFunctionResolution } from '@glint/environment-ember-loose/-private/dsl/without-function-resolution';
 import { expectTypeOf } from 'expect-type';
 import { HelperLike } from '@glint/template';
 import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integration';
@@ -187,4 +188,116 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
 
   expectTypeOf(MyHelper).toMatchTypeOf<HelperLike<TestSignature>>();
   expectTypeOf(myHelper).toMatchTypeOf<HelperLike<TestSignature>>();
+}
+
+// Bare-function helpers
+{
+  // @ts-expect-error: the env with no support for function resolution should reject this
+  resolveWithoutFunctionResolution(() => 'hi');
+
+  let positionalOnlyConcrete = resolve((a: number, b: number) => a + b);
+  expectTypeOf(positionalOnlyConcrete).toEqualTypeOf<
+    (named: GlintEmptyObject, a: number, b: number) => number
+  >();
+  expectTypeOf(positionalOnlyConcrete({}, 1, 2)).toBeNumber();
+
+  let positionalOnlyGeneric = resolve(<A, B>(a: A, b: B): [A, B] => [a, b]);
+  expectTypeOf(positionalOnlyGeneric).toEqualTypeOf<
+    <A, B>(named: GlintEmptyObject, a: A, b: B) => [A, B]
+  >();
+  expectTypeOf(positionalOnlyGeneric({}, 'hi', true)).toEqualTypeOf<[string, boolean]>();
+  expectTypeOf(positionalOnlyGeneric({}, 123, Symbol())).toEqualTypeOf<[number, symbol]>();
+
+  let mixedConcrete = resolve(
+    (a: number, b: number, named: { fallback: number }) => named.fallback
+  );
+  expectTypeOf(mixedConcrete).toEqualTypeOf<
+    (named: { fallback: number }, a: number, b: number) => number
+  >();
+  expectTypeOf(mixedConcrete({ fallback: 123 }, 1, 2)).toBeNumber();
+
+  let mixedGenericNamed = resolve(
+    <T>(a: number, b: number, named: { fallback: T }) => a + b || named.fallback
+  );
+  expectTypeOf(mixedGenericNamed).toEqualTypeOf<
+    <T>(named: { fallback: T }, a: number, b: number) => T | number
+  >();
+  expectTypeOf(mixedGenericNamed({ fallback: 'hi' }, 1, 2)).toEqualTypeOf<number | string>();
+  expectTypeOf(mixedGenericNamed({ fallback: 3 }, 1, 2)).toBeNumber();
+
+  let mixedGenericPositional = resolve(
+    <T>(a: T, b: T, named: { fallback: string }): string | T => a || b || named.fallback
+  );
+  expectTypeOf(mixedGenericPositional).toEqualTypeOf<
+    <T>(named: { fallback: string }, a: T, b: T) => T | string
+  >();
+  expectTypeOf(mixedGenericPositional({ fallback: 'hi' }, 'a', 'b')).toBeString();
+  expectTypeOf(mixedGenericPositional({ fallback: 'hi' }, 1, 2)).toEqualTypeOf<string | number>();
+  // @ts-expect-error: inconsistent T
+  mixedGenericPositional({ fallback: 'hi' }, 'a', 123);
+
+  let mixedGeneric = resolve(<A, B, C>(a: A, b: B, named: { c: C }): [A, B, C] => [a, b, named.c]);
+  expectTypeOf(mixedGeneric).toEqualTypeOf<<A, B, C>(named: { c: C }, a: A, b: B) => [A, B, C]>();
+  expectTypeOf(mixedGeneric({ c: 'hi' }, 123, false)).toEqualTypeOf<[number, boolean, string]>();
+
+  let namedOnlyConcrete = resolve((named: { age: number; name: string }) => named.name);
+  expectTypeOf(namedOnlyConcrete).toEqualTypeOf<(named: { age: number; name: string }) => string>();
+  expectTypeOf(namedOnlyConcrete({ age: 100, name: 'Alex' })).toBeString();
+
+  let namedOnlyGeneric = resolve(<T, U>(named: { t: T; u: U }): [T, U] => [named.t, named.u]);
+  expectTypeOf(namedOnlyGeneric).toEqualTypeOf<<T, U>(named: { t: T; u: U }) => [T, U]>();
+  expectTypeOf(namedOnlyGeneric({ t: 'hi', u: 123 })).toEqualTypeOf<[string, number]>();
+
+  let optionalNamed = resolve(<T, U>(a: T, named?: { cool: U }): [T, U] => [a, named?.cool as U]);
+  expectTypeOf(optionalNamed).toEqualTypeOf<
+    <T, U>(named: GlintEmptyObject | { cool: T }, a: U) => [T, U]
+  >();
+  expectTypeOf(optionalNamed({}, 123)).toEqualTypeOf<[number, unknown]>();
+  expectTypeOf(optionalNamed({ cool: true }, 123)).toEqualTypeOf<[number, boolean]>();
+
+  let optionalBoth = resolve(<T, U, V>(a: T, b?: U, named?: { foo: V }): [T, U, V] => [
+    a,
+    b as U,
+    named?.foo as V,
+  ]);
+  expectTypeOf(optionalBoth).toEqualTypeOf<
+    <T, U, V>(named: GlintEmptyObject | { foo: V }, a: T, b?: U) => [T, U, V]
+  >();
+  expectTypeOf(optionalBoth({}, 'hi')).toEqualTypeOf<[string, unknown, unknown]>();
+  expectTypeOf(optionalBoth({}, 'hi', 123)).toEqualTypeOf<[string, number, unknown]>();
+  expectTypeOf(optionalBoth({ foo: true }, 'hi')).toEqualTypeOf<[string, unknown, boolean]>();
+  expectTypeOf(optionalBoth({ foo: true }, 'hi', 123)).toEqualTypeOf<[string, number, boolean]>();
+
+  interface NamedInterface {
+    name: string;
+  }
+  let namedArgsInterface = resolve((pos: string, options: NamedInterface) => {
+    console.log(pos, options);
+  });
+  expectTypeOf(namedArgsInterface).toEqualTypeOf<
+    (named: GlintEmptyObject, pos: string, options: NamedInterface) => void
+  >();
+
+  type NamedType = { name: string };
+  let namedArgsType = resolve((pos: string, named: NamedType) => {
+    console.log(pos, named);
+  });
+  expectTypeOf(namedArgsType).toEqualTypeOf<(named: NamedType, pos: string) => void>();
+
+  let narrowsFirstArg = resolve(
+    <K extends string>(arg: unknown, key: K): arg is Record<K, number> => !!key
+  );
+  expectTypeOf(narrowsFirstArg).toEqualTypeOf<
+    <K extends string>(named: GlintEmptyObject, arg: unknown, key: K) => arg is Record<K, number>
+  >();
+
+  let narrowsFirstArgTestValue!: unknown;
+  if (narrowsFirstArg({}, narrowsFirstArgTestValue, 'key')) {
+    expectTypeOf(narrowsFirstArgTestValue.key).toBeNumber();
+  }
+
+  let allOptional = resolve((a?: string, b?: { foo: string }) => `${a}${b?.foo}`);
+  expectTypeOf(allOptional).toEqualTypeOf<
+    (named: GlintEmptyObject | { foo: string }, a?: string) => string
+  >();
 }

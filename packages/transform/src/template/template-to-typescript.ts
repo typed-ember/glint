@@ -12,7 +12,7 @@ type InlineKeyword = typeof INLINE_KEYWORDS[number];
 type BlockKeyword = typeof BLOCK_KEYWORDS[number];
 
 export type TemplateToTypescriptOptions = {
-  typesPath: string;
+  typesModule: string;
   meta?: GlintEmitMetadata | undefined;
   globals?: Array<string> | undefined;
   contextType?: string;
@@ -29,7 +29,7 @@ export type TemplateToTypescriptOptions = {
 export function templateToTypescript(
   template: string,
   {
-    typesPath,
+    typesModule,
     globals,
     meta,
     typeParams = '',
@@ -91,9 +91,9 @@ export function templateToTypescript(
         if (contextType) {
           emit.text('/** @type {unknown} */ (');
         }
-        emit.text(`(/** @type {typeof import("${typesPath}")} */ ({})).template(function(`);
+        emit.text(`(/** @type {typeof import("${typesModule}")} */ ({})).template(function(`);
       } else {
-        emit.text(`({} as typeof import("${typesPath}")).template(function`);
+        emit.text(`({} as typeof import("${typesModule}")).template(function`);
         emit.synthetic(typeParams);
       }
       if (!useJsDoc) {
@@ -102,11 +102,11 @@ export function templateToTypescript(
 
       if (contextType) {
         if (useJsDoc) {
-          emit.text(`/** @type {import("${typesPath}").ResolveContext<`);
+          emit.text(`/** @type {import("${typesModule}").ResolveContext<`);
           emit.synthetic(contextType);
           emit.text('>} */ ');
         } else {
-          emit.text(`: import("${typesPath}").ResolveContext<`);
+          emit.text(`: import("${typesModule}").ResolveContext<`);
           emit.synthetic(contextType);
           emit.text('>');
         }
@@ -114,9 +114,9 @@ export function templateToTypescript(
 
       if (useJsDoc) {
         emit.text('𝚪');
-        emit.text(`, /** @type {typeof import("${typesPath}")} */ χ) {`);
+        emit.text(`, /** @type {typeof import("${typesModule}")} */ χ) {`);
       } else {
-        emit.text(`, χ: typeof import("${typesPath}")) {`);
+        emit.text(`, χ: typeof import("${typesModule}")) {`);
       }
 
       emit.newline();

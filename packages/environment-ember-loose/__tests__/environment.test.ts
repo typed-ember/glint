@@ -97,4 +97,34 @@ describe('Environments: Ember Loose', () => {
       '/routes/hello.js',
     ]);
   });
+
+  test('honors `allowPlainFunctionInvocation` configuration', () => {
+    let envWithNoConfig = GlintEnvironment.load('ember-loose');
+    let envWithPlainFunctions = GlintEnvironment.load({
+      'ember-loose': { allowPlainFunctionInvocation: true },
+    });
+    let envWithoutPlainFunctions = GlintEnvironment.load({
+      'ember-loose': { allowPlainFunctionInvocation: false },
+    });
+
+    expect(envWithNoConfig.getConfiguredTemplateTags()).toEqual({
+      'ember-cli-htmlbars': {
+        hbs: { typesModule: '@glint/environment-ember-loose/-private/dsl' },
+      },
+    });
+
+    expect(envWithPlainFunctions.getConfiguredTemplateTags()).toEqual({
+      'ember-cli-htmlbars': {
+        hbs: { typesModule: '@glint/environment-ember-loose/-private/dsl' },
+      },
+    });
+
+    expect(envWithoutPlainFunctions.getConfiguredTemplateTags()).toEqual({
+      'ember-cli-htmlbars': {
+        hbs: {
+          typesModule: '@glint/environment-ember-loose/-private/dsl/without-function-resolution',
+        },
+      },
+    });
+  });
 });

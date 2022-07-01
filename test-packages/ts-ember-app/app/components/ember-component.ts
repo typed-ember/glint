@@ -15,6 +15,11 @@ export interface EmberComponentSignature {
 export default interface EmberComponent extends EmberComponentArgs {}
 export default class EmberComponent extends Component<EmberComponentSignature> {
   public hasDefault = 'defaultValue';
+  public showFunctionHelpers = false;
+
+  public isLongString(value: string): boolean {
+    return value.length > 5;
+  }
 
   public checkTypes(): unknown {
     const required: string = this.required;

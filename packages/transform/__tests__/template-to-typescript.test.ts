@@ -9,11 +9,11 @@ describe('rewriteTemplate', () => {
   // the body, to keep snapshots brief and focused.
   function templateBody(
     template: string,
-    options: Omit<TemplateToTypescriptOptions, 'typesPath'> = {}
+    options: Omit<TemplateToTypescriptOptions, 'typesModule'> = {}
   ): string {
     let { result, errors } = templateToTypescript(template, {
       ...options,
-      typesPath: '@glint/template',
+      typesModule: '@glint/template',
     });
     if (errors.length) {
       throw new Error('Unexpected error(s): ' + errors.map((e) => e.message).join(', '));
@@ -28,7 +28,7 @@ describe('rewriteTemplate', () => {
 
   describe('template boilerplate', () => {
     test('without any specified type parameters or context type', () => {
-      expect(templateToTypescript('', { typesPath: '@glint/template' }).result?.code)
+      expect(templateToTypescript('', { typesModule: '@glint/template' }).result?.code)
         .toMatchInlineSnapshot(`
         "({} as typeof import(\\"@glint/template\\")).template(function(𝚪, χ: typeof import(\\"@glint/template\\")) {
           𝚪; χ;
@@ -41,7 +41,7 @@ describe('rewriteTemplate', () => {
       let contextType = 'MyComponent<T>';
 
       expect(
-        templateToTypescript('', { contextType, typeParams, typesPath: '@glint/template' }).result
+        templateToTypescript('', { contextType, typeParams, typesModule: '@glint/template' }).result
           ?.code
       ).toMatchInlineSnapshot(`
         "({} as typeof import(\\"@glint/template\\")).template(function<T extends string>(𝚪: import(\\"@glint/template\\").ResolveContext<MyComponent<T>>, χ: typeof import(\\"@glint/template\\")) {
@@ -53,7 +53,7 @@ describe('rewriteTemplate', () => {
     test('given preamble code', () => {
       let preamble = ['console.log("hello!");', 'throw new Error();'];
 
-      expect(templateToTypescript('', { preamble, typesPath: '@glint/template' }).result?.code)
+      expect(templateToTypescript('', { preamble, typesModule: '@glint/template' }).result?.code)
         .toMatchInlineSnapshot(`
         "({} as typeof import(\\"@glint/template\\")).template(function(𝚪, χ: typeof import(\\"@glint/template\\")) {
           console.log(\\"hello!\\");
@@ -73,7 +73,7 @@ describe('rewriteTemplate', () => {
         </Foo>
       `;
 
-      let { result, errors } = templateToTypescript(template, { typesPath: '@glint/template' });
+      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
 
       expect(errors).toEqual([]);
       expect(result?.directives).toEqual([
@@ -102,7 +102,7 @@ describe('rewriteTemplate', () => {
         </Foo>
       `;
 
-      let { result, errors } = templateToTypescript(template, { typesPath: '@glint/template' });
+      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
 
       expect(errors).toEqual([]);
       expect(result?.directives).toEqual([
@@ -128,7 +128,7 @@ describe('rewriteTemplate', () => {
         {{this.baz}}
       `;
 
-      let { result, errors } = templateToTypescript(template, { typesPath: '@glint/template' });
+      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
 
       expect(errors).toEqual([]);
       expect(result?.directives).toEqual([
@@ -162,7 +162,7 @@ describe('rewriteTemplate', () => {
         </Foo>
       `;
 
-      let { result, errors } = templateToTypescript(template, { typesPath: '@glint/template' });
+      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
 
       expect(errors).toEqual([]);
       expect(result?.directives).toEqual([
@@ -188,7 +188,7 @@ describe('rewriteTemplate', () => {
         </Foo>
       `;
 
-      let { result, errors } = templateToTypescript(template, { typesPath: '@glint/template' });
+      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
 
       expect(result?.directives).toEqual([]);
       expect(errors).toEqual([
@@ -1038,7 +1038,7 @@ describe('rewriteTemplate', () => {
   describe('error conditions', () => {
     test('Handlebars syntax error', () => {
       let { errors } = templateToTypescript('<Foo @attr={{"123}} />', {
-        typesPath: '@glint/template',
+        typesModule: '@glint/template',
       });
 
       expect(errors).toEqual([
@@ -1056,7 +1056,7 @@ describe('rewriteTemplate', () => {
 
     test('HTML syntax error', () => {
       let { errors } = templateToTypescript('<Foo </Foo>', {
-        typesPath: '@glint/template',
+        typesModule: '@glint/template',
       });
 
       expect(errors).toEqual([
@@ -1070,7 +1070,7 @@ describe('rewriteTemplate', () => {
 
     test('{{yield}} in expression position', () => {
       let { errors } = templateToTypescript('<Foo @attr={{yield}} />', {
-        typesPath: '@glint/template',
+        typesModule: '@glint/template',
       });
 
       expect(errors).toEqual([
@@ -1083,7 +1083,7 @@ describe('rewriteTemplate', () => {
 
     test('{{yield}} to a dynamic named block', () => {
       let { errors } = templateToTypescript('{{yield to=@blockName}}', {
-        typesPath: '@glint/template',
+        typesModule: '@glint/template',
       });
 
       expect(errors).toEqual([
@@ -1096,7 +1096,7 @@ describe('rewriteTemplate', () => {
 
     test('{{hash}} with positional parameters', () => {
       let { errors } = templateToTypescript('<Foo @attr={{hash 123 foo="bar"}} />', {
-        typesPath: '@glint/template',
+        typesModule: '@glint/template',
       });
 
       expect(errors).toEqual([
@@ -1109,7 +1109,7 @@ describe('rewriteTemplate', () => {
 
     test('{{array}} with named parameters', () => {
       let { errors } = templateToTypescript('<Foo @attr={{array 123 foo="bar"}} />', {
-        typesPath: '@glint/template',
+        typesModule: '@glint/template',
       });
 
       expect(errors).toEqual([
@@ -1122,7 +1122,7 @@ describe('rewriteTemplate', () => {
 
     test('inline {{if}} with no consequent', () => {
       let { errors } = templateToTypescript('<Foo @attr={{if true}} />', {
-        typesPath: '@glint/template',
+        typesModule: '@glint/template',
       });
 
       expect(errors).toEqual([
@@ -1140,7 +1140,7 @@ describe('rewriteTemplate', () => {
             hello!
           {{/if}}
         `,
-        { typesPath: '@glint/template' }
+        { typesModule: '@glint/template' }
       );
 
       expect(errors).toEqual([
@@ -1165,7 +1165,7 @@ describe('rewriteTemplate', () => {
           </Component>
           Footer content
         `,
-        { typesPath: '@glint/template' }
+        { typesModule: '@glint/template' }
       );
 
       expect(errors).toEqual([
@@ -1189,7 +1189,7 @@ describe('rewriteTemplate', () => {
             {{foo-bar}}
           </Component>
         `,
-        { typesPath: '@glint/template' }
+        { typesModule: '@glint/template' }
       );
 
       expect(errors).toEqual([

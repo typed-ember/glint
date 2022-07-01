@@ -8,7 +8,7 @@ export default function glimmerxEnvironment(
     : [];
 
   let tagConfig: GlintTagConfig = {
-    typesSource: '@glint/environment-glimmerx/-private/dsl',
+    typesModule: '@glint/environment-glimmerx/-private/dsl',
     globals: [
       'component',
       'debugger',
