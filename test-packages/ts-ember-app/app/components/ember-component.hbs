@@ -7,3 +7,13 @@
   {{@optional}}
   {{@hasDefault}}
 </div>
+
+{{#if this.showFunctionHelpers}}
+  {{! @glint-expect-error: missing arg }}
+  {{this.isLongString}}
+
+  {{! @glint-expect-error: wrong arg type }}
+  {{this.isLongString 123}}
+
+  {{this.isLongString 'hi'}}
+{{/if}}
