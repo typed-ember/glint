@@ -1,0 +1,23 @@
+{
+  "name": "@glint/tsserver-plugin",
+  "version": "0.8.3",
+  "repository": "typed-ember/glint",
+  "description": "A TS server plugin to play more nicely with Glint's language server",
+  "license": "MIT",
+  "author": "Dan Freeman (https://github.com/dfreeman)",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "README.md",
+    "lib"
+  ],
+  "scripts": {
+    "lint": "eslint . --max-warnings 0 && prettier --check src",
+    "test": "true",
+    "build": "tsc --build",
+    "prepack": "yarn build"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

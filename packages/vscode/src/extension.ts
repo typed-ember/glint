@@ -7,18 +7,23 @@ import {
   commands,
   TextEditor,
   Range,
+  extensions,
 } from 'vscode';
 import { Disposable, LanguageClient, ServerOptions } from 'vscode-languageclient/node';
 import { sync as resolve } from 'resolve';
-import type { Request, GetIRRequest } from '@glint/core/lib/language-server/messages';
+import {
+  Message,
+  GetIRRequest,
+  GlintDidActivateNotification,
+} from '@glint/core/src/language-server/messages';
 
 ///////////////////////////////////////////////////////////////////////////////
 // Setup and extension lifecycle
 
 const outputChannel = window.createOutputChannel('Glint Language Server');
 const clients = new Map<string, LanguageClient>();
-const extensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
-const filePattern = `**/*{${extensions.join(',')}}`;
+const fileExtensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
+const filePattern = `**/*{${fileExtensions.join(',')}}`;
 
 export function activate(context: ExtensionContext): void {
   let fileWatcher = workspace.createFileSystemWatcher(filePattern);
@@ -56,7 +61,7 @@ async function showDebugIR(editor: TextEditor): Promise<void> {
 
   let { document } = editor;
   let client = clients.get(workspaceFolder.uri.fsPath);
-  let request = requestKey<typeof GetIRRequest>('glint/getIR');
+  let request = messageKey<typeof GetIRRequest>('glint/getIR');
   let response = await client?.sendRequest(request, { uri: document.uri.toString() });
   if (!response) {
     return;
@@ -94,6 +99,11 @@ async function addWorkspaceFolder(
 
   clients.set(folderPath, client);
 
+  client.onNotification(
+    messageKey<typeof GlintDidActivateNotification>('glint/didActivateForConfig'),
+    ({ configPath }) => notifyActiveConfig(configPath)
+  );
+
   await client.start();
 }
 
@@ -104,6 +114,22 @@ async function removeWorkspaceFolder(workspaceFolder: WorkspaceFolder): Promise<
     clients.delete(folderPath);
     await client.stop();
   }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Built-in TS extension handling
+
+const activeConfigPaths = new Set<string>();
+const tsExtension = extensions.getExtension('vscode.typescript-language-features');
+
+async function notifyActiveConfig(configPath: string): Promise<void> {
+  activeConfigPaths.add(configPath);
+
+  await tsExtension?.activate();
+
+  tsExtension?.exports?.getAPI?.(0).configurePlugin('@glint/tsserver-plugin', {
+    activeConfigPaths: [...activeConfigPaths],
+  });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -138,6 +164,6 @@ function createConfigWatcher(): Disposable {
 // This allows us to just use a bare string key for performing a request while maintaining
 // type information for the request _without_ forcing us to import runtime code from
 // `@glint/core` into the extension.
-function requestKey<R extends Request<string, unknown>>(name: R['name']): R['type'] {
+function messageKey<R extends Message<string, unknown>>(name: R['name']): R['type'] {
   return name as unknown as R['type'];
 }

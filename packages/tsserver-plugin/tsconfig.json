@@ -4,6 +4,6 @@
     "rootDir": "src",
     "outDir": "lib"
   },
-  "include": ["src", "../vscode/src/index.ts"],
-  "references": [{ "path": "../transform" }, { "path": "../config" }]
+  "include": ["src"],
+  "references": []
 }

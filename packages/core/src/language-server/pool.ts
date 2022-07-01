@@ -11,6 +11,7 @@ import DocumentCache from '../common/document-cache';
 import { debounce } from '../common/scheduling';
 import TransformManager from '../common/transform-manager';
 import GlintLanguageServer from './glint-language-server';
+import { GlintDidActivateNotification } from './messages';
 import { uriToFilePath } from './util';
 
 export type ServerDetails = {
@@ -77,6 +78,8 @@ export class LanguageServerPool {
   }
 
   private launchServer(glintConfig: GlintConfig): ServerDetails {
+    this.reportActiveServer(glintConfig);
+
     let documentCache = new DocumentCache(glintConfig);
     let transformManager = new TransformManager(glintConfig, documentCache);
     let tsconfig = parseTsconfig(glintConfig, transformManager);
@@ -120,6 +123,12 @@ export class LanguageServerPool {
           );
         }
       }
+    });
+  }
+
+  private reportActiveServer(config: GlintConfig): void {
+    this.connection.sendNotification(GlintDidActivateNotification.type, {
+      configPath: config.configPath,
     });
   }
 

@@ -41,6 +41,12 @@
     "workspaceContains:**/jsconfig.json"
   ],
   "contributes": {
+    "typescriptServerPlugins": [
+      {
+        "name": "@glint/tsserver-plugin",
+        "enableForWorkspaceTypeScriptVersions": true
+      }
+    ],
     "commands": [
       {
         "title": "Glint: Restart Glint Server",
@@ -87,7 +93,8 @@
   },
   "dependencies": {
     "resolve": "^1.20.0",
-    "vscode-languageclient": "^8.0.1"
+    "vscode-languageclient": "^8.0.1",
+    "@glint/tsserver-plugin": "^0.8.3"
   },
   "devDependencies": {
     "@glint/core": "^0.8.3",
