@@ -34,7 +34,7 @@
     "vscode:prepublish": "yarn build"
   },
   "engines": {
-    "vscode": "^1.52.0"
+    "vscode": "^1.68.1"
   },
   "activationEvents": [
     "workspaceContains:**/tsconfig.json",
