@@ -29,12 +29,3 @@ export type ResolveContext<T> = T extends HasContext<infer Context>
   : T extends Constructor<HasContext<infer Context>>
   ? Context
   : unknown;
-
-// This encompasses both @glimmer/runtime and @ember/template's notion of `SafeString`s,
-// and this coverage is tested in `emit-value.test.ts`.
-type SafeString = { toHTML(): string };
-
-/**
- * Represents values that can safely be emitted into the DOM i.e. as `<span>{{value}}</span>`.
- */
-export type EmittableValue = SafeString | Element | string | number | boolean | null | void;

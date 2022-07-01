@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 import SumType from 'sums-up';
 import { AcceptsBlocks, DirectInvokable, EmptyObject } from '../-private/integration';
-import { emitComponent, emitValue, resolve, resolveOrReturn } from '../-private/dsl';
+import { emitComponent, emitContent, resolve, resolveOrReturn } from '../-private/dsl';
 
 ///////////////////////////////////////////////////////////////////////////////
 // This module exercises what's possible when declaring a signature for a
@@ -59,7 +59,7 @@ declare const caseOf: DirectInvokable<
       {
         const [n] = component.blockParams.default;
         expectTypeOf(n).toEqualTypeOf<number>();
-        emitValue(resolveOrReturn(n)({}));
+        emitContent(resolveOrReturn(n)({}));
       }
       {
         component.blockParams.else;
@@ -100,7 +100,7 @@ declare const CaseOf: DirectInvokable<
   {
     const [value] = component.blockParams.Just;
     expectTypeOf(value).toEqualTypeOf<number>();
-    emitValue(resolveOrReturn(value)({}));
+    emitContent(resolveOrReturn(value)({}));
   }
 
   {

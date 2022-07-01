@@ -9,6 +9,7 @@ export type {
   GlintTagConfig,
   GlintExtensionPreprocess,
   GlintExtensionTransform,
+  GlintEmitMetadata,
   PathCandidate,
 } from './environment';
 

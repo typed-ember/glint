@@ -27,12 +27,16 @@ export class ParseError {
  * output.
  */
 export default class MappingTree {
+  public parent: MappingTree | null = null;
+
   public constructor(
     public transformedRange: Range,
     public originalRange: Range,
     public children: Array<MappingTree> = [],
     public sourceNode: AST.Node | Identifier | ParseError
-  ) {}
+  ) {
+    children.forEach((child) => (child.parent = this));
+  }
 
   /**
    * Returns the mapping corresponding to the smallest span in the transformed source

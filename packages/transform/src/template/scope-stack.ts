@@ -1,4 +1,4 @@
-import { assert } from './util';
+import { assert } from '../util';
 
 /**
  * A `ScopeStack` is used while traversing a template

@@ -1,4 +1,4 @@
-import { emitValue, resolve } from '@glint/environment-glimmerx/-private/dsl';
+import { emitContent, resolve } from '@glint/environment-glimmerx/-private/dsl';
 import { helper, fn as fnDefinition } from '@glint/environment-glimmerx/helper';
 import { EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
@@ -122,5 +122,5 @@ import { expectTypeOf } from 'expect-type';
     (named: EmptyObject, arg: unknown, callback: () => void) => void
   >();
 
-  emitValue(hackyOnChange({}, 'hello', () => console.log('change!')));
+  emitContent(hackyOnChange({}, 'hello', () => console.log('change!')));
 }

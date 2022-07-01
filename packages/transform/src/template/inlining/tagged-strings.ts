@@ -3,7 +3,7 @@ import { GlintEnvironment, GlintTagConfig } from '@glint/config';
 import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } from '.';
 import { templateToTypescript } from '../template-to-typescript';
 import { Directive, SourceFile, TransformError, Range } from '../transformed-module';
-import { assert, TSLib } from '../util';
+import { assert, TSLib } from '../../util';
 import { GlintEmitMetadata } from '@glint/config/src/environment';
 
 export function calculateTaggedTemplateSpans(

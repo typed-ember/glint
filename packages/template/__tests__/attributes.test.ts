@@ -11,6 +11,7 @@ import {
 } from '../-private/dsl';
 import { BoundModifier, DirectInvokable, EmptyObject } from '../-private/integration';
 import TestComponent from './test-component';
+import { htmlSafe } from '@ember/template';
 
 declare const imageModifier: DirectInvokable<
   (args: EmptyObject) => BoundModifier<HTMLImageElement>
@@ -141,7 +142,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 
   applyModifier(
     // @ts-expect-error: `imageModifier` expects an `HTMLImageElement`
-    div,
+    div.element,
     resolve(imageModifier)({})
   );
 }
@@ -180,4 +181,19 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
     component.element,
     { foo: 'bar' }
   );
+}
+
+{
+  applyAttributes(document.createElement('div'), {
+    string: 'ok',
+    safeString: htmlSafe('ok'),
+    number: 123,
+    bool: false,
+    null: null,
+    undefined: undefined,
+    // @ts-expect-error: setting a `void` return as an attr makes no sense
+    nothing: undefined as void,
+    // @ts-expect-error: DOM nodes aren't valid values
+    div: document.createElement('div'),
+  });
 }

@@ -6,7 +6,7 @@ import { RewriteResult } from '../map-template-contents';
 import MappingTree, { ParseError } from '../mapping-tree';
 import { templateToTypescript } from '../template-to-typescript';
 import { Directive, SourceFile, TransformError } from '../transformed-module';
-import { TSLib } from '../util';
+import { TSLib } from '../../util';
 
 export function calculateCompanionTemplateSpans(
   ts: TSLib,

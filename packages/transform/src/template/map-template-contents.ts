@@ -1,7 +1,7 @@
 import { AST, preprocess } from '@glimmer/syntax';
 import MappingTree from './mapping-tree';
 import { Directive, DirectiveKind, Range } from './transformed-module';
-import { assert } from './util';
+import { assert } from '../util';
 
 /**
  * @glimmer/syntax parses identifiers as strings. Aside from meaning
@@ -16,6 +16,8 @@ export class Identifier {
   public readonly type = 'Identifier';
   public constructor(public readonly name: string) {}
 }
+
+export type MappingSource = Identifier | AST.Node;
 
 export type Mapper = {
   /**
@@ -161,7 +163,7 @@ export function mapTemplateContents(
   // will be emitted.
   let captureMapping = (
     hbsRange: Range,
-    source: AST.Node | Identifier,
+    source: MappingSource,
     allowEmpty: boolean,
     callback: () => void
   ): void => {
