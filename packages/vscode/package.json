@@ -2,7 +2,7 @@
   "name": "glint-vscode",
   "displayName": "Glint",
   "description": "Glint language server integration for VS Code",
-  "version": "0.8.3",
+  "version": "0.9.1",
   "publisher": "typed-ember",
   "preview": true,
   "private": true,
@@ -90,7 +90,7 @@
     "vscode-languageclient": "^8.0.1"
   },
   "devDependencies": {
-    "@glint/core": "^0.8.3",
+    "@glint/core": "^0.9.1",
     "@types/jest": "^26.0.13",
     "@types/vscode": "^1.68.1",
     "intercept-stdout": "^0.1.2",
