@@ -11,17 +11,22 @@ const REGEXES = {
   TS_SCRIPT_EXT: /\.ts$/,
 };
 
-export default function emberLooseEnvironment(): GlintEnvironmentConfig {
+export default function emberLooseEnvironment(
+  options: Record<string, unknown>
+): GlintEnvironmentConfig {
+  let typesModule = '@glint/environment-ember-loose/-private/dsl';
+  if (options['allowPlainFunctionInvocation'] === false) {
+    typesModule += '/without-function-resolution';
+  }
+
   return {
     tags: {
       'ember-cli-htmlbars': {
-        hbs: {
-          typesModule: '@glint/environment-ember-loose/-private/dsl',
-        },
+        hbs: { typesModule },
       },
     },
     template: {
-      typesModule: '@glint/environment-ember-loose/-private/dsl',
+      typesModule,
 
       getPossibleScriptPaths(templatePath) {
         // Colocated script/template pair
