@@ -22,6 +22,11 @@
 
 <Qux />
 
+<this.MaybeComponent @arg="hi" />
+
+{{! @glint-expect-error: missing required arg }}
+<this.MaybeComponent />
+
 {{! @glint-expect-error: missing required arg }}
 <EmberComponent />
 
