@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.compileroptions.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "bin",
+    "module": "Node16",
+    "moduleResolution": "Node16"
+  },
+  "include": ["src"]
+  // "references": [{ "path": "../transform" }, { "path": "../config" }]
+}

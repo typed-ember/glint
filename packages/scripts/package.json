@@ -1,0 +1,52 @@
+{
+  "name": "@glint/scripts",
+  "version": "0.9.1",
+  "type": "module",
+  "private": true,
+  "repository": "typed-ember/glint",
+  "description": "Scripts for working with Glint",
+  "license": "MIT",
+  "authors": [
+    "Dan Freeman (https://github.com/dfreeman)",
+    "Chris Krycho (https://github.com/chriskrycho)"
+  ],
+  "files": [
+    "README.md",
+    "lib",
+    "bin"
+  ],
+  "bin": {
+    "migrate-glintrc": "bin/migrate-glintrc.js",
+    "glint-language-server": "bin/glint-language-server.js"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0 && prettier --check src",
+    "test": "vitest run",
+    "build": "tsc --build",
+    "prepack": "yarn build"
+  },
+  "dependencies": {
+    "@glint/config": "^0.8.3",
+    "@types/js-yaml": "^4.0.5",
+    "@types/yargs": "^17.0.10",
+    "golden-fleece": "^1.0.9",
+    "js-yaml": "^4.1.0",
+    "true-myth": "^6.1.0",
+    "yargs": "^17.5.1",
+    "zod": "^3.17.3"
+  },
+  "devDependencies": {
+    "typescript": "^4.7.4",
+    "vitest": "^0.18.0",
+    "json5": "^2.2.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "workspaces": {
+    "nohoist": [
+      "yargs",
+      "@types/yargs"
+    ]
+  }
+}
