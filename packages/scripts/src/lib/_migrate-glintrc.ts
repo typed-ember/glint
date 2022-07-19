@@ -190,6 +190,8 @@ function neighborTsconfigPath(rcPath: string): string {
   return path.join(rcPath, '..', 'tsconfig.json');
 }
 
+type Output<T, E> = SplitResults<T, E> | Result<string, string>;
+
 type SplitResults<T, E> = {
   successes: T[];
   failures: E[];
@@ -215,7 +217,7 @@ function toSplitResults<T>(
   }
 }
 
-type ArgParseResult = Result<string[], string>;
+type ArgParseResult = Result<string | string[], string>;
 
 function parseArgs(pathArgs: string[]): Promise<ArgParseResult> {
   return new Promise((resolve) => {
@@ -233,6 +235,11 @@ function parseArgs(pathArgs: string[]): Promise<ArgParseResult> {
       .parseSync(pathArgs, {}, (error, { _: paths }, output) => {
         if (error) {
           resolve(err(output));
+          return;
+        }
+
+        if (output) {
+          resolve(ok(output));
           return;
         }
 
@@ -264,7 +271,15 @@ export async function migrate(pathArgs: string[]): Promise<SplitResults<string, 
     };
   }
 
-  let paths = parseResult.value;
+  if (parseResult.isOk && typeof parseResult.value === 'string') {
+    return {
+      successes: [parseResult.value],
+      failures: [],
+    };
+  }
+
+  // SAFETY: if it was a `string`, we returned above.
+  let paths = parseResult.value as string[];
 
   let parsed = await Promise.allSettled(
     paths.map(async (p) => {
