@@ -42,11 +42,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "workspaces": {
-    "nohoist": [
-      "yargs",
-      "@types/yargs"
-    ]
   }
 }

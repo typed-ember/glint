@@ -6,7 +6,6 @@ import yaml from 'js-yaml';
 import Result, { err, isInstance, ok, tryOrElse } from 'true-myth/result';
 import Unit from 'true-myth/unit';
 import yargs from 'yargs';
-
 import { z } from 'zod';
 
 const EnvironmentList = z.array(z.string());
@@ -30,7 +29,7 @@ const GlintRc = z.object({
 
 type GlintRc = z.infer<typeof GlintRc>;
 
-type GlintConfig = {
+type GlintTsconfig = {
   environment?:
     | string
     | string[]
@@ -96,26 +95,61 @@ function parseGlintRcFile(contents: string): Result<GlintRc, string> {
 
 // Represents the part of a tsconfig.json file we care about. That is: not much!
 type ReadyToTransform = {
-  glint?: GlintConfig;
+  glint?: GlintTsconfig;
 };
 
-function loadTsconfig(contents: unknown): Result<ReadyToTransform, string> {
+function prepForPatching(contents: unknown): Result<unknown, string> {
   if (typeof contents !== 'string') {
     return err(`Could not patch ${JSON.stringify(contents)}: not a string`);
   }
 
   return tryOrElse(
     (e) => `Could not patch data:\n\t${e instanceof Error ? e.message : JSON.stringify(e)}`,
-    () => {
-      let result = evaluate(contents);
+    () => evaluate(contents)
+  );
+}
 
-      if (typeof result !== 'object' || result == null || Array.isArray(result)) {
-        throw new Error('invalid contents of tsconfig.json file');
+function parseTsConfig(config: unknown): Result<ReadyToTransform, string> {
+  if (typeof config !== 'object' || config == null || Array.isArray(config)) {
+    return err(`invalid contents of tsconfig.json file:\n${JSON.stringify(config)}`);
+  }
+
+  let readyToTransform = config as ReadyToTransform;
+  return readyToTransform.glint
+    ? err('There is already a glint config present, not overriding it')
+    : ok(readyToTransform);
+}
+
+// NOTE: mutates `config`! Because that's what `patch` expects.
+function toMergedWith(rc: GlintRc): (config: ReadyToTransform) => ReadyToTransform {
+  return (config) => {
+    // Build up the modified config incrementally, *not* adding
+    // `undefined` to it at any point, because we cannot patch in
+    // `undefined`!
+    config.glint = {};
+
+    if (rc.environment !== undefined) {
+      config.glint.environment = rc.environment;
+    }
+
+    if (rc.checkStandaloneTemplates !== undefined) {
+      config.glint.checkStandaloneTemplates = rc.checkStandaloneTemplates;
+    }
+
+    if (rc.include || rc.exclude) {
+      config.glint.transform = {};
+
+      if (rc.include !== undefined) {
+        config.glint.transform.include = rc.include;
       }
 
-      return result as ReadyToTransform;
+      if (rc.exclude !== undefined) {
+        config.glint.transform.exclude = rc.exclude;
+      }
     }
-  );
+
+    return config;
+  };
 }
 
 function patchTsconfig(contents: unknown, rc: GlintRc): Result<string, string> {
@@ -123,45 +157,13 @@ function patchTsconfig(contents: unknown, rc: GlintRc): Result<string, string> {
     return err(`Could not patch ${JSON.stringify(contents)}: not a string`);
   }
 
-  return loadTsconfig(contents)
-    .andThen<ReadyToTransform>((loadedTsconfig) =>
-      loadedTsconfig.glint
-        ? err('There is already a glint config present, not overriding it')
-        : ok(loadedTsconfig)
-    )
-    .andThen((config) =>
+  return prepForPatching(contents)
+    .andThen(parseTsConfig)
+    .map(toMergedWith(rc))
+    .andThen((transformed) =>
       tryOrElse(
-        (e) => {
-          return `Could not patch data:\n\t${JSON.stringify(e)}`;
-        },
-        () => {
-          // Build up the modified config incrementally, *not* adding
-          // `undefined` to it at any point, because we cannot patch in
-          // `undefined`!
-          config.glint = {};
-
-          if (rc.environment !== undefined) {
-            config.glint.environment = rc.environment;
-          }
-
-          if (rc.checkStandaloneTemplates !== undefined) {
-            config.glint.checkStandaloneTemplates = rc.checkStandaloneTemplates;
-          }
-
-          if (rc.include || rc.exclude) {
-            config.glint.transform = {};
-
-            if (rc.include !== undefined) {
-              config.glint.transform.include = rc.include;
-            }
-
-            if (rc.exclude !== undefined) {
-              config.glint.transform.exclude = rc.exclude;
-            }
-          }
-
-          return patch(contents, config);
-        }
+        (e) => `Could not patch data:\n\t${JSON.stringify(e)}`,
+        () => patch(contents, transformed)
       )
     );
 }
@@ -189,8 +191,6 @@ function settledToResult<T>(
 function neighborTsconfigPath(rcPath: string): string {
   return path.join(rcPath, '..', 'tsconfig.json');
 }
-
-type Output<T, E> = SplitResults<T, E> | Result<string, string>;
 
 type SplitResults<T, E> = {
   successes: T[];
