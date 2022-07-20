@@ -6,6 +6,6 @@
     "module": "Node16",
     "moduleResolution": "Node16"
   },
-  "include": ["src"]
-  // "references": [{ "path": "../transform" }, { "path": "../config" }]
+  "include": ["src"],
+  "references": [{ "path": "../config" }]
 }
