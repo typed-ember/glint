@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import { stripIndent } from 'common-tags';
-
+import { describe, test, expect } from 'vitest';
 import { preprocess } from '../-private/environment/preprocess';
 import { transform } from '../-private/environment/transform';
 import { GlintEmitMetadata } from '@glint/config/lib/environment';

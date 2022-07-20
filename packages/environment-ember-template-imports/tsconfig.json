@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.compileroptions.json",
-  "exclude": ["__tests__"],
+  "include": ["-private"],
   "references": [
     { "path": "../environment-ember-loose" },
     { "path": "../config" },

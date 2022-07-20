@@ -13,7 +13,8 @@
   ],
   "scripts": {
     "lint": "eslint . --max-warnings 0 && prettier --check .",
-    "test": "tsc --project __tests__/type-tests && jest",
+    "test": "tsc --project __tests__/type-tests && vitest run",
+    "test:watch": "vitest watch",
     "build": "tsc --build",
     "prepack": "yarn build"
   },
@@ -42,11 +43,9 @@
   "devDependencies": {
     "@glimmer/component": "^1.1.2",
     "@types/ember__component": "~4.0.8",
-    "@types/jest": "^26.0.13",
     "ember-modifier": "^3.2.7",
     "expect-type": "0.11.0",
-    "jest": "^26.4.2",
-    "ts-jest": "^26.3.0"
+    "vitest": "^0.18.1"
   },
   "publishConfig": {
     "access": "public"
