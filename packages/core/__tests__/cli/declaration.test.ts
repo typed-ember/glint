@@ -1,10 +1,10 @@
 import { stripIndent } from 'common-tags';
+import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import Project from '../utils/project';
 
 describe('CLI: emitting declarations', () => {
   let project!: Project;
   beforeEach(async () => {
-    jest.setTimeout(20_000);
     project = await Project.create();
   });
 
@@ -122,7 +122,7 @@ describe('CLI: emitting declarations', () => {
       "
     `);
 
-    expect(project.read('signatureless-component.d.ts')).toMatchInlineSnapshot(`""`);
+    expect(project.read('signatureless-component.d.ts')).toMatchInlineSnapshot('""');
 
     expect(project.read('template-only.d.ts')).toMatchInlineSnapshot(`
       "export interface TemplateOnlySignature {

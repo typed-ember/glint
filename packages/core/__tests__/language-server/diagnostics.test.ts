@@ -1,11 +1,11 @@
 import Project from '../utils/project';
+import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
 
 describe('Language Server: Diagnostics', () => {
   let project!: Project;
 
   beforeEach(async () => {
-    jest.setTimeout(20_000);
     project = await Project.create();
   });
 
@@ -41,22 +41,22 @@ describe('Language Server: Diagnostics', () => {
 
     expect(templateDiagnostics).toEqual([]);
     expect(scriptDiagnostics).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "message": "'startupTime' is declared but its value is never read.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 21,
               "line": 7,
             },
-            "start": Object {
+            "start": {
               "character": 10,
               "line": 7,
             },
           },
           "severity": 2,
           "source": "glint:ts(6133)",
-          "tags": Array [
+          "tags": [
             1,
           ],
         },
@@ -108,38 +108,38 @@ describe('Language Server: Diagnostics', () => {
       let templateDiagnostics = server.getDiagnostics(project.fileURI('my-component.hbs'));
 
       expect(templateDiagnostics).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "message": "Property 'missingArg' does not exist on type 'EmptyObject'.",
-            "range": Object {
-              "end": Object {
+            "range": {
+              "end": {
                 "character": 13,
                 "line": 0,
               },
-              "start": Object {
+              "start": {
                 "character": 3,
                 "line": 0,
               },
             },
             "severity": 1,
             "source": "glint:ts(2339)",
-            "tags": Array [],
+            "tags": [],
           },
-          Object {
+          {
             "message": "Type 'number' is not assignable to type 'string'.",
-            "range": Object {
-              "end": Object {
+            "range": {
+              "end": {
                 "character": 10,
                 "line": 2,
               },
-              "start": Object {
+              "start": {
                 "character": 6,
                 "line": 2,
               },
             },
             "severity": 1,
             "source": "glint:ts(2322)",
-            "tags": Array [],
+            "tags": [],
           },
         ]
       `);
@@ -242,40 +242,40 @@ describe('Language Server: Diagnostics', () => {
     let diagnostics = server.getDiagnostics(project.fileURI('index.ts'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "message": "'startupTime' is declared but its value is never read.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 21,
               "line": 8,
             },
-            "start": Object {
+            "start": {
               "character": 10,
               "line": 8,
             },
           },
           "severity": 2,
           "source": "glint:ts(6133)",
-          "tags": Array [
+          "tags": [
             1,
           ],
         },
-        Object {
+        {
           "message": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 43,
               "line": 12,
             },
-            "start": Object {
+            "start": {
               "character": 31,
               "line": 12,
             },
           },
           "severity": 1,
           "source": "glint:ts(2551)",
-          "tags": Array [],
+          "tags": [],
         },
       ]
     `);
@@ -313,22 +313,22 @@ describe('Language Server: Diagnostics', () => {
     let templateDiagnostics = server.getDiagnostics(project.fileURI('templates/foo.hbs'));
 
     expect(scriptDiagnostics).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "message": "'startupTime' is declared but its value is never read.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 21,
               "line": 7,
             },
-            "start": Object {
+            "start": {
               "character": 10,
               "line": 7,
             },
           },
           "severity": 2,
           "source": "glint:ts(6133)",
-          "tags": Array [
+          "tags": [
             1,
           ],
         },
@@ -336,22 +336,22 @@ describe('Language Server: Diagnostics', () => {
     `);
 
     expect(templateDiagnostics).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "message": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 39,
               "line": 1,
             },
-            "start": Object {
+            "start": {
               "character": 27,
               "line": 1,
             },
           },
           "severity": 1,
           "source": "glint:ts(2551)",
-          "tags": Array [],
+          "tags": [],
         },
       ]
     `);
@@ -407,22 +407,22 @@ describe('Language Server: Diagnostics', () => {
 
     expect(server.getDiagnostics(project.fileURI('component-b.ts'))).toEqual([]);
     expect(server.getDiagnostics(project.fileURI('component-a.ts'))).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "message": "Property 'version' does not exist on type 'EmptyObject'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 36,
               "line": 5,
             },
-            "start": Object {
+            "start": {
               "character": 29,
               "line": 5,
             },
           },
           "severity": 1,
           "source": "glint:ts(2339)",
-          "tags": Array [],
+          "tags": [],
         },
       ]
     `);
@@ -436,22 +436,22 @@ describe('Language Server: Diagnostics', () => {
 
     expect(server.getDiagnostics(project.fileURI('component-b.ts'))).toEqual([]);
     expect(server.getDiagnostics(project.fileURI('component-a.ts'))).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "message": "Unused '@glint-expect-error' directive.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 30,
               "line": 4,
             },
-            "start": Object {
+            "start": {
               "character": 4,
               "line": 4,
             },
           },
           "severity": 1,
           "source": "glint",
-          "tags": Array [],
+          "tags": [],
         },
       ]
     `);
