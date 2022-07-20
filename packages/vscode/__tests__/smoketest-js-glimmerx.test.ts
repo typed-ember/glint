@@ -1,12 +1,4 @@
-import {
-  commands,
-  languages,
-  Position,
-  ViewColumn,
-  window,
-  Uri,
-  Range,
-} from 'vscode';
+import { commands, languages, Position, ViewColumn, window, Uri, Range } from 'vscode';
 import path from 'path';
 import { waitUntil } from './helpers/async';
 
@@ -57,9 +49,9 @@ describe('Smoke test: js-glimmerx', () => {
       // Ensure everything is clean to start
       expect(languages.getDiagnostics(scriptURI)).toEqual([]);
 
-      // Delete a character "message" in `{{this.message}}`
+      // Replace "message" in `{{this.message}}` with "foo"
       await scriptEditor.edit((edit) => {
-        edit.delete(new Range(11, 19, 11, 21));
+        edit.replace(new Range(11, 15, 11, 22), 'foo');
       });
 
       // Wait for a diagnostic to appear
@@ -67,9 +59,9 @@ describe('Smoke test: js-glimmerx', () => {
 
       expect(languages.getDiagnostics(scriptURI)).toMatchObject([
         {
-          message: "Property 'messe' does not exist on type 'TestComponent'.",
+          message: "Property 'foo' does not exist on type 'TestComponent'.",
           source: 'glint:ts(2339)',
-          range: new Range(11, 15, 11, 20),
+          range: new Range(11, 15, 11, 18),
         },
       ]);
     });
