@@ -1,10 +1,11 @@
 import os from 'os';
 import fs from 'fs';
+import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { loadConfig } from '../src';
 import { normalizePath } from '../src/config';
 
 describe('loadConfig', () => {
-  const testDir = `${os.tmpdir()}/glint-config-test-${process.pid}`;
+  const testDir = `${os.tmpdir()}/glint-config-test-load-config-${process.pid}`;
 
   beforeEach(() => {
     fs.rmdirSync(testDir, { recursive: true });

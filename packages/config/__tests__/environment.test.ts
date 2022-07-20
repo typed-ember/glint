@@ -1,5 +1,6 @@
 import fs from 'fs';
 import os from 'os';
+import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import {
   GlintEnvironment,
   GlintExtensionPreprocess,
