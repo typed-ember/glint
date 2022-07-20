@@ -75,9 +75,9 @@ describe('Smoke test: Ember', () => {
       // Ensure everything is clean to start
       expect(languages.getDiagnostics(scriptURI)).toEqual([]);
 
-      // Delete a character "message" in `{{this.message}}`
+      // Replace "message" in `{{this.message}}` with "foo"
       await scriptEditor.edit((edit) => {
-        edit.delete(new Range(17, 17, 17, 19));
+        edit.replace(new Range(17, 13, 17, 20), 'foo');
       });
 
       // Wait for a diagnostic to appear
@@ -85,9 +85,9 @@ describe('Smoke test: Ember', () => {
 
       expect(languages.getDiagnostics(scriptURI)).toMatchObject([
         {
-          message: "Property 'messe' does not exist on type 'MyTestContext'.",
+          message: "Property 'foo' does not exist on type 'MyTestContext'.",
           source: 'glint:ts(2339)',
-          range: new Range(17, 13, 17, 18),
+          range: new Range(17, 13, 17, 16),
         },
       ]);
     });
