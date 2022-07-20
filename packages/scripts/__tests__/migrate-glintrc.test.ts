@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import { parse } from 'json5';
 import { afterEach, beforeEach, describe, test, expect } from 'vitest';
 
-import { migrate } from '../src/lib/_migrate-glintrc.js';
+import { migrate, normalizePathString } from '../src/lib/_migrate-glintrc.js';
 import jsYaml from 'js-yaml';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -334,7 +334,7 @@ describe('migrate-glintrc', () => {
       expect(successes.length).toBe(0);
       expect(failures.length).toBe(1);
       expect(failures[0]).toMatch('Could not parse data as a Glint config');
-      expect(failures[0]).toMatch(rcPath);
+      expect(failures[0]).toMatch(normalizePathString(rcPath));
 
       let tsconfig = readTsconfig(tsconfigPath);
       expect(tsconfig).not.toHaveProperty('glint');

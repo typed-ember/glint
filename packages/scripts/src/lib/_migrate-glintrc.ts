@@ -264,6 +264,10 @@ function parseArgs(pathArgs: string[]): Promise<ArgParseResult> {
   });
 }
 
+export function normalizePathString(p: string): string {
+  return path.resolve(p).split(path.sep).join('/');
+}
+
 export async function migrate(pathArgs: string[]): Promise<SplitResults<string, string>> {
   let parseResult = await parseArgs(pathArgs);
   if (parseResult.isErr) {
@@ -290,7 +294,7 @@ export async function migrate(pathArgs: string[]): Promise<SplitResults<string, 
       return contents
         .andThen(parseGlintRcFile)
         .map((config) => ({ path: p, config }))
-        .mapErr((err) => `${p}: ${err}`);
+        .mapErr((err) => `${normalizePathString(p)}: ${err}`);
     })
   ).then(toSplitResults);
 
@@ -301,14 +305,18 @@ export async function migrate(pathArgs: string[]): Promise<SplitResults<string, 
 
       return patchTsconfig(contents, rc)
         .map((patched) => ({ rcPath, tsconfigPath, patched }))
-        .mapErr((err) => `${rcPath}: ${err}`);
+        .mapErr((err) => `${normalizePathString(rcPath)}: ${err}`);
     })
   ).then(toSplitResults);
 
   let write = await Promise.allSettled(
     patched.successes.map(async ({ rcPath, tsconfigPath, patched }) => {
-      const writeResult = await saveFile(tsconfigPath, patched);
-      return writeResult.map(() => `Updated ${tsconfigPath} with contents of ${rcPath}`);
+      let writeResult = await saveFile(tsconfigPath, patched);
+      let normalizedTsconfig = normalizePathString(tsconfigPath);
+      let normalizedRc = normalizePathString(rcPath);
+      return writeResult.map(
+        () => `Updated ${normalizedTsconfig} with contents of ${normalizedRc}`
+      );
     })
   ).then(toSplitResults);
 
