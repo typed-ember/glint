@@ -47,9 +47,10 @@ type GlintTsconfig = {
 };
 
 function loadFile(path: string): Promise<Result<string, string>> {
-  return readFile(path, { encoding: 'utf-8' })
-    .then((v) => ok<string, string>(v))
-    .catch((e) => err(`Could not load file at ${path}: ${JSON.stringify(e)}`));
+  return readFile(path, { encoding: 'utf-8' }).then(
+    (v) => ok(v),
+    (e) => err(`Could not load file at ${path}: ${JSON.stringify(e)}`)
+  );
 }
 
 function loadOrCreateTsconfig(configPath: string): Promise<string> {
@@ -62,9 +63,10 @@ function loadOrCreateTsconfig(configPath: string): Promise<string> {
 }
 
 function saveFile(path: string, data: string): Promise<Result<Unit, string>> {
-  return writeFile(path, data)
-    .then(() => ok<Unit, string>())
-    .catch((e) => err(`Could not write file at ${path}: ${JSON.stringify(e)}`));
+  return writeFile(path, data).then(
+    () => ok(),
+    (e) => err(`Could not write file at ${path}: ${JSON.stringify(e)}`)
+  );
 }
 
 function assert(predicate: unknown, reason: string): asserts predicate {
