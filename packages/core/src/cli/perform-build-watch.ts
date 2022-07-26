@@ -10,8 +10,7 @@ import TransformManager from '../common/transform-manager';
 export function performBuildWatch(
   glintConfig: GlintConfig,
   rootNames: string[],
-  buildOptions: TS.BuildOptions,
-  watchOptions: TS.WatchOptions
+  buildOptions: TS.BuildOptions
 ): void {
   let transformManager = new TransformManager(glintConfig);
 
@@ -28,6 +27,6 @@ export function performBuildWatch(
     (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
 
-  let builder = ts.createSolutionBuilderWithWatch(host, rootNames, buildOptions, watchOptions);
+  let builder = ts.createSolutionBuilderWithWatch(host, rootNames, buildOptions);
   builder.build();
 }
