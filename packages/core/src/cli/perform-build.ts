@@ -10,25 +10,22 @@ type TypeScript = typeof TS;
 
 // Because `--clean` is public API for the CLI but *not* public in the type?!?
 interface BuildOptions extends TS.BuildOptions {
-  clean?: boolean;
+  clean?: boolean | undefined;
 }
 
 export function performBuild(
   glintConfig: GlintConfig,
-  rootNames: string[],
+  projects: string[],
   buildOptions: BuildOptions
 ): void {
   let transformManager = new TransformManager(glintConfig);
 
   let { ts } = glintConfig;
   let host = createCompilerHost(ts, transformManager);
-  let builder = ts.createSolutionBuilder(host, rootNames, buildOptions);
+  let builder = ts.createSolutionBuilder(host, projects, buildOptions);
 
-  if (buildOptions.clean) {
-    builder.clean();
-  } else {
-    builder.build();
-  }
+  let exitStatus = buildOptions.clean ? builder.clean() : builder.build();
+  process.exit(exitStatus);
 }
 
 type BuilderHost = TS.SolutionBuilderHost<TS.EmitAndSemanticDiagnosticsBuilderProgram>;
