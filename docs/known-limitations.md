@@ -12,6 +12,5 @@ In addition, the [template registry](ember/template-registry.md) must currently 
 
 The CLI and language server currently have a few known limitations:
 
-- The CLI does not yet support composite projects or `tsc`'s `--build` mode.
 - The language server requires that `@glint/core` be resolvable from the root directory that you've opened your editor in.
 - In VS Code, you will see diagnostics from both TypeScript and Glint in many files, as well as false 'unused symbol' positives for things only referenced in templates. See [the VS Code extension README](../packages/vscode) for details on dealing with this.
