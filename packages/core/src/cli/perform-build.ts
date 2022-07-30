@@ -1,10 +1,9 @@
 import type TS from 'typescript';
 
-import { GlintConfig } from '@glint/config';
-
-import TransformManager from '../common/transform-manager';
 import { buildDiagnosticFormatter } from './diagnostics';
 import { patchProgram } from './utils/patch-program';
+import TransformManagerPool from './utils/transform-manager-pool';
+import { sysForCompilerHost } from './utils/sys-for-compiler-host';
 
 type TypeScript = typeof TS;
 
@@ -13,15 +12,10 @@ interface BuildOptions extends TS.BuildOptions {
   clean?: boolean | undefined;
 }
 
-export function performBuild(
-  glintConfig: GlintConfig,
-  projects: string[],
-  buildOptions: BuildOptions
-): void {
-  let transformManager = new TransformManager(glintConfig);
+export function performBuild(ts: TypeScript, projects: string[], buildOptions: BuildOptions): void {
+  let transformManagerPool = new TransformManagerPool(ts.sys);
 
-  let { ts } = glintConfig;
-  let host = createCompilerHost(ts, transformManager);
+  let host = createCompilerHost(ts, transformManagerPool);
   let builder = ts.createSolutionBuilder(host, projects, buildOptions);
 
   let exitStatus = buildOptions.clean ? builder.clean() : builder.build();
@@ -30,36 +24,22 @@ export function performBuild(
 
 type BuilderHost = TS.SolutionBuilderHost<TS.EmitAndSemanticDiagnosticsBuilderProgram>;
 
-function createCompilerHost(ts: TypeScript, transformManager: TransformManager): BuilderHost {
+function createCompilerHost(ts: TypeScript, sysPool: TransformManagerPool): BuilderHost {
   let formatDiagnostic = buildDiagnosticFormatter(ts);
 
   let host = ts.createSolutionBuilderHost(
-    sysForBuildCompilerHost(ts, transformManager),
+    sysForCompilerHost(ts, sysPool),
     (...args) => {
       let program = ts.createEmitAndSemanticDiagnosticsBuilderProgram(...args);
-      patchProgram(program, transformManager);
+      patchProgram(program, sysPool);
       return program;
     },
     (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
 
-  host.fileExists = transformManager.fileExists;
-  host.readFile = transformManager.readTransformedFile;
-  host.readDirectory = transformManager.readDirectory;
+  host.fileExists = sysPool.fileExists;
+  host.readFile = sysPool.readTransformedFile;
+  host.readDirectory = sysPool.readDirectory;
 
   return host;
-}
-
-function sysForBuildCompilerHost(
-  ts: TypeScript,
-  transformManager: TransformManager
-): typeof ts.sys {
-  return {
-    ...ts.sys,
-    readDirectory: transformManager.readDirectory,
-    watchDirectory: transformManager.watchDirectory,
-    fileExists: transformManager.fileExists,
-    watchFile: transformManager.watchTransformedFile,
-    readFile: transformManager.readTransformedFile,
-  };
 }

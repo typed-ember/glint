@@ -2,6 +2,9 @@ import path from 'path';
 import SilentError from 'silent-error';
 import resolve from 'resolve';
 import { GlintConfig, GlintConfigInput } from './config';
+import type TS from 'typescript';
+
+type TypeScript = typeof TS;
 
 /**
  * `ConfigLoader` provides an interface for finding the Glint config that
@@ -35,7 +38,7 @@ export class ConfigLoader {
   }
 }
 
-function findTypeScript(fromDir: string): typeof import('typescript') | null {
+export function findTypeScript(fromDir: string): TypeScript | null {
   return (
     tryResolve(() => require(resolve.sync('typescript', { basedir: fromDir }))) ??
     tryResolve(() => require('typescript'))
@@ -54,10 +57,7 @@ function tryResolve<T>(load: () => T): T | null {
   }
 }
 
-function loadConfigInput(
-  ts: typeof import('typescript'),
-  entryPath: string
-): GlintConfigInput | null {
+function loadConfigInput(ts: TypeScript, entryPath: string): GlintConfigInput | null {
   let fullGlintConfig: Record<string, unknown> = {};
   let currentPath: string | undefined = entryPath;
 
@@ -78,7 +78,7 @@ function loadConfigInput(
   return validateConfigInput(fullGlintConfig);
 }
 
-function findNearestConfigFile(ts: typeof import('typescript'), searchFrom: string): string {
+function findNearestConfigFile(ts: TypeScript, searchFrom: string): string {
   // Assume that the longest path is the most relevant one in the case that
   // multiple config files exist at or above our current directory.
   let configCandidates = [

@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import { loadConfig } from '@glint/config';
+import { findTypeScript, loadConfig } from '@glint/config';
 import { performWatch } from './perform-watch';
 import { performCheck } from './perform-check';
 import { determineOptionsToExtend } from './options';
@@ -54,15 +54,6 @@ const argv = yargs
       'Save .tsbuildinfo files to allow for incremental compilation of projects. Same as the TS `--incremental` flag.',
     type: 'boolean',
   })
-  // Use a 'default command' as a hack to get top-level positional arguments.
-  // See https://github.com/yargs/yargs/blob/main/docs/advanced.md#default-commands
-  .command('$0', false, (commandYargs) => {
-    commandYargs.positional('projects', {
-      description: 'A list of projects to compile, when using --build',
-      type: 'string',
-      array: true,
-    });
-  })
   .option('debug-intermediate-representation', {
     boolean: false,
     description: `When true, writes out a Glint's internal intermediate representation of each file within a GLINT_DEBUG subdirectory of the current working directory. This is intended for debugging Glint itself.`,
@@ -71,13 +62,13 @@ const argv = yargs
   .strict()
   .parseSync();
 
-const glintConfig = loadConfig(argv.project ?? process.cwd());
+let cwd = process.cwd();
 
 if (argv['debug-intermediate-representation']) {
   const fs = require('fs');
   const path = require('path');
   (globalThis as any).GLINT_DEBUG_IR = function (filename: string, content: string) {
-    let target = path.join('GLINT_DEBUG', path.relative(glintConfig.rootDir, filename));
+    let target = path.join('GLINT_DEBUG', path.relative(cwd, filename));
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, content);
   };
@@ -87,24 +78,33 @@ if (argv.build) {
   // Type signature here so we get a useful error as close to the source of the
   // error as possible, rather than at the *use* sites below.
   let buildOptions: TS.BuildOptions = {
-    clean: argv.clean,
-    force: argv.force,
-    dry: argv.dry,
-    incremental: argv.incremental,
+    // clean: argv.clean,
+    // force: argv.force,
+    // dry: argv.dry,
+    // incremental: argv.incremental,
   };
+
+  // Get the closest TS to us, since we have to assume that we may be in the
+  // root of a project which has no `Glint` config *at all* in its root, but
+  // which must have *some* TS to be useful.
+  let ts = findTypeScript(cwd);
+  if (!ts) {
+    console.error('Could not find a local TypeScript');
+    process.exit(1);
+  }
 
   // This continues using the hack of a 'default command' to get the projects
   // specified (if any).
-  let projectsArg = argv._;
-  let projects = projectsArg.length > 0 ? projectsArg : ['.'];
+  let projects = [cwd];
 
   if (argv.watch) {
-    performBuildWatch(glintConfig, projects, buildOptions);
+    performBuildWatch(ts, projects, buildOptions);
   } else {
-    performBuild(glintConfig, projects, buildOptions);
+    performBuild(ts, projects, buildOptions);
   }
 }
 
+const glintConfig = loadConfig(argv.project ?? cwd);
 const optionsToExtend = determineOptionsToExtend(argv);
 if (argv.watch) {
   performWatch(glintConfig, optionsToExtend);

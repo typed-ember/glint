@@ -2,22 +2,19 @@ import TransformManager from '../common/transform-manager';
 import { GlintConfig } from '@glint/config';
 import { buildDiagnosticFormatter } from './diagnostics';
 import type ts from 'typescript';
-import { sysForWatchCompilerHost } from './utils/sys-for-watch';
+import { sysForCompilerHost } from './utils/sys-for-compiler-host';
 import { patchProgram } from './utils/patch-program';
 
 export type TypeScript = typeof ts;
 
-export function performWatch(
-  glintConfig: GlintConfig,
-  optionsToExtend: ts.CompilerOptions
-): void {
+export function performWatch(glintConfig: GlintConfig, optionsToExtend: ts.CompilerOptions): void {
   let { ts } = glintConfig;
   let transformManager = new TransformManager(glintConfig);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
   let host = ts.createWatchCompilerHost(
     glintConfig.configPath,
     optionsToExtend,
-    sysForWatchCompilerHost(ts, transformManager),
+    sysForCompilerHost(ts, transformManager),
     ts.createSemanticDiagnosticsBuilderProgram,
     (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
