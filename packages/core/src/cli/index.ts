@@ -4,7 +4,7 @@ import { performWatch } from './perform-watch';
 import { performCheck } from './perform-check';
 import { determineOptionsToExtend } from './options';
 
-const { argv } = yargs
+const argv = yargs
   .scriptName('glint')
   .usage('$0 [options]')
   .option('project', {
@@ -27,7 +27,8 @@ const { argv } = yargs
     description: `When true, writes out a Glint's internal intermediate representation of each file within a GLINT_DEBUG subdirectory of the current working directory. This is intended for debugging Glint itself.`,
   })
   .wrap(100)
-  .strict();
+  .strict()
+  .parseSync();
 
 const glintConfig = loadConfig(argv.project ?? process.cwd());
 const optionsToExtend = determineOptionsToExtend(argv);
