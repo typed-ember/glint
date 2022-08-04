@@ -1,6 +1,6 @@
 # Compiled output
 /packages/*/lib
-/packages/scripts/bin/lib
+/packages/scripts/bin
 dist/
 
 # Ephemeral test applications
