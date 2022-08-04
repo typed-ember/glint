@@ -14,4 +14,6 @@ describe('CLI: watched build mode typechecking', () => {
   afterEach(async () => {
     await project.destroy();
   });
+
+  test.todo('add tests for watch mode');
 });
