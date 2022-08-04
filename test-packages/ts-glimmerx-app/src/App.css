@@ -3,7 +3,7 @@ body {
 }
 
 #app {
-  background: #1E293B;
+  background: #1e293b;
   min-height: 100vh;
 
   display: grid;
@@ -15,11 +15,12 @@ body {
   width: 34em;
 }
 
-#intro h1, #intro h3 {
+#intro h1,
+#intro h3 {
   font-family: Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-style: italic;
 
-  color: #FFFFFF;
+  color: #ffffff;
   margin: 0.35em;
 }
 
@@ -30,5 +31,5 @@ body {
 }
 
 #intro a {
-  color: #FFFFFF;
+  color: #ffffff;
 }

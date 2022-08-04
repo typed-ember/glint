@@ -24,7 +24,6 @@ The Glint language server implements the standardized [Language Server Protocol]
 Note: **Glint is still under active development!** Please bear with us and expect breaking changes and rough edges as we work toward a stable release. Also note that Glint is currently only compatible with TypeScript projects, but our aim is ultimately to support JavaScript as well, as TypeScript's tooling can provide best-in-class support for both TS and JS projects.
 {% endhint %}
 
-
 [ember.js]: https://www.emberjs.com
 [glimmerx]: https://github.com/glimmerjs/glimmer-experimental
 [vetur]: https://github.com/vuejs/vetur

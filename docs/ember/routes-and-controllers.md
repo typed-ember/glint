@@ -10,6 +10,7 @@ export default class MyController extends Controller {
 }
 ```
 
+<!-- prettier-ignore -->
 ```handlebars
 {{this}} {{! MyController }}
 {{this.greeting}} {{! string }}
@@ -27,6 +28,7 @@ export default class MyRoute extends Route {
 }
 ```
 
+<!-- prettier-ignore -->
 ```handlebars
 {{this}} {{! Controller & { model: MyModelType } }}
 {{this.model}} {{! MyModelType }}

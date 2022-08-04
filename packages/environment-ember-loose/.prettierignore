@@ -1,6 +1,0 @@
-/**/*.js
-/**/*.d.ts
-
-!/registry/**/*.d.ts
-!/-private/dsl/**/*.d.ts
-!/-private/intrinsics/**/*.d.ts

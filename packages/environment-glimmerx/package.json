@@ -13,7 +13,6 @@
     "glint-environment"
   ],
   "scripts": {
-    "lint": "eslint . --max-warnings 0 && prettier --check .",
     "test": "tsc --project __tests__",
     "build": "tsc --build",
     "prepack": "yarn build"

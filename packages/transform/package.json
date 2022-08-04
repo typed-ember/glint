@@ -12,7 +12,6 @@
     "lib"
   ],
   "scripts": {
-    "lint": "eslint . --max-warnings 0 && prettier --check src",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "build": "tsc --build",

@@ -12,7 +12,6 @@
     "glint-environment"
   ],
   "scripts": {
-    "lint": "eslint . --max-warnings 0 && prettier --check .",
     "test": "tsc --project __tests__/type-tests && vitest run",
     "test:watch": "vitest watch",
     "build": "tsc --build",
