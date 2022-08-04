@@ -1,11 +1,11 @@
 import { stripIndent } from 'common-tags';
 import stripAnsi from 'strip-ansi';
+import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import Project from '../utils/project';
 
 describe('CLI: single-pass typechecking', () => {
   let project!: Project;
   beforeEach(async () => {
-    jest.setTimeout(20_000);
     project = await Project.create();
   });
 

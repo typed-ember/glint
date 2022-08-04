@@ -1,4 +1,5 @@
 import ts from 'typescript';
+import { describe, test, expect } from 'vitest';
 import { GlintConfig } from '../src/config';
 
 describe('include/exclude configuration', () => {

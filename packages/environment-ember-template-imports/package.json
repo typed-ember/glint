@@ -12,8 +12,8 @@
     "glint-environment"
   ],
   "scripts": {
-    "lint": "eslint . --max-warnings 0 && prettier --check .",
-    "test": "jest",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
     "build": "tsc --build",
     "prepack": "yarn build"
   },
@@ -33,7 +33,7 @@
     "@types/ember__helper": "^4.0.0",
     "@types/ember__modifier": "^4.0.0",
     "ember-template-imports": "^3.0.0",
-    "expect-type": "0.11.0"
+    "vitest": "^0.18.1"
   },
   "publishConfig": {
     "access": "public"

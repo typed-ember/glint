@@ -69,12 +69,18 @@ jobs:
           command: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
-      - name: Run Tests
+      - name: Test @glint/core
         uses: nick-invision/retry@v2
         with:
           max_attempts: 2
-          timeout_minutes: 15
-          command: yarn test
+          timeout_minutes: 10
+          command: yarn workspace @glint/core test
+      - name: Test glint-vscode
+        uses: nick-invision/retry@v2
+        with:
+          max_attempts: 2
+          timeout_minutes: 10
+          command: yarn workspace glint-vscode test
 
   test-floating-deps:
     name: Test Floating Dependencies

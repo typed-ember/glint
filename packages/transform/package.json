@@ -12,8 +12,8 @@
     "lib"
   ],
   "scripts": {
-    "lint": "eslint . --max-warnings 0 && prettier --check src",
-    "test": "jest",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
     "build": "tsc --build",
     "prepack": "yarn build"
   },
@@ -24,10 +24,8 @@
   "devDependencies": {
     "@types/common-tags": "^1.8.0",
     "@types/debug": "^4.1.5",
-    "@types/jest": "^26.0.13",
     "common-tags": "^1.8.0",
-    "jest": "^26.4.2",
-    "ts-jest": "^26.3.0"
+    "vitest": "^0.18.1"
   },
   "publishConfig": {
     "access": "public"

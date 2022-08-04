@@ -1,11 +1,11 @@
 import Project from '../utils/project';
+import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
 
 describe('Language Server: Diagnostic Augmentation', () => {
   let project!: Project;
 
   beforeEach(async () => {
-    jest.setTimeout(20_000);
     project = await Project.create();
   });
 
@@ -52,102 +52,102 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "message": "Expected 2 arguments, but got 1.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 28,
               "line": 19,
             },
-            "start": Object {
+            "start": {
               "character": 4,
               "line": 19,
             },
           },
           "severity": 1,
           "source": "glint:ts(2554)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Expected 2 arguments, but got 3.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 36,
               "line": 20,
             },
-            "start": Object {
+            "start": {
               "character": 29,
               "line": 20,
             },
           },
           "severity": 1,
           "source": "glint:ts(2554)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Expected at least 1 arguments, but got 0.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 28,
               "line": 21,
             },
-            "start": Object {
+            "start": {
               "character": 4,
               "line": 21,
             },
           },
           "severity": 1,
           "source": "glint:ts(2555)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Expected 2 arguments, but got 1.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 41,
               "line": 23,
             },
-            "start": Object {
+            "start": {
               "character": 4,
               "line": 23,
             },
           },
           "severity": 1,
           "source": "glint:ts(2554)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Expected 2 arguments, but got 3.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 27,
               "line": 24,
             },
-            "start": Object {
+            "start": {
               "character": 20,
               "line": 24,
             },
           },
           "severity": 1,
           "source": "glint:ts(2554)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Expected at least 1 arguments, but got 0.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 41,
               "line": 25,
             },
-            "start": Object {
+            "start": {
               "character": 4,
               "line": 25,
             },
           },
           "severity": 1,
           "source": "glint:ts(2555)",
-          "tags": Array [],
+          "tags": [],
         },
       ]
     `);
@@ -184,142 +184,142 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "message": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
         Type '{}' is not assignable to type 'AttrValue'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 16,
               "line": 9,
             },
-            "start": Object {
+            "start": {
               "character": 9,
               "line": 9,
             },
           },
           "severity": 1,
           "source": "glint:ts(2322)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 22,
               "line": 10,
             },
-            "start": Object {
+            "start": {
               "character": 4,
               "line": 10,
             },
           },
           "severity": 1,
           "source": "glint:ts(2345)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 27,
               "line": 11,
             },
-            "start": Object {
+            "start": {
               "character": 9,
               "line": 11,
             },
           },
           "severity": 1,
           "source": "glint:ts(2345)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 30,
               "line": 12,
             },
-            "start": Object {
+            "start": {
               "character": 12,
               "line": 12,
             },
           },
           "severity": 1,
           "source": "glint:ts(2345)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
         Type '{}' is not assignable to type 'AttrValue'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 16,
               "line": 14,
             },
-            "start": Object {
+            "start": {
               "character": 9,
               "line": 14,
             },
           },
           "severity": 1,
           "source": "glint:ts(2322)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 26,
               "line": 15,
             },
-            "start": Object {
+            "start": {
               "character": 4,
               "line": 15,
             },
           },
           "severity": 1,
           "source": "glint:ts(2345)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 31,
               "line": 16,
             },
-            "start": Object {
+            "start": {
               "character": 9,
               "line": 16,
             },
           },
           "severity": 1,
           "source": "glint:ts(2345)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 34,
               "line": 17,
             },
-            "start": Object {
+            "start": {
               "character": 12,
               "line": 17,
             },
           },
           "severity": 1,
           "source": "glint:ts(2345)",
-          "tags": Array [],
+          "tags": [],
         },
       ]
     `);
@@ -356,159 +356,159 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
           The last overload gave the following error.
             Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.
               Type '{}' provides no match for the signature '(...positional: unknown[]): unknown'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 19,
               "line": 9,
             },
-            "start": Object {
+            "start": {
               "character": 5,
               "line": 9,
             },
           },
           "severity": 1,
           "source": "glint:ts(2769)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
           The last overload gave the following error.
             Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 20,
               "line": 10,
             },
-            "start": Object {
+            "start": {
               "character": 6,
               "line": 10,
             },
           },
           "severity": 1,
           "source": "glint:ts(2769)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
           The last overload gave the following error.
             Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 26,
               "line": 11,
             },
-            "start": Object {
+            "start": {
               "character": 12,
               "line": 11,
             },
           },
           "severity": 1,
           "source": "glint:ts(2769)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
           The last overload gave the following error.
             Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 25,
               "line": 12,
             },
-            "start": Object {
+            "start": {
               "character": 11,
               "line": 12,
             },
           },
           "severity": 1,
           "source": "glint:ts(2769)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
           The last overload gave the following error.
             Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 26,
               "line": 14,
             },
-            "start": Object {
+            "start": {
               "character": 4,
               "line": 14,
             },
           },
           "severity": 1,
           "source": "glint:ts(2769)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
           The last overload gave the following error.
             Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 24,
               "line": 15,
             },
-            "start": Object {
+            "start": {
               "character": 6,
               "line": 15,
             },
           },
           "severity": 1,
           "source": "glint:ts(2769)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
           The last overload gave the following error.
             Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 30,
               "line": 16,
             },
-            "start": Object {
+            "start": {
               "character": 12,
               "line": 16,
             },
           },
           "severity": 1,
           "source": "glint:ts(2769)",
-          "tags": Array [],
+          "tags": [],
         },
-        Object {
+        {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
           The last overload gave the following error.
             Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 29,
               "line": 17,
             },
-            "start": Object {
+            "start": {
               "character": 11,
               "line": 17,
             },
           },
           "severity": 1,
           "source": "glint:ts(2769)",
-          "tags": Array [],
+          "tags": [],
         },
       ]
     `);

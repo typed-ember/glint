@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest';
 import { GlintEnvironment } from '@glint/config/lib/environment';
 
 describe('Environments: Ember Loose', () => {

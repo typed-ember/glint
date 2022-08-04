@@ -43,17 +43,16 @@ to typecheck.
 
 {% endcode %}
 
-
 ## Using Glint-enabled addons
 
 For addons that already ship with Glint-compatible types there is only a little to do. Their README might contain some specific instructions, but if the addon follows Glint's recommendations for [authoring addons][authoring], the basic steps are as follows.
 
 If you are already using [strict mode] templates (via [first class component templates]), you are already explicitly importing all the components, helpers and modifiers in use by the template, so Glint already has all the typing information at hand, and nothing more is required!
 
-But more likely you are still using classic `.hbs` template files, for which Glint needs to know e.g. which component *name* maps to which component *class* and hence its type. This is managed by the [Template Registry], which needs to be extended for all the components, helpers and modifiers provided by the addon.
+But more likely you are still using classic `.hbs` template files, for which Glint needs to know e.g. which component _name_ maps to which component _class_ and hence its type. This is managed by the [Template Registry], which needs to be extended for all the components, helpers and modifiers provided by the addon.
 
 By convention according to the [Authoring Guide][authoring], the addon will ship a `glint.d.ts`
- file that already contains all the necessary registry entries. You just need to import this file from somewhere in your app, e.g. where you already import `@glint/environment-ember-loose`:
+file that already contains all the necessary registry entries. You just need to import this file from somewhere in your app, e.g. where you already import `@glint/environment-ember-loose`:
 
 {% code title="types/global.d.ts" %}
 
@@ -64,11 +63,11 @@ import 'ember-responsive-image/glint';
 
 {% endcode %}
 
-In the majority of cases this should be all you need! 
+In the majority of cases this should be all you need!
 
-However, if you have for example extended or overridden a component of that addon, by having an implementation with the same name in your *app*, but with a somewhat different shape (e.g. additional arguments), then you will need to add the registry entries by yourself, as the ones provided by the addon will not match the type of your replaced component.
+However, if you have for example extended or overridden a component of that addon, by having an implementation with the same name in your _app_, but with a somewhat different shape (e.g. additional arguments), then you will need to add the registry entries by yourself, as the ones provided by the addon will not match the type of your replaced component.
 
-Add the registry entry for the replaced component as you would for any other of your app, as described under [Template Registry]. 
+Add the registry entry for the replaced component as you would for any other of your app, as described under [Template Registry].
 For any other component, helper or modifier that you use from the addon as-is, you can extend the registry as described under [Typing your dependencies](#typing-your-dependencies) above. You don't need to write your own types though, as the addon already ships those. Just import the types from the addon itself:
 
 {% code title="types/global.d.ts" %}
@@ -90,4 +89,4 @@ declare module '@glint/environment-ember-loose/registry' {
 [authoring]: authoring-addons.md
 [strict mode]: http://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html
 [first class component templates]: http://emberjs.github.io/rfcs/0779-first-class-component-templates.html
-[Template Registry]: template-registry.md
+[template registry]: template-registry.md

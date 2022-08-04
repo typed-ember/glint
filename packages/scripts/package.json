@@ -20,7 +20,6 @@
     "glint-language-server": "bin/glint-language-server.js"
   },
   "scripts": {
-    "lint": "eslint . --max-warnings 0 && prettier --check src",
     "test": "vitest run",
     "build": "tsc --build",
     "prepack": "yarn build"
@@ -42,10 +41,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "workspaces": {
-    "nohoist": [
-      "@types/yargs"
-    ]
   }
 }

@@ -28,7 +28,6 @@
     "lib"
   ],
   "scripts": {
-    "lint": "eslint . --max-warnings 0 && prettier --check src",
     "test": "node __tests__/support/launch-from-cli.js",
     "build": "tsc --build",
     "vscode:prepublish": "yarn build"

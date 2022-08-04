@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.compileroptions.json",
-  "exclude": ["__tests__"],
+  "include": ["registry", "-private"],
   "references": [{ "path": "../template" }, { "path": "../config" }]
 }

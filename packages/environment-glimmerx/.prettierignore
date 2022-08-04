@@ -1,4 +1,0 @@
-/**/*.js
-/**/*.d.ts
-
-!/-private/dsl/**/*.d.ts

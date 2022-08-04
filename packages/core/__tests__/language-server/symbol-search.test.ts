@@ -1,4 +1,5 @@
 import Project from '../utils/project';
+import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
 import { SymbolKind } from 'vscode-languageserver-types';
 
@@ -6,7 +7,6 @@ describe('Language Server: Symbol Search', () => {
   let project!: Project;
 
   beforeEach(async () => {
-    jest.setTimeout(20_000);
     project = await Project.create();
   });
 

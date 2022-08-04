@@ -7,7 +7,6 @@
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "types": "-private/index.d.ts",
   "scripts": {
-    "lint": "eslint . --max-warnings 0 && prettier --check .",
     "test": "tsc --project __tests__"
   },
   "files": [

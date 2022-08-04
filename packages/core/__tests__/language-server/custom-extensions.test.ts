@@ -1,11 +1,11 @@
 import Project from '../utils/project';
+import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
 
 describe('Language Server: custom file extensions', () => {
   let project!: Project;
 
   beforeEach(async () => {
-    jest.setTimeout(20_000);
     project = await Project.create();
   });
 
@@ -22,22 +22,22 @@ describe('Language Server: custom file extensions', () => {
     let server = project.startLanguageServer();
 
     expect(server.getDiagnostics(project.fileURI('index.gts'))).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "message": "Type 'number' is not assignable to type 'string'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 14,
               "line": 0,
             },
-            "start": Object {
+            "start": {
               "character": 4,
               "line": 0,
             },
           },
           "severity": 1,
           "source": "glint:ts(2322)",
-          "tags": Array [],
+          "tags": [],
         },
       ]
     `);
@@ -45,22 +45,22 @@ describe('Language Server: custom file extensions', () => {
     server.openFile(project.fileURI('index.gts'), contents);
 
     expect(server.getDiagnostics(project.fileURI('index.gts'))).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "message": "Type 'number' is not assignable to type 'string'.",
-          "range": Object {
-            "end": Object {
+          "range": {
+            "end": {
               "character": 14,
               "line": 0,
             },
-            "start": Object {
+            "start": {
               "character": 4,
               "line": 0,
             },
           },
           "severity": 1,
           "source": "glint:ts(2322)",
-          "tags": Array [],
+          "tags": [],
         },
       ]
     `);
@@ -80,19 +80,19 @@ describe('Language Server: custom file extensions', () => {
     let hover = server.getHover(project.fileURI('index.gts'), { line: 0, character: 8 });
 
     expect(hover).toMatchInlineSnapshot(`
-      Object {
-        "contents": Array [
-          Object {
+      {
+        "contents": [
+          {
             "language": "ts",
             "value": "let identifier: string",
           },
         ],
-        "range": Object {
-          "end": Object {
+        "range": {
+          "end": {
             "character": 14,
             "line": 0,
           },
-          "start": Object {
+          "start": {
             "character": 4,
             "line": 0,
           },
@@ -106,19 +106,19 @@ describe('Language Server: custom file extensions', () => {
     hover = server.getHover(project.fileURI('index.gts'), { line: 0, character: 8 });
 
     expect(hover).toMatchInlineSnapshot(`
-      Object {
-        "contents": Array [
-          Object {
+      {
+        "contents": [
+          {
             "language": "ts",
             "value": "let identifier: number",
           },
         ],
-        "range": Object {
-          "end": Object {
+        "range": {
+          "end": {
             "character": 14,
             "line": 0,
           },
-          "start": Object {
+          "start": {
             "character": 4,
             "line": 0,
           },
