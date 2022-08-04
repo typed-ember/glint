@@ -7,7 +7,6 @@ import { describe, beforeEach, afterEach, test } from 'vitest';
 describe('CLI: watched build mode typechecking', () => {
   let project!: Project;
   beforeEach(async () => {
-    jest.setTimeout(20_000);
     project = await Project.create();
   });
 
