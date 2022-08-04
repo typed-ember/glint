@@ -256,11 +256,11 @@ describe('CLI: single-pass build mode typechecking', () => {
       );
 
       main.mkdir('node_modules/@glint-test');
-      symlinkSync(a.filePath('.'), main.filePath('node_modules/@glint-test/a'));
-      symlinkSync(b.filePath('.'), main.filePath('node_modules/@glint-test/b'));
+      symlinkSync(a.filePath('.'), main.filePath('node_modules/@glint-test/a'), 'dir');
+      symlinkSync(b.filePath('.'), main.filePath('node_modules/@glint-test/b'), 'dir');
 
       a.mkdir('node_modules/@glint-test');
-      symlinkSync(c.filePath('.'), a.filePath('node_modules/@glint-test/c'));
+      symlinkSync(c.filePath('.'), a.filePath('node_modules/@glint-test/c'), 'dir');
 
       projects = { root, main, children: { a, b, c } };
     });
