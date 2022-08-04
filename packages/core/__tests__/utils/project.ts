@@ -1,7 +1,6 @@
 import path from 'path';
 import fs from 'fs';
 import execa, { ExecaChildProcess, Options } from 'execa';
-import ts from 'typescript';
 import { ConfigLoader } from '@glint/config';
 import GlintLanguageServer from '../../src/language-server/glint-language-server';
 import { filePathToUri, normalizeFilePath } from '../../src/language-server/util';
