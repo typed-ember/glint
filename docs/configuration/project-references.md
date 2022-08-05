@@ -1,7 +1,15 @@
-Glint works out of the box with TypeScript’s [Project References][pr] feature:
+Glint works out of the box with TypeScript’s [Project References][pr] feature: Instead of running just `glint`, you run `glint --build`, and Glint will correctly do incremental builds for composite projects.
 
-- Instead of running just `glint`, you run `glint --build`, and Glint will correctly do incremental builds for composite projects.
-- In the future, the Glint Language Server also takes advantage of composite projects to improve performance when working in just one part of a large codebase.
+{% hint style="working" %}
+
+Support for the flags associated with `--build` is still in progress (so they don't work yet!):
+
+- `--dry`
+- `--incremental`
+- `--watch`
+- `--force`
+
+{% endhint %}
 
 {% hint style="info" %}
 
