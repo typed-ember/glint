@@ -86,13 +86,13 @@ With this structure, the sub-project configurations, like `packages/a/tsconfig.j
 - extend the root options config
 - include the `types` directory as well as their own files
 
-```jsonc
+```json
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
     "composite": true
   },
-  "include": ["../../local-types/**/*.ts", "./src/**/*.ts"]
+  "include": ["../../local-types", "./src"]
 }
 ```
 
@@ -117,13 +117,13 @@ If this were in sub-project `a` from the example above, the resulting layout mig
 
 The updated `packages/a/tsconfig.json` file might look like this:
 
-```jsonc
+```json
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
     "composite": true
   },
-  "include": ["./local-types/**/*.ts", "./src/**/*.ts"],
+  "include": ["./local-types", "./src"],
   "glint": {
     "environment": "ember-loose"
   }
@@ -132,11 +132,9 @@ The updated `packages/a/tsconfig.json` file might look like this:
 
 Note that here it uses `local-types` from `a`, _not_ from the root. You can also have both present:
 
-```jsonc
+```json
 {
-  // ...
   "include": ["../../local-types/**/*.ts", "./local-types/**/*.ts", "./src/**/*.ts"]
-  // ...
 }
 ```
 
