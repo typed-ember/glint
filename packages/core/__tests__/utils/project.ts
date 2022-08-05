@@ -85,7 +85,7 @@ export default class Project {
         skipLibCheck: true,
         allowJs: true,
         checkJs: false,
-        ...(config.compilerOptions ?? {}),
+        ...config.compilerOptions,
       },
       glint: config.glint ?? {
         environment: 'glimmerx',
