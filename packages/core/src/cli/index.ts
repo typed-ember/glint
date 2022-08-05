@@ -33,6 +33,8 @@ const argv = yargs
     // As with TS itself, we *must* emit declarations when in build mode
     conflicts: 'declaration',
   })
+  // TODO: implement these!
+  /*
   .option('clean', {
     implies: 'build',
     boolean: true,
@@ -54,6 +56,7 @@ const argv = yargs
       'Save .tsbuildinfo files to allow for incremental compilation of projects. Same as the TS `--incremental` flag.',
     type: 'boolean',
   })
+  */
   .option('debug-intermediate-representation', {
     boolean: false,
     description: `When true, writes out a Glint's internal intermediate representation of each file within a GLINT_DEBUG subdirectory of the current working directory. This is intended for debugging Glint itself.`,
