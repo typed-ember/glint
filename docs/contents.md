@@ -5,7 +5,7 @@
 
 ## Using Glint
 
-- [Configuration](./configuration/_index_.md)
+- [Configuration](./configuration/_index.md)
   - [Project References](./configuration/project-references.md)
 - Ember
   - [Installation](ember/installation.md)
