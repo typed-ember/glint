@@ -6,7 +6,6 @@ import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 
 import Project from '../utils/project';
 
-const BUILD_INFO = 'tsconfig.tsbuildinfo';
 const INDEX_JS = 'index.js';
 const INDEX_D_TS = 'index.d.ts';
 
@@ -323,13 +322,9 @@ describe('CLI: single-pass build mode typechecking', () => {
         expect(checkResult.stdout).toEqual('');
         expect(checkResult.stderr).toEqual('');
 
-        expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(true);
         expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(true);
-        expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
         expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
-        expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
         expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
-        expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
         expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
       });
 
@@ -340,13 +335,9 @@ describe('CLI: single-pass build mode typechecking', () => {
         expect(checkResult.stdout).toEqual('');
         expect(checkResult.stderr).toEqual('');
 
-        expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
         expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-        expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
         expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
-        expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
         expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-        expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
         expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
       });
 
@@ -357,13 +348,9 @@ describe('CLI: single-pass build mode typechecking', () => {
         expect(checkResult.stdout).toEqual('');
         expect(checkResult.stderr).toEqual('');
 
-        expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
         expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-        expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
         expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-        expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
         expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
-        expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(false);
         expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
       });
     });
@@ -429,13 +416,9 @@ describe('CLI: single-pass build mode typechecking', () => {
             "
           `);
 
-          expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(true);
           expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-          expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
           expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
-          expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
           expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
-          expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
           expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
         });
 
@@ -480,10 +463,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             "
           `);
 
-          expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
-          expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
-          expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
-          expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
+          expect(existsSync(projects.main.filePath(INDEX_D_TS))).toBe(false);
+          expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
+          expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
+          expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
         });
 
         test('for a template type error', async () => {
@@ -523,10 +506,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             "
           `);
 
-          expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(true);
-          expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
-          expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
-          expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
+          expect(existsSync(projects.main.filePath(INDEX_D_TS))).toBe(false);
+          expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
+          expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
+          expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
         });
       });
 
@@ -591,13 +574,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
           });
 
@@ -614,13 +593,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
           });
         });
@@ -654,13 +629,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
           });
 
@@ -680,13 +651,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
           });
         });
@@ -718,13 +685,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
           });
 
@@ -741,13 +704,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
           });
         });
@@ -814,13 +773,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
           });
 
@@ -837,13 +792,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
         });
@@ -876,13 +827,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
           });
 
@@ -902,13 +849,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
         });
@@ -939,13 +882,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
           });
 
@@ -962,13 +901,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
         });
@@ -1034,13 +969,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
 
@@ -1057,13 +988,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
 
@@ -1080,13 +1007,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
         });
@@ -1119,13 +1042,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
 
@@ -1145,13 +1064,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
 
@@ -1171,13 +1086,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
         });
@@ -1208,13 +1119,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
 
@@ -1231,13 +1138,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
 
@@ -1254,13 +1157,9 @@ describe('CLI: single-pass build mode typechecking', () => {
               "
             `);
 
-            expect(existsSync(projects.main.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
-            expect(existsSync(projects.children.a.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.b.filePath(BUILD_INFO))).toBe(false);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
-            expect(existsSync(projects.children.c.filePath(BUILD_INFO))).toBe(true);
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
           });
         });

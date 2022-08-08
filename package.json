@@ -19,15 +19,15 @@
     "yarn": "1.22.4"
   },
   "devDependencies": {
+    "@types/yargs": "^17.0.10",
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
-    "@types/yargs": "^17.0.10",
     "eslint": "^7.15.0",
     "prettier": "^2.1.1",
     "release-it": "^14.4.1",
     "release-it-lerna-changelog": "^3.1.0",
     "release-it-yarn-workspaces": "^2.0.0",
-    "typescript": "^4.7.0"
+    "typescript": "^4.8.0-dev.20220804"
   },
   "version": "0.9.1"
 }
