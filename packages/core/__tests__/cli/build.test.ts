@@ -1,4 +1,4 @@
-import { existsSync, symlinkSync } from 'fs';
+import { existsSync, symlinkSync, statSync } from 'fs';
 
 import { stripIndent } from 'common-tags';
 import stripAnsi from 'strip-ansi';
@@ -1189,6 +1189,121 @@ describe('CLI: --build --clean', () => {
     expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
     expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
     expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
+  });
+});
+
+describe('CLI: --build --force', () => {
+  test('for basic projects', async () => {
+    let project = await Project.createExact(BASE_TS_CONFIG);
+
+    let code = stripIndent`
+      import '@glint/environment-ember-template-imports';
+      import Component from '@glimmer/component';
+      import { hbs } from 'ember-template-imports';
+
+      type ApplicationArgs = {
+        version: string;
+      };
+
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
+        private startupTime = new Date().toISOString();
+
+        public static template = hbs\`
+          Welcome to app v{{@version}}.
+          The current time is {{this.startupTime}}.
+        \`;
+      }
+    `;
+
+    project.write('index.ts', code);
+
+    let buildResult = await project.build();
+    expect(buildResult.exitCode).toBe(0);
+    let indexJs = project.filePath(INDEX_JS);
+    expect(existsSync(indexJs)).toBe(true);
+    let firstStat = statSync(indexJs);
+
+    let buildCleanResult = await project.build({ flags: ['--force'] });
+    expect(buildCleanResult.exitCode).toBe(0);
+    let exists = existsSync(indexJs);
+    expect(exists).toBe(true);
+
+    let secondStat = statSync(indexJs);
+    expect(firstStat.ctime).not.toEqual(secondStat.ctime);
+  });
+
+  test('for composite projects', async () => {
+    let projects = await setupCompositeProject();
+
+    let rootCode = stripIndent`
+      import Component from '@glimmer/component';
+      import { hbs } from 'ember-template-imports';
+      import A from '@glint-test/a';
+      import B from '@glint-test/b';
+
+      type ApplicationArgs = {
+        version: string;
+      };
+
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
+        private startupTime = new Date().toISOString();
+
+        public static template = hbs\`
+          Welcome to app v{{@version}}.
+          The current time is {{this.startupTime}}.
+        \`;
+      }
+    `;
+
+    let aCode = stripIndent`
+      import C from '@glint-test/c';
+      const A = 'hello ' + C;
+      export default A;
+    `;
+
+    let bCode = stripIndent`
+      const B = 'ahoy';
+      export default B;
+    `;
+
+    let cCode = stripIndent`
+      const C = 'world';
+      export default C;
+    `;
+
+    projects.main.write('index.ts', rootCode);
+    projects.children.a.write('index.ts', aCode);
+    projects.children.b.write('index.ts', bCode);
+    projects.children.c.write('index.ts', cCode);
+
+    let buildResult = await projects.main.build();
+    expect(buildResult.exitCode).toBe(0);
+    expect(buildResult.stdout).toEqual('');
+    expect(buildResult.stderr).toEqual('');
+    let firstRootStat = statSync(projects.main.filePath(INDEX_JS));
+    let firstAStat = statSync(projects.children.a.filePath(INDEX_D_TS));
+    let firstBStat = statSync(projects.children.b.filePath(INDEX_D_TS));
+    let firstCStat = statSync(projects.children.c.filePath(INDEX_D_TS));
+
+    let buildCleanResult = await projects.main.build({ flags: ['--force'] });
+    expect(buildCleanResult.exitCode).toBe(0);
+    expect(buildCleanResult.stdout).toEqual('');
+    expect(buildCleanResult.stderr).toEqual('');
+
+    expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(true);
+    expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
+    expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
+    expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
+
+    let secondRootStat = statSync(projects.main.filePath(INDEX_JS));
+    let secondAStat = statSync(projects.children.a.filePath(INDEX_D_TS));
+    let secondBStat = statSync(projects.children.b.filePath(INDEX_D_TS));
+    let secondCStat = statSync(projects.children.c.filePath(INDEX_D_TS));
+
+    expect(firstRootStat.ctime).not.toEqual(secondRootStat.ctime);
+    expect(firstAStat.ctime).not.toEqual(secondAStat.ctime);
+    expect(firstBStat.ctime).not.toEqual(secondBStat.ctime);
+    expect(firstCStat.ctime).not.toEqual(secondCStat.ctime);
   });
 });
 

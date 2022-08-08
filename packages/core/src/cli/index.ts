@@ -39,13 +39,13 @@ const argv = yargs
     description: 'Delete the outputs of all projects.',
     conflicts: 'watch',
   })
-  // TODO: implement these!
-  /*
   .option('force', {
     implies: 'build',
     description: 'Act as if all projects are out of date. Same as the TS `--force` flag.',
     type: 'boolean',
   })
+  // TODO: implement these!
+  /*
   .option('dry', {
     implies: 'build',
     description: `Show what would be built (or deleted, if specified with '--clean'). Same as the TS \`--dry\` flag.`,
@@ -82,7 +82,7 @@ if (argv.build) {
   // error as possible, rather than at the *use* sites below.
   let buildOptions: TS.BuildOptions = {
     clean: argv.clean,
-    // force: argv.force,
+    force: argv.force,
     // dry: argv.dry,
     // incremental: argv.incremental,
   };
