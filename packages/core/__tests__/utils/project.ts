@@ -9,7 +9,7 @@ import TransformManager from '../../src/common/transform-manager';
 import { parseTsconfig } from '../../src/language-server/pool';
 import { GlintConfigInput } from '@glint/config/lib/config';
 
-const ROOT = path.resolve(__dirname, '../../../../test-packages/ephemeral');
+const ROOT = normalizeFilePath(path.resolve(__dirname, '../../../../test-packages/ephemeral'));
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
 // definition for our purposes here in tests.
