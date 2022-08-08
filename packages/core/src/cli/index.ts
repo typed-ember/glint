@@ -33,14 +33,14 @@ const argv = yargs
     // As with TS itself, we *must* emit declarations when in build mode
     conflicts: 'declaration',
   })
-  // TODO: implement these!
-  /*
   .option('clean', {
     implies: 'build',
     boolean: true,
     description: 'Delete the outputs of all projects.',
     conflicts: 'watch',
   })
+  // TODO: implement these!
+  /*
   .option('force', {
     implies: 'build',
     description: 'Act as if all projects are out of date. Same as the TS `--force` flag.',
@@ -81,7 +81,7 @@ if (argv.build) {
   // Type signature here so we get a useful error as close to the source of the
   // error as possible, rather than at the *use* sites below.
   let buildOptions: TS.BuildOptions = {
-    // clean: argv.clean,
+    clean: argv.clean,
     // force: argv.force,
     // dry: argv.dry,
     // incremental: argv.incremental,

@@ -169,99 +169,7 @@ describe('CLI: single-pass build mode typechecking', () => {
     };
 
     beforeEach(async () => {
-      // Here, we create a `root` project which extends from a shared tsconfig,
-      // which we create immediately below, as well as a local-types directory
-      // which sets up the environment.
-      const SHARED_TSCONFIG = 'shared.tsconfig.json';
-      let root = await Project.createExact(
-        {
-          extends: `./${SHARED_TSCONFIG}`,
-          references: [{ path: './main' }],
-          files: [],
-        },
-        {
-          private: true,
-          workspaces: ['./a', './b', './c'],
-        }
-      );
-
-      root.write(SHARED_TSCONFIG, JSON.stringify(BASE_TS_CONFIG, null, 2));
-      root.mkdir('local-types');
-      root.write('local-types/index.d.ts', 'import "@glint/environment-ember-template-imports";');
-
-      let main = await Project.createExact(
-        {
-          extends: `../${SHARED_TSCONFIG}`,
-          compilerOptions: { composite: true },
-          include: ['../local-types/**/*.ts', './**/*.ts'],
-          references: [{ path: '../a' }, { path: '../b' }],
-          glint: { environment: 'ember-template-imports' },
-        },
-        {
-          name: '@glint-test/main',
-          version: '1.0.0',
-          dependencies: {
-            '@glint-test/a': 'link:../a',
-            '@glint-test/b': 'link:../b',
-          },
-        },
-        root.filePath('main')
-      );
-
-      let a = await Project.createExact(
-        {
-          extends: `../${SHARED_TSCONFIG}`,
-          compilerOptions: { composite: true },
-          include: ['../local-types/**/*.ts', './**/*.ts'],
-          references: [{ path: '../c' }],
-          glint: { environment: 'ember-template-imports' },
-        },
-        {
-          name: '@glint-test/a',
-          version: '1.0.0',
-          dependencies: {
-            '@glint-test/c': 'link:../c',
-          },
-        },
-        root.filePath('a')
-      );
-
-      let b = await Project.createExact(
-        {
-          extends: `../${SHARED_TSCONFIG}`,
-          compilerOptions: { composite: true },
-          include: ['../local-types/**/*.ts', './**/*.ts'],
-          glint: { environment: 'ember-template-imports' },
-        },
-        {
-          name: '@glint-test/b',
-          version: '1.0.0',
-        },
-        root.filePath('b')
-      );
-
-      let c = await Project.createExact(
-        {
-          extends: `../${SHARED_TSCONFIG}`,
-          compilerOptions: { composite: true },
-          include: ['../local-types/**/*.ts', './**/*.ts'],
-          glint: { environment: 'ember-template-imports' },
-        },
-        {
-          name: '@glint-test/c',
-          version: '1.0.0',
-        },
-        root.filePath('c')
-      );
-
-      main.mkdir('node_modules/@glint-test');
-      symlinkSync(a.filePath('.'), main.filePath('node_modules/@glint-test/a'));
-      symlinkSync(b.filePath('.'), main.filePath('node_modules/@glint-test/b'));
-
-      a.mkdir('node_modules/@glint-test');
-      symlinkSync(c.filePath('.'), a.filePath('node_modules/@glint-test/c'));
-
-      projects = { root, main, children: { a, b, c } };
+      projects = await setupCompositeProject();
     });
 
     afterEach(async () => {
@@ -1185,3 +1093,207 @@ describe('CLI: single-pass build mode typechecking', () => {
     });
   });
 });
+
+describe('CLI: --build --clean', () => {
+  test('for basic projects', async () => {
+    let project = await Project.createExact(BASE_TS_CONFIG);
+
+    let code = stripIndent`
+      import '@glint/environment-ember-template-imports';
+      import Component from '@glimmer/component';
+      import { hbs } from 'ember-template-imports';
+
+      type ApplicationArgs = {
+        version: string;
+      };
+
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
+        private startupTime = new Date().toISOString();
+
+        public static template = hbs\`
+          Welcome to app v{{@version}}.
+          The current time is {{this.startupTime}}.
+        \`;
+      }
+    `;
+
+    project.write('index.ts', code);
+
+    let buildResult = await project.build();
+    expect(buildResult.exitCode).toBe(0);
+    expect(existsSync(project.filePath(INDEX_JS))).toBe(true);
+
+    let buildCleanResult = await project.build({ flags: ['--clean'] });
+    expect(buildCleanResult.exitCode).toBe(0);
+    expect(existsSync(project.filePath(INDEX_JS))).toBe(false);
+  });
+
+  test('for composite projects', async () => {
+    let projects = await setupCompositeProject();
+
+    let rootCode = stripIndent`
+      import Component from '@glimmer/component';
+      import { hbs } from 'ember-template-imports';
+      import A from '@glint-test/a';
+      import B from '@glint-test/b';
+
+      type ApplicationArgs = {
+        version: string;
+      };
+
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
+        private startupTime = new Date().toISOString();
+
+        public static template = hbs\`
+          Welcome to app v{{@version}}.
+          The current time is {{this.startupTime}}.
+        \`;
+      }
+    `;
+
+    let aCode = stripIndent`
+      import C from '@glint-test/c';
+      const A = 'hello ' + C;
+      export default A;
+    `;
+
+    let bCode = stripIndent`
+      const B = 'ahoy';
+      export default B;
+    `;
+
+    let cCode = stripIndent`
+      const C = 'world';
+      export default C;
+    `;
+
+    projects.main.write('index.ts', rootCode);
+    projects.children.a.write('index.ts', aCode);
+    projects.children.b.write('index.ts', bCode);
+    projects.children.c.write('index.ts', cCode);
+
+    let buildResult = await projects.main.build();
+    expect(buildResult.exitCode).toBe(0);
+    expect(buildResult.stdout).toEqual('');
+    expect(buildResult.stderr).toEqual('');
+    expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(true);
+    expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
+    expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
+    expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
+
+    let buildCleanResult = await projects.main.build({ flags: ['--clean'] });
+    expect(buildCleanResult.exitCode).toBe(0);
+    expect(buildCleanResult.stdout).toEqual('');
+    expect(buildCleanResult.stderr).toEqual('');
+    expect(existsSync(projects.main.filePath(INDEX_JS))).toBe(false);
+    expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
+    expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
+    expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(false);
+  });
+});
+
+type CompositeProject = {
+  root: Project;
+  main: Project;
+  children: {
+    a: Project;
+    b: Project;
+    c: Project;
+  };
+};
+
+async function setupCompositeProject(): Promise<CompositeProject> {
+  // Here, we create a `root` project which extends from a shared tsconfig,
+  // which we create immediately below, as well as a local-types directory
+  // which sets up the environment.
+  const SHARED_TSCONFIG = 'shared.tsconfig.json';
+  let root = await Project.createExact(
+    {
+      extends: `./${SHARED_TSCONFIG}`,
+      references: [{ path: './main' }],
+      files: [],
+    },
+    {
+      private: true,
+      workspaces: ['./a', './b', './c'],
+    }
+  );
+
+  root.write(SHARED_TSCONFIG, JSON.stringify(BASE_TS_CONFIG, null, 2));
+  root.mkdir('local-types');
+  root.write('local-types/index.d.ts', 'import "@glint/environment-ember-template-imports";');
+
+  let main = await Project.createExact(
+    {
+      extends: `../${SHARED_TSCONFIG}`,
+      compilerOptions: { composite: true },
+      include: ['../local-types/**/*.ts', './**/*.ts'],
+      references: [{ path: '../a' }, { path: '../b' }],
+      glint: { environment: 'ember-template-imports' },
+    },
+    {
+      name: '@glint-test/main',
+      version: '1.0.0',
+      dependencies: {
+        '@glint-test/a': 'link:../a',
+        '@glint-test/b': 'link:../b',
+      },
+    },
+    root.filePath('main')
+  );
+
+  let a = await Project.createExact(
+    {
+      extends: `../${SHARED_TSCONFIG}`,
+      compilerOptions: { composite: true },
+      include: ['../local-types/**/*.ts', './**/*.ts'],
+      references: [{ path: '../c' }],
+      glint: { environment: 'ember-template-imports' },
+    },
+    {
+      name: '@glint-test/a',
+      version: '1.0.0',
+      dependencies: {
+        '@glint-test/c': 'link:../c',
+      },
+    },
+    root.filePath('a')
+  );
+
+  let b = await Project.createExact(
+    {
+      extends: `../${SHARED_TSCONFIG}`,
+      compilerOptions: { composite: true },
+      include: ['../local-types/**/*.ts', './**/*.ts'],
+      glint: { environment: 'ember-template-imports' },
+    },
+    {
+      name: '@glint-test/b',
+      version: '1.0.0',
+    },
+    root.filePath('b')
+  );
+
+  let c = await Project.createExact(
+    {
+      extends: `../${SHARED_TSCONFIG}`,
+      compilerOptions: { composite: true },
+      include: ['../local-types/**/*.ts', './**/*.ts'],
+      glint: { environment: 'ember-template-imports' },
+    },
+    {
+      name: '@glint-test/c',
+      version: '1.0.0',
+    },
+    root.filePath('c')
+  );
+
+  main.mkdir('node_modules/@glint-test');
+  symlinkSync(a.filePath('.'), main.filePath('node_modules/@glint-test/a'));
+  symlinkSync(b.filePath('.'), main.filePath('node_modules/@glint-test/b'));
+
+  a.mkdir('node_modules/@glint-test');
+  symlinkSync(c.filePath('.'), a.filePath('node_modules/@glint-test/c'));
+
+  return { root, main, children: { a, b, c } };
+}
