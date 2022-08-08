@@ -5,7 +5,8 @@
 
 ## Using Glint
 
-- [Configuration](configuration.md)
+- [Configuration](./configuration/_index.md)
+  - [Project References](./configuration/project-references.md)
 - Ember
   - [Installation](ember/installation.md)
   - [Component Signatures](ember/component-signatures.md)

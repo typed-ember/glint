@@ -1,9 +1,11 @@
-import type ts from 'typescript';
+import type TS from 'typescript';
 import TransformManager from '../common/transform-manager';
 import { GlintConfig } from '@glint/config';
 import { buildDiagnosticFormatter } from './diagnostics';
 
-export function performCheck(glintConfig: GlintConfig, optionsToExtend: ts.CompilerOptions): void {
+type TypeScript = typeof TS;
+
+export function performCheck(glintConfig: GlintConfig, optionsToExtend: TS.CompilerOptions): void {
   let { ts } = glintConfig;
   let transformManager = new TransformManager(glintConfig);
   let parsedConfig = loadTsconfig(ts, transformManager, glintConfig.configPath, optionsToExtend);
@@ -27,10 +29,10 @@ export function performCheck(glintConfig: GlintConfig, optionsToExtend: ts.Compi
 }
 
 function collectDiagnostics(
-  program: ts.Program,
+  program: TS.Program,
   transformManager: TransformManager,
-  options: ts.CompilerOptions
-): Array<ts.Diagnostic> {
+  options: TS.CompilerOptions
+): Array<TS.Diagnostic> {
   return [
     ...program.getSyntacticDiagnostics(),
     ...transformManager.getTransformDiagnostics(),
@@ -40,10 +42,10 @@ function collectDiagnostics(
 }
 
 function createCompilerHost(
-  ts: typeof import('typescript'),
-  options: ts.CompilerOptions,
+  ts: TypeScript,
+  options: TS.CompilerOptions,
   transformManager: TransformManager
-): ts.CompilerHost {
+): TS.CompilerHost {
   let host = ts.createCompilerHost(options);
   host.fileExists = transformManager.fileExists;
   host.readFile = transformManager.readTransformedFile;
@@ -52,11 +54,11 @@ function createCompilerHost(
 }
 
 function loadTsconfig(
-  ts: typeof import('typescript'),
+  ts: TypeScript,
   transformManager: TransformManager,
   configPath: string | undefined,
-  optionsToExtend: ts.CompilerOptions
-): ts.ParsedCommandLine {
+  optionsToExtend: TS.CompilerOptions
+): TS.ParsedCommandLine {
   if (!configPath) {
     return {
       fileNames: [],

@@ -13,7 +13,7 @@ export type {
   PathCandidate,
 } from './environment';
 
-export { ConfigLoader } from './loader';
+export { ConfigLoader, findTypeScript } from './loader';
 
 /**
  * Loads glint configuration, starting from the given directory

@@ -1,9 +1,9 @@
-import type ts from 'typescript';
+import type TS from 'typescript';
 
-export function buildDiagnosticFormatter(
-  ts: typeof import('typescript')
-): (diagnostic: ts.Diagnostic) => string {
-  const formatDiagnosticHost: ts.FormatDiagnosticsHost = {
+type TypeScript = typeof TS;
+
+export function buildDiagnosticFormatter(ts: TypeScript): (diagnostic: TS.Diagnostic) => string {
+  const formatDiagnosticHost: TS.FormatDiagnosticsHost = {
     getCanonicalFileName: (name) => name,
     getCurrentDirectory: ts.sys.getCurrentDirectory,
     getNewLine: () => ts.sys.newLine,
