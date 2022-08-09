@@ -13,5 +13,6 @@ export function sysForCompilerHost(
     fileExists: transformManagerOrPool.fileExists,
     watchFile: transformManagerOrPool.watchTransformedFile,
     readFile: transformManagerOrPool.readTransformedFile,
+    getModifiedTime: transformManagerOrPool.getModifiedTime,
   };
 }

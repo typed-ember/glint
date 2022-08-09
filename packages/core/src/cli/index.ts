@@ -44,13 +44,13 @@ const argv = yargs
     description: 'Act as if all projects are out of date. Same as the TS `--force` flag.',
     type: 'boolean',
   })
-  // TODO: implement these!
-  /*
   .option('dry', {
     implies: 'build',
     description: `Show what would be built (or deleted, if specified with '--clean'). Same as the TS \`--dry\` flag.`,
     type: 'boolean',
   })
+  // TODO: implement these!
+  /*
   .option('incremental', {
     description:
       'Save .tsbuildinfo files to allow for incremental compilation of projects. Same as the TS `--incremental` flag.',
@@ -83,7 +83,7 @@ if (argv.build) {
   let buildOptions: TS.BuildOptions = {
     clean: argv.clean,
     force: argv.force,
-    // dry: argv.dry,
+    dry: argv.dry,
     // incremental: argv.incremental,
   };
 
