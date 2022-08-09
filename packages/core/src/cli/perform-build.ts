@@ -37,9 +37,5 @@ function createCompilerHost(ts: TypeScript, sysPool: TransformManagerPool): Buil
     (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
 
-  host.fileExists = sysPool.fileExists;
-  host.readFile = sysPool.readTransformedFile;
-  host.readDirectory = sysPool.readDirectory;
-
   return host;
 }
