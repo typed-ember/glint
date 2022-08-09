@@ -24,14 +24,17 @@ export function performBuild(ts: TypeScript, projects: string[], buildOptions: B
 
 type BuilderHost = TS.SolutionBuilderHost<TS.EmitAndSemanticDiagnosticsBuilderProgram>;
 
-function createCompilerHost(ts: TypeScript, sysPool: TransformManagerPool): BuilderHost {
+function createCompilerHost(
+  ts: TypeScript,
+  transformManagerPool: TransformManagerPool
+): BuilderHost {
   let formatDiagnostic = buildDiagnosticFormatter(ts);
 
   let host = ts.createSolutionBuilderHost(
-    sysForCompilerHost(ts, sysPool),
+    sysForCompilerHost(ts, transformManagerPool),
     (...args) => {
       let program = ts.createEmitAndSemanticDiagnosticsBuilderProgram(...args);
-      patchProgram(program, sysPool);
+      patchProgram(program, transformManagerPool);
       return program;
     },
     (diagnostic) => console.error(formatDiagnostic(diagnostic))

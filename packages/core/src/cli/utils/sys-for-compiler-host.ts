@@ -4,14 +4,14 @@ import TransformManagerPool from './transform-manager-pool';
 
 export function sysForCompilerHost(
   ts: typeof TS,
-  transformManagerOrSysPool: TransformManager | TransformManagerPool
+  transformManagerOrPool: TransformManager | TransformManagerPool
 ): TS.System {
   return {
     ...ts.sys,
-    readDirectory: transformManagerOrSysPool.readDirectory,
-    watchDirectory: transformManagerOrSysPool.watchDirectory,
-    fileExists: transformManagerOrSysPool.fileExists,
-    watchFile: transformManagerOrSysPool.watchTransformedFile,
-    readFile: transformManagerOrSysPool.readTransformedFile,
+    readDirectory: transformManagerOrPool.readDirectory,
+    watchDirectory: transformManagerOrPool.watchDirectory,
+    fileExists: transformManagerOrPool.fileExists,
+    watchFile: transformManagerOrPool.watchTransformedFile,
+    readFile: transformManagerOrPool.readTransformedFile,
   };
 }
