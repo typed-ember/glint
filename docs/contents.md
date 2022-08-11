@@ -20,7 +20,6 @@
   - [Authoring Addons](ember/authoring-addons.md)
 - GlimmerX
   - [Installation](glimmerx/installation.md)
-  - [Imports](glimmerx/imports.md)
   - [Component Signatures](glimmerx/component-signatures.md)
   - [Template Components](glimmerx/template-components.md)
 - [Migrating](migrating.md)

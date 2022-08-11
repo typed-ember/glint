@@ -1,5 +1,4 @@
-import Component from '@glint/environment-glimmerx/component';
-import { hbs } from '@glimmerx/component';
+import Component, { hbs } from '@glimmerx/component';
 
 /**
  * @typedef SimpleComponentSignature

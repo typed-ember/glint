@@ -16,7 +16,7 @@ describe('CLI: watched typechecking', () => {
 
   test('passes a valid project', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -44,7 +44,7 @@ describe('CLI: watched typechecking', () => {
 
   test('reports diagnostics for a template syntax error', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -87,7 +87,7 @@ describe('CLI: watched typechecking', () => {
 
   test('reports diagnostics for a template type error', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -131,7 +131,7 @@ describe('CLI: watched typechecking', () => {
 
   test('reports on errors introduced and cleared during the watch', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       type ApplicationArgs = {
         version: string;

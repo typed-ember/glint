@@ -2,6 +2,9 @@
 // module exports the symbols and types necessary to declare a class or
 // other entity as integrating with Glint's template system.
 
+import { EmptyObject } from '@glimmer/component/-private/component';
+export { EmptyObject };
+
 /** Any function, which is the tighest bound we can put on an object's `[Invoke]` field. */
 export type AnyFunction = (...params: any) => any;
 
@@ -23,8 +26,7 @@ export type HasContext<T extends AnyContext = AnyContext> = { [Context]: T };
 // These shenanigans are necessary to get TS to report when named args
 // are passed to a signature that doesn't expect any, because `{}` is
 // special-cased in the type system not to trigger EPC.
-declare const EmptyObject: unique symbol;
-export type EmptyObject = { [EmptyObject]?: void };
+
 export type GuardEmpty<T> = T extends any ? (keyof T extends never ? EmptyObject : T) : never;
 
 declare const Element: unique symbol;

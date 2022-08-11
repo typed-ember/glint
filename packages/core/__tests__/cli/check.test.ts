@@ -15,7 +15,7 @@ describe('CLI: single-pass typechecking', () => {
 
   test('passes a valid project', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -101,7 +101,7 @@ describe('CLI: single-pass typechecking', () => {
 
   test('reports diagnostics for a template syntax error', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -137,7 +137,7 @@ describe('CLI: single-pass typechecking', () => {
 
   test('reports diagnostics for an inline template type error', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -296,7 +296,7 @@ describe('CLI: single-pass typechecking', () => {
 
   test('honors transform include/exclude configuration', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       export default class Application extends Component {
         public static template = hbs\`

@@ -154,7 +154,7 @@ describe('Debug utilities', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
-          import Component, { hbs } from '@glint/environment-glimmerx/component';
+          import Component, { hbs } from '@glimmerx/component';
 
           export default class MyComponent extends Component {
             private bar = 'hi';
@@ -285,7 +285,7 @@ describe('Debug utilities', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
-          import Component, { hbs } from '@glint/environment-glimmerx/component';
+          import Component, { hbs } from '@glimmerx/component';
 
           export default class MyComponent extends Component {
             private bar = 'hi';

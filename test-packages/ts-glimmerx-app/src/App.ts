@@ -1,4 +1,4 @@
-import Component, { TC } from '@glint/environment-glimmerx/component';
+import Component, { TemplateComponent as TC } from '@glimmerx/component';
 import { hbs } from '@glimmerx/component';
 
 import logo from './logo.svg';

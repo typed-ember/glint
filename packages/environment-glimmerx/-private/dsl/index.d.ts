@@ -1,6 +1,8 @@
 export * from '@glint/template/-private/dsl';
 export { Globals } from './globals';
 
+import './integration-declarations';
+
 /*
  * Since GlimmerX supports using bare functions as helpers that only
  * accept positional parameters, we can't just use the core definitions

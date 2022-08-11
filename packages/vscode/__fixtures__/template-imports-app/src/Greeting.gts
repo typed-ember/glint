@@ -1,4 +1,4 @@
-import Component from '@glint/environment-glimmerx/component';
+import Component from '@glimmerx/component';
 
 export interface GreetingSignature {
   Args: { target: string };

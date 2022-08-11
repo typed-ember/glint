@@ -30,7 +30,9 @@
     "@glint/template": "^0.9.1"
   },
   "devDependencies": {
-    "@glimmerx/component": "^0.4.2",
+    "@glimmerx/component": "^0.6.7",
+    "@glimmerx/modifier": "^0.6.7",
+    "@glimmerx/helper": "^0.6.7",
     "expect-type": "0.11.0"
   },
   "publishConfig": {

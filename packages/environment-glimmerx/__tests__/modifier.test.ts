@@ -1,4 +1,4 @@
-import { on as onDefinition } from '@glint/environment-glimmerx/modifier';
+import { on as onDefinition } from '@glimmerx/modifier';
 import { resolve, applyModifier } from '@glint/environment-glimmerx/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
@@ -15,8 +15,9 @@ import { expectTypeOf } from 'expect-type';
   // @ts-expect-error: extra positional arg
   on({}, 'click', () => {}, 'hello');
 
-  // @ts-expect-error: invalid event name
-  on({}, 'unknown', () => {});
+  on({}, 'unknown', (event) => {
+    expectTypeOf(event).toEqualTypeOf<Event>();
+  });
 
   on({}, 'click', (event) => {
     expectTypeOf(event).toEqualTypeOf<MouseEvent>();

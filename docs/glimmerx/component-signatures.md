@@ -6,8 +6,7 @@ The `Yields` field specifies the names of any blocks the component yields to, as
 (Note that the `inverse` block is an alias for `else`. These should be defined in `Yields` as `else`, though `{{yield to="inverse"}}` will continue to work.)
 
 ```typescript
-import Component from '@glint/environment-glimmerx/component';
-import { hbs } from '@glimmerx/component';
+import Component, { hbs } from '@glimmerx/component';
 
 export interface ShoutSignature {
   // We have a `<div>` as our root element
