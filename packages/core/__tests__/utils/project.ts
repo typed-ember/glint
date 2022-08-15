@@ -92,7 +92,7 @@ export default class Project {
       },
     };
 
-    fs.rmdirSync(project.rootDir, { recursive: true });
+    fs.rmSync(project.rootDir, { recursive: true, force: true });
     fs.mkdirSync(project.rootDir, { recursive: true });
 
     fs.writeFileSync(path.join(project.rootDir, 'package.json'), '{}');
