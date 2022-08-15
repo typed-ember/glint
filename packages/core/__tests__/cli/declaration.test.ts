@@ -16,9 +16,9 @@ describe('CLI: emitting declarations', () => {
     let code = stripIndent`
       import Component, { hbs } from '@glint/environment-glimmerx/component';
 
-      export type ApplicationArgs = {
+      export interface ApplicationArgs {
         version: string;
-      };
+      }
 
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
@@ -38,9 +38,9 @@ describe('CLI: emitting declarations', () => {
 
     expect(project.read('index.d.ts')).toMatchInlineSnapshot(`
       "import Component from '@glint/environment-glimmerx/component';
-      export declare type ApplicationArgs = {
+      export interface ApplicationArgs {
           version: string;
-      };
+      }
       export default class Application extends Component<{
           Args: ApplicationArgs;
       }> {
