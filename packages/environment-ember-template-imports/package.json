@@ -33,7 +33,7 @@
     "@types/ember__helper": "^4.0.0",
     "@types/ember__modifier": "^4.0.0",
     "ember-template-imports": "^3.0.0",
-    "vitest": "^0.18.1"
+    "vitest": "^0.22.0"
   },
   "publishConfig": {
     "access": "public"
