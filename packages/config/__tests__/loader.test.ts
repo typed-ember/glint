@@ -8,7 +8,7 @@ describe('loadConfig', () => {
   const testDir = `${os.tmpdir()}/glint-config-test-loader-${process.pid}`;
 
   beforeEach(() => {
-    fs.rmdirSync(testDir, { recursive: true });
+    fs.rmSync(testDir, { recursive: true, force: true });
     fs.mkdirSync(testDir);
     fs.writeFileSync(
       `${testDir}/local-env.js`,
@@ -17,7 +17,7 @@ describe('loadConfig', () => {
   });
 
   afterEach(() => {
-    fs.rmdirSync(testDir, { recursive: true });
+    fs.rmSync(testDir, { recursive: true, force: true });
   });
 
   test('returns null if no config file is found', () => {
