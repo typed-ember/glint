@@ -1331,7 +1331,6 @@ describe('CLI: --build --dry', () => {
       });
 
       test('when there are no changes', async () => {
-        await project.build();
         let buildResult = await project.build({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
@@ -1341,8 +1340,6 @@ describe('CLI: --build --dry', () => {
       });
 
       test('when there are changes', async () => {
-        await project.build();
-
         let code = stripIndent`
           import '@glint/environment-ember-template-imports';
           import Component from '@glimmer/component';
