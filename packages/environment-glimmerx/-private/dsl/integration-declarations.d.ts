@@ -2,16 +2,11 @@
 // with templates to include the information necessary for Glint to typecheck them.
 import { ComponentLike, HelperLike } from '@glint/template';
 import {
-  AcceptsBlocks,
-  AnyContext,
-  AnyFunction,
   BoundModifier,
   Context,
   DirectInvokable,
   EmptyObject,
   FlattenBlockParams,
-  HasContext,
-  Invokable,
   TemplateContext,
 } from '@glint/template/-private/integration';
 
@@ -128,12 +123,3 @@ type _OnModifier = DirectInvokable<{
 declare module '@glimmerx/modifier' {
   export interface OnModifier extends _OnModifier {}
 }
-
-import { TemplateComponent } from '@glimmerx/component';
-
-export declare function template<
-  Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
-  Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
->(
-  f: (𝚪: Context, χ: never) => void
-): TemplateComponent<never> & (new () => Invokable<Signature> & HasContext<Context>);
