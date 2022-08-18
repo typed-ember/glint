@@ -68,3 +68,7 @@ export declare function template<
 >(
   f: (𝚪: Context, χ: never) => void
 ): TemplateComponent<never> & (new () => Invokable<Signature> & HasContext<Context>);
+export declare function template<
+  Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
+  Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
+>(f: (𝚪: Context, χ: never) => void): new () => Invokable<Signature> & HasContext<Context>;
