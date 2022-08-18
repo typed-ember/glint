@@ -288,7 +288,7 @@ describe('Language Server: Diagnostics', () => {
 
   test('reports diagnostics for a companion template type error', () => {
     let script = stripIndent`
-      import Component from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;

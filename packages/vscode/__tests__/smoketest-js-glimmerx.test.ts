@@ -26,7 +26,7 @@ describe('Smoke test: js-glimmerx', () => {
 
       // Comment out a property in the script that's referenced in the template
       await scriptEditor.edit((edit) => {
-        edit.insert(new Position(12, 39), ' {{@undocumentedProperty}}');
+        edit.insert(new Position(11, 27), ' {{@undocumentedProperty}}');
       });
 
       // Wait for a diagnostic to appear in the template
@@ -37,7 +37,7 @@ describe('Smoke test: js-glimmerx', () => {
         {
           message: "Property 'undocumentedProperty' does not exist on type '{ message: string; }'.",
           source: 'glint:ts(2339)',
-          range: new Range(12, 43, 12, 63),
+          range: new Range(11, 31, 11, 51),
         },
       ]);
     });
@@ -51,7 +51,7 @@ describe('Smoke test: js-glimmerx', () => {
 
       // Replace "message" in `{{this.message}}` with "foo"
       await scriptEditor.edit((edit) => {
-        edit.replace(new Range(11, 15, 11, 22), 'foo');
+        edit.replace(new Range(10, 15, 10, 22), 'foo');
       });
 
       // Wait for a diagnostic to appear
@@ -61,7 +61,7 @@ describe('Smoke test: js-glimmerx', () => {
         {
           message: "Property 'foo' does not exist on type 'TestComponent'.",
           source: 'glint:ts(2339)',
-          range: new Range(11, 15, 11, 18),
+          range: new Range(10, 15, 10, 18),
         },
       ]);
     });
