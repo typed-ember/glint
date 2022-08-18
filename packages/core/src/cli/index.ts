@@ -49,14 +49,11 @@ const argv = yargs
     description: `Show what would be built (or deleted, if specified with '--clean'). Same as the TS \`--dry\` flag.`,
     type: 'boolean',
   })
-  // TODO: implement these!
-  /*
   .option('incremental', {
     description:
       'Save .tsbuildinfo files to allow for incremental compilation of projects. Same as the TS `--incremental` flag.',
     type: 'boolean',
   })
-  */
   .option('debug-intermediate-representation', {
     boolean: false,
     description: `When true, writes out a Glint's internal intermediate representation of each file within a GLINT_DEBUG subdirectory of the current working directory. This is intended for debugging Glint itself.`,
@@ -84,7 +81,7 @@ if (argv.build) {
     clean: argv.clean,
     force: argv.force,
     dry: argv.dry,
-    // incremental: argv.incremental,
+    incremental: argv.incremental,
   };
 
   // Get the closest TS to us, since we have to assume that we may be in the
