@@ -38,7 +38,7 @@ describe('CLI: emitting declarations', () => {
 
     expect(project.read('index.d.ts')).toMatchInlineSnapshot(`
       "import Component from '@glimmerx/component';
-      export interface ApplicationArgs = {
+      export interface ApplicationArgs {
           version: string;
       }
       export default class Application extends Component<{

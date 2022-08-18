@@ -49,10 +49,10 @@ export type AcceptsBlocks<BlockImpls, El = null> = {
  * Determines the type of `this` and any `@arg`s used in a template,
  * as well as valid `{{yield}}` invocations and `...attributes` usage.
  */
-export type TemplateContext<This, Args, Yields, Element> = {
+export type TemplateContext<This, Args, Blocks, Element> = {
   this: This;
   args: Args;
-  yields: Yields;
+  blocks: Blocks;
   element: Element;
 };
 

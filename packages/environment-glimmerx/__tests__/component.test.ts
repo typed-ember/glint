@@ -136,7 +136,7 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
     expectTypeOf(𝚪.this).toBeVoid();
     expectTypeOf(𝚪.element).toBeVoid();
     expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
-    expectTypeOf(𝚪.yields).toEqualTypeOf<EmptyObject>();
+    expectTypeOf(𝚪.blocks).toEqualTypeOf<EmptyObject>();
   });
 
   expectTypeOf(resolve(NoAnnotationTC)).toEqualTypeOf<
@@ -159,7 +159,7 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
     expectTypeOf(𝚪.this).toEqualTypeOf(null);
     expectTypeOf(𝚪.args).toEqualTypeOf<{ values: Array<number> }>();
     expectTypeOf(𝚪.element).toBeNull();
-    expectTypeOf(𝚪.yields).toEqualTypeOf<YieldingTCSignature['Blocks']>();
+    expectTypeOf(𝚪.blocks).toEqualTypeOf<YieldingTCSignature['Blocks']>();
 
     if (𝚪.args.values.length) {
       yieldToBlock(𝚪, 'default', 𝚪.args.values[0]);

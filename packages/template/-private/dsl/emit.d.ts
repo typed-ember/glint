@@ -83,10 +83,10 @@ export declare function template<
  *
  *     yieldToBlock(𝚪, 'name', foo, bar);
  */
-export declare function yieldToBlock<Context extends AnyContext, K extends keyof Context['yields']>(
+export declare function yieldToBlock<Context extends AnyContext, K extends keyof Context['blocks']>(
   𝚪: Context,
   to: K,
-  ...values: NonNullable<Context['yields'][K]>
+  ...values: NonNullable<Context['blocks'][K]>
 ): void;
 
 /*

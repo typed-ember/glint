@@ -23,7 +23,7 @@ export default class App extends Component {
 }
 
 interface SubHeaderSignature {
-  Yields: { default: [] };
+  Blocks: { default: [] };
 }
 
 const SubHeader: TC<SubHeaderSignature> = hbs`
