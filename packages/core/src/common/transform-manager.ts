@@ -1,3 +1,4 @@
+import { statSync as fsStatSync, Stats } from 'fs';
 import {
   TransformedModule,
   rewriteModule,
@@ -228,6 +229,19 @@ export default class TransformManager {
     }
   };
 
+  public getModifiedTime = (filename: string): Date | undefined => {
+    let fileStat = statSync(filename);
+    if (!fileStat) return undefined;
+
+    let companionPath = this.documents.getCompanionDocumentPath(filename);
+    if (!companionPath) return fileStat.mtime;
+
+    let companionStat = statSync(companionPath);
+    if (!companionStat) return fileStat.mtime;
+
+    return fileStat.mtime > companionStat.mtime ? fileStat.mtime : companionStat.mtime;
+  };
+
   private getExpectErrorDirectives(filename?: string): Array<Directive> {
     let transformInfos = filename
       ? [this.getTransformInfo(filename)]
@@ -349,5 +363,17 @@ export default class TransformManager {
     return transformedModule.errors.map((error) =>
       createTransformDiagnostic(this.ts, error.source, error.message, error.location)
     );
+  }
+}
+
+function statSync(path: string): Stats | undefined {
+  try {
+    return fsStatSync(path);
+  } catch (e) {
+    if (e instanceof Error && (e as NodeJS.ErrnoException).code === 'ENOENT') {
+      return undefined;
+    }
+
+    throw e;
   }
 }

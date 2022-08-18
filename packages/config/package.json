@@ -26,7 +26,7 @@
   "devDependencies": {
     "@types/minimatch": "^3.0.3",
     "@types/resolve": "^1.17.1",
-    "vitest": "^0.18.1"
+    "vitest": "^0.22.0"
   },
   "publishConfig": {
     "access": "public"
