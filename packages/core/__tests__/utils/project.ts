@@ -173,7 +173,7 @@ export default class Project {
 
   public async destroy(): Promise<void> {
     this.server?.dispose();
-    fs.rmdirSync(this.rootDir, { recursive: true });
+    fs.rmSync(this.rootDir, { recursive: true, force: true });
   }
 
   public check(options: Options & { flags?: string[] } = {}): ExecaChildProcess {

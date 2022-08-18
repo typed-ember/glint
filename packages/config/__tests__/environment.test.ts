@@ -147,7 +147,7 @@ describe('Environments', () => {
     });
 
     afterEach(() => {
-      fs.rmdirSync(testDir, { recursive: true });
+      fs.rmSync(testDir, { recursive: true, force: true });
     });
 
     test('loading an environment via @glint/environment-* shorthand', () => {

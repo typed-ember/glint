@@ -84,4 +84,11 @@ export default class TransformManagerPool {
       this.managerFor(filename)?.readTransformedFile ?? this.#rootSys.readFile;
     return readTransformedFile(filename, encoding);
   };
+
+  public getModifiedTime = (filename: string): Date | undefined => {
+    assert(this.#rootSys.getModifiedTime);
+    let getModifiedTime =
+      this.managerFor(filename)?.getModifiedTime ?? this.#rootSys.getModifiedTime;
+    return getModifiedTime(filename);
+  };
 }
