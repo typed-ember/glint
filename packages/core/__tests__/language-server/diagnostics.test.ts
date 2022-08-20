@@ -15,7 +15,7 @@ describe('Language Server: Diagnostics', () => {
 
   test('querying an excluded template', () => {
     let script = stripIndent`
-      import Component from '@glint/environment-glimmerx/component';
+      import Component from '@glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -220,7 +220,7 @@ describe('Language Server: Diagnostics', () => {
   test('reports diagnostics for an inline template type error', () => {
     let code = stripIndent`
       // Here's a leading comment to make sure we handle trivia right
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       type ApplicationArgs = {
         version: string;
@@ -288,7 +288,7 @@ describe('Language Server: Diagnostics', () => {
 
   test('reports diagnostics for a companion template type error', () => {
     let script = stripIndent`
-      import Component from '@glint/environment-glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;
@@ -368,7 +368,7 @@ describe('Language Server: Diagnostics', () => {
 
   test('honors @glint-ignore and @glint-expect-error', () => {
     let componentA = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       export default class ComponentA extends Component {
         public static template = hbs\`
@@ -379,7 +379,7 @@ describe('Language Server: Diagnostics', () => {
     `;
 
     let componentB = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       export default class ComponentB extends Component {
         public startupTime = new Date().toISOString();

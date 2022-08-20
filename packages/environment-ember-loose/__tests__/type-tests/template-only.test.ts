@@ -37,10 +37,10 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
   emitComponent(resolve(NoArgsComponent)({}));
 
   template(function (𝚪: ResolveContext<typeof NoArgsComponent>) {
-    expectTypeOf(𝚪.this).toBeVoid();
+    expectTypeOf(𝚪.this).toBeNull();
     expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
     expectTypeOf(𝚪.element).toBeNull();
-    expectTypeOf(𝚪.yields).toEqualTypeOf<EmptyObject>();
+    expectTypeOf(𝚪.blocks).toEqualTypeOf<EmptyObject>();
   });
 }
 
@@ -95,10 +95,10 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
   }
 
   template(function (𝚪: ResolveContext<typeof YieldingComponent>) {
-    expectTypeOf(𝚪.this).toBeVoid();
+    expectTypeOf(𝚪.this).toBeNull();
     expectTypeOf(𝚪.args).toEqualTypeOf<YieldingComponentSignature['Args']>();
     expectTypeOf(𝚪.element).toEqualTypeOf<YieldingComponentSignature['Element']>();
-    expectTypeOf(𝚪.yields).toEqualTypeOf<YieldingComponentSignature['Blocks']>();
+    expectTypeOf(𝚪.blocks).toEqualTypeOf<YieldingComponentSignature['Blocks']>();
   });
 }
 

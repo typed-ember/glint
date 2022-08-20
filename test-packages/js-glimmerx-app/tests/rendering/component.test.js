@@ -1,4 +1,4 @@
-import Component from '@glint/environment-glimmerx/component';
+import Component from '@glimmerx/component';
 import { hbs } from '@glimmerx/component';
 import { renderComponent } from '@glimmerx/core';
 import { module, test } from 'qunit';

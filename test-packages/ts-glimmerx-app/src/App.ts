@@ -1,5 +1,4 @@
-import Component, { TC } from '@glint/environment-glimmerx/component';
-import { hbs } from '@glimmerx/component';
+import Component, { TemplateComponent as TC, hbs } from '@glimmerx/component';
 
 import logo from './logo.svg';
 import './App.css';
@@ -23,7 +22,7 @@ export default class App extends Component {
 }
 
 interface SubHeaderSignature {
-  Yields: { default: [] };
+  Blocks: { default: [] };
 }
 
 const SubHeader: TC<SubHeaderSignature> = hbs`

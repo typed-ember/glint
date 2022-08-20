@@ -1,4 +1,4 @@
-import Component, { TC } from '@glint/environment-glimmerx/component';
+import Component, { TemplateComponent as TC } from '@glimmerx/component';
 import {
   template,
   resolve,
@@ -58,7 +58,7 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
     Args: {
       values: Array<T>;
     };
-    Yields: {
+    Blocks: {
       default: [T];
       else?: [];
     };
@@ -136,7 +136,7 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
     expectTypeOf(𝚪.this).toBeVoid();
     expectTypeOf(𝚪.element).toBeVoid();
     expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
-    expectTypeOf(𝚪.yields).toEqualTypeOf<EmptyObject>();
+    expectTypeOf(𝚪.blocks).toEqualTypeOf<EmptyObject>();
   });
 
   expectTypeOf(resolve(NoAnnotationTC)).toEqualTypeOf<
@@ -149,15 +149,17 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
     Args: {
       values: Array<number>;
     };
-    Yields: {
+    Blocks: {
       default: [number];
       else?: [];
     };
   }
 
-  const YieldingTC: TC<YieldingTCSignature> = template(function (𝚪) {
-    expectTypeOf(𝚪.this).toEqualTypeOf<null>();
+  template(function (𝚪: ResolveContext<TC<YieldingTCSignature>>) {
+    expectTypeOf(𝚪.this).toEqualTypeOf(null);
     expectTypeOf(𝚪.args).toEqualTypeOf<{ values: Array<number> }>();
+    expectTypeOf(𝚪.element).toBeNull();
+    expectTypeOf(𝚪.blocks).toEqualTypeOf<YieldingTCSignature['Blocks']>();
 
     if (𝚪.args.values.length) {
       yieldToBlock(𝚪, 'default', 𝚪.args.values[0]);
@@ -165,6 +167,8 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
       yieldToBlock(𝚪, 'else');
     }
   });
+
+  let YieldingTC: TC<YieldingTCSignature> = null as never as TC<YieldingTCSignature>;
 
   resolve(YieldingTC)(
     // @ts-expect-error: missing required arg

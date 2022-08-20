@@ -14,7 +14,7 @@ describe('CLI: emitting declarations', () => {
 
   test('emit for a valid project with embedded templates', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glint/environment-glimmerx/component';
+      import Component, { hbs } from '@glimmerx/component';
 
       export interface ApplicationArgs {
         version: string;
@@ -37,7 +37,7 @@ describe('CLI: emitting declarations', () => {
     expect(emitResult.exitCode).toBe(0);
 
     expect(project.read('index.d.ts')).toMatchInlineSnapshot(`
-      "import Component from '@glint/environment-glimmerx/component';
+      "import Component from '@glimmerx/component';
       export interface ApplicationArgs {
           version: string;
       }

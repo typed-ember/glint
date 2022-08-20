@@ -37,13 +37,13 @@ describe('Language Server: Definitions', () => {
   test('component invocation', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glint/environment-glimmerx/component';
+        import Component, { hbs } from '@glimmerx/component';
         export default class Greeting extends Component<{ Args: { message: string } }> {
           static template = hbs\`{{@message}}, World!\`;
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glint/environment-glimmerx/component';
+        import Component, { hbs } from '@glimmerx/component';
         import Greeting from './greeting';
 
         export default class Application extends Component {
@@ -74,7 +74,7 @@ describe('Language Server: Definitions', () => {
   test('arg passing', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glint/environment-glimmerx/component';
+        import Component, { hbs } from '@glimmerx/component';
 
         export type GreetingArgs = {
           message: string;
@@ -85,7 +85,7 @@ describe('Language Server: Definitions', () => {
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glint/environment-glimmerx/component';
+        import Component, { hbs } from '@glimmerx/component';
         import Greeting from './greeting';
 
         export default class Application extends Component {
@@ -116,7 +116,7 @@ describe('Language Server: Definitions', () => {
   test('arg use', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glint/environment-glimmerx/component';
+        import Component, { hbs } from '@glimmerx/component';
 
         export type GreetingArgs = {
           message: string;
@@ -148,7 +148,7 @@ describe('Language Server: Definitions', () => {
   test('import source', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glint/environment-glimmerx/component';
+        import Component, { hbs } from '@glimmerx/component';
 
         export type GreetingArgs = {
           message: string;
@@ -159,7 +159,7 @@ describe('Language Server: Definitions', () => {
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glint/environment-glimmerx/component';
+        import Component, { hbs } from '@glimmerx/component';
         import Greeting from './greeting';
 
         export class Application extends Component {

@@ -28,7 +28,6 @@ export default function glimmerxEnvironment(
   return {
     tags: {
       '@glimmerx/component': { hbs: tagConfig },
-      '@glint/environment-glimmerx/component': { hbs: tagConfig },
     },
   };
 }

@@ -17,7 +17,7 @@ describe('Language Server: Symbol Search', () => {
   test('component definition', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glint/environment-glimmerx/component';
+        import Component, { hbs } from '@glimmerx/component';
 
         export type GreetingArgs = {
           message: string;
@@ -28,7 +28,7 @@ describe('Language Server: Symbol Search', () => {
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glint/environment-glimmerx/component';
+        import Component, { hbs } from '@glimmerx/component';
         import Greeting from './greeting';
 
         export class Application extends Component {

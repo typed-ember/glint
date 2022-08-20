@@ -1,6 +1,5 @@
-import { hbs, tracked } from '@glimmerx/component';
-import Component from '@glint/environment-glimmerx/component';
-import { on, action } from '@glint/environment-glimmerx/modifier';
+import Component, { hbs, tracked } from '@glimmerx/component';
+import { on, action } from '@glimmerx/modifier';
 
 import './App.css';
 import GreetingHeader from './GreetingHeader';
@@ -36,7 +35,7 @@ const I_AM_CONSTANT = 'and I am a constant';
  * @property {string} Args.title I really can't think of a good description
  */
 /**
- * @type {import('@glint/environment-glimmerx/component').TC<ComponentAsArgSignature>}
+ * @type {import('@glimmerx/component').TemplateComponent<ComponentAsArgSignature>}
  */
 const ComponentAsArg = hbs`
   <h1>I am {{@title}}</h1>

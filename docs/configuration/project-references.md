@@ -49,14 +49,14 @@ Then each project within can use the `extends` key to reuse both TypeScript and 
 
 ## Per-project configuration
 
-To work with Glint, each sub-project needs to include the Glint environment imports it uses. (See [Ember: Installation][ei] and [GlimmerX: Imports][gi] for details.) For example, a project using `ember-template-imports` should have this import visible somewhere:
+To work with Glint, each sub-project needs to include the Glint environment imports it uses. (See [Ember: Installation][ei] and [GlimmerX: Installation][gi] for details.) For example, a project using `ember-template-imports` should have this import visible somewhere:
 
 ```ts
 import '@glint/environment-ember-template-imports';
 ```
 
 [ei]: ../ember/installation.md
-[gi]: ../glimmerx/imports.md
+[gi]: ../glimmerx/installation.md
 
 The easiest way to do this is to add it to a shared file all projects can reference using the `include` key in each sub-project's `tsconfig.json`.
 If you do not already have something filling this role, you should introduce a `local-types` directory (named however you like) in the root of your project, with an `index.d.ts` in it.

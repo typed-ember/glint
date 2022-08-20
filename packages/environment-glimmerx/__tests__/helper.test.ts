@@ -1,7 +1,8 @@
 import { emitContent, resolve } from '@glint/environment-glimmerx/-private/dsl';
-import { helper, fn as fnDefinition } from '@glint/environment-glimmerx/helper';
+import { helper, fn as fnDefinition } from '@glimmerx/helper';
 import { EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
+import '@glint/environment-glimmerx';
 
 // Built-in helper: `fn`
 {

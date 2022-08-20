@@ -15,7 +15,7 @@ declare const routeContext: ResolveContext<TestRoute>;
 expectTypeOf(routeContext.args).toEqualTypeOf<{ model: { message: string } }>();
 expectTypeOf(routeContext.element).toBeNull();
 expectTypeOf(routeContext.this).toEqualTypeOf<Controller & { model: { message: string } }>();
-expectTypeOf(routeContext.yields).toEqualTypeOf<EmptyObject>();
+expectTypeOf(routeContext.blocks).toEqualTypeOf<EmptyObject>();
 
 class TestController extends Controller {
   declare date: Date;
@@ -30,4 +30,4 @@ declare const controllerContext: ResolveContext<TestController>;
 expectTypeOf(controllerContext.args).toEqualTypeOf<{ model: { name: string; age: number } }>();
 expectTypeOf(controllerContext.element).toBeNull();
 expectTypeOf(controllerContext.this).toEqualTypeOf<TestController>();
-expectTypeOf(controllerContext.yields).toEqualTypeOf<EmptyObject>();
+expectTypeOf(controllerContext.blocks).toEqualTypeOf<EmptyObject>();

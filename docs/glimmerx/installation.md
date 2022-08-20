@@ -1,8 +1,3 @@
-{% hint style="warning" %}
-Note: GlimmerX is currently not compatible with Glint 0.8. Please use the latest 0.7.x version of `@glint` packages with
-GlimmerX projects for the time being.
-{% endhint %}
-
 To use Glint with [GlimmerX](https://github.com/glimmerjs/glimmer-experimental), you'll add the `@glint/core` and `@glint/environment-glimmerx` packages to your project's `devDependencies`, then add a `"glint"` key to your project's `tsconfig.json`.
 
 {% tabs %}

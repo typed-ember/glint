@@ -4,17 +4,17 @@ import { ComponentLike, HelperLike, ModifierLike } from '@glint/template';
 import {
   Context,
   EmptyObject,
+  FlattenBlockParams,
   HasContext,
   TemplateContext,
-  FlattenBlockParams,
 } from '@glint/template/-private/integration';
 
 //////////////////////////////////////////////////////////////////////
 // Components
 
-import '@glimmer/component';
 import '@ember/component';
 import '@ember/component/template-only';
+import '@glimmer/component';
 
 import { ExpandSignature } from '@glimmer/component/-private/component';
 
@@ -38,7 +38,7 @@ declare module '@ember/component' {
 }
 
 interface TemplateOnlyComponentInstance<S> extends InstanceType<ComponentLike<S>> {
-  [Context]: ComponentContext<void, S>;
+  [Context]: ComponentContext<null, S>;
 }
 
 // As with other abstract constructor types, this allows us to provide a class
@@ -71,8 +71,8 @@ declare module 'ember-modifier/-private/class/modifier' {
 //////////////////////////////////////////////////////////////////////
 // Routes and Controllers
 
-import Route from '@ember/routing/route';
 import Controller from '@ember/controller';
+import Route from '@ember/routing/route';
 
 type ModelForRoute<T extends Route> = Awaited<ReturnType<T['model']>>;
 type ModelField<T> = { model: T };

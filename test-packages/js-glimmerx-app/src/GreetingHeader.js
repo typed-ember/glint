@@ -1,6 +1,5 @@
-import Component from '@glint/environment-glimmerx/component';
-import { hbs } from '@glimmerx/component';
-import { helper } from '@glint/environment-glimmerx/helper';
+import Component, { hbs } from '@glimmerx/component';
+import { helper } from '@glimmerx/helper';
 
 const or = helper(
   /** @param {[a: *, b: *]} param */
