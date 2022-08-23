@@ -1,4 +1,4 @@
-Glint is a set of tools to aid in developing code that uses the Glimmer VM for rendering, such as [Ember.js] (Version 3.24+) and [GlimmerX] projects. Similar to [Vetur] for Vue projects or [Svelte Language Tools], Glint consists of a CLI and a language server to provide feedback and enforce correctness both locally during editing and project-wide in CI.
+Glint is a set of tools to aid in developing code that uses the Glimmer VM for rendering, such as [Ember.js] v3.24+ and [GlimmerX] projects. Similar to [Vetur] for Vue projects or [Svelte Language Tools], Glint consists of a CLI and a language server to provide feedback and enforce correctness both locally during editing and project-wide in CI.
 
 ## Glint CLI
 
