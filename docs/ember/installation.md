@@ -1,4 +1,4 @@
-To use Glint with [Ember](https://github.com/emberjs/ember.js) (Version 3.24 or higher), you'll add the `@glint/core` and `@glint/environment-ember-loose` packages to your project's `devDependencies`, then add a `"glint"` key to your project's `tsconfig.json`.
+To use Glint with [Ember](https://github.com/emberjs/ember.js) v3.24 or higher, you'll add the `@glint/core` and `@glint/environment-ember-loose` packages to your project's `devDependencies`, then add a `"glint"` key to your project's `tsconfig.json`.
 
 {% tabs %}
 {% tab title="Yarn" %}
