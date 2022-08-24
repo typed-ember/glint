@@ -6,6 +6,7 @@ import GreetingHeader from './GreetingHeader';
 
 export default class App extends Component {
   private logo = logo;
+  private letters = ['a', 'b', 'c'];
 
   public static template = hbs`
     <div id="intro">
@@ -17,6 +18,11 @@ export default class App extends Component {
         you can get started by editing <code>src/App.js</code>,
         and run tests by visiting <a href="./tests">/tests</a>
       </SubHeader>
+
+      Some letters:
+      <List @items={{this.letters}} as |item|>
+        {{item}}
+      </List>
     </div>
   `;
 }
@@ -28,3 +34,22 @@ interface SubHeaderSignature {
 const SubHeader: TC<SubHeaderSignature> = hbs`
   <h3>{{yield}}</h3>
 `;
+
+interface ListSignature<T> {
+  Args: {
+    items: Array<T>;
+  };
+  Blocks: {
+    default: [item: T];
+  };
+}
+
+class List<T> extends Component<ListSignature<T>> {
+  public static template = hbs`
+    <ol>
+      {{#each @items as |item|}}
+        <li>{{yield item}}</li>
+      {{/each}}
+    </ol>
+  `;
+}
