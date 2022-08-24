@@ -1,8 +1,7 @@
 import templateOnlyComponent from '@ember/component/template-only';
 import {
-  template,
+  templateForBackingValue,
   resolve,
-  ResolveContext,
   emitComponent,
 } from '@glint/environment-ember-loose/-private/dsl';
 import { AcceptsBlocks } from '@glint/template/-private/integration';
@@ -36,7 +35,7 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 
   emitComponent(resolve(NoArgsComponent)({}));
 
-  template(function (𝚪: ResolveContext<typeof NoArgsComponent>) {
+  templateForBackingValue(NoArgsComponent, function (𝚪) {
     expectTypeOf(𝚪.this).toBeNull();
     expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
     expectTypeOf(𝚪.element).toBeNull();
@@ -94,7 +93,7 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
     }
   }
 
-  template(function (𝚪: ResolveContext<typeof YieldingComponent>) {
+  templateForBackingValue(YieldingComponent, function (𝚪) {
     expectTypeOf(𝚪.this).toBeNull();
     expectTypeOf(𝚪.args).toEqualTypeOf<YieldingComponentSignature['Args']>();
     expectTypeOf(𝚪.element).toEqualTypeOf<YieldingComponentSignature['Element']>();

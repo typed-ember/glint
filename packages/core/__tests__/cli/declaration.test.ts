@@ -45,7 +45,7 @@ describe('CLI: emitting declarations', () => {
           Args: ApplicationArgs;
       }> {
           private startupTime;
-          static template: unknown;
+          static template: abstract new () => unknown;
       }
       "
     `);
@@ -117,7 +117,6 @@ describe('CLI: emitting declarations', () => {
       }
       export default class ClassComponent extends Component<ClassComponentSignature> {
           private startupTime;
-          protected static '~template:ClassComponent': unknown;
       }
       "
     `);

@@ -31,23 +31,20 @@ describe('rewriteTemplate', () => {
     test('without any specified type parameters or context type', () => {
       expect(templateToTypescript('', { typesModule: '@glint/template' }).result?.code)
         .toMatchInlineSnapshot(`
-        "({} as typeof import(\\"@glint/template\\")).template(function(𝚪, χ: typeof import(\\"@glint/template\\")) {
-          𝚪; χ;
-        })"
-      `);
+          "({} as typeof import(\\"@glint/template\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/template\\")) {
+            𝚪; χ;
+          })"
+        `);
     });
 
-    test('given type parameters and context type', () => {
-      let typeParams = '<T extends string>';
-      let contextType = 'MyComponent<T>';
-
+    test('given a backing value', () => {
       expect(
-        templateToTypescript('', { contextType, typeParams, typesModule: '@glint/template' }).result
-          ?.code
+        templateToTypescript('', { backingValue: 'someValue', typesModule: '@glint/template' })
+          .result?.code
       ).toMatchInlineSnapshot(`
-        "({} as typeof import(\\"@glint/template\\")).template(function<T extends string>(𝚪: import(\\"@glint/template\\").ResolveContext<MyComponent<T>>, χ: typeof import(\\"@glint/template\\")) {
+        "({} as typeof import(\\"@glint/template\\")).templateForBackingValue(someValue, function(𝚪, χ: typeof import(\\"@glint/template\\")) {
           𝚪; χ;
-        }) as unknown"
+        })"
       `);
     });
 
@@ -56,12 +53,12 @@ describe('rewriteTemplate', () => {
 
       expect(templateToTypescript('', { preamble, typesModule: '@glint/template' }).result?.code)
         .toMatchInlineSnapshot(`
-        "({} as typeof import(\\"@glint/template\\")).template(function(𝚪, χ: typeof import(\\"@glint/template\\")) {
-          console.log(\\"hello!\\");
-          throw new Error();
-          𝚪; χ;
-        })"
-      `);
+          "({} as typeof import(\\"@glint/template\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/template\\")) {
+            console.log(\\"hello!\\");
+            throw new Error();
+            𝚪; χ;
+          })"
+        `);
     });
   });
 

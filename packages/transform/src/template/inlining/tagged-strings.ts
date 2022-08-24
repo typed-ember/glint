@@ -1,6 +1,6 @@
 import type ts from 'typescript';
 import { GlintEnvironment, GlintTagConfig } from '@glint/config';
-import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } from '.';
+import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from '.';
 import { templateToTypescript } from '../template-to-typescript';
 import { Directive, SourceFile, TransformError, Range } from '../transformed-module';
 import { assert, TSLib } from '../../util';
@@ -50,24 +50,14 @@ export function calculateTaggedTemplateSpans(
       preamble.push(`${tagName};`);
     }
 
-    let { inClass, className, typeParams, contextType } = getContainingTypeInfo(ts, node);
     let transformedTemplate = templateToTypescript(template, {
       typesModule: typesModule,
       meta,
       preamble,
       globals,
-      typeParams,
-      contextType,
+      backingValue: isEmbeddedInClass(ts, node) ? 'this' : undefined,
       useJsDoc: environment.isUntypedScript(script.filename),
     });
-
-    if (inClass && !className) {
-      errors.push({
-        source: script,
-        message: 'Classes containing templates must have a name',
-        location: templateLocation,
-      });
-    }
 
     for (let { message, location } of transformedTemplate.errors) {
       if (location) {

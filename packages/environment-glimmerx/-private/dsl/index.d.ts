@@ -55,20 +55,16 @@ export declare function resolve<Args extends unknown[], T>(
 
 export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
 
-// We customize the top-level `template` wrapper function for this environment to
+// We customize the top-level `templateExpression` wrapper function for this environment to
 // return a type that's assignable to `TemplateComponent` from '@glimmerx/component'.
 // Longer term we should rationalize this to a type that doesn't carry extra baggage
 // and likely comes from a more sensible path.
 
 import { TemplateComponent } from '@glimmerx/component';
 
-export declare function template<
+export declare function templateExpression<
   Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(
   f: (𝚪: Context, χ: never) => void
 ): TemplateComponent<never> & (new () => Invokable<Signature> & HasContext<Context>);
-export declare function template<
-  Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
-  Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
->(f: (𝚪: Context, χ: never) => void): new () => Invokable<Signature> & HasContext<Context>;

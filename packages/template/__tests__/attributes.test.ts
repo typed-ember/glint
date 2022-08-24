@@ -1,8 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 import {
-  template,
+  templateForBackingValue,
   resolve,
-  ResolveContext,
   applyModifier,
   applySplattributes,
   applyAttributes,
@@ -33,17 +32,19 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
    * <img ...attributes {{imageModifier}}>
    * ```
    */
-  public static template = template(function (𝚪: ResolveContext<MyComponent>) {
-    expectTypeOf(𝚪.element).toEqualTypeOf<HTMLImageElement>();
+  static {
+    templateForBackingValue(this, function (𝚪) {
+      expectTypeOf(𝚪.element).toEqualTypeOf<HTMLImageElement>();
 
-    {
-      const ctx = emitElement('img');
-      expectTypeOf(ctx.element).toEqualTypeOf<HTMLImageElement>();
+      {
+        const ctx = emitElement('img');
+        expectTypeOf(ctx.element).toEqualTypeOf<HTMLImageElement>();
 
-      applyModifier(ctx.element, resolve(imageModifier)({}));
-      applySplattributes(𝚪.element, ctx.element);
-    }
-  });
+        applyModifier(ctx.element, resolve(imageModifier)({}));
+        applySplattributes(𝚪.element, ctx.element);
+      }
+    });
+  }
 }
 
 // `emitElement` type resolution

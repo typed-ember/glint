@@ -15,8 +15,7 @@ export type TemplateToTypescriptOptions = {
   typesModule: string;
   meta?: GlintEmitMetadata | undefined;
   globals?: Array<string> | undefined;
-  contextType?: string;
-  typeParams?: string;
+  backingValue?: string;
   preamble?: Array<string>;
   useJsDoc?: boolean;
 };
@@ -32,8 +31,7 @@ export function templateToTypescript(
     typesModule,
     globals,
     meta,
-    typeParams = '',
-    contextType,
+    backingValue,
     preamble = [],
     useJsDoc = false,
   }: TemplateToTypescriptOptions
@@ -88,32 +86,18 @@ export function templateToTypescript(
       }
 
       if (useJsDoc) {
-        if (contextType) {
-          emit.text('/** @type {unknown} */ (');
-        }
-        emit.text(`(/** @type {typeof import("${typesModule}")} */ ({})).template(function(`);
+        emit.text(`(/** @type {typeof import("${typesModule}")} */ ({}))`);
       } else {
-        emit.text(`({} as typeof import("${typesModule}")).template(function`);
-        emit.synthetic(typeParams);
-      }
-      if (!useJsDoc) {
-        emit.text('(𝚪');
+        emit.text(`({} as typeof import("${typesModule}"))`);
       }
 
-      if (contextType) {
-        if (useJsDoc) {
-          emit.text(`/** @type {import("${typesModule}").ResolveContext<`);
-          emit.synthetic(contextType);
-          emit.text('>} */ ');
-        } else {
-          emit.text(`: import("${typesModule}").ResolveContext<`);
-          emit.synthetic(contextType);
-          emit.text('>');
-        }
+      if (backingValue) {
+        emit.text(`.templateForBackingValue(${backingValue}, function(𝚪`);
+      } else {
+        emit.text(`.templateExpression(function(𝚪`);
       }
 
       if (useJsDoc) {
-        emit.text('𝚪');
         emit.text(`, /** @type {typeof import("${typesModule}")} */ χ) {`);
       } else {
         emit.text(`, χ: typeof import("${typesModule}")) {`);
@@ -131,17 +115,6 @@ export function templateToTypescript(
 
       emit.dedent();
       emit.text('})');
-
-      // If we have an explicit context type, we intentionally cast the template
-      // to `unknown` because we don't care about inference and want to avoid leaking
-      // internal type details.
-      if (contextType) {
-        if (useJsDoc) {
-          emit.text(')');
-        } else {
-          emit.text(` as unknown`);
-        }
-      }
 
       if (meta?.append) {
         emit.text(meta.append);
