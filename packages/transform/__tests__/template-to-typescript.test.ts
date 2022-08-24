@@ -44,7 +44,7 @@ describe('rewriteTemplate', () => {
       ).toMatchInlineSnapshot(`
         "({} as typeof import(\\"@glint/template\\")).templateForBackingValue(someValue, function(𝚪, χ: typeof import(\\"@glint/template\\")) {
           𝚪; χ;
-        }) as unknown"
+        })"
       `);
     });
 

@@ -28,7 +28,7 @@ describe('rewriteModule', () => {
           static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
           hbs;
           𝚪; χ;
-        }) as unknown;
+        });
         }"
       `);
     });
@@ -53,7 +53,7 @@ describe('rewriteModule', () => {
           static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
           hbs;
           𝚪; χ;
-        }) as unknown;
+        });
         }"
       `);
     });
@@ -77,7 +77,7 @@ describe('rewriteModule', () => {
           static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
           hbs;
           𝚪; χ;
-        }) as unknown;
+        });
         }"
       `);
     });
@@ -185,7 +185,7 @@ describe('rewriteModule', () => {
         static {
         ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
           𝚪; χ;
-        }) as unknown}
+        })}
         }"
       `);
     });
@@ -215,7 +215,7 @@ describe('rewriteModule', () => {
         static {
         ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
           𝚪; χ;
-        }) as unknown}
+        })}
         }
         export default MyComponent;"
       `);
@@ -245,7 +245,7 @@ describe('rewriteModule', () => {
         static {
         ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
           𝚪; χ;
-        }) as unknown}
+        })}
         }"
       `);
     });
@@ -273,7 +273,7 @@ describe('rewriteModule', () => {
         static {
         ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
           𝚪; χ;
-        }) as unknown}
+        })}
         }"
       `);
     });
@@ -330,7 +330,7 @@ describe('rewriteModule', () => {
         export default templateOnly();
         ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).templateForBackingValue(({} as unknown as typeof import('./test').default), function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
           𝚪; χ;
-        }) as unknown;
+        });
         "
       `);
     });
@@ -356,7 +356,7 @@ describe('rewriteModule', () => {
         ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).templateForBackingValue(({} as unknown as typeof import('./test').default), function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
           χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"hello\\"])({}));
           𝚪; χ;
-        }) as unknown;
+        });
         "
       `);
     });
@@ -390,7 +390,7 @@ describe('rewriteModule', () => {
         static {
         ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
           𝚪; χ;
-        }) as unknown}
+        })}
         }
         declare module '@glint/environment-ember-loose/registry' {
           export default interface Registry {
@@ -464,7 +464,7 @@ describe('rewriteModule', () => {
 
         | Mapping: Template
         |  hbs(22:74):   <template>\\\\n    Hello, {{this.target}}!\\\\n  </template>
-        |  ts(22:312):   static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)({}));\\\\n  𝚪; χ;\\\\n}) as unknown }
+        |  ts(22:301):   static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)({}));\\\\n  𝚪; χ;\\\\n}) }
         |
         | | Mapping: MustacheStatement
         | |  hbs(44:59):   {{this.target}}
@@ -575,7 +575,7 @@ describe('rewriteModule', () => {
 
         | Mapping: Template
         |  hbs(139:174): <template>{{this.title}}</template>
-        |  ts(364:653):  static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)({}));\\\\n  𝚪; χ;\\\\n}) as unknown }
+        |  ts(364:642):  static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)({}));\\\\n  𝚪; χ;\\\\n}) }
         |
         | | Mapping: MustacheStatement
         | |  hbs(149:163): {{this.title}}

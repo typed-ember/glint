@@ -86,9 +86,6 @@ export function templateToTypescript(
       }
 
       if (useJsDoc) {
-        if (backingValue) {
-          emit.text('/** @type {unknown} */ (');
-        }
         emit.text(`(/** @type {typeof import("${typesModule}")} */ ({}))`);
       } else {
         emit.text(`({} as typeof import("${typesModule}"))`);
@@ -118,17 +115,6 @@ export function templateToTypescript(
 
       emit.dedent();
       emit.text('})');
-
-      // If we have an explicit backing value, we intentionally cast the template
-      // to `unknown` because we don't care about inference and want to avoid leaking
-      // internal type details.
-      if (backingValue) {
-        if (useJsDoc) {
-          emit.text(')');
-        } else {
-          emit.text(` as unknown`);
-        }
-      }
 
       if (meta?.append) {
         emit.text(meta.append);
