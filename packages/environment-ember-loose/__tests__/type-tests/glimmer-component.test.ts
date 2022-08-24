@@ -67,8 +67,8 @@ import { ComponentLike } from '@glint/template';
     static {
       templateForBackingValue(this, function* (𝚪) {
         // We can't directly assert on the type of e.g. `@values` here, as we don't
-        // have a name for it in scope. However, the yields below confirm that the
-        // only thing we can legally yield to the default block is an element of the
+        // have a name for it in scope: the type `T` is present on the class instance,
+        // but not in a `static` block. However, the yields below confirm that the
         // `@values` arg, since the only information we have about that type is that
         // the array element and the yielded value are the same.
         yieldToBlock(
