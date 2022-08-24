@@ -80,14 +80,14 @@ export declare function resolve<P extends unknown[], T>(
 
 export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
 
-// We customize the top-level `template` wrapper function for this environment to
+// We customize the top-level `templateExpression` wrapper function for this environment to
 // return a type that's assignable to `TemplateOnlyComponent` from '@ember/component/template-only'.
 // Longer term we should rationalize this to a type that doesn't carry extra baggage
 // and likely comes from a more sensible path.
 
 import { TemplateOnlyComponent } from '@ember/component/template-only';
 
-export declare function template<
+export declare function templateExpression<
   Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(

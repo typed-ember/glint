@@ -2,7 +2,7 @@ import Route from '@ember/routing/route';
 import Controller from '@ember/controller';
 import { expectTypeOf } from 'expect-type';
 import { EmptyObject } from '@glint/template/-private/integration';
-import { ResolveContext } from '../../-private/dsl';
+import { templateForBackingValue } from '../../-private/dsl';
 
 class TestRoute extends Route {
   override async model(): Promise<{ message: string }> {
@@ -10,12 +10,12 @@ class TestRoute extends Route {
   }
 }
 
-declare const routeContext: ResolveContext<TestRoute>;
-
-expectTypeOf(routeContext.args).toEqualTypeOf<{ model: { message: string } }>();
-expectTypeOf(routeContext.element).toBeNull();
-expectTypeOf(routeContext.this).toEqualTypeOf<Controller & { model: { message: string } }>();
-expectTypeOf(routeContext.blocks).toEqualTypeOf<EmptyObject>();
+templateForBackingValue(TestRoute, function (routeContext) {
+  expectTypeOf(routeContext.args).toEqualTypeOf<{ model: { message: string } }>();
+  expectTypeOf(routeContext.element).toBeNull();
+  expectTypeOf(routeContext.this).toEqualTypeOf<Controller & { model: { message: string } }>();
+  expectTypeOf(routeContext.blocks).toEqualTypeOf<EmptyObject>();
+});
 
 class TestController extends Controller {
   declare date: Date;
@@ -25,9 +25,9 @@ class TestController extends Controller {
   };
 }
 
-declare const controllerContext: ResolveContext<TestController>;
-
-expectTypeOf(controllerContext.args).toEqualTypeOf<{ model: { name: string; age: number } }>();
-expectTypeOf(controllerContext.element).toBeNull();
-expectTypeOf(controllerContext.this).toEqualTypeOf<TestController>();
-expectTypeOf(controllerContext.blocks).toEqualTypeOf<EmptyObject>();
+templateForBackingValue(TestController, function (controllerContext) {
+  expectTypeOf(controllerContext.args).toEqualTypeOf<{ model: { name: string; age: number } }>();
+  expectTypeOf(controllerContext.element).toBeNull();
+  expectTypeOf(controllerContext.this).toEqualTypeOf<TestController>();
+  expectTypeOf(controllerContext.blocks).toEqualTypeOf<EmptyObject>();
+});

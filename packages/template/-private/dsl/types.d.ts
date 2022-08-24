@@ -1,4 +1,4 @@
-import { EmptyObject, HasContext } from '@glint/template/-private/integration';
+import { EmptyObject } from '@glint/template/-private/integration';
 
 type Constructor<T> = abstract new (...args: never[]) => T;
 
@@ -19,13 +19,3 @@ export type ElementForTagName<Name extends string> = Name extends keyof HTMLElem
   : Name extends keyof SVGElementTagNameMap
   ? SVGElementTagNameMap[Name]
   : Element;
-
-/**
- * Given the constructor or instance type of a component backing class, produces the appropriate
- * `TemplateContext` type for its template.
- */
-export type ResolveContext<T> = T extends HasContext<infer Context>
-  ? Context
-  : T extends Constructor<HasContext<infer Context>>
-  ? Context
-  : unknown;

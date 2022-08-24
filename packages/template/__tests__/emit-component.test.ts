@@ -5,9 +5,8 @@ import {
   emitElement,
   emitContent,
   resolve,
-  ResolveContext,
   resolveOrReturn,
-  template,
+  templateForBackingValue,
   yieldToBlock,
 } from '../-private/dsl';
 import TestComponent, { globals } from './test-component';
@@ -39,37 +38,39 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
    * {{/let}}
    * ```
    */
-  public static template = template(function <T>(𝚪: ResolveContext<MyComponent<T>>) {
-    const component = emitComponent(resolve(globals.let)({}, 𝚪.this.state.ready));
-    const [isReady] = component.blockParams.default;
+  static {
+    templateForBackingValue(this, function (𝚪) {
+      const component = emitComponent(resolve(globals.let)({}, 𝚪.this.state.ready));
+      const [isReady] = component.blockParams.default;
 
-    {
-      const 𝛄 = emitElement('div');
-      expectTypeOf(𝛄).toEqualTypeOf<{ element: HTMLDivElement }>();
-      applyModifier(𝛄.element, resolve(globals.on)({}, 'click', 𝚪.this.wrapperClicked));
-    }
+      {
+        const 𝛄 = emitElement('div');
+        expectTypeOf(𝛄).toEqualTypeOf<{ element: HTMLDivElement }>();
+        applyModifier(𝛄.element, resolve(globals.on)({}, 'click', 𝚪.this.wrapperClicked));
+      }
 
-    yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
+      yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
 
-    yieldToBlock(
-      𝚪,
-      // @ts-expect-error: bad block
-      'bad',
-      isReady,
-      𝚪.args.value
-    );
+      yieldToBlock(
+        𝚪,
+        // @ts-expect-error: bad block
+        'bad',
+        isReady,
+        𝚪.args.value
+      );
 
-    // @ts-expect-error: missing params
-    yieldToBlock(𝚪, 'body');
+      // @ts-expect-error: missing params
+      yieldToBlock(𝚪, 'body');
 
-    yieldToBlock(
-      𝚪,
-      'body',
-      isReady,
-      // @ts-expect-error: wrong param type
-      Symbol()
-    );
-  });
+      yieldToBlock(
+        𝚪,
+        'body',
+        isReady,
+        // @ts-expect-error: wrong param type
+        Symbol()
+      );
+    });
+  }
 }
 
 /**

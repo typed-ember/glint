@@ -1,8 +1,8 @@
 import Component, { TemplateComponent as TC } from '@glimmerx/component';
 import {
-  template,
+  templateForBackingValue,
+  templateExpression,
   resolve,
-  ResolveContext,
   yieldToBlock,
   emitComponent,
 } from '@glint/environment-glimmerx/-private/dsl';
@@ -11,7 +11,7 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
 
 {
   class NoArgsComponent extends Component {
-    static template = template(function* (𝚪: ResolveContext<NoArgsComponent>) {
+    static template = templateForBackingValue(this, function (𝚪) {
       𝚪;
     });
   }
@@ -43,7 +43,7 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
   class StatefulComponent extends Component {
     private foo = 'hello';
 
-    static template = template(function* (𝚪: ResolveContext<StatefulComponent>) {
+    static template = templateForBackingValue(this, function (𝚪) {
       expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
       expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
       expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
@@ -65,9 +65,18 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
   }
 
   class YieldingComponent<T> extends Component<YieldingComponentSignature<T>> {
-    static template = template(function* <T>(𝚪: ResolveContext<YieldingComponent<T>>) {
-      expectTypeOf(𝚪.this).toEqualTypeOf<YieldingComponent<T>>();
-      expectTypeOf(𝚪.args).toEqualTypeOf<{ values: T[] }>();
+    static template = templateForBackingValue(this, function (𝚪) {
+      // We can't directly assert on the type of e.g. `@values` here, as we don't
+      // have a name for it in scope. However, the yields below confirm that the
+      // only thing we can legally yield to the default block is an element of the
+      // `@values` arg, since the only information we have about that type is that
+      // the array element and the yielded value are the same.
+      yieldToBlock(
+        𝚪,
+        'default',
+        // @ts-expect-error: only a `T` is a valid yield
+        123
+      );
 
       if (𝚪.args.values.length) {
         yieldToBlock(𝚪, 'default', 𝚪.args.values[0]);
@@ -132,7 +141,7 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
 }
 
 {
-  const NoAnnotationTC = template(function (𝚪) {
+  const NoAnnotationTC = templateExpression(function (𝚪) {
     expectTypeOf(𝚪.this).toBeVoid();
     expectTypeOf(𝚪.element).toBeVoid();
     expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
@@ -155,7 +164,7 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
     };
   }
 
-  template(function (𝚪: ResolveContext<TC<YieldingTCSignature>>) {
+  let YieldingTC: TC<YieldingTCSignature> = templateExpression(function (𝚪) {
     expectTypeOf(𝚪.this).toEqualTypeOf(null);
     expectTypeOf(𝚪.args).toEqualTypeOf<{ values: Array<number> }>();
     expectTypeOf(𝚪.element).toBeNull();
@@ -167,8 +176,6 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
       yieldToBlock(𝚪, 'else');
     }
   });
-
-  let YieldingTC: TC<YieldingTCSignature> = null as never as TC<YieldingTCSignature>;
 
   resolve(YieldingTC)(
     // @ts-expect-error: missing required arg

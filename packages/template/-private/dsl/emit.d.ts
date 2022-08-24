@@ -64,15 +64,37 @@ export declare function emitComponent<T extends AcceptsBlocks<any, any>>(
   blockParams: T extends AcceptsBlocks<infer Yields, any> ? Required<Yields> : any;
 };
 
-/**
- * Acts as a top-level wrapper for translated template bodies. The given
- * callback accepts a template context value as well as an instance of the
+/*
+ * Wraps a template body that appears as a standalone expression and is therefore not
+ * associated with any backing value.
+ *
+ * The given callback accepts a template context value as well as an instance of the
  * environment's DSL export.
  */
-export declare function template<
+export declare function templateExpression<
   Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(f: (𝚪: Context, χ: never) => void): new () => Invokable<Signature> & HasContext<Context>;
+
+/*
+ * Wraps a template body that's backed by a known value (typically a class), either
+ * via a `.hbs` association to a default export or via embedding e.g. with `<template>`.
+ *
+ * The given callback accepts a template context value as well as an instance of the
+ * environment's DSL export.
+ *
+ * Note that the constructor-based signature returns an (arbitrary) abstract constructor
+ * type in order to trigger TypeScript's higher-order function type inference and propagate
+ * any type parameters on the class (see https://github.com/microsoft/TypeScript/pull/30215)
+ */
+export declare function templateForBackingValue<Args extends unknown[], Context extends AnyContext>(
+  backingValue: abstract new (...args: Args) => HasContext<Context>,
+  body: (𝚪: Context, χ: never) => void
+): abstract new () => unknown;
+export declare function templateForBackingValue<Context extends AnyContext>(
+  backingValue: HasContext<Context>,
+  body: (𝚪: Context, χ: never) => void
+): void;
 
 /*
  * Used in template bodies to encode a `{{yield}}` statement.

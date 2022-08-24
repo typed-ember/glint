@@ -3,9 +3,8 @@ import { AcceptsBlocks, DirectInvokable, TemplateContext } from '../-private/int
 import {
   emitComponent,
   resolve,
-  ResolveContext,
   resolveOrReturn,
-  template,
+  templateForBackingValue,
   yieldToBlock,
 } from '../-private/dsl';
 import TestComponent, { globals } from './test-component';
@@ -32,16 +31,18 @@ declare function value<T>(): T;
      * {{/let}}
      * ```
      */
-    public static template = template(function <T>(𝚪: ResolveContext<MyComponent<T>>) {
-      {
-        const component = emitComponent(resolve(globals.let)({}, 𝚪.this.state.ready));
-
+    static {
+      templateForBackingValue(this, function (𝚪) {
         {
-          const [isReady] = component.blockParams.default;
-          yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
+          const component = emitComponent(resolve(globals.let)({}, 𝚪.this.state.ready));
+
+          {
+            const [isReady] = component.blockParams.default;
+            yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   type ExpectedSignature = <T>(args: MyArgs<T>) => AcceptsBlocks<{
@@ -54,8 +55,13 @@ declare function value<T>(): T;
   expectTypeOf(resolve(MyComponent)).toEqualTypeOf<ExpectedSignature>();
 
   // Template context is inferred correctly
-  expectTypeOf<ResolveContext<MyComponent<number>>>().toEqualTypeOf<ExpectedContext<number>>();
-  expectTypeOf<ResolveContext<MyComponent<string>>>().toEqualTypeOf<ExpectedContext<string>>();
+  templateForBackingValue(MyComponent<number>, function (context) {
+    expectTypeOf(context).toEqualTypeOf<ExpectedContext<number>>();
+  });
+
+  templateForBackingValue(MyComponent<string>, function (context) {
+    expectTypeOf(context).toEqualTypeOf<ExpectedContext<string>>();
+  });
 }
 
 // A raw Invokable value
