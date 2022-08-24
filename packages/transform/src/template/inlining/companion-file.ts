@@ -1,7 +1,7 @@
 import type ts from 'typescript';
 import path from 'path';
 import { GlintEnvironment } from '@glint/config';
-import { CorrelatedSpansResult, getContainingTypeInfo, PartialCorrelatedSpan } from '.';
+import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from '.';
 import { RewriteResult } from '../map-template-contents';
 import MappingTree, { ParseError } from '../mapping-tree';
 import { templateToTypescript } from '../template-to-typescript';
@@ -34,43 +34,27 @@ export function calculateCompanionTemplateSpans(
   let useJsDoc = environment.isUntypedScript(script.filename);
   let targetNode = findCompanionTemplateTarget(ts, ast);
   if (targetNode && ts.isClassLike(targetNode)) {
-    let { className, contextType, typeParams } = getContainingTypeInfo(ts, targetNode);
-
-    if (!className) {
-      errors.push({
-        source: script,
-        location: { start: targetNode.getStart(), end: targetNode.getEnd() },
-        message: 'Classes with an associated template must have a name',
-      });
-    }
-
     let rewriteResult = templateToTypescript(template.contents, {
       typesModule,
-      contextType,
-      typeParams,
+      backingValue: isEmbeddedInClass(ts, targetNode) ? 'this' : undefined,
       useJsDoc,
     });
 
-    // This allows us to avoid issues with `noImplicitOverride` for subclassed components,
-    // but is ultimately kind of a kludge. TS 4.4 will support class static blocks, at
-    // which point we won't need to invent a field at all and we can remove this.
-    let standaloneTemplateField = `'~template:${className}'`;
-
     pushTransformedTemplate(rewriteResult, {
       insertionPoint: targetNode.getEnd() - 1,
-      prefix: `protected static ${standaloneTemplateField} = `,
-      suffix: ';\n',
+      prefix: `static {\n`,
+      suffix: '}\n',
     });
   } else {
-    let contextType: string | undefined;
+    let backingValue: string | undefined;
     if (targetNode) {
       let moduleName = path.basename(script.filename, path.extname(script.filename));
-      contextType = `typeof import('./${moduleName}').default`;
+      backingValue = `({} as unknown as typeof import('./${moduleName}').default)`;
     }
 
     let rewriteResult = templateToTypescript(template.contents, {
       typesModule,
-      contextType,
+      backingValue,
       useJsDoc,
     });
 

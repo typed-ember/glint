@@ -117,7 +117,6 @@ describe('CLI: emitting declarations', () => {
       }
       export default class ClassComponent extends Component<ClassComponentSignature> {
           private startupTime;
-          protected static '~template:ClassComponent': unknown;
       }
       "
     `);

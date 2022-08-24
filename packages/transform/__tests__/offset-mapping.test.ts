@@ -68,7 +68,7 @@ describe('Source-to-source offset mapping', () => {
   }
 
   function findOccurrence(haystack: string, needle: string, occurrence: number): number {
-    let offset = -1;
+    let offset = haystack.indexOf('function(𝚪');
     for (let i = 0; i < occurrence + 1; i++) {
       offset = haystack.indexOf(needle, offset + 1);
 
