@@ -83,18 +83,16 @@ export declare function templateExpression<
  * The given callback accepts a template context value as well as an instance of the
  * environment's DSL export.
  *
- * Note that the constructor-based signature returns an (arbitrary) abstract constructor
- * type in order to trigger TypeScript's higher-order function type inference and propagate
- * any type parameters on the class (see https://github.com/microsoft/TypeScript/pull/30215)
+ * Note that this signature is structured carefully to trigger TypeScript's higher-order function
+ * type inference so that any type parameters on the given backing value (if it's a class) will
+ * be preserved and reflected in the template body. Both the `Args` type and the constructor return
+ * value are necessary for this, despite the fact that we don't actually do anything with those
+ * types (see https://github.com/microsoft/TypeScript/pull/30215).
  */
 export declare function templateForBackingValue<Args extends unknown[], Context extends AnyContext>(
   backingValue: abstract new (...args: Args) => HasContext<Context>,
   body: (𝚪: Context, χ: never) => void
 ): abstract new () => unknown;
-export declare function templateForBackingValue<Context extends AnyContext>(
-  backingValue: HasContext<Context>,
-  body: (𝚪: Context, χ: never) => void
-): void;
 
 /*
  * Used in template bodies to encode a `{{yield}}` statement.
