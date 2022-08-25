@@ -16,6 +16,9 @@ export const capabilities: ServerCapabilities = {
   textDocumentSync: TextDocumentSyncKind.Full,
   completionProvider: {
     resolveProvider: true,
+    // By default `@` won't trigger autocompletion, but it's an important character
+    // for us since it signifies the beginning of an arg name.
+    triggerCharacters: ['.', '@'],
   },
   referencesProvider: true,
   hoverProvider: true,
