@@ -3,6 +3,7 @@ import { unreachable, assert } from '../util';
 import { mapTemplateContents, RewriteResult } from './map-template-contents';
 import ScopeStack from './scope-stack';
 import { GlintEmitMetadata } from '@glint/config/src/environment';
+import { TextContent } from './mapping-tree';
 
 const SPLATTRIBUTES = '...attributes';
 const INLINE_KEYWORDS = ['if', 'yield', 'hash', 'array', 'unless'] as const;
@@ -59,8 +60,7 @@ export function templateToTypescript(
           throw new Error(`Internal error: unexpected top-level ${node.type}`);
 
         case 'TextNode':
-          // Nothing to be done
-          return;
+          return emitTopLevelTextNode(node);
 
         case 'CommentStatement':
         case 'MustacheCommentStatement':
@@ -119,6 +119,13 @@ export function templateToTypescript(
       if (meta?.append) {
         emit.text(meta.append);
       }
+    }
+
+    function emitTopLevelTextNode(node: AST.TextNode): void {
+      // We don't need to emit any code for text nodes, but we want to track
+      // where they are so we know NOT to try and suggest global completions
+      // in "text space" where it wouldn't make sense.
+      emit.nothing(node, new TextContent());
     }
 
     function emitComment(node: AST.MustacheCommentStatement | AST.CommentStatement): void {
