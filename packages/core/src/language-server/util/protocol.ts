@@ -108,10 +108,6 @@ export function tagsForDiagnostic(diagnostic: ts.Diagnostic): DiagnosticTag[] {
 }
 
 export function severityForDiagnostic(ts: TS, diagnostic: ts.Diagnostic): DiagnosticSeverity {
-  if (diagnostic.reportsUnnecessary) {
-    return DiagnosticSeverity.Warning;
-  }
-
   switch (diagnostic.category) {
     case ts.DiagnosticCategory.Error:
       return DiagnosticSeverity.Error;
