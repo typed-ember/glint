@@ -1,4 +1,4 @@
-import ts from 'typescript';
+import type ts from 'typescript';
 import {
   CompletionItemKind,
   DiagnosticSeverity,
@@ -6,12 +6,15 @@ import {
   SymbolKind,
 } from 'vscode-languageserver';
 
+type TS = typeof ts;
+
 /*
  * This module contains utilities for converting between conventions used
  * by the Language Server Protocol and TypeScript's language services interface.
  */
 
 export function scriptElementKindToCompletionItemKind(
+  ts: TS,
   kind: ts.ScriptElementKind
 ): CompletionItemKind {
   switch (kind) {
@@ -55,7 +58,7 @@ export function scriptElementKindToCompletionItemKind(
   }
 }
 
-export function scriptElementKindToSymbolKind(kind: ts.ScriptElementKind): SymbolKind {
+export function scriptElementKindToSymbolKind(ts: TS, kind: ts.ScriptElementKind): SymbolKind {
   switch (kind) {
     case ts.ScriptElementKind.memberVariableElement:
     case ts.ScriptElementKind.indexSignatureElement:
@@ -104,7 +107,7 @@ export function tagsForDiagnostic(diagnostic: ts.Diagnostic): DiagnosticTag[] {
   return tags;
 }
 
-export function severityForDiagnostic(diagnostic: ts.Diagnostic): DiagnosticSeverity {
+export function severityForDiagnostic(ts: TS, diagnostic: ts.Diagnostic): DiagnosticSeverity {
   if (diagnostic.reportsUnnecessary) {
     return DiagnosticSeverity.Warning;
   }
