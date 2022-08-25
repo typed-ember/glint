@@ -38,6 +38,19 @@ To minimize spurious errors when typechecking with vanilla `tsc` or your editor'
 
 {% endhint %}
 
+## Version Requirements
+
+Because Glint uses your project-local copy of TypeScript and the packages whose types it augments for use in templates, it requires certain minimum versions of those packages for compatibility.
+
+| Package                   | Minimum Version |
+| ------------------------- | --------------- |
+| `typescript`              | 4.7.0           |
+| `@types/ember__component` | 4.0.8           |
+| `@glimmer/component`      | 1.1.2           |
+| `ember-modifier`          | 3.2.7           |
+
+It's possible to use the 4.x versions of the `@types/ember*` packages even if your project is still using an Ember 3.x LTS. Just note that any deprecated APIs you're using that were removed in 4.0 won't be available in the types, and APIs added later _will_ be present in them.
+
 ## Functions as Helpers
 
 By default, `@glint/environment-ember-loose` includes support for the [default helper manager RFC](https://github.com/emberjs/rfcs/pull/756).
