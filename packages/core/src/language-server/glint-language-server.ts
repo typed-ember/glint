@@ -143,7 +143,7 @@ export default class GlintLanguageServer {
         if (!file || file.fileName !== filePath) return [];
 
         return {
-          severity: severityForDiagnostic(diagnostic),
+          severity: severityForDiagnostic(this.ts, diagnostic),
           message: this.ts.flattenDiagnosticMessageText(messageText, '\n'),
           source: `glint${diagnostic.code ? `:ts(${diagnostic.code})` : ''}`,
           tags: tagsForDiagnostic(diagnostic),
@@ -161,7 +161,7 @@ export default class GlintLanguageServer {
       .map(({ name, kind, fileName, textSpan }) => {
         let location = this.textSpanToLocation(fileName, textSpan);
         if (location) {
-          return { name, location, kind: scriptElementKindToSymbolKind(kind) };
+          return { name, location, kind: scriptElementKindToSymbolKind(this.ts, kind) };
         }
       })
       .filter((info): info is SymbolInformation => Boolean(info));
@@ -179,7 +179,7 @@ export default class GlintLanguageServer {
 
     return completions?.entries.map((completionEntry) => ({
       label: completionEntry.name,
-      kind: scriptElementKindToCompletionItemKind(completionEntry.kind),
+      kind: scriptElementKindToCompletionItemKind(this.ts, completionEntry.kind),
       data: { uri, transformedFileName, transformedOffset, source: completionEntry.source },
     }));
   }

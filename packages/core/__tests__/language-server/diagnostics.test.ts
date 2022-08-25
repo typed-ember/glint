@@ -54,7 +54,7 @@ describe('Language Server: Diagnostics', () => {
               "line": 7,
             },
           },
-          "severity": 2,
+          "severity": 4,
           "source": "glint:ts(6133)",
           "tags": [
             1,
@@ -255,7 +255,7 @@ describe('Language Server: Diagnostics', () => {
               "line": 8,
             },
           },
-          "severity": 2,
+          "severity": 4,
           "source": "glint:ts(6133)",
           "tags": [
             1,
@@ -326,7 +326,7 @@ describe('Language Server: Diagnostics', () => {
               "line": 7,
             },
           },
-          "severity": 2,
+          "severity": 4,
           "source": "glint:ts(6133)",
           "tags": [
             1,
