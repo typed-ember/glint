@@ -11,6 +11,7 @@ import type ts from 'typescript';
 import { GlintConfig } from '@glint/config';
 import { assert } from '@glint/transform/lib/util';
 import DocumentCache, { templatePathForSynthesizedModule } from './document-cache';
+import MappingTree from '@glint/transform/src/template/mapping-tree';
 
 type TransformInfo = {
   version: string;
@@ -107,7 +108,12 @@ export default class TransformManager {
     transformedFileName: string,
     transformedStart: number,
     transformedEnd: number
-  ): { originalFileName: string; originalStart: number; originalEnd: number } {
+  ): {
+    originalFileName: string;
+    originalStart: number;
+    originalEnd: number;
+    mapping?: MappingTree;
+  } {
     let transformInfo = this.getTransformInfo(transformedFileName);
     let { documents } = this;
     if (!transformInfo?.transformedModule) {
@@ -124,6 +130,7 @@ export default class TransformManager {
     );
 
     return {
+      mapping: original.mapping,
       originalFileName: documents.getCanonicalDocumentPath(original.source.filename),
       originalStart: original.start,
       originalEnd: original.end,

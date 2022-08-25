@@ -1,5 +1,5 @@
 import { AST, preprocess } from '@glimmer/syntax';
-import MappingTree from './mapping-tree';
+import MappingTree, { MappingSource } from './mapping-tree';
 import { Directive, DirectiveKind, Range } from './transformed-module';
 import { assert } from '../util';
 
@@ -16,8 +16,6 @@ export class Identifier {
   public readonly type = 'Identifier';
   public constructor(public readonly name: string) {}
 }
-
-export type MappingSource = Identifier | AST.Node;
 
 export type Mapper = {
   /**
@@ -69,7 +67,7 @@ export type Mapper = {
      * presence of a template AST node at a given location while not
      * emitting anything in the resulting TS translation.
      */
-    nothing(node: AST.Node): void;
+    nothing(node: AST.Node, source?: MappingSource): void;
 
     /**
      * Append the given value to the transformed source, mapping
@@ -230,8 +228,8 @@ export function mapTemplateContents(
         emit.identifier(value, 0, 0);
       }
     },
-    nothing(node: AST.Node) {
-      captureMapping(rangeForNode(node), node, true, () => {});
+    nothing(node: AST.Node, source: MappingSource = node) {
+      captureMapping(rangeForNode(node), source, true, () => {});
     },
     identifier(value: string, hbsOffset: number, hbsLength = value.length) {
       // If there's a pending indent, flush that so it's not included in

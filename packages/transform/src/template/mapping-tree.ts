@@ -2,6 +2,8 @@ import { AST } from '@glimmer/syntax';
 import { Range } from './transformed-module';
 import { Identifier } from './map-template-contents';
 
+export type MappingSource = AST.Node | TextContent | Identifier | ParseError;
+
 /**
  * In cases where we're unable to parse a template, we still want to
  * be able to hold a placeholder mapping so that we can respond sensibly
@@ -10,6 +12,17 @@ import { Identifier } from './map-template-contents';
  */
 export class ParseError {
   public readonly type = 'ParseError';
+}
+
+/**
+ * The Glimmer AST uses `TextNode` for both string arg values on elements
+ * and for top-level text content floating in the DOM itself. Since we
+ * want to treat the two differently (namely, string args may have useful
+ * completion suggestions but plain text doesn't), we use a stand-in
+ * node for the latter.
+ */
+export class TextContent {
+  public readonly type = 'TextContent';
 }
 
 /**
@@ -33,7 +46,7 @@ export default class MappingTree {
     public transformedRange: Range,
     public originalRange: Range,
     public children: Array<MappingTree> = [],
-    public sourceNode: AST.Node | Identifier | ParseError
+    public sourceNode: MappingSource
   ) {
     children.forEach((child) => (child.parent = this));
   }

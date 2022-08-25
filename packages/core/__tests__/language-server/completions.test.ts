@@ -33,6 +33,30 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('(property) Globals.LinkTo: LinkToComponent');
   });
 
+  test('in unstructured text', () => {
+    let code = stripIndent`
+      import Component, { hbs } from '@glimmerx/component';
+
+      export default class MyComponent extends Component {
+        static template = hbs\`
+          <div>
+            hello
+          </div>
+        \`;
+      }
+    `;
+
+    project.write('index.ts', code);
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(project.fileURI('index.ts'), {
+      line: 4,
+      character: 4,
+    });
+
+    expect(completions).toBeUndefined();
+  });
+
   test('passing component args', () => {
     let code = stripIndent`
       import Component, { hbs } from '@glimmerx/component';
@@ -141,7 +165,7 @@ describe('Language Server: Completions', () => {
     let server = project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.ts'), {
       line: 5,
-      character: 7,
+      character: 9,
     });
 
     let letterCompletion = completions?.find((item) => item.label === 'letter');
@@ -204,7 +228,7 @@ describe('Language Server: Completions', () => {
 
     let completions = server.getCompletions(project.fileURI('index.ts'), {
       line: 5,
-      character: 7,
+      character: 9,
     });
 
     let letterCompletion = completions?.find((item) => item.label === 'letter');

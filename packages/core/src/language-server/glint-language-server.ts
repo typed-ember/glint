@@ -171,6 +171,16 @@ export default class GlintLanguageServer {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
     if (this.isTemplate(transformedFileName)) return;
 
+    let { mapping } = this.transformManager.getOriginalRange(
+      transformedFileName,
+      transformedOffset,
+      transformedOffset
+    );
+
+    if (mapping?.sourceNode.type === 'TextContent') {
+      return;
+    }
+
     let completions = this.service.getCompletionsAtPosition(
       transformedFileName,
       transformedOffset,
