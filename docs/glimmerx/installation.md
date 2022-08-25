@@ -37,3 +37,12 @@ Note that, by default, Glint will assume you want it to analyze all templates in
 To minimize spurious errors when typechecking with vanilla `tsc` or your editor's TypeScript integration, you should add `import '@glint/environment-glimmerx';` somewhere in your project's source or type declarations. You may also choose to disable TypeScript's "unused symbol" warnings in your editor, since `tsserver` won't understand that templates actually are using them.
 
 {% endhint %}
+
+## Version Requirements
+
+Because Glint uses your project-local copy of TypeScript and the packages whose types it augments for use in templates, it requires certain minimum versions of those packages for compatibility.
+
+| Package       | Minimum Version |
+| ------------- | --------------- |
+| `typescript`  | 4.7.0           |
+| `@glimmerx/*` | 0.6.7           |

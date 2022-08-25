@@ -20,6 +20,9 @@
     "build": "tsc --build",
     "prepack": "yarn build"
   },
+  "peerDependencies": {
+    "typescript": "^4.7.0"
+  },
   "dependencies": {
     "@glint/config": "^0.9.2",
     "@glint/transform": "^0.9.2",
