@@ -1,6 +1,6 @@
 import Component, { hbs } from '@glimmerx/component';
 import { helper } from '@glimmerx/helper';
-import { WithBoundArgs } from '@glint/template';
+import type { WithBoundArgs } from '@glint/template';
 
 const or = helper(<T, U>([a, b]: [T, U]) => a || b);
 
