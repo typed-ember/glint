@@ -1,10 +1,7 @@
 import * as VM from '@glint/template/-private/keywords';
 
 interface Keywords {
-  // the `component` keyword exists but is essentially unusable as GlimmerX
-  // has no string-based resolution and can only resolve statically-invoked
-  // values as components/helpers/etc
-  // component: VM.ComponentKeyword;
+  component: VM.ComponentKeyword;
   debugger: VM.DebuggerKeyword;
   each: VM.EachKeyword;
   'has-block': VM.HasBlockKeyword;

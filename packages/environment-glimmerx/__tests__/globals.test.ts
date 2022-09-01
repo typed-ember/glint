@@ -6,6 +6,7 @@ import { HasBlockParamsKeyword } from '@glint/template/-private/keywords/has-blo
 import { InElementKeyword } from '@glint/template/-private/keywords/in-element';
 import { LetKeyword } from '@glint/template/-private/keywords/let';
 import { WithKeyword } from '@glint/template/-private/keywords/with';
+import { ComponentKeyword } from '@glint/template/-private/keywords';
 
 import { Globals } from '@glint/environment-glimmerx/-private/dsl';
 
@@ -16,6 +17,7 @@ expectTypeOf(Globals['has-block-params']).toEqualTypeOf<HasBlockParamsKeyword>()
 expectTypeOf(Globals['in-element']).toEqualTypeOf<InElementKeyword>();
 expectTypeOf(Globals['let']).toEqualTypeOf<LetKeyword>();
 expectTypeOf(Globals['with']).toEqualTypeOf<WithKeyword>();
+expectTypeOf(Globals['component']).toEqualTypeOf<ComponentKeyword>();
 
 // TODO: either add a keyword type or implement directly in the transformation layer
 expectTypeOf(Globals['unless']).toEqualTypeOf<void>();

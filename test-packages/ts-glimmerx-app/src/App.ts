@@ -2,7 +2,7 @@ import Component, { TemplateComponent as TC, hbs } from '@glimmerx/component';
 
 import logo from './logo.svg';
 import './App.css';
-import GreetingHeader from './GreetingHeader';
+import GreetingHeader, { TestingComponentHelper } from './GreetingHeader';
 
 export default class App extends Component {
   private logo = logo;
@@ -12,7 +12,7 @@ export default class App extends Component {
     <div id="intro">
       <img src={{this.logo}}/>
 
-      <GreetingHeader @greeting="hello" @target="glint" />
+      <GreetingHeader @target="glint" @greeting={{component TestingComponentHelper name="chris"}}/>
 
       <SubHeader>
         you can get started by editing <code>src/App.js</code>,

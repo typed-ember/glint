@@ -32,7 +32,7 @@ const I_AM_CONSTANT = 'and I am a constant';
 /**
  * @typedef ComponentAsArgSignature
  * @property {object} Args
- * @property {string} Args.title I really can't think of a good description
+ * @property {import('@glint/template').WithBoundArgs<typeof Component<FormattedNameSignature>, 'name'>} Args.title I really can't think of a good description
  */
 /**
  * @type {import('@glimmerx/component').TemplateComponent<ComponentAsArgSignature>}
