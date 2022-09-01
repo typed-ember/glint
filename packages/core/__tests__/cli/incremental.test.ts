@@ -1,4 +1,4 @@
-import { existsSync, statSync } from 'fs';
+import { existsSync, statSync, readFileSync } from 'fs';
 
 import { stripIndent } from 'common-tags';
 import { beforeEach, describe, expect, test } from 'vitest';
@@ -33,12 +33,17 @@ describe('CLI: --incremental', () => {
 
     project.write(INPUT_SCRIPT, code);
 
-    let checkResult = await project.build({ flags: ['--incremental'] });
+    let checkResult = await project.check({ flags: ['--incremental'] });
 
     expect(checkResult.exitCode).toBe(0);
     expect(checkResult.stdout).toEqual('');
     expect(checkResult.stderr).toEqual('');
+
     expect(existsSync(project.filePath(BUILD_INFO))).toBe(true);
+    let contents = JSON.parse(readFileSync(project.filePath(BUILD_INFO), { encoding: 'utf-8' }));
+    expect(contents).toHaveProperty('program');
+    expect(contents.program).toHaveProperty('fileNames');
+    expect(contents.program.fileNames.length).not.toEqual(0);
   });
 
   describe('when a build has occurred', () => {
@@ -67,13 +72,13 @@ describe('CLI: --incremental', () => {
 
       project.write(INPUT_SCRIPT, code);
 
-      await project.build({ flags: ['--incremental'] });
+      await project.check({ flags: ['--incremental'] });
     });
 
     test('and there are no changes', async () => {
       let firstStat = statSync(project.filePath(BUILD_INFO));
 
-      let checkResult = await project.build({ flags: ['--incremental'] });
+      let checkResult = await project.check({ flags: ['--incremental'] });
 
       // This should succeed again...
       expect(checkResult.exitCode).toBe(0);
@@ -109,7 +114,7 @@ describe('CLI: --incremental', () => {
 
       project.write(INPUT_SCRIPT, code);
 
-      let checkResult = await project.build({ flags: ['--incremental'] });
+      let checkResult = await project.check({ flags: ['--incremental'] });
 
       // This should succeed again...
       expect(checkResult.exitCode).toBe(0);
