@@ -1,4 +1,5 @@
 import * as VM from '@glint/template/-private/keywords';
+import Globals from '../../globals';
 
 interface Keywords {
   component: VM.ComponentKeyword;
@@ -14,9 +15,4 @@ interface Keywords {
   yield: void; // the `yield` keyword is implemented directly in @glint/transform
 }
 
-export interface Globals extends Keywords {
-  // GlimmerX, by design, doesn't have any global values beyond
-  // glimmer-vm keywords
-}
-
-export declare const Globals: Globals;
+export declare const Globals: Keywords & Globals;

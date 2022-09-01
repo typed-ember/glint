@@ -48,6 +48,7 @@
     "prettier": "^2.1.1",
     "qunit": "^2.9.3",
     "qunit-dom": "^1.1.0",
+    "string-replace-loader": "^3.1.0",
     "style-loader": "^1.1.3",
     "testem": "^3.0.3",
     "webpack": "^4.42.1",
@@ -78,7 +79,15 @@
       "!.*"
     ],
     "rules": {
-      "@glimmerx/template-vars": "error"
+      "@glimmerx/template-vars": [
+        2,
+        "all",
+        {
+          "nativeTokens": [
+            "t"
+          ]
+        }
+      ]
     },
     "overrides": [
       {

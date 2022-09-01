@@ -55,6 +55,14 @@ module.exports = () => {
             outputPath: 'images',
           },
         },
+        {
+          test: /App\.(js|ts)$/,
+          loader: 'string-replace-loader',
+          options: {
+            search: '{{t "DOESNT EXIST"}}',
+            replace: '',
+          },
+        },
       ],
     },
     resolve: {

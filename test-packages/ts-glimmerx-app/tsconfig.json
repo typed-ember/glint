@@ -7,6 +7,10 @@
   },
   "exclude": ["node_modules", "tmp", "dist"],
   "glint": {
-    "environment": "glimmerx"
+    "environment": {
+      "glimmerx": {
+        "additionalGlobals": ["t"]
+      }
+    }
   }
 }

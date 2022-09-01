@@ -10,6 +10,7 @@ export default class App extends Component {
 
   public static template = hbs`
     <div id="intro">
+      {{t "DOESNT EXIST"}}
       <img src={{this.logo}}/>
 
       <GreetingHeader @target="glint" @greeting={{component TestingComponentHelper name="chris"}}/>
