@@ -1,24 +1,11 @@
-# @glint Directives
+# `@glint` Directives
 
 Glint has several directives that can be used in template comments to control
 Glint's behavior. Additional comment text can follow directives to document
-their purpose.
+their purpose. These directives correspond to the similarly-named directives
+in TypeScript.
 
-## @glint-ignore
-
-The `@glint-ignore` directive tells Glint to ignore the line that follows it.
-Glint will not report any errors encountered on the next line.
-
-Example:
-
-```hbs
-<MyComponent @expectedArg="foo" />
-
-{{! @glint-ignore: need to update signature to accept this arg }}
-<MyComponent @unexpectedArg="bar" />
-```
-
-## @glint-expect-error
+## `@glint-expect-error`
 
 The `@glint-expect-error` directive operates similarly to `@glint-ignore` in
 that it will not report type errors it encounters, but it will also produce an
@@ -35,12 +22,29 @@ Example:
 <MyComponent @stringArg={{123}} />
 ```
 
-## @glint-nocheck
+## `@glint-ignore`
+
+The `@glint-ignore` directive tells Glint to ignore the line that follows it.
+Glint will not report any errors encountered on the next line. In general,
+you should prefer `@glint-expect-error` unless it is not appropriate.
+
+Example:
+
+```hbs
+<MyComponent @expectedArg="foo" />
+
+{{! @glint-ignore: this doesn't typecheck in TS 4.6 due to a bug, but we still test against that version in CI }}
+<MyComponent @unexpectedArg="bar" />
+```
+
+
+## `@glint-nocheck`
 
 The `@glint-noceck` directive will cause glint to not report errors for the
 entire template. The template is still processed by Glint such that
 auto-complete, type look-up, jump to definition, etc. are still functional,
-but any type errors will be ignored.
+but any type errors will be ignored. This can be useful as a step in a
+migration process.
 
 Example:
 
