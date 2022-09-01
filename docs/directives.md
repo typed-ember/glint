@@ -16,7 +16,7 @@ be alerted if it does.
 Example:
 
 ```hbs
-<MyComponent @stringArg="foo" />
+<MyComponent @stringArg='foo' />
 
 {{! @glint-expect-error: let me know if this starts allowing numbers }}
 <MyComponent @stringArg={{123}} />
@@ -31,12 +31,11 @@ you should prefer `@glint-expect-error` unless it is not appropriate.
 Example:
 
 ```hbs
-<MyComponent @expectedArg="foo" />
+<MyComponent @expectedArg='foo' />
 
 {{! @glint-ignore: this doesn't typecheck in TS 4.6 due to a bug, but we still test against that version in CI }}
-<MyComponent @unexpectedArg="bar" />
+<MyComponent @unexpectedArg='bar' />
 ```
-
 
 ## `@glint-nocheck`
 
@@ -53,7 +52,7 @@ Example:
 
 <MyComponent @stringArg={{123}} />
 
-<AnotherComponent @badArg="foo" />
+<AnotherComponent @badArg='foo' />
 
-{{two-arg-helper "bar"}}
+{{two-arg-helper 'bar'}}
 ```
