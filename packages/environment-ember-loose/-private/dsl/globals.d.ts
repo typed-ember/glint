@@ -7,10 +7,12 @@ import { EachKeyword } from '../intrinsics/each';
 import { EachInKeyword } from '../intrinsics/each-in';
 import { FnHelper } from '../intrinsics/fn';
 import { GetHelper } from '../intrinsics/get';
+import { HelperHelper } from '../intrinsics/helper';
 import { InputComponent } from '../intrinsics/input';
 import { LinkToKeyword, LinkToComponent } from '../intrinsics/link-to';
 import { LogHelper } from '../intrinsics/log';
 import { MountKeyword } from '../intrinsics/mount';
+import { ModifierHelper } from '../intrinsics/modifier';
 import { MutKeyword } from '../intrinsics/mut';
 import { OnModifier } from '../intrinsics/on';
 import { OutletKeyword } from '../intrinsics/outlet';
@@ -220,6 +222,16 @@ export interface Globals extends Keywords, Registry {
     [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/get?anchor=get
   */
   get: GetHelper;
+  
+  /**
+    Use the `{{helper}}` helper to create contextual helper so
+    that it can be passed around as first-class values in templates.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/helper?anchor=helper
+  */
+  helper: HelperHelper;
 
   // `hash` is implemented directly in `@glint/transform`
   hash: void;
@@ -251,6 +263,16 @@ export interface Globals extends Keywords, Registry {
     [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.components/methods/LinkTo?anchor=LinkTo
   */
   LinkTo: LinkToComponent;
+  
+  /**
+    Use the `{{modifier}}` helper to create contextual modifiers so
+    that it can be passed around as first-class values in templates.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/modifier?anchor=modifier
+  */
+  modifier: ModifierHelper;
 
   /**
     The `{{on}}` modifier lets you easily add event listeners (it uses
