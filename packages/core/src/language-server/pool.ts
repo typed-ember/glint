@@ -105,6 +105,7 @@ export class LanguageServerPool {
             uri,
             diagnostics: [
               {
+                severity: 'Error',
                 range: { start: { line: 0, character: 0 }, end: { line: 0, character: 1 } },
                 message:
                   'Glint encountered an error computing diagnostics for this file. ' +
