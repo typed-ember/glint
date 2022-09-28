@@ -5,6 +5,7 @@ import {
   MessageType,
   ShowMessageNotification,
   TextDocuments,
+  DiagnosticSeverity,
 } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import DocumentCache from '../common/document-cache';
@@ -105,7 +106,7 @@ export class LanguageServerPool {
             uri,
             diagnostics: [
               {
-                severity: 'Error',
+                severity: DiagnosticSeverity.Error,
                 range: { start: { line: 0, character: 0 }, end: { line: 0, character: 1 } },
                 message:
                   'Glint encountered an error computing diagnostics for this file. ' +
