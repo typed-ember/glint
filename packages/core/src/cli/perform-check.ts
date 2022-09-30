@@ -2,6 +2,7 @@ import type TS from 'typescript';
 import TransformManager from '../common/transform-manager';
 import { GlintConfig } from '@glint/config';
 import { buildDiagnosticFormatter } from './diagnostics';
+import { sysForCompilerHost } from './utils/sys-for-compiler-host';
 
 type TypeScript = typeof TS;
 
@@ -11,16 +12,28 @@ export function performCheck(glintConfig: GlintConfig, optionsToExtend: TS.Compi
   let parsedConfig = loadTsconfig(ts, transformManager, glintConfig.configPath, optionsToExtend);
   let compilerHost = createCompilerHost(ts, parsedConfig.options, transformManager);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
-  let program = ts.createProgram({
+
+  let createProgram = parsedConfig.options.incremental
+    ? ts.createIncrementalProgram
+    : ts.createProgram;
+
+  let program = createProgram({
     rootNames: parsedConfig.fileNames,
     options: parsedConfig.options,
     host: compilerHost,
   });
 
-  program.emit();
-
+  // We run *before* doing emit, so that if we are in an `--incremental` program
+  // TS caches the diagnostics in the `tsbuildinfo` file it generates. This is
+  // quirky, but it's how TS itself works internally, and it's also *sort of*
+  // documented [here][wiki-pr].
+  //
+  // [wiki-pr]: https://github.com/microsoft/TypeScript-wiki/blob/ad7afb1b7049be5ac59ba55dce9a647390ee8481/Using-the-Compiler-API.md#a-minimal-incremental-compiler
   let baselineDiagnostics = collectDiagnostics(program, transformManager, parsedConfig.options);
-  let fullDiagnostics = transformManager.rewriteDiagnostics(baselineDiagnostics);
+  let emitResult = program.emit();
+  let diagnosticsWithEmit = baselineDiagnostics.concat(emitResult.diagnostics);
+
+  let fullDiagnostics = transformManager.rewriteDiagnostics(diagnosticsWithEmit);
   for (let diagnostic of fullDiagnostics) {
     console.error(formatDiagnostic(diagnostic));
   }
@@ -29,7 +42,7 @@ export function performCheck(glintConfig: GlintConfig, optionsToExtend: TS.Compi
 }
 
 function collectDiagnostics(
-  program: TS.Program,
+  program: TS.Program | TS.EmitAndSemanticDiagnosticsBuilderProgram,
   transformManager: TransformManager,
   options: TS.CompilerOptions
 ): Array<TS.Diagnostic> {
@@ -46,10 +59,14 @@ function createCompilerHost(
   options: TS.CompilerOptions,
   transformManager: TransformManager
 ): TS.CompilerHost {
-  let host = ts.createCompilerHost(options);
+  let host = options.incremental
+    ? ts.createIncrementalCompilerHost(options, sysForCompilerHost(ts, transformManager))
+    : ts.createCompilerHost(options);
+
   host.fileExists = transformManager.fileExists;
   host.readFile = transformManager.readTransformedFile;
   host.readDirectory = transformManager.readDirectory;
+
   return host;
 }
 
