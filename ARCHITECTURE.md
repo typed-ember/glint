@@ -56,7 +56,7 @@ The DSL defines three broad things:
 
 - A host of type definitions. Some of these are internal and used to make *emit* and *resolve* work, while others are public types, usable by consumers for authoring their apps. These definitions includes the definitions for types authors can use for writing things like partially applied components.
 
-Note: The fact that the synthesized module is *not* persisted to disk means that some things you might expect to be useful navigation tools within the repo, like the TypeScript *Find All References* command, will not find any references to these.
+Note: The fact that the synthesized module is *not* persisted to disk means that some things you might expect to be useful navigation tools within the repo, like the TypeScript *Find All References* command, will not find any references to these DSL definitions.
 
 **Invariants:**
 
