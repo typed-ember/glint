@@ -113,7 +113,9 @@ The result of this tranformation is the only place the DSL actually appears, whi
 
 This relationship looks roughly like this:
 
-==TODO: visualization==
+<p align="center">
+<img src="https://user-images.githubusercontent.com/2403023/194120262-88db3c4c-3b85-4745-a5cc-2f9114042436.png" style="width: 400px; max-width: 100%;">
+</p>
 
 [matklad]: https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html
 
