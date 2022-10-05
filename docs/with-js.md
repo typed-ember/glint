@@ -29,7 +29,7 @@ npm install -D typescript @glint/core @glint/environment-ember-loose
 {% endtab %}
 {% endtabs %}
 
-{% code title="tsconfig.json" %}
+{% code title="jsconfig.json" %}
 
 ```javascript
 {
@@ -41,6 +41,12 @@ npm install -D typescript @glint/core @glint/environment-ember-loose
 ```
 
 {% endcode %}
+
+{% hint style="info" %}
+
+You can also use a `tsconfig.json` file with `compilerOptions.allowJs: true`.
+
+{% endhint %}
 
 ## Providing JS "types"
 
@@ -54,7 +60,12 @@ import { hbs } from '@glimmerx/component';
 import { helper } from '@glint/environment-glimmerx/helper';
 
 const or = helper(
-  /** @param {[a: *, b: *]} param */
+  /**
+    * @template T
+    * @template U
+    * @param {[a: T, b: U]} param
+    * @returns T | U
+    */
   ([a, b]) => a || b
 );
 
@@ -151,6 +162,12 @@ Finally, the component signature itself assembles those and also specifies the `
 
 ```js
 /**
+  * @typedef FancyInputSignature
+  * @property {FancyInputArgs} Args
+  * @property {FancyInputElement} Element
+  * @property {FancyInputBlocks} Blocks
+  */
+/**
  * A fancy `<input>` component, with styles pre-applied and some custom
  * handling.
  *
@@ -166,6 +183,8 @@ Now this will provide useful completion, go-to-definition, and refactoring.
 ### Caveats
 
 Undocumented component JS files will behave exactly as regular undocumented JS behaves: no information will be provided for editor support apart from what can be derived from the context.
+
+That caveat notwithstanding, Glint still offers quite a bit even without doc comments. Type info, basic refactorings, and go-to-definition will work for anything referring to `this`, and inference based on things that do have types (built-in items Glint knows about, third-party dependencies with Glint types, etc) will work as a baseline without any extra typing.
 
 ## Type checking for JS
 
