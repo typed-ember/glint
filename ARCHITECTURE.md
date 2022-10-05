@@ -4,7 +4,11 @@
 
 ## Overview
 
-Glint is fundamentally a tool for mapping Glimmer templates into a corresponding TypeScript AST with semantics appropriate for type checking those templates as though they were a normal TypeScript program. The goal is *not* to represent templates as a direct or naïve equivalent of their runtime semantics. Instead, it aims to produce a TS AST which is both *accurate* and also *useful*. 
+Glint is fundamentally a tool for mapping Glimmer templates into a corresponding TypeScript AST with semantics appropriate for type checking those templates as though they were a normal TypeScript program.
+
+![Glint flow](https://user-images.githubusercontent.com/2403023/194079039-d2a79694-92aa-4eef-b30e-c59983822a79.png)
+
+The goal is *not* to represent templates as a direct or naïve equivalent of their runtime semantics. Instead, it aims to produce a TS AST which is both *accurate* and also *useful*.
 
 - *accurate*: Glint should never produce an incorrect diagnostic or “fix”, and it should also correctly resolve symbols (components, helpers, etc.)
 
