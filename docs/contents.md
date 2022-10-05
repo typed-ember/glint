@@ -22,6 +22,7 @@
   - [Installation](glimmerx/installation.md)
   - [Component Signatures](glimmerx/component-signatures.md)
   - [Template Components](glimmerx/template-components.md)
+- [Glint with JavaScript](./with-js.md)
 - [`@glint` Directives](directives.md)
 - [Migrating](migrating.md)
 - [Diagnosing Common Error Messages](diagnosing-common-error-messages.md)
