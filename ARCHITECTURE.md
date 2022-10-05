@@ -35,7 +35,7 @@ Glint is composed of the following major components:
 
 ### Config
 
-**Role:** a library which handles interpreting Glint configuration: which modules should be part of the transform, and how should they be interpreted?
+**Role:** a library which handles interpreting Glint configuration: Which modules should be part of the transform, and how should they be interpreted? A resolved config informs the rest of Glint what the active **environment(s)** is/are as a way of answering those questions.
 
 **Invariants:** should know nothing about the rest of the pipeline; it only needs to understand how to parse a Glint configuration and hand it off to the rest of the pipeline.
 
@@ -52,13 +52,18 @@ The DSL defines three broad things:
 
 - What it means to *emit* some template content, i.e. what the semantics of emitting `<div {{modifier}}>` are as a kind of TS function application.
 
-- How to *resolve* some template element: when we see `{{this.foo}}`, is that a value to "emit" directly, or is it actually a no-argument function invocation?
+- How to *resolve* some template element: When we see `{{this.foo}}`, is that a value to "emit" directly, or is it actually a no-argument function invocation? What args are required, what modifiers allowed, and what blocks available when invoking a component `<Foo>`? etc.
 
 - A host of type definitions. Some of these are internal and used to make *emit* and *resolve* work, while others are public types, usable by consumers for authoring their apps. These definitions includes the definitions for types authors can use for writing things like partially applied components.
 
 Note: The fact that the synthesized module is *not* persisted to disk means that some things you might expect to be useful navigation tools within the repo, like the TypeScript *Find All References* command, will not find any references to these.
 
-**Invariants:** ==TODO==
+**Invariants:**
+
+- The core **template DSL** has no knowledge of semantics that are particular to a given environment (e.g. GlimmerX's functions-as-modifiers), nor of any built-in globals or keywords.[^dsl-invariants]
+- Code emitted by the **transform** layer never directly references `@glint/template`. Rather, **environment** packages re-export the contents of `@glint/template` with tweaks or additions to the types that reflect their runtime behavior. This typically includes declaring the set of available `Globals` and defining appropriate semantics for `resolve`.
+
+[^dsl-invariants]: It does have _definitions_ for a small number of keywords that are core to the VM, but it's still up to individual environments to expose them.
 
 **Home:** `packages/template`
 
@@ -67,9 +72,20 @@ Note: The fact that the synthesized module is *not* persisted to disk means that
 
 ### Environments
 
-**Role:** layers on top of the **template DSL** to define items available in global scope as well as per-environment definitions for what the API is for different kinds of items—basically, a type-level implementation of Glimmer/Ember’s runtime idea of “managers,” which allow a different surface API for the same underlying primitives of components, helpers, etc. A **config** specifies the **environment** to use.
+**Role:** layers on top of the **template DSL** to define items available in global scope as well as per-environment definitions for what the API is for different kinds of items—basically, a type-level implementation of Glimmer/Ember’s runtime idea of “managers,” which allow a different surface API for the same underlying primitives of components, helpers, etc. A **config** specifies the **environment(s)** to use.
 
-**Invariants:** ==TODO==
+In addition, **environments** also influence elements of the **transform** layer's behavior, such as:
+
+ - dictating what expressions are treated as templates
+ - providing preprocessing for custom file types
+ - determining how `.hbs` and `.js`/`.ts` files are related to one another
+
+**Invariants:**
+
+- Environments have one entrypoint for their configuration (specified by the `glint-environment` key in `package.json`), and one or more types-only entrypoints where they expose their specialized **template DSL** implementation(s).[^environments-dsl]
+- An environment will typically depend on the bedrock **template DSL** as a basis for its own DSL implementation, and it might reference types from the **config** package in defining its configuration, but an environment should have no reason to ever execute code from other Glint packages.
+
+[^environments-dsl]: I don't think any environments have multiple entrypoints today, but a hypothetical unified Ember environment in the near future would have separate DSLs for loose-mode and strict-mode templates.
 
 **Home:** `packages/environment-*`[^env]
 
@@ -82,7 +98,7 @@ Note: The fact that the synthesized module is *not* persisted to disk means that
 
 The result of this tranformation is the only place the DSL actually appears, which is why *Find All References* on a DSL type will generally produce no results in the codebase. The pipeline parses the Glimmer template into an AST, then emits TypeScript *as text*, merging as appropriate with any associated JS or TS.
 
-**Invariants:** ==TODO==
+**Invariants:** This entire layer is purely functional: it accepts the contents of a script and/or template, along with the appropriate **config**, and it returns the resulting TypeScript module and mapping information. It maintains no state and never interacts with the file system or any other part of the outside world.
 
 **Home:** `packages/transform`
 
@@ -106,7 +122,7 @@ The result of this tranformation is the only place the DSL actually appears, whi
 
 **Home:** `packages/vscode`.
 
-**Invariants:** Should only depend on `@glint/core`.
+**Invariants:** Should only depend on `@glint/core`, and only indirectly: via the version supplied by the local code base.
 
 
 ### Visualized
