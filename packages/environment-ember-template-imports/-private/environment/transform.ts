@@ -31,18 +31,20 @@ export const transform: GlintExtensionTransform<PreprocessData> = (
       // Convert '[__T`foo`]' as an expression to just '__T`foo`'
       let location = findTemplateLocation(templateLocations, node);
 
-      let template = buildNodeForTemplate(f, node.elements[0], location);
+      let template = node.elements[0];
       setEmitMetadata(template, {
         templateLocation: {
           start: location.startTagOffset,
           end: location.endTagOffset + location.endTagLength,
+          contentStart: location.startTagOffset + location.startTagLength,
+          contentEnd: location.endTagOffset,
         },
       });
       return template;
     } else if (isETITemplateProperty(ts, node)) {
       // Convert '[__T`foo`]' in a class body to 'static { __T`foo` }'
       let location = findTemplateLocation(templateLocations, node);
-      let template = buildNodeForTemplate(f, node.name.expression, location);
+      let template = node.name.expression;
 
       setEmitMetadata(template, {
         prepend: 'static { ',
@@ -50,6 +52,8 @@ export const transform: GlintExtensionTransform<PreprocessData> = (
         templateLocation: {
           start: location.startTagOffset,
           end: location.endTagOffset + location.endTagLength,
+          contentStart: location.startTagOffset + location.startTagLength,
+          contentEnd: location.endTagOffset,
         },
       });
 
@@ -162,25 +166,5 @@ function buildStaticBlockForTemplate(
     [],
     [],
     f.createBlock([f.createExpressionStatement(template)])
-  );
-}
-
-function buildNodeForTemplate(
-  f: ts.NodeFactory,
-  node: ETITemplateLiteral,
-  location: TemplateLocation
-): ts.TaggedTemplateExpression {
-  let { text, rawText } = node.template;
-  let { startTagLength, endTagLength } = location;
-  let prefix = ''.padStart(startTagLength - GLOBAL_TAG.length - '`'.length);
-  let suffix = ''.padStart(endTagLength - '`'.length);
-
-  return f.createTaggedTemplateExpression(
-    node.tag,
-    node.typeArguments,
-    f.createNoSubstitutionTemplateLiteral(
-      `${prefix}${text}${suffix}`,
-      typeof rawText === 'string' ? `${prefix}${rawText}${suffix}` : undefined
-    )
   );
 }

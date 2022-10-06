@@ -1,5 +1,4 @@
 import { ConfigLoader, GlintConfig } from '@glint/config';
-import type ts from 'typescript';
 import {
   Connection,
   MessageType,
@@ -80,9 +79,8 @@ export class LanguageServerPool {
   private launchServer(glintConfig: GlintConfig): ServerDetails {
     let documentCache = new DocumentCache(glintConfig);
     let transformManager = new TransformManager(glintConfig, documentCache);
-    let tsconfig = parseTsconfig(glintConfig, transformManager);
     let rootDir = glintConfig.rootDir;
-    let server = new GlintLanguageServer(glintConfig, documentCache, transformManager, tsconfig);
+    let server = new GlintLanguageServer(glintConfig, documentCache, transformManager);
     let scheduleDiagnostics = this.buildDiagnosticScheduler(server, glintConfig);
 
     return { server, rootDir, scheduleDiagnostics };
@@ -128,23 +126,6 @@ export class LanguageServerPool {
   private sendMessage(type: MessageType, message: string): void {
     this.connection.sendNotification(ShowMessageNotification.type, { message, type });
   }
-}
-
-export function parseTsconfig(
-  glintConfig: GlintConfig,
-  transformManager: TransformManager
-): ts.ParsedCommandLine {
-  let { ts } = glintConfig;
-  let contents = ts.readConfigFile(glintConfig.configPath, ts.sys.readFile).config;
-  let host = { ...ts.sys, readDirectory: transformManager.readDirectory };
-
-  return ts.parseJsonConfigFileContent(
-    contents,
-    host,
-    glintConfig.rootDir,
-    undefined,
-    glintConfig.configPath
-  );
 }
 
 function errorMessage(error: unknown): string {

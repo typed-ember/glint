@@ -1,6 +1,6 @@
 import { AST } from '@glimmer/syntax';
 import { unreachable, assert } from '../util';
-import { mapTemplateContents, RewriteResult } from './map-template-contents';
+import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-template-contents';
 import ScopeStack from './scope-stack';
 import { GlintEmitMetadata } from '@glint/config/src/environment';
 import { TextContent } from './mapping-tree';
@@ -18,6 +18,7 @@ export type TemplateToTypescriptOptions = {
   globals?: Array<string> | undefined;
   backingValue?: string;
   preamble?: Array<string>;
+  embeddingSyntax?: EmbeddingSyntax;
   useJsDoc?: boolean;
 };
 
@@ -27,17 +28,22 @@ export type TemplateToTypescriptOptions = {
  * the original and transformed contents.
  */
 export function templateToTypescript(
-  template: string,
+  originalTemplate: string,
   {
     typesModule,
     globals,
     meta,
     backingValue,
     preamble = [],
+    embeddingSyntax = { prefix: '', suffix: '' },
     useJsDoc = false,
   }: TemplateToTypescriptOptions
 ): RewriteResult {
-  return mapTemplateContents(template, (ast, { emit, record, rangeForLine, rangeForNode }) => {
+  let { prefix, suffix } = embeddingSyntax;
+  let template = `${''.padEnd(prefix.length)}${originalTemplate}${''.padEnd(suffix.length)}`;
+
+  return mapTemplateContents(originalTemplate, { embeddingSyntax }, (ast, mapper) => {
+    let { emit, record, rangeForLine, rangeForNode } = mapper;
     let scope = new ScopeStack([]);
 
     emitTemplateBoilerplate(() => {
@@ -106,7 +112,7 @@ export function templateToTypescript(
       emit.newline();
       emit.indent();
 
-      emitBody();
+      emit.forNode(ast, emitBody);
 
       // Ensure the context and lib variables are always consumed to prevent
       // an unused variable warning

@@ -44,9 +44,10 @@ export default class GlintLanguageServer {
   constructor(
     private glintConfig: GlintConfig,
     private documents: DocumentCache,
-    private transformManager: TransformManager,
-    parsedConfig: ts.ParsedCommandLine
+    private transformManager: TransformManager
   ) {
+    let parsedConfig = this.parseTsconfig(glintConfig, transformManager);
+
     this.ts = glintConfig.ts;
     this.openFileNames = new Set();
     this.rootFileNames = new Set(parsedConfig.fileNames);
@@ -418,5 +419,22 @@ export default class GlintLanguageServer {
         yield name;
       }
     }
+  }
+
+  private parseTsconfig(
+    glintConfig: GlintConfig,
+    transformManager: TransformManager
+  ): ts.ParsedCommandLine {
+    let { ts } = glintConfig;
+    let contents = ts.readConfigFile(glintConfig.configPath, ts.sys.readFile).config;
+    let host = { ...ts.sys, readDirectory: transformManager.readDirectory };
+
+    return ts.parseJsonConfigFileContent(
+      contents,
+      host,
+      glintConfig.rootDir,
+      undefined,
+      glintConfig.configPath
+    );
   }
 }

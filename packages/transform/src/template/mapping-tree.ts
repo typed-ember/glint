@@ -2,7 +2,7 @@ import { AST } from '@glimmer/syntax';
 import { Range } from './transformed-module';
 import { Identifier } from './map-template-contents';
 
-export type MappingSource = AST.Node | TextContent | Identifier | ParseError;
+export type MappingSource = AST.Node | TemplateEmbedding | TextContent | Identifier | ParseError;
 
 /**
  * In cases where we're unable to parse a template, we still want to
@@ -23,6 +23,15 @@ export class ParseError {
  */
 export class TextContent {
   public readonly type = 'TextContent';
+}
+
+/**
+ * This node represents the root of an embedded template, including any
+ * boilerplate like tagged template syntax or `<template>` that designates
+ * the surrounded contents as a template.
+ */
+export class TemplateEmbedding {
+  public readonly type = 'TemplateEmbedding';
 }
 
 /**

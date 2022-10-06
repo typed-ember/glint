@@ -29,6 +29,8 @@ export type GlintEmitMetadata = {
   templateLocation?: {
     start: number;
     end: number;
+    contentStart: number;
+    contentEnd: number;
   };
 };
 
