@@ -531,8 +531,8 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "../a/src/index.ts:4:17 - error TS0: Parse error on line 1:
-                  {{C} 
-              -------^
+              {{C}
+              ---^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
 
               4 const A = hbs\`{{C}\`;
@@ -552,8 +552,8 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "src/index.ts:4:17 - error TS0: Parse error on line 1:
-                  {{C} 
-              -------^
+              {{C}
+              ---^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
 
               4 const A = hbs\`{{C}\`;
@@ -723,8 +723,8 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "../b/src/index.ts:2:21 - error TS0: Parse error on line 1:
-                  {{123} 
-              ---------^
+              {{123}
+              -----^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
 
               2 const usage = hbs\`{{123}\`;
@@ -744,8 +744,8 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "src/index.ts:2:21 - error TS0: Parse error on line 1:
-                  {{123} 
-              ---------^
+              {{123}
+              -----^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
 
               2 const usage = hbs\`{{123}\`;
@@ -931,8 +931,8 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "../c/src/index.ts:2:19 - error TS0: Parse error on line 1:
-                  {{123} 
-              ---------^
+              {{123}
+              -----^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
 
               2 const Bad = hbs\`{{123}\`;
@@ -952,8 +952,8 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "../c/src/index.ts:2:19 - error TS0: Parse error on line 1:
-                  {{123} 
-              ---------^
+              {{123}
+              -----^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
 
               2 const Bad = hbs\`{{123}\`;
@@ -973,8 +973,8 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "src/index.ts:2:19 - error TS0: Parse error on line 1:
-                  {{123} 
-              ---------^
+              {{123}
+              -----^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
 
               2 const Bad = hbs\`{{123}\`;

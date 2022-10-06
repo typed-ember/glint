@@ -462,35 +462,40 @@ describe('rewriteModule', () => {
       expect(rewritten?.toDebugString()).toMatchInlineSnapshot(`
         "TransformedModule
 
-        | Mapping: Template
+        | Mapping: TemplateEmbedding
         |  hbs(22:74):   <template>\\\\n    Hello, {{this.target}}!\\\\n  </template>
         |  ts(22:301):   static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)({}));\\\\n  𝚪; χ;\\\\n}) }
         |
-        | | Mapping: TextContent
-        | |  hbs(37:43):   Hello,
-        | |  ts(232:232):
+        | | Mapping: Template
+        | |  hbs(32:63):   Hello, {{this.target}}!
+        | |  ts(232:288):  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)({}));
         | |
-        | | Mapping: MustacheStatement
-        | |  hbs(44:59):   {{this.target}}
-        | |  ts(232:286):  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)({}))
-        | |
-        | | | Mapping: PathExpression
-        | | |  hbs(46:57):   this.target
-        | | |  ts(266:280):  𝚪.this.target
+        | | | Mapping: TextContent
+        | | |  hbs(37:43):   Hello,
+        | | |  ts(232:232):
         | | |
-        | | | | Mapping: Identifier
-        | | | |  hbs(46:50):   this
-        | | | |  ts(269:273):  this
+        | | | Mapping: MustacheStatement
+        | | |  hbs(44:59):   {{this.target}}
+        | | |  ts(232:286):  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)({}))
+        | | |
+        | | | | Mapping: PathExpression
+        | | | |  hbs(46:57):   this.target
+        | | | |  ts(266:280):  𝚪.this.target
         | | | |
-        | | | | Mapping: Identifier
-        | | | |  hbs(51:57):   target
-        | | | |  ts(274:280):  target
+        | | | | | Mapping: Identifier
+        | | | | |  hbs(46:50):   this
+        | | | | |  ts(269:273):  this
+        | | | | |
+        | | | | | Mapping: Identifier
+        | | | | |  hbs(51:57):   target
+        | | | | |  ts(274:280):  target
+        | | | | |
         | | | |
         | | |
-        | |
-        | | Mapping: TextContent
-        | |  hbs(59:60):   !
-        | |  ts(288:288):
+        | | | Mapping: TextContent
+        | | |  hbs(59:60):   !
+        | | |  ts(288:288):
+        | | |
         | |
         |"
       `);
@@ -510,31 +515,36 @@ describe('rewriteModule', () => {
       expect(rewriteModule(ts, { script }, customEnv)?.toDebugString()).toMatchInlineSnapshot(`
         "TransformedModule
 
-        | Mapping: Template
+        | Mapping: TemplateEmbedding
         |  hbs(0:44):    <template>\\\\n  Hello, {{@target}}!\\\\n</template>
         |  ts(0:272):    export default ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)({}));\\\\n  𝚪; χ;\\\\n})
         |
-        | | Mapping: TextContent
-        | |  hbs(13:19):   Hello,
-        | |  ts(205:205):
+        | | Mapping: Template
+        | |  hbs(10:33):   Hello, {{@target}}!
+        | |  ts(205:261):  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)({}));
         | |
-        | | Mapping: MustacheStatement
-        | |  hbs(20:31):   {{@target}}
-        | |  ts(205:259):  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)({}))
-        | |
-        | | | Mapping: PathExpression
-        | | |  hbs(22:29):   @target
-        | | |  ts(239:253):  𝚪.args.target
+        | | | Mapping: TextContent
+        | | |  hbs(13:19):   Hello,
+        | | |  ts(205:205):
         | | |
-        | | | | Mapping: Identifier
-        | | | |  hbs(23:29):   target
-        | | | |  ts(247:253):  target
+        | | | Mapping: MustacheStatement
+        | | |  hbs(20:31):   {{@target}}
+        | | |  ts(205:259):  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)({}))
+        | | |
+        | | | | Mapping: PathExpression
+        | | | |  hbs(22:29):   @target
+        | | | |  ts(239:253):  𝚪.args.target
+        | | | |
+        | | | | | Mapping: Identifier
+        | | | | |  hbs(23:29):   target
+        | | | | |  ts(247:253):  target
+        | | | | |
         | | | |
         | | |
-        | |
-        | | Mapping: TextContent
-        | |  hbs(31:32):   !
-        | |  ts(261:261):
+        | | | Mapping: TextContent
+        | | |  hbs(31:32):   !
+        | | |  ts(261:261):
+        | | |
         | |
         |"
       `);
@@ -569,63 +579,57 @@ describe('rewriteModule', () => {
       expect(rewritten?.toDebugString()).toMatchInlineSnapshot(`
         "TransformedModule
 
-        | Mapping: Template
+        | Mapping: TemplateEmbedding
         |  hbs(56:89):   <template>{{@message}}</template>
         |  ts(56:314):   ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.args.message)({}));\\\\n  𝚪; χ;\\\\n})
         |
-        | | Mapping: TextContent
-        | |  hbs(56:66):   <template>
-        | |  ts(246:246):
-        | |
-        | | Mapping: MustacheStatement
+        | | Mapping: Template
         | |  hbs(66:78):   {{@message}}
-        | |  ts(246:301):  χ.emitContent(χ.resolveOrReturn(𝚪.args.message)({}))
+        | |  ts(246:303):  χ.emitContent(χ.resolveOrReturn(𝚪.args.message)({}));
         | |
-        | | | Mapping: PathExpression
-        | | |  hbs(68:76):   @message
-        | | |  ts(280:295):  𝚪.args.message
+        | | | Mapping: MustacheStatement
+        | | |  hbs(66:78):   {{@message}}
+        | | |  ts(246:301):  χ.emitContent(χ.resolveOrReturn(𝚪.args.message)({}))
         | | |
-        | | | | Mapping: Identifier
-        | | | |  hbs(69:76):   message
-        | | | |  ts(288:295):  message
+        | | | | Mapping: PathExpression
+        | | | |  hbs(68:76):   @message
+        | | | |  ts(280:295):  𝚪.args.message
+        | | | |
+        | | | | | Mapping: Identifier
+        | | | | |  hbs(69:76):   message
+        | | | | |  ts(288:295):  message
+        | | | | |
         | | | |
         | | |
-        | |
-        | | Mapping: TextContent
-        | |  hbs(78:89):   </template>
-        | |  ts(303:303):
         | |
         |
 
-        | Mapping: Template
+        | Mapping: TemplateEmbedding
         |  hbs(139:174): <template>{{this.title}}</template>
         |  ts(364:642):  static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)({}));\\\\n  𝚪; χ;\\\\n}) }
         |
-        | | Mapping: TextContent
-        | |  hbs(139:149): <template>
-        | |  ts(574:574):
-        | |
-        | | Mapping: MustacheStatement
+        | | Mapping: Template
         | |  hbs(149:163): {{this.title}}
-        | |  ts(574:627):  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)({}))
+        | |  ts(574:629):  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)({}));
         | |
-        | | | Mapping: PathExpression
-        | | |  hbs(151:161): this.title
-        | | |  ts(608:621):  𝚪.this.title
+        | | | Mapping: MustacheStatement
+        | | |  hbs(149:163): {{this.title}}
+        | | |  ts(574:627):  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)({}))
         | | |
-        | | | | Mapping: Identifier
-        | | | |  hbs(151:155): this
-        | | | |  ts(611:615):  this
+        | | | | Mapping: PathExpression
+        | | | |  hbs(151:161): this.title
+        | | | |  ts(608:621):  𝚪.this.title
         | | | |
-        | | | | Mapping: Identifier
-        | | | |  hbs(156:161): title
-        | | | |  ts(616:621):  title
+        | | | | | Mapping: Identifier
+        | | | | |  hbs(151:155): this
+        | | | | |  ts(611:615):  this
+        | | | | |
+        | | | | | Mapping: Identifier
+        | | | | |  hbs(156:161): title
+        | | | | |  ts(616:621):  title
+        | | | | |
         | | | |
         | | |
-        | |
-        | | Mapping: TextContent
-        | |  hbs(163:174): </template>
-        | |  ts(629:629):
         | |
         |"
       `);

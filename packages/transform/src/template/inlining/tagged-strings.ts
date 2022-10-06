@@ -30,11 +30,7 @@ export function calculateTaggedTemplateSpans(
     );
 
     let { typesModule, globals } = info.tagConfig;
-    let tagName = tag.text;
-    let contents = node.template.rawText ?? node.template.text;
-
-    // Pad the template to account for the tag and surrounding ` characters
-    let template = `${''.padStart(tagName.length)} ${contents} `;
+    let template = node.template.rawText ?? node.template.text;
 
     // environment-specific transforms may emit templateLocation in meta, in
     // which case we use that. Otherwise we use the reported location from the
@@ -47,9 +43,14 @@ export function calculateTaggedTemplateSpans(
       contentEnd: node.template.getEnd() - 1,
     };
 
+    let embeddingSyntax = {
+      prefix: script.contents.slice(templateLocation.start, templateLocation.contentStart),
+      suffix: script.contents.slice(templateLocation.contentEnd, templateLocation.end),
+    };
+
     let preamble = [];
     if (!info.importedBinding.synthetic) {
-      preamble.push(`${tagName};`);
+      preamble.push(`${tag.text};`);
     }
 
     let transformedTemplate = templateToTypescript(template, {
@@ -57,6 +58,7 @@ export function calculateTaggedTemplateSpans(
       meta,
       preamble,
       globals,
+      embeddingSyntax,
       backingValue: isEmbeddedInClass(ts, node) ? 'this' : undefined,
       useJsDoc: environment.isUntypedScript(script.filename),
     });

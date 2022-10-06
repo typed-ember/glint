@@ -1,5 +1,5 @@
 import { AST, preprocess } from '@glimmer/syntax';
-import MappingTree, { MappingSource } from './mapping-tree';
+import MappingTree, { MappingSource, TemplateEmbedding } from './mapping-tree';
 import { Directive, DirectiveKind, Range } from './transformed-module';
 import { assert } from '../util';
 
@@ -106,17 +106,33 @@ export type RewriteResult = {
 };
 
 /**
- * Given the text of an HBS template, invokes the given callback
+ * Syntax surrounding the contents of a template that marks it as
+ * embedded within the surrounding context, like the `hbs` tag and
+ * backticks on a tagged string or the `<template>` markers in a
+ * `.gts`/`.gjs` file.
+ */
+export type EmbeddingSyntax = {
+  prefix: string;
+  suffix: string;
+};
+
+export type MapTemplateContentsOptions = {
+  embeddingSyntax: EmbeddingSyntax;
+};
+
+/**
+ * Given the text of an embedded template, invokes the given callback
  * with a set of tools to emit mapped contents corresponding to
  * that template, tracking the text emitted in order to provide
  * a mapping of ranges in the input to ranges in the output.
  */
 export function mapTemplateContents(
   template: string,
+  { embeddingSyntax }: MapTemplateContentsOptions,
   callback: (ast: AST.Template, mapper: Mapper) => void
 ): RewriteResult {
   let ast: AST.Template;
-  let lineOffsets = calculateLineOffsets(template);
+  let lineOffsets = calculateLineOffsets(template, embeddingSyntax.prefix.length);
   try {
     ast = preprocess(template);
   } catch (error) {
@@ -254,9 +270,12 @@ export function mapTemplateContents(
   let code = segmentsStack[0].join('');
   let mapping = new MappingTree(
     { start: 0, end: code.length },
-    rangeForNode(ast),
+    {
+      start: 0,
+      end: embeddingSyntax.prefix.length + template.length + embeddingSyntax.suffix.length,
+    },
     mappingsStack[0],
-    ast
+    new TemplateEmbedding()
   );
 
   return { errors, result: { code, directives, mapping } };
@@ -265,10 +284,10 @@ export function mapTemplateContents(
 const LEADING_WHITESPACE = /^\s+/;
 const TRAILING_WHITESPACE = /\s+$/;
 
-function calculateLineOffsets(template: string): Array<number> {
+function calculateLineOffsets(template: string, contentOffset: number): Array<number> {
   let lines = template.split('\n');
-  let total = 0;
-  let offsets = [0];
+  let total = contentOffset;
+  let offsets = [contentOffset];
 
   for (let [index, line] of lines.entries()) {
     // lines from @glimmer/syntax are 1-indexed
