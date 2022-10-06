@@ -103,6 +103,11 @@ describe('Environment: ETI', () => {
       let { meta, sourceFile } = applyTransform(source);
       let templateNode = (sourceFile.statements[1] as ts.ExpressionStatement).expression;
 
+      let start = source.indexOf('<template>');
+      let contentStart = start + '<template>'.length;
+      let contentEnd = source.indexOf('</template>');
+      let end = contentEnd + '</template>'.length;
+
       expect(meta).toEqual(
         new Map([
           [
@@ -110,8 +115,10 @@ describe('Environment: ETI', () => {
             {
               prepend: 'export default ',
               templateLocation: {
-                start: source.indexOf('<template>'),
-                end: source.indexOf('</template>') + '</template>'.length,
+                start,
+                contentStart,
+                contentEnd,
+                end,
               },
             },
           ],
@@ -140,6 +147,16 @@ describe('Environment: ETI', () => {
         ).body.statements[0] as ts.ExpressionStatement
       ).expression;
 
+      let firstStart = source.indexOf('<template>');
+      let firstContentStart = firstStart + '<template>'.length;
+      let firstContentEnd = source.indexOf('</template>');
+      let firstEnd = firstContentEnd + '</template>'.length;
+
+      let secondStart = source.indexOf('<template>', classStart);
+      let secondContentStart = secondStart + '<template>'.length;
+      let secondContentEnd = source.indexOf('</template>', classStart);
+      let secondEnd = secondContentEnd + '</template>'.length;
+
       expect(meta).toEqual(
         new Map<ts.Node, GlintEmitMetadata>([
           [
@@ -147,8 +164,10 @@ describe('Environment: ETI', () => {
             {
               prepend: 'export default ',
               templateLocation: {
-                start: source.indexOf('<template>'),
-                end: source.indexOf('</template>') + '</template>'.length,
+                start: firstStart,
+                contentStart: firstContentStart,
+                contentEnd: firstContentEnd,
+                end: firstEnd,
               },
             },
           ],
@@ -158,8 +177,10 @@ describe('Environment: ETI', () => {
               prepend: 'static { ',
               append: ' }',
               templateLocation: {
-                start: source.indexOf('<template>', classStart),
-                end: source.indexOf('</template>', classStart) + '</template>'.length,
+                start: secondStart,
+                contentStart: secondContentStart,
+                contentEnd: secondContentEnd,
+                end: secondEnd,
               },
             },
           ],

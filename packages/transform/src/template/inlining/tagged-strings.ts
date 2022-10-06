@@ -43,6 +43,8 @@ export function calculateTaggedTemplateSpans(
     let templateLocation = meta?.templateLocation ?? {
       start: node.getStart(),
       end: node.getEnd(),
+      contentStart: node.template.getStart() + 1,
+      contentEnd: node.template.getEnd() - 1,
     };
 
     let preamble = [];
