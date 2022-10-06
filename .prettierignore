@@ -17,3 +17,8 @@ dist/
 /packages/environment*/**/*.js
 /packages/environment*/**/*.d.ts
 !/packages/environment*/-private/dsl/**/*.d.ts
+
+# Markdown files: the formatting Prettier uses by default *does. not. match.*
+# the formatting applied by Gitbook. Having both present is a recipe for ongoing
+# CI problems.
+*.md
