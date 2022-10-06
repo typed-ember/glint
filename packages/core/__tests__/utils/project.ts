@@ -6,7 +6,6 @@ import GlintLanguageServer from '../../src/language-server/glint-language-server
 import { filePathToUri, normalizeFilePath } from '../../src/language-server/util';
 import DocumentCache from '../../src/common/document-cache';
 import TransformManager from '../../src/common/transform-manager';
-import { parseTsconfig } from '../../src/language-server/pool';
 import { GlintConfigInput } from '@glint/config/lib/config';
 
 const ROOT = normalizeFilePath(path.resolve(__dirname, '../../../../test-packages/ephemeral'));
@@ -50,14 +49,8 @@ export default class Project {
     let glintConfig = new ConfigLoader().configForDirectory(this.rootDir)!;
     let documents = new DocumentCache(glintConfig);
     let transformManager = new TransformManager(glintConfig, documents);
-    let tsConfig = parseTsconfig(glintConfig, transformManager);
 
-    return (this.server = new GlintLanguageServer(
-      glintConfig,
-      documents,
-      transformManager,
-      tsConfig
-    ));
+    return (this.server = new GlintLanguageServer(glintConfig, documents, transformManager));
   }
 
   /**
