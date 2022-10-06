@@ -1,6 +1,6 @@
 # Architecture
 
-*This is intended as a high-level overview of the structure of Glint and its fundamental design. For background on the idea, see [this writeup][matklad].*
+_This is intended as a high-level overview of the structure of Glint and its fundamental design. For background on the idea, see [this writeup][matklad]._
 
 ## Overview
 
@@ -10,17 +10,17 @@ Glint is fundamentally a tool for mapping Glimmer templates into a corresponding
 <img src="https://user-images.githubusercontent.com/2403023/194098185-49d9426e-7cd8-461f-8d30-de036138be8f.png" alt="Glint flow" style="width: 400px; max-width: 100%;">
 </p>
 
-The goal is *not* to represent templates as a direct or naïve equivalent of their runtime semantics. Instead, it aims to produce a TS AST which is both *accurate* and also *useful*.
+The goal is _not_ to represent templates as a direct or naïve equivalent of their runtime semantics. Instead, it aims to produce a TS AST which is both _accurate_ and also _useful_.
 
-- *accurate*: Glint should never produce an incorrect diagnostic or “fix”, and it should also correctly resolve symbols (components, helpers, etc.)
+- _accurate_: Glint should never produce an incorrect diagnostic or “fix”, and it should also correctly resolve symbols (components, helpers, etc.)
 
-- *useful*: Glint should produce diagnostics which actually make sense, and which should be actionable; and it should provide appropriate autocomplete, go-to-def, and refactoring for all the constructs which are part of a template
+- _useful_: Glint should produce diagnostics which actually make sense, and which should be actionable; and it should provide appropriate autocomplete, go-to-def, and refactoring for all the constructs which are part of a template
 
-Both of these constraints are obvious—what tool *doesn’t* aim to be both accurate and useful?—but “useful” is the reason for many of the specific design choices in Glint’s internals. In particular, Glint uses representations which allow *preservation of parametricity* and which support *error messages which match the user’s intuition*.
+Both of these constraints are obvious—what tool _doesn’t_ aim to be both accurate and useful?—but “useful” is the reason for many of the specific design choices in Glint’s internals. In particular, Glint uses representations which allow _preservation of parametricity_ and which support _error messages which match the user’s intuition_.
 
-- *preservation of parametricity*: this bit of formal jargon just means that we need to keep around the types of parameters, i.e. component, helper, and modifier arguments—and in particular, we need to keep around *type parameters* (generics) in ways that avoid collapsing into whatever the default TS falls back to is, usually `unknown`.
+- _preservation of parametricity_: this bit of formal jargon just means that we need to keep around the types of parameters, i.e. component, helper, and modifier arguments—and in particular, we need to keep around _type parameters_ (generics) in ways that avoid collapsing into whatever the default TS falls back to is, usually `unknown`.
 
-- *error messages which match the user’s intuition*: when a user invokes a component or helper, we need to make sure the resulting error message is something that makes sense, so we need to capture enough information to handle things like (for just one of a number of possible examples) Glimmer’s notion of named and positional arguments—a concept which has no *direct* translation into TypeScript.
+- _error messages which match the user’s intuition_: when a user invokes a component or helper, we need to make sure the resulting error message is something that makes sense, so we need to capture enough information to handle things like (for just one of a number of possible examples) Glimmer’s notion of named and positional arguments—a concept which has no _direct_ translation into TypeScript.
 
 Ultimately this transformation from a template AST to a TypeScript AST produces a TypeScript module (an extension of the base TypeScript module when there is one) which embeds in the template’s position a set of function calls representing the kind of thing emitted by each operation in the template.
 
@@ -32,7 +32,6 @@ This synthesized module is never persisted to disk.[^debug] Instead, it is prese
 
 Glint is composed of the following major components:
 
-
 ### Config
 
 **Role:** a library which handles interpreting Glint configuration: Which modules should be part of the transform, and how should they be interpreted? A resolved config informs the rest of Glint what the active **environment(s)** is/are as a way of answering those questions.
@@ -43,20 +42,19 @@ Glint is composed of the following major components:
 
 **Package name:** `@glint/config`
 
-
 ### Template DSL
 
 **Role:** a set of TypeScript type definitions which Glint uses as the TypeScript representation of the constituent elements of a template: content, elements, components, expressions, `...attributes`, modifiers, and templates themselves (with or without backing class contexts).
 
 The DSL defines three broad things:
 
-- What it means to *emit* some template content, i.e. what the semantics of emitting `<div {{modifier}}>` are as a kind of TS function application.
+- What it means to _emit_ some template content, i.e. what the semantics of emitting `<div {{modifier}}>` are as a kind of TS function application.
 
-- How to *resolve* some template element: When we see `{{this.foo}}`, is that a value to "emit" directly, or is it actually a no-argument function invocation? What args are required, what modifiers allowed, and what blocks available when invoking a component `<Foo>`? etc.
+- How to _resolve_ some template element: When we see `{{this.foo}}`, is that a value to "emit" directly, or is it actually a no-argument function invocation? What args are required, what modifiers allowed, and what blocks available when invoking a component `<Foo>`? etc.
 
-- A host of type definitions. Some of these are internal and used to make *emit* and *resolve* work, while others are public types, usable by consumers for authoring their apps. These definitions includes the definitions for types authors can use for writing things like partially applied components.
+- A host of type definitions. Some of these are internal and used to make _emit_ and _resolve_ work, while others are public types, usable by consumers for authoring their apps. These definitions includes the definitions for types authors can use for writing things like partially applied components.
 
-Note: The fact that the synthesized module is *not* persisted to disk means that some things you might expect to be useful navigation tools within the repo, like the TypeScript *Find All References* command, will not find any references to these DSL definitions.
+Note: The fact that the synthesized module is _not_ persisted to disk means that some things you might expect to be useful navigation tools within the repo, like the TypeScript _Find All References_ command, will not find any references to these DSL definitions.
 
 **Invariants:**
 
@@ -69,16 +67,15 @@ Note: The fact that the synthesized module is *not* persisted to disk means that
 
 **Package name:** `@glint/template`
 
-
 ### Environments
 
 **Role:** layers on top of the **template DSL** to define items available in global scope as well as per-environment definitions for what the API is for different kinds of items—basically, a type-level implementation of Glimmer/Ember’s runtime idea of “managers,” which allow a different surface API for the same underlying primitives of components, helpers, etc. A **config** specifies the **environment(s)** to use.
 
 In addition, **environments** also influence elements of the **transform** layer's behavior, such as:
 
- - dictating what expressions are treated as templates
- - providing preprocessing for custom file types
- - determining how `.hbs` and `.js`/`.ts` files are related to one another
+- dictating what expressions are treated as templates
+- providing preprocessing for custom file types
+- determining how `.hbs` and `.js`/`.ts` files are related to one another
 
 **Invariants:**
 
@@ -91,12 +88,11 @@ In addition, **environments** also influence elements of the **transform** layer
 
 **Package name:** varies
 
-
 ### Transform
 
 **Role:** a layer which rewrites a Glimmer template into a TypeScript module, in terms of the **template DSL**, using the **config**. This is therefore responsible for maintaining a mapping between the original source locations and the emitted locations, so that emitted diagnostics show up in the right spot in the original template. It is also the home of targeted diagnostic rewrites, which map otherwise-inscrutable TypeScript errors related to the DSL or other parts of the expansion into something useful to end users.
 
-The result of this tranformation is the only place the DSL actually appears, which is why *Find All References* on a DSL type will generally produce no results in the codebase. The pipeline parses the Glimmer template into an AST, then emits TypeScript *as text*, merging as appropriate with any associated JS or TS.
+The result of this tranformation is the only place the DSL actually appears, which is why _Find All References_ on a DSL type will generally produce no results in the codebase. The pipeline parses the Glimmer template into an AST, then emits TypeScript _as text_, merging as appropriate with any associated JS or TS.
 
 **Invariants:** This entire layer is purely functional: it accepts the contents of a script and/or template, along with the appropriate **config**, and it returns the resulting TypeScript module and mapping information. It maintains no state and never interacts with the file system or any other part of the outside world.
 
@@ -104,26 +100,23 @@ The result of this tranformation is the only place the DSL actually appears, whi
 
 **Package name:** `@glint/transform`
 
-
 ### Core
 
 **Role:** merges the **template**, **transform**, and current **environment** layers into an actual TypeScript module and invokes the TypeScript compiler. This is the home of the `glint` CLI, which runs the compiler in a batch mode, and a language server, which runs against a TypeScript server.
 
-**Invariants:** Consumes `@glint/template` and `@glint/transform`, and is never consumed *by* them.
+**Invariants:** Consumes `@glint/template` and `@glint/transform`, and is never consumed _by_ them.
 
 **Home:** `packages/core`
 
 **Package name:** `@glint/core`
 
-
 ### VS Code Plugin
 
-**Role:** an officially-maintained *client* for the **language server**.
+**Role:** an officially-maintained _client_ for the **language server**.
 
 **Home:** `packages/vscode`.
 
 **Invariants:** Should only depend on `@glint/core`, and only indirectly: via the version supplied by the local code base.
-
 
 ### Visualized
 
@@ -135,4 +128,4 @@ This relationship looks roughly like this:
 
 [matklad]: https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html
 
-[^env]: Each environment is specific to a single context (“environment”) like Ember, GlimmerX, etc. Accordingly, they are likely to move *out* of the Glint monorepo in the long-term, but will remain part of the Glint ecosystem and working model.
+[^env]: Each environment is specific to a single context (“environment”) like Ember, GlimmerX, etc. Accordingly, they are likely to move _out_ of the Glint monorepo in the long-term, but will remain part of the Glint ecosystem and working model.

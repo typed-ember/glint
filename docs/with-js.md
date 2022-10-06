@@ -6,7 +6,7 @@ All the Glint setup steps are identical.
 
 {% hint style="info" %}
 
-We do mean *identical*: unlike most existing JavaScript projects, you will need to include TypeScript in your dev dependencies.
+We do mean _identical_: unlike most existing JavaScript projects, you will need to include TypeScript in your dev dependencies.
 
 {% endhint %}
 
@@ -61,11 +61,11 @@ import { helper } from '@glint/environment-glimmerx/helper';
 
 const or = helper(
   /**
-    * @template T
-    * @template U
-    * @param {[a: T, b: U]} param
-    * @returns T | U
-    */
+   * @template T
+   * @template U
+   * @param {[a: T, b: U]} param
+   * @returns T | U
+   */
   ([a, b]) => a || b
 );
 
@@ -162,11 +162,11 @@ Finally, the component signature itself assembles those and also specifies the `
 
 ```js
 /**
-  * @typedef FancyInputSignature
-  * @property {FancyInputArgs} Args
-  * @property {FancyInputElement} Element
-  * @property {FancyInputBlocks} Blocks
-  */
+ * @typedef FancyInputSignature
+ * @property {FancyInputArgs} Args
+ * @property {FancyInputElement} Element
+ * @property {FancyInputBlocks} Blocks
+ */
 /**
  * A fancy `<input>` component, with styles pre-applied and some custom
  * handling.
@@ -189,4 +189,3 @@ That caveat notwithstanding, Glint still offers quite a bit even without doc com
 ## Type checking for JS
 
 To allow the Glint CLI and language server to report type errors in your JS files, you can leverage [@ts-check](https://www.typescriptlang.org/docs/handbook/intro-to-js-ts.html#ts-check) on a file-by-file basis or [checkJs](https://www.typescriptlang.org/tsconfig#checkJs) in your jsconfig/tsconfig.json to enable typechecking for all JS files.
-
