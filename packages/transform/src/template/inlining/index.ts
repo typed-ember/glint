@@ -1,4 +1,4 @@
-import type ts from 'typescript';
+import type * as ts from 'typescript';
 import { CorrelatedSpan, Directive, TransformError } from '../transformed-module';
 import { TSLib } from '../../util';
 

@@ -1,3 +1,4 @@
 declare module 'silent-error' {
-  export default class SilentError extends Error {}
+  class SilentError extends Error {}
+  export = SilentError;
 }

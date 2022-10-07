@@ -1,7 +1,7 @@
 import { existsSync, statSync } from 'fs';
 
 import { stripIndent } from 'common-tags';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
 import {

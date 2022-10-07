@@ -1,8 +1,8 @@
-import resolve from 'resolve';
-import path from 'path';
-import escapeStringRegexp from 'escape-string-regexp';
-import type ts from 'typescript';
-import SilentError from 'silent-error';
+import * as path from 'node:path';
+import resolve = require('resolve');
+import escapeStringRegexp = require('escape-string-regexp');
+import type * as ts from 'typescript';
+import SilentError = require('silent-error');
 
 type TSLib = typeof ts;
 

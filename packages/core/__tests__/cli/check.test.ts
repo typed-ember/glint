@@ -1,5 +1,5 @@
 import { stripIndent } from 'common-tags';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import Project from '../utils/project';
 

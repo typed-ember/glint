@@ -1,4 +1,4 @@
-import path from 'path';
+import * as path from 'node:path';
 import { Minimatch, IMinimatch } from 'minimatch';
 import { GlintEnvironment } from './environment';
 

@@ -1,7 +1,7 @@
-import os from 'os';
+import * as os from 'node:os';
 
 import { stripIndent } from 'common-tags';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
 import { BASE_TS_CONFIG, INPUT_SCRIPT, setupCompositeProject } from '../utils/composite-project';

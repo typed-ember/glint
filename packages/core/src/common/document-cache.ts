@@ -1,5 +1,5 @@
+import * as path from 'node:path';
 import { GlintConfig } from '@glint/config';
-import path from 'path';
 import { v4 as uuid } from 'uuid';
 
 export type Document = {

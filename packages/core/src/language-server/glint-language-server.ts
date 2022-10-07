@@ -1,6 +1,6 @@
 import { GlintConfig } from '@glint/config';
 import TransformManager from '../common/transform-manager';
-import type ts from 'typescript';
+import type * as ts from 'typescript';
 import {
   offsetToPosition,
   filePathToUri,

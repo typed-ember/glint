@@ -7,7 +7,7 @@ import {
   Diagnostic,
   createTransformDiagnostic,
 } from '@glint/transform';
-import type ts from 'typescript';
+import type * as ts from 'typescript';
 import { GlintConfig } from '@glint/config';
 import { assert } from '@glint/transform/lib/util';
 import DocumentCache, { templatePathForSynthesizedModule } from './document-cache';

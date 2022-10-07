@@ -1,5 +1,5 @@
-import type ts from 'typescript';
-import path from 'path';
+import * as path from 'node:path';
+import type * as ts from 'typescript';
 import { GlintEmitMetadata, GlintEnvironment } from '@glint/config';
 import { assert, TSLib } from '../util';
 import { CorrelatedSpansResult, PartialCorrelatedSpan } from './inlining';

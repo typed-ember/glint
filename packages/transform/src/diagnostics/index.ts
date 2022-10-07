@@ -1,4 +1,4 @@
-import type ts from 'typescript';
+import type * as ts from 'typescript';
 
 export type Diagnostic = ts.Diagnostic & { isGlintTransformDiagnostic?: boolean };
 
