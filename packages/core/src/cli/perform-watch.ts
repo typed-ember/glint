@@ -15,7 +15,7 @@ export function performWatch(glintConfig: GlintConfig, optionsToExtend: ts.Compi
     glintConfig.configPath,
     optionsToExtend,
     sysForCompilerHost(ts, transformManager),
-    ts.createSemanticDiagnosticsBuilderProgram,
+    ts.createSemanticDiagnosticsBuilderProgram, // TODO: patch it *here* instead of `afterProgramCreate` below?()
     (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
 
