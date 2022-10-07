@@ -34,10 +34,11 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
+    "@types/node": "^18.7.6",
     "@types/resolve": "^1.17.1",
     "@types/uuid": "^8.3.4",
     "@types/yargs": "^17.0.10",
-    "@types/node": "^18.7.6",
+    "@vitest/ui": "^0.23.4",
     "execa": "^4.0.1",
     "strip-ansi": "^6.0.0",
     "vitest": "^0.22.0"
