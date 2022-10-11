@@ -2,20 +2,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Glint --build --watch",
-      "program": "${workspaceFolder}/packages/core/bin/glint.js",
-      "request": "launch",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "type": "node",
-      "args": [
-        "--build",
-        "--watch"
-      ],
-      "cwd": "${workspaceFolder}/test-packages/build-watch"
-    },
-    {
       "name": "Debug Extension",
       "type": "pwa-extensionHost",
       "request": "launch",
