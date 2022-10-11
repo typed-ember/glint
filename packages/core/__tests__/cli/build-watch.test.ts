@@ -32,7 +32,8 @@ const BUILD_WATCH_TSCONFIG = {
 //
 // -------------------------------------------------------------------------- //
 /** Combine `setTimeout` and a `Promise` to defer further work for some time. */
-const pauseFor = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const pauseForTSBuffering = (): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, 1_000));
 
 describe('CLI: watched build mode typechecking', () => {
   describe('simple projects using `--build --watch`', () => {
@@ -184,14 +185,14 @@ describe('CLI: watched build mode typechecking', () => {
       let output = await watch.awaitOutput('Watching for file changes.');
       expect(output).toMatch('Found 0 errors.');
 
-      await pauseFor(1000);
+      await pauseForTSBuffering();
 
       project.write(INPUT_SCRIPT, code.replace('this.startupTime', 'this.startupTimee'));
 
       output = await watch.awaitOutput('Watching for file changes.');
       expect(output).toMatch('Found 1 error.');
 
-      await pauseFor(1000);
+      await pauseForTSBuffering();
 
       project.write(INPUT_SCRIPT, code);
 
@@ -199,7 +200,7 @@ describe('CLI: watched build mode typechecking', () => {
       expect(output).toMatch('Found 0 errors.');
 
       await watch.terminate();
-    }, 20_000);
+    });
   });
 
   describe('composite projects', () => {
@@ -308,7 +309,7 @@ describe('CLI: watched build mode typechecking', () => {
           // We have to wait some semi-arbitrary amount of time for the file
           // watcher to be ready in a composite project. Depending on the
           // machine, this is at least 500ms and may be higher. :sigh:
-          await pauseFor(1000);
+          await pauseForTSBuffering();
 
           projects.main.write(
             INPUT_SCRIPT,
@@ -334,7 +335,7 @@ describe('CLI: watched build mode typechecking', () => {
           // Wait a single tick. It's also unclear why *this* is necessary, but
           // without it, we never see the expected "Watching for file changes"
           // after writing the file again.
-          await pauseFor(0);
+          await pauseForTSBuffering();
 
           projects.main.write(INPUT_SCRIPT, mainCode);
 
@@ -342,7 +343,7 @@ describe('CLI: watched build mode typechecking', () => {
           expect(output).toMatch('Found 0 errors.');
 
           await watch.terminate();
-        }, 20_000);
+        });
 
         test('in a project with references referenced directly by the root', async () => {
           let watch = projects.root.buildWatch({ reject: true });
@@ -353,7 +354,7 @@ describe('CLI: watched build mode typechecking', () => {
           // We have to wait some semi-arbitrary amount of time for the file
           // watcher to be ready in a composite project. Depending on the
           // machine, this is at least 500ms and may be higher. :sigh:
-          await pauseFor(1000);
+          await pauseForTSBuffering();
 
           projects.children.a.write(INPUT_SCRIPT, aCode.replace('<C />', '<C>'));
 
@@ -378,7 +379,7 @@ describe('CLI: watched build mode typechecking', () => {
           // Wait a single tick. It's also unclear why *this* is necessary, but
           // without it, we never see the expected "Watching for file changes"
           // after writing the file again.
-          await pauseFor(0);
+          await pauseForTSBuffering();
 
           projects.children.a.write(INPUT_SCRIPT, aCode);
 
@@ -386,7 +387,7 @@ describe('CLI: watched build mode typechecking', () => {
           expect(output).toMatch('Found 0 errors.');
 
           await watch.terminate();
-        }, 20_000);
+        });
 
         test('in a project transitively referenced by the root', async () => {
           let watch = projects.root.buildWatch({ reject: true });
@@ -397,7 +398,7 @@ describe('CLI: watched build mode typechecking', () => {
           // We have to wait some semi-arbitrary amount of time for the file
           // watcher to be ready in a composite project. Depending on the
           // machine, this is at least 500ms and may be higher. :sigh:
-          await pauseFor(1000);
+          await pauseForTSBuffering();
 
           projects.children.c.write(INPUT_SCRIPT, cCode.replace('456}}', '456}'));
 
@@ -420,7 +421,7 @@ describe('CLI: watched build mode typechecking', () => {
           // Wait a single tick. It's also unclear why *this* is necessary, but
           // without it, we never see the expected "Watching for file changes"
           // after writing the file again.
-          await pauseFor(0);
+          await pauseForTSBuffering();
 
           projects.children.c.write(INPUT_SCRIPT, cCode);
 
@@ -428,7 +429,7 @@ describe('CLI: watched build mode typechecking', () => {
           expect(output).toMatch('Found 0 errors.');
 
           await watch.terminate();
-        }, 20_000);
+        });
       });
 
       describe('for template type errors', () => {
@@ -441,7 +442,7 @@ describe('CLI: watched build mode typechecking', () => {
           // We have to wait some semi-arbitrary amount of time for the file
           // watcher to be ready in a composite project. Depending on the
           // machine, this is at least 500ms and may be higher. :sigh:
-          await pauseFor(1000);
+          await pauseForTSBuffering();
 
           projects.main.write(INPUT_SCRIPT, mainCode.replace('<A/>', '<A @foo="bar" />'));
 
@@ -462,7 +463,7 @@ describe('CLI: watched build mode typechecking', () => {
           // Wait again. It's also unclear why *this* is necessary, but without
           // it, we never see the expected "Watching for file changes" after
           // writing the file again.
-          await pauseFor(1000);
+          await pauseForTSBuffering();
 
           projects.main.write(INPUT_SCRIPT, mainCode);
 
@@ -470,7 +471,7 @@ describe('CLI: watched build mode typechecking', () => {
           expect(output).toMatch('Found 0 errors.');
 
           await watch.terminate();
-        }, 20_000);
+        });
 
         test('in a project with references referenced directly by the root', async () => {
           let watch = projects.root.buildWatch({ reject: true });
@@ -481,7 +482,7 @@ describe('CLI: watched build mode typechecking', () => {
           // We have to wait some semi-arbitrary amount of time for the file
           // watcher to be ready in a composite project. Depending on the
           // machine, this is at least 500ms and may be higher. :sigh:
-          await pauseFor(1000);
+          await pauseForTSBuffering();
 
           projects.children.a.write(INPUT_SCRIPT, aCode.replace('<C />', '<C @foo="bar" />'));
 
@@ -502,7 +503,7 @@ describe('CLI: watched build mode typechecking', () => {
           // Wait again. It's also unclear why *this* is necessary, but without
           // it, we never see the expected "Watching for file changes" after
           // writing the file again.
-          await pauseFor(1000);
+          await pauseForTSBuffering();
 
           projects.children.a.write(INPUT_SCRIPT, aCode);
 
@@ -510,7 +511,7 @@ describe('CLI: watched build mode typechecking', () => {
           expect(output).toMatch('Found 0 errors.');
 
           await watch.terminate();
-        }, 20_000);
+        });
 
         test('in a project transitively referenced by the root', async () => {
           let watch = projects.root.buildWatch({ reject: true });
@@ -521,7 +522,7 @@ describe('CLI: watched build mode typechecking', () => {
           // We have to wait some semi-arbitrary amount of time for the file
           // watcher to be ready in a composite project. Depending on the
           // machine, this is at least 500ms and may be higher. :sigh:
-          await pauseFor(1000);
+          await pauseForTSBuffering();
 
           projects.children.c.write(INPUT_SCRIPT, cCode.replace('123', '"hello"'));
 
@@ -541,7 +542,7 @@ describe('CLI: watched build mode typechecking', () => {
           // Wait again. It's also unclear why *this* is necessary, but without
           // it, we never see the expected "Watching for file changes" after
           // writing the file again.
-          await pauseFor(1000);
+          await pauseForTSBuffering();
 
           projects.children.c.write(INPUT_SCRIPT, cCode);
 
@@ -549,7 +550,7 @@ describe('CLI: watched build mode typechecking', () => {
           expect(output).toMatch('Found 0 errors.');
 
           await watch.terminate();
-        }, 20_000);
+        });
       });
     });
   });

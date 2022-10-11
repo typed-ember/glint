@@ -9,6 +9,6 @@ export default defineConfig({
     // tsc emitting new .js files trigger a run instead since we need to invoke
     // the built executable script.
     watchExclude: ['src/cli/**'],
-    testTimeout: 20_000,
+    testTimeout: 30_000,
   },
 });
