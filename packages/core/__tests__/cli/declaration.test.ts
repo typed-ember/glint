@@ -1,6 +1,6 @@
 import { stripIndent } from 'common-tags';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
-import Project from '../utils/project';
+import { Project } from '@glint/test-utils';
 
 describe('CLI: emitting declarations', () => {
   let project!: Project;

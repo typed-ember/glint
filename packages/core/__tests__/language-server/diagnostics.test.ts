@@ -1,4 +1,4 @@
-import Project from '../utils/project';
+import { Project } from '@glint/test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
 

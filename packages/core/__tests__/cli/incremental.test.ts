@@ -3,7 +3,7 @@ import { existsSync, statSync, readFileSync } from 'fs';
 import { stripIndent } from 'common-tags';
 import { beforeEach, describe, expect, test } from 'vitest';
 
-import Project from '../utils/project';
+import { Project } from '@glint/test-utils';
 
 const BUILD_INFO = 'tsconfig.tsbuildinfo';
 const INPUT_SCRIPT = 'index.ts';
@@ -55,14 +55,14 @@ describe('CLI: --incremental', () => {
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
         import { hbs } from 'ember-template-imports';
-  
+
         type ApplicationArgs = {
           version: string;
         };
-  
+
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
-  
+
           public static template = hbs\`
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
@@ -97,14 +97,14 @@ describe('CLI: --incremental', () => {
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
         import { hbs } from 'ember-template-imports';
-  
+
         type ApplicationArgs = {
           appVersion: string;
         };
-  
+
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
-  
+
           public static template = hbs\`
             Welcome to app v{{@appVersion}}.
             The current time is {{this.startupTime}}.
