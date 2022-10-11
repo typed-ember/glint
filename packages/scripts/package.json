@@ -1,6 +1,6 @@
 {
   "name": "@glint/scripts",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "type": "module",
   "private": true,
   "repository": "typed-ember/glint",
@@ -25,7 +25,7 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "@glint/config": "^0.9.4",
+    "@glint/config": "^0.9.5",
     "@types/js-yaml": "^4.0.5",
     "@types/yargs": "^17.0.10",
     "golden-fleece": "^1.0.9",
