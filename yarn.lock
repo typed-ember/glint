@@ -2003,6 +2003,11 @@
   dependencies:
     "@octokit/openapi-types" "^5.3.2"
 
+"@polka/url@^1.0.0-next.20":
+  version "1.0.0-next.21"
+  resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
+  integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
+
 "@simple-dom/interface@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@simple-dom/interface/-/interface-1.4.0.tgz#e8feea579232017f89b0138e2726facda6fbb71f"
@@ -2746,6 +2751,13 @@
   dependencies:
     "@typescript-eslint/types" "4.28.4"
     eslint-visitor-keys "^2.0.0"
+
+"@vitest/ui@^0.23.4":
+  version "0.23.4"
+  resolved "https://registry.yarnpkg.com/@vitest/ui/-/ui-0.23.4.tgz#87b77ad9f92b18ebc50a7380b703753069dc17fa"
+  integrity sha512-lNZVTTrkHThGAwNQ1ah1qCNnm70r7OLB5LCUdSqboStve/1eKTrtt27QfDSSUTG8AVJQzU0eaN/j8UocH+CqfA==
+  dependencies:
+    sirv "^2.0.2"
 
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
@@ -3709,7 +3721,7 @@ babel-plugin-filter-imports@^4.0.0:
     "@babel/types" "^7.7.2"
     lodash "^4.17.15"
 
-babel-plugin-htmlbars-inline-precompile@^5.2.0, babel-plugin-htmlbars-inline-precompile@^5.2.1, babel-plugin-htmlbars-inline-precompile@^5.3.0:
+babel-plugin-htmlbars-inline-precompile@^5.0.0, babel-plugin-htmlbars-inline-precompile@^5.2.0, babel-plugin-htmlbars-inline-precompile@^5.2.1, babel-plugin-htmlbars-inline-precompile@^5.3.0:
   version "5.3.1"
   resolved "https://registry.yarnpkg.com/babel-plugin-htmlbars-inline-precompile/-/babel-plugin-htmlbars-inline-precompile-5.3.1.tgz#5ba272e2e4b6221522401f5f1d98a73b1de38787"
   integrity sha512-QWjjFgSKtSRIcsBhJmEwS2laIdrA6na8HAlc/pEAhjHgQsah/gMiBFRZvbQTy//hWxR4BMwV7/Mya7q5H8uHeA==
@@ -6319,7 +6331,29 @@ ember-cli-get-component-path-option@^1.0.0:
   resolved "https://registry.yarnpkg.com/ember-cli-get-component-path-option/-/ember-cli-get-component-path-option-1.0.0.tgz#0d7b595559e2f9050abed804f1d8eff1b08bc771"
   integrity sha1-DXtZVVni+QUKvtgE8djv8bCLx3E=
 
-ember-cli-htmlbars@^5.7.1, ember-cli-htmlbars@^6.0.1:
+ember-cli-htmlbars@^5.7.1:
+  version "5.7.2"
+  resolved "https://registry.yarnpkg.com/ember-cli-htmlbars/-/ember-cli-htmlbars-5.7.2.tgz#e0cd2fb3c20d85fe4c3e228e6f0590ee1c645ba8"
+  integrity sha512-Uj6R+3TtBV5RZoJY14oZn/sNPnc+UgmC8nb5rI4P3fR/gYoyTFIZSXiIM7zl++IpMoIrocxOrgt+mhonKphgGg==
+  dependencies:
+    "@ember/edition-utils" "^1.2.0"
+    babel-plugin-htmlbars-inline-precompile "^5.0.0"
+    broccoli-debug "^0.6.5"
+    broccoli-persistent-filter "^3.1.2"
+    broccoli-plugin "^4.0.3"
+    common-tags "^1.8.0"
+    ember-cli-babel-plugin-helpers "^1.1.1"
+    ember-cli-version-checker "^5.1.2"
+    fs-tree-diff "^2.0.1"
+    hash-for-dep "^1.5.1"
+    heimdalljs-logger "^0.1.10"
+    json-stable-stringify "^1.0.1"
+    semver "^7.3.4"
+    silent-error "^1.1.1"
+    strip-bom "^4.0.0"
+    walk-sync "^2.2.0"
+
+ember-cli-htmlbars@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/ember-cli-htmlbars/-/ember-cli-htmlbars-6.0.1.tgz#5487831d477e61682bc867fd138808269e5d2152"
   integrity sha512-IDsl9uty+MXtMfp/BUTEc/Q36EmlHYj8ZdPekcoRa8hmdsigHnK4iokfaB7dJFktlf6luruei+imv7JrJrBQPQ==
@@ -11456,6 +11490,11 @@ move-concurrently@^1.0.1:
     rimraf "^2.5.4"
     run-queue "^1.0.3"
 
+mrmime@^1.0.0:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/mrmime/-/mrmime-1.0.1.tgz#5f90c825fad4bdd41dc914eff5d1a8cfdaf24f27"
+  integrity sha512-hzzEagAgDyoU1Q6yg5uI+AorQgdvMCur3FcKf7NhMKWsaYg+RnbTyHRa/9IlLF9rf455MOCtcqqrQQ83pPP7Uw==
+
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
@@ -13851,6 +13890,15 @@ simple-html-tokenizer@^0.5.11:
   resolved "https://registry.yarnpkg.com/simple-html-tokenizer/-/simple-html-tokenizer-0.5.11.tgz#4c5186083c164ba22a7b477b7687ac056ad6b1d9"
   integrity sha512-C2WEK/Z3HoSFbYq8tI7ni3eOo/NneSPRoPpcM7WdLjFOArFuyXEjAoCdOC3DgMfRyziZQ1hCNR4mrNdWEvD0og==
 
+sirv@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/sirv/-/sirv-2.0.2.tgz#128b9a628d77568139cff85703ad5497c46a4760"
+  integrity sha512-4Qog6aE29nIjAOKe/wowFTxOdmbEZKb+3tsLljaBRzJwtqto0BChD2zzH0LhgCSXiI+V7X+Y45v14wBZQ1TK3w==
+  dependencies:
+    "@polka/url" "^1.0.0-next.20"
+    mrmime "^1.0.0"
+    totalist "^3.0.0"
+
 sisteransi@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-1.0.5.tgz#134d681297756437cc05ca01370d3a7a571075ed"
@@ -14888,6 +14936,11 @@ toidentifier@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.1.tgz#3be34321a88a820ed1bd80dfaa33e479fbb8dd35"
   integrity sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==
+
+totalist@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/totalist/-/totalist-3.0.0.tgz#4ef9c58c5f095255cdc3ff2a0a55091c57a3a1bd"
+  integrity sha512-eM+pCBxXO/njtF7vdFsHuqb+ElbxqtI4r5EAvk6grfAFyJ6IvWlSkfZ5T9ozC6xWw3Fj1fGoSmrl0gUs46JVIw==
 
 tough-cookie@^2.3.3, tough-cookie@~2.5.0:
   version "2.5.0"

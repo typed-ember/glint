@@ -102,12 +102,12 @@ if (argv.build) {
   } else {
     performBuild(ts, projects, buildOptions);
   }
-}
-
-const glintConfig = loadConfig(argv.project ?? cwd);
-const optionsToExtend = determineOptionsToExtend(argv);
-if (argv.watch) {
-  performWatch(glintConfig, optionsToExtend);
 } else {
-  performCheck(glintConfig, optionsToExtend);
+  const glintConfig = loadConfig(argv.project ?? cwd);
+  const optionsToExtend = determineOptionsToExtend(argv);
+  if (argv.watch) {
+    performWatch(glintConfig, optionsToExtend);
+  } else {
+    performCheck(glintConfig, optionsToExtend);
+  }
 }

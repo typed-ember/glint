@@ -190,7 +190,7 @@ export default class Project {
     });
   }
 
-  public buildWatch(options: Options): Watch {
+  public buildWatch(options: Options = {}): Watch {
     return new Watch(this.build({ ...options, flags: ['--watch'], reject: false }));
   }
 }

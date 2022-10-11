@@ -7,15 +7,14 @@ import TransformManagerPool from './utils/transform-manager-pool';
 
 export function performBuildWatch(
   ts: typeof TS,
-  rootNames: string[],
+  projects: string[],
   buildOptions: TS.BuildOptions
 ): void {
   let transformManagerPool = new TransformManagerPool(ts.sys);
-
   let formatDiagnostic = buildDiagnosticFormatter(ts);
-  let sys = sysForCompilerHost(ts, transformManagerPool);
+
   let host = ts.createSolutionBuilderWithWatchHost(
-    sys,
+    sysForCompilerHost(ts, transformManagerPool),
     (...args) => {
       const program = ts.createEmitAndSemanticDiagnosticsBuilderProgram(...args);
       patchProgram(program, transformManagerPool);
@@ -24,6 +23,6 @@ export function performBuildWatch(
     (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
 
-  let builder = ts.createSolutionBuilderWithWatch(host, rootNames, buildOptions);
+  let builder = ts.createSolutionBuilderWithWatch(host, projects, buildOptions);
   builder.build();
 }

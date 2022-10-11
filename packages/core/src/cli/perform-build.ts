@@ -14,20 +14,6 @@ interface BuildOptions extends TS.BuildOptions {
 
 export function performBuild(ts: TypeScript, projects: string[], buildOptions: BuildOptions): void {
   let transformManagerPool = new TransformManagerPool(ts.sys);
-
-  let host = createCompilerHost(ts, transformManagerPool);
-  let builder = ts.createSolutionBuilder(host, projects, buildOptions);
-
-  let exitStatus = buildOptions.clean ? builder.clean() : builder.build();
-  process.exit(exitStatus);
-}
-
-type BuilderHost = TS.SolutionBuilderHost<TS.EmitAndSemanticDiagnosticsBuilderProgram>;
-
-function createCompilerHost(
-  ts: TypeScript,
-  transformManagerPool: TransformManagerPool
-): BuilderHost {
   let formatDiagnostic = buildDiagnosticFormatter(ts);
 
   let host = ts.createSolutionBuilderHost(
@@ -40,5 +26,8 @@ function createCompilerHost(
     (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
 
-  return host;
+  let builder = ts.createSolutionBuilder(host, projects, buildOptions);
+
+  let exitStatus = buildOptions.clean ? builder.clean() : builder.build();
+  process.exit(exitStatus);
 }
