@@ -81,6 +81,8 @@ jobs:
           max_attempts: 2
           timeout_minutes: 10
           command: yarn workspace glint-vscode test
+      - name: Test @glint/scripts
+        run: yarn workspace @glint/scripts test
 
   test-floating-deps:
     name: Test Floating Dependencies
