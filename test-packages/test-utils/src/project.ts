@@ -2,12 +2,10 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as resolve from 'resolve';
 import { node, ExecaChildProcess, Options } from 'execa';
-import { ConfigLoader } from '@glint/config';
-import GlintLanguageServer from '@glint/core/lib/language-server/glint-language-server';
-import DocumentCache from '@glint/core/lib/common/document-cache';
-import TransformManager from '@glint/core/lib/common/transform-manager';
+import type GlintLanguageServer from '@glint/core/lib/language-server/glint-language-server';
 import { type GlintConfigInput } from '@glint/config/lib/config';
 import { filePathToUri, normalizeFilePath } from '@glint/core/lib/language-server/util/index';
+import { analyzeProject, ProjectAnalysis } from '@glint/core';
 
 const ROOT = normalizeFilePath(path.resolve(__dirname, '../../ephemeral'));
 
@@ -28,7 +26,7 @@ const newWorkingDir = (): string =>
 
 export class Project {
   private rootDir: string;
-  private server?: GlintLanguageServer;
+  private projectAnalysis?: ProjectAnalysis;
 
   private constructor(rootDir: string) {
     this.rootDir = rootDir;
@@ -43,15 +41,13 @@ export class Project {
   }
 
   public startLanguageServer(): GlintLanguageServer {
-    if (this.server) {
+    if (this.projectAnalysis) {
       throw new Error('Language server is already running');
     }
 
-    let glintConfig = new ConfigLoader().configForDirectory(this.rootDir)!;
-    let documents = new DocumentCache(glintConfig);
-    let transformManager = new TransformManager(glintConfig, documents);
+    this.projectAnalysis = analyzeProject(this.rootDir);
 
-    return (this.server = new GlintLanguageServer(glintConfig, documents, transformManager));
+    return this.projectAnalysis.languageServer;
   }
 
   /**
@@ -166,7 +162,7 @@ export class Project {
   }
 
   public async destroy(): Promise<void> {
-    this.server?.dispose();
+    this.projectAnalysis?.shutdown();
     fs.rmSync(this.rootDir, { recursive: true, force: true });
   }
 

@@ -5,6 +5,7 @@
   "description": "A CLI for performing typechecking on Glimmer templates",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
+  "main": "lib/index.js",
   "files": [
     "README.md",
     "lib",
