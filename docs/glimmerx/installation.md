@@ -30,7 +30,7 @@ npm install -D @glint/core @glint/environment-glimmerx
 
 {% endcode %}
 
-Note that, by default, Glint will assume you want it to analyze all templates in the codebase that are covered by your `tsconfig.json`. See the [Configuration](../configuration.md) guide for further details on configuring Glint's behavior.
+Note that, by default, Glint will assume you want it to analyze all templates in the codebase that are covered by your `tsconfig.json`. To ignore any type errors up front so that you can incrementally migrate your project to typesafe templates, consider using [the `auto-glint-nocheck` script](https://github.com/typed-ember/glint/tree/main/packages/scripts#auto-glint-nocheck) to add [`@glint-nocheck` comments](../directives.md#glint-nocheck) to your existing templates that would produce errors.
 
 {% hint style="info" %}
 
