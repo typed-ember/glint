@@ -49,7 +49,9 @@ export function calculateCompanionTemplateSpans(
     let backingValue: string | undefined;
     if (targetNode) {
       let moduleName = path.basename(script.filename, path.extname(script.filename));
-      backingValue = `({} as unknown as typeof import('./${moduleName}').default)`;
+      backingValue = useJsDoc
+        ? `(/** @type {typeof import('./${moduleName}').default} */ ({}))`
+        : `({} as unknown as typeof import('./${moduleName}').default)`;
     }
 
     let rewriteResult = templateToTypescript(template.contents, {
