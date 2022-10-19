@@ -66,8 +66,8 @@ function parseArgs(args: Array<string>): { globs: Array<string>; explanation: st
     .parseSync();
 }
 
-type GlintCore = typeof import('@glint/core') &
-  typeof import('@glint/core/lib/language-server/util/index.js');
+type GlintCore = typeof import('@glint/core');
+type GlintUtils = typeof import('@glint/core/lib/language-server/util/index.js');
 
 function findImport(path: string, basedir: string): string {
   let resolvedPath = resolve(path, { basedir });
@@ -75,7 +75,9 @@ function findImport(path: string, basedir: string): string {
   return relative(directory, resolvedPath);
 }
 
-async function loadGlintCore(cwd: string): Promise<GlintCore> {
+// We want to use the project-local version of @glint/core for maximum compatibility,
+// but we need to guard against older versions that don't expose a programmatic API.
+async function loadGlintCore(cwd: string): Promise<GlintCore & GlintUtils> {
   try {
     let [core, util] = await Promise.all([
       import(findImport('@glint/core', cwd)),
@@ -99,7 +101,7 @@ function collectFilePaths(globs: Array<string>, cwd: string): Array<string> {
 // is a little weird, but it conveniently deduplicates and gives us exactly
 // the information we need.)
 function findTemplatesWithErrors(
-  glint: GlintCore,
+  glint: GlintUtils,
   filePath: string,
   fileContents: string,
   project: ProjectAnalysis
