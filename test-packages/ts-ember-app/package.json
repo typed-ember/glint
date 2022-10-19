@@ -19,8 +19,8 @@
     "lint:js": "eslint . --cache",
     "lint:js:fix": "eslint . --fix",
     "start": "ember serve",
-    "test": "npm-run-all lint test:*",
-    "typecheck": "glint",
+    "test": "npm-run-all test:*",
+    "test:typecheck": "glint",
     "test:tsc": "tsc --noEmit",
     "test:browsers": "ember test"
   },
