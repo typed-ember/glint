@@ -1,4 +1,4 @@
-import SilentError from 'silent-error';
+import SilentError = require('silent-error');
 import { GlintConfig } from './config';
 import { ConfigLoader } from './loader';
 

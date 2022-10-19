@@ -1,5 +1,5 @@
 import { commands, languages, ViewColumn, window, Uri, Range } from 'vscode';
-import path from 'path';
+import * as path from 'path';
 import { waitUntil } from './helpers/async';
 
 describe('Smoke test: ETI Environment', () => {

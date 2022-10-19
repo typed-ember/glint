@@ -1,7 +1,7 @@
 import { symlinkSync } from 'fs';
 import * as path from 'path';
 
-import Project from './project';
+import { Project } from './project';
 
 export const INPUT_DIR = 'src';
 export const INPUT_SCRIPT = path.join(INPUT_DIR, 'index.ts');

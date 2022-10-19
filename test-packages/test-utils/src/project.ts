@@ -1,14 +1,13 @@
-import path from 'path';
-import fs from 'fs';
-import execa, { ExecaChildProcess, Options } from 'execa';
-import { ConfigLoader } from '@glint/config';
-import GlintLanguageServer from '../../src/language-server/glint-language-server';
-import { filePathToUri, normalizeFilePath } from '../../src/language-server/util';
-import DocumentCache from '../../src/common/document-cache';
-import TransformManager from '../../src/common/transform-manager';
-import { GlintConfigInput } from '@glint/config/lib/config';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+import * as resolve from 'resolve';
+import { node, ExecaChildProcess, Options } from 'execa';
+import type GlintLanguageServer from '@glint/core/lib/language-server/glint-language-server';
+import { type GlintConfigInput } from '@glint/config/lib/config';
+import { filePathToUri, normalizeFilePath } from '@glint/core/lib/language-server/util/index';
+import { analyzeProject, ProjectAnalysis } from '@glint/core';
 
-const ROOT = normalizeFilePath(path.resolve(__dirname, '../../../../test-packages/ephemeral'));
+const ROOT = normalizeFilePath(path.resolve(__dirname, '../../ephemeral'));
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
 // definition for our purposes here in tests.
@@ -25,9 +24,9 @@ interface TsconfigWithGlint {
 const newWorkingDir = (): string =>
   normalizeFilePath(path.join(ROOT, Math.random().toString(16).slice(2)));
 
-export default class Project {
+export class Project {
   private rootDir: string;
-  private server?: GlintLanguageServer;
+  private projectAnalysis?: ProjectAnalysis;
 
   private constructor(rootDir: string) {
     this.rootDir = rootDir;
@@ -42,15 +41,13 @@ export default class Project {
   }
 
   public startLanguageServer(): GlintLanguageServer {
-    if (this.server) {
+    if (this.projectAnalysis) {
       throw new Error('Language server is already running');
     }
 
-    let glintConfig = new ConfigLoader().configForDirectory(this.rootDir)!;
-    let documents = new DocumentCache(glintConfig);
-    let transformManager = new TransformManager(glintConfig, documents);
+    this.projectAnalysis = analyzeProject(this.rootDir);
 
-    return (this.server = new GlintLanguageServer(glintConfig, documents, transformManager));
+    return this.projectAnalysis.languageServer;
   }
 
   /**
@@ -165,12 +162,12 @@ export default class Project {
   }
 
   public async destroy(): Promise<void> {
-    this.server?.dispose();
+    this.projectAnalysis?.shutdown();
     fs.rmSync(this.rootDir, { recursive: true, force: true });
   }
 
   public check(options: Options & { flags?: string[] } = {}): ExecaChildProcess {
-    return execa.node(`${__dirname}/../../bin/glint`, options.flags, {
+    return node(resolve.sync('@glint/core/bin/glint'), options.flags, {
       cwd: this.rootDir,
       ...options,
     });
@@ -183,7 +180,7 @@ export default class Project {
   public build(options: Options & { flags?: string[] } = {}, debug = false): ExecaChildProcess {
     let build = ['--build'];
     let flags = options.flags ? build.concat(options.flags) : build;
-    return execa.node(`${__dirname}/../../bin/glint`, flags, {
+    return node(resolve.sync('@glint/core/bin/glint'), flags, {
       cwd: this.rootDir,
       nodeOptions: debug ? ['--inspect-brk'] : [],
       ...options,

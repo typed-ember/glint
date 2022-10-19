@@ -1,8 +1,8 @@
+import * as os from 'node:os';
 import { stripIndent } from 'common-tags';
-import stripAnsi from 'strip-ansi';
-import os from 'os';
+import stripAnsi = require('strip-ansi');
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
-import Project from '../utils/project';
+import { Project } from '@glint/test-utils';
 
 describe('CLI: custom extensions', () => {
   let project!: Project;

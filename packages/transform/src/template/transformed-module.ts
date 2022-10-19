@@ -146,6 +146,37 @@ export default class TransformedModule {
     return { start, end };
   }
 
+  public findTemplateAtOriginalOffset(
+    originalFileName: string,
+    originalOffset: number
+  ): { originalContentStart: number; originalContentEnd: number; originalContent: string } | null {
+    let { correlatedSpan } = this.determineTransformedOffsetAndSpan(
+      originalFileName,
+      originalOffset
+    );
+
+    if (!correlatedSpan.mapping) {
+      return null;
+    }
+
+    let templateMapping = correlatedSpan.mapping?.children[0];
+
+    assert(
+      correlatedSpan.mapping?.sourceNode.type === 'TemplateEmbedding' &&
+        templateMapping?.sourceNode.type === 'Template',
+      'Internal error: unexpected mapping structure.' + ` (${templateMapping?.sourceNode.type})`
+    );
+
+    let originalContentStart = correlatedSpan.originalStart + templateMapping.originalRange.start;
+    let originalContentEnd = correlatedSpan.originalStart + templateMapping.originalRange.end;
+    let originalContent = correlatedSpan.originalFile.contents.slice(
+      originalContentStart,
+      originalContentEnd
+    );
+
+    return { originalContentStart, originalContentEnd, originalContent };
+  }
+
   private determineOriginalOffsetAndSpan(transformedOffset: number): {
     originalOffset: number;
     correlatedSpan: CorrelatedSpan;

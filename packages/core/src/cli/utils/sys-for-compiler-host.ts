@@ -1,4 +1,4 @@
-import type TS from 'typescript';
+import type * as TS from 'typescript';
 import TransformManager from '../../common/transform-manager';
 import TransformManagerPool from './transform-manager-pool';
 

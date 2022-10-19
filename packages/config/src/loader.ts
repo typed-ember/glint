@@ -1,8 +1,8 @@
-import path from 'path';
-import SilentError from 'silent-error';
-import resolve from 'resolve';
+import * as path from 'node:path';
+import SilentError = require('silent-error');
+import resolve = require('resolve');
 import { GlintConfig, GlintConfigInput } from './config';
-import type TS from 'typescript';
+import type * as TS from 'typescript';
 
 type TypeScript = typeof TS;
 

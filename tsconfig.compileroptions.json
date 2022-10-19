@@ -6,7 +6,7 @@
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
-    "esModuleInterop": true,
+    "esModuleInterop": false,
     "composite": true,
     "declaration": true,
     "sourceMap": true

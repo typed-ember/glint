@@ -9,7 +9,7 @@ import {
   extensions,
   Location,
 } from 'vscode';
-import path from 'path';
+import * as path from 'path';
 import { waitUntil } from './helpers/async';
 
 describe('Smoke test: Ember', () => {

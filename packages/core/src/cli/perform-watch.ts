@@ -1,7 +1,7 @@
 import TransformManager from '../common/transform-manager';
 import { GlintConfig } from '@glint/config';
 import { buildDiagnosticFormatter } from './diagnostics';
-import type ts from 'typescript';
+import type * as ts from 'typescript';
 import { sysForCompilerHost } from './utils/sys-for-compiler-host';
 import { patchProgram } from './utils/patch-program';
 

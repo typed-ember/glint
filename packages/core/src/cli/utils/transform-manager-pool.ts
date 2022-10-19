@@ -1,4 +1,4 @@
-import TS from 'typescript';
+import * as TS from 'typescript';
 import { ConfigLoader, GlintConfig } from '@glint/config';
 import TransformManager from '../../common/transform-manager';
 import { assert } from './assert';

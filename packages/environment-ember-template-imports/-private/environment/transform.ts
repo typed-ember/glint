@@ -1,4 +1,4 @@
-import type ts from 'typescript';
+import type * as ts from 'typescript';
 import { GlintExtensionTransform } from '@glint/config';
 import { PreprocessData, GLOBAL_TAG, TemplateLocation } from './common';
 

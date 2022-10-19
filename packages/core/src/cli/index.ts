@@ -1,10 +1,10 @@
-import yargs from 'yargs';
+import yargs = require('yargs');
 import { findTypeScript, loadConfig } from '@glint/config';
 import { performWatch } from './perform-watch';
 import { performCheck } from './perform-check';
 import { determineOptionsToExtend } from './options';
 import { performBuild } from './perform-build';
-import type TS from 'typescript';
+import type * as TS from 'typescript';
 import { performBuildWatch } from './perform-build-watch';
 
 const argv = yargs

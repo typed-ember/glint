@@ -2,7 +2,6 @@
   "name": "@glint/scripts",
   "version": "0.9.5",
   "type": "module",
-  "private": true,
   "repository": "typed-ember/glint",
   "description": "Scripts for working with Glint",
   "license": "MIT",
@@ -16,8 +15,8 @@
     "bin"
   ],
   "bin": {
-    "migrate-glintrc": "bin/migrate-glintrc.js",
-    "glint-language-server": "bin/glint-language-server.js"
+    "auto-glint-nocheck": "bin/auto-nocheck.js",
+    "migrate-glintrc": "bin/migrate-glintrc.js"
   },
   "scripts": {
     "test": "vitest run",
@@ -26,18 +25,20 @@
   },
   "dependencies": {
     "@glint/config": "^0.9.5",
-    "@types/js-yaml": "^4.0.5",
-    "@types/yargs": "^17.0.10",
     "golden-fleece": "^1.0.9",
     "js-yaml": "^4.1.0",
+    "ora": "^6.1.2",
+    "resolve": "^1.22.1",
     "true-myth": "^6.1.0",
     "yargs": "^17.5.1",
     "zod": "^3.17.3"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.5",
+    "@types/yargs": "^17.0.10",
+    "json5": "^2.2.1",
     "typescript": "^4.7.4",
-    "vitest": "^0.22.0",
-    "json5": "^2.2.1"
+    "vitest": "^0.22.0"
   },
   "publishConfig": {
     "access": "public"

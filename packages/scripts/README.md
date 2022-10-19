@@ -2,33 +2,65 @@
 
 A handful of tools for working with Glint—e.g. for migrations.
 
-## `migrate-glintrc`
+- [Usage](#usage)
+- [Scripts](#scripts)
+  - [`migrate-glintrc`](#migrate-glintrc)
+  - [`auto-glint-nocheck`](#auto-glint-nocheck)
 
-To migrate from `.glintrc.yml` files to using a `glint` key within `tsconfig.json` files, you can either run the script via `npx`, or install the tool somewhere and run it directly.
+## Usage
 
-With npx:
+Each script can be invoked either directly from the npm registry with `npx`:
+
+```sh
+npx -p @glint/scripts {script-name} {...script-args}
+```
+
+Or by installing `@glint/scripts` as a project-local dependency and then executing a script directly:
+
+```sh
+npm install -D @glint/scripts
+npx {script-name} {...script-args}
+# or
+yarn add --dev @glint/scripts
+yarn {script-name} {...script-args}
+# or
+pnpm i -D @glint/scripts
+pnpm {script-name} {...script-args}
+```
+
+Or with a global installation, using either your package manager or [Volta](https://volta.sh):
+
+```sh
+volta install @glint/scripts
+{script-name} {...script-args}
+```
+
+## Scripts
+
+### `migrate-glintrc`
+
+The `migrate-glintrc` script automates migrating from `.glintrc.yml` files to using a `glint` key within `tsconfig.json` files.
+
+Usage:
 
 ```sh
 npx -p @glint/scripts migrate-glintrc <path(s) to glintrc.yml files to migrate>
 ```
 
-With a local npm installation:
+### `auto-glint-nocheck`
+
+The `auto-glint-nocheck` script automatically adds a `{{! @glint-nocheck }}` comment at the top of any templates in the given files that currently have type errors.
+
+It accepts one or more globs specifying what files it should inspect for type errors.
+
+It may be useful when first adopting Glint in an existing project. Compared to manually maintaining an `include` or `exclude` list in your `tsconfig.json`, using `glint-nocheck` comments makes it clearer to readers of your codebase which templates are or are not expected to typecheck, and it also allows Glint to provide best-effort hover information, go-to-definition, etc. even for templates that aren't typesafe yet.
+
+Sample usage:
 
 ```sh
-npm install --save-dev @glint/scripts
-node ./node_modules/.bin/migrate-glintrc <paths to glintrc.yml files to migrate>
+npx -p @glint/scripts auto-glint-nocheck '{app,tests}/**/*.{ts,hbs,gts}'
 ```
 
-With a local Yarn installation:
+The `nocheck` directive prepended to multiline templates will include a brief explanatory comment. By default, this looks like `{{! @glint-nocheck: not typesafe yet }}`, but the message can be customized with the `--explanation` flag.
 
-```sh
-yarn add --dev @glint/scripts
-yarn migrate-glintrc <paths to glintrc.yml files to migrate>
-```
-
-With a [Volta](https://volta.sh) user-level installation:
-
-```sh
-volta install @glint/scripts
-migrate-glintrc <paths to glintrc.yml files to migrate>
-```
+**Note**: this script requires that `@glint/core` >= v0.9.6 be available locally in the project where you are running it.

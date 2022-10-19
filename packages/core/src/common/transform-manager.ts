@@ -7,7 +7,7 @@ import {
   Diagnostic,
   createTransformDiagnostic,
 } from '@glint/transform';
-import type ts from 'typescript';
+import type * as ts from 'typescript';
 import { GlintConfig } from '@glint/config';
 import { assert } from '@glint/transform/lib/util';
 import DocumentCache, { templatePathForSynthesizedModule } from './document-cache';
@@ -249,6 +249,15 @@ export default class TransformManager {
     return fileStat.mtime > companionStat.mtime ? fileStat.mtime : companionStat.mtime;
   };
 
+  /** @internal `TransformInfo` is an unstable internal type */
+  public findTransformInfoForOriginalFile(originalFileName: string): TransformInfo | null {
+    let transformedFileName = this.glintConfig.environment.isTemplate(originalFileName)
+      ? this.documents.getCompanionDocumentPath(originalFileName)
+      : originalFileName;
+
+    return transformedFileName ? this.getTransformInfo(transformedFileName) : null;
+  }
+
   private getExpectErrorDirectives(filename?: string): Array<Directive> {
     let transformInfos = filename
       ? [this.getTransformInfo(filename)]
@@ -302,14 +311,6 @@ export default class TransformManager {
     } else {
       return { rewrittenDiagnostic };
     }
-  }
-
-  private findTransformInfoForOriginalFile(originalFileName: string): TransformInfo | null {
-    let transformedFileName = this.glintConfig.environment.isTemplate(originalFileName)
-      ? this.documents.getCompanionDocumentPath(originalFileName)
-      : originalFileName;
-
-    return transformedFileName ? this.getTransformInfo(transformedFileName) : null;
   }
 
   private getTransformInfo(filename: string, encoding?: string): TransformInfo {

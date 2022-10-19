@@ -1,4 +1,4 @@
-import type ts from 'typescript';
+import type * as ts from 'typescript';
 import { Diagnostic } from '.';
 import MappingTree, { MappingSource } from '../template/mapping-tree';
 

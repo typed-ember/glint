@@ -1,11 +1,10 @@
-import os from 'os';
+import * as os from 'node:os';
 
 import { stripIndent } from 'common-tags';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
-import { BASE_TS_CONFIG, INPUT_SCRIPT, setupCompositeProject } from '../utils/composite-project';
-import Project from '../utils/project';
+import { Project, BASE_TS_CONFIG, INPUT_SCRIPT, setupCompositeProject } from '@glint/test-utils';
 
 const BUILD_WATCH_TSCONFIG = {
   ...BASE_TS_CONFIG,
@@ -58,14 +57,14 @@ describe('CLI: watched build mode typechecking', () => {
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
         import { hbs } from 'ember-template-imports';
-  
+
         type ApplicationArgs = {
           version: string;
         };
-  
+
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
-  
+
           public static template = hbs\`
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
@@ -87,14 +86,14 @@ describe('CLI: watched build mode typechecking', () => {
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
         import { hbs } from 'ember-template-imports';
-  
+
         type ApplicationArgs = {
           version: string;
         };
-  
+
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
-  
+
           public static template = hbs\`
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
@@ -125,17 +124,17 @@ describe('CLI: watched build mode typechecking', () => {
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
         import { hbs } from 'ember-template-imports';
-  
+
         type ApplicationArgs = {
           version: string;
         };
 
         const truncate = (length: number, s: string): string =>
           s.slice(0, length);
-  
+
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
-  
+
           public static template = hbs\`
             Welcome to app v{{@version}}.
             The current time is {{truncate this.startupTime 12}}.
@@ -170,14 +169,14 @@ describe('CLI: watched build mode typechecking', () => {
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
         import { hbs } from 'ember-template-imports';
-  
+
         type ApplicationArgs = {
           version: string;
         };
-  
+
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
-  
+
           public static template = hbs\`
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.

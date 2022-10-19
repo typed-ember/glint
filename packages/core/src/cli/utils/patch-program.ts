@@ -1,4 +1,4 @@
-import type TS from 'typescript';
+import type * as TS from 'typescript';
 import type TransformManager from '../../common/transform-manager';
 import { assert } from './assert';
 import type TransformManagerPool from './transform-manager-pool';

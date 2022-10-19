@@ -1,18 +1,18 @@
 import { existsSync, statSync } from 'fs';
 
 import { stripIndent } from 'common-tags';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
 import {
+  Project,
   BASE_TS_CONFIG,
   CompositeProject,
   INDEX_D_TS,
   INPUT_SCRIPT,
   INPUT_TEMPLATE,
   setupCompositeProject,
-} from '../utils/composite-project';
-import Project from '../utils/project';
+} from '@glint/test-utils';
 
 describe('CLI: single-pass build mode typechecking', () => {
   describe('simple projects using `--build`', () => {
@@ -30,14 +30,14 @@ describe('CLI: single-pass build mode typechecking', () => {
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
         import { hbs } from 'ember-template-imports';
-  
+
         type ApplicationArgs = {
           version: string;
         };
-  
+
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
-  
+
           public static template = hbs\`
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
@@ -59,14 +59,14 @@ describe('CLI: single-pass build mode typechecking', () => {
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
         import { hbs } from 'ember-template-imports';
-  
+
         type ApplicationArgs = {
           version: string;
         };
-  
+
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
-  
+
           public static template = hbs\`
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
@@ -101,17 +101,17 @@ describe('CLI: single-pass build mode typechecking', () => {
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
         import { hbs } from 'ember-template-imports';
-  
+
         type ApplicationArgs = {
           version: string;
         };
 
         const truncate = (length: number, s: string): string =>
           s.slice(0, length);
-  
+
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
-  
+
           public static template = hbs\`
             Welcome to app v{{@version}}.
             The current time is {{truncate this.startupTime 12}}.
@@ -284,14 +284,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             import B from '@glint-test/b';
 
             let x: string = 123;
-    
+
             type ApplicationArgs = {
               version: string;
             };
-    
+
             export default class Application extends Component<{ Args: ApplicationArgs }> {
               private startupTime = new Date().toISOString();
-    
+
               public static template = hbs\`
                 Welcome to app v{{@version}}.
                 The current time is {{this.startupTime}}.
@@ -331,7 +331,7 @@ describe('CLI: single-pass build mode typechecking', () => {
 
             export default class Application extends Component<{ Args: ApplicationArgs }> {
               private startupTime = new Date().toISOString();
-    
+
               public static template = hbs\`
                 Welcome to app v{{@version}}.
                 The current time is {{this.startupTime}}.
@@ -377,10 +377,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             };
 
             const double = (n: number): number => n * 2;
-    
+
             export default class Application extends Component<{ Args: ApplicationArgs }> {
               private startupTime = new Date().toISOString();
-    
+
               public static template = hbs\`
                 Welcome to app v{{@version}}.
                 The current time is {{this.startupTime}}.
@@ -1281,14 +1281,14 @@ describe('CLI: --build --dry', () => {
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
         import { hbs } from 'ember-template-imports';
-  
+
         type ApplicationArgs = {
           version: string;
         };
-  
+
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
-  
+
           public static template = hbs\`
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
@@ -1327,14 +1327,14 @@ describe('CLI: --build --dry', () => {
           import '@glint/environment-ember-template-imports';
           import Component from '@glimmer/component';
           import { hbs } from 'ember-template-imports';
-    
+
           type ApplicationArgs = {
             appVersion: string;
           };
-    
+
           export default class Application extends Component<{ Args: ApplicationArgs }> {
             private startupTime = new Date().toISOString();
-    
+
             public static template = hbs\`
               Welcome to app v{{@appVersion}}.
               The current time is {{this.startupTime}}.
@@ -1366,11 +1366,11 @@ describe('CLI: --build --dry', () => {
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
         import { hbs } from 'ember-template-imports';
-  
+
         type ApplicationArgs = {
           version: string;
         };
-  
+
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
         }
@@ -1413,12 +1413,12 @@ describe('CLI: --build --dry', () => {
           import '@glint/environment-ember-template-imports';
           import Component from '@glimmer/component';
           import { hbs } from 'ember-template-imports';
-    
+
           type ApplicationArgs = {
             version: string;
             extraInfo: string[];
           };
-    
+
           export default class Application extends Component<{ Args: ApplicationArgs }> {
             private startupTime = new Date().toISOString();
           }

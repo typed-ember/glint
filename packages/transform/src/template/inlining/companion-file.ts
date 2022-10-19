@@ -1,5 +1,5 @@
-import type ts from 'typescript';
-import path from 'path';
+import * as path from 'node:path';
+import type * as ts from 'typescript';
 import { GlintEnvironment } from '@glint/config';
 import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from '.';
 import { RewriteResult } from '../map-template-contents';
