@@ -73,7 +73,7 @@ jobs:
         uses: nick-invision/retry@v2
         with:
           max_attempts: 2
-          timeout_minutes: 10
+          timeout_minutes: 20
           command: yarn workspace @glint/core test
       - name: Test glint-vscode
         uses: nick-invision/retry@v2
