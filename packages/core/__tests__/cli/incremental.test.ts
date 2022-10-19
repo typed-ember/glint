@@ -126,4 +126,49 @@ describe('CLI: --incremental', () => {
       expect(firstStat.mtimeMs).toBeLessThan(secondStat.mtimeMs);
     });
   });
+
+  describe('when specified in tsconfig.json', () => {
+    let project!: Project;
+    beforeEach(async () => {
+      project = await Project.create({ compilerOptions: { incremental: true } });
+
+      let code = stripIndent`
+        import '@glint/environment-ember-template-imports';
+        import Component from '@glimmer/component';
+        import { hbs } from 'ember-template-imports';
+  
+        type ApplicationArgs = {
+          version: string;
+        };
+  
+        export default class Application extends Component<{ Args: ApplicationArgs }> {
+          private startupTime = new Date().toISOString();
+  
+          public static template = hbs\`
+            Welcome to app v{{@version}}.
+            The current time is {{this.startupTime}}.
+          \`;
+        }
+      `;
+
+      project.write(INPUT_SCRIPT, code);
+
+      await project.check();
+    });
+
+    test('it honors the config', async () => {
+      let firstStat = statSync(project.filePath(BUILD_INFO));
+
+      let checkResult = await project.check();
+
+      // This should succeed again...
+      expect(checkResult.exitCode).toBe(0);
+      expect(checkResult.stdout).toEqual('');
+      expect(checkResult.stderr).toEqual('');
+
+      // ...without needing to update the build info.
+      let secondStat = statSync(project.filePath(BUILD_INFO));
+      expect(firstStat.mtime).toEqual(secondStat.mtime);
+    });
+  });
 });
