@@ -1,6 +1,6 @@
 import { relative, dirname } from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import resolvePkg from 'resolve';
 import globPkg from 'glob';
 import yargs from 'yargs';
@@ -111,7 +111,7 @@ function findTemplatesWithErrors(
   if (!info?.transformedModule) return templatesWithErrors;
 
   let { DiagnosticCategory } = project.glintConfig.ts;
-  let diagnostics = project.languageServer.getDiagnostics(filePath);
+  let diagnostics = project.languageServer.getDiagnostics(pathToFileURL(filePath).toString());
   let errors = diagnostics.filter((diagnostic) => diagnostic.severity === DiagnosticCategory.Error);
 
   for (let error of errors) {
