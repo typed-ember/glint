@@ -101,7 +101,7 @@ import '@ember/test-helpers';
 import 'ember-cli-htmlbars';
 
 type TestTemplate<T> = abstract new () => HasContext<
-  TemplateContext<T, EmptyObject, EmptyObject, null>
+  TemplateContext<T, EmptyObject, EmptyObject, void>
 >;
 
 declare module '@ember/test-helpers' {
