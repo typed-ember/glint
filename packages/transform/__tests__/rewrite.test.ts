@@ -335,6 +335,35 @@ describe('rewriteModule', () => {
       `);
     });
 
+    test('with an opaque default export from JS file', () => {
+      let script = {
+        filename: 'test.js',
+        contents: stripIndent`
+          import templateOnly from '@glimmer/component/template-only';
+
+          export default templateOnly();
+        `,
+      };
+
+      let template = {
+        filename: 'test.hbs',
+        contents: stripIndent``,
+      };
+
+      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import templateOnly from '@glimmer/component/template-only';
+
+        export default templateOnly();
+        (/** @type {typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")} */ ({})).templateForBackingValue((/** @type {typeof import('./test').default} */ ({})), function(𝚪, /** @type {typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")} */ χ) {
+          𝚪; χ;
+        });
+        "
+      `);
+    });
+
     test('with an unresolvable default export', () => {
       let script = {
         filename: 'test.ts',
