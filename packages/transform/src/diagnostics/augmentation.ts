@@ -56,14 +56,39 @@ function checkAssignabilityError(
         'If you want to set an event listener, consider using the `{{on}}` modifier instead.'
     );
   } else if (
+    node.type === 'BlockStatement' &&
+    node.path.type === 'PathExpression' &&
+    node.path.original === 'component'
+  ) {
+    // If it's attempted direct usage of `{{#component}}` as a curly block component,
+    // give a special note that that's not supported.
+    return addGlintDetails(
+      message,
+      `The {{component}} helper can't be used to directly invoke a component under Glint. ` +
+        `Consider first binding the result to a variable, e.g. ` +
+        `'{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as ` +
+        `'<ComponentName @arg={{value}}>...</ComponentName>'.`
+    );
+  } else if (
     node.type === 'MustacheStatement' &&
     (parentNode.type === 'Template' ||
       parentNode.type === 'BlockStatement' ||
       parentNode.type === 'ElementNode') &&
     !(node.path.type === 'PathExpression' && node.path.original === 'yield')
   ) {
-    // Otherwise, if it's on a full {{mustache}} and it's in a top-level position,
-    // it's a DOM content type issue.
+    // If we're looking at a top-level {{mustache}}, we first double check whether
+    // it's an attempted inline {{component 'foo'}} invocation...
+    if (node.path.type === 'PathExpression' && node.path.original === 'component') {
+      return addGlintDetails(
+        message,
+        `The {{component}} helper can't be used to directly invoke a component under Glint. ` +
+          `Consider first binding the result to a variable, e.g. ` +
+          `'{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as ` +
+          `'<ComponentName @arg={{value}} />'.`
+      );
+    }
+
+    // Otherwise, it's a DOM content type issue.
     return addGlintDetails(
       message,
       'Only primitive values and certain DOM objects (see `ContentValue` in `@glint/template`) are ' +
