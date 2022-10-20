@@ -513,4 +513,329 @@ describe('Language Server: Diagnostic Augmentation', () => {
       ]
     `);
   });
+
+  test('unresolved globals', () => {
+    project.setGlintConfig({ environment: ['ember-loose'] });
+    project.write({
+      'index.ts': stripIndent`
+        import Component from '@glimmer/component';
+
+        export default class MyComponent extends Component {
+          declare locals: { message: string };
+        }
+      `,
+      'index.hbs': stripIndent`
+        {{! failed global lookups (custom message about the registry) }}
+        <Foo />
+        <foo.ok />
+        {{foo.bar}}
+        {{concat foo}}
+
+        {{#let this.locals as |locals|}}
+          {{! failed non-global lookup (no custom message) }}
+          {{locals.bad-thing}}
+        {{/let}}
+      `,
+    });
+
+    let server = project.startLanguageServer();
+    let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "message": "Unknown name 'Foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
+        Element implicitly has an 'any' type because expression of type '\\"Foo\\"' can't be used to index type 'Globals'.
+          Property 'Foo' does not exist on type 'Globals'.",
+          "range": {
+            "end": {
+              "character": 7,
+              "line": 1,
+            },
+            "start": {
+              "character": 0,
+              "line": 1,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(7053)",
+          "tags": [],
+        },
+        {
+          "message": "Unknown name 'foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
+        Element implicitly has an 'any' type because expression of type '\\"foo\\"' can't be used to index type 'Globals'.
+          Property 'foo' does not exist on type 'Globals'.",
+          "range": {
+            "end": {
+              "character": 10,
+              "line": 2,
+            },
+            "start": {
+              "character": 0,
+              "line": 2,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(7053)",
+          "tags": [],
+        },
+        {
+          "message": "Unknown name 'foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
+        Element implicitly has an 'any' type because expression of type '\\"foo\\"' can't be used to index type 'Globals'.
+          Property 'foo' does not exist on type 'Globals'.",
+          "range": {
+            "end": {
+              "character": 9,
+              "line": 3,
+            },
+            "start": {
+              "character": 2,
+              "line": 3,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(7053)",
+          "tags": [],
+        },
+        {
+          "message": "Unknown name 'foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
+        Element implicitly has an 'any' type because expression of type '\\"foo\\"' can't be used to index type 'Globals'.
+          Property 'foo' does not exist on type 'Globals'.",
+          "range": {
+            "end": {
+              "character": 12,
+              "line": 4,
+            },
+            "start": {
+              "character": 9,
+              "line": 4,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(7053)",
+          "tags": [],
+        },
+        {
+          "message": "Element implicitly has an 'any' type because expression of type '\\"bad-thing\\"' can't be used to index type '{ message: string; }'.
+        Property 'bad-thing' does not exist on type '{ message: string; }'.",
+          "range": {
+            "end": {
+              "character": 20,
+              "line": 8,
+            },
+            "start": {
+              "character": 4,
+              "line": 8,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(7053)",
+          "tags": [],
+        },
+      ]
+    `);
+  });
+
+  test('failed `component` name lookup', () => {
+    project.setGlintConfig({ environment: ['ember-loose'] });
+    project.write({
+      'index.ts': stripIndent`
+        import Component from '@glimmer/component';
+
+        export default class MyComponent extends Component {
+          componentName = 'bar' as const';
+        }
+      `,
+      'index.hbs': stripIndent`
+        {{#let 'baz' as |baz|}}
+          {{#let
+            (component 'foo') 
+            (component this.componentName)
+            (component baz)
+            as |Foo Bar|
+          }}
+            {{! @glint-ignore: we don't care about errors here}}
+            <Foo /><Bar /><Baz />
+          {{/let}}
+        {{/let}}
+      `,
+    });
+
+    let server = project.startLanguageServer();
+    let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "message": "Unknown component name 'foo'. If this isn't a typo, you may be missing a registry entry for this name; see the Template Registry page in the Glint documentation for more details.
+        No overload matches this call.
+          The last overload gave the following error.
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+          "range": {
+            "end": {
+              "character": 20,
+              "line": 2,
+            },
+            "start": {
+              "character": 15,
+              "line": 2,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(2769)",
+          "tags": [],
+        },
+        {
+          "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
+        No overload matches this call.
+          The last overload gave the following error.
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+          "range": {
+            "end": {
+              "character": 33,
+              "line": 3,
+            },
+            "start": {
+              "character": 15,
+              "line": 3,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(2769)",
+          "tags": [],
+        },
+        {
+          "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
+        No overload matches this call.
+          The last overload gave the following error.
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+          "range": {
+            "end": {
+              "character": 18,
+              "line": 4,
+            },
+            "start": {
+              "character": 15,
+              "line": 4,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(2769)",
+          "tags": [],
+        },
+      ]
+    `);
+  });
+
+  test('direct invocation of `{{component}}`', () => {
+    project.setGlintConfig({ environment: ['ember-loose'] });
+    project.write({
+      'index.ts': stripIndent`
+        import Component from '@glimmer/component';
+
+        export interface MyComponentSignature {
+          Args: {
+            message?: string;
+          };
+          Blocks: {
+            default: [];
+          };
+        }
+
+        export default class MyComponent extends Component<MyComponentSignature> {}
+
+        declare module '@glint/environment-ember-loose/registry' {
+          export default interface Registry {
+            'my-component': typeof MyComponent;
+          }
+        }
+      `,
+      'index.hbs': stripIndent`
+        {{! inline invocation }}
+        {{component 'my-component'}}
+        {{component 'my-component' message="hi"}}
+
+        {{! block invocation }}
+        {{#component 'my-component'}}{{/component}}
+        {{#component 'my-component' message="hi"}}{{/component}}
+      `,
+    });
+
+    let server = project.startLanguageServer();
+    let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}} />'.
+        Argument of type 'typeof MyComponent' is not assignable to parameter of type 'ContentValue'.",
+          "range": {
+            "end": {
+              "character": 28,
+              "line": 1,
+            },
+            "start": {
+              "character": 0,
+              "line": 1,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(2345)",
+          "tags": [],
+        },
+        {
+          "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}} />'.
+        Argument of type 'abstract new () => PartiallyAppliedComponent<{ message?: string | undefined; }, { message: string; }, AcceptsBlocks<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'ContentValue'.",
+          "range": {
+            "end": {
+              "character": 41,
+              "line": 2,
+            },
+            "start": {
+              "character": 0,
+              "line": 2,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(2345)",
+          "tags": [],
+        },
+        {
+          "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}}>...</ComponentName>'.
+        Argument of type 'typeof MyComponent' is not assignable to parameter of type 'AcceptsBlocks<any, any>'.
+          Property '[Element]' is missing in type 'typeof MyComponent' but required in type 'AcceptsBlocks<any, any>'.",
+          "range": {
+            "end": {
+              "character": 43,
+              "line": 5,
+            },
+            "start": {
+              "character": 0,
+              "line": 5,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(2345)",
+          "tags": [],
+        },
+        {
+          "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}}>...</ComponentName>'.
+        Argument of type 'abstract new () => PartiallyAppliedComponent<{ message?: string | undefined; }, { message: string; }, AcceptsBlocks<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'AcceptsBlocks<any, any>'.",
+          "range": {
+            "end": {
+              "character": 56,
+              "line": 6,
+            },
+            "start": {
+              "character": 0,
+              "line": 6,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(2345)",
+          "tags": [],
+        },
+      ]
+    `);
+  });
 });

@@ -32,6 +32,7 @@ const diagnosticHandlers: Record<number, DiagnosticHandler | undefined> = {
   2554: adjustArgumentArity, // TS2554: Expected N arguments, but got M.
   2555: adjustArgumentArity, // TS2555: Expected at least N arguments, but got M.
   2769: checkResolveError, // TS2769: No overload matches this call.
+  7053: checkImplicitAnyError, // TS7053: Element implicitly has an 'any' type because expression of type '"X"' can't be used to index type 'Y'.
 };
 
 function checkAssignabilityError(
@@ -55,13 +56,39 @@ function checkAssignabilityError(
         'If you want to set an event listener, consider using the `{{on}}` modifier instead.'
     );
   } else if (
+    node.type === 'BlockStatement' &&
+    node.path.type === 'PathExpression' &&
+    node.path.original === 'component'
+  ) {
+    // If it's attempted direct usage of `{{#component}}` as a curly block component,
+    // give a special note that that's not supported.
+    return addGlintDetails(
+      message,
+      `The {{component}} helper can't be used to directly invoke a component under Glint. ` +
+        `Consider first binding the result to a variable, e.g. ` +
+        `'{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as ` +
+        `'<ComponentName @arg={{value}}>...</ComponentName>'.`
+    );
+  } else if (
     node.type === 'MustacheStatement' &&
     (parentNode.type === 'Template' ||
       parentNode.type === 'BlockStatement' ||
-      parentNode.type === 'ElementNode')
+      parentNode.type === 'ElementNode') &&
+    !(node.path.type === 'PathExpression' && node.path.original === 'yield')
   ) {
-    // Otherwise, if it's on a full {{mustache}} and it's in a top-level position,
-    // it's a DOM content type issue.
+    // If we're looking at a top-level {{mustache}}, we first double check whether
+    // it's an attempted inline {{component 'foo'}} invocation...
+    if (node.path.type === 'PathExpression' && node.path.original === 'component') {
+      return addGlintDetails(
+        message,
+        `The {{component}} helper can't be used to directly invoke a component under Glint. ` +
+          `Consider first binding the result to a variable, e.g. ` +
+          `'{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as ` +
+          `'<ComponentName @arg={{value}} />'.`
+      );
+    }
+
+    // Otherwise, it's a DOM content type issue.
     return addGlintDetails(
       message,
       'Only primitive values and certain DOM objects (see `ContentValue` in `@glint/template`) are ' +
@@ -108,12 +135,77 @@ function checkResolveError(
   diagnostic: Diagnostic,
   mapping: MappingTree
 ): ts.DiagnosticMessageChain | undefined {
+  // The diagnostic might fall on a lone identifier or a full path; if the former,
+  // we need to traverse up through the path to find the true parent.
+  let sourceMapping = mapping.sourceNode.type === 'Identifier' ? mapping.parent : mapping;
+  let parentNode = sourceMapping?.parent?.sourceNode;
+
+  // If this error is on the first param to a {{component}} invocation, this means
+  // we either have a non-component value or a string that's missing from the registry.
+  if (
+    (parentNode?.type === 'SubExpression' || parentNode?.type === 'MustacheStatement') &&
+    parentNode.path.type === 'PathExpression' &&
+    parentNode.path.original === 'component' &&
+    parentNode.params[0] === sourceMapping?.sourceNode
+  ) {
+    if (sourceMapping.sourceNode.type === 'StringLiteral') {
+      return addGlintDetails(
+        diagnostic,
+        `Unknown component name '${sourceMapping.sourceNode.value}'. If this isn't a typo, you may be ` +
+          `missing a registry entry for this name; see the Template Registry page in the Glint ` +
+          `documentation for more details.`
+      );
+    } else {
+      return addGlintDetails(
+        diagnostic,
+        `The type of this expression doesn't appear to be a valid value to pass the {{component}} ` +
+          `helper. If possible, you may need to give the expression a narrower type, ` +
+          `for example \`'component-a' | 'component-b'\` rather than \`string\`.`
+      );
+    }
+  }
+
+  // Otherwise if this is on a top level invocation, we're trying to use a template-unaware
+  // value in a template-specific way.
   let nodeType = mapping.sourceNode.type;
   if (nodeType === 'ElementNode' || nodeType === 'PathExpression' || nodeType === 'Identifier') {
     return addGlintDetails(
       diagnostic,
       'The given value does not appear to be usable as a component, modifier or helper.'
     );
+  }
+}
+
+function checkImplicitAnyError(
+  diagnostic: Diagnostic,
+  mapping: MappingTree
+): ts.DiagnosticMessageChain | undefined {
+  let messageText =
+    typeof diagnostic.messageText === 'string'
+      ? diagnostic.messageText
+      : diagnostic.messageText.messageText;
+
+  // We don't want to bake in assumptions about the exact format of TS error messages,
+  // but we can assume that the name of the type we're indexing (`Globals`) will appear
+  // in the text in the case we're interested in.
+  if (messageText.includes('Globals')) {
+    let { sourceNode } = mapping;
+
+    // This error may appear either on `<Foo />` or `{{foo}}`/`(foo)`
+    let globalName =
+      sourceNode.type === 'ElementNode'
+        ? sourceNode.tag.split('.')[0]
+        : sourceNode.type === 'PathExpression' && sourceNode.head.type === 'VarHead'
+        ? sourceNode.head.name
+        : null;
+
+    if (globalName) {
+      return addGlintDetails(
+        diagnostic,
+        `Unknown name '${globalName}'. If this isn't a typo, you may be missing a registry entry ` +
+          `for this value; see the Template Registry page in the Glint documentation for more details.`
+      );
+    }
   }
 }
 
