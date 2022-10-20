@@ -58,7 +58,8 @@ function checkAssignabilityError(
     node.type === 'MustacheStatement' &&
     (parentNode.type === 'Template' ||
       parentNode.type === 'BlockStatement' ||
-      parentNode.type === 'ElementNode')
+      parentNode.type === 'ElementNode') &&
+    !(node.path.type === 'PathExpression' && node.path.original === 'yield')
   ) {
     // Otherwise, if it's on a full {{mustache}} and it's in a top-level position,
     // it's a DOM content type issue.
