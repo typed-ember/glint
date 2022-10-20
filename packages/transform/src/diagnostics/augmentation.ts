@@ -32,6 +32,7 @@ const diagnosticHandlers: Record<number, DiagnosticHandler | undefined> = {
   2554: adjustArgumentArity, // TS2554: Expected N arguments, but got M.
   2555: adjustArgumentArity, // TS2555: Expected at least N arguments, but got M.
   2769: checkResolveError, // TS2769: No overload matches this call.
+  7053: checkImplicitAnyError, // TS7053: Element implicitly has an 'any' type because expression of type '"X"' can't be used to index type 'Y'.
 };
 
 function checkAssignabilityError(
@@ -115,6 +116,39 @@ function checkResolveError(
       diagnostic,
       'The given value does not appear to be usable as a component, modifier or helper.'
     );
+  }
+}
+
+function checkImplicitAnyError(
+  diagnostic: Diagnostic,
+  mapping: MappingTree
+): ts.DiagnosticMessageChain | undefined {
+  let messageText =
+    typeof diagnostic.messageText === 'string'
+      ? diagnostic.messageText
+      : diagnostic.messageText.messageText;
+
+  // We don't want to bake in assumptions about the exact format of TS error messages,
+  // but we can assume that the name of the type we're indexing (`Globals`) will appear
+  // in the text in the case we're interested in.
+  if (messageText.includes('Globals')) {
+    let { sourceNode } = mapping;
+
+    // This error may appear either on `<Foo />` or `{{foo}}`/`(foo)`
+    let globalName =
+      sourceNode.type === 'ElementNode'
+        ? sourceNode.tag.split('.')[0]
+        : sourceNode.type === 'PathExpression' && sourceNode.head.type === 'VarHead'
+        ? sourceNode.head.name
+        : null;
+
+    if (globalName) {
+      return addGlintDetails(
+        diagnostic,
+        `Unknown name '${globalName}'. If this isn't a typo, you may be missing a registry entry ` +
+          `for this value; see the Template Registry page in the Glint documentation for more details.`
+      );
+    }
   }
 }
 

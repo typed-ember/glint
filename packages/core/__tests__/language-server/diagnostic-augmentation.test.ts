@@ -513,4 +513,126 @@ describe('Language Server: Diagnostic Augmentation', () => {
       ]
     `);
   });
+
+  test('unresolved globals', () => {
+    project.setGlintConfig({ environment: ['ember-loose'] });
+    project.write({
+      'index.ts': stripIndent`
+        import Component from '@glimmer/component';
+
+        export default class MyComponent extends Component {
+          declare locals: { message: string };
+        }
+      `,
+      'index.hbs': stripIndent`
+        {{! failed global lookups (custom message about the registry) }}
+        <Foo />
+        <foo.ok />
+        {{foo.bar}}
+        {{concat foo}}
+
+        {{#let this.locals as |locals|}}
+          {{! failed non-global lookup (no custom message) }}
+          {{locals.bad-thing}}
+        {{/let}}
+      `,
+    });
+
+    let server = project.startLanguageServer();
+    let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "message": "Unknown name 'Foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
+        Element implicitly has an 'any' type because expression of type '\\"Foo\\"' can't be used to index type 'Globals'.
+          Property 'Foo' does not exist on type 'Globals'.",
+          "range": {
+            "end": {
+              "character": 7,
+              "line": 1,
+            },
+            "start": {
+              "character": 0,
+              "line": 1,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(7053)",
+          "tags": [],
+        },
+        {
+          "message": "Unknown name 'foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
+        Element implicitly has an 'any' type because expression of type '\\"foo\\"' can't be used to index type 'Globals'.
+          Property 'foo' does not exist on type 'Globals'.",
+          "range": {
+            "end": {
+              "character": 10,
+              "line": 2,
+            },
+            "start": {
+              "character": 0,
+              "line": 2,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(7053)",
+          "tags": [],
+        },
+        {
+          "message": "Unknown name 'foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
+        Element implicitly has an 'any' type because expression of type '\\"foo\\"' can't be used to index type 'Globals'.
+          Property 'foo' does not exist on type 'Globals'.",
+          "range": {
+            "end": {
+              "character": 9,
+              "line": 3,
+            },
+            "start": {
+              "character": 2,
+              "line": 3,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(7053)",
+          "tags": [],
+        },
+        {
+          "message": "Unknown name 'foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
+        Element implicitly has an 'any' type because expression of type '\\"foo\\"' can't be used to index type 'Globals'.
+          Property 'foo' does not exist on type 'Globals'.",
+          "range": {
+            "end": {
+              "character": 12,
+              "line": 4,
+            },
+            "start": {
+              "character": 9,
+              "line": 4,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(7053)",
+          "tags": [],
+        },
+        {
+          "message": "Element implicitly has an 'any' type because expression of type '\\"bad-thing\\"' can't be used to index type '{ message: string; }'.
+        Property 'bad-thing' does not exist on type '{ message: string; }'.",
+          "range": {
+            "end": {
+              "character": 20,
+              "line": 8,
+            },
+            "start": {
+              "character": 4,
+              "line": 8,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(7053)",
+          "tags": [],
+        },
+      ]
+    `);
+  });
 });
