@@ -5,5 +5,5 @@ github:
   releaseName: 'v${version}'
   tokenRef: GITHUB_AUTH
 plugins:
-  release-it-yarn-workspaces: true
-  release-it-lerna-changelog: true
+  '@release-it-plugins/workspaces': true
+  '@release-it-plugins/lerna-changelog': true
