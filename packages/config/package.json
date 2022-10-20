@@ -1,6 +1,6 @@
 {
   "name": "@glint/config",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "repository": "typed-ember/glint",
   "description": "Tools to read configuration for @glint packages",
   "license": "MIT",
