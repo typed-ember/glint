@@ -16,6 +16,7 @@ import { OnModifier } from '../intrinsics/on';
 import { OutletKeyword } from '../intrinsics/outlet';
 import { TextareaComponent } from '../intrinsics/textarea';
 import { UnboundKeyword } from '../intrinsics/unbound';
+import { UniqueIdHelper } from '../intrinsics/unique-id';
 
 import Registry from '../../registry';
 
@@ -282,6 +283,16 @@ export interface Globals extends Keywords, Registry {
     [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.components/methods/Textarea?anchor=Textarea
    */
   Textarea: TextareaComponent;
+
+  /**
+  Use the `{{unique-id}}` helper to generate a unique ID string suitable for use as an ID
+  attribute in the DOM.
+ 
+  See [the API documentation] for further details.
+
+  [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/unique-id?anchor=unique-id
+   */
+  'unique-id': UniqueIdHelper;
 }
 
 export declare const Globals: Globals;
