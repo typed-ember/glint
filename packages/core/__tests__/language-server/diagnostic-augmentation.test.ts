@@ -635,4 +635,95 @@ describe('Language Server: Diagnostic Augmentation', () => {
       ]
     `);
   });
+
+  test('failed `component` name lookup', () => {
+    project.setGlintConfig({ environment: ['ember-loose'] });
+    project.write({
+      'index.ts': stripIndent`
+        import Component from '@glimmer/component';
+
+        export default class MyComponent extends Component {
+          componentName = 'bar' as const';
+        }
+      `,
+      'index.hbs': stripIndent`
+        {{#let 'baz' as |baz|}}
+          {{#let
+            (component 'foo') 
+            (component this.componentName)
+            (component baz)
+            as |Foo Bar|
+          }}
+            {{! @glint-ignore: we don't care about errors here}}
+            <Foo /><Bar /><Baz />
+          {{/let}}
+        {{/let}}
+      `,
+    });
+
+    let server = project.startLanguageServer();
+    let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "message": "Unknown component name 'foo'. If this isn't a typo, you may be missing a registry entry for this name; see the Template Registry page in the Glint documentation for more details.
+        No overload matches this call.
+          The last overload gave the following error.
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+          "range": {
+            "end": {
+              "character": 20,
+              "line": 2,
+            },
+            "start": {
+              "character": 15,
+              "line": 2,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(2769)",
+          "tags": [],
+        },
+        {
+          "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
+        No overload matches this call.
+          The last overload gave the following error.
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+          "range": {
+            "end": {
+              "character": 33,
+              "line": 3,
+            },
+            "start": {
+              "character": 15,
+              "line": 3,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(2769)",
+          "tags": [],
+        },
+        {
+          "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
+        No overload matches this call.
+          The last overload gave the following error.
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+          "range": {
+            "end": {
+              "character": 18,
+              "line": 4,
+            },
+            "start": {
+              "character": 15,
+              "line": 4,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(2769)",
+          "tags": [],
+        },
+      ]
+    `);
+  });
 });

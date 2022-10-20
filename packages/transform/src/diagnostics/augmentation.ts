@@ -110,6 +110,38 @@ function checkResolveError(
   diagnostic: Diagnostic,
   mapping: MappingTree
 ): ts.DiagnosticMessageChain | undefined {
+  // The diagnostic might fall on a lone identifier or a full path; if the former,
+  // we need to traverse up through the path to find the true parent.
+  let sourceMapping = mapping.sourceNode.type === 'Identifier' ? mapping.parent : mapping;
+  let parentNode = sourceMapping?.parent?.sourceNode;
+
+  // If this error is on the first param to a {{component}} invocation, this means
+  // we either have a non-component value or a string that's missing from the registry.
+  if (
+    (parentNode?.type === 'SubExpression' || parentNode?.type === 'MustacheStatement') &&
+    parentNode.path.type === 'PathExpression' &&
+    parentNode.path.original === 'component' &&
+    parentNode.params[0] === sourceMapping?.sourceNode
+  ) {
+    if (sourceMapping.sourceNode.type === 'StringLiteral') {
+      return addGlintDetails(
+        diagnostic,
+        `Unknown component name '${sourceMapping.sourceNode.value}'. If this isn't a typo, you may be ` +
+          `missing a registry entry for this name; see the Template Registry page in the Glint ` +
+          `documentation for more details.`
+      );
+    } else {
+      return addGlintDetails(
+        diagnostic,
+        `The type of this expression doesn't appear to be a valid value to pass the {{component}} ` +
+          `helper. If possible, you may need to give the expression a narrower type, ` +
+          `for example \`'component-a' | 'component-b'\` rather than \`string\`.`
+      );
+    }
+  }
+
+  // Otherwise if this is on a top level invocation, we're trying to use a template-unaware
+  // value in a template-specific way.
   let nodeType = mapping.sourceNode.type;
   if (nodeType === 'ElementNode' || nodeType === 'PathExpression' || nodeType === 'Identifier') {
     return addGlintDetails(
