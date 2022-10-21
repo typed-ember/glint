@@ -1,6 +1,6 @@
 {
   "name": "@glint/scripts",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "type": "module",
   "repository": "typed-ember/glint",
   "description": "Scripts for working with Glint",
@@ -24,7 +24,7 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "@glint/config": "^0.9.6",
+    "@glint/config": "^0.9.7",
     "golden-fleece": "^1.0.9",
     "glob": "^7.2.0",
     "js-yaml": "^4.1.0",

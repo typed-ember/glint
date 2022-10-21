@@ -1,6 +1,6 @@
 {
   "name": "@glint/environment-ember-template-imports",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "repository": "typed-ember/glint",
   "description": "A Glint environment to support ember-template-imports projects",
   "license": "MIT",
@@ -22,10 +22,10 @@
     "-private/**/*.{js,d.ts}"
   ],
   "dependencies": {
-    "@glint/template": "^0.9.6"
+    "@glint/template": "^0.9.7"
   },
   "peerDependencies": {
-    "@glint/environment-ember-loose": "^0.9.6",
+    "@glint/environment-ember-loose": "^0.9.7",
     "ember-template-imports": "^3.0.0"
   },
   "devDependencies": {
