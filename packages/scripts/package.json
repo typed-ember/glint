@@ -26,6 +26,7 @@
   "dependencies": {
     "@glint/config": "^0.9.6",
     "golden-fleece": "^1.0.9",
+    "glob": "^7.2.0",
     "js-yaml": "^4.1.0",
     "ora": "^6.1.2",
     "resolve": "^1.22.1",
