@@ -25,3 +25,30 @@ declare module '@glint/environment-ember-loose/registry' {
 ```
 
 Note that the runtime content of this module (effectively `export default templateOnlyComponent();`) is exactly what Ember generates at build time when creating a backing module for a template-only component.
+
+Due to the way TypeScript works, it's not possible to have a generic signature for template-only components:
+
+```typescript
+import templateOnlyComponent from '@ember/component/template-only';
+
+interface ShoutSignature<T> {
+  Args: { message: T };
+  Blocks: {
+    default: [shoutedMessage: T];
+  };
+}
+
+const Shout = templateOnlyComponent<ShoutSignature<???>>();
+```
+
+If that's needed, you must create an (empty) backing class:
+
+```typescript
+import Component from '@glimmer/component';
+
+interface ShoutSignature<T> {
+  // same as above
+}
+
+export default class Shout<T> extends Component<ShoutSignature<T>> {}
+```
