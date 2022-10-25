@@ -204,7 +204,7 @@ export default class TransformManager {
     assert(this.ts.sys.watchDirectory);
 
     let callback: ts.DirectoryWatcherCallback = (filename) =>
-      originalCallback(this.glintConfig.getSynthesizedScriptPathForTS(filename));
+      originalCallback(this.getScriptPathForTS(filename));
 
     return this.ts.sys.watchDirectory(path, callback, recursive, options);
   };
@@ -220,7 +220,7 @@ export default class TransformManager {
     let allExtensions = [...new Set([...extensions, ...env.getConfiguredFileExtensions()])];
     return this.ts.sys
       .readDirectory(rootDir, allExtensions, excludes, includes, depth)
-      .map((filename) => this.glintConfig.getSynthesizedScriptPathForTS(filename));
+      .map((filename) => this.getScriptPathForTS(filename));
   };
 
   public fileExists = (filename: string): boolean => {
@@ -248,6 +248,24 @@ export default class TransformManager {
 
     return fileStat.mtime > companionStat.mtime ? fileStat.mtime : companionStat.mtime;
   };
+
+  /**
+   * Given the path of a file on disk, returns the path under which we present TypeScript with
+   * its contents. This will include normalizations like `.gts` -> `.ts`, as well as relating
+   * a given `.hbs` file back to its backing module, if one exists.
+   */
+  public getScriptPathForTS(filename: string): string {
+    // If the file is a template and already has a companion, return that path
+    if (this.glintConfig.environment.isTemplate(filename)) {
+      let companionPath = this.documents.getCompanionDocumentPath(filename);
+      if (companionPath) {
+        return companionPath;
+      }
+    }
+
+    // Otherwise, follow the environment's standard rules for determining the path we present to TS
+    return this.glintConfig.getSynthesizedScriptPathForTS(filename);
+  }
 
   /** @internal `TransformInfo` is an unstable internal type */
   public findTransformInfoForOriginalFile(originalFileName: string): TransformInfo | null {
