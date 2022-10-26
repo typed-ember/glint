@@ -192,6 +192,7 @@ export default class GlintLanguageServer {
       label: completionEntry.name,
       kind: scriptElementKindToCompletionItemKind(this.ts, completionEntry.kind),
       data: { uri, transformedFileName, transformedOffset, source: completionEntry.source },
+      sortText: completionEntry.sortText,
     }));
   }
 
