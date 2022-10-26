@@ -57,6 +57,26 @@ describe('Language Server: Completions', () => {
     expect(completions).toBeUndefined();
   });
 
+  test('in a template with syntax errors', () => {
+    project.setGlintConfig({ environment: 'ember-loose' });
+
+    let code = stripIndent`
+      Hello, {{this.target.}}!
+    `;
+
+    project.write('index.hbs', code);
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(project.fileURI('index.hbs'), {
+      line: 0,
+      character: 4,
+    });
+
+    // Ensure we don't spew all ~900 completions available at the top level
+    // in module scope in a JS/TS file.
+    expect(completions).toBeUndefined();
+  });
+
   test('passing component args', () => {
     let code = stripIndent`
       import Component, { hbs } from '@glimmerx/component';
