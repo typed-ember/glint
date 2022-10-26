@@ -21,6 +21,7 @@ export function determineOptionsToExtend(argv: {
   } else {
     options.noEmit = true;
     options.declaration = false;
+    options.declarationMap = false;
   }
 
   return options;
