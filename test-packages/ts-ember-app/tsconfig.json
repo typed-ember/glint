@@ -17,6 +17,8 @@
     "noPropertyAccessFromIndexSignature": true,
     "noEmitOnError": false,
     "noEmit": true,
+    "declaration": true,
+    "declarationMap": true,
     "inlineSourceMap": true,
     "inlineSources": true,
     "baseUrl": ".",
