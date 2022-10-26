@@ -1,5 +1,4 @@
 import {
-  CompletionTriggerKind,
   Connection,
   FileChangeType,
   ServerCapabilities,
@@ -70,13 +69,11 @@ export function bindLanguageServerPool({ connection, pool, openDocuments }: Bind
     );
   });
 
-  connection.onCompletion(async ({ context, textDocument, position }) => {
-    if (context?.triggerKind !== CompletionTriggerKind.Invoked) {
-      // If this wasn't triggered by an explicit request for completions, pause briefly to allow
-      // any editor change events to be transmitted as well. VS Code explicitly sends the
-      // the autocomplete request BEFORE it sends the document update notification.
-      await new Promise((r) => setTimeout(r, 25));
-    }
+  connection.onCompletion(async ({ textDocument, position }) => {
+    // Pause briefly to allow any editor change events to be transmitted as well.
+    // VS Code explicitly sends the the autocomplete request BEFORE it sends the
+    // document update notification.
+    await new Promise((r) => setTimeout(r, 25));
 
     return pool.withServerForURI(textDocument.uri, ({ server }) =>
       server.getCompletions(textDocument.uri, position)

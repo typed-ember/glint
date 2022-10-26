@@ -178,7 +178,12 @@ export default class GlintLanguageServer {
       transformedOffset
     );
 
-    if (mapping?.sourceNode.type === 'TextContent') {
+    // If we're in a free-text region of a template, or if there's no mapping and yet
+    // we're in a template file, then we have no completions to offer.
+    if (
+      mapping?.sourceNode.type === 'TextContent' ||
+      (!mapping && this.glintConfig.environment.isTemplate(uri))
+    ) {
       return;
     }
 
@@ -192,6 +197,7 @@ export default class GlintLanguageServer {
       label: completionEntry.name,
       kind: scriptElementKindToCompletionItemKind(this.ts, completionEntry.kind),
       data: { uri, transformedFileName, transformedOffset, source: completionEntry.source },
+      sortText: completionEntry.sortText,
     }));
   }
 
