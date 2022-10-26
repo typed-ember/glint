@@ -88,7 +88,7 @@ export default class GlintLanguageServer {
   public openFile(uri: string, contents: string): void {
     let path = uriToFilePath(uri);
     this.documents.updateDocument(path, contents);
-    this.openFileNames.add(this.glintConfig.getSynthesizedScriptPathForTS(path));
+    this.openFileNames.add(this.transformManager.getScriptPathForTS(path));
   }
 
   public updateFile(uri: string, contents: string): void {
@@ -98,13 +98,13 @@ export default class GlintLanguageServer {
   public closeFile(uri: string): void {
     let path = uriToFilePath(uri);
     this.documents.removeDocument(path);
-    this.openFileNames.delete(this.glintConfig.getSynthesizedScriptPathForTS(path));
+    this.openFileNames.delete(this.transformManager.getScriptPathForTS(path));
   }
 
   public watchedFileWasAdded(uri: string): void {
     let filePath = uriToFilePath(uri);
     if (filePath.startsWith(this.glintConfig.rootDir)) {
-      this.rootFileNames.add(this.glintConfig.getSynthesizedScriptPathForTS(filePath));
+      this.rootFileNames.add(this.transformManager.getScriptPathForTS(filePath));
     }
   }
 
@@ -170,7 +170,7 @@ export default class GlintLanguageServer {
 
   public getCompletions(uri: string, position: Position): GlintCompletionItem[] | undefined {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
-    if (this.isTemplate(transformedFileName)) return;
+    if (!this.isAnalyzableFile(transformedFileName)) return;
 
     let { mapping } = this.transformManager.getOriginalRange(
       transformedFileName,
@@ -229,7 +229,7 @@ export default class GlintLanguageServer {
 
   public prepareRename(uri: string, position: Position): Range | undefined {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
-    if (this.isTemplate(transformedFileName)) return;
+    if (!this.isAnalyzableFile(transformedFileName)) return;
 
     let rename = this.service.getRenameInfo(transformedFileName, transformedOffset);
     if (rename.canRename) {
@@ -250,7 +250,7 @@ export default class GlintLanguageServer {
 
   public getEditsForRename(uri: string, position: Position, newText: string): WorkspaceEdit {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
-    if (this.isTemplate(transformedFileName)) return {};
+    if (!this.isAnalyzableFile(transformedFileName)) return {};
 
     let renameLocations = this.service.findRenameLocations(
       transformedFileName,
@@ -296,7 +296,7 @@ export default class GlintLanguageServer {
 
   public getHover(uri: string, position: Position): Hover | undefined {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
-    if (this.isTemplate(transformedFileName)) return;
+    if (!this.isAnalyzableFile(transformedFileName)) return;
 
     let info = this.service.getQuickInfoAtPosition(transformedFileName, transformedOffset);
     if (!info) return;
@@ -322,7 +322,7 @@ export default class GlintLanguageServer {
 
   public getDefinition(uri: string, position: Position): Location[] {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
-    if (this.isTemplate(transformedFileName)) return [];
+    if (!this.isAnalyzableFile(transformedFileName)) return [];
 
     let definitions =
       this.service.getDefinitionAtPosition(transformedFileName, transformedOffset) ?? [];
@@ -332,7 +332,7 @@ export default class GlintLanguageServer {
 
   public getReferences(uri: string, position: Position): Location[] {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
-    if (this.isTemplate(transformedFileName)) return [];
+    if (!this.isAnalyzableFile(transformedFileName)) return [];
 
     let references =
       this.service.getReferencesAtPosition(transformedFileName, transformedOffset) ?? [];
@@ -374,12 +374,10 @@ export default class GlintLanguageServer {
   }
 
   private findDiagnosticsSource(fileName: string): string | undefined {
-    if (!this.isTemplate(fileName)) {
-      return this.glintConfig.getSynthesizedScriptPathForTS(fileName);
-    }
+    let scriptPath = this.transformManager.getScriptPathForTS(fileName);
 
-    if (this.glintConfig.includesFile(fileName)) {
-      return this.documents.getCompanionDocumentPath(fileName);
+    if (this.isAnalyzableFile(scriptPath)) {
+      return scriptPath;
     }
   }
 
@@ -401,8 +399,17 @@ export default class GlintLanguageServer {
     };
   }
 
-  private isTemplate(fileName: string): boolean {
-    return this.glintConfig.environment.isTemplate(fileName);
+  private isAnalyzableFile(synthesizedScriptPath: string): boolean {
+    if (synthesizedScriptPath.endsWith('.ts')) {
+      return true;
+    }
+
+    let allowJs = this.service.getProgram()?.getCompilerOptions().allowJs ?? false;
+    if (allowJs && synthesizedScriptPath.endsWith('.js')) {
+      return true;
+    }
+
+    return false;
   }
 
   private *allKnownFileNames(): Iterable<string> {

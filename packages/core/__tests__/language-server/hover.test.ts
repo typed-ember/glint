@@ -172,4 +172,70 @@ describe('Language Server: Hover', () => {
       },
     });
   });
+
+  describe('JS in a TS project', () => {
+    test('with allowJs: true', () => {
+      let tsconfig = JSON.parse(project.read('tsconfig.json'));
+      tsconfig.glint = { environment: 'ember-loose' };
+      tsconfig.compilerOptions.allowJs = true;
+      project.write('tsconfig.json', JSON.stringify(tsconfig));
+
+      project.write({
+        'index.hbs': '{{this.message}}',
+        'index.js': stripIndent`
+          import Component from '@glimmer/component';
+
+          export default class MyComponent extends Component {
+            message = 'hi';
+          }
+        `,
+      });
+
+      let server = project.startLanguageServer();
+      let info = server.getHover(project.fileURI('index.hbs'), {
+        line: 0,
+        character: 10,
+      });
+
+      expect(server.getDiagnostics(project.fileURI('index.hbs'))).toEqual([]);
+      expect(server.getDiagnostics(project.fileURI('index.js'))).toEqual([]);
+
+      expect(info).toEqual({
+        contents: [{ language: 'ts', value: '(property) MyComponent.message: string' }],
+        range: {
+          start: { line: 0, character: 7 },
+          end: { line: 0, character: 14 },
+        },
+      });
+    });
+
+    test('allowJs: false', () => {
+      let tsconfig = JSON.parse(project.read('tsconfig.json'));
+      tsconfig.glint = { environment: 'ember-loose' };
+      tsconfig.compilerOptions.allowJs = false;
+      project.write('tsconfig.json', JSON.stringify(tsconfig));
+
+      project.write({
+        'index.hbs': '{{this.message}}',
+        'index.js': stripIndent`
+          import Component from '@glimmer/component';
+
+          export default class MyComponent extends Component {
+            message = 'hi';
+          }
+        `,
+      });
+
+      let server = project.startLanguageServer();
+      let info = server.getHover(project.fileURI('index.hbs'), {
+        line: 0,
+        character: 10,
+      });
+
+      expect(server.getDiagnostics(project.fileURI('index.hbs'))).toEqual([]);
+      expect(server.getDiagnostics(project.fileURI('index.js'))).toEqual([]);
+
+      expect(info).toEqual(undefined);
+    });
+  });
 });
