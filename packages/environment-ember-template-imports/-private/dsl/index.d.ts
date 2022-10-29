@@ -93,3 +93,5 @@ export declare function templateExpression<
 >(
   f: (𝚪: Context, χ: never) => void
 ): TemplateOnlyComponent<never> & (new () => Invokable<Signature> & HasContext<Context>);
+
+export declare function noop(value: unknown): void;

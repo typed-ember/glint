@@ -437,7 +437,7 @@ describe('rewriteTemplate', () => {
           {{hash}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`"{};"`);
+        expect(templateBody(template)).toMatchInlineSnapshot(`"χ.noop(hash);"`);
       });
 
       test('with values', () => {
@@ -446,7 +446,7 @@ describe('rewriteTemplate', () => {
         `;
 
         expect(templateBody(template)).toMatchInlineSnapshot(`
-          "({
+          "(χ.noop(hash), {
             a: 1,
             b: \\"ok\\",
           });"
@@ -459,7 +459,7 @@ describe('rewriteTemplate', () => {
         `;
 
         expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
-          "χ.emitContent(χ.resolve(log)({}, ({
+          "χ.emitContent(χ.resolve(log)({}, (χ.noop(hash), {
             a: 1,
             b: \\"ok\\",
           })));"

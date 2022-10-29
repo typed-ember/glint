@@ -197,11 +197,11 @@ export function templateToTypescript(
         assert(node.params.length === 0, '{{hash}} only accepts named parameters');
 
         if (!node.hash.pairs.length) {
-          emit.text('{}');
+          emit.text('χ.noop(hash)');
           return;
         }
 
-        emit.text('({');
+        emit.text('(χ.noop(hash), {');
         emit.indent();
         emit.newline();
 
