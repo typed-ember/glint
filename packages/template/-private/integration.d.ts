@@ -63,3 +63,12 @@ export type TemplateContext<This, Args, Blocks, Element> = {
 export type FlattenBlockParams<T> = {
   [K in keyof T]: T[K] extends { Params: { Positional: infer U } } ? U : T[K];
 };
+
+// This trio of declarations allows us to distinguish explicit named
+// argument invocation from "final positional argument is a hash"
+// situations.
+export declare const NamedArgs: unique symbol;
+export type NamedArgs<T> = T & NamedArgsMarker;
+export interface NamedArgsMarker {
+  [NamedArgs]: true;
+}

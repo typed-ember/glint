@@ -8,8 +8,16 @@ import {
   HasContext,
   Invokable,
   TemplateContext,
+  NamedArgs,
 } from '../integration';
 import { ElementForTagName } from './types';
+
+/**
+ * Used during emit to denote an object literal that corresponds
+ * to the use of named args rather than passing an object value
+ * directly.
+ */
+export declare const NamedArgsMarker: NamedArgs<unknown>;
 
 /*
  * Emits the given value as top-level content to the DOM. This:
