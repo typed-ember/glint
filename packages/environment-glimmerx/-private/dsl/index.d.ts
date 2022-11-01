@@ -12,7 +12,7 @@ import './integration-declarations';
  *
  * In order, we have:
  *  - explicit `DirectInvokable<T>`
- *  - constructor for an `Invokable<T>`
+ *  - constructor for an `InvokableInstance<T>`
  *  - a plain type guard
  *  - any other kind of plain function
  *
@@ -30,14 +30,14 @@ import {
   DirectInvokable,
   EmptyObject,
   HasContext,
-  Invokable,
+  InvokableInstance,
   Invoke,
   InvokeDirect,
   TemplateContext,
 } from '@glint/template/-private/integration';
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
-export declare function resolve<Args extends unknown[], Instance extends Invokable>(
+export declare function resolve<Args extends unknown[], Instance extends InvokableInstance>(
   item: abstract new (...args: Args) => Instance
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 export declare function resolve<Value, Args extends unknown[], T extends Value>(
@@ -67,4 +67,4 @@ export declare function templateExpression<
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(
   f: (𝚪: Context, χ: never) => void
-): TemplateComponent<never> & (new () => Invokable<Signature> & HasContext<Context>);
+): TemplateComponent<never> & (new () => InvokableInstance<Signature> & HasContext<Context>);

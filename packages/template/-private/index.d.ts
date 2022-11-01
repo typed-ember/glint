@@ -4,7 +4,7 @@ import {
   ModifierReturn,
   GuardEmpty,
   FlattenBlockParams,
-  Invokable,
+  InvokableInstance,
 } from './integration';
 import { ExpandSignature } from '@glimmer/component/-private/component';
 
@@ -47,7 +47,7 @@ export type AttrValue = string | number | boolean | null | undefined | SafeStrin
  * The `S` signature parameter here is of the same form as the one
  * accepted by both the Ember and Glimmer `Component` base classes.
  */
-export type ComponentLike<S = unknown> = InvokableConstructor<
+export type ComponentLike<S = unknown> = Invokable<
   (
     named: GuardEmpty<ExpandSignature<S>['Args']['Named']>,
     ...positional: ExpandSignature<S>['Args']['Positional']
@@ -66,7 +66,7 @@ export type ComponentLike<S = unknown> = InvokableConstructor<
  * The `S` signature parameter here is of the same form as the one
  * accepted by `Helper` and `helper`.
  */
-export type HelperLike<S = unknown> = InvokableConstructor<
+export type HelperLike<S = unknown> = Invokable<
   (...args: InvokableArgs<S>) => Get<S, 'Return', unknown>
 >;
 
@@ -79,7 +79,7 @@ export type HelperLike<S = unknown> = InvokableConstructor<
  * The `S` signature parameter here is of the same form as the ones
  * accepted by `Modifier` and `modifier`.
  */
-export type ModifierLike<S = unknown> = InvokableConstructor<
+export type ModifierLike<S = unknown> = Invokable<
   (...args: InvokableArgs<S>) => ModifierReturn<Constrain<Get<S, 'Element'>, Element>>
 >;
 
@@ -112,12 +112,10 @@ export type ModifierLike<S = unknown> = InvokableConstructor<
  * arg when invoking the yielded component.
  */
 export type WithBoundArgs<
-  T extends InvokableConstructor<AnyFunction>,
+  T extends Invokable<AnyFunction>,
   BoundArgs extends NamedArgNames<T>
-> = T extends InvokableConstructor<
-  (named: infer Named, ...positional: infer Positional) => infer Result
->
-  ? InvokableConstructor<
+> = T extends Invokable<(named: infer Named, ...positional: infer Positional) => infer Result>
+  ? Invokable<
       (
         named: GuardEmpty<Omit<Named, BoundArgs> & Partial<Pick<Named, BoundArgs & keyof Named>>>,
         ...positional: Positional
@@ -125,8 +123,8 @@ export type WithBoundArgs<
     >
   : never;
 
-type InvokableConstructor<F extends AnyFunction> = abstract new (...args: any) => Invokable<F>;
-type NamedArgNames<T extends InvokableConstructor<AnyFunction>> = T extends InvokableConstructor<
+type Invokable<F extends AnyFunction> = abstract new (...args: any) => InvokableInstance<F>;
+type NamedArgNames<T extends Invokable<AnyFunction>> = T extends Invokable<
   (named: infer Named, ...positional: any) => any
 >
   ? keyof Named

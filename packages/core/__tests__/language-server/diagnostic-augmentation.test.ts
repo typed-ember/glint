@@ -670,7 +670,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "Unknown component name 'foo'. If this isn't a typo, you may be missing a registry entry for this name; see the Template Registry page in the Glint documentation for more details.
         No overload matches this call.
           The last overload gave the following error.
-            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => ComponentReturn<any, any>>'.",
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<(args: unknown) => ComponentReturn<any, any>>'.",
           "range": {
             "end": {
               "character": 20,
@@ -689,7 +689,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
         No overload matches this call.
           The last overload gave the following error.
-            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => ComponentReturn<any, any>>'.",
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<(args: unknown) => ComponentReturn<any, any>>'.",
           "range": {
             "end": {
               "character": 33,
@@ -708,7 +708,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
         No overload matches this call.
           The last overload gave the following error.
-            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => ComponentReturn<any, any>>'.",
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<(args: unknown) => ComponentReturn<any, any>>'.",
           "range": {
             "end": {
               "character": 18,

@@ -64,7 +64,7 @@ declare function value<T>(): T;
   });
 }
 
-// A raw Invokable value
+// A raw InvokableInstance value
 {
   type TestSignature = <T>(
     args: { value: T; values: T[] },

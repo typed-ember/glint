@@ -6,7 +6,7 @@ import {
   ModifierReturn,
   EmptyObject,
   HasContext,
-  Invokable,
+  InvokableInstance,
   TemplateContext,
   NamedArgs,
 } from '../integration';
@@ -82,7 +82,7 @@ export declare function emitComponent<T extends ComponentReturn<any, any>>(
 export declare function templateExpression<
   Signature extends AnyFunction = (args: EmptyObject) => ComponentReturn<EmptyObject>,
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
->(f: (𝚪: Context, χ: never) => void): new () => Invokable<Signature> & HasContext<Context>;
+>(f: (𝚪: Context, χ: never) => void): new () => InvokableInstance<Signature> & HasContext<Context>;
 
 /*
  * Wraps a template body that's backed by a known value (typically a class), either

@@ -1,4 +1,4 @@
-import { ComponentReturn, EmptyObject, Invokable } from '@glint/template/-private/integration';
+import { ComponentReturn, EmptyObject, InvokableInstance } from '@glint/template/-private/integration';
 
 export interface TextareaArgs {
   value?: string | null | undefined;
@@ -10,6 +10,6 @@ export interface TextareaArgs {
   'key-press'?: ((value: string, event: KeyboardEvent) => void) | undefined;
 }
 
-export type TextareaComponent = new () => Invokable<
+export type TextareaComponent = new () => InvokableInstance<
   (args: TextareaArgs) => ComponentReturn<EmptyObject, HTMLTextAreaElement>
 >;

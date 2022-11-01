@@ -18,7 +18,7 @@ export declare const InvokeDirect: unique symbol;
 export type DirectInvokable<T extends AnyFunction = AnyFunction> = { [InvokeDirect]: T };
 
 export declare const Invoke: unique symbol;
-export type Invokable<T extends AnyFunction = AnyFunction> = { [Invoke]: T };
+export type InvokableInstance<T extends AnyFunction = AnyFunction> = { [Invoke]: T };
 
 export declare const Context: unique symbol;
 export type HasContext<T extends AnyContext = AnyContext> = { [Context]: T };

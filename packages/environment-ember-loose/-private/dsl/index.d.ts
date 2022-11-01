@@ -4,7 +4,7 @@ import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {
   DirectInvokable,
   EmptyObject,
-  Invokable,
+  InvokableInstance,
   Invoke,
   InvokeDirect,
 } from '@glint/template/-private/integration';
@@ -16,7 +16,7 @@ type OptNamed<N extends Record<string, unknown> | undefined> = N extends undefin
 // Items that can be directly invoked by value
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 // Items whose instance type can be invoked
-export declare function resolve<Args extends unknown[], Instance extends Invokable>(
+export declare function resolve<Args extends unknown[], Instance extends InvokableInstance>(
   item: (abstract new (...args: Args) => Instance) | null | undefined
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 // Functions that narrow the type of their first arg

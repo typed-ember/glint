@@ -1,4 +1,4 @@
-import { ComponentReturn, Invokable, EmptyObject } from '@glint/template/-private/integration';
+import { ComponentReturn, InvokableInstance, EmptyObject } from '@glint/template/-private/integration';
 
 export interface CheckboxInputArgs {
   type: 'checkbox';
@@ -18,6 +18,6 @@ export interface TextInputArgs {
   'key-up'?: ((value: string, event: KeyboardEvent) => void) | undefined;
 }
 
-export type InputComponent = new () => Invokable<
+export type InputComponent = new () => InvokableInstance<
   (args: CheckboxInputArgs | TextInputArgs) => ComponentReturn<EmptyObject, HTMLInputElement>
 >;

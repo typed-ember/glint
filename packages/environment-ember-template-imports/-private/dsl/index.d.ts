@@ -12,7 +12,7 @@ import {
   DirectInvokable,
   EmptyObject,
   HasContext,
-  Invokable,
+  InvokableInstance,
   Invoke,
   InvokeDirect,
   TemplateContext,
@@ -32,7 +32,7 @@ type OptNamed<N extends Record<string, unknown> | undefined> = N extends undefin
  */
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
-export declare function resolve<Args extends unknown[], Instance extends Invokable>(
+export declare function resolve<Args extends unknown[], Instance extends InvokableInstance>(
   item: (abstract new (...args: Args) => Instance) | null | undefined
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 
@@ -92,4 +92,4 @@ export declare function templateExpression<
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(
   f: (𝚪: Context, χ: never) => void
-): TemplateOnlyComponent<never> & (new () => Invokable<Signature> & HasContext<Context>);
+): TemplateOnlyComponent<never> & (new () => InvokableInstance<Signature> & HasContext<Context>);

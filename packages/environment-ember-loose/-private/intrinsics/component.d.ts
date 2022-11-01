@@ -2,23 +2,23 @@ import {
   ComponentReturn,
   EmptyObject,
   DirectInvokable,
-  Invokable,
+  InvokableInstance,
 } from '@glint/template/-private/integration';
 
 type RegistryComponentArgs<Registry, T extends keyof Registry> = Registry[T] extends abstract new (
   ...args: never[]
-) => Invokable<(args: infer Args, ...rest: any) => any>
+) => InvokableInstance<(args: infer Args, ...rest: any) => any>
   ? Args
   : EmptyObject;
 
 type RegistryComponentReturn<
   Registry,
   T extends keyof Registry
-> = Registry[T] extends abstract new (...args: never[]) => Invokable<(...args: any) => infer Return>
+> = Registry[T] extends abstract new (...args: never[]) => InvokableInstance<(...args: any) => infer Return>
   ? Return
   : unknown;
 
-type PartiallyAppliedComponent<AllArgs, GivenArgs, Return> = Invokable<
+type PartiallyAppliedComponent<AllArgs, GivenArgs, Return> = InvokableInstance<
   (
     args: Omit<AllArgs, keyof GivenArgs> & Partial<Pick<AllArgs, keyof GivenArgs & keyof AllArgs>>
   ) => Return
@@ -59,7 +59,7 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
     ConstructorArgs extends unknown[]
   >(
     args: GivenArgs,
-    component: abstract new (...args: ConstructorArgs) => Invokable<(args: Args) => Return>
+    component: abstract new (...args: ConstructorArgs) => InvokableInstance<(args: Args) => Return>
   ): abstract new () => PartiallyAppliedComponent<Args, GivenArgs, Return>;
   <
     Args,
@@ -69,7 +69,7 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
   >(
     args: GivenArgs,
     component:
-      | (abstract new (...args: ConstructorArgs) => Invokable<(args: Args) => Return>)
+      | (abstract new (...args: ConstructorArgs) => InvokableInstance<(args: Args) => Return>)
       | null
       | undefined
   ): null | (abstract new () => PartiallyAppliedComponent<Args, GivenArgs, Return>);
