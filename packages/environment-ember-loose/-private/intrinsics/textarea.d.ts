@@ -1,4 +1,4 @@
-import { AcceptsBlocks, EmptyObject, Invokable } from '@glint/template/-private/integration';
+import { ComponentReturn, EmptyObject, Invokable } from '@glint/template/-private/integration';
 
 export interface TextareaArgs {
   value?: string | null | undefined;
@@ -11,5 +11,5 @@ export interface TextareaArgs {
 }
 
 export type TextareaComponent = new () => Invokable<
-  (args: TextareaArgs) => AcceptsBlocks<EmptyObject, HTMLTextAreaElement>
+  (args: TextareaArgs) => ComponentReturn<EmptyObject, HTMLTextAreaElement>
 >;

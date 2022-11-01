@@ -4,7 +4,7 @@ import {
   resolve,
   emitComponent,
 } from '@glint/environment-ember-loose/-private/dsl';
-import { AcceptsBlocks } from '@glint/template/-private/integration';
+import { ComponentReturn } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
 import { ComponentKeyword } from '../../-private/intrinsics/component';
 import { EmptyObject } from '@glimmer/component/-private/component';
@@ -117,12 +117,12 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 
   const CurriedWithNothing = resolve(componentKeyword)({}, 'curried-component');
   expectTypeOf(resolve(CurriedWithNothing)).toEqualTypeOf<
-    (args: { a: string; b: number }) => AcceptsBlocks<EmptyObject>
+    (args: { a: string; b: number }) => ComponentReturn<EmptyObject>
   >();
 
   const CurriedWithA = resolve(componentKeyword)({ a: 'hi' }, 'curried-component');
   expectTypeOf(resolve(CurriedWithA)).toEqualTypeOf<
-    (args: { a?: string; b: number }) => AcceptsBlocks<EmptyObject>
+    (args: { a?: string; b: number }) => ComponentReturn<EmptyObject>
   >();
 }
 

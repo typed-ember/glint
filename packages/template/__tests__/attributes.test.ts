@@ -8,16 +8,16 @@ import {
   emitElement,
   emitComponent,
 } from '../-private/dsl';
-import { BoundModifier, DirectInvokable, EmptyObject } from '../-private/integration';
+import { ModifierReturn, DirectInvokable, EmptyObject } from '../-private/integration';
 import TestComponent from './test-component';
 import { htmlSafe } from '@ember/template';
 
 declare const imageModifier: DirectInvokable<
-  (args: EmptyObject) => BoundModifier<HTMLImageElement>
+  (args: EmptyObject) => ModifierReturn<HTMLImageElement>
 >;
 
 declare const anchorModifier: DirectInvokable<
-  (args: EmptyObject) => BoundModifier<HTMLAnchorElement>
+  (args: EmptyObject) => ModifierReturn<HTMLAnchorElement>
 >;
 
 class GenericElementComponent extends TestComponent<{ Element: HTMLElement }> {}

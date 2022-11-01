@@ -9,7 +9,7 @@ import { ResolveOrReturn } from './types';
  *     (args: Named, ...positional: Positional) => Result
  *
  * `Named` and `Positional` represent the respective types of the named and positional
- * args accepted, and `Result` is either `CreatesModifier`, `AcceptsBlocks<...>`, or any
+ * args accepted, and `Result` is either `CreatesModifier`, `ComponentReturn<...>`, or any
  * other type to simply indicate that the invokable returns a value.
  *
  * In the core, invokables can take one of two forms:

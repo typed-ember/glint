@@ -23,10 +23,10 @@ import './integration-declarations';
 
 import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {
-  AcceptsBlocks,
+  ComponentReturn,
   AnyContext,
   AnyFunction,
-  BoundModifier,
+  ModifierReturn,
   DirectInvokable,
   EmptyObject,
   HasContext,
@@ -48,7 +48,7 @@ export declare function resolve<Args extends unknown[], T>(
 ): (named: EmptyObject, arg: unknown, ...args: Args) => T;
 export declare function resolve<El extends Element, Args extends unknown[]>(
   item: (element: El, ...args: Args) => void | (() => void)
-): (named: EmptyObject, ...args: Args) => BoundModifier<El>;
+): (named: EmptyObject, ...args: Args) => ModifierReturn<El>;
 export declare function resolve<Args extends unknown[], T>(
   item: (...args: Args) => T
 ): (named: EmptyObject, ...args: Args) => T;
@@ -63,7 +63,7 @@ export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
 import { TemplateComponent } from '@glimmerx/component';
 
 export declare function templateExpression<
-  Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
+  Signature extends AnyFunction = (args: EmptyObject) => ComponentReturn<EmptyObject>,
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(
   f: (𝚪: Context, χ: never) => void

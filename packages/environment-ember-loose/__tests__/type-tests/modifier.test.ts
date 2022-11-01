@@ -1,7 +1,7 @@
 import Modifier, { modifier } from 'ember-modifier';
 import { resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { BoundModifier } from '@glint/template/-private/integration';
+import { ModifierReturn } from '@glint/template/-private/integration';
 import { ModifierLike } from '@glint/template';
 
 // Class-based modifier
@@ -44,8 +44,8 @@ import { ModifierLike } from '@glint/template';
 
   let neat = resolve(NeatModifier);
 
-  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<BoundModifier<HTMLImageElement>>();
-  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<BoundModifier<HTMLImageElement>>();
+  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<ModifierReturn<HTMLImageElement>>();
+  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<ModifierReturn<HTMLImageElement>>();
 
   type InferSignature<T> = T extends Modifier<infer Signature> ? Signature : never;
   expectTypeOf<InferSignature<NeatModifier>>().toEqualTypeOf<NeatModifierSignature>();
@@ -77,8 +77,8 @@ import { ModifierLike } from '@glint/template';
 
   let neat = resolve(definition);
 
-  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<BoundModifier<HTMLAudioElement>>();
-  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<BoundModifier<HTMLAudioElement>>();
+  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<ModifierReturn<HTMLAudioElement>>();
+  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<ModifierReturn<HTMLAudioElement>>();
 
   // @ts-expect-error: missing required positional arg
   neat({});

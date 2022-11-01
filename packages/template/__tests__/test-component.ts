@@ -3,8 +3,8 @@
 // well as simple examples of a helper and modifier.
 
 import {
-  AcceptsBlocks,
-  BoundModifier,
+  ComponentReturn,
+  ModifierReturn,
   Context,
   DirectInvokable,
   EmptyObject,
@@ -21,7 +21,7 @@ export declare const globals: {
       args: EmptyObject,
       event: T,
       callback: (event: HTMLElementEventMap[T]) => void
-    ) => BoundModifier<HTMLElement>
+    ) => ModifierReturn<HTMLElement>
   >;
 };
 
@@ -35,6 +35,6 @@ export interface ComponentSignature {
 
 declare class TestComponent<T extends ComponentSignature = {}> {
   readonly args: Get<T, 'Args'>;
-  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Blocks'>, Get<T, 'Element', null>>;
+  [Invoke]: (args: Get<T, 'Args'>) => ComponentReturn<Get<T, 'Blocks'>, Get<T, 'Element', null>>;
   [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Blocks'>, Get<T, 'Element', null>>;
 }

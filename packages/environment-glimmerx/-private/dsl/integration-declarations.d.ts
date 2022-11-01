@@ -2,7 +2,7 @@
 // with templates to include the information necessary for Glint to typecheck them.
 import { ComponentLike, HelperLike } from '@glint/template';
 import {
-  BoundModifier,
+  ModifierReturn,
   Context,
   DirectInvokable,
   EmptyObject,
@@ -116,8 +116,8 @@ type _OnModifier = DirectInvokable<{
     args: OnModifierArgs,
     name: Name,
     callback: (event: HTMLElementEventMap[Name]) => void
-  ): BoundModifier<Element>;
-  (args: OnModifierArgs, name: string, callback: (event: Event) => void): BoundModifier<Element>;
+  ): ModifierReturn<Element>;
+  (args: OnModifierArgs, name: string, callback: (event: Event) => void): ModifierReturn<Element>;
 }>;
 
 declare module '@glimmerx/modifier' {

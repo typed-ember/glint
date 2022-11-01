@@ -7,7 +7,7 @@ import {
   emitComponent,
 } from '@glint/environment-glimmerx/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration';
+import { ComponentReturn, EmptyObject } from '@glint/template/-private/integration';
 
 {
   class NoArgsComponent extends Component {
@@ -149,7 +149,7 @@ import { AcceptsBlocks, EmptyObject } from '@glint/template/-private/integration
   });
 
   expectTypeOf(resolve(NoAnnotationTC)).toEqualTypeOf<
-    (args: EmptyObject) => AcceptsBlocks<EmptyObject>
+    (args: EmptyObject) => ComponentReturn<EmptyObject>
   >();
 }
 

@@ -1,4 +1,4 @@
-import { AcceptsBlocks, Invokable, EmptyObject } from '@glint/template/-private/integration';
+import { ComponentReturn, Invokable, EmptyObject } from '@glint/template/-private/integration';
 
 export interface CheckboxInputArgs {
   type: 'checkbox';
@@ -19,5 +19,5 @@ export interface TextInputArgs {
 }
 
 export type InputComponent = new () => Invokable<
-  (args: CheckboxInputArgs | TextInputArgs) => AcceptsBlocks<EmptyObject, HTMLInputElement>
+  (args: CheckboxInputArgs | TextInputArgs) => ComponentReturn<EmptyObject, HTMLInputElement>
 >;

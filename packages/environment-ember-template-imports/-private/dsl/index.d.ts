@@ -5,10 +5,10 @@ import './integration-declarations';
 
 import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {
-  AcceptsBlocks,
+  ComponentReturn,
   AnyContext,
   AnyFunction,
-  BoundModifier,
+  ModifierReturn,
   DirectInvokable,
   EmptyObject,
   HasContext,
@@ -63,10 +63,10 @@ export declare function resolve<
   N extends Record<string, unknown> | undefined
 >(
   item: (element: El, ...args: [...positional: P, named: N]) => void | (() => void)
-): (named: OptNamed<N>, ...positional: P) => BoundModifier<El>;
+): (named: OptNamed<N>, ...positional: P) => ModifierReturn<El>;
 export declare function resolve<El extends Element, P extends unknown[]>(
   item: (element: El, ...positional: P) => void | (() => void)
-): (named: EmptyObject, ...positional: P) => BoundModifier<El>;
+): (named: EmptyObject, ...positional: P) => ModifierReturn<El>;
 
 // other functions-as-helpers
 export declare function resolve<
@@ -88,7 +88,7 @@ export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
 import { TemplateOnlyComponent } from '@ember/component/template-only';
 
 export declare function templateExpression<
-  Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
+  Signature extends AnyFunction = (args: EmptyObject) => ComponentReturn<EmptyObject>,
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(
   f: (𝚪: Context, χ: never) => void

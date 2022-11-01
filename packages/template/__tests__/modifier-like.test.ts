@@ -1,6 +1,6 @@
 import { resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { BoundModifier } from '@glint/template/-private/integration';
+import { ModifierReturn } from '@glint/template/-private/integration';
 import { ModifierLike, WithBoundArgs } from '@glint/template';
 
 // Fixed signature params
@@ -16,8 +16,8 @@ import { ModifierLike, WithBoundArgs } from '@glint/template';
   let NeatModifier!: ModifierLike<NeatModifierSignature>;
   let neat = resolve(NeatModifier);
 
-  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<BoundModifier<HTMLImageElement>>();
-  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<BoundModifier<HTMLImageElement>>();
+  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<ModifierReturn<HTMLImageElement>>();
+  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<ModifierReturn<HTMLImageElement>>();
 
   // @ts-expect-error: missing required positional arg
   neat({});
@@ -45,7 +45,7 @@ import { ModifierLike, WithBoundArgs } from '@glint/template';
   let onDestroy = resolve(definition);
 
   expectTypeOf(onDestroy({ value: 'hello' }, (value) => value.charAt(0))).toEqualTypeOf<
-    BoundModifier<HTMLCanvasElement>
+    ModifierReturn<HTMLCanvasElement>
   >();
 
   // @ts-expect-error: missing required positional arg
@@ -72,6 +72,6 @@ import { ModifierLike, WithBoundArgs } from '@glint/template';
   let NeatModifier!: WithBoundArgs<ModifierLike<NeatModifierSignature>, 'multiplier'>;
 
   expectTypeOf(resolve(NeatModifier)).toEqualTypeOf<
-    (args: { multiplier?: number; input: string }) => BoundModifier<HTMLImageElement>
+    (args: { multiplier?: number; input: string }) => ModifierReturn<HTMLImageElement>
   >();
 }

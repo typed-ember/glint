@@ -1,7 +1,7 @@
 import { ComponentLike, WithBoundArgs } from '@glint/template';
 import { resolve, emitComponent } from '@glint/template/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { AcceptsBlocks } from '../-private/integration';
+import { ComponentReturn } from '../-private/integration';
 
 {
   const NoArgsComponent = {} as ComponentLike<{}>;
@@ -128,6 +128,6 @@ import { AcceptsBlocks } from '../-private/integration';
   let MyBoundComponent!: WithBoundArgs<typeof MyComponent, 'foo'>;
 
   expectTypeOf(resolve(MyBoundComponent)).toEqualTypeOf<
-    (args: { foo?: string; bar: number }) => AcceptsBlocks<{ default: [] }, HTMLCanvasElement>
+    (args: { foo?: string; bar: number }) => ComponentReturn<{ default: [] }, HTMLCanvasElement>
   >();
 }

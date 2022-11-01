@@ -1,4 +1,4 @@
-import { BoundModifier, DirectInvokable } from '@glint/template/-private/integration';
+import { ModifierReturn, DirectInvokable } from '@glint/template/-private/integration';
 
 export interface OnModifierArgs {
   capture?: boolean;
@@ -12,6 +12,6 @@ export type OnModifier = DirectInvokable<{
     args: OnModifierArgs,
     name: Name,
     callback: (event: HTMLElementEventMap[Name]) => void
-  ): BoundModifier<Element>;
-  (args: OnModifierArgs, name: string, callback: (event: Event) => void): BoundModifier<Element>;
+  ): ModifierReturn<Element>;
+  (args: OnModifierArgs, name: string, callback: (event: Event) => void): ModifierReturn<Element>;
 }>;

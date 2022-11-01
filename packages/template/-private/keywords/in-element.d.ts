@@ -1,4 +1,4 @@
-import { AcceptsBlocks, DirectInvokable } from '../integration';
+import { ComponentReturn, DirectInvokable } from '../integration';
 
 export type InElementKeyword = DirectInvokable<{
   (
@@ -6,5 +6,5 @@ export type InElementKeyword = DirectInvokable<{
       insertBefore?: null | undefined;
     },
     element: ShadowRoot | Element
-  ): AcceptsBlocks<{ default: [] }>;
+  ): ComponentReturn<{ default: [] }>;
 }>;

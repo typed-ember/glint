@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'expect-type';
 import SumType from 'sums-up';
-import { AcceptsBlocks, DirectInvokable, EmptyObject } from '../-private/integration';
+import { ComponentReturn, DirectInvokable, EmptyObject } from '../-private/integration';
 import { emitComponent, emitContent, resolve, resolveOrReturn } from '../-private/dsl';
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,13 +24,13 @@ declare const caseOf: DirectInvokable<
   <T extends SumType<never>>(
     args: EmptyObject,
     value: T
-  ) => AcceptsBlocks<{
+  ) => ComponentReturn<{
     default: [
       DirectInvokable<
         <K extends keyof SumVariants<T>>(
           args: EmptyObject,
           key: K
-        ) => AcceptsBlocks<{
+        ) => ComponentReturn<{
           default: SumVariants<T>[K];
           else?: [];
         }>
@@ -79,7 +79,7 @@ declare const caseOf: DirectInvokable<
 // arguable whether that's necessarily a good thing in template-land)
 
 declare const CaseOf: DirectInvokable<
-  <T extends SumType<any>>(args: { value: T }) => AcceptsBlocks<SumVariants<T>>
+  <T extends SumType<any>>(args: { value: T }) => ComponentReturn<SumVariants<T>>
 >;
 
 /**

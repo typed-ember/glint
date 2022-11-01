@@ -1,5 +1,5 @@
 import { expectTypeOf } from 'expect-type';
-import { AcceptsBlocks, DirectInvokable, TemplateContext } from '../-private/integration';
+import { ComponentReturn, DirectInvokable, TemplateContext } from '../-private/integration';
 import {
   emitComponent,
   resolve,
@@ -45,7 +45,7 @@ declare function value<T>(): T;
     }
   }
 
-  type ExpectedSignature = <T>(args: MyArgs<T>) => AcceptsBlocks<{
+  type ExpectedSignature = <T>(args: MyArgs<T>) => ComponentReturn<{
     body: [boolean, T];
   }>;
 
@@ -69,7 +69,7 @@ declare function value<T>(): T;
   type TestSignature = <T>(
     args: { value: T; values: T[] },
     positional: string
-  ) => AcceptsBlocks<{
+  ) => ComponentReturn<{
     foo: [T[], string];
     otherwise: [];
   }>;

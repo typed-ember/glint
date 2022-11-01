@@ -1,5 +1,5 @@
 import {
-  AcceptsBlocks,
+  ComponentReturn,
   EmptyObject,
   DirectInvokable,
   Invokable,
@@ -55,7 +55,7 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
   <
     Args,
     GivenArgs extends Partial<Args>,
-    Return extends AcceptsBlocks<any, any>,
+    Return extends ComponentReturn<any, any>,
     ConstructorArgs extends unknown[]
   >(
     args: GivenArgs,
@@ -64,7 +64,7 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
   <
     Args,
     GivenArgs extends Partial<Args>,
-    Return extends AcceptsBlocks<any, any>,
+    Return extends ComponentReturn<any, any>,
     ConstructorArgs extends unknown[]
   >(
     args: GivenArgs,

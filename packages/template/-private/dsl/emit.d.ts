@@ -1,9 +1,9 @@
 import { AttrValue, ContentValue } from '..';
 import {
-  AcceptsBlocks,
+  ComponentReturn,
   AnyContext,
   AnyFunction,
-  BoundModifier,
+  ModifierReturn,
   EmptyObject,
   HasContext,
   Invokable,
@@ -65,11 +65,11 @@ export declare function emitElement<Name extends string>(
  *       applyModifier(𝛄.element, resolve(baz)({}));
  *     });
  */
-export declare function emitComponent<T extends AcceptsBlocks<any, any>>(
+export declare function emitComponent<T extends ComponentReturn<any, any>>(
   component: T
 ): {
-  element: T extends AcceptsBlocks<any, infer El> ? El : any;
-  blockParams: T extends AcceptsBlocks<infer Yields, any> ? Required<Yields> : any;
+  element: T extends ComponentReturn<any, infer El> ? El : any;
+  blockParams: T extends ComponentReturn<infer Yields, any> ? Required<Yields> : any;
 };
 
 /*
@@ -80,7 +80,7 @@ export declare function emitComponent<T extends AcceptsBlocks<any, any>>(
  * environment's DSL export.
  */
 export declare function templateExpression<
-  Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
+  Signature extends AnyFunction = (args: EmptyObject) => ComponentReturn<EmptyObject>,
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(f: (𝚪: Context, χ: never) => void): new () => Invokable<Signature> & HasContext<Context>;
 
@@ -145,5 +145,5 @@ export declare function applyAttributes(element: Element, attrs: Record<string, 
  */
 export declare function applyModifier<TargetElement extends Element>(
   element: TargetElement,
-  modifier: BoundModifier<TargetElement>
+  modifier: ModifierReturn<TargetElement>
 ): void;

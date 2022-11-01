@@ -670,7 +670,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "Unknown component name 'foo'. If this isn't a typo, you may be missing a registry entry for this name; see the Template Registry page in the Glint documentation for more details.
         No overload matches this call.
           The last overload gave the following error.
-            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => ComponentReturn<any, any>>'.",
           "range": {
             "end": {
               "character": 20,
@@ -689,7 +689,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
         No overload matches this call.
           The last overload gave the following error.
-            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => ComponentReturn<any, any>>'.",
           "range": {
             "end": {
               "character": 33,
@@ -708,7 +708,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
         No overload matches this call.
           The last overload gave the following error.
-            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => ComponentReturn<any, any>>'.",
           "range": {
             "end": {
               "character": 18,
@@ -785,7 +785,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
         },
         {
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}} />'.
-        Argument of type 'abstract new () => PartiallyAppliedComponent<{ message?: string | undefined; }, { message: string; }, AcceptsBlocks<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'ContentValue'.",
+        Argument of type 'abstract new () => PartiallyAppliedComponent<{ message?: string | undefined; }, { message: string; }, ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'ContentValue'.",
           "range": {
             "end": {
               "character": 41,
@@ -802,8 +802,8 @@ describe('Language Server: Diagnostic Augmentation', () => {
         },
         {
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}}>...</ComponentName>'.
-        Argument of type 'typeof MyComponent' is not assignable to parameter of type 'AcceptsBlocks<any, any>'.
-          Property '[Element]' is missing in type 'typeof MyComponent' but required in type 'AcceptsBlocks<any, any>'.",
+        Argument of type 'typeof MyComponent' is not assignable to parameter of type 'ComponentReturn<any, any>'.
+          Property '[Element]' is missing in type 'typeof MyComponent' but required in type 'ComponentReturn<any, any>'.",
           "range": {
             "end": {
               "character": 43,
@@ -820,7 +820,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
         },
         {
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}}>...</ComponentName>'.
-        Argument of type 'abstract new () => PartiallyAppliedComponent<{ message?: string | undefined; }, { message: string; }, AcceptsBlocks<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'AcceptsBlocks<any, any>'.",
+        Argument of type 'abstract new () => PartiallyAppliedComponent<{ message?: string | undefined; }, { message: string; }, ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'ComponentReturn<any, any>'.",
           "range": {
             "end": {
               "character": 56,

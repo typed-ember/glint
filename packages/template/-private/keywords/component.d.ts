@@ -1,4 +1,4 @@
-import { AcceptsBlocks, AnyBlocks, DirectInvokable, Invokable } from '../integration';
+import { ComponentReturn, AnyBlocks, DirectInvokable, Invokable } from '../integration';
 
 export type ComponentKeyword = DirectInvokable<{
   <
@@ -8,10 +8,10 @@ export type ComponentKeyword = DirectInvokable<{
     ConstructorArgs extends unknown[]
   >(
     args: GivenArgs,
-    component: new (...args: ConstructorArgs) => Invokable<(args: Args) => AcceptsBlocks<Blocks>>
+    component: new (...args: ConstructorArgs) => Invokable<(args: Args) => ComponentReturn<Blocks>>
   ): new () => Invokable<
     (
       args: Omit<Args, keyof GivenArgs> & Partial<Pick<Args, keyof GivenArgs & keyof Args>>
-    ) => AcceptsBlocks<Blocks>
+    ) => ComponentReturn<Blocks>
   >;
 }>;

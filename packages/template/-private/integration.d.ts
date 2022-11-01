@@ -34,13 +34,13 @@ declare const Modifier: unique symbol;
 declare const Blocks: unique symbol;
 
 /** Denotes a modifier whose arguments have been bound and is ready to be attached to an element. */
-export type BoundModifier<El extends Element> = { [Modifier]: (el: El) => void };
+export type ModifierReturn<El extends Element> = { [Modifier]: (el: El) => void };
 
 /**
  * Denotes that the associated entity may be invoked with the given
  * blocks, yielding params of the appropriate type.
  */
-export type AcceptsBlocks<BlockImpls, El = null> = {
+export type ComponentReturn<BlockImpls, El = null> = {
   [Element]: El extends Element ? El : null;
   (blocks: BlockImpls): { [Blocks]: true };
 };

@@ -1,7 +1,7 @@
 import {
-  AcceptsBlocks,
+  ComponentReturn,
   AnyFunction,
-  BoundModifier,
+  ModifierReturn,
   GuardEmpty,
   FlattenBlockParams,
   Invokable,
@@ -51,7 +51,7 @@ export type ComponentLike<S = unknown> = InvokableConstructor<
   (
     named: GuardEmpty<ExpandSignature<S>['Args']['Named']>,
     ...positional: ExpandSignature<S>['Args']['Positional']
-  ) => AcceptsBlocks<
+  ) => ComponentReturn<
     FlattenBlockParams<ExpandSignature<S>['Blocks']>,
     ExpandSignature<S>['Element']
   >
@@ -80,7 +80,7 @@ export type HelperLike<S = unknown> = InvokableConstructor<
  * accepted by `Modifier` and `modifier`.
  */
 export type ModifierLike<S = unknown> = InvokableConstructor<
-  (...args: InvokableArgs<S>) => BoundModifier<Constrain<Get<S, 'Element'>, Element>>
+  (...args: InvokableArgs<S>) => ModifierReturn<Constrain<Get<S, 'Element'>, Element>>
 >;
 
 /**
@@ -149,6 +149,6 @@ type SafeString = { toHTML(): string };
 
 // `{{foo}}` becomes `emitContent(resolveOrReturn(foo)({})`, which means if `foo`
 // is a component that accepts no args, then this is a valid invocation.
-type ArglessCurlyComponent = AcceptsBlocks<{}, any>;
+type ArglessCurlyComponent = ComponentReturn<{}, any>;
 
 export {};
