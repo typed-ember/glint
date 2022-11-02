@@ -6,7 +6,7 @@ const withKeyword = resolve({} as WithKeyword);
 
 // Yields out the given value
 {
-  const component = emitComponent(withKeyword({}, 'hello'));
+  const component = emitComponent(withKeyword('hello'));
 
   {
     const [str] = component.blockParams.default;
@@ -19,7 +19,6 @@ const withKeyword = resolve({} as WithKeyword);
 }
 
 withKeyword(
-  {},
   'hello',
   // @ts-expect-error: Rejects multiple values
   'goodbye'

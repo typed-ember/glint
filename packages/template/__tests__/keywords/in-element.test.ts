@@ -1,4 +1,4 @@
-import { emitComponent, resolve } from '../../-private/dsl';
+import { emitComponent, NamedArgsMarker, resolve } from '../../-private/dsl';
 import { InElementKeyword } from '../../-private/keywords';
 
 const inElementKeyword = resolve({} as InElementKeyword);
@@ -7,24 +7,24 @@ declare const element: HTMLElement;
 declare const shadow: ShadowRoot;
 
 // Can be invoked with an element
-emitComponent(inElementKeyword({}, element));
+emitComponent(inElementKeyword(element));
 
 // Can be invoked with a ShadowRoot
-emitComponent(inElementKeyword({}, shadow));
+emitComponent(inElementKeyword(shadow));
 
 // Accepts an `insertBefore` argument
-emitComponent(inElementKeyword({ insertBefore: null }, element));
-emitComponent(inElementKeyword({ insertBefore: undefined }, element));
+emitComponent(inElementKeyword(element, { insertBefore: null, ...NamedArgsMarker }));
+emitComponent(inElementKeyword(element, { insertBefore: undefined, ...NamedArgsMarker }));
 
 // @ts-expect-error: rejects invocation with `undefined`
-emitComponent(inElementKeyword({}));
-// @ts-expect-error: rejects invocation with `null`
-emitComponent(inElementKeyword({}, null));
-// @ts-expect-error: rejects any other values for `insertBefore`
-emitComponent(inElementKeyword({ insertBefore: true }, element));
-// @ts-expect-error: rejects any other values for `insertBefore`
-emitComponent(inElementKeyword({ insertBefore: 'foo' }, element));
-// @ts-expect-error: rejects any other values for `insertBefore`
-emitComponent(inElementKeyword({ insertBefore: 1 }, element));
-// @ts-expect-error: rejects any other values for `insertBefore`
-emitComponent(inElementKeyword({ insertBefore: {} }, element));
+inElementKeyword();
+
+inElementKeyword(
+  // @ts-expect-error: rejects invocation with `null`
+  null
+);
+
+inElementKeyword(element, {
+  // @ts-expect-error: rejects any other `insertBefore` values
+  insertBefore: new HTMLDivElement(),
+});

@@ -1,5 +1,3 @@
-import { DirectInvokable, EmptyObject } from '../integration';
+import { HelperLike } from '../index';
 
-export type DebuggerKeyword = DirectInvokable<{
-  (args: EmptyObject): void;
-}>;
+export interface DebuggerKeyword extends HelperLike<{ Return: void }> {}

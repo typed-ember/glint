@@ -1,8 +1,13 @@
-import { ComponentReturn, DirectInvokable, EmptyObject } from '../integration';
+import { ComponentLike } from '../index';
 
-export type WithKeyword = DirectInvokable<{
-  <T>(args: EmptyObject, value: T): ComponentReturn<{
-    default: [T];
-    else?: [];
-  }>;
-}>;
+export type WithKeyword = abstract new <T>() => InstanceType<
+  ComponentLike<{
+    Args: {
+      Positional: [value: T];
+    };
+    Blocks: {
+      default: [value: T];
+      else: [];
+    };
+  }>
+>;

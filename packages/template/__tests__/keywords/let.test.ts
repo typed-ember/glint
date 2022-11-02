@@ -6,7 +6,7 @@ const letKeyword = resolve({} as LetKeyword);
 
 // Yields out the given values
 {
-  const component = emitComponent(letKeyword({}, 'hello', 123));
+  const component = emitComponent(letKeyword('hello', 123));
 
   {
     const [str, num] = component.blockParams.default;
