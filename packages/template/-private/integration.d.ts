@@ -34,7 +34,7 @@ declare const Modifier: unique symbol;
 declare const Blocks: unique symbol;
 
 /** Denotes a modifier whose arguments have been bound and is ready to be attached to an element. */
-export type ModifierReturn<El extends Element> = { [Modifier]: (el: El) => void };
+export type ModifierReturn = { [Modifier]: true };
 
 /**
  * Denotes that the associated entity may be invoked with the given

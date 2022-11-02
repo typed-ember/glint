@@ -80,7 +80,7 @@ export type HelperLike<S = unknown> = Invokable<
  * accepted by `Modifier` and `modifier`.
  */
 export type ModifierLike<S = unknown> = Invokable<
-  (...args: InvokableArgs<S>) => ModifierReturn<Constrain<Get<S, 'Element'>, Element>>
+  (element: Get<S, 'Element'>, ...args: InvokableArgs<S>) => ModifierReturn
 >;
 
 /**

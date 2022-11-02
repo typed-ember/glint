@@ -143,7 +143,4 @@ export declare function applyAttributes(element: Element, attrs: Record<string, 
  *     <div {{someModifier}}></div>
  *     <AnotherComponent {{someModifier}} />
  */
-export declare function applyModifier<TargetElement extends Element>(
-  element: TargetElement,
-  modifier: ModifierReturn<TargetElement>
-): void;
+export declare function applyModifier(boundModifier: ModifierReturn): void;

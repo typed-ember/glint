@@ -659,9 +659,11 @@ export function templateToTypescript(
     function emitModifiers(node: AST.ElementNode): void {
       for (let modifier of node.modifiers) {
         emit.forNode(modifier, () => {
-          emit.text('χ.applyModifier(𝛄.element, ');
-          emitResolve(modifier, 'resolve');
-          emit.text(');');
+          emit.text('χ.applyModifier(χ.resolve(');
+          emitExpression(modifier.path);
+          emit.text(')(𝛄.element, ');
+          emitArgs(modifier);
+          emit.text('));');
           emit.newline();
         });
       }
