@@ -3,6 +3,7 @@ import {
   applySplattributes,
   emitComponent,
   Globals,
+  NamedArgsMarker,
   resolve,
 } from '@glint/environment-ember-loose/-private/dsl';
 
@@ -12,28 +13,25 @@ let Input = resolve(Globals['Input']);
 // Both casings have the same signature
 expectTypeOf(input).toEqualTypeOf(Input);
 
-Input({});
-Input({ value: 'hello' });
-Input({ type: 'text', value: 'hello' });
-Input({ type: 'text', value: undefined });
-Input({ type: 'text', value: null });
-Input({ type: 'checkbox', checked: true });
+Input();
+Input({ value: 'hello', ...NamedArgsMarker });
+Input({ type: 'text', value: 'hello', ...NamedArgsMarker });
+Input({ type: 'text', value: undefined, ...NamedArgsMarker });
+Input({ type: 'text', value: null, ...NamedArgsMarker });
+Input({ type: 'checkbox', checked: true, ...NamedArgsMarker });
 
 // NOTE: We allow all string types but, if it becomes easily possible, we should limit to valid HTMLInput types and disallow empty strings.
-Input({ type: '', value: 'hello' });
-Input({ type: 'string', value: 'hello' });
+Input({ type: '', value: 'hello', ...NamedArgsMarker });
+Input({ type: 'string', value: 'hello', ...NamedArgsMarker });
 
 // Ensure we can apply <input>-specific attributes
 {
-  const 𝛄 = emitComponent(Input({}));
+  const 𝛄 = emitComponent(Input());
   applySplattributes(new HTMLInputElement(), 𝛄.element);
 }
 
 // @ts-expect-error: `checked` only works with `@type=checkbox`
-Input({ checked: true });
-
-// @ts-expect-error: `checked` only works with `@type=checkbox`
-Input({ type: 'text', checked: true });
+Input({ type: 'text', checked: true, ...NamedArgsMarker });
 
 // Event handlers
 Input({
@@ -69,4 +67,5 @@ Input({
     expectTypeOf(value).toEqualTypeOf<string>();
     expectTypeOf(event).toEqualTypeOf<KeyboardEvent>();
   },
+  ...NamedArgsMarker,
 });

@@ -1,5 +1,6 @@
-import { DirectInvokable, EmptyObject } from '@glint/template/-private/integration';
+import { HelperLike } from '@glint/template';
 
-export type LogHelper = DirectInvokable<{
-  (args: EmptyObject, ...params: unknown[]): void;
+export type LogHelper = HelperLike<{
+  Args: { Positional: unknown[] };
+  Return: void;
 }>;

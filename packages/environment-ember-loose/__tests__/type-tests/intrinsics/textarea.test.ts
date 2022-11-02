@@ -3,6 +3,7 @@ import {
   applySplattributes,
   emitComponent,
   Globals,
+  NamedArgsMarker,
   resolve,
 } from '@glint/environment-ember-loose/-private/dsl';
 
@@ -12,14 +13,14 @@ let Textarea = resolve(Globals['Textarea']);
 // Both casings have the same signature
 expectTypeOf(textarea).toEqualTypeOf(Textarea);
 
-Textarea({}), {};
-Textarea({ value: 'hello' });
-Textarea({ value: undefined });
-Textarea({ value: null });
+Textarea();
+Textarea({ value: 'hello', ...NamedArgsMarker });
+Textarea({ value: undefined, ...NamedArgsMarker });
+Textarea({ value: null, ...NamedArgsMarker });
 
 // Ensure we can apply <textarea>-specific attributes
 {
-  const 𝛄 = emitComponent(Textarea({}));
+  const 𝛄 = emitComponent(Textarea());
   applySplattributes(new HTMLTextAreaElement(), 𝛄.element);
 }
 
@@ -49,4 +50,5 @@ Textarea({
     expectTypeOf(value).toEqualTypeOf<string>();
     expectTypeOf(event).toEqualTypeOf<KeyboardEvent>();
   },
+  ...NamedArgsMarker,
 });

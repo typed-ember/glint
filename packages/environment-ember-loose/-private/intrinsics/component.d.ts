@@ -1,76 +1,80 @@
+import { WithBoundArgs } from '@glint/template';
 import {
   ComponentReturn,
   EmptyObject,
   DirectInvokable,
   InvokableInstance,
+  Invokable,
+  AnyFunction,
+  NamedArgNames,
+  NamedArgs,
+  UnwrapNamedArgs,
 } from '@glint/template/-private/integration';
 
-type RegistryComponentArgs<Registry, T extends keyof Registry> = Registry[T] extends abstract new (
-  ...args: never[]
-) => InvokableInstance<(args: infer Args, ...rest: any) => any>
-  ? Args
+type ComponentNamedArgs<Component> = Component extends Invokable<(...args: infer Args) => any>
+  ? Args extends [...positional: infer _, named?: infer Named]
+    ? UnwrapNamedArgs<Named>
+    : EmptyObject
   : EmptyObject;
 
-type RegistryComponentReturn<
-  Registry,
-  T extends keyof Registry
-> = Registry[T] extends abstract new (...args: never[]) => InvokableInstance<(...args: any) => infer Return>
-  ? Return
-  : unknown;
-
-type PartiallyAppliedComponent<AllArgs, GivenArgs, Return> = InvokableInstance<
-  (
-    args: Omit<AllArgs, keyof GivenArgs> & Partial<Pick<AllArgs, keyof GivenArgs & keyof AllArgs>>
-  ) => Return
->;
+type PartiallyAppliedComponent<Component, Args> = Component extends Invokable<AnyFunction>
+  ? WithBoundArgs<
+      Component,
+      Exclude<Args extends NamedArgNames<Component> ? Args : never, typeof NamedArgs>
+    >
+  : never;
 
 export type ComponentKeyword<Registry> = DirectInvokable<{
   // {{component "some-name"}}
-  <Name extends keyof Registry>(args: EmptyObject, component: Name): Registry[Name];
-  <Name extends keyof Registry>(args: EmptyObject, component: Name | null | undefined):
-    | Registry[Name]
-    | null;
+  <Name extends keyof Registry>(component: Name): Registry[Name];
+  <Name extends keyof Registry>(component: Name | null | undefined): Registry[Name] | null;
 
   // {{component "some-name" arg=value}}
-  <Name extends keyof Registry, GivenArgs extends Partial<RegistryComponentArgs<Registry, Name>>>(
-    args: GivenArgs,
-    component: Name
-  ): abstract new () => PartiallyAppliedComponent<
-    RegistryComponentArgs<Registry, Name>,
-    GivenArgs,
-    RegistryComponentReturn<Registry, Name>
-  >;
-  <Name extends keyof Registry, GivenArgs extends Partial<RegistryComponentArgs<Registry, Name>>>(
-    args: GivenArgs,
-    component: Name | null | undefined
-  ):
-    | null
-    | (abstract new () => PartiallyAppliedComponent<
-        RegistryComponentArgs<Registry, Name>,
-        GivenArgs,
-        RegistryComponentReturn<Registry, Name>
-      >);
+  <Name extends keyof Registry, GivenArgs extends Partial<ComponentNamedArgs<Registry[Name]>>>(
+    component: Name,
+    args: NamedArgs<GivenArgs>
+  ): PartiallyAppliedComponent<Registry[Name], keyof GivenArgs>;
+  <Name extends keyof Registry, GivenArgs extends Partial<ComponentNamedArgs<Registry[Name]>>>(
+    component: Name | null | undefined,
+    args: NamedArgs<GivenArgs>
+  ): null | PartiallyAppliedComponent<Registry[Name], keyof GivenArgs>;
 
   // {{component someCurriedComponent arg=value}}
   <
-    Args,
-    GivenArgs extends Partial<Args>,
+    Named,
+    Positional extends unknown[],
+    GivenArgs extends Partial<Named>,
     Return extends ComponentReturn<any, any>,
     ConstructorArgs extends unknown[]
   >(
-    args: GivenArgs,
-    component: abstract new (...args: ConstructorArgs) => InvokableInstance<(args: Args) => Return>
-  ): abstract new () => PartiallyAppliedComponent<Args, GivenArgs, Return>;
+    component: abstract new (...args: ConstructorArgs) => InvokableInstance<
+      (...args: [...positional: Positional, named: Named]) => Return
+    >,
+    args: NamedArgs<GivenArgs>
+  ): PartiallyAppliedComponent<
+    abstract new (...args: ConstructorArgs) => InvokableInstance<
+      (...args: [...positional: Positional, named: Named]) => Return
+    >,
+    keyof UnwrapNamedArgs<GivenArgs>
+  >;
   <
-    Args,
-    GivenArgs extends Partial<Args>,
+    Named,
+    Positional extends unknown[],
+    GivenArgs extends Partial<Named>,
     Return extends ComponentReturn<any, any>,
     ConstructorArgs extends unknown[]
   >(
-    args: GivenArgs,
     component:
-      | (abstract new (...args: ConstructorArgs) => InvokableInstance<(args: Args) => Return>)
       | null
       | undefined
-  ): null | (abstract new () => PartiallyAppliedComponent<Args, GivenArgs, Return>);
+      | (abstract new (...args: ConstructorArgs) => InvokableInstance<
+          (...args: [...positional: Positional, named: Named]) => Return
+        >),
+    args: NamedArgs<GivenArgs>
+  ): null | PartiallyAppliedComponent<
+    abstract new (...args: ConstructorArgs) => InvokableInstance<
+      (...args: [...positional: Positional, named: Named]) => Return
+    >,
+    keyof UnwrapNamedArgs<GivenArgs>
+  >;
 }>;

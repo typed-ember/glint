@@ -1,9 +1,14 @@
-import { DirectInvokable, EmptyObject } from '@glint/template/-private/integration';
+import { HelperLike } from '@glint/template';
 
 declare const Mut: unique symbol;
 
 export type Mut<T> = { [Mut]: (value: T) => void };
 
-export type MutKeyword = DirectInvokable<{
-  <T>(args: EmptyObject, value: T): Mut<T>;
-}>;
+export type MutKeyword = abstract new <T>() => InstanceType<
+  HelperLike<{
+    Args: {
+      Positional: [value: T];
+    };
+    Return: Mut<T>;
+  }>
+>;

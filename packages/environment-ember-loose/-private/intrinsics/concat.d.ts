@@ -1,5 +1,6 @@
-import { DirectInvokable, EmptyObject } from '@glint/template/-private/integration';
+import { HelperLike } from '@glint/template';
 
-export type ConcatHelper = DirectInvokable<{
-  (args: EmptyObject, ...params: unknown[]): string;
+export type ConcatHelper = HelperLike<{
+  Args: { Positional: unknown[] };
+  Return: string;
 }>;

@@ -1,9 +1,12 @@
 import Helper, { helper, EmptyObject } from '@ember/component/helper';
 import { resolve } from '@glint/environment-ember-loose/-private/dsl';
-import { resolve as resolveWithoutFunctionResolution } from '@glint/environment-ember-loose/-private/dsl/without-function-resolution';
+import {
+  NamedArgsMarker,
+  resolve as resolveWithoutFunctionResolution,
+} from '@glint/environment-ember-loose/-private/dsl/without-function-resolution';
 import { expectTypeOf } from 'expect-type';
 import { HelperLike } from '@glint/template';
-import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integration';
+import { EmptyObject as GlintEmptyObject, NamedArgs } from '@glint/template/-private/integration';
 
 // Functional helper: fixed signature params
 {
@@ -20,7 +23,7 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
   );
   let info = resolve(definition);
 
-  expectTypeOf(info).toEqualTypeOf<(named: { age: number }, name: string) => string>();
+  expectTypeOf(info).toEqualTypeOf<(name: string, named: NamedArgs<{ age: number }>) => string>();
 
   info(
     // @ts-expect-error: missing named arg
@@ -28,22 +31,24 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
     'Tom'
   );
 
-  info(
-    {
-      // @ts-expect-error: extra named arg
-      hello: true,
-      age: 123,
-    },
-    'Tom'
-  );
+  info('Tom', {
+    age: 123,
+    // @ts-expect-error: extra named arg
+    hello: true,
+    ...NamedArgsMarker,
+  });
 
   // @ts-expect-error: missing positional arg
-  info({ age: 123 });
+  info({ age: 123, ...NamedArgsMarker });
 
-  // @ts-expect-error: extra positional arg
-  info({ age: 123 }, 'Tom', 'Ster');
+  info(
+    'Tom',
+    'Ster',
+    // @ts-expect-error: extra positional arg
+    { age: 123, ...NamedArgsMarker }
+  );
 
-  expectTypeOf(info({ age: 123 }, 'Tom')).toEqualTypeOf<string>();
+  expectTypeOf(info('Tom', { age: 123, ...NamedArgsMarker })).toEqualTypeOf<string>();
 }
 
 // Functional helper: generic positional params
@@ -51,20 +56,30 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
   let definition = helper(<T, U>([a, b]: [T, U]) => a || b);
   let or = resolve(definition);
 
-  expectTypeOf(or).toEqualTypeOf<{ <T, U>(args: EmptyObject, t: T, u: U): T | U }>();
+  expectTypeOf(or).toEqualTypeOf<{ <T, U>(t: T, u: U, named?: NamedArgs<EmptyObject>): T | U }>();
 
-  // @ts-expect-error: extra named arg
-  or({ hello: true }, 'a', 'b');
+  or('a', 'b', {
+    // @ts-expect-error: extra named arg
+    hello: true,
+    ...NamedArgsMarker,
+  });
 
-  // @ts-expect-error: missing positional arg
-  or({}, 'a');
+  // This is perhaps unexpected, but this will typecheck with the named args acting
+  // as the second positional argument.
+  expectTypeOf(or('a' as const, { foo: 'hi', ...NamedArgsMarker })).toEqualTypeOf<
+    'a' | NamedArgs<{ foo: string }>
+  >();
 
-  // @ts-expect-error: extra positional arg
-  or({}, 'a', 'b', 'c');
+  or(
+    'a',
+    'b',
+    // @ts-expect-error: extra positional arg
+    'c'
+  );
 
-  expectTypeOf(or({}, 'a', 'b')).toEqualTypeOf<string>();
-  expectTypeOf(or({}, 'a' as string, true as boolean)).toEqualTypeOf<string | boolean>();
-  expectTypeOf(or({}, false, true)).toEqualTypeOf<boolean>();
+  expectTypeOf(or('a', 'b')).toEqualTypeOf<string>();
+  expectTypeOf(or('a' as string, true as boolean)).toEqualTypeOf<string | boolean>();
+  expectTypeOf(or(false, true)).toEqualTypeOf<boolean>();
 }
 
 // Functional helper: generic named params
@@ -75,19 +90,25 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
 
   let repeat = resolve(definition);
 
-  expectTypeOf(repeat).toEqualTypeOf<{ <T>(args: { value: T; count?: number }): Array<T> }>();
+  expectTypeOf(repeat).toEqualTypeOf<{
+    <T>(args: NamedArgs<{ value: T; count?: number }>): Array<T>;
+  }>();
 
   // @ts-expect-error: extra positional arg
-  repeat({ word: 'hi' }, 123);
+  repeat(123, { word: 'hi', ...NamedArgsMarker });
 
   // @ts-expect-error: missing required named arg
-  repeat({ count: 3 });
+  repeat({ count: 3, ...NamedArgsMarker });
 
-  // @ts-expect-error: extra named arg
-  repeat({ word: 'hello', foo: true });
+  repeat({
+    // @ts-expect-error: extra named arg
+    word: 'hello',
+    foo: true,
+    ...NamedArgsMarker,
+  });
 
-  expectTypeOf(repeat({ value: 'hi' })).toEqualTypeOf<Array<string>>();
-  expectTypeOf(repeat({ value: 123, count: 3 })).toEqualTypeOf<Array<number>>();
+  expectTypeOf(repeat({ value: 'hi', ...NamedArgsMarker })).toEqualTypeOf<Array<string>>();
+  expectTypeOf(repeat({ value: 123, count: 3, ...NamedArgsMarker })).toEqualTypeOf<Array<number>>();
 }
 
 // Class-based helper: named args
@@ -101,25 +122,28 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
 
   let repeat = resolve(RepeatHelper);
 
-  expectTypeOf(repeat).toEqualTypeOf<{ <T>(args: { value: T; count?: number }): Array<T> }>();
+  expectTypeOf(repeat).toEqualTypeOf<{
+    <T>(args: NamedArgs<{ value: T; count?: number }>): Array<T>;
+  }>();
 
   repeat(
-    { word: 'hi' },
+    123,
     // @ts-expect-error: extra positional arg
-    123
+    { word: 'hi', ...NamedArgsMarker }
   );
 
   // @ts-expect-error: missing required named arg
-  repeat({ count: 3 });
+  repeat({ count: 3, ...NamedArgsMarker });
 
   repeat({
     value: 'hello',
     // @ts-expect-error: extra named arg
     foo: true,
+    ...NamedArgsMarker,
   });
 
-  expectTypeOf(repeat({ value: 'hi' })).toEqualTypeOf<Array<string>>();
-  expectTypeOf(repeat({ value: 123, count: 3 })).toEqualTypeOf<Array<number>>();
+  expectTypeOf(repeat({ value: 'hi', ...NamedArgsMarker })).toEqualTypeOf<Array<string>>();
+  expectTypeOf(repeat({ value: 123, count: 3, ...NamedArgsMarker })).toEqualTypeOf<Array<number>>();
 }
 
 // Class-based helper: positional args
@@ -134,28 +158,24 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
   let repeat = resolve(RepeatHelper);
 
   expectTypeOf(repeat).toEqualTypeOf<{
-    <T>(args: GlintEmptyObject, value: T, count?: number | undefined): Array<T>;
+    <T>(value: T, count?: number | undefined, args?: NamedArgs<GlintEmptyObject>): Array<T>;
   }>();
 
   repeat(
+    'hello',
     // @ts-expect-error: extra named arg
-    { word: 'hi' },
-    'hello'
+    { word: 'hi', ...NamedArgsMarker }
   );
 
-  // @ts-expect-error: missing required positional arg
-  repeat({});
-
   repeat(
-    {},
     'hello',
     123,
-    // @ts-expect-error: extra positional arg
+    // @ts-expect-error: extra positional arg in named args spot
     'hi'
   );
 
-  expectTypeOf(repeat({}, 'hi')).toEqualTypeOf<Array<string>>();
-  expectTypeOf(repeat({}, 123, 3)).toEqualTypeOf<Array<number>>();
+  expectTypeOf(repeat('hi')).toEqualTypeOf<Array<string>>();
+  expectTypeOf(repeat(123, 3)).toEqualTypeOf<Array<number>>();
 }
 
 // Class-based helpers can return undefined
@@ -170,7 +190,9 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
 
   let maybeString = resolve(MaybeStringHelper);
 
-  expectTypeOf(maybeString).toEqualTypeOf<(args: GlintEmptyObject) => string | undefined>();
+  expectTypeOf(maybeString).toEqualTypeOf<
+    (args?: NamedArgs<GlintEmptyObject>) => string | undefined
+  >();
 }
 
 // Helpers are `HelperLike`
@@ -196,49 +218,49 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
   resolveWithoutFunctionResolution(() => 'hi');
 
   let positionalOnlyConcrete = resolve((a: number, b: number) => a + b);
-  expectTypeOf(positionalOnlyConcrete).toEqualTypeOf<
-    (named: GlintEmptyObject, a: number, b: number) => number
-  >();
-  expectTypeOf(positionalOnlyConcrete({}, 1, 2)).toBeNumber();
+  expectTypeOf(positionalOnlyConcrete).toEqualTypeOf<(a: number, b: number) => number>();
+  expectTypeOf(positionalOnlyConcrete(1, 2)).toBeNumber();
 
   let positionalOnlyGeneric = resolve(<A, B>(a: A, b: B): [A, B] => [a, b]);
-  expectTypeOf(positionalOnlyGeneric).toEqualTypeOf<
-    <A, B>(named: GlintEmptyObject, a: A, b: B) => [A, B]
-  >();
-  expectTypeOf(positionalOnlyGeneric({}, 'hi', true)).toEqualTypeOf<[string, boolean]>();
-  expectTypeOf(positionalOnlyGeneric({}, 123, Symbol())).toEqualTypeOf<[number, symbol]>();
+  expectTypeOf(positionalOnlyGeneric).toEqualTypeOf<<A, B>(a: A, b: B) => [A, B]>();
+  expectTypeOf(positionalOnlyGeneric('hi', true)).toEqualTypeOf<[string, boolean]>();
+  expectTypeOf(positionalOnlyGeneric(123, Symbol())).toEqualTypeOf<[number, symbol]>();
 
   let mixedConcrete = resolve(
     (a: number, b: number, named: { fallback: number }) => named.fallback
   );
   expectTypeOf(mixedConcrete).toEqualTypeOf<
-    (named: { fallback: number }, a: number, b: number) => number
+    (a: number, b: number, named: { fallback: number }) => number
   >();
-  expectTypeOf(mixedConcrete({ fallback: 123 }, 1, 2)).toBeNumber();
+  expectTypeOf(mixedConcrete(1, 2, { fallback: 123 })).toBeNumber();
 
   let mixedGenericNamed = resolve(
     <T>(a: number, b: number, named: { fallback: T }) => a + b || named.fallback
   );
   expectTypeOf(mixedGenericNamed).toEqualTypeOf<
-    <T>(named: { fallback: T }, a: number, b: number) => T | number
+    <T>(a: number, b: number, named: { fallback: T }) => T | number
   >();
-  expectTypeOf(mixedGenericNamed({ fallback: 'hi' }, 1, 2)).toEqualTypeOf<number | string>();
-  expectTypeOf(mixedGenericNamed({ fallback: 3 }, 1, 2)).toBeNumber();
+  expectTypeOf(mixedGenericNamed(1, 2, { fallback: 'hi' })).toEqualTypeOf<number | string>();
+  expectTypeOf(mixedGenericNamed(1, 2, { fallback: 3 })).toBeNumber();
 
   let mixedGenericPositional = resolve(
     <T>(a: T, b: T, named: { fallback: string }): string | T => a || b || named.fallback
   );
   expectTypeOf(mixedGenericPositional).toEqualTypeOf<
-    <T>(named: { fallback: string }, a: T, b: T) => T | string
+    <T>(a: T, b: T, named: { fallback: string }) => T | string
   >();
-  expectTypeOf(mixedGenericPositional({ fallback: 'hi' }, 'a', 'b')).toBeString();
-  expectTypeOf(mixedGenericPositional({ fallback: 'hi' }, 1, 2)).toEqualTypeOf<string | number>();
-  // @ts-expect-error: inconsistent T
-  mixedGenericPositional({ fallback: 'hi' }, 'a', 123);
+  expectTypeOf(mixedGenericPositional('a', 'b', { fallback: 'hi' })).toBeString();
+  expectTypeOf(mixedGenericPositional(1, 2, { fallback: 'hi' })).toEqualTypeOf<string | number>();
+  mixedGenericPositional(
+    'a',
+    // @ts-expect-error: inconsistent T
+    123,
+    { fallback: 'hi' }
+  );
 
   let mixedGeneric = resolve(<A, B, C>(a: A, b: B, named: { c: C }): [A, B, C] => [a, b, named.c]);
-  expectTypeOf(mixedGeneric).toEqualTypeOf<<A, B, C>(named: { c: C }, a: A, b: B) => [A, B, C]>();
-  expectTypeOf(mixedGeneric({ c: 'hi' }, 123, false)).toEqualTypeOf<[number, boolean, string]>();
+  expectTypeOf(mixedGeneric).toEqualTypeOf<<A, B, C>(a: A, b: B, named: { c: C }) => [A, B, C]>();
+  expectTypeOf(mixedGeneric(123, false, { c: 'hi' })).toEqualTypeOf<[number, boolean, string]>();
 
   let namedOnlyConcrete = resolve((named: { age: number; name: string }) => named.name);
   expectTypeOf(namedOnlyConcrete).toEqualTypeOf<(named: { age: number; name: string }) => string>();
@@ -249,11 +271,11 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
   expectTypeOf(namedOnlyGeneric({ t: 'hi', u: 123 })).toEqualTypeOf<[string, number]>();
 
   let optionalNamed = resolve(<T, U>(a: T, named?: { cool: U }): [T, U] => [a, named?.cool as U]);
-  expectTypeOf(optionalNamed).toEqualTypeOf<
-    <T, U>(named: GlintEmptyObject | { cool: T }, a: U) => [T, U]
+  expectTypeOf(optionalNamed).toEqualTypeOf<<T, U>(a: U, named?: { cool: T }) => [T, U]>();
+  expectTypeOf(optionalNamed(123)).toEqualTypeOf<[number, unknown]>();
+  expectTypeOf(optionalNamed(123, { cool: true, ...NamedArgsMarker })).toEqualTypeOf<
+    [number, boolean]
   >();
-  expectTypeOf(optionalNamed({}, 123)).toEqualTypeOf<[number, unknown]>();
-  expectTypeOf(optionalNamed({ cool: true }, 123)).toEqualTypeOf<[number, boolean]>();
 
   let optionalBoth = resolve(<T, U, V>(a: T, b?: U, named?: { foo: V }): [T, U, V] => [
     a,
@@ -261,12 +283,16 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
     named?.foo as V,
   ]);
   expectTypeOf(optionalBoth).toEqualTypeOf<
-    <T, U, V>(named: GlintEmptyObject | { foo: V }, a: T, b?: U) => [T, U, V]
+    <T, U, V>(a: T, b?: U, named?: { foo: V }) => [T, U, V]
   >();
-  expectTypeOf(optionalBoth({}, 'hi')).toEqualTypeOf<[string, unknown, unknown]>();
-  expectTypeOf(optionalBoth({}, 'hi', 123)).toEqualTypeOf<[string, number, unknown]>();
-  expectTypeOf(optionalBoth({ foo: true }, 'hi')).toEqualTypeOf<[string, unknown, boolean]>();
-  expectTypeOf(optionalBoth({ foo: true }, 'hi', 123)).toEqualTypeOf<[string, number, boolean]>();
+  expectTypeOf(optionalBoth('hi')).toEqualTypeOf<[string, unknown, unknown]>();
+  expectTypeOf(optionalBoth('hi', 123)).toEqualTypeOf<[string, number, unknown]>();
+  expectTypeOf(optionalBoth('hi', undefined, { foo: true, ...NamedArgsMarker })).toEqualTypeOf<
+    [string, undefined, boolean]
+  >();
+  expectTypeOf(optionalBoth('hi', 123, { foo: true, ...NamedArgsMarker })).toEqualTypeOf<
+    [string, number, boolean]
+  >();
 
   interface NamedInterface {
     name: string;
@@ -274,30 +300,26 @@ import { EmptyObject as GlintEmptyObject } from '@glint/template/-private/integr
   let namedArgsInterface = resolve((pos: string, options: NamedInterface) => {
     console.log(pos, options);
   });
-  expectTypeOf(namedArgsInterface).toEqualTypeOf<
-    (named: GlintEmptyObject, pos: string, options: NamedInterface) => void
-  >();
+  expectTypeOf(namedArgsInterface).toEqualTypeOf<(pos: string, options: NamedInterface) => void>();
 
   type NamedType = { name: string };
   let namedArgsType = resolve((pos: string, named: NamedType) => {
     console.log(pos, named);
   });
-  expectTypeOf(namedArgsType).toEqualTypeOf<(named: NamedType, pos: string) => void>();
+  expectTypeOf(namedArgsType).toEqualTypeOf<(pos: string, named: NamedType) => void>();
 
   let narrowsFirstArg = resolve(
     <K extends string>(arg: unknown, key: K): arg is Record<K, number> => !!key
   );
   expectTypeOf(narrowsFirstArg).toEqualTypeOf<
-    <K extends string>(named: GlintEmptyObject, arg: unknown, key: K) => arg is Record<K, number>
+    <K extends string>(arg: unknown, key: K) => arg is Record<K, number>
   >();
 
   let narrowsFirstArgTestValue!: unknown;
-  if (narrowsFirstArg({}, narrowsFirstArgTestValue, 'key')) {
+  if (narrowsFirstArg(narrowsFirstArgTestValue, 'key')) {
     expectTypeOf(narrowsFirstArgTestValue.key).toBeNumber();
   }
 
   let allOptional = resolve((a?: string, b?: { foo: string }) => `${a}${b?.foo}`);
-  expectTypeOf(allOptional).toEqualTypeOf<
-    (named: GlintEmptyObject | { foo: string }, a?: string) => string
-  >();
+  expectTypeOf(allOptional).toEqualTypeOf<(a?: string, b?: { foo: string }) => string>();
 }

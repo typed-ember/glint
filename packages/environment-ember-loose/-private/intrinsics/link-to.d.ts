@@ -22,8 +22,7 @@ type LinkToArgs = RequireAtLeastOne<
 
 export type LinkToKeyword = ComponentLike<{
   Args: {
-    Named: Partial<LinkToArgs>;
-    Positional: [route?: string, ...params: unknown[]];
+    Positional: [route: string, ...params: unknown[], ...named: [named?: Partial<LinkToArgs>]];
   };
   Element: HTMLAnchorElement;
   Blocks: { default: [] };

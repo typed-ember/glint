@@ -1,13 +1,14 @@
 import { expectTypeOf } from 'expect-type';
-import { Globals, resolve } from '@glint/environment-ember-loose/-private/dsl';
+import { Globals, NamedArgsMarker, resolve } from '@glint/environment-ember-loose/-private/dsl';
 
 let mount = resolve(Globals['mount']);
 
 // Basic plumbing
-expectTypeOf(mount({}, 'engine-name')).toEqualTypeOf<void>();
+expectTypeOf(mount('engine-name')).toEqualTypeOf<void>();
+expectTypeOf(mount('engine-name', { model: {}, ...NamedArgsMarker }));
 
 // @ts-expect-error: missing engine name
-mount({});
+mount();
 
 // @ts-expect-error: invalid named arg
-mount({ hello: 'hi' }, 'engine-name');
+mount('engine-name', { hello: 'hi', ...NamedArgsMarker });

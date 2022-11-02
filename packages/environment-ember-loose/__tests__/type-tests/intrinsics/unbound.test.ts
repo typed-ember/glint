@@ -1,14 +1,17 @@
 import { expectTypeOf } from 'expect-type';
-import { Globals, resolve } from '@glint/environment-ember-loose/-private/dsl';
+import { Globals, NamedArgsMarker, resolve } from '@glint/environment-ember-loose/-private/dsl';
 
 let unbound = resolve(Globals['unbound']);
 
 // Basic plumbing
-expectTypeOf(unbound({}, 'hello')).toEqualTypeOf<string>();
-expectTypeOf(unbound({}, 123)).toEqualTypeOf<number>();
+expectTypeOf(unbound('hello')).toEqualTypeOf<string>();
+expectTypeOf(unbound(123)).toEqualTypeOf<number>();
 
 // @ts-expect-error: missing value
-unbound({});
+unbound();
 
-// @ts-expect-error: invalid named arg
-unbound({ hello: 'hi' }, 'hello');
+unbound('hello', {
+  // @ts-expect-error: invalid named arg
+  hello: 'hi',
+  ...NamedArgsMarker,
+});
