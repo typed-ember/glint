@@ -24,15 +24,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 14
       - name: Locate Yarn Cache
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
@@ -56,13 +56,13 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 14
       - name: Install Dependencies
-        uses: nick-invision/retry@v2
+        uses: nick-fields/retry@v2
         with:
           max_attempts: 2
           timeout_minutes: 10
@@ -70,13 +70,13 @@ jobs:
       - name: Build
         run: yarn build
       - name: Test @glint/core
-        uses: nick-invision/retry@v2
+        uses: nick-fields/retry@v2
         with:
           max_attempts: 2
           timeout_minutes: 20
           command: yarn workspace @glint/core test
       - name: Test glint-vscode
-        uses: nick-invision/retry@v2
+        uses: nick-fields/retry@v2
         with:
           max_attempts: 2
           timeout_minutes: 10
@@ -90,9 +90,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 14
       - name: Install Dependencies
@@ -110,15 +110,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 14
       - name: Locate Yarn Cache
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
