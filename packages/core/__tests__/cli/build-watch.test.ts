@@ -355,7 +355,7 @@ describe('CLI: watched build mode typechecking', () => {
 
           projects.children.a.write(INPUT_SCRIPT, aCode.replace('<C />', '<C>'));
 
-          output = await watch.awaitOutput('Unclosed element');
+          output = await watch.awaitOutput('Watching for file changes.');
           let stripped = stripAnsi(output);
           let error = stripped.slice(
             stripped.indexOf('index.ts'),
@@ -431,18 +431,17 @@ describe('CLI: watched build mode typechecking', () => {
 
           projects.main.write(INPUT_SCRIPT, mainCode.replace('<A/>', '<A @foo="bar" />'));
 
-          output = await watch.awaitOutput('is not assignable');
+          output = await watch.awaitOutput('Watching for file changes.');
           let stripped = stripAnsi(output);
           let error = stripped.slice(
             stripped.indexOf('index.ts'),
             stripped.lastIndexOf(`~~~${os.EOL}`) + 3
           );
           expect(error).toMatchInlineSnapshot(`
-            "index.ts:16:8 - error TS2345: Argument of type '{ foo: string; }' is not assignable to parameter of type 'EmptyObject'.
-              Object literal may only specify known properties, and 'foo' does not exist in type 'EmptyObject'.
+            "index.ts:16:5 - error TS2554: Expected 0 arguments, but got 1.
 
             16     <A @foo=\\"bar\\" />
-                      ~~~~~~~~~~"
+                   ~~~~~~~~~~~~~~~~"
           `);
 
           await pauseForTSBuffering();
@@ -465,18 +464,17 @@ describe('CLI: watched build mode typechecking', () => {
 
           projects.children.a.write(INPUT_SCRIPT, aCode.replace('<C />', '<C @foo="bar" />'));
 
-          output = await watch.awaitOutput('is not assignable');
+          output = await watch.awaitOutput('Watching for file changes.');
           let stripped = stripAnsi(output);
           let error = stripped.slice(
             stripped.indexOf('index.ts'),
             stripped.lastIndexOf(`~~~${os.EOL}`) + 3
           );
           expect(error).toMatchInlineSnapshot(`
-            "index.ts:4:25 - error TS2345: Argument of type '{ foo: string; }' is not assignable to parameter of type 'EmptyObject'.
-              Object literal may only specify known properties, and 'foo' does not exist in type 'EmptyObject'.
+            "index.ts:4:22 - error TS2554: Expected 0 arguments, but got 1.
 
             4 const A = hbs\`Hello! <C @foo=\\"bar\\" />\`;
-                                      ~~~~~~~~~~"
+                                   ~~~~~~~~~~~~~~~~"
           `);
 
           await pauseForTSBuffering();
@@ -499,7 +497,7 @@ describe('CLI: watched build mode typechecking', () => {
 
           projects.children.c.write(INPUT_SCRIPT, cCode.replace('123', '"hello"'));
 
-          output = await watch.awaitOutput('is not assignable');
+          output = await watch.awaitOutput('Watching for file changes.');
           let stripped = stripAnsi(output);
           let error = stripped.slice(
             stripped.indexOf('index.ts'),
