@@ -86,7 +86,6 @@ jobs:
 
   test-floating-deps:
     name: Test Floating Dependencies
-    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -106,7 +105,6 @@ jobs:
 
   test-ts-nightly:
     name: Test TypeScript Nightly
-    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
