@@ -29,8 +29,8 @@ function rewriteMessageText(
 const diagnosticHandlers: Record<number, DiagnosticHandler | undefined> = {
   2322: checkAssignabilityError, // TS2322: Type 'X' is not assignable to type 'Y'.
   2345: checkAssignabilityError, // TS2345: Argument of type 'X' is not assignable to parameter of type 'Y'.
-  2554: adjustArgumentArity, // TS2554: Expected N arguments, but got M.
-  2555: adjustArgumentArity, // TS2555: Expected at least N arguments, but got M.
+  2554: noteNamedArgsAffectArity, // TS2554: Expected N arguments, but got M.
+  2555: noteNamedArgsAffectArity, // TS2555: Expected at least N arguments, but got M.
   2769: checkResolveError, // TS2769: No overload matches this call.
   7053: checkImplicitAnyError, // TS7053: Element implicitly has an 'any' type because expression of type '"X"' can't be used to index type 'Y'.
 };
@@ -97,37 +97,39 @@ function checkAssignabilityError(
   }
 }
 
-function adjustArgumentArity(
+function noteNamedArgsAffectArity(
   diagnostic: Diagnostic,
   mapping: MappingTree
-): string | ts.DiagnosticMessageChain {
-  // For normal template entity invocations, named args count as a function argument,
-  // so TS reports one more required and passed positional arg than is actual visible
-  // in the template. For `{{yield}}`, there are two extra args (𝚪 and the block name).
-  //
-  // Since (at least in English) TS always says "arguments" regardless of the
-  // actual plurality, we can just blindly subtract 1 (or 2 for yields) from all numeric
-  // patterns in the message.
+): string | ts.DiagnosticMessageChain | undefined {
+  // In normal template entity invocations, named args (if specified) are effectively
+  // passed as the final positional argument. Because of this, the reported "expected
+  // N arguments, but got M" message may appear to be off-by-one to the developer.
+
+  // Since this treatment of named args as a final "options hash" argument is user
+  // visible in cases like type errors, we can't just paper over this by subtracting
+  // 1 from the numbers in the message. Instead, if the invocation has named args, we
+  // explicitly note that they're effectively the final positional parameter.
+
   let callNode = findAncestor(mapping, 'MustacheStatement', 'SubExpression');
-  let delta = callNode?.path.loc.asString() === 'yield' ? 2 : 1;
+  if (callNode?.path.type === 'PathExpression' && callNode.path.original === 'yield') {
+    // Yield is directly transformed rather than being treated as a normal mustache
+    return;
+  }
 
-  return mapMessageText(diagnostic.messageText, (message) =>
-    message.replace(/\d+/g, (n) => `${Number(n) - delta}`)
-  );
-}
+  let hasNamedArgs = !!callNode?.hash.pairs.length;
+  if (hasNamedArgs) {
+    let note =
+      'Note that named args are passed together as a final argument, so they ' +
+      'collectively increase the given arg count by 1.';
 
-function mapMessageText<T extends string | ts.DiagnosticMessageChain>(
-  message: T,
-  mapper: (text: string) => string
-): T {
-  if (typeof message === 'string') {
-    return mapper(message) as T;
-  } else {
-    return {
-      ...(message as ts.DiagnosticMessageChain),
-      messageText: mapper(message.messageText),
-      next: message.next?.map((next) => mapMessageText(next, mapper)),
-    } as T;
+    if (typeof diagnostic.messageText === 'string') {
+      return `${diagnostic.messageText} ${note}`;
+    } else {
+      return {
+        ...diagnostic.messageText,
+        messageText: `${diagnostic.messageText.messageText} ${note}`,
+      };
+    }
   }
 }
 
@@ -167,7 +169,7 @@ function checkResolveError(
 
   // Otherwise if this is on a top level invocation, we're trying to use a template-unaware
   // value in a template-specific way.
-  let nodeType = mapping.sourceNode.type;
+  let nodeType = sourceMapping?.sourceNode.type;
   if (nodeType === 'ElementNode' || nodeType === 'PathExpression' || nodeType === 'Identifier') {
     return addGlintDetails(
       diagnostic,
