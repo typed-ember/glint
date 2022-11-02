@@ -1,12 +1,8 @@
-import { EmptyObject } from '@glint/template/-private/integration';
-
-type Constructor<T> = abstract new (...args: never[]) => T;
-
 /**
  * A utility for constructing the type of an environment's `resolveOrReturn` from
  * the type of its `resolve` function.
  */
-export type ResolveOrReturn<T> = T & (<U>(item: U) => (args: EmptyObject) => U);
+export type ResolveOrReturn<T> = T & (<U>(item: U) => () => U);
 
 /**
  * Given a tag name, returns an appropriate `Element` subtype.

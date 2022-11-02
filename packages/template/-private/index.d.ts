@@ -2,9 +2,15 @@ import {
   ComponentReturn,
   AnyFunction,
   ModifierReturn,
-  GuardEmpty,
   FlattenBlockParams,
-  InvokableInstance,
+  Invokable,
+  MaybeNamed,
+  Constrain,
+  GuardEmpty,
+  Get,
+  NamedArgNames,
+  UnwrapNamedArgs,
+  NamedArgs,
 } from './integration';
 import { ExpandSignature } from '@glimmer/component/-private/component';
 
@@ -49,8 +55,10 @@ export type AttrValue = string | number | boolean | null | undefined | SafeStrin
  */
 export type ComponentLike<S = unknown> = Invokable<
   (
-    named: GuardEmpty<ExpandSignature<S>['Args']['Named']>,
-    ...positional: ExpandSignature<S>['Args']['Positional']
+    ...args: [
+      ...positional: ExpandSignature<S>['Args']['Positional'],
+      ...named: MaybeNamed<NamedArgs<ExpandSignature<S>['Args']['Named']>>
+    ]
   ) => ComponentReturn<
     FlattenBlockParams<ExpandSignature<S>['Blocks']>,
     ExpandSignature<S>['Element']
@@ -114,32 +122,28 @@ export type ModifierLike<S = unknown> = Invokable<
 export type WithBoundArgs<
   T extends Invokable<AnyFunction>,
   BoundArgs extends NamedArgNames<T>
-> = T extends Invokable<(named: infer Named, ...positional: infer Positional) => infer Result>
+> = T extends Invokable<(...args: [...positional: infer P, named: infer N]) => infer R>
   ? Invokable<
       (
-        named: GuardEmpty<Omit<Named, BoundArgs> & Partial<Pick<Named, BoundArgs & keyof Named>>>,
-        ...positional: Positional
-      ) => Result
+        ...args: [
+          ...positional: P,
+          ...named: MaybeNamed<PrebindArgs<UnwrapNamedArgs<NonNullable<N>>, BoundArgs>>
+        ]
+      ) => R
     >
   : never;
-
-type Invokable<F extends AnyFunction> = abstract new (...args: any) => InvokableInstance<F>;
-type NamedArgNames<T extends Invokable<AnyFunction>> = T extends Invokable<
-  (named: infer Named, ...positional: any) => any
->
-  ? keyof Named
-  : never;
-
-type Get<T, K, Otherwise = unknown> = K extends keyof T ? T[K] : Otherwise;
-type Constrain<T, Constraint, Otherwise = Constraint> = T extends Constraint ? T : Otherwise;
 
 // We use the imported `ExpandSignature` for component signatures, as they have
 // different layers of possible shorthand, but modifiers and helpers only have
 // one structure they can specify their args in, so this utility is sufficient.
-type InvokableArgs<S> = [
-  named: GuardEmpty<Get<Get<S, 'Args'>, 'Named'>>,
-  ...positional: Constrain<Get<Get<S, 'Args'>, 'Positional'>, Array<unknown>, []>
+export type InvokableArgs<S> = [
+  ...positional: Constrain<Get<Get<S, 'Args'>, 'Positional'>, Array<unknown>, []>,
+  ...named: MaybeNamed<NamedArgs<GuardEmpty<Get<Get<S, 'Args'>, 'Named'>>>>
 ];
+
+type PrebindArgs<T, Args extends keyof UnwrapNamedArgs<T>> = NamedArgs<
+  Omit<UnwrapNamedArgs<T>, Args> & Partial<Pick<UnwrapNamedArgs<T>, Args>>
+>;
 
 // This encompasses both @glimmer/runtime and @ember/template's notion of `SafeString`s,
 // and this coverage is tested in `emit-content.test.ts`.

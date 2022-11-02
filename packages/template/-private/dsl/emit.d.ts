@@ -80,7 +80,7 @@ export declare function emitComponent<T extends ComponentReturn<any, any>>(
  * environment's DSL export.
  */
 export declare function templateExpression<
-  Signature extends AnyFunction = (args: EmptyObject) => ComponentReturn<EmptyObject>,
+  Signature extends AnyFunction = () => ComponentReturn<EmptyObject>,
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(f: (𝚪: Context, χ: never) => void): new () => InvokableInstance<Signature> & HasContext<Context>;
 

@@ -19,6 +19,7 @@ export type DirectInvokable<T extends AnyFunction = AnyFunction> = { [InvokeDire
 
 export declare const Invoke: unique symbol;
 export type InvokableInstance<T extends AnyFunction = AnyFunction> = { [Invoke]: T };
+export type Invokable<F extends AnyFunction> = abstract new (...args: any) => InvokableInstance<F>;
 
 export declare const Context: unique symbol;
 export type HasContext<T extends AnyContext = AnyContext> = { [Context]: T };
@@ -40,9 +41,9 @@ export type ModifierReturn = { [Modifier]: true };
  * Denotes that the associated entity may be invoked with the given
  * blocks, yielding params of the appropriate type.
  */
-export type ComponentReturn<BlockImpls, El = null> = {
+export type ComponentReturn<BlockDefs, El = null> = {
+  [Blocks]: BlockDefs;
   [Element]: El extends Element ? El : null;
-  (blocks: BlockImpls): { [Blocks]: true };
 };
 
 /**
@@ -72,3 +73,18 @@ export type NamedArgs<T> = T & NamedArgsMarker;
 export interface NamedArgsMarker {
   [NamedArgs]: true;
 }
+
+export type NamedArgNames<T extends Invokable<AnyFunction>> = T extends Invokable<
+  (...args: infer A) => any
+>
+  ? A extends [...positional: infer _, named?: infer N]
+    ? Exclude<keyof NonNullable<N>, typeof NamedArgs>
+    : never
+  : never;
+
+export type UnwrapNamedArgs<T> = T extends NamedArgs<infer U> ? U : T;
+
+export type MaybeNamed<T> = {} extends UnwrapNamedArgs<T> ? [named?: T] : [named: T];
+
+export type Get<T, K, Otherwise = unknown> = K extends keyof T ? T[K] : Otherwise;
+export type Constrain<T, Constraint, Otherwise = Constraint> = T extends Constraint ? T : Otherwise;
