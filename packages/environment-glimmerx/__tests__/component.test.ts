@@ -5,6 +5,7 @@ import {
   resolve,
   yieldToBlock,
   emitComponent,
+  NamedArgsMarker,
 } from '@glint/environment-glimmerx/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { ComponentReturn, EmptyObject } from '@glint/template/-private/integration';
@@ -19,16 +20,16 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
   resolve(NoArgsComponent)({
     // @ts-expect-error: extra named arg
     foo: 'bar',
+    ...NamedArgsMarker,
   });
 
   resolve(NoArgsComponent)(
-    {},
-    // @ts-expect-error: extra positional arg
+    // @ts-expect-error: bad positional arg
     'oops'
   );
 
   {
-    const component = emitComponent(resolve(NoArgsComponent)({}));
+    const component = emitComponent(resolve(NoArgsComponent)());
 
     {
       // @ts-expect-error: never yields, so shouldn't accept blocks
@@ -36,7 +37,7 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
     }
   }
 
-  emitComponent(resolve(NoArgsComponent)({}));
+  emitComponent(resolve(NoArgsComponent)());
 }
 
 {
@@ -50,7 +51,7 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
     });
   }
 
-  emitComponent(resolve(StatefulComponent)({}));
+  emitComponent(resolve(StatefulComponent)());
 }
 
 {
@@ -73,33 +74,36 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
       // the array element and the yielded value are the same.
       yieldToBlock(
         𝚪,
-        'default',
+        'default'
+      )(
         // @ts-expect-error: only a `T` is a valid yield
         123
       );
 
       if (𝚪.args.values.length) {
-        yieldToBlock(𝚪, 'default', 𝚪.args.values[0]);
+        yieldToBlock(𝚪, 'default')(𝚪.args.values[0]);
       } else {
-        yieldToBlock(𝚪, 'else');
+        yieldToBlock(𝚪, 'else')();
       }
     });
   }
 
   resolve(YieldingComponent)(
     // @ts-expect-error: missing required arg
-    {}
+    { ...NamedArgsMarker }
   );
 
   resolve(YieldingComponent)({
     // @ts-expect-error: incorrect type for arg
     values: 'hello',
+    ...NamedArgsMarker,
   });
 
   resolve(YieldingComponent)({
     values: [1, 2, 3],
     // @ts-expect-error: extra arg
     oops: true,
+    ...NamedArgsMarker,
   });
 
   type InferSignature<T> = T extends Component<infer Signature> ? Signature : never;
@@ -108,7 +112,7 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
   >();
 
   {
-    const component = emitComponent(resolve(YieldingComponent)({ values: [] }));
+    const component = emitComponent(resolve(YieldingComponent)({ values: [], ...NamedArgsMarker }));
 
     {
       // @ts-expect-error: invalid block name
@@ -117,7 +121,9 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
   }
 
   {
-    const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));
+    const component = emitComponent(
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+    );
 
     {
       const [value] = component.blockParams.default;
@@ -126,7 +132,9 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
   }
 
   {
-    const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));
+    const component = emitComponent(
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+    );
 
     {
       const [...args] = component.blockParams.default;
@@ -148,9 +156,7 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
     expectTypeOf(𝚪.blocks).toEqualTypeOf<EmptyObject>();
   });
 
-  expectTypeOf(resolve(NoAnnotationTC)).toEqualTypeOf<
-    (args: EmptyObject) => ComponentReturn<EmptyObject>
-  >();
+  expectTypeOf(resolve(NoAnnotationTC)).toEqualTypeOf<() => ComponentReturn<EmptyObject>>();
 }
 
 {
@@ -171,30 +177,32 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
     expectTypeOf(𝚪.blocks).toEqualTypeOf<YieldingTCSignature['Blocks']>();
 
     if (𝚪.args.values.length) {
-      yieldToBlock(𝚪, 'default', 𝚪.args.values[0]);
+      yieldToBlock(𝚪, 'default')(𝚪.args.values[0]);
     } else {
-      yieldToBlock(𝚪, 'else');
+      yieldToBlock(𝚪, 'else')();
     }
   });
 
   resolve(YieldingTC)(
     // @ts-expect-error: missing required arg
-    {}
+    { ...NamedArgsMarker }
   );
 
   resolve(YieldingTC)({
     // @ts-expect-error: incorrect type for arg
     values: 'hello',
+    ...NamedArgsMarker,
   });
 
   resolve(YieldingTC)({
     values: [1, 2, 3],
     // @ts-expect-error: extra arg
     oops: true,
+    ...NamedArgsMarker,
   });
 
   {
-    const component = emitComponent(resolve(YieldingTC)({ values: [] }));
+    const component = emitComponent(resolve(YieldingTC)({ values: [], ...NamedArgsMarker }));
 
     {
       // @ts-expect-error: invalid block name
@@ -203,7 +211,7 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
   }
 
   {
-    const component = emitComponent(resolve(YieldingTC)({ values: [1, 2, 3] }));
+    const component = emitComponent(resolve(YieldingTC)({ values: [1, 2, 3], ...NamedArgsMarker }));
 
     {
       const [value] = component.blockParams.default;
@@ -212,7 +220,7 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
   }
 
   {
-    const component = emitComponent(resolve(YieldingTC)({ values: [1, 2, 3] }));
+    const component = emitComponent(resolve(YieldingTC)({ values: [1, 2, 3], ...NamedArgsMarker }));
 
     {
       const [...args] = component.blockParams.default;

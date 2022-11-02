@@ -1,11 +1,9 @@
 // This module is responsible for augmenting the upstream definitions of entities that interact
 // with templates to include the information necessary for Glint to typecheck them.
-import { ComponentLike, HelperLike } from '@glint/template';
+import { ComponentLike, HelperLike, ModifierLike } from '@glint/template';
 import {
-  ModifierReturn,
   Context,
   DirectInvokable,
-  EmptyObject,
   FlattenBlockParams,
   TemplateContext,
 } from '@glint/template/-private/integration';
@@ -43,27 +41,18 @@ declare module '@glimmerx/component' {
 import '@glimmerx/helper';
 
 type _FnHelper = DirectInvokable<{
-  <Ret, Args extends unknown[]>(args: EmptyObject, f: (...rest: Args) => Ret): (
+  <Ret, Args extends unknown[]>(f: (...rest: Args) => Ret): (...rest: Args) => Ret;
+  <A, Ret, Args extends unknown[]>(f: (a: A, ...rest: Args) => Ret, a: A): (...rest: Args) => Ret;
+  <A, B, Ret, Args extends unknown[]>(f: (a: A, b: B, ...rest: Args) => Ret, a: A, b: B): (
     ...rest: Args
   ) => Ret;
-  <A, Ret, Args extends unknown[]>(args: EmptyObject, f: (a: A, ...rest: Args) => Ret, a: A): (
-    ...rest: Args
-  ) => Ret;
-  <A, B, Ret, Args extends unknown[]>(
-    args: EmptyObject,
-    f: (a: A, b: B, ...rest: Args) => Ret,
-    a: A,
-    b: B
-  ): (...rest: Args) => Ret;
   <A, B, C, Ret, Args extends unknown[]>(
-    args: EmptyObject,
     f: (a: A, b: B, c: C, ...rest: Args) => Ret,
     a: A,
     b: B,
     c: C
   ): (...rest: Args) => Ret;
   <A, B, C, D, Ret, Args extends unknown[]>(
-    args: EmptyObject,
     f: (a: A, b: B, c: C, d: D, ...rest: Args) => Ret,
     a: A,
     b: B,
@@ -71,7 +60,6 @@ type _FnHelper = DirectInvokable<{
     d: D
   ): (...rest: Args) => Ret;
   <A, B, C, D, E, Ret, Args extends unknown[]>(
-    args: EmptyObject,
     f: (a: A, b: B, c: C, d: D, e: E, ...rest: Args) => Ret,
     a: A,
     b: B,
@@ -80,7 +68,6 @@ type _FnHelper = DirectInvokable<{
     e: E
   ): (...rest: Args) => Ret;
   <A, B, C, D, E, G, Ret, Args extends unknown[]>(
-    args: EmptyObject,
     f: (a: A, b: B, c: C, d: D, e: E, g: G, ...rest: Args) => Ret,
     a: A,
     b: B,
@@ -110,15 +97,19 @@ export interface OnModifierArgs {
   passive?: boolean;
 }
 
-type _OnModifier = DirectInvokable<{
-  // There may be a ver event types not covered in HTMLElementEventMap, but we'll just default to Event
-  <Name extends keyof HTMLElementEventMap>(
-    args: OnModifierArgs,
-    name: Name,
-    callback: (event: HTMLElementEventMap[Name]) => void
-  ): ModifierReturn<Element>;
-  (args: OnModifierArgs, name: string, callback: (event: Event) => void): ModifierReturn<Element>;
-}>;
+type EventForName<Name extends string> = Name extends keyof HTMLElementEventMap
+  ? HTMLElementEventMap[Name]
+  : Event;
+
+type _OnModifier = abstract new <Name extends string>() => InstanceType<
+  ModifierLike<{
+    Element: Element;
+    Args: {
+      Named: OnModifierArgs;
+      Positional: [name: Name, callback: (event: EventForName<Name>) => void];
+    };
+  }>
+>;
 
 declare module '@glimmerx/modifier' {
   export interface OnModifier extends _OnModifier {}
