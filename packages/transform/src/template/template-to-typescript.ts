@@ -735,11 +735,14 @@ export function templateToTypescript(
         }
 
         emit.text('χ.yieldToBlock(𝚪, ');
-
         emit.text(JSON.stringify(to));
+        emit.text(')(');
 
-        for (let param of node.params) {
-          emit.text(', ');
+        for (let [index, param] of node.params.entries()) {
+          if (index) {
+            emit.text(', ');
+          }
+
           emitExpression(param);
         }
 

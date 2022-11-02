@@ -109,13 +109,12 @@ export declare function templateForBackingValue<Args extends unknown[], Context 
  *
  * Is equivalent to:
  *
- *     yieldToBlock(𝚪, 'name', foo, bar);
+ *     yieldToBlock(𝚪, 'name')(foo, bar);
  */
 export declare function yieldToBlock<Context extends AnyContext, K extends keyof Context['blocks']>(
   𝚪: Context,
-  to: K,
-  ...values: NonNullable<Context['blocks'][K]>
-): void;
+  to: K
+): (...values: NonNullable<Context['blocks'][K]>) => void;
 
 /*
  * Applies `...attributes` that were passed to a component down
