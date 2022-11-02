@@ -407,44 +407,41 @@ export function templateToTypescript(
 
         emit.text('const 𝛄 = χ.emitComponent(χ.resolve(');
         emitPathContents(path, start, kind);
-        emit.text(')({');
+        emit.text(')(');
 
         let dataAttrs = node.attributes.filter(({ name }) => name.startsWith('@'));
-        for (let [index, attr] of dataAttrs.entries()) {
-          if (index) {
+        if (dataAttrs.length) {
+          emit.text('{ ');
+
+          for (let attr of dataAttrs) {
+            emit.forNode(attr, () => {
+              start = template.indexOf(attr.name, start + 1);
+              emitHashKey(attr.name.slice(1), start + 1);
+              emit.text(': ');
+
+              switch (attr.value.type) {
+                case 'TextNode':
+                  emit.text(JSON.stringify(attr.value.chars));
+                  break;
+                case 'ConcatStatement':
+                  emitConcatStatement(attr.value);
+                  break;
+                case 'MustacheStatement':
+                  emitMustacheStatement(attr.value, 'arg');
+                  break;
+                default:
+                  unreachable(attr.value);
+              }
+            });
+
+            start = rangeForNode(attr.value).end;
             emit.text(', ');
-          } else {
-            emit.text(' ');
           }
 
-          emit.forNode(attr, () => {
-            start = template.indexOf(attr.name, start + 1);
-            emitHashKey(attr.name.slice(1), start + 1);
-            emit.text(': ');
-
-            switch (attr.value.type) {
-              case 'TextNode':
-                emit.text(JSON.stringify(attr.value.chars));
-                break;
-              case 'ConcatStatement':
-                emitConcatStatement(attr.value);
-                break;
-              case 'MustacheStatement':
-                emitMustacheStatement(attr.value, 'arg');
-                break;
-              default:
-                unreachable(attr.value);
-            }
-          });
-
-          start = rangeForNode(attr.value).end;
-
-          if (index === dataAttrs.length - 1) {
-            emit.text(' ');
-          }
+          emit.text('...χ.NamedArgsMarker }');
         }
 
-        emit.text('}));');
+        emit.text('));');
         emit.newline();
 
         emitAttributesAndModifiers(node);
@@ -943,36 +940,42 @@ export function templateToTypescript(
       emit.text(resolveType);
       emit.text('(');
       emitExpression(node.path);
-      emit.text(')({');
+      emit.text(')(');
+      emitArgs(node);
+      emit.text(')');
+    }
 
-      let { start } = rangeForNode(node.hash);
-      for (let [index, pair] of node.hash.pairs.entries()) {
+    function emitArgs(node: CurlyInvocationNode): void {
+      // Emit positional args
+      for (let [index, param] of node.params.entries()) {
         if (index) {
           emit.text(', ');
-        } else {
-          emit.text(' ');
         }
 
-        start = template.indexOf(pair.key, start);
-        emitHashKey(pair.key, start);
-        emit.text(': ');
-        emitExpression(pair.value);
-
-        if (index === node.hash.pairs.length - 1) {
-          emit.text(' ');
-        }
-
-        start = rangeForNode(pair.value).end;
-      }
-
-      emit.text('}');
-
-      for (let param of node.params) {
-        emit.text(', ');
         emitExpression(param);
       }
 
-      emit.text(')');
+      // Emit named args
+      if (node.hash.pairs.length) {
+        emit.text(node.params.length ? ', { ' : '{ ');
+
+        let { start } = rangeForNode(node.hash);
+        for (let [index, pair] of node.hash.pairs.entries()) {
+          start = template.indexOf(pair.key, start);
+          emitHashKey(pair.key, start);
+          emit.text(': ');
+          emitExpression(pair.value);
+
+          if (index === node.hash.pairs.length - 1) {
+            emit.text(' ');
+          }
+
+          start = rangeForNode(pair.value).end;
+          emit.text(', ');
+        }
+
+        emit.text('...χ.NamedArgsMarker }');
+      }
     }
 
     type PathKind = 'this' | 'arg' | 'free';

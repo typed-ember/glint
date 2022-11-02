@@ -138,20 +138,20 @@ describe('rewriteModule', () => {
 
         ({} as typeof import(\\"@glint/test-env\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/test-env\\")) {
           hbsCaptureAll;
-          χ.emitContent(χ.resolveOrReturn(global)({}));
-          χ.emitContent(χ.resolveOrReturn(message)({}));
+          χ.emitContent(χ.resolveOrReturn(global)());
+          χ.emitContent(χ.resolveOrReturn(message)());
           𝚪; χ;
         });
         ({} as typeof import(\\"@glint/test-env\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/test-env\\")) {
           hbsCaptureSome;
-          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"global\\"])({}));
-          χ.emitContent(χ.resolveOrReturn(message)({}));
+          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"global\\"])());
+          χ.emitContent(χ.resolveOrReturn(message)());
           𝚪; χ;
         });
         ({} as typeof import(\\"@glint/test-env\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/test-env\\")) {
           hbsCaptureNone;
-          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"global\\"])({}));
-          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"message\\"])({}));
+          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"global\\"])());
+          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"message\\"])());
           𝚪; χ;
         });"
       `);
@@ -299,7 +299,7 @@ describe('rewriteModule', () => {
         "import Component from '@glimmer/component';
         export class MyComponent extends Component {}
         ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
-          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"hello\\"])({}));
+          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"hello\\"])());
           𝚪; χ;
         });
         "
@@ -383,7 +383,7 @@ describe('rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "export default Foo;
         ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).templateForBackingValue(({} as unknown as typeof import('./test').default), function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
-          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"hello\\"])({}));
+          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"hello\\"])());
           𝚪; χ;
         });
         "
@@ -493,11 +493,11 @@ describe('rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(22:74):   <template>\\\\n    Hello, {{this.target}}!\\\\n  </template>
-        |  ts(22:301):   static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)({}));\\\\n  𝚪; χ;\\\\n}) }
+        |  ts(22:299):   static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)());\\\\n  𝚪; χ;\\\\n}) }
         |
         | | Mapping: Template
         | |  hbs(32:63):   Hello, {{this.target}}!
-        | |  ts(232:288):  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)({}));
+        | |  ts(232:286):  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)());
         | |
         | | | Mapping: TextContent
         | | |  hbs(37:43):   Hello,
@@ -505,7 +505,7 @@ describe('rewriteModule', () => {
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(44:59):   {{this.target}}
-        | | |  ts(232:286):  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)({}))
+        | | |  ts(232:284):  χ.emitContent(χ.resolveOrReturn(𝚪.this.target)())
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(46:57):   this.target
@@ -523,7 +523,7 @@ describe('rewriteModule', () => {
         | | |
         | | | Mapping: TextContent
         | | |  hbs(59:60):   !
-        | | |  ts(288:288):
+        | | |  ts(286:286):
         | | |
         | |
         |"
@@ -546,11 +546,11 @@ describe('rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(0:44):    <template>\\\\n  Hello, {{@target}}!\\\\n</template>
-        |  ts(0:272):    export default ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)({}));\\\\n  𝚪; χ;\\\\n})
+        |  ts(0:270):    export default ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)());\\\\n  𝚪; χ;\\\\n})
         |
         | | Mapping: Template
         | |  hbs(10:33):   Hello, {{@target}}!
-        | |  ts(205:261):  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)({}));
+        | |  ts(205:259):  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)());
         | |
         | | | Mapping: TextContent
         | | |  hbs(13:19):   Hello,
@@ -558,7 +558,7 @@ describe('rewriteModule', () => {
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(20:31):   {{@target}}
-        | | |  ts(205:259):  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)({}))
+        | | |  ts(205:257):  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)())
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(22:29):   @target
@@ -572,7 +572,7 @@ describe('rewriteModule', () => {
         | | |
         | | | Mapping: TextContent
         | | |  hbs(31:32):   !
-        | | |  ts(261:261):
+        | | |  ts(259:259):
         | | |
         | |
         |"
@@ -610,15 +610,15 @@ describe('rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(56:89):   <template>{{@message}}</template>
-        |  ts(56:314):   ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.args.message)({}));\\\\n  𝚪; χ;\\\\n})
+        |  ts(56:312):   ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.args.message)());\\\\n  𝚪; χ;\\\\n})
         |
         | | Mapping: Template
         | |  hbs(66:78):   {{@message}}
-        | |  ts(246:303):  χ.emitContent(χ.resolveOrReturn(𝚪.args.message)({}));
+        | |  ts(246:301):  χ.emitContent(χ.resolveOrReturn(𝚪.args.message)());
         | |
         | | | Mapping: MustacheStatement
         | | |  hbs(66:78):   {{@message}}
-        | | |  ts(246:301):  χ.emitContent(χ.resolveOrReturn(𝚪.args.message)({}))
+        | | |  ts(246:299):  χ.emitContent(χ.resolveOrReturn(𝚪.args.message)())
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(68:76):   @message
@@ -635,27 +635,27 @@ describe('rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(139:174): <template>{{this.title}}</template>
-        |  ts(364:642):  static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)({}));\\\\n  𝚪; χ;\\\\n}) }
+        |  ts(362:638):  static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)());\\\\n  𝚪; χ;\\\\n}) }
         |
         | | Mapping: Template
         | |  hbs(149:163): {{this.title}}
-        | |  ts(574:629):  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)({}));
+        | |  ts(572:625):  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)());
         | |
         | | | Mapping: MustacheStatement
         | | |  hbs(149:163): {{this.title}}
-        | | |  ts(574:627):  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)({}))
+        | | |  ts(572:623):  χ.emitContent(χ.resolveOrReturn(𝚪.this.title)())
         | | |
         | | | | Mapping: PathExpression
         | | | |  hbs(151:161): this.title
-        | | | |  ts(608:621):  𝚪.this.title
+        | | | |  ts(606:619):  𝚪.this.title
         | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(151:155): this
-        | | | | |  ts(611:615):  this
+        | | | | |  ts(609:613):  this
         | | | | |
         | | | | | Mapping: Identifier
         | | | | |  hbs(156:161): title
-        | | | | |  ts(616:621):  title
+        | | | | |  ts(614:619):  title
         | | | | |
         | | | |
         | | |
