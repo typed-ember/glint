@@ -1,7 +1,13 @@
 import { expectTypeOf } from 'expect-type';
 import SumType from 'sums-up';
-import { ComponentReturn, DirectInvokable, EmptyObject } from '../-private/integration';
-import { emitComponent, emitContent, resolve, resolveOrReturn } from '../-private/dsl';
+import {
+  emitComponent,
+  emitContent,
+  NamedArgsMarker,
+  resolve,
+  resolveOrReturn,
+} from '../-private/dsl';
+import { ComponentLike } from '../-private/index';
 
 ///////////////////////////////////////////////////////////////////////////////
 // This module exercises what's possible when declaring a signature for a
@@ -20,22 +26,22 @@ type SumVariants<T extends SumType<never>> = T extends SumType<infer V> ? V : ne
 // https://github.com/hojberg/sums-up
 // It doesn't (can't) do exhaustiveness checking, but it does plumb through
 // type parameters correctly
-declare const caseOf: DirectInvokable<
-  <T extends SumType<never>>(
-    args: EmptyObject,
-    value: T
-  ) => ComponentReturn<{
-    default: [
-      DirectInvokable<
-        <K extends keyof SumVariants<T>>(
-          args: EmptyObject,
-          key: K
-        ) => ComponentReturn<{
-          default: SumVariants<T>[K];
-          else?: [];
-        }>
-      >
-    ];
+declare const caseOf: abstract new <T extends SumType<never>>() => InstanceType<
+  ComponentLike<{
+    Args: { Positional: [value: T] };
+    Blocks: {
+      default: [
+        when: abstract new <K extends keyof SumVariants<T>>() => InstanceType<
+          ComponentLike<{
+            Args: { Positional: [key: K] };
+            Blocks: {
+              default: SumVariants<T>[K];
+              else: [];
+            };
+          }>
+        >
+      ];
+    };
   }>
 >;
 
@@ -51,20 +57,20 @@ declare const caseOf: DirectInvokable<
  * ```
  */
 {
-  const component = emitComponent(resolve(caseOf)({}, maybeValue));
+  const component = emitComponent(resolve(caseOf)(maybeValue));
   {
     const [when] = component.blockParams.default;
     {
-      const component = emitComponent(resolve(when)({}, 'Just'));
+      const component = emitComponent(resolve(when)('Just'));
       {
         const [n] = component.blockParams.default;
         expectTypeOf(n).toEqualTypeOf<number>();
-        emitContent(resolveOrReturn(n)({}));
+        emitContent(resolveOrReturn(n)());
       }
       {
         component.blockParams.else;
         {
-          const component = emitComponent(resolve(when)({}, 'Nothing'));
+          const component = emitComponent(resolve(when)('Nothing'));
           expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
         }
       }
@@ -78,8 +84,11 @@ declare const caseOf: DirectInvokable<
 // you do get exhaustiveness checking with this approach (though it's
 // arguable whether that's necessarily a good thing in template-land)
 
-declare const CaseOf: DirectInvokable<
-  <T extends SumType<any>>(args: { value: T }) => ComponentReturn<SumVariants<T>>
+declare const CaseOf: abstract new <T extends SumType<any>>() => InstanceType<
+  ComponentLike<{
+    Args: { value: T };
+    Blocks: SumVariants<T>;
+  }>
 >;
 
 /**
@@ -95,12 +104,12 @@ declare const CaseOf: DirectInvokable<
  * ```
  */
 {
-  const component = emitComponent(resolve(CaseOf)({ value: maybeValue }));
+  const component = emitComponent(resolve(CaseOf)({ value: maybeValue, ...NamedArgsMarker }));
 
   {
     const [value] = component.blockParams.Just;
     expectTypeOf(value).toEqualTypeOf<number>();
-    emitContent(resolveOrReturn(value)({}));
+    emitContent(resolveOrReturn(value)());
   }
 
   {

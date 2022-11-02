@@ -8,6 +8,7 @@ import {
   resolveOrReturn,
   templateForBackingValue,
   yieldToBlock,
+  NamedArgsMarker,
 } from '../-private/dsl';
 import TestComponent, { globals } from './test-component';
 
@@ -40,31 +41,27 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
    */
   static {
     templateForBackingValue(this, function (𝚪) {
-      const component = emitComponent(resolve(globals.let)({}, 𝚪.this.state.ready));
+      const component = emitComponent(resolve(globals.let)(𝚪.this.state.ready));
       const [isReady] = component.blockParams.default;
 
       {
         const 𝛄 = emitElement('div');
         expectTypeOf(𝛄).toEqualTypeOf<{ element: HTMLDivElement }>();
-        applyModifier(𝛄.element, resolve(globals.on)({}, 'click', 𝚪.this.wrapperClicked));
+        applyModifier(resolve(globals.on)(𝛄.element, 'click', 𝚪.this.wrapperClicked));
       }
 
-      yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
+      yieldToBlock(𝚪, 'body')(isReady, 𝚪.args.value);
 
       yieldToBlock(
         𝚪,
         // @ts-expect-error: bad block
-        'bad',
-        isReady,
-        𝚪.args.value
-      );
+        'bad'
+      )(isReady, 𝚪.args.value);
 
       // @ts-expect-error: missing params
-      yieldToBlock(𝚪, 'body');
+      yieldToBlock(𝚪, 'body')();
 
-      yieldToBlock(
-        𝚪,
-        'body',
+      yieldToBlock(𝚪, 'body')(
         isReady,
         // @ts-expect-error: wrong param type
         Symbol()
@@ -84,15 +81,15 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
  * </MyComponent>
  */
 {
-  const component = emitComponent(resolve(MyComponent)({ value: 'hi' }));
+  const component = emitComponent(resolve(MyComponent)({ value: 'hi', ...NamedArgsMarker }));
 
   {
     const [isReady, value] = component.blockParams.body;
     expectTypeOf(isReady).toEqualTypeOf<boolean>();
     expectTypeOf(value).toEqualTypeOf<string>();
 
-    emitContent(resolveOrReturn(value)({}));
-    emitContent(resolveOrReturn(isReady)({}));
+    emitContent(resolveOrReturn(value)());
+    emitContent(resolveOrReturn(isReady)());
   }
 }
 
@@ -107,15 +104,15 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
  * </MyComponent>
  */
 {
-  const component = emitComponent(resolve(MyComponent)({ value: 123 }));
+  const component = emitComponent(resolve(MyComponent)({ value: 123, ...NamedArgsMarker }));
 
   {
     const [isReady, value] = component.blockParams.body;
     expectTypeOf(isReady).toEqualTypeOf<boolean>();
     expectTypeOf(value).toEqualTypeOf<number>();
 
-    emitContent(resolveOrReturn(value)({}));
-    emitContent(resolveOrReturn(isReady)({}));
+    emitContent(resolveOrReturn(value)());
+    emitContent(resolveOrReturn(isReady)());
   }
 }
 
@@ -127,16 +124,16 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
  * {{MyComponent value=123}}
  * ```
  */
-emitContent(resolve(MyComponent)({ value: 123 }));
+emitContent(resolve(MyComponent)({ value: 123, ...NamedArgsMarker }));
 
 /**
  * Ensure we can invoke a maybe-undefined component.
  */
 declare const MaybeMyComponent: typeof MyComponent | undefined;
 
-emitComponent(resolve(MaybeMyComponent)({ value: 'hi' }));
+emitComponent(resolve(MaybeMyComponent)({ value: 'hi', ...NamedArgsMarker }));
 
-emitComponent(resolveOrReturn(MaybeMyComponent)({ value: 'hi' }));
+emitComponent(resolveOrReturn(MaybeMyComponent)({ value: 'hi', ...NamedArgsMarker }));
 
 /**
  * Invoking an `any` or `unknown` component should error at the invocation site
@@ -165,6 +162,6 @@ emitComponent(resolveOrReturn(MaybeMyComponent)({ value: 'hi' }));
  * in a template.
  */
 export function testConstrainedTypeParameter<T extends { foo: 'bar' }>(value: T): void {
-  let result = resolveOrReturn(value)({});
+  let result = resolveOrReturn(value)();
   expectTypeOf(result.foo).toEqualTypeOf<'bar'>();
 }

@@ -1,5 +1,10 @@
 import { expectTypeOf } from 'expect-type';
-import { ComponentReturn, DirectInvokable, TemplateContext } from '../-private/integration';
+import {
+  ComponentReturn,
+  DirectInvokable,
+  NamedArgs,
+  TemplateContext,
+} from '../-private/integration';
 import {
   emitComponent,
   resolve,
@@ -34,18 +39,18 @@ declare function value<T>(): T;
     static {
       templateForBackingValue(this, function (𝚪) {
         {
-          const component = emitComponent(resolve(globals.let)({}, 𝚪.this.state.ready));
+          const component = emitComponent(resolve(globals.let)(𝚪.this.state.ready));
 
           {
             const [isReady] = component.blockParams.default;
-            yieldToBlock(𝚪, 'body', isReady, 𝚪.args.value);
+            yieldToBlock(𝚪, 'body')(isReady, 𝚪.args.value);
           }
         }
       });
     }
   }
 
-  type ExpectedSignature = <T>(args: MyArgs<T>) => ComponentReturn<{
+  type ExpectedSignature = <T>(args: NamedArgs<MyArgs<T>>) => ComponentReturn<{
     body: [boolean, T];
   }>;
 

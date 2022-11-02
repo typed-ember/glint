@@ -1,7 +1,7 @@
 import { ComponentLike, WithBoundArgs } from '@glint/template';
-import { resolve, emitComponent } from '@glint/template/-private/dsl';
+import { resolve, emitComponent, NamedArgsMarker } from '@glint/template/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { ComponentReturn } from '../-private/integration';
+import { ComponentReturn, NamedArgs } from '../-private/integration';
 
 {
   const NoArgsComponent = {} as ComponentLike<{}>;
@@ -9,16 +9,16 @@ import { ComponentReturn } from '../-private/integration';
   resolve(NoArgsComponent)({
     // @ts-expect-error: extra named arg
     foo: 'bar',
+    ...NamedArgsMarker,
   });
 
   resolve(NoArgsComponent)(
-    {},
     // @ts-expect-error: extra positional arg
     'oops'
   );
 
   {
-    const component = emitComponent(resolve(NoArgsComponent)({}));
+    const component = emitComponent(resolve(NoArgsComponent)());
 
     {
       // @ts-expect-error: never yields, so shouldn't accept blocks
@@ -26,7 +26,7 @@ import { ComponentReturn } from '../-private/integration';
     }
   }
 
-  emitComponent(resolve(NoArgsComponent)({}));
+  emitComponent(resolve(NoArgsComponent)());
 }
 
 {
@@ -43,27 +43,31 @@ import { ComponentReturn } from '../-private/integration';
   const YieldingComponent = {} as ComponentLike<YieldingComponentSignature>;
 
   // @ts-expect-error: missing required arg
-  resolve(YieldingComponent)({});
+  resolve(YieldingComponent)({ ...NamedArgsMarker });
 
   resolve(YieldingComponent)(
-    { values: [] },
+    'hi',
     // @ts-expect-error: extra positional arg
-    'hi'
+    { values: [], ...NamedArgsMarker }
   );
 
   resolve(YieldingComponent)({
     // @ts-expect-error: incorrect type for arg
     values: 'hello',
+    ...NamedArgsMarker,
   });
 
   resolve(YieldingComponent)({
     values: [1, 2, 3],
     // @ts-expect-error: extra arg
     oops: true,
+    ...NamedArgsMarker,
   });
 
   {
-    const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));
+    const component = emitComponent(
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+    );
 
     {
       const [value] = component.blockParams.default;
@@ -72,7 +76,9 @@ import { ComponentReturn } from '../-private/integration';
   }
 
   {
-    const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));
+    const component = emitComponent(
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+    );
 
     {
       const [...args] = component.blockParams.default;
@@ -97,24 +103,23 @@ import { ComponentReturn } from '../-private/integration';
   const PositionalArgsComponent = {} as ComponentLike<PositionalArgsComponentSignature>;
 
   // @ts-expect-error: missing required positional arg
-  resolve(PositionalArgsComponent)({});
+  resolve(PositionalArgsComponent)();
 
   resolve(PositionalArgsComponent)(
-    {},
+    'hello',
     // @ts-expect-error: incorrect type for positional arg
-    123
+    'ok'
   );
 
   resolve(PositionalArgsComponent)(
-    {},
     'a',
     1,
     // @ts-expect-error: extra positional arg
     true
   );
 
-  resolve(PositionalArgsComponent)({}, 'a');
-  resolve(PositionalArgsComponent)({}, 'a', 1);
+  resolve(PositionalArgsComponent)('a');
+  resolve(PositionalArgsComponent)('a', 1);
 }
 
 // With pre-bound args
@@ -125,9 +130,11 @@ import { ComponentReturn } from '../-private/integration';
     Blocks: { default: [] };
   }>;
 
-  let MyBoundComponent!: WithBoundArgs<typeof MyComponent, 'foo'>;
+  let MyComponentReturn!: WithBoundArgs<typeof MyComponent, 'foo'>;
 
-  expectTypeOf(resolve(MyBoundComponent)).toEqualTypeOf<
-    (args: { foo?: string; bar: number }) => ComponentReturn<{ default: [] }, HTMLCanvasElement>
+  expectTypeOf(resolve(MyComponentReturn)).toEqualTypeOf<
+    (
+      args: NamedArgs<{ foo?: string; bar: number }>
+    ) => ComponentReturn<{ default: [] }, HTMLCanvasElement>
   >();
 }

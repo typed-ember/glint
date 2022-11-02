@@ -1,6 +1,6 @@
-import { resolve } from '@glint/environment-ember-loose/-private/dsl';
+import { NamedArgsMarker, resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { ModifierReturn } from '@glint/template/-private/integration';
+import { ModifierReturn, NamedArgs } from '@glint/template/-private/integration';
 import { ModifierLike, WithBoundArgs } from '@glint/template';
 
 // Fixed signature params
@@ -15,21 +15,34 @@ import { ModifierLike, WithBoundArgs } from '@glint/template';
 
   let NeatModifier!: ModifierLike<NeatModifierSignature>;
   let neat = resolve(NeatModifier);
+  let el = new HTMLImageElement();
 
-  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<ModifierReturn<HTMLImageElement>>();
-  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<ModifierReturn<HTMLImageElement>>();
+  expectTypeOf(neat(el, 'hello')).toEqualTypeOf<ModifierReturn>();
+  expectTypeOf(
+    neat(el, 'hello', { multiplier: 3, ...NamedArgsMarker })
+  ).toEqualTypeOf<ModifierReturn>();
 
   // @ts-expect-error: missing required positional arg
-  neat({});
+  neat(el);
 
-  // @ts-expect-error: extra positional arg
-  neat({}, 'hello', 'goodbye');
+  neat(
+    el,
+    'hello',
+    // @ts-expect-error: extra positional arg
+    'goodbye'
+  );
 
-  // @ts-expect-error: invalid type for named arg
-  neat({ multiplier: 'hi' }, 'message');
+  neat(el, 'message', {
+    // @ts-expect-error: invalid type for named arg
+    multiplier: 'hi',
+    ...NamedArgsMarker,
+  });
 
-  // @ts-expect-error: invalid named arg
-  neat({ hello: 123 }, 'message');
+  neat(el, 'message', {
+    // @ts-expect-error: invalid named arg
+    hello: 123,
+    ...NamedArgsMarker,
+  });
 }
 
 // Generic params
@@ -43,23 +56,28 @@ import { ModifierLike, WithBoundArgs } from '@glint/template';
   }
   let definition!: new <T>() => InstanceType<ModifierLike<OnDestroySignature<T>>>;
   let onDestroy = resolve(definition);
+  let el = new HTMLCanvasElement();
 
-  expectTypeOf(onDestroy({ value: 'hello' }, (value) => value.charAt(0))).toEqualTypeOf<
-    ModifierReturn<HTMLCanvasElement>
-  >();
+  expectTypeOf(
+    onDestroy(el, (value) => value.charAt(0), { value: 'hello', ...NamedArgsMarker })
+  ).toEqualTypeOf<ModifierReturn>();
 
   // @ts-expect-error: missing required positional arg
-  onDestroy({ value: 'hi' });
+  onDestroy(el, { value: 'hi', ...NamedArgsMarker });
 
   onDestroy(
-    { value: 'hi' },
+    el,
     'hello',
+    'goodbye',
     // @ts-expect-error: extra positional arg
-    'goodbye'
+    { value: 'hi', ...NamedArgsMarker }
   );
 
-  // @ts-expect-error: mismatched arg types
-  onDestroy({ value: 123 }, (value: string) => value.length);
+  onDestroy(el, (value: string) => value.length, {
+    // @ts-expect-error: mismatched arg types
+    value: 123,
+    ...NamedArgsMarker,
+  });
 }
 
 // With bound args
@@ -72,6 +90,9 @@ import { ModifierLike, WithBoundArgs } from '@glint/template';
   let NeatModifier!: WithBoundArgs<ModifierLike<NeatModifierSignature>, 'multiplier'>;
 
   expectTypeOf(resolve(NeatModifier)).toEqualTypeOf<
-    (args: { multiplier?: number; input: string }) => ModifierReturn<HTMLImageElement>
+    (
+      el: HTMLImageElement,
+      args: NamedArgs<{ multiplier?: number; input: string }>
+    ) => ModifierReturn
   >();
 }
