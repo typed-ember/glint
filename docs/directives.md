@@ -39,7 +39,7 @@ Example:
 
 ## `@glint-nocheck`
 
-The `@glint-noceck` directive will cause glint to not report errors for the
+The `@glint-nocheck` directive will cause glint to not report errors for the
 entire template. The template is still processed by Glint such that
 auto-complete, type look-up, jump to definition, etc. are still functional,
 but any type errors will be ignored. This can be useful as a step in a
