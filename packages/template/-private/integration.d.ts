@@ -18,7 +18,8 @@ export declare const InvokeDirect: unique symbol;
 export type DirectInvokable<T extends AnyFunction = AnyFunction> = { [InvokeDirect]: T };
 
 export declare const Invoke: unique symbol;
-export type Invokable<T extends AnyFunction = AnyFunction> = { [Invoke]: T };
+export type InvokableInstance<T extends AnyFunction = AnyFunction> = { [Invoke]: T };
+export type Invokable<F extends AnyFunction> = abstract new (...args: any) => InvokableInstance<F>;
 
 export declare const Context: unique symbol;
 export type HasContext<T extends AnyContext = AnyContext> = { [Context]: T };
@@ -34,15 +35,15 @@ declare const Modifier: unique symbol;
 declare const Blocks: unique symbol;
 
 /** Denotes a modifier whose arguments have been bound and is ready to be attached to an element. */
-export type BoundModifier<El extends Element> = { [Modifier]: (el: El) => void };
+export type ModifierReturn = { [Modifier]: true };
 
 /**
  * Denotes that the associated entity may be invoked with the given
  * blocks, yielding params of the appropriate type.
  */
-export type AcceptsBlocks<BlockImpls, El = null> = {
+export type ComponentReturn<BlockDefs, El = null> = {
+  [Blocks]: BlockDefs;
   [Element]: El extends Element ? El : null;
-  (blocks: BlockImpls): { [Blocks]: true };
 };
 
 /**
@@ -63,3 +64,27 @@ export type TemplateContext<This, Args, Blocks, Element> = {
 export type FlattenBlockParams<T> = {
   [K in keyof T]: T[K] extends { Params: { Positional: infer U } } ? U : T[K];
 };
+
+// This trio of declarations allows us to distinguish explicit named
+// argument invocation from "final positional argument is a hash"
+// situations.
+export declare const NamedArgs: unique symbol;
+export type NamedArgs<T> = T & NamedArgsMarker;
+export interface NamedArgsMarker {
+  [NamedArgs]: true;
+}
+
+export type NamedArgNames<T extends Invokable<AnyFunction>> = T extends Invokable<
+  (...args: infer A) => any
+>
+  ? A extends [...positional: infer _, named?: infer N]
+    ? Exclude<keyof NonNullable<N>, typeof NamedArgs>
+    : never
+  : never;
+
+export type UnwrapNamedArgs<T> = T extends NamedArgs<infer U> ? U : T;
+
+export type MaybeNamed<T> = {} extends UnwrapNamedArgs<T> ? [named?: T] : [named: T];
+
+export type Get<T, K, Otherwise = unknown> = K extends keyof T ? T[K] : Otherwise;
+export type Constrain<T, Constraint, Otherwise = Constraint> = T extends Constraint ? T : Otherwise;

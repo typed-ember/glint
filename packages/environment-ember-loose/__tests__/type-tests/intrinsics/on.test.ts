@@ -1,42 +1,42 @@
 import { expectTypeOf } from 'expect-type';
-import { Globals, applyModifier, resolve } from '@glint/environment-ember-loose/-private/dsl';
+import {
+  Globals,
+  applyModifier,
+  resolve,
+  NamedArgsMarker,
+} from '@glint/environment-ember-loose/-private/dsl';
 
 const on = resolve(Globals['on']);
+const el = document.createElement('div');
 
-// @ts-expect-error: extra named arg
-on({ foo: 'bar' }, 'click', () => {});
+on(el, 'click', () => {}, {
+  // @ts-expect-error: extra named arg
+  foo: 'bar',
+  ...NamedArgsMarker,
+});
 
 // @ts-expect-error: missing positional arg
-on({}, 'click');
+on(el, 'click');
 
 // @ts-expect-error: extra positional arg
-on({}, 'click', () => {}, 'hello');
+on(el, 'click', () => {}, 'hello');
 
-on({ capture: true, once: true, passive: true }, 'scroll', () => {});
+on(el, 'scroll', () => {}, { capture: true, once: true, passive: true, ...NamedArgsMarker });
 
-on({}, 'unknown', (event) => {
+on(el, 'unknown', (event) => {
   expectTypeOf(event).toEqualTypeOf<Event>();
 });
 
-on({}, 'click', (event) => {
+on(el, 'click', (event) => {
   expectTypeOf(event).toEqualTypeOf<MouseEvent>();
 });
 
-on({}, 'keyup', (event) => {
+on(el, 'keyup', (event) => {
   expectTypeOf(event).toEqualTypeOf<KeyboardEvent>();
 });
 
-applyModifier(
-  new HTMLElement(),
-  on({}, 'click', () => {})
-);
+applyModifier(on(el, 'click', () => {}));
 
-applyModifier(
-  new SVGRectElement(),
-  on({}, 'click', () => {})
-);
+applyModifier(on(new SVGRectElement(), 'click', () => {}));
 
-applyModifier(
-  new Element(),
-  on({}, 'click', () => {})
-);
+applyModifier(on(new Element(), 'click', () => {}));

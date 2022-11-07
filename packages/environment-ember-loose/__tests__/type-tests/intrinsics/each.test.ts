@@ -1,5 +1,10 @@
 import { expectTypeOf } from 'expect-type';
-import { Globals, resolve, emitComponent } from '@glint/environment-ember-loose/-private/dsl';
+import {
+  Globals,
+  resolve,
+  emitComponent,
+  NamedArgsMarker,
+} from '@glint/environment-ember-loose/-private/dsl';
 import ArrayProxy from '@ember/array/proxy';
 
 let each = resolve(Globals['each']);
@@ -7,7 +12,7 @@ let each = resolve(Globals['each']);
 // Yield out array values and indices
 
 {
-  const component = emitComponent(each({}, ['a', 'b', 'c']));
+  const component = emitComponent(each(['a', 'b', 'c']));
 
   {
     const [value, index] = component.blockParams.default;
@@ -26,7 +31,7 @@ let each = resolve(Globals['each']);
 declare const proxiedArray: ArrayProxy<string>;
 
 {
-  const component = emitComponent(each({}, proxiedArray));
+  const component = emitComponent(each(proxiedArray));
 
   {
     const [value, index] = component.blockParams.default;
@@ -38,7 +43,7 @@ declare const proxiedArray: ArrayProxy<string>;
 // Works for other iterables
 
 {
-  const component = emitComponent(each({}, new Map<string, symbol>()));
+  const component = emitComponent(each(new Map<string, symbol>()));
 
   {
     const [[key, value], index] = component.blockParams.default;
@@ -51,7 +56,7 @@ declare const proxiedArray: ArrayProxy<string>;
 // Works for `readonly` arrays
 
 {
-  const component = emitComponent(each({}, ['a', 'b', 'c'] as readonly string[]));
+  const component = emitComponent(each(['a', 'b', 'c'] as readonly string[]));
 
   {
     const [value, index] = component.blockParams.default;
@@ -62,7 +67,7 @@ declare const proxiedArray: ArrayProxy<string>;
 
 // Accept a `key` string
 {
-  const component = emitComponent(each({ key: 'id' }, [{ id: 1 }]));
+  const component = emitComponent(each([{ id: 1 }], { key: 'id', ...NamedArgsMarker }));
 
   {
     const [value, index] = component.blockParams.default;
@@ -75,7 +80,7 @@ declare const arrayOrUndefined: string[] | undefined;
 
 // Works for undefined
 {
-  const component = emitComponent(each({}, arrayOrUndefined));
+  const component = emitComponent(each(arrayOrUndefined));
 
   {
     const [value, index] = component.blockParams.default;
@@ -88,7 +93,7 @@ declare const arrayOrNull: string[] | null;
 
 // Works for null
 {
-  const component = emitComponent(each({}, arrayOrNull));
+  const component = emitComponent(each(arrayOrNull));
 
   {
     const [value, index] = component.blockParams.default;
@@ -99,7 +104,7 @@ declare const arrayOrNull: string[] | null;
 
 // Gives `any` given `any`
 {
-  const component = emitComponent(each({}, {} as any));
+  const component = emitComponent(each({} as any));
   expectTypeOf(component.blockParams.default).toEqualTypeOf<[any, number]>();
 }
 
@@ -107,7 +112,6 @@ declare const arrayOrNull: string[] | null;
 {
   const component = emitComponent(
     each(
-      {},
       // @ts-expect-error: number is not a valid iterable
       123
     )

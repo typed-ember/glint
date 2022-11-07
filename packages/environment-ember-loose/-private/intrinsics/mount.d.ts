@@ -1,5 +1,9 @@
-import { DirectInvokable } from '@glint/template/-private/integration';
+import { HelperLike } from '@glint/template';
 
-export type MountKeyword = DirectInvokable<{
-  (args: { model?: unknown }, engine: string): void;
+export type MountKeyword = HelperLike<{
+  Args: {
+    Positional: [engine: string];
+    Named: { model?: unknown };
+  };
+  Return: void;
 }>;

@@ -4,6 +4,7 @@ import {
   resolve,
   yieldToBlock,
   emitComponent,
+  NamedArgsMarker,
 } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { EmptyObject } from '@glimmer/component/-private/component';
@@ -21,16 +22,16 @@ import type { ComponentLike } from '@glint/template';
   resolve(NoArgsComponent)({
     // @ts-expect-error: extra named arg
     foo: 'bar',
+    ...NamedArgsMarker,
   });
 
   resolve(NoArgsComponent)(
-    {},
     // @ts-expect-error: extra positional arg
     'oops'
   );
 
   {
-    const component = emitComponent(resolve(NoArgsComponent)({}));
+    const component = emitComponent(resolve(NoArgsComponent)());
 
     {
       // @ts-expect-error: never yields, so shouldn't accept blocks
@@ -38,7 +39,7 @@ import type { ComponentLike } from '@glint/template';
     }
   }
 
-  emitComponent(resolve(NoArgsComponent)({}));
+  emitComponent(resolve(NoArgsComponent)());
 }
 
 {
@@ -54,7 +55,7 @@ import type { ComponentLike } from '@glint/template';
     }
   }
 
-  emitComponent(resolve(StatefulComponent)({}));
+  emitComponent(resolve(StatefulComponent)());
 }
 
 {
@@ -81,28 +82,36 @@ import type { ComponentLike } from '@glint/template';
         // the array element and the yielded value are the same.
         yieldToBlock(
           𝚪,
-          'default',
+          'default'
+        )(
           // @ts-expect-error: only a `T` is a valid yield
           123
         );
 
         if (𝚪.args.values.length) {
-          yieldToBlock(𝚪, 'default', 𝚪.args.values[0]);
+          yieldToBlock(𝚪, 'default')(𝚪.args.values[0]);
         } else {
-          yieldToBlock(𝚪, 'else');
+          yieldToBlock(𝚪, 'else')();
         }
       });
     }
   }
 
   // @ts-expect-error: missing required arg
-  resolve(YieldingComponent)({});
+  resolve(YieldingComponent)();
 
-  // @ts-expect-error: incorrect type for arg
-  resolve(YieldingComponent)({ values: 'hello' });
+  resolve(YieldingComponent)({
+    // @ts-expect-error: incorrect type for arg
+    values: 'hello',
+    ...NamedArgsMarker,
+  });
 
-  // @ts-expect-error: extra arg
-  resolve(YieldingComponent)({ values: [1, 2, 3], oops: true });
+  resolve(YieldingComponent)({
+    values: [1, 2, 3],
+    // @ts-expect-error: extra arg
+    oops: true,
+    ...NamedArgsMarker,
+  });
 
   type InferSignature<T> = T extends Component<infer Signature> ? Signature : never;
   expectTypeOf<InferSignature<YieldingComponent<number>>>().toEqualTypeOf<
@@ -110,7 +119,9 @@ import type { ComponentLike } from '@glint/template';
   >();
 
   {
-    const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));
+    const component = emitComponent(
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+    );
 
     {
       const [value] = component.blockParams.default;
@@ -119,7 +130,9 @@ import type { ComponentLike } from '@glint/template';
   }
 
   {
-    const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));
+    const component = emitComponent(
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+    );
 
     {
       const [...args] = component.blockParams.default;
@@ -152,21 +165,19 @@ import type { ComponentLike } from '@glint/template';
   resolve(PositionalArgsComponent)({});
 
   resolve(PositionalArgsComponent)(
-    {},
     // @ts-expect-error: incorrect type for positional arg
     123
   );
 
   resolve(PositionalArgsComponent)(
-    {},
     'a',
     1,
     // @ts-expect-error: extra positional arg
     true
   );
 
-  resolve(PositionalArgsComponent)({}, 'a');
-  resolve(PositionalArgsComponent)({}, 'a', 1);
+  resolve(PositionalArgsComponent)('a');
+  resolve(PositionalArgsComponent)('a', 1);
 }
 
 // Components are `ComponentLike`

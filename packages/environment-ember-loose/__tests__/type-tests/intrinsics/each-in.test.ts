@@ -4,7 +4,7 @@ import { emitComponent, Globals, resolve } from '@glint/environment-ember-loose/
 let eachIn = resolve(Globals['each-in']);
 
 {
-  const component = emitComponent(eachIn({}, { a: 5, b: 3 }));
+  const component = emitComponent(eachIn({ a: 5, b: 3 }));
 
   {
     const [key, value] = component.blockParams.default;
@@ -18,7 +18,7 @@ let eachIn = resolve(Globals['each-in']);
 {
   const b: unique symbol = Symbol('b');
   const value = { a: 'hi', [b]: 123 };
-  const component = emitComponent(eachIn({}, value));
+  const component = emitComponent(eachIn(value));
 
   {
     const [key, value] = component.blockParams.default;
@@ -34,7 +34,7 @@ let eachIn = resolve(Globals['each-in']);
 declare const maybeVal: { a: number; b: number } | undefined;
 
 {
-  const component = emitComponent(eachIn({}, maybeVal));
+  const component = emitComponent(eachIn(maybeVal));
 
   {
     const [key, value] = component.blockParams.default;
@@ -51,7 +51,7 @@ declare const maybeVal: { a: number; b: number } | undefined;
 // Can render else when undefined, null, or empty.
 
 {
-  const component = emitComponent(eachIn({}, undefined));
+  const component = emitComponent(eachIn(undefined));
 
   {
     const [key, value] = component.blockParams.default;
@@ -67,7 +67,7 @@ declare const maybeVal: { a: number; b: number } | undefined;
 }
 
 {
-  const component = emitComponent(eachIn({}, null));
+  const component = emitComponent(eachIn(null));
 
   {
     const [key, value] = component.blockParams.default;
@@ -83,7 +83,7 @@ declare const maybeVal: { a: number; b: number } | undefined;
 }
 
 {
-  const component = emitComponent(eachIn({}, {}));
+  const component = emitComponent(eachIn({}));
 
   {
     const [key, value] = component.blockParams.default;

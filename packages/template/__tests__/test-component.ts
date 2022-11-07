@@ -2,39 +2,27 @@
 // declarations necessary for it to be used as a component in glint, as
 // well as simple examples of a helper and modifier.
 
-import {
-  AcceptsBlocks,
-  BoundModifier,
-  Context,
-  DirectInvokable,
-  EmptyObject,
-  Invoke,
-  TemplateContext,
-} from '../-private/integration';
+import { ComponentLike, ModifierLike } from '../-private/index';
+import { Context, EmptyObject, TemplateContext } from '../-private/integration';
 import { LetKeyword } from '../-private/keywords';
 
 export default TestComponent;
 export declare const globals: {
   let: LetKeyword;
-  on: DirectInvokable<
-    <T extends keyof HTMLElementEventMap>(
-      args: EmptyObject,
-      event: T,
-      callback: (event: HTMLElementEventMap[T]) => void
-    ) => BoundModifier<HTMLElement>
+  on: abstract new <T extends keyof HTMLElementEventMap>() => InstanceType<
+    ModifierLike<{
+      Element: Element;
+      Args: {
+        Positional: [eventName: T, callback: (event: HTMLElementEventMap[T]) => void];
+      };
+    }>
   >;
 };
 
 type Get<T, K, Otherwise = EmptyObject> = K extends keyof T ? Exclude<T[K], undefined> : Otherwise;
 
-export interface ComponentSignature {
-  Args?: object;
-  Blocks?: object;
-  Element?: Element;
-}
-
-declare class TestComponent<T extends ComponentSignature = {}> {
+interface TestComponent<T = {}> extends InstanceType<ComponentLike<T>> {}
+declare class TestComponent<T = {}> {
   readonly args: Get<T, 'Args'>;
-  [Invoke]: (args: Get<T, 'Args'>) => AcceptsBlocks<Get<T, 'Blocks'>, Get<T, 'Element', null>>;
   [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Blocks'>, Get<T, 'Element', null>>;
 }

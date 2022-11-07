@@ -1,13 +1,16 @@
 import { expectTypeOf } from 'expect-type';
-import { Globals, resolve } from '@glint/environment-ember-loose/-private/dsl';
+import { Globals, NamedArgsMarker, resolve } from '@glint/environment-ember-loose/-private/dsl';
 
 let uniqueId = resolve(Globals['unique-id']);
 
 // Basic plumbing
-expectTypeOf(uniqueId({})).toEqualTypeOf<string>();
+expectTypeOf(uniqueId()).toEqualTypeOf<string>();
 
-// @ts-expect-error: invalid named arg
-uniqueId({ hello: 'hi' });
+uniqueId({
+  // @ts-expect-error: invalid named arg
+  hello: 'hi',
+  ...NamedArgsMarker,
+});
 
 // @ts-expect-error: invalid positional arg
-uniqueId({}, 'hi');
+uniqueId('hi');

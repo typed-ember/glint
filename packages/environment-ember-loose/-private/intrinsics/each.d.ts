@@ -1,11 +1,17 @@
-import { AcceptsBlocks, DirectInvokable } from '@glint/template/-private/integration';
 import EmberArray from '@ember/array';
+import { ComponentLike } from '@glint/template';
 
 type ArrayLike<T> = ReadonlyArray<T> | Iterable<T> | EmberArray<T>;
 
-export type EachKeyword = DirectInvokable<{
-  <T = any>(args: { key?: string }, items: ArrayLike<T> | null | undefined): AcceptsBlocks<{
-    default: [T, number];
-    else: [];
-  }>;
-}>;
+export type EachKeyword = abstract new <T = any>() => InstanceType<
+  ComponentLike<{
+    Args: {
+      Positional: [items: ArrayLike<T> | null | undefined];
+      Named: { key?: string };
+    };
+    Blocks: {
+      default: [T, number];
+      else: [];
+    };
+  }>
+>;

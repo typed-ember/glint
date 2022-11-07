@@ -2,7 +2,7 @@ import { rewriteModule, TransformedModule, rewriteDiagnostic } from '../src';
 import { stripIndent } from 'common-tags';
 import { describe, test, expect } from 'vitest';
 import { Range, SourceFile } from '../src/template/transformed-module';
-import ts from 'typescript';
+import * as ts from 'typescript';
 import { assert } from '../src/util';
 import { GlintEnvironment } from '@glint/config/lib/environment';
 
@@ -562,7 +562,7 @@ describe('Diagnostic offset mapping', () => {
       category,
       code,
       file: transformedContentsFile,
-      start: transformedModule.transformedContents.indexOf(', bar') + 2,
+      start: transformedModule.transformedContents.indexOf('(bar') + 1,
       length: 3,
       messageText,
       relatedInformation: [

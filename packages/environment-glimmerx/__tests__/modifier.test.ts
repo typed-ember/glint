@@ -1,32 +1,38 @@
 import { on as onDefinition } from '@glimmerx/modifier';
-import { resolve, applyModifier } from '@glint/environment-glimmerx/-private/dsl';
+import { resolve, applyModifier, NamedArgsMarker } from '@glint/environment-glimmerx/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 // Built-in modifier: `on`
 {
+  const el = new HTMLDivElement();
   const on = resolve(onDefinition);
 
-  // @ts-expect-error: extra named arg
-  on({ foo: 'bar' }, 'click', () => {});
+  on(el, 'click', () => {}, {
+    // @ts-expect-error: extra named arg
+    foo: 'bar',
+    ...NamedArgsMarker,
+  });
 
   // @ts-expect-error: missing positional arg
-  on({}, 'click');
+  on(el, 'click');
 
-  // @ts-expect-error: extra positional arg
-  on({}, 'click', () => {}, 'hello');
+  on(
+    el,
+    'click',
+    () => {},
+    // @ts-expect-error: extra positional arg
+    'hello'
+  );
 
-  on({}, 'unknown', (event) => {
+  on(el, 'unknown', (event) => {
     expectTypeOf(event).toEqualTypeOf<Event>();
   });
 
-  on({}, 'click', (event) => {
+  on(el, 'click', (event) => {
     expectTypeOf(event).toEqualTypeOf<MouseEvent>();
   });
 
-  applyModifier(
-    new HTMLElement(),
-    on({}, 'click', () => {})
-  );
+  applyModifier(on(el, 'click', () => {}));
 }
 
 // Custom modifier with a specific element type
@@ -39,14 +45,13 @@ import { expectTypeOf } from 'expect-type';
     }
   );
 
-  applyModifier(
-    new HTMLImageElement(),
-    fetchImageData({}, (data) => console.log(data))
-  );
+  applyModifier(fetchImageData(new HTMLImageElement(), (data) => console.log(data)));
 
   applyModifier(
-    // @ts-expect-error: invalid element type
-    new HTMLDivElement(),
-    fetchImageData({}, (data) => console.log(data))
+    fetchImageData(
+      // @ts-expect-error: invalid element type
+      new HTMLDivElement(),
+      (data) => console.log(data)
+    )
   );
 }

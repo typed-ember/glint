@@ -1,8 +1,16 @@
-import { AcceptsBlocks, DirectInvokable } from '../integration';
+import { ComponentLike } from '../index';
 
-export type EachKeyword = DirectInvokable<{
-  <T>(args: { key?: string }, items: readonly T[]): AcceptsBlocks<{
-    default: [T, number];
-    else?: [];
-  }>;
-}>;
+type ArrayLike<T> = ReadonlyArray<T> | Iterable<T>;
+
+export type EachKeyword = abstract new <T = any>() => InstanceType<
+  ComponentLike<{
+    Args: {
+      Positional: [items: Iterable<T> | null | undefined];
+      Named: { key?: string };
+    };
+    Blocks: {
+      default: [T, number];
+      else: [];
+    };
+  }>
+>;

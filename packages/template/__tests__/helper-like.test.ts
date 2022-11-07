@@ -1,7 +1,7 @@
-import { resolve } from '@glint/environment-ember-loose/-private/dsl';
+import { NamedArgsMarker, resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { HelperLike, WithBoundArgs } from '@glint/template';
-import { EmptyObject } from '../-private/integration';
+import { EmptyObject, NamedArgs } from '../-private/integration';
 
 // Fixed signature params
 {
@@ -16,30 +16,32 @@ import { EmptyObject } from '../-private/integration';
   let definition!: HelperLike<InfoSignature>;
   let info = resolve(definition);
 
-  expectTypeOf(info).toEqualTypeOf<(named: { age: number }, name: string) => string>();
+  expectTypeOf(info).toEqualTypeOf<(name: string, named: NamedArgs<{ age: number }>) => string>();
 
   info(
+    'Tom',
     // @ts-expect-error: missing named arg
-    {},
-    'Tom'
+    { ...NamedArgsMarker }
   );
 
-  info(
-    {
-      // @ts-expect-error: extra named arg
-      hello: true,
-      age: 123,
-    },
-    'Tom'
-  );
+  info('Tom', {
+    age: 123,
+    // @ts-expect-error: extra named arg
+    hello: true,
+    ...NamedArgsMarker,
+  });
 
   // @ts-expect-error: missing positional arg
-  info({ age: 123 });
+  info({ age: 123, ...NamedArgsMarker });
 
-  // @ts-expect-error: extra positional arg
-  info({ age: 123 }, 'Tom', 'Ster');
+  info(
+    'Tom',
+    'Ster',
+    // @ts-expect-error: extra positional arg
+    { age: 123, ...NamedArgsMarker }
+  );
 
-  expectTypeOf(info({ age: 123 }, 'Tom')).toEqualTypeOf<string>();
+  expectTypeOf(info('Tom', { age: 123, ...NamedArgsMarker })).toEqualTypeOf<string>();
 }
 
 // Generic params
@@ -52,20 +54,25 @@ import { EmptyObject } from '../-private/integration';
   let definition!: new <T, U>() => InstanceType<HelperLike<GenericSignature<T, U>>>;
   let or = resolve(definition);
 
-  expectTypeOf(or).toEqualTypeOf<{ <T, U>(args: EmptyObject, t: T, u: U): T | U }>();
+  expectTypeOf(or).toEqualTypeOf<{ <T, U>(t: T, u: U, args?: NamedArgs<EmptyObject>): T | U }>();
 
-  // @ts-expect-error: extra named arg
-  or({ hello: true }, 'a', 'b');
+  or('a', 'b', {
+    // @ts-expect-error: extra named arg
+    hello: true,
+    ...NamedArgsMarker,
+  });
 
-  // @ts-expect-error: missing positional arg
-  or({}, 'a');
+  or(
+    'a',
+    'b',
+    'c',
+    // @ts-expect-error: extra positional arg
+    { ...NamedArgsMarker }
+  );
 
-  // @ts-expect-error: extra positional arg
-  or({}, 'a', 'b', 'c');
-
-  expectTypeOf(or({}, 'a', 'b')).toEqualTypeOf<string>();
-  expectTypeOf(or({}, 'a', true)).toEqualTypeOf<string | boolean>();
-  expectTypeOf(or({}, false, true)).toEqualTypeOf<boolean>();
+  expectTypeOf(or('a', 'b')).toEqualTypeOf<string>();
+  expectTypeOf(or('a', true)).toEqualTypeOf<string | boolean>();
+  expectTypeOf(or(false, true)).toEqualTypeOf<boolean>();
 }
 
 // With bound args
@@ -78,6 +85,6 @@ import { EmptyObject } from '../-private/integration';
   let definition!: WithBoundArgs<HelperLike<InfoSignature>, 'name'>;
 
   expectTypeOf(resolve(definition)).toEqualTypeOf<
-    (args: { age: number; name?: string }) => string
+    (args: NamedArgs<{ age: number; name?: string }>) => string
   >();
 }

@@ -1,5 +1,5 @@
 import { expectTypeOf } from 'expect-type';
-import { emitComponent, resolve } from '../../-private/dsl';
+import { emitComponent, NamedArgsMarker, resolve } from '../../-private/dsl';
 import { EachKeyword } from '../../-private/keywords';
 
 const eachKeyword = resolve({} as EachKeyword);
@@ -7,7 +7,7 @@ const eachKeyword = resolve({} as EachKeyword);
 // Yield out array values and indices
 
 {
-  const component = emitComponent(eachKeyword({}, ['a', 'b', 'c']));
+  const component = emitComponent(eachKeyword(['a', 'b', 'c']));
 
   {
     const [value, index] = component.blockParams.default;
@@ -19,7 +19,7 @@ const eachKeyword = resolve({} as EachKeyword);
 // Works for `readonly` arrays
 
 {
-  const component = emitComponent(eachKeyword({}, ['a', 'b', 'c'] as readonly string[]));
+  const component = emitComponent(eachKeyword(['a', 'b', 'c'] as readonly string[]));
 
   {
     const [value, index] = component.blockParams.default;
@@ -29,4 +29,4 @@ const eachKeyword = resolve({} as EachKeyword);
 }
 
 // Accept a `key` string
-emitComponent(eachKeyword({ key: 'id' }, [{ id: 1 }]));
+emitComponent(eachKeyword([{ id: 1 }], { key: 'id', ...NamedArgsMarker }));

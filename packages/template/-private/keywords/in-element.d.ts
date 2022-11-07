@@ -1,10 +1,13 @@
-import { AcceptsBlocks, DirectInvokable } from '../integration';
+import { ComponentLike } from '../index';
 
-export type InElementKeyword = DirectInvokable<{
-  (
-    args: {
+export type InElementKeyword = ComponentLike<{
+  Args: {
+    Positional: [element: ShadowRoot | Element];
+    Named: {
       insertBefore?: null | undefined;
-    },
-    element: ShadowRoot | Element
-  ): AcceptsBlocks<{ default: [] }>;
+    };
+  };
+  Blocks: {
+    default: [];
+  };
 }>;

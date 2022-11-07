@@ -1,15 +1,23 @@
 import { AttrValue, ContentValue } from '..';
 import {
-  AcceptsBlocks,
+  ComponentReturn,
   AnyContext,
   AnyFunction,
-  BoundModifier,
+  ModifierReturn,
   EmptyObject,
   HasContext,
-  Invokable,
+  InvokableInstance,
   TemplateContext,
+  NamedArgs,
 } from '../integration';
 import { ElementForTagName } from './types';
+
+/**
+ * Used during emit to denote an object literal that corresponds
+ * to the use of named args rather than passing an object value
+ * directly.
+ */
+export declare const NamedArgsMarker: NamedArgs<unknown>;
 
 /*
  * Emits the given value as top-level content to the DOM. This:
@@ -57,11 +65,11 @@ export declare function emitElement<Name extends string>(
  *       applyModifier(𝛄.element, resolve(baz)({}));
  *     });
  */
-export declare function emitComponent<T extends AcceptsBlocks<any, any>>(
+export declare function emitComponent<T extends ComponentReturn<any, any>>(
   component: T
 ): {
-  element: T extends AcceptsBlocks<any, infer El> ? El : any;
-  blockParams: T extends AcceptsBlocks<infer Yields, any> ? Required<Yields> : any;
+  element: T extends ComponentReturn<any, infer El> ? El : any;
+  blockParams: T extends ComponentReturn<infer Yields, any> ? Required<Yields> : any;
 };
 
 /*
@@ -72,9 +80,9 @@ export declare function emitComponent<T extends AcceptsBlocks<any, any>>(
  * environment's DSL export.
  */
 export declare function templateExpression<
-  Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
+  Signature extends AnyFunction = () => ComponentReturn<EmptyObject>,
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
->(f: (𝚪: Context, χ: never) => void): new () => Invokable<Signature> & HasContext<Context>;
+>(f: (𝚪: Context, χ: never) => void): new () => InvokableInstance<Signature> & HasContext<Context>;
 
 /*
  * Wraps a template body that's backed by a known value (typically a class), either
@@ -101,13 +109,12 @@ export declare function templateForBackingValue<Args extends unknown[], Context 
  *
  * Is equivalent to:
  *
- *     yieldToBlock(𝚪, 'name', foo, bar);
+ *     yieldToBlock(𝚪, 'name')(foo, bar);
  */
 export declare function yieldToBlock<Context extends AnyContext, K extends keyof Context['blocks']>(
   𝚪: Context,
-  to: K,
-  ...values: NonNullable<Context['blocks'][K]>
-): void;
+  to: K
+): (...values: NonNullable<Context['blocks'][K]>) => void;
 
 /*
  * Applies `...attributes` that were passed to a component down
@@ -135,7 +142,4 @@ export declare function applyAttributes(element: Element, attrs: Record<string, 
  *     <div {{someModifier}}></div>
  *     <AnotherComponent {{someModifier}} />
  */
-export declare function applyModifier<TargetElement extends Element>(
-  element: TargetElement,
-  modifier: BoundModifier<TargetElement>
-): void;
+export declare function applyModifier(boundModifier: ModifierReturn): void;

@@ -1,10 +1,16 @@
 import {
-  AcceptsBlocks,
+  ComponentReturn,
   AnyFunction,
-  BoundModifier,
-  GuardEmpty,
+  ModifierReturn,
   FlattenBlockParams,
   Invokable,
+  MaybeNamed,
+  Constrain,
+  GuardEmpty,
+  Get,
+  NamedArgNames,
+  UnwrapNamedArgs,
+  NamedArgs,
 } from './integration';
 import { ExpandSignature } from '@glimmer/component/-private/component';
 
@@ -47,11 +53,13 @@ export type AttrValue = string | number | boolean | null | undefined | SafeStrin
  * The `S` signature parameter here is of the same form as the one
  * accepted by both the Ember and Glimmer `Component` base classes.
  */
-export type ComponentLike<S = unknown> = InvokableConstructor<
+export type ComponentLike<S = unknown> = Invokable<
   (
-    named: GuardEmpty<ExpandSignature<S>['Args']['Named']>,
-    ...positional: ExpandSignature<S>['Args']['Positional']
-  ) => AcceptsBlocks<
+    ...args: [
+      ...positional: ExpandSignature<S>['Args']['Positional'],
+      ...named: MaybeNamed<NamedArgs<ExpandSignature<S>['Args']['Named']>>
+    ]
+  ) => ComponentReturn<
     FlattenBlockParams<ExpandSignature<S>['Blocks']>,
     ExpandSignature<S>['Element']
   >
@@ -66,7 +74,7 @@ export type ComponentLike<S = unknown> = InvokableConstructor<
  * The `S` signature parameter here is of the same form as the one
  * accepted by `Helper` and `helper`.
  */
-export type HelperLike<S = unknown> = InvokableConstructor<
+export type HelperLike<S = unknown> = Invokable<
   (...args: InvokableArgs<S>) => Get<S, 'Return', unknown>
 >;
 
@@ -79,8 +87,8 @@ export type HelperLike<S = unknown> = InvokableConstructor<
  * The `S` signature parameter here is of the same form as the ones
  * accepted by `Modifier` and `modifier`.
  */
-export type ModifierLike<S = unknown> = InvokableConstructor<
-  (...args: InvokableArgs<S>) => BoundModifier<Constrain<Get<S, 'Element'>, Element>>
+export type ModifierLike<S = unknown> = Invokable<
+  (element: Get<S, 'Element'>, ...args: InvokableArgs<S>) => ModifierReturn
 >;
 
 /**
@@ -112,36 +120,30 @@ export type ModifierLike<S = unknown> = InvokableConstructor<
  * arg when invoking the yielded component.
  */
 export type WithBoundArgs<
-  T extends InvokableConstructor<AnyFunction>,
+  T extends Invokable<AnyFunction>,
   BoundArgs extends NamedArgNames<T>
-> = T extends InvokableConstructor<
-  (named: infer Named, ...positional: infer Positional) => infer Result
->
-  ? InvokableConstructor<
+> = T extends Invokable<(...args: [...positional: infer P, named: infer N]) => infer R>
+  ? Invokable<
       (
-        named: GuardEmpty<Omit<Named, BoundArgs> & Partial<Pick<Named, BoundArgs & keyof Named>>>,
-        ...positional: Positional
-      ) => Result
+        ...args: [
+          ...positional: P,
+          ...named: MaybeNamed<PrebindArgs<UnwrapNamedArgs<NonNullable<N>>, BoundArgs>>
+        ]
+      ) => R
     >
   : never;
-
-type InvokableConstructor<F extends AnyFunction> = abstract new (...args: any) => Invokable<F>;
-type NamedArgNames<T extends InvokableConstructor<AnyFunction>> = T extends InvokableConstructor<
-  (named: infer Named, ...positional: any) => any
->
-  ? keyof Named
-  : never;
-
-type Get<T, K, Otherwise = unknown> = K extends keyof T ? T[K] : Otherwise;
-type Constrain<T, Constraint, Otherwise = Constraint> = T extends Constraint ? T : Otherwise;
 
 // We use the imported `ExpandSignature` for component signatures, as they have
 // different layers of possible shorthand, but modifiers and helpers only have
 // one structure they can specify their args in, so this utility is sufficient.
-type InvokableArgs<S> = [
-  named: GuardEmpty<Get<Get<S, 'Args'>, 'Named'>>,
-  ...positional: Constrain<Get<Get<S, 'Args'>, 'Positional'>, Array<unknown>, []>
+export type InvokableArgs<S> = [
+  ...positional: Constrain<Get<Get<S, 'Args'>, 'Positional'>, Array<unknown>, []>,
+  ...named: MaybeNamed<NamedArgs<GuardEmpty<Get<Get<S, 'Args'>, 'Named'>>>>
 ];
+
+type PrebindArgs<T, Args extends keyof UnwrapNamedArgs<T>> = NamedArgs<
+  Omit<UnwrapNamedArgs<T>, Args> & Partial<Pick<UnwrapNamedArgs<T>, Args>>
+>;
 
 // This encompasses both @glimmer/runtime and @ember/template's notion of `SafeString`s,
 // and this coverage is tested in `emit-content.test.ts`.
@@ -149,6 +151,6 @@ type SafeString = { toHTML(): string };
 
 // `{{foo}}` becomes `emitContent(resolveOrReturn(foo)({})`, which means if `foo`
 // is a component that accepts no args, then this is a valid invocation.
-type ArglessCurlyComponent = AcceptsBlocks<{}, any>;
+type ArglessCurlyComponent = ComponentReturn<{}, any>;
 
 export {};

@@ -1,6 +1,6 @@
-import { emitContent, resolve } from '@glint/environment-glimmerx/-private/dsl';
+import { emitContent, NamedArgsMarker, resolve } from '@glint/environment-glimmerx/-private/dsl';
 import { helper, fn as fnDefinition } from '@glimmerx/helper';
-import { EmptyObject } from '@glint/template/-private/integration';
+import { EmptyObject, NamedArgs } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
 import '@glint/environment-glimmerx';
 
@@ -8,23 +8,23 @@ import '@glint/environment-glimmerx';
 {
   let fn = resolve(fnDefinition);
 
-  // @ts-expect-error: extra named arg
-  fn({ foo: true }, () => true);
+  fn(
+    (t: string) => t,
+    // @ts-expect-error: invalid arg
+    123
+  );
 
-  // @ts-expect-error: invalid arg
-  fn({}, (t: string) => t, 123);
-
-  expectTypeOf(fn({}, () => true)).toEqualTypeOf<() => boolean>();
-  expectTypeOf(fn({}, (arg: string) => arg.length)).toEqualTypeOf<(arg: string) => number>();
-  expectTypeOf(fn({}, (arg: string) => arg.length, 'hi')).toEqualTypeOf<() => number>();
+  expectTypeOf(fn(() => true)).toEqualTypeOf<() => boolean>();
+  expectTypeOf(fn((arg: string) => arg.length)).toEqualTypeOf<(arg: string) => number>();
+  expectTypeOf(fn((arg: string) => arg.length, 'hi')).toEqualTypeOf<() => number>();
 
   let identity = <T>(x: T): T => x;
 
   // Bound type parameters are reflected in the output
-  expectTypeOf(fn({}, identity, 'hi')).toEqualTypeOf<() => string>();
+  expectTypeOf(fn(identity, 'hi')).toEqualTypeOf<() => string>();
 
   // Unbound type parameters survive to the output
-  expectTypeOf(fn({}, identity)).toEqualTypeOf<{ <T>(x: T): T }>();
+  expectTypeOf(fn(identity)).toEqualTypeOf<{ <T>(x: T): T }>();
 }
 
 // Custom helper: positional params
@@ -32,20 +32,27 @@ import '@glint/environment-glimmerx';
   let definition = helper(<T, U>([a, b]: [T, U]) => a || b);
   let or = resolve(definition);
 
-  expectTypeOf(or).toEqualTypeOf<{ <T, U>(args: EmptyObject, t: T, u: U): T | U }>();
+  expectTypeOf(or).toEqualTypeOf<{ <T, U>(t: T, u: U, named?: NamedArgs<EmptyObject>): T | U }>();
 
-  // @ts-expect-error: extra named arg
-  or({ hello: true }, 'a', 'b');
+  or('a', 'b', {
+    // @ts-expect-error: extra named arg
+    hello: true,
+    ...NamedArgsMarker,
+  });
 
   // @ts-expect-error: missing positional arg
-  or({}, 'a');
+  or('a');
 
-  // @ts-expect-error: extra positional arg
-  or({}, 'a', 'b', 'c');
+  or(
+    'a',
+    'b',
+    // @ts-expect-error: extra positional arg
+    'c'
+  );
 
-  expectTypeOf(or({}, 'a', 'b')).toEqualTypeOf<string>();
-  expectTypeOf(or({}, 'a' as string, true as boolean)).toEqualTypeOf<string | boolean>();
-  expectTypeOf(or({}, false, true)).toEqualTypeOf<boolean>();
+  expectTypeOf(or('a', 'b')).toEqualTypeOf<string>();
+  expectTypeOf(or('a' as string, true as boolean)).toEqualTypeOf<string | boolean>();
+  expectTypeOf(or(false, true)).toEqualTypeOf<boolean>();
 }
 
 // Custom helper: named params
@@ -56,19 +63,25 @@ import '@glint/environment-glimmerx';
 
   let repeat = resolve(definition);
 
-  expectTypeOf(repeat).toEqualTypeOf<(args: { word: string; count?: number }) => Array<string>>();
+  expectTypeOf(repeat).toEqualTypeOf<
+    (args: NamedArgs<{ word: string; count?: number }>) => Array<string>
+  >();
 
   // @ts-expect-error: extra positional arg
-  repeat({ word: 'hi' }, 123);
+  repeat(123, { word: 'hi', ...NamedArgsMarker });
 
   // @ts-expect-error: missing required named arg
-  repeat({ count: 3 });
+  repeat({ count: 3, ...NamedArgsMarker });
 
-  // @ts-expect-error: extra named arg
-  repeat({ word: 'hello', foo: true });
+  repeat({
+    word: 'hello',
+    // @ts-expect-error: extra named arg
+    foo: true,
+    ...NamedArgsMarker,
+  });
 
-  expectTypeOf(repeat({ word: 'hi' })).toEqualTypeOf<Array<string>>();
-  expectTypeOf(repeat({ word: 'hi', count: 3 })).toEqualTypeOf<Array<string>>();
+  expectTypeOf(repeat({ word: 'hi', ...NamedArgsMarker })).toEqualTypeOf<Array<string>>();
+  expectTypeOf(repeat({ word: 'hi', count: 3, ...NamedArgsMarker })).toEqualTypeOf<Array<string>>();
 }
 
 // Custom helper: bare function
@@ -80,20 +93,24 @@ import '@glint/environment-glimmerx';
   let repeat = resolve(definition);
 
   expectTypeOf(repeat).toEqualTypeOf<{
-    <T>(args: EmptyObject, item: T, count?: number): Array<T>;
+    <T>(item: T, count?: number): Array<T>;
   }>();
 
-  // @ts-expect-error: unexpected named arg
-  repeat({ word: 'hi' }, 123, 12);
+  repeat(
+    123,
+    12,
+    // @ts-expect-error: unexpected named arg
+    { word: 'hi', ...NamedArgsMarker }
+  );
 
   // @ts-expect-error: missing required positional arg
-  repeat({});
+  repeat();
 
   // @ts-expect-error: extra positional arg
-  repeat({}, 'hi', 12, 'ok');
+  repeat('hi', 12, 'ok');
 
-  expectTypeOf(repeat({}, 123)).toEqualTypeOf<Array<number>>();
-  expectTypeOf(repeat({}, 'hi', 5)).toEqualTypeOf<Array<string>>();
+  expectTypeOf(repeat(123)).toEqualTypeOf<Array<number>>();
+  expectTypeOf(repeat('hi', 5)).toEqualTypeOf<Array<string>>();
 }
 
 // Custom helper: type guard
@@ -102,10 +119,10 @@ import '@glint/environment-glimmerx';
 
   let isString = resolve(definition);
 
-  expectTypeOf(isString).toEqualTypeOf<(args: EmptyObject, arg: unknown) => arg is string>();
+  expectTypeOf(isString).toEqualTypeOf<(arg: unknown) => arg is string>();
 
   let x = 'hi' as string | number;
-  if (isString({}, x)) {
+  if (isString(x)) {
     expectTypeOf(x).toEqualTypeOf<string>();
   } else {
     expectTypeOf(x).toEqualTypeOf<number>();
@@ -119,9 +136,7 @@ import '@glint/environment-glimmerx';
 
   let hackyOnChange = resolve(definition);
 
-  expectTypeOf(hackyOnChange).toEqualTypeOf<
-    (named: EmptyObject, arg: unknown, callback: () => void) => void
-  >();
+  expectTypeOf(hackyOnChange).toEqualTypeOf<(arg: unknown, callback: () => void) => void>();
 
-  emitContent(hackyOnChange({}, 'hello', () => console.log('change!')));
+  emitContent(hackyOnChange('hello', () => console.log('change!')));
 }

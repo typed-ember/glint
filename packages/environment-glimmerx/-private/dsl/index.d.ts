@@ -23,35 +23,26 @@ import './integration-declarations';
 
 import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {
-  AcceptsBlocks,
+  ComponentReturn,
   AnyContext,
   AnyFunction,
-  BoundModifier,
   DirectInvokable,
   EmptyObject,
   HasContext,
-  Invokable,
+  InvokableInstance,
   Invoke,
   InvokeDirect,
   TemplateContext,
+  ModifierReturn,
 } from '@glint/template/-private/integration';
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
-export declare function resolve<Args extends unknown[], Instance extends Invokable>(
-  item: abstract new (...args: Args) => Instance
+export declare function resolve<Args extends unknown[], Instance extends InvokableInstance>(
+  item: abstract new (...args: Args) => Instance | null | undefined
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
-export declare function resolve<Value, Args extends unknown[], T extends Value>(
-  item: (value: Value, ...args: Args) => value is T
-): (named: EmptyObject, value: Value, ...args: Args) => value is T;
-export declare function resolve<Args extends unknown[], T>(
-  item: (arg: unknown, ...args: Args) => T
-): (named: EmptyObject, arg: unknown, ...args: Args) => T;
-export declare function resolve<El extends Element, Args extends unknown[]>(
-  item: (element: El, ...args: Args) => void | (() => void)
-): (named: EmptyObject, ...args: Args) => BoundModifier<El>;
-export declare function resolve<Args extends unknown[], T>(
-  item: (...args: Args) => T
-): (named: EmptyObject, ...args: Args) => T;
+export declare function resolve<T extends ((...params: any) => any) | null | undefined>(
+  item: T
+): NonNullable<T>;
 
 export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
 
@@ -63,8 +54,11 @@ export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
 import { TemplateComponent } from '@glimmerx/component';
 
 export declare function templateExpression<
-  Signature extends AnyFunction = (args: EmptyObject) => AcceptsBlocks<EmptyObject>,
+  Signature extends AnyFunction = () => ComponentReturn<EmptyObject>,
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(
   f: (𝚪: Context, χ: never) => void
-): TemplateComponent<never> & (new () => Invokable<Signature> & HasContext<Context>);
+): TemplateComponent<never> & (new () => InvokableInstance<Signature> & HasContext<Context>);
+
+// We customize `applyModifier` to accept `void | () => void` as a valid modifier return type
+export function applyModifier(modifierResult: ModifierReturn | void | (() => void)): void;

@@ -195,16 +195,32 @@ export class Project {
 class Watch {
   public constructor(private process: ExecaChildProcess) {}
 
-  public awaitOutput(target: string): Promise<string> {
-    return new Promise((resolve) => {
+  public awaitOutput(target: string, { timeout = 20_000 } = {}): Promise<string> {
+    return new Promise((resolve, reject) => {
       let output = '';
       let handleOutput = (chunk: any): void => {
         output += chunk.toString();
         if (output.includes(target)) {
-          this.process.stdout?.off('data', handleOutput);
-          this.process.stderr?.off('data', handleOutput);
+          detach();
           resolve(output);
         }
+      };
+
+      let timeoutHandle = setTimeout(() => {
+        detach();
+        reject(
+          new Error(
+            `Timed out waiting to see ${JSON.stringify(target)}. Instead saw: ${JSON.stringify(
+              output
+            )}`
+          )
+        );
+      }, timeout);
+
+      let detach = (): void => {
+        clearTimeout(timeoutHandle);
+        this.process.stdout?.off('data', handleOutput);
+        this.process.stderr?.off('data', handleOutput);
       };
 
       this.process.stdout?.on('data', handleOutput);

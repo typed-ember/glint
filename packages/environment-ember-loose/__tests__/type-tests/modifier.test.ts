@@ -1,7 +1,7 @@
 import Modifier, { modifier } from 'ember-modifier';
-import { resolve } from '@glint/environment-ember-loose/-private/dsl';
+import { NamedArgsMarker, resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { BoundModifier } from '@glint/template/-private/integration';
+import { ModifierReturn } from '@glint/template/-private/integration';
 import { ModifierLike } from '@glint/template';
 
 // Class-based modifier
@@ -42,25 +42,44 @@ import { ModifierLike } from '@glint/template';
     }
   }
 
+  let img = new HTMLImageElement();
   let neat = resolve(NeatModifier);
 
-  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<BoundModifier<HTMLImageElement>>();
-  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<BoundModifier<HTMLImageElement>>();
+  expectTypeOf(neat(img, 'hello')).toEqualTypeOf<ModifierReturn>();
+  expectTypeOf(
+    neat(img, 'hello', { multiplier: 3, ...NamedArgsMarker })
+  ).toEqualTypeOf<ModifierReturn>();
+
+  neat(
+    // @ts-expect-error: invalid element type
+    new HTMLDivElement(),
+    'hello'
+  );
 
   type InferSignature<T> = T extends Modifier<infer Signature> ? Signature : never;
   expectTypeOf<InferSignature<NeatModifier>>().toEqualTypeOf<NeatModifierSignature>();
 
   // @ts-expect-error: missing required positional arg
-  neat({});
+  neat(img);
 
-  // @ts-expect-error: extra positional arg
-  neat({}, 'hello', 'goodbye');
+  neat(
+    img,
+    'hello',
+    // @ts-expect-error: extra positional arg
+    'goodbye'
+  );
 
-  // @ts-expect-error: invalid type for named arg
-  neat({ multiplier: 'hi' }, 'message');
+  neat(img, 'message', {
+    // @ts-expect-error: invalid type for named arg
+    multiplier: 'hi',
+    ...NamedArgsMarker,
+  });
 
-  // @ts-expect-error: invalid named arg
-  neat({ hello: 123 }, 'message');
+  neat(img, 'message', {
+    // @ts-expect-error: invalid named arg
+    hello: 123,
+    ...NamedArgsMarker,
+  });
 }
 
 // Function-based modifier
@@ -75,22 +94,41 @@ import { ModifierLike } from '@glint/template';
     }
   );
 
+  let audio = new HTMLAudioElement();
   let neat = resolve(definition);
 
-  expectTypeOf(neat({}, 'hello')).toEqualTypeOf<BoundModifier<HTMLAudioElement>>();
-  expectTypeOf(neat({ multiplier: 3 }, 'hello')).toEqualTypeOf<BoundModifier<HTMLAudioElement>>();
+  expectTypeOf(neat(audio, 'hello')).toEqualTypeOf<ModifierReturn>();
+  expectTypeOf(
+    neat(audio, 'hello', { multiplier: 3, ...NamedArgsMarker })
+  ).toEqualTypeOf<ModifierReturn>();
+
+  neat(
+    // @ts-expect-error: invalid element type
+    new HTMLDivElement(),
+    'hello'
+  );
 
   // @ts-expect-error: missing required positional arg
-  neat({});
+  neat(audio);
 
-  // @ts-expect-error: extra positional arg
-  neat({}, 'hello', 'goodbye');
+  neat(
+    audio,
+    'hello',
+    // @ts-expect-error: extra positional arg
+    'goodbye'
+  );
 
-  // @ts-expect-error: invalid type for named arg
-  neat({ multiplier: 'hi' }, 'message');
+  neat(audio, 'message', {
+    // @ts-expect-error: invalid type for named arg
+    multiplier: 'hi',
+    ...NamedArgsMarker,
+  });
 
-  // @ts-expect-error: invalid named arg
-  neat({ hello: 123 }, 'message');
+  neat(audio, 'message', {
+    // @ts-expect-error: invalid named arg
+    hello: 123,
+    ...NamedArgsMarker,
+  });
 }
 
 // Modifiers are `ModifierLike`

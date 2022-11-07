@@ -1,5 +1,10 @@
-import { DirectInvokable, EmptyObject } from '@glint/template/-private/integration';
+import { HelperLike } from '@glint/template';
 
-export type UnboundKeyword = DirectInvokable<{
-  <T>(args: EmptyObject, value: T): T;
-}>;
+export type UnboundKeyword = abstract new <T>() => InstanceType<
+  HelperLike<{
+    Args: {
+      Positional: [value: T];
+    };
+    Return: T;
+  }>
+>;

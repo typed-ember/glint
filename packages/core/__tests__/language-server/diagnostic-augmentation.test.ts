@@ -38,6 +38,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           <template>
             {{expectsTwoArgs "one"}}
             {{expectsTwoArgs "one" 2 "three"}}
+            {{expectsTwoArgs "one" 2 named=true}}
             {{expectsAtLeastOneArg}}
 
             {{yield "one" to="expectsTwoParams"}}
@@ -86,15 +87,31 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "message": "Expected at least 1 arguments, but got 0.",
+          "message": "Expected 2 arguments, but got 3. Note that named args are passed together as a final argument, so they collectively increase the given arg count by 1.",
           "range": {
             "end": {
-              "character": 28,
+              "character": 41,
               "line": 21,
             },
             "start": {
               "character": 4,
               "line": 21,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(2554)",
+          "tags": [],
+        },
+        {
+          "message": "Expected at least 1 arguments, but got 0.",
+          "range": {
+            "end": {
+              "character": 28,
+              "line": 22,
+            },
+            "start": {
+              "character": 4,
+              "line": 22,
             },
           },
           "severity": 1,
@@ -106,11 +123,11 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "range": {
             "end": {
               "character": 41,
-              "line": 23,
+              "line": 24,
             },
             "start": {
               "character": 4,
-              "line": 23,
+              "line": 24,
             },
           },
           "severity": 1,
@@ -122,11 +139,11 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "range": {
             "end": {
               "character": 27,
-              "line": 24,
+              "line": 25,
             },
             "start": {
               "character": 20,
-              "line": 24,
+              "line": 25,
             },
           },
           "severity": 1,
@@ -138,11 +155,11 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "range": {
             "end": {
               "character": 41,
-              "line": 25,
+              "line": 26,
             },
             "start": {
               "character": 4,
-              "line": 25,
+              "line": 26,
             },
           },
           "severity": 1,
@@ -360,9 +377,15 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
-          The last overload gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.
-              Type '{}' provides no match for the signature '(...positional: unknown[]): unknown'.",
+          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
+              Property '[InvokeDirect]' is missing in type '{}' but required in type 'DirectInvokable<AnyFunction>'.
+          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
+              Type '{}' provides no match for the signature 'new (...args: unknown[]): InvokableInstance<AnyFunction>'.
+          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.
+              Type '{}' provides no match for the signature '(...params: any): any'.",
           "range": {
             "end": {
               "character": 19,
@@ -380,8 +403,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
-          The last overload gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
+          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
+          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
+          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
           "range": {
             "end": {
               "character": 20,
@@ -399,8 +426,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
-          The last overload gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
+          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
+          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
+          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
           "range": {
             "end": {
               "character": 26,
@@ -418,8 +449,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
-          The last overload gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
+          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
+          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
+          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
           "range": {
             "end": {
               "character": 25,
@@ -437,8 +472,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
-          The last overload gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
+          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
+          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
+          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
           "range": {
             "end": {
               "character": 26,
@@ -456,8 +495,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
-          The last overload gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
+          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
+          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
+          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
           "range": {
             "end": {
               "character": 24,
@@ -475,8 +518,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
-          The last overload gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
+          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
+          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
+          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
           "range": {
             "end": {
               "character": 30,
@@ -494,8 +541,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
         No overload matches this call.
-          The last overload gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.",
+          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
+          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
+          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
+            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
           "range": {
             "end": {
               "character": 29,
@@ -669,8 +720,10 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "message": "Unknown component name 'foo'. If this isn't a typo, you may be missing a registry entry for this name; see the Template Registry page in the Glint documentation for more details.
         No overload matches this call.
-          The last overload gave the following error.
-            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+          Overload 1 of 6, '(component: keyof Globals): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | FnHelper | ... 19 more ... | WithKeyword', gave the following error.
+            Argument of type '\\"foo\\"' is not assignable to parameter of type 'keyof Globals'.
+          Overload 2 of 6, '(component: keyof Globals | null | undefined): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | ... 21 more ... | null', gave the following error.
+            Argument of type '\\"foo\\"' is not assignable to parameter of type 'keyof Globals | null | undefined'.",
           "range": {
             "end": {
               "character": 20,
@@ -688,8 +741,10 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
         No overload matches this call.
-          The last overload gave the following error.
-            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+          Overload 1 of 6, '(component: keyof Globals): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | FnHelper | ... 19 more ... | WithKeyword', gave the following error.
+            Argument of type '\\"bar\\"' is not assignable to parameter of type 'keyof Globals'.
+          Overload 2 of 6, '(component: keyof Globals | null | undefined): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | ... 21 more ... | null', gave the following error.
+            Argument of type '\\"bar\\"' is not assignable to parameter of type 'keyof Globals | null | undefined'.",
           "range": {
             "end": {
               "character": 33,
@@ -707,8 +762,10 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
         No overload matches this call.
-          The last overload gave the following error.
-            Argument of type 'string' is not assignable to parameter of type 'abstract new (...args: unknown[]) => Invokable<(args: unknown) => AcceptsBlocks<any, any>>'.",
+          Overload 1 of 6, '(component: keyof Globals): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | FnHelper | ... 19 more ... | WithKeyword', gave the following error.
+            Argument of type 'string' is not assignable to parameter of type 'keyof Globals'.
+          Overload 2 of 6, '(component: keyof Globals | null | undefined): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | ... 21 more ... | null', gave the following error.
+            Argument of type 'string' is not assignable to parameter of type 'keyof Globals | null | undefined'.",
           "range": {
             "end": {
               "character": 18,
@@ -785,7 +842,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
         },
         {
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}} />'.
-        Argument of type 'abstract new () => PartiallyAppliedComponent<{ message?: string | undefined; }, { message: string; }, AcceptsBlocks<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'ContentValue'.",
+        Argument of type 'Invokable<(named?: PrebindArgs<{ message?: string | undefined; }, \\"message\\"> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'ContentValue'.",
           "range": {
             "end": {
               "character": 41,
@@ -802,8 +859,8 @@ describe('Language Server: Diagnostic Augmentation', () => {
         },
         {
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}}>...</ComponentName>'.
-        Argument of type 'typeof MyComponent' is not assignable to parameter of type 'AcceptsBlocks<any, any>'.
-          Property '[Element]' is missing in type 'typeof MyComponent' but required in type 'AcceptsBlocks<any, any>'.",
+        Argument of type 'typeof MyComponent' is not assignable to parameter of type 'ComponentReturn<any, any>'.
+          Type 'typeof MyComponent' is missing the following properties from type 'ComponentReturn<any, any>': [Blocks], [Element]",
           "range": {
             "end": {
               "character": 43,
@@ -820,7 +877,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
         },
         {
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}}>...</ComponentName>'.
-        Argument of type 'abstract new () => PartiallyAppliedComponent<{ message?: string | undefined; }, { message: string; }, AcceptsBlocks<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'AcceptsBlocks<any, any>'.",
+        Argument of type 'Invokable<(named?: PrebindArgs<{ message?: string | undefined; }, \\"message\\"> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'ComponentReturn<any, any>'.",
           "range": {
             "end": {
               "character": 56,

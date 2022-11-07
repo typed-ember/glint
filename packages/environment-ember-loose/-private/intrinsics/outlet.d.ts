@@ -1,5 +1,8 @@
-import { DirectInvokable, EmptyObject } from '@glint/template/-private/integration';
+import { HelperLike } from '@glint/template';
 
-export type OutletKeyword = DirectInvokable<{
-  (args: EmptyObject, name?: string): void;
+export type OutletKeyword = HelperLike<{
+  Args: {
+    Positional: [name?: string];
+  };
+  Return: void;
 }>;

@@ -1,4 +1,4 @@
-import { BoundModifier, DirectInvokable } from '@glint/template/-private/integration';
+import { ModifierLike } from '@glint/template';
 
 export interface OnModifierArgs {
   capture?: boolean;
@@ -6,12 +6,16 @@ export interface OnModifierArgs {
   passive?: boolean;
 }
 
-export type OnModifier = DirectInvokable<{
-  // There may be a ver event types not covered in HTMLElementEventMap, but we'll just default to Event
-  <Name extends keyof HTMLElementEventMap>(
-    args: OnModifierArgs,
-    name: Name,
-    callback: (event: HTMLElementEventMap[Name]) => void
-  ): BoundModifier<Element>;
-  (args: OnModifierArgs, name: string, callback: (event: Event) => void): BoundModifier<Element>;
-}>;
+export type EventForName<Name extends string> = Name extends keyof HTMLElementEventMap
+  ? HTMLElementEventMap[Name]
+  : Event;
+
+export type OnModifier = abstract new <Name extends string>() => InstanceType<
+  ModifierLike<{
+    Element: Element;
+    Args: {
+      Named: OnModifierArgs;
+      Positional: [name: Name, callback: (event: EventForName<Name>) => void];
+    };
+  }>
+>;

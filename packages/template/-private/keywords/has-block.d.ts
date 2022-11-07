@@ -1,5 +1,6 @@
-import { DirectInvokable, EmptyObject } from '../integration';
+import { HelperLike } from '../index';
 
-export type HasBlockKeyword = DirectInvokable<{
-  (args: EmptyObject, blockName?: string): boolean;
+export type HasBlockKeyword = HelperLike<{
+  Args: { Positional: [blockName?: string] };
+  Return: boolean;
 }>;

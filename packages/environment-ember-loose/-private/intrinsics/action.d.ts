@@ -1,8 +1,8 @@
-import { DirectInvokable } from '@glint/template/-private/integration';
+import { DirectInvokable, NamedArgs } from '@glint/template/-private/integration';
 
-export type ActionNamedArgs<T> = {
+export type ActionNamedArgs<T> = NamedArgs<{
   value?: keyof T;
-};
+}>;
 
 export type ActionResult<T, Args extends ActionNamedArgs<T>> = undefined extends Args['value']
   ? T
@@ -12,36 +12,34 @@ export type ActionResult<T, Args extends ActionNamedArgs<T>> = undefined extends
 
 export type ActionKeyword = DirectInvokable<{
   <Ret, Args extends ActionNamedArgs<Ret>, Params extends unknown[]>(
-    args: Args,
-    f: (...rest: Params) => Ret
+    f: (...rest: Params) => Ret,
+    args?: Args
   ): (...rest: Params) => ActionResult<Ret, Args>;
   <A, Ret, Args extends ActionNamedArgs<Ret>, Params extends unknown[]>(
-    args: Args,
     f: (a: A, ...rest: Params) => Ret,
-    a: A
+    a: A,
+    args?: Args
   ): (...rest: Params) => ActionResult<Ret, Args>;
   <A, B, Ret, Args extends ActionNamedArgs<Ret>, Params extends unknown[]>(
-    args: Args,
     f: (a: A, b: B, ...rest: Params) => Ret,
     a: A,
-    b: B
+    b: B,
+    args?: Args
   ): (...rest: Params) => ActionResult<Ret, Args>;
   <A, B, C, Ret, Args extends ActionNamedArgs<Ret>, Params extends unknown[]>(
-    args: Args,
     f: (a: A, b: B, c: C, ...rest: Params) => Ret,
     a: A,
     b: B,
-    c: C
+    c: C,
+    args?: Args
   ): (...rest: Params) => ActionResult<Ret, Args>;
   <A, B, C, D, Ret, Args extends ActionNamedArgs<Ret>, Params extends unknown[]>(
-    args: Args,
     f: (a: A, b: B, c: C, d: D, ...rest: Params) => Ret,
     a: A,
     b: B,
     c: C,
-    d: D
+    d: D,
+    args?: Args
   ): (...rest: Params) => ActionResult<Ret, Args>;
-  (args: ActionNamedArgs<Record<string, unknown>>, action: string, ...rest: unknown[]): (
-    ...rest: unknown[]
-  ) => unknown;
+  (action: string, ...rest: unknown[]): (...rest: unknown[]) => unknown;
 }>;

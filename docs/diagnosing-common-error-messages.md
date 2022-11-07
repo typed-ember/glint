@@ -55,13 +55,13 @@ declare module '@glint/environment-ember-loose/registry' {
 }
 ```
 
-## Does not satisfy the constraint 'InvokableConstructor<AnyFunction>'
+## Does not satisfy the constraint 'Invokable<AnyFunction>'
 
 ```
-Type 'typeof SomeComponent' does not satisfy the constraint 'InvokableConstructor<AnyFunction>'.
+Type 'typeof SomeComponent' does not satisfy the constraint 'Invokable<AnyFunction>'.
   Types of construct signatures are incompatible.
-    Type 'new (owner: unknown, args: { <your component args> }) => SomeComponent' is not assignable to type 'abstract new (...args: any) => Invokable<AnyFunction>'.
-      Property '[Invoke]' is missing in type 'SomeComponent' but required in type 'Invokable<AnyFunction>'.ts(2344)
+    Type 'new (owner: unknown, args: { <your component args> }) => SomeComponent' is not assignable to type 'abstract new (...args: any) => InvokableInstance<AnyFunction>'.
+      Property '[Invoke]' is missing in type 'SomeComponent' but required in type 'InvokableInstance<AnyFunction>'.ts(2344)
 ```
 
 The key here is `Property '[Invoke]' is missing in type...`. This usually means that one of the following is true:

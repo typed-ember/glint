@@ -1,11 +1,14 @@
-import { AcceptsBlocks, DirectInvokable, EmptyObject } from '@glint/template/-private/integration';
+import { ComponentLike } from '@glint/template';
 
-export type EachInKeyword = DirectInvokable<{
-  <T>(args: EmptyObject, object: T): AcceptsBlocks<{
-    default: [key: EachInKey<T>, value: Exclude<T, null | undefined>[EachInKey<T>]];
-    else?: [];
-  }>;
-}>;
+export type EachInKeyword = abstract new <T>() => InstanceType<
+  ComponentLike<{
+    Args: { Positional: [object: T] };
+    Blocks: {
+      default: [key: EachInKey<T>, value: Exclude<T, null | undefined>[EachInKey<T>]];
+      else?: [];
+    };
+  }>
+>;
 
 // `{{each-in}}` internally uses `Object.keys`, so only string keys are included
 // TS, on the other hand, gives a wider result for `keyof` than many users expect

@@ -1,4 +1,4 @@
-import { DirectInvokable, Invokable, Invoke, InvokeDirect } from '../integration';
+import { DirectInvokable, InvokableInstance, Invoke, InvokeDirect } from '../integration';
 import { ResolveOrReturn } from './types';
 
 /*
@@ -9,12 +9,12 @@ import { ResolveOrReturn } from './types';
  *     (args: Named, ...positional: Positional) => Result
  *
  * `Named` and `Positional` represent the respective types of the named and positional
- * args accepted, and `Result` is either `CreatesModifier`, `AcceptsBlocks<...>`, or any
+ * args accepted, and `Result` is either `CreatesModifier`, `ComponentReturn<...>`, or any
  * other type to simply indicate that the invokable returns a value.
  *
  * In the core, invokables can take one of two forms:
  *
- *  - `new (...) => Invokable<T>`: this is the typical signature for items such as a
+ *  - `new (...) => InvokableInstance<T>`: this is the typical signature for items such as a
  *    component subclass. In resolving this form, we need to break apart the construct
  *    signature and reconstruct it as a regular function, which has the implicit effect
  *    of preserving type parameters for polymorphic components in the resulting function
@@ -32,7 +32,7 @@ import { ResolveOrReturn } from './types';
  */
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
-export declare function resolve<Args extends unknown[], Instance extends Invokable>(
+export declare function resolve<Args extends unknown[], Instance extends InvokableInstance>(
   item: (abstract new (...args: Args) => Instance) | null | undefined
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 

@@ -3,8 +3,9 @@ import {
   templateForBackingValue,
   resolve,
   emitComponent,
+  NamedArgsMarker,
 } from '@glint/environment-ember-loose/-private/dsl';
-import { AcceptsBlocks } from '@glint/template/-private/integration';
+import { ComponentReturn, NamedArgs } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
 import { ComponentKeyword } from '../../-private/intrinsics/component';
 import { EmptyObject } from '@glimmer/component/-private/component';
@@ -16,16 +17,17 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
   resolve(NoArgsComponent)({
     // @ts-expect-error: extra named arg
     foo: 'bar',
+    ...NamedArgsMarker,
   });
 
   resolve(NoArgsComponent)(
-    {},
+    { ...NamedArgsMarker },
     // @ts-expect-error: extra positional arg
     'oops'
   );
 
   {
-    const component = emitComponent(resolve(NoArgsComponent)({}));
+    const component = emitComponent(resolve(NoArgsComponent)());
 
     {
       // @ts-expect-error: never yields, so shouldn't accept blocks
@@ -33,7 +35,7 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
     }
   }
 
-  emitComponent(resolve(NoArgsComponent)({}));
+  emitComponent(resolve(NoArgsComponent)());
 
   templateForBackingValue(NoArgsComponent, function (𝚪) {
     expectTypeOf(𝚪.this).toBeNull();
@@ -59,28 +61,34 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 
   resolve(YieldingComponent)(
     // @ts-expect-error: missing required arg
-    {}
+    { ...NamedArgsMarker }
   );
 
   resolve(YieldingComponent)({
     // @ts-expect-error: incorrect type for arg
     values: 'hello',
+    ...NamedArgsMarker,
   });
 
   resolve(YieldingComponent)({
     values: [1, 2, 3],
     // @ts-expect-error: extra arg
     oops: true,
+    ...NamedArgsMarker,
   });
 
   {
-    const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));
+    const component = emitComponent(
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+    );
     const [value] = component.blockParams.default;
     expectTypeOf(value).toEqualTypeOf<number>();
   }
 
   {
-    const component = emitComponent(resolve(YieldingComponent)({ values: [1, 2, 3] }));
+    const component = emitComponent(
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+    );
 
     {
       const [...args] = component.blockParams.default;
@@ -115,14 +123,17 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
     'curried-component': typeof CurriedComponent;
   }>;
 
-  const CurriedWithNothing = resolve(componentKeyword)({}, 'curried-component');
+  const CurriedWithNothing = resolve(componentKeyword)('curried-component');
   expectTypeOf(resolve(CurriedWithNothing)).toEqualTypeOf<
-    (args: { a: string; b: number }) => AcceptsBlocks<EmptyObject>
+    (args: NamedArgs<{ a: string; b: number }>) => ComponentReturn<EmptyObject>
   >();
 
-  const CurriedWithA = resolve(componentKeyword)({ a: 'hi' }, 'curried-component');
+  const CurriedWithA = resolve(componentKeyword)('curried-component', {
+    a: 'hi',
+    ...NamedArgsMarker,
+  });
   expectTypeOf(resolve(CurriedWithA)).toEqualTypeOf<
-    (args: { a?: string; b: number }) => AcceptsBlocks<EmptyObject>
+    (args: NamedArgs<{ a?: string; b: number }>) => ComponentReturn<EmptyObject>
   >();
 }
 

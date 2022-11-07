@@ -4,6 +4,7 @@ import {
   applySplattributes,
   emitComponent,
   Globals,
+  NamedArgsMarker,
 } from '@glint/environment-ember-loose/-private/dsl';
 import Component from '@ember/component';
 import { ComponentKeyword } from '@glint/environment-ember-loose/-private/intrinsics/component';
@@ -24,11 +25,17 @@ class StringComponent extends Component<{
   Blocks: { default?: [string] };
 }> {}
 
-const NoopCurriedStringComponent = componentKeyword({}, 'string');
-const ValueCurriedStringComponent = componentKeyword({ value: 'hello' }, 'string');
+const NoopCurriedStringComponent = componentKeyword('string');
+const ValueCurriedStringComponent = componentKeyword('string', {
+  value: 'hello',
+  ...NamedArgsMarker,
+});
 
-const MaybeNoopCurriedStringComponent = componentKeyword({}, maybe('string'));
-const MaybeValueCurriedStringComponent = componentKeyword({ value: 'hello' }, maybe('string'));
+const MaybeNoopCurriedStringComponent = componentKeyword(maybe('string'));
+const MaybeValueCurriedStringComponent = componentKeyword(maybe('string'), {
+  value: 'hello',
+  ...NamedArgsMarker,
+});
 
 // Once value is curried, it should be optional in args
 expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
@@ -52,7 +59,9 @@ expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
 
 // Invoking the noop-curried component
 {
-  const component = emitComponent(resolve(NoopCurriedStringComponent)({ value: 'hello' }));
+  const component = emitComponent(
+    resolve(NoopCurriedStringComponent)({ value: 'hello', ...NamedArgsMarker })
+  );
 
   // Applying attributes/modifiers
   applySplattributes(new HTMLFormElement(), component.element);
@@ -60,15 +69,20 @@ expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
 
 resolve(NoopCurriedStringComponent)(
   // @ts-expect-error: Invoking the curried component but forgetting `value`
-  {}
+  { ...NamedArgsMarker }
 );
 
-// @ts-expect-error: Invoking the curried component with an invalid value
-resolve(NoopCurriedStringComponent)({ value: 123 });
+resolve(NoopCurriedStringComponent)({
+  // @ts-expect-error: Invoking the curried component with an invalid value
+  value: 123,
+  ...NamedArgsMarker,
+});
 
 // Invoking the noop-curried component with a valid block
 {
-  const component = emitComponent(resolve(NoopCurriedStringComponent)({ value: 'hello' }));
+  const component = emitComponent(
+    resolve(NoopCurriedStringComponent)({ value: 'hello', ...NamedArgsMarker })
+  );
 
   {
     const [...args] = component.blockParams.default;
@@ -78,18 +92,22 @@ resolve(NoopCurriedStringComponent)({ value: 123 });
 
 // Invoking the noop-curried component with an invalid block
 {
-  const component = emitComponent(resolve(NoopCurriedStringComponent)({ value: 'hello' }));
+  const component = emitComponent(
+    resolve(NoopCurriedStringComponent)({ value: 'hello', ...NamedArgsMarker })
+  );
 
   // @ts-expect-error: invalid block name
   component.blockParams.asdf;
 }
 
 // Invoking the curried-with-value component with no value
-emitComponent(resolve(ValueCurriedStringComponent)({}));
+emitComponent(resolve(ValueCurriedStringComponent)());
 
 // Invoking the curried-with-value component with a valid value
 {
-  const component = emitComponent(resolve(ValueCurriedStringComponent)({ value: 'hi' }));
+  const component = emitComponent(
+    resolve(ValueCurriedStringComponent)({ value: 'hi', ...NamedArgsMarker })
+  );
   applySplattributes(new HTMLFormElement(), component.element);
 }
 
@@ -97,14 +115,15 @@ emitComponent(
   resolve(ValueCurriedStringComponent)({
     // @ts-expect-error: Invoking the curred-with-value component with an invalid value
     value: 123,
+    ...NamedArgsMarker,
   })
 );
 
-// @ts-expect-error: Attempting to curry a nonexistent arg
-componentKeyword({ foo: true }, StringComponent);
-
-// @ts-expect-error: Attempting to curry an arg with the wrong type
-componentKeyword({ value: 123 }, StringComponent);
+componentKeyword(StringComponent, {
+  // @ts-expect-error: Attempting to curry an arg with the wrong type
+  value: 123,
+  ...NamedArgsMarker,
+});
 
 class ParametricComponent<T> extends Component<{
   Element: HTMLFormElement;
@@ -112,25 +131,27 @@ class ParametricComponent<T> extends Component<{
   Blocks: { default?: [T, number] };
 }> {}
 
-const NoopCurriedParametricComponent = componentKeyword({}, 'parametric');
+const NoopCurriedParametricComponent = componentKeyword('parametric');
 
 // The only way to fix a type parameter as part of using the component keyword is to
 // say ahead of time the type you're trying to bind it as.
 const BoundParametricComponent = ParametricComponent as new () => ParametricComponent<string>;
 
-const RequiredValueCurriedParametricComponent = componentKeyword(
-  { values: ['hello'] },
-  BoundParametricComponent
-);
+const RequiredValueCurriedParametricComponent = componentKeyword(BoundParametricComponent, {
+  values: ['hello'],
+  ...NamedArgsMarker,
+});
 
-const OptionalValueCurriedParametricComponent = componentKeyword(
-  { optional: 'hi' },
-  componentKeyword({}, 'parametric')
-);
+const OptionalValueCurriedParametricComponent = componentKeyword(componentKeyword('parametric'), {
+  optional: 'hi',
+  ...NamedArgsMarker,
+});
 
 // Invoking the noop-curried component with number values
 {
-  const component = emitComponent(resolve(NoopCurriedParametricComponent)({ values: [1, 2, 3] }));
+  const component = emitComponent(
+    resolve(NoopCurriedParametricComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+  );
 
   {
     const [value] = component.blockParams.default;
@@ -140,7 +161,9 @@ const OptionalValueCurriedParametricComponent = componentKeyword(
 
 // Invoking the noop-curried component with string values
 {
-  const component = emitComponent(resolve(NoopCurriedParametricComponent)({ values: ['hello'] }));
+  const component = emitComponent(
+    resolve(NoopCurriedParametricComponent)({ values: ['hello'], ...NamedArgsMarker })
+  );
 
   {
     const [value] = component.blockParams.default;
@@ -151,16 +174,15 @@ const OptionalValueCurriedParametricComponent = componentKeyword(
 }
 
 emitComponent(
-  resolve(NoopCurriedParametricComponent)(
-    // @ts-expect-error: missing required arg `values`
-    {}
-  )
+  // @ts-expect-error: expect 1 args but got 0
+  resolve(NoopCurriedParametricComponent)()
 );
 
 emitComponent(
   resolve(NoopCurriedParametricComponent)({
     // @ts-expect-error: wrong type for `values`
     values: 'hello',
+    ...NamedArgsMarker,
   })
 );
 
@@ -169,12 +191,13 @@ emitComponent(
     values: [1, 2, 3],
     // @ts-expect-error: extra arg
     extra: 'uh oh',
+    ...NamedArgsMarker,
   })
 );
 
 // Invoking the curred component with no additional args
 {
-  const component = emitComponent(resolve(RequiredValueCurriedParametricComponent)({}));
+  const component = emitComponent(resolve(RequiredValueCurriedParametricComponent)());
 
   {
     const [value] = component.blockParams.default;
@@ -185,7 +208,7 @@ emitComponent(
 // Invoking the curred component and overriding the given arg
 {
   const component = emitComponent(
-    resolve(RequiredValueCurriedParametricComponent)({ values: ['ok'] })
+    resolve(RequiredValueCurriedParametricComponent)({ values: ['ok'], ...NamedArgsMarker })
   );
 
   {
@@ -198,6 +221,7 @@ emitComponent(
   resolve(RequiredValueCurriedParametricComponent)({
     // @ts-expect-error: wrong type for arg override
     values: [1, 2, 3],
+    ...NamedArgsMarker,
   })
 );
 
@@ -205,13 +229,14 @@ emitComponent(
   resolve(RequiredValueCurriedParametricComponent)({
     // @ts-expect-error: extra arg
     extra: 'bad',
+    ...NamedArgsMarker,
   })
 );
 
 // Invoking the curried component, supplying missing required args
 {
   const component = emitComponent(
-    resolve(OptionalValueCurriedParametricComponent)({ values: [1, 2, 3] })
+    resolve(OptionalValueCurriedParametricComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
   );
 
   {
@@ -228,14 +253,14 @@ emitComponent(
 );
 
 // {{component (component BoundParametricComponent values=(array "hello")) optional="hi"}}
-const DoubleCurriedComponent = componentKeyword(
-  { optional: 'hi' },
-  RequiredValueCurriedParametricComponent
-);
+const DoubleCurriedComponent = componentKeyword(RequiredValueCurriedParametricComponent, {
+  optional: 'hi',
+  ...NamedArgsMarker,
+});
 
 const MaybeDoubleCurriedParametricComponent = componentKeyword(
-  { optional: 'hi' },
-  maybe(RequiredValueCurriedParametricComponent)
+  maybe(RequiredValueCurriedParametricComponent),
+  { optional: 'hi', ...NamedArgsMarker }
 );
 
 expectTypeOf(MaybeDoubleCurriedParametricComponent).toEqualTypeOf<
@@ -244,7 +269,7 @@ expectTypeOf(MaybeDoubleCurriedParametricComponent).toEqualTypeOf<
 
 // Invoking the component with no args
 {
-  const component = emitComponent(resolve(DoubleCurriedComponent)({}));
+  const component = emitComponent(resolve(DoubleCurriedComponent)());
 
   {
     const [value] = component.blockParams.default;
@@ -253,12 +278,13 @@ expectTypeOf(MaybeDoubleCurriedParametricComponent).toEqualTypeOf<
 }
 
 // Invoking the component overriding an arg correctly
-emitComponent(resolve(DoubleCurriedComponent)({ values: ['a', 'b'] }));
+emitComponent(resolve(DoubleCurriedComponent)({ values: ['a', 'b'], ...NamedArgsMarker }));
 
 emitComponent(
   resolve(DoubleCurriedComponent)({
     // @ts-expect-error: invalid arg override
     values: [1, 2, 3],
+    ...NamedArgsMarker,
   })
 );
 
@@ -266,6 +292,7 @@ emitComponent(
   resolve(DoubleCurriedComponent)({
     // @ts-expect-error: unexpected args
     foo: 'bar',
+    ...NamedArgsMarker,
   })
 );
 
@@ -275,7 +302,7 @@ emitComponent(
   // appropriate global values are available to consumers.
   const realComponentKeyword = resolve(Globals['component']);
 
-  expectTypeOf(realComponentKeyword({}, 'input')).toEqualTypeOf(Globals.input);
-  expectTypeOf(realComponentKeyword({}, 'link-to')).toEqualTypeOf(Globals['link-to']);
-  expectTypeOf(realComponentKeyword({}, 'textarea')).toEqualTypeOf(Globals['textarea']);
+  expectTypeOf(realComponentKeyword('input')).toEqualTypeOf(Globals.input);
+  expectTypeOf(realComponentKeyword('link-to')).toEqualTypeOf(Globals['link-to']);
+  expectTypeOf(realComponentKeyword('textarea')).toEqualTypeOf(Globals['textarea']);
 }
