@@ -67,7 +67,6 @@ function parseArgs(args: Array<string>): { globs: Array<string>; explanation: st
 }
 
 type GlintCore = typeof import('@glint/core');
-type GlintUtils = typeof import('@glint/core/lib/language-server/util/index.js');
 
 function findImport(path: string, basedir: string): string {
   let resolvedPath = resolve(path, { basedir });
@@ -77,19 +76,24 @@ function findImport(path: string, basedir: string): string {
 
 // We want to use the project-local version of @glint/core for maximum compatibility,
 // but we need to guard against older versions that don't expose a programmatic API.
-async function loadGlintCore(cwd: string): Promise<GlintCore & GlintUtils> {
+async function loadGlintCore(cwd: string): Promise<GlintCore> {
+  let glint: GlintCore | undefined;
   try {
-    let [core, util] = await Promise.all([
-      import(findImport('@glint/core', cwd)),
-      import(findImport('@glint/core/lib/language-server/util/index.js', cwd)),
-    ]);
+    glint = await import(findImport('@glint/core', cwd));
+  } catch (error) {
+    console.log(error);
+    // Fall through
+  }
 
-    return { ...core, ...util };
-  } catch {
+  if (!glint?.pathUtils) {
     throw new Error(
-      `This script requires @glint/core >= 0.9.6 to be available in your project in order to run.`
+      'This script requires a recent version of @glint/core to run. ' +
+        'Consider upgrading to the latest version of Glint or using ' +
+        'an older version of @glint/scripts.'
     );
   }
+
+  return glint;
 }
 
 function collectFilePaths(globs: Array<string>, cwd: string): Array<string> {
@@ -101,7 +105,7 @@ function collectFilePaths(globs: Array<string>, cwd: string): Array<string> {
 // is a little weird, but it conveniently deduplicates and gives us exactly
 // the information we need.)
 function findTemplatesWithErrors(
-  glint: GlintUtils,
+  glint: GlintCore,
   filePath: string,
   fileContents: string,
   project: ProjectAnalysis
@@ -115,7 +119,7 @@ function findTemplatesWithErrors(
   let errors = diagnostics.filter((diagnostic) => diagnostic.severity === DiagnosticCategory.Error);
 
   for (let error of errors) {
-    let originalStart = glint.positionToOffset(fileContents, error.range.start);
+    let originalStart = glint.pathUtils.positionToOffset(fileContents, error.range.start);
     let template = info.transformedModule.findTemplateAtOriginalOffset(filePath, originalStart);
     if (template) {
       templatesWithErrors.set(template.originalContentStart, template.originalContent);
