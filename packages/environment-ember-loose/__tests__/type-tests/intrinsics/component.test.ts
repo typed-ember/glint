@@ -7,7 +7,7 @@ import {
   NamedArgsMarker,
 } from '@glint/environment-ember-loose/-private/dsl';
 import Component from '@ember/component';
-import { ComponentKeyword } from '@glint/environment-ember-loose/-private/intrinsics/component';
+import { ComponentKeyword } from '../../../-private/intrinsics/component';
 import { WithBoundArgs, ComponentLike } from '@glint/template';
 
 const componentKeyword = resolve({} as ComponentKeyword<LocalRegistry>);
