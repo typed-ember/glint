@@ -1,9 +1,9 @@
 import { AST } from '@glimmer/syntax';
-import { unreachable, assert } from '../util';
-import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-template-contents';
-import ScopeStack from './scope-stack';
-import { GlintEmitMetadata } from '@glint/config/src/environment';
-import { TextContent } from './mapping-tree';
+import { unreachable, assert } from '../util.js';
+import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-template-contents.js';
+import ScopeStack from './scope-stack.js';
+import { GlintEmitMetadata } from '@glint/config/types';
+import { TextContent } from './mapping-tree.js';
 
 const SPLATTRIBUTES = '...attributes';
 const INLINE_KEYWORDS = ['if', 'yield', 'hash', 'array', 'unless'] as const;

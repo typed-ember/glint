@@ -1,6 +1,6 @@
 import type * as ts from 'typescript';
-import { CorrelatedSpan, Directive, TransformError } from '../transformed-module';
-import { TSLib } from '../../util';
+import { CorrelatedSpan, Directive, TransformError } from '../transformed-module.js';
+import { TSLib } from '../../util.js';
 
 export type PartialCorrelatedSpan = Omit<CorrelatedSpan, 'transformedStart' | 'transformedLength'>;
 

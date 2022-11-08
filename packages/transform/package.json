@@ -5,8 +5,10 @@
   "description": "Transforms Glimmer templates into TypeScript code that approximates their semantics",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": "./lib/index.js"
+  },
   "files": [
     "README.md",
     "lib"

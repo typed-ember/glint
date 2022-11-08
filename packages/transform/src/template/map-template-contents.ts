@@ -1,7 +1,7 @@
 import { AST, preprocess } from '@glimmer/syntax';
-import MappingTree, { MappingSource, TemplateEmbedding } from './mapping-tree';
-import { Directive, DirectiveKind, Range } from './transformed-module';
-import { assert } from '../util';
+import MappingTree, { MappingSource, TemplateEmbedding } from './mapping-tree.js';
+import { Directive, DirectiveKind, Range } from './transformed-module.js';
+import { assert } from '../util.js';
 
 /**
  * @glimmer/syntax parses identifiers as strings. Aside from meaning

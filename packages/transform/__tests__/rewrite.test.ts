@@ -1,8 +1,8 @@
 import ts from 'typescript';
 import { describe, test, expect } from 'vitest';
-import { rewriteModule } from '../src';
+import { rewriteModule } from '../src/index.js';
 import { stripIndent } from 'common-tags';
-import { GlintEnvironment } from '@glint/config/lib/environment';
+import { GlintEnvironment } from '@glint/config';
 
 describe('rewriteModule', () => {
   describe('inline tagged template', () => {
