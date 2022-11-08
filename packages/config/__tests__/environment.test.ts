@@ -1,11 +1,8 @@
-import fs from 'fs';
-import os from 'os';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
-import {
-  GlintEnvironment,
-  GlintExtensionPreprocess,
-  GlintExtensionTransform,
-} from '../src/environment';
+import { GlintExtensionPreprocess, GlintExtensionTransform } from '@glint/config/types';
+import { GlintEnvironment } from '../src/environment.js';
 
 describe('Environments', () => {
   describe('template tags config', () => {

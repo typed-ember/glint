@@ -1,9 +1,12 @@
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
-import SilentError = require('silent-error');
 import resolve = require('resolve');
+import SilentError from 'silent-error';
 import { GlintConfig } from './config.js';
 import { GlintConfigInput } from './index.js';
 import type * as TS from 'typescript';
+
+const require = createRequire(import.meta.url);
 
 type TypeScript = typeof TS;
 

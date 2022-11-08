@@ -5,9 +5,9 @@
   "description": "Tools to read configuration for @glint packages",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "type": "module",
   "exports": {
+    ".": "./lib/index.js",
     "./types": "./lib/types.cjs"
   },
   "files": [

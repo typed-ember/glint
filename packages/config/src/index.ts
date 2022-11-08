@@ -1,11 +1,12 @@
-import SilentError = require('silent-error');
-import { GlintConfig } from './config';
-import { ConfigLoader } from './loader';
+import SilentError from 'silent-error';
+import { GlintConfig } from './config.js';
+import { ConfigLoader } from './loader.js';
 
-export type { GlintConfig } from './config';
 export * from '@glint/config/types';
 
-export { ConfigLoader, findTypeScript } from './loader';
+export { GlintConfig } from './config.js';
+export { GlintEnvironment } from './environment.js';
+export { ConfigLoader, findTypeScript } from './loader.js';
 
 /**
  * Loads glint configuration, starting from the given directory

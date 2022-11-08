@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import { describe, test, expect } from 'vitest';
-import { GlintConfig } from '../src/config';
+import { GlintConfig } from '../src/config.js';
 
 describe('include/exclude configuration', () => {
   const root = process.cwd();

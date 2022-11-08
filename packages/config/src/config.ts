@@ -1,6 +1,6 @@
 import * as path from 'node:path';
-import { Minimatch, IMinimatch } from 'minimatch';
-import { GlintEnvironment } from './environment';
+import Minimatch from 'minimatch';
+import { GlintEnvironment } from './environment.js';
 import { GlintConfigInput } from './index.js';
 
 /**
@@ -14,8 +14,8 @@ export class GlintConfig {
   public readonly environment: GlintEnvironment;
   public readonly checkStandaloneTemplates: boolean;
 
-  private includeMatchers: Array<IMinimatch>;
-  private excludeMatchers: Array<IMinimatch>;
+  private includeMatchers: Array<Minimatch.IMinimatch>;
+  private excludeMatchers: Array<Minimatch.IMinimatch>;
 
   public constructor(
     ts: typeof import('typescript'),
@@ -74,8 +74,10 @@ export class GlintConfig {
     }
   }
 
-  private buildMatchers(globs: Array<string>): Array<IMinimatch> {
-    return globs.map((glob) => new Minimatch(normalizePath(path.resolve(this.rootDir, glob))));
+  private buildMatchers(globs: Array<string>): Array<Minimatch.IMinimatch> {
+    return globs.map(
+      (glob) => new Minimatch.Minimatch(normalizePath(path.resolve(this.rootDir, glob)))
+    );
   }
 }
 

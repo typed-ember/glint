@@ -1,10 +1,8 @@
 import * as path from 'node:path';
 import resolve = require('resolve');
-import escapeStringRegexp = require('escape-string-regexp');
-import type * as ts from 'typescript';
-import SilentError = require('silent-error');
-
-type TSLib = typeof ts;
+import { createRequire } from 'node:module';
+import escapeStringRegexp from 'escape-string-regexp';
+import SilentError from 'silent-error';
 import {
   GlintEnvironmentConfig,
   GlintExtensionConfig,
@@ -15,6 +13,8 @@ import {
   PathCandidateWithDeferral,
   SourceKind,
 } from './index.js';
+
+const require = createRequire(import.meta.url);
 
 export const DEFAULT_EXTENSIONS: GlintExtensionsConfig = {
   '.hbs': { kind: 'template' },
