@@ -1,16 +1,12 @@
-import {
-  ExtensionContext,
-  workspace,
-  window,
-  WorkspaceFolder,
-  FileSystemWatcher,
-  commands,
-  TextEditor,
-  Range,
-} from 'vscode';
-import { Disposable, LanguageClient, ServerOptions } from 'vscode-languageclient/node';
 import { sync as resolve } from 'resolve';
-import type { Request, GetIRRequest } from '@glint/core/lib/language-server/messages';
+import { createRequire } from 'node:module';
+import type { ExtensionContext, WorkspaceFolder, FileSystemWatcher, TextEditor } from 'vscode';
+import { Disposable, LanguageClient, ServerOptions } from 'vscode-languageclient/node.js';
+import type { Request, GetIRRequest } from '@glint/core/lsp-messages';
+
+// Code only injects itself for `require`, not `import`
+const vscode = createRequire(import.meta.url)('vscode') as typeof import('vscode');
+const { Range, window, commands, workspace } = vscode;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Setup and extension lifecycle

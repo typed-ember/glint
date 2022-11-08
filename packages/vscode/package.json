@@ -8,7 +8,8 @@
   "private": true,
   "author": "James C. Davis (https://github.com/jamescdavis)",
   "license": "MIT",
-  "main": "lib/extension.js",
+  "type": "module",
+  "main": "lib/entry.cjs",
   "homepage": "https://github.com/typed-ember/glint/packages/vscode",
   "repository": {
     "url": "https://github.com/typed-ember/glint"
@@ -92,10 +93,10 @@
     "@glint/core": "^0.9.7",
     "@types/jest": "^26.0.13",
     "@types/vscode": "^1.68.1",
+    "@vscode/test-electron": "^2.2.0",
     "intercept-stdout": "^0.1.2",
     "jest": "^26.4.2",
-    "ts-jest": "^26.3.0",
-    "vscode-test": "^1.5.1"
+    "ts-jest": "^26.3.0"
   },
   "__metadata": {
     "id": "f1370239-cb1d-475c-b9da-20961224a998",
