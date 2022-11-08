@@ -3,15 +3,7 @@ import { GlintConfig } from './config';
 import { ConfigLoader } from './loader';
 
 export type { GlintConfig } from './config';
-export type {
-  GlintEnvironment,
-  GlintEnvironmentConfig,
-  GlintTagConfig,
-  GlintExtensionPreprocess,
-  GlintExtensionTransform,
-  GlintEmitMetadata,
-  PathCandidate,
-} from './environment';
+export * from '@glint/config/types';
 
 export { ConfigLoader, findTypeScript } from './loader';
 

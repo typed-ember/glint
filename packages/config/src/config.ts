@@ -1,15 +1,7 @@
 import * as path from 'node:path';
 import { Minimatch, IMinimatch } from 'minimatch';
 import { GlintEnvironment } from './environment';
-
-export type GlintConfigInput = {
-  environment: string | Array<string> | Record<string, unknown>;
-  checkStandaloneTemplates?: boolean;
-  transform?: {
-    include?: string | Array<string>;
-    exclude?: string | Array<string>;
-  };
-};
+import { GlintConfigInput } from './index.js';
 
 /**
  * This class represents parsed Glint configuration from a `tsconfig` or `jsconfig` file,
