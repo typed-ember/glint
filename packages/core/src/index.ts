@@ -2,6 +2,7 @@ import { GlintConfig, loadConfig } from '@glint/config';
 import DocumentCache from './common/document-cache.js';
 import TransformManager from './common/transform-manager.js';
 import GlintLanguageServer from './language-server/glint-language-server.js';
+import * as utils from './language-server/util/index.js';
 
 /** @internal */
 export interface ProjectAnalysis {
@@ -10,6 +11,9 @@ export interface ProjectAnalysis {
   languageServer: GlintLanguageServer;
   shutdown: () => void;
 }
+
+/** @internal */
+export const pathUtils = utils;
 
 /**
  * This function is available to consumers as an unstable API. We will not go
