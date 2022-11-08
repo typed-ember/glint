@@ -1,7 +1,7 @@
 import { GlintConfig, loadConfig } from '@glint/config';
-import DocumentCache from './common/document-cache';
-import TransformManager from './common/transform-manager';
-import GlintLanguageServer from './language-server/glint-language-server';
+import DocumentCache from './common/document-cache.js';
+import TransformManager from './common/transform-manager.js';
+import GlintLanguageServer from './language-server/glint-language-server.js';
 
 /** @internal */
 export interface ProjectAnalysis {

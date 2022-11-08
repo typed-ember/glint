@@ -5,7 +5,13 @@
   "description": "A CLI for performing typechecking on Glimmer templates",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
+  "type": "module",
   "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./lsp-messages": "./lib/language-server/messages.js",
+    "./bin/*": "./bin/*.js"
+  },
   "files": [
     "README.md",
     "lib",

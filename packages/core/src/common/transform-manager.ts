@@ -9,9 +9,9 @@ import {
 } from '@glint/transform';
 import type * as ts from 'typescript';
 import { GlintConfig } from '@glint/config';
-import { assert } from '@glint/transform/lib/util';
-import DocumentCache, { templatePathForSynthesizedModule } from './document-cache';
-import MappingTree from '@glint/transform/src/template/mapping-tree';
+import DocumentCache, { templatePathForSynthesizedModule } from './document-cache.js';
+
+type MappingTree = NonNullable<ReturnType<TransformedModule['getOriginalRange']>['mapping']>;
 
 type TransformInfo = {
   version: string;
@@ -162,7 +162,9 @@ export default class TransformManager {
     options?: ts.WatchOptions
   ): ts.FileWatcher => {
     const { watchFile } = this.ts.sys;
-    assert(watchFile);
+    if (!watchFile) {
+      throw new Error('Internal error: TS `watchFile` unavailable');
+    }
 
     let { glintConfig, documents } = this;
     let callback: ts.FileWatcherCallback = (watchedPath, eventKind) => {
@@ -201,7 +203,9 @@ export default class TransformManager {
     recursive?: boolean,
     options?: ts.WatchOptions
   ): ts.FileWatcher => {
-    assert(this.ts.sys.watchDirectory);
+    if (!this.ts.sys.watchDirectory) {
+      throw new Error('Internal error: TS `watchDirectory` unavailable');
+    }
 
     let callback: ts.DirectoryWatcherCallback = (filename) =>
       originalCallback(this.getScriptPathForTS(filename));

@@ -1,7 +1,7 @@
 import * as TS from 'typescript';
 import { ConfigLoader, GlintConfig } from '@glint/config';
-import TransformManager from '../../common/transform-manager';
-import { assert } from './assert';
+import TransformManager from '../../common/transform-manager.js';
+import { assert } from './assert.js';
 
 /**
  * A lazy cache/lookup map for the parts of `TS.System` which `TransformManager`

@@ -7,9 +7,9 @@ import {
   TextDocumentSyncKind,
 } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { GlintCompletionItem } from './glint-language-server';
-import { LanguageServerPool } from './pool';
-import { GetIRRequest } from './messages';
+import { GlintCompletionItem } from './glint-language-server.js';
+import { LanguageServerPool } from './pool.js';
+import { GetIRRequest } from './messages.js';
 
 export const capabilities: ServerCapabilities = {
   textDocumentSync: TextDocumentSyncKind.Full,

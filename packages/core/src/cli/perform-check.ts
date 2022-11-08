@@ -1,8 +1,8 @@
 import type * as TS from 'typescript';
-import TransformManager from '../common/transform-manager';
+import TransformManager from '../common/transform-manager.js';
 import { GlintConfig } from '@glint/config';
-import { buildDiagnosticFormatter } from './diagnostics';
-import { sysForCompilerHost } from './utils/sys-for-compiler-host';
+import { buildDiagnosticFormatter } from './diagnostics.js';
+import { sysForCompilerHost } from './utils/sys-for-compiler-host.js';
 
 type TypeScript = typeof TS;
 

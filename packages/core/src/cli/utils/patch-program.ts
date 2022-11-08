@@ -1,7 +1,7 @@
 import type * as TS from 'typescript';
-import type TransformManager from '../../common/transform-manager';
-import { assert } from './assert';
-import type TransformManagerPool from './transform-manager-pool';
+import type TransformManager from '../../common/transform-manager.js';
+import { assert } from './assert.js';
+import type TransformManagerPool from './transform-manager-pool.js';
 
 type Program = TS.SemanticDiagnosticsBuilderProgram;
 

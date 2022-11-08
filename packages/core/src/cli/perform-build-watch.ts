@@ -1,9 +1,9 @@
 import type * as TS from 'typescript';
 
-import { buildDiagnosticFormatter } from './diagnostics';
-import { sysForCompilerHost } from './utils/sys-for-compiler-host';
-import { patchProgram } from './utils/patch-program';
-import TransformManagerPool from './utils/transform-manager-pool';
+import { buildDiagnosticFormatter } from './diagnostics.js';
+import { sysForCompilerHost } from './utils/sys-for-compiler-host.js';
+import { patchProgram } from './utils/patch-program.js';
+import TransformManagerPool from './utils/transform-manager-pool.js';
 
 export function performBuildWatch(
   ts: typeof TS,
