@@ -1,5 +1,5 @@
-import { sync as resolve } from 'resolve';
 import { createRequire } from 'node:module';
+import * as path from 'node:path';
 import type { ExtensionContext, WorkspaceFolder, FileSystemWatcher, TextEditor } from 'vscode';
 import { Disposable, LanguageClient, ServerOptions } from 'vscode-languageclient/node.js';
 import type { Request, GetIRRequest } from '@glint/core/lsp-messages';
@@ -106,8 +106,9 @@ async function removeWorkspaceFolder(workspaceFolder: WorkspaceFolder): Promise<
 // Utilities
 
 function findLanguageServer(basedir: string): string | null {
+  let requireFrom = path.resolve(basedir, 'package.json');
   try {
-    return resolve('@glint/core/bin/glint-language-server', { basedir });
+    return createRequire(requireFrom).resolve('@glint/core/bin/glint-language-server');
   } catch {
     // Many workspaces with `tsconfig` files won't be Glint projects, so it's totally fine for us to
     // just bail out if we don't see `@glint/core`. If someone IS expecting Glint to run for this

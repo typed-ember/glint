@@ -1,5 +1,4 @@
 import * as path from 'node:path';
-import resolve = require('resolve');
 import { createRequire } from 'node:module';
 import escapeStringRegexp from 'escape-string-regexp';
 import SilentError from 'silent-error';
@@ -45,7 +44,7 @@ export class GlintEnvironment {
 
   public static load(
     specifier: string | Array<string> | Record<string, unknown>,
-    { rootDir = '.' } = {}
+    { rootDir = process.cwd() } = {}
   ): GlintEnvironment {
     let envs = normalizeEnvironmentSpecifier(specifier);
     let config = loadMergedEnvironmentConfig(envs, rootDir);
@@ -262,7 +261,7 @@ function normalizePathCandidates(
 
 function tryResolve(name: string, basedir: string): string | null {
   try {
-    return resolve.sync(name, { basedir });
+    return createRequire(path.resolve(basedir, 'package.json')).resolve(name);
   } catch (error: any) {
     if (error?.code === 'MODULE_NOT_FOUND') {
       return null;

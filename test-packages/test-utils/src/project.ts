@@ -1,6 +1,5 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import * as resolve from 'resolve';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { node, ExecaChildProcess, Options } from 'execa';
@@ -171,7 +170,7 @@ export class Project {
   }
 
   public check(options: Options & { flags?: string[] } = {}): ExecaChildProcess {
-    return node(resolve.sync('@glint/core/bin/glint'), options.flags, {
+    return node(require.resolve('@glint/core/bin/glint'), options.flags, {
       cwd: this.rootDir,
       ...options,
     });
@@ -184,7 +183,7 @@ export class Project {
   public build(options: Options & { flags?: string[] } = {}, debug = false): ExecaChildProcess {
     let build = ['--build'];
     let flags = options.flags ? build.concat(options.flags) : build;
-    return node(resolve.sync('@glint/core/bin/glint'), flags, {
+    return node(require.resolve('@glint/core/bin/glint'), flags, {
       cwd: this.rootDir,
       nodeOptions: debug ? ['--inspect-brk'] : [],
       ...options,

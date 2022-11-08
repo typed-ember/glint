@@ -1,14 +1,13 @@
 import { relative, dirname } from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import resolvePkg from 'resolve';
 import globPkg from 'glob';
 import yargs from 'yargs';
 import ora from 'ora';
 import { type ProjectAnalysis } from '@glint/core';
 
 const globSync = globPkg.sync;
-const resolve = resolvePkg.sync;
 
 export async function autoNocheck(
   args: Array<string>,
@@ -69,7 +68,7 @@ function parseArgs(args: Array<string>): { globs: Array<string>; explanation: st
 type GlintCore = typeof import('@glint/core');
 
 function findImport(path: string, basedir: string): string {
-  let resolvedPath = resolve(path, { basedir });
+  let resolvedPath = createRequire(`${basedir}/package.json`).resolve(path);
   let directory = dirname(fileURLToPath(import.meta.url));
   return relative(directory, resolvedPath);
 }

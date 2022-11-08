@@ -86,7 +86,6 @@
     ]
   },
   "dependencies": {
-    "resolve": "^1.20.0",
     "vscode-languageclient": "^8.0.1"
   },
   "devDependencies": {

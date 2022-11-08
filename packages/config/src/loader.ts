@@ -1,6 +1,5 @@
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
-import resolve = require('resolve');
 import SilentError from 'silent-error';
 import { GlintConfig } from './config.js';
 import { GlintConfigInput } from './index.js';
@@ -43,8 +42,9 @@ export class ConfigLoader {
 }
 
 export function findTypeScript(fromDir: string): TypeScript | null {
+  let requireFrom = path.resolve(fromDir, 'package.json');
   return (
-    tryResolve(() => require(resolve.sync('typescript', { basedir: fromDir }))) ??
+    tryResolve(() => createRequire(requireFrom)('typescript')) ??
     tryResolve(() => require('typescript'))
   );
 }
