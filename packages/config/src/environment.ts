@@ -89,12 +89,17 @@ export class GlintEnvironment {
   }
 
   /**
-   * Returns the import path that should be used for `@glint/template`-derived
-   * types to drive typechecking for standalone template files, if this
-   * environment supports such templates.
+   * Returns configuration information for standalone templates in this environment,
+   * including the location of their backing types module and any special forms
+   * they support.
    */
-  public getTypesForStandaloneTemplate(): string | undefined {
-    return this.standaloneTemplateConfig?.typesModule;
+  public getStandaloneTemplateConfig():
+    | Pick<GlintTemplateConfig, 'typesModule' | 'specialForms'>
+    | undefined {
+    if (this.standaloneTemplateConfig) {
+      let { typesModule, specialForms } = this.standaloneTemplateConfig;
+      return { typesModule, specialForms };
+    }
   }
 
   /**

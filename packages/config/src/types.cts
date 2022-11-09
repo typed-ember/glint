@@ -45,6 +45,16 @@ export type GlintExtensionTransform<T> = (
   }
 ) => ts.Transformer<ts.Node>;
 
+export type GlintSpecialForm = 'if' | 'if-not' | 'yield' | 'object-literal' | 'array-literal';
+export type GlintSpecialFormConfig = {
+  globals?: { [global: string]: GlintSpecialForm };
+  imports?: {
+    [path: string]: {
+      [identifier: string]: GlintSpecialForm;
+    };
+  };
+};
+
 export type SourceKind = 'typed-script' | 'untyped-script' | 'template';
 export type GlintExtensionConfig<PreprocessData = any> = {
   kind: SourceKind;
@@ -59,6 +69,7 @@ export type GlintExtensionsConfig = {
 export type GlintTagConfig = {
   typesModule: string;
   globals?: Array<string>;
+  specialForms?: GlintSpecialFormConfig;
 };
 
 export type GlintTagsConfig = {
@@ -78,6 +89,7 @@ export type PathCandidateWithDeferral = {
 
 export type GlintTemplateConfig = {
   typesModule: string;
+  specialForms?: { [global: string]: GlintSpecialForm };
   getPossibleTemplatePaths(scriptPath: string): Array<PathCandidate>;
   getPossibleScriptPaths(templatePath: string): Array<PathCandidate>;
 };

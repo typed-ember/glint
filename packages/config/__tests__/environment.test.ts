@@ -63,7 +63,7 @@ describe('Environments', () => {
     test('no standalone template support', () => {
       let env = new GlintEnvironment(['test-env'], {});
 
-      expect(env.getTypesForStandaloneTemplate()).toBeUndefined();
+      expect(env.getStandaloneTemplateConfig()).toBeUndefined();
       expect(env.getPossibleScriptPaths('hello.hbs')).toEqual([]);
       expect(env.getPossibleTemplatePaths('hello.ts')).toEqual([]);
     });
@@ -72,6 +72,9 @@ describe('Environments', () => {
       let env = new GlintEnvironment(['test-env'], {
         template: {
           typesModule: '@glint/test-env/types',
+          specialForms: {
+            obj: 'object-literal',
+          },
           getPossibleTemplatePaths: (script) => [
             { path: script.replace('.ts', '.hbs'), deferTo: ['another/script.ts'] },
           ],
@@ -82,7 +85,11 @@ describe('Environments', () => {
         },
       });
 
-      expect(env.getTypesForStandaloneTemplate()).toEqual('@glint/test-env/types');
+      expect(env.getStandaloneTemplateConfig()).toEqual({
+        typesModule: '@glint/test-env/types',
+        specialForms: { obj: 'object-literal' },
+      });
+
       expect(env.getPossibleTemplatePaths('hello.ts')).toEqual([
         { path: 'hello.hbs', deferTo: ['another/script.ts'] },
       ]);
@@ -226,7 +233,7 @@ describe('Environments', () => {
 
         let env = GlintEnvironment.load([envA, envB], { rootDir: testDir });
 
-        expect(env.getTypesForStandaloneTemplate()).toEqual('foo');
+        expect(env.getStandaloneTemplateConfig()).toEqual({ typesModule: 'foo' });
         expect(env.getConfiguredTemplateTags()).toEqual({
           'foo-bar': { hbs: {}, tpl: {} },
           baz: { hbs: {} },
