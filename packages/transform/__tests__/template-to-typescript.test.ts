@@ -3,7 +3,7 @@ import { describe, test, expect } from 'vitest';
 import {
   templateToTypescript,
   TemplateToTypescriptOptions,
-} from '../src/template/template-to-typescript';
+} from '../src/template/template-to-typescript.js';
 
 describe('rewriteTemplate', () => {
   // Slices out the template boilerplate to return only the code representing
@@ -13,8 +13,8 @@ describe('rewriteTemplate', () => {
     options: Omit<TemplateToTypescriptOptions, 'typesModule'> = {}
   ): string {
     let { result, errors } = templateToTypescript(template, {
-      ...options,
       typesModule: '@glint/template',
+      ...options,
     });
     if (errors.length) {
       throw new Error('Unexpected error(s): ' + errors.map((e) => e.message).join(', '));
@@ -201,20 +201,22 @@ describe('rewriteTemplate', () => {
     });
   });
 
-  describe('primitives', () => {
+  describe('special forms', () => {
     describe('{{if}}', () => {
       test('without an alternate', () => {
-        let template = '{{if @foo "ok"}}';
+        let template = '{{testIf @foo "ok"}}';
+        let specialForms = { testIf: 'if' } as const;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
           `"(𝚪.args.foo) ? (\\"ok\\") : (undefined);"`
         );
       });
 
       test('with an alternate', () => {
-        let template = '{{if @foo "ok" "nope"}}';
+        let template = '{{testIf @foo "ok" "nope"}}';
+        let specialForms = { testIf: 'if' } as const;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
           `"(𝚪.args.foo) ? (\\"ok\\") : (\\"nope\\");"`
         );
       });
@@ -222,17 +224,19 @@ describe('rewriteTemplate', () => {
 
     describe('{{unless}}', () => {
       test('without an alternate', () => {
-        let template = '{{unless @foo "ok"}}';
+        let template = '{{testUnless @foo "ok"}}';
+        let specialForms = { testUnless: 'if-not' } as const;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
           `"!(𝚪.args.foo) ? (\\"ok\\") : (undefined);"`
         );
       });
 
       test('with an alternate', () => {
-        let template = '{{unless @foo "ok" "nope"}}';
+        let template = '{{testUnless @foo "ok" "nope"}}';
+        let specialForms = { testUnless: 'if-not' } as const;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
           `"!(𝚪.args.foo) ? (\\"ok\\") : (\\"nope\\");"`
         );
       });
@@ -241,12 +245,14 @@ describe('rewriteTemplate', () => {
     describe('{{#if}}', () => {
       test('without an {{else}}', () => {
         let template = stripIndent`
-          {{#if @foo}}
+          {{#testIf @foo}}
             {{@ok}}
-          {{/if}}
+          {{/testIf}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`
+        let specialForms = { testIf: 'if' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
           "if (𝚪.args.foo) {
             χ.emitContent(χ.resolveOrReturn(𝚪.args.ok)());
           }"
@@ -255,14 +261,16 @@ describe('rewriteTemplate', () => {
 
       test('with an {{else}}', () => {
         let template = stripIndent`
-          {{#if @foo}}
+          {{#testIf @foo}}
             {{@ok}}
           {{else}}
             {{@noGood}}
-          {{/if}}
+          {{/testIf}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`
+        let specialForms = { testIf: 'if' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
           "if (𝚪.args.foo) {
             χ.emitContent(χ.resolveOrReturn(𝚪.args.ok)());
           } else {
@@ -273,16 +281,18 @@ describe('rewriteTemplate', () => {
 
       test('with {{else if ...}}', () => {
         let template = stripIndent`
-          {{#if @foo}}
+          {{#testIf @foo}}
             {{@ok}}
-          {{else if @bar}}
+          {{else testIf @bar}}
             {{@noGood}}
           {{else}}
             {{@done}}
-          {{/if}}
+          {{/testIf}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`
+        let specialForms = { testIf: 'if' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
           "if (𝚪.args.foo) {
             χ.emitContent(χ.resolveOrReturn(𝚪.args.ok)());
           } else {
@@ -297,16 +307,19 @@ describe('rewriteTemplate', () => {
 
       test('with {{else someOtherIdentifier}}', () => {
         let template = stripIndent`
-          {{#if @foo}}
+          {{#testIf @foo}}
             {{@ok}}
           {{else doAThing as |ok|}}
             {{ok}}
           {{else}}
             {{@nevermind}}
-          {{/if}}
+          {{/testIf}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`
+        let specialForms = { testIf: 'if' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
+
           "if (𝚪.args.foo) {
             χ.emitContent(χ.resolveOrReturn(𝚪.args.ok)());
           } else {
@@ -330,12 +343,14 @@ describe('rewriteTemplate', () => {
     describe('{{#unless}}', () => {
       test('without an {{else}}', () => {
         let template = stripIndent`
-          {{#unless @foo}}
+          {{#testUnless @foo}}
             {{@ok}}
-          {{/unless}}
+          {{/testUnless}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`
+        let specialForms = { testUnless: 'if-not' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
           "if (!(𝚪.args.foo)) {
             χ.emitContent(χ.resolveOrReturn(𝚪.args.ok)());
           }"
@@ -344,14 +359,16 @@ describe('rewriteTemplate', () => {
 
       test('with an {{else}}', () => {
         let template = stripIndent`
-          {{#unless @foo}}
+          {{#testUnless @foo}}
             {{@ok}}
           {{else}}
             {{@noGood}}
-          {{/unless}}
+          {{/testUnless}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`
+        let specialForms = { testUnless: 'if-not' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
           "if (!(𝚪.args.foo)) {
             χ.emitContent(χ.resolveOrReturn(𝚪.args.ok)());
           } else {
@@ -364,40 +381,48 @@ describe('rewriteTemplate', () => {
     describe('{{yield}}', () => {
       test('default {{yield}}', () => {
         let template = stripIndent`
-          {{yield 123 this.message}}
+          {{testYield 123 this.message}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(
+        let specialForms = { testYield: 'yield' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
           '"χ.yieldToBlock(𝚪, \\"default\\")(123, 𝚪.this.message);"'
         );
       });
 
       test('{{yield}} to a named block', () => {
         let template = stripIndent`
-          {{yield 123 to="body"}}
+          {{testYield 123 to="body"}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(
+        let specialForms = { testYield: 'yield' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
           '"χ.yieldToBlock(𝚪, \\"body\\")(123);"'
         );
       });
 
       test('{{yield}} to else', () => {
         let template = stripIndent`
-          {{yield 123 to="else"}}
+          {{testYield 123 to="else"}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(
+        let specialForms = { testYield: 'yield' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
           '"χ.yieldToBlock(𝚪, \\"else\\")(123);"'
         );
       });
 
       test('{{yield}} to inverse', () => {
         let template = stripIndent`
-          {{yield 123 to="inverse"}}
+          {{testYield 123 to="inverse"}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(
+        let specialForms = { testYield: 'yield' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
           '"χ.yieldToBlock(𝚪, \\"else\\")(123);"'
         );
       });
@@ -406,26 +431,34 @@ describe('rewriteTemplate', () => {
     describe('{{array}}', () => {
       test('without values', () => {
         let template = stripIndent`
-          {{array}}
+          {{testArray}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`"[];"`);
+        let specialForms = { testArray: 'array-literal' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`"[];"`);
       });
 
       test('with values', () => {
         let template = stripIndent`
-          {{array 1 true "free"}}
+          {{testArray 1 true "free"}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`"[1, true, \\"free\\"];"`);
+        let specialForms = { testArray: 'array-literal' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
+          `"[1, true, \\"free\\"];"`
+        );
       });
 
       test('within a subexpression', () => {
         let template = stripIndent`
-          {{log (array 1 true "free")}}
+          {{log (testArray 1 true "free")}}
         `;
 
-        expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
+        let specialForms = { testArray: 'array-literal' } as const;
+
+        expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(
           '"χ.emitContent(χ.resolve(log)([1, true, \\"free\\"]));"'
         );
       });
@@ -434,18 +467,22 @@ describe('rewriteTemplate', () => {
     describe('{{hash}}', () => {
       test('without values', () => {
         let template = stripIndent`
-          {{hash}}
+          {{testHash}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`"{};"`);
+        let specialForms = { testHash: 'object-literal' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`"{};"`);
       });
 
       test('with values', () => {
         let template = stripIndent`
-          {{hash a=1 b="ok"}}
+          {{testHash a=1 b="ok"}}
         `;
 
-        expect(templateBody(template)).toMatchInlineSnapshot(`
+        let specialForms = { testHash: 'object-literal' } as const;
+
+        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
           "({
             a: 1,
             b: \\"ok\\",
@@ -455,10 +492,12 @@ describe('rewriteTemplate', () => {
 
       test('within a subexpression', () => {
         let template = stripIndent`
-          {{log (hash a=1 b="ok")}}
+          {{log (testHash a=1 b="ok")}}
         `;
 
-        expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
+        let specialForms = { testHash: 'object-literal' } as const;
+
+        expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(`
           "χ.emitContent(χ.resolve(log)(({
             a: 1,
             b: \\"ok\\",
@@ -1067,66 +1106,71 @@ describe('rewriteTemplate', () => {
     });
 
     test('{{yield}} in expression position', () => {
-      let { errors } = templateToTypescript('<Foo @attr={{yield}} />', {
+      let { errors } = templateToTypescript('<Foo @attr={{testYield}} />', {
         typesModule: '@glint/template',
+        specialForms: { testYield: 'yield' },
       });
 
       expect(errors).toEqual([
         {
-          message: '{{yield}} may only appear as a top-level statement',
-          location: { start: 11, end: 20 },
+          message: '{{testYield}} may only appear as a top-level statement',
+          location: { start: 11, end: 24 },
         },
       ]);
     });
 
     test('{{yield}} to a dynamic named block', () => {
-      let { errors } = templateToTypescript('{{yield to=@blockName}}', {
+      let { errors } = templateToTypescript('{{testYield to=@blockName}}', {
         typesModule: '@glint/template',
+        specialForms: { testYield: 'yield' },
       });
 
       expect(errors).toEqual([
         {
-          message: 'Named block {{yield}}s must have a literal block name',
-          location: { start: 0, end: 23 },
+          message: 'Named block {{testYield}}s must have a literal block name',
+          location: { start: 0, end: 27 },
         },
       ]);
     });
 
     test('{{hash}} with positional parameters', () => {
-      let { errors } = templateToTypescript('<Foo @attr={{hash 123 foo="bar"}} />', {
+      let { errors } = templateToTypescript('<Foo @attr={{testHash 123 foo="bar"}} />', {
         typesModule: '@glint/template',
+        specialForms: { testHash: 'object-literal' },
       });
 
       expect(errors).toEqual([
         {
-          message: '{{hash}} only accepts named parameters',
-          location: { start: 11, end: 33 },
+          message: '{{testHash}} only accepts named parameters',
+          location: { start: 11, end: 37 },
         },
       ]);
     });
 
     test('{{array}} with named parameters', () => {
-      let { errors } = templateToTypescript('<Foo @attr={{array 123 foo="bar"}} />', {
+      let { errors } = templateToTypescript('<Foo @attr={{testArray 123 foo="bar"}} />', {
         typesModule: '@glint/template',
+        specialForms: { testArray: 'array-literal' },
       });
 
       expect(errors).toEqual([
         {
-          message: '{{array}} only accepts positional parameters',
-          location: { start: 11, end: 34 },
+          message: '{{testArray}} only accepts positional parameters',
+          location: { start: 11, end: 38 },
         },
       ]);
     });
 
     test('inline {{if}} with no consequent', () => {
-      let { errors } = templateToTypescript('<Foo @attr={{if true}} />', {
+      let { errors } = templateToTypescript('<Foo @attr={{testIf true}} />', {
         typesModule: '@glint/template',
+        specialForms: { testIf: 'if' },
       });
 
       expect(errors).toEqual([
         {
-          message: '{{if}} requires at least two parameters',
-          location: { start: 11, end: 22 },
+          message: '{{testIf}} requires at least two parameters',
+          location: { start: 11, end: 26 },
         },
       ]);
     });
@@ -1134,17 +1178,17 @@ describe('rewriteTemplate', () => {
     test('block {{#if}} with no condition', () => {
       let { errors } = templateToTypescript(
         stripIndent`
-          {{#if}}
+          {{#testIf}}
             hello!
-          {{/if}}
+          {{/testIf}}
         `,
-        { typesModule: '@glint/template' }
+        { typesModule: '@glint/template', specialForms: { testIf: 'if' } }
       );
 
       expect(errors).toEqual([
         {
-          message: '{{#if}} requires exactly one condition',
-          location: { start: 0, end: 24 },
+          message: '{{#testIf}} requires exactly one condition',
+          location: { start: 0, end: 32 },
         },
       ]);
     });

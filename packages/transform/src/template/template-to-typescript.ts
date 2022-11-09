@@ -2,15 +2,10 @@ import { AST } from '@glimmer/syntax';
 import { unreachable, assert } from '../util.js';
 import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-template-contents.js';
 import ScopeStack from './scope-stack.js';
-import { GlintEmitMetadata } from '@glint/config/types';
+import { GlintEmitMetadata, GlintSpecialForm } from '@glint/config/types';
 import { TextContent } from './mapping-tree.js';
 
 const SPLATTRIBUTES = '...attributes';
-const INLINE_KEYWORDS = ['if', 'yield', 'hash', 'array', 'unless'] as const;
-const BLOCK_KEYWORDS = ['if', 'unless'] as const;
-
-type InlineKeyword = typeof INLINE_KEYWORDS[number];
-type BlockKeyword = typeof BLOCK_KEYWORDS[number];
 
 export type TemplateToTypescriptOptions = {
   typesModule: string;
@@ -20,6 +15,7 @@ export type TemplateToTypescriptOptions = {
   preamble?: Array<string>;
   embeddingSyntax?: EmbeddingSyntax;
   useJsDoc?: boolean;
+  specialForms?: Record<string, GlintSpecialForm>;
 };
 
 /**
@@ -36,6 +32,7 @@ export function templateToTypescript(
     backingValue,
     preamble = [],
     embeddingSyntax = { prefix: '', suffix: '' },
+    specialForms = {},
     useJsDoc = false,
   }: TemplateToTypescriptOptions
 ): RewriteResult {
@@ -166,35 +163,42 @@ export function templateToTypescript(
       emit.newline();
     }
 
-    function emitInlineKeywordStatement(
-      keyword: InlineKeyword,
+    function emitSpecialFormExpression(
+      formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition
     ): void {
-      switch (keyword) {
+      switch (formInfo.form) {
         case 'yield':
-          return emitYieldStatement(node, position);
+          return emitYieldExpression(formInfo, node, position);
 
         case 'if':
-          return emitIfExpression(node);
+          return emitIfExpression(formInfo, node);
 
-        case 'unless':
-          return emitUnlessExpression(node);
+        case 'if-not':
+          return emitIfNotExpression(formInfo, node);
 
-        case 'hash':
-          return emitHashExpression(node);
+        case 'object-literal':
+          return emitObjectExpression(formInfo, node);
 
-        case 'array':
-          return emitArrayExpression(node);
+        case 'array-literal':
+          return emitArrayExpression(formInfo, node);
 
         default:
-          unreachable(keyword);
+          record.error(`${formInfo.name} is not valid in inline form`, rangeForNode(node));
+          emit.text('undefined');
       }
     }
 
-    function emitHashExpression(node: AST.MustacheStatement | AST.SubExpression): void {
+    function emitObjectExpression(
+      formInfo: SpecialFormInfo,
+      node: AST.MustacheStatement | AST.SubExpression
+    ): void {
       emit.forNode(node, () => {
-        assert(node.params.length === 0, '{{hash}} only accepts named parameters');
+        assert(
+          node.params.length === 0,
+          () => `{{${formInfo.name}}} only accepts named parameters`
+        );
 
         if (!node.hash.pairs.length) {
           emit.text('{}');
@@ -220,9 +224,15 @@ export function templateToTypescript(
       });
     }
 
-    function emitArrayExpression(node: AST.MustacheStatement | AST.SubExpression): void {
+    function emitArrayExpression(
+      formInfo: SpecialFormInfo,
+      node: AST.MustacheStatement | AST.SubExpression
+    ): void {
       emit.forNode(node, () => {
-        assert(node.hash.pairs.length === 0, '{{array}} only accepts positional parameters');
+        assert(
+          node.hash.pairs.length === 0,
+          () => `{{${formInfo.name}}} only accepts positional parameters`
+        );
 
         emit.text('[');
 
@@ -238,9 +248,15 @@ export function templateToTypescript(
       });
     }
 
-    function emitIfExpression(node: AST.MustacheStatement | AST.SubExpression): void {
+    function emitIfExpression(
+      formInfo: SpecialFormInfo,
+      node: AST.MustacheStatement | AST.SubExpression
+    ): void {
       emit.forNode(node, () => {
-        assert(node.params.length >= 2, '{{if}} requires at least two parameters');
+        assert(
+          node.params.length >= 2,
+          () => `{{${formInfo.name}}} requires at least two parameters`
+        );
 
         emit.text('(');
         emitExpression(node.params[0]);
@@ -258,9 +274,15 @@ export function templateToTypescript(
       });
     }
 
-    function emitUnlessExpression(node: AST.MustacheStatement | AST.SubExpression): void {
+    function emitIfNotExpression(
+      formInfo: SpecialFormInfo,
+      node: AST.MustacheStatement | AST.SubExpression
+    ): void {
       emit.forNode(node, () => {
-        assert(node.params.length >= 2, '{{unless}} requires at least two parameters');
+        assert(
+          node.params.length >= 2,
+          () => `{{${formInfo.name}}} requires at least two parameters`
+        );
 
         emit.text('!(');
         emitExpression(node.params[0]);
@@ -278,18 +300,22 @@ export function templateToTypescript(
       });
     }
 
-    function getKeyword<K extends string>(
-      node: AST.CallNode,
-      keywords: ReadonlyArray<K>
-    ): K | null {
+    type SpecialFormInfo = {
+      form: GlintSpecialForm;
+      name: string;
+    };
+
+    function checkSpecialForm(node: AST.CallNode): SpecialFormInfo | null {
       if (
         node.path.type === 'PathExpression' &&
         node.path.head.type === 'VarHead' &&
         !node.path.tail.length
       ) {
-        let name = node.path.head.name as K;
-        if (keywords.includes(name)) {
-          return name;
+        let name = node.path.head.name;
+        if (typeof specialForms[name] === 'string' && !scope.hasBinding(name)) {
+          let form = specialForms[name];
+
+          return { name, form };
         }
       }
 
@@ -667,9 +693,9 @@ export function templateToTypescript(
     }
 
     function emitMustacheStatement(node: AST.MustacheStatement, position: InvokePosition): void {
-      let keyword = getKeyword(node, INLINE_KEYWORDS);
-      if (keyword) {
-        emitInlineKeywordStatement(keyword, node, position);
+      let specialFormInfo = checkSpecialForm(node);
+      if (specialFormInfo) {
+        emitSpecialFormExpression(specialFormInfo, node, position);
         return;
       } else if (node.path.type !== 'PathExpression' && node.path.type !== 'SubExpression') {
         // This assertion is currently meaningless, as @glimmer/syntax silently drops
@@ -710,19 +736,23 @@ export function templateToTypescript(
       );
     }
 
-    function emitYieldStatement(
+    function emitYieldExpression(
+      formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition
     ): void {
       emit.forNode(node, () => {
-        assert(position === 'top-level', '{{yield}} may only appear as a top-level statement');
+        assert(
+          position === 'top-level',
+          () => `{{${formInfo.name}}} may only appear as a top-level statement`
+        );
 
         let to = 'default';
         let toPair = node.hash.pairs.find((pair) => pair.key === 'to');
         if (toPair) {
           assert(
             toPair.value.type === 'StringLiteral',
-            'Named block {{yield}}s must have a literal block name'
+            () => `Named block {{${formInfo.name}}}s must have a literal block name`
           );
           to = toPair.value.value;
         }
@@ -747,24 +777,27 @@ export function templateToTypescript(
       });
     }
 
-    function emitBlockKeywordStatement(keyword: BlockKeyword, node: AST.BlockStatement): void {
-      switch (keyword) {
+    function emitSpecialFormStatement(formInfo: SpecialFormInfo, node: AST.BlockStatement): void {
+      switch (formInfo.form) {
         case 'if':
-          emitIfStatement(node);
+          emitIfStatement(formInfo, node);
           break;
 
-        case 'unless':
-          emitUnlessStatement(node);
+        case 'if-not':
+          emitUnlessStatement(formInfo, node);
           break;
 
         default:
-          unreachable(keyword);
+          record.error(`${formInfo.name} is not valid in block form`, rangeForNode(node.path));
       }
     }
 
-    function emitIfStatement(node: AST.BlockStatement): void {
+    function emitIfStatement(formInfo: SpecialFormInfo, node: AST.BlockStatement): void {
       emit.forNode(node, () => {
-        assert(node.params.length === 1, '{{#if}} requires exactly one condition');
+        assert(
+          node.params.length === 1,
+          () => `{{#${formInfo.name}}} requires exactly one condition`
+        );
 
         emit.text('if (');
         emitExpression(node.params[0]);
@@ -793,9 +826,12 @@ export function templateToTypescript(
       });
     }
 
-    function emitUnlessStatement(node: AST.BlockStatement): void {
+    function emitUnlessStatement(formInfo: SpecialFormInfo, node: AST.BlockStatement): void {
       emit.forNode(node, () => {
-        assert(node.params.length === 1, '{{#unless}} requires exactly one condition');
+        assert(
+          node.params.length === 1,
+          () => `{{#${formInfo.name}}} requires exactly one condition`
+        );
 
         emit.text('if (!(');
         emitExpression(node.params[0]);
@@ -825,9 +861,9 @@ export function templateToTypescript(
     }
 
     function emitBlockStatement(node: AST.BlockStatement): void {
-      let keyword = getKeyword(node, BLOCK_KEYWORDS);
-      if (keyword) {
-        emitBlockKeywordStatement(keyword, node);
+      let specialFormInfo = checkSpecialForm(node);
+      if (specialFormInfo) {
+        emitSpecialFormStatement(specialFormInfo, node);
         return;
       }
 
@@ -917,9 +953,9 @@ export function templateToTypescript(
     }
 
     function emitSubExpression(node: AST.SubExpression): void {
-      let keyword = getKeyword(node, INLINE_KEYWORDS);
-      if (keyword) {
-        emitInlineKeywordStatement(keyword, node, 'sexpr');
+      let specialFormInfo = checkSpecialForm(node);
+      if (specialFormInfo) {
+        emitSpecialFormExpression(specialFormInfo, node, 'sexpr');
         return;
       }
 
