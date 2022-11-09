@@ -663,5 +663,138 @@ describe('rewriteModule', () => {
         |"
       `);
     });
+
+    test('with imported special forms', () => {
+      let env = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let script = {
+        filename: 'foo.gts',
+        contents: stripIndent`
+          import { array as arr, hash as h } from '@ember/helper';
+
+          <template>
+            {{! Intentionally shadowing }}
+            {{#let (arr 1 2) (h red="blue") as |arr h|}}
+              Array is {{arr}}
+              Hash is {{h}}
+            {{/let}}
+          </template>
+        `,
+      };
+
+      expect(rewriteModule(ts, { script }, env)?.toDebugString()).toMatchInlineSnapshot(`
+        "TransformedModule
+
+        | Mapping: TemplateEmbedding
+        |  hbs(58:210):  <template>\\\\n  {{! Intentionally shadowing }}\\\\n  {{#let (arr 1 2) (h red=\\"blue\\") as |arr h|}}\\\\n    Array is {{arr}}\\\\n    Hash is {{h}}\\\\n  {{/let}}\\\\n</template>
+        |  ts(58:557):   export default ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {\\\\n  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"let\\"])([1, 2], ({\\\\n      red: \\"blue\\",\\\\n    })));\\\\n    {\\\\n      const [arr, h] = 𝛄.blockParams[\\"default\\"];\\\\n      χ.emitContent(χ.resolveOrReturn(arr)());\\\\n      χ.emitContent(χ.resolveOrReturn(h)());\\\\n    }\\\\n    χ.Globals[\\"let\\"];\\\\n  }\\\\n  𝚪; χ;\\\\n})
+        |
+        | | Mapping: Template
+        | |  hbs(68:199):  {{! Intentionally shadowing }}\\\\n  {{#let (arr 1 2) (h red=\\"blue\\") as |arr h|}}\\\\n    Array is {{arr}}\\\\n    Hash is {{h}}\\\\n  {{/let}}
+        | |  ts(263:546):  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"let\\"])([1, 2], ({\\\\n      red: \\"blue\\",\\\\n    })));\\\\n    {\\\\n      const [arr, h] = 𝛄.blockParams[\\"default\\"];\\\\n      χ.emitContent(χ.resolveOrReturn(arr)());\\\\n      χ.emitContent(χ.resolveOrReturn(h)());\\\\n    }\\\\n    χ.Globals[\\"let\\"];\\\\n  }
+        | |
+        | | | Mapping: TextContent
+        | | |  hbs(68:69):
+        | | |  ts(263:263):
+        | | |
+        | | | Mapping: MustacheCommentStatement
+        | | |  hbs(71:101):  {{! Intentionally shadowing }}
+        | | |  ts(263:263):
+        | | |
+        | | | Mapping: BlockStatement
+        | | |  hbs(104:198): {{#let (arr 1 2) (h red=\\"blue\\") as |arr h|}}\\\\n    Array is {{arr}}\\\\n    Hash is {{h}}\\\\n  {{/let}}
+        | | |  ts(263:545):  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"let\\"])([1, 2], ({\\\\n      red: \\"blue\\",\\\\n    })));\\\\n    {\\\\n      const [arr, h] = 𝛄.blockParams[\\"default\\"];\\\\n      χ.emitContent(χ.resolveOrReturn(arr)());\\\\n      χ.emitContent(χ.resolveOrReturn(h)());\\\\n    }\\\\n    χ.Globals[\\"let\\"];\\\\n  }
+        | | |
+        | | | | Mapping: PathExpression
+        | | | |  hbs(107:110): let
+        | | | |  ts(308:324):  χ.Globals[\\"let\\"]
+        | | | |
+        | | | | | Mapping: Identifier
+        | | | | |  hbs(107:110): let
+        | | | | |  ts(319:322):  let
+        | | | | |
+        | | | |
+        | | | | Mapping: SubExpression
+        | | | |  hbs(111:120): (arr 1 2)
+        | | | |  ts(326:332):  [1, 2]
+        | | | |
+        | | | | | Mapping: NumberLiteral
+        | | | | |  hbs(116:117): 1
+        | | | | |  ts(327:328):  1
+        | | | | |
+        | | | | | Mapping: NumberLiteral
+        | | | | |  hbs(118:119): 2
+        | | | | |  ts(330:331):  2
+        | | | | |
+        | | | |
+        | | | | Mapping: SubExpression
+        | | | |  hbs(121:135): (h red=\\"blue\\")
+        | | | |  ts(334:362):  ({\\\\n      red: \\"blue\\",\\\\n    })
+        | | | |
+        | | | | | Mapping: Identifier
+        | | | | |  hbs(124:127): red
+        | | | | |  ts(343:346):  red
+        | | | | |
+        | | | | | Mapping: StringLiteral
+        | | | | |  hbs(128:134): \\"blue\\"
+        | | | | |  ts(348:354):  \\"blue\\"
+        | | | | |
+        | | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(140:143): arr
+        | | | |  ts(385:388):  arr
+        | | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(144:145): h
+        | | | |  ts(390:391):  h
+        | | | |
+        | | | | Mapping: TextContent
+        | | | |  hbs(153:161): Array is
+        | | | |  ts(422:422):
+        | | | |
+        | | | | Mapping: MustacheStatement
+        | | | |  hbs(162:169): {{arr}}
+        | | | |  ts(422:467):  χ.emitContent(χ.resolveOrReturn(arr)())
+        | | | |
+        | | | | | Mapping: PathExpression
+        | | | | |  hbs(164:167): arr
+        | | | | |  ts(460:463):  arr
+        | | | | |
+        | | | | | | Mapping: Identifier
+        | | | | | |  hbs(164:167): arr
+        | | | | | |  ts(460:463):  arr
+        | | | | | |
+        | | | | |
+        | | | |
+        | | | | Mapping: TextContent
+        | | | |  hbs(174:181): Hash is
+        | | | |  ts(469:469):
+        | | | |
+        | | | | Mapping: MustacheStatement
+        | | | |  hbs(182:187): {{h}}
+        | | | |  ts(469:512):  χ.emitContent(χ.resolveOrReturn(h)())
+        | | | |
+        | | | | | Mapping: PathExpression
+        | | | | |  hbs(184:185): h
+        | | | | |  ts(507:508):  h
+        | | | | |
+        | | | | | | Mapping: Identifier
+        | | | | | |  hbs(184:185): h
+        | | | | | |  ts(507:508):  h
+        | | | | | |
+        | | | | |
+        | | | |
+        | | | | Mapping: TextContent
+        | | | |  hbs(187:188):
+        | | | |  ts(514:514):
+        | | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(193:196): let
+        | | | |  ts(535:538):  let
+        | | | |
+        | | |
+        | |
+        |"
+      `);
+    });
   });
 });

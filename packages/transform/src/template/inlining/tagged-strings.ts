@@ -4,7 +4,7 @@ import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from 
 import { templateToTypescript } from '../template-to-typescript.js';
 import { Directive, SourceFile, TransformError, Range } from '../transformed-module.js';
 import { assert, TSLib } from '../../util.js';
-import { GlintEmitMetadata } from '@glint/config/types';
+import { GlintEmitMetadata, GlintSpecialForm, GlintSpecialFormConfig } from '@glint/config/types';
 
 export function calculateTaggedTemplateSpans(
   ts: TSLib,
@@ -22,7 +22,8 @@ export function calculateTaggedTemplateSpans(
     return { errors, directives, partialSpans };
   }
 
-  let info = resolveTagInfo(ts, tag, environment);
+  let importedBindings = collectImportedBindings(ts, tag.getSourceFile());
+  let info = resolveTagInfo(importedBindings, tag, environment);
   if (info) {
     assert(
       ts.isNoSubstitutionTemplateLiteral(node.template),
@@ -53,12 +54,14 @@ export function calculateTaggedTemplateSpans(
       preamble.push(`${tag.text};`);
     }
 
+    let specialForms = collectSpecialForms(importedBindings, info.tagConfig.specialForms ?? {});
     let transformedTemplate = templateToTypescript(template, {
       typesModule: typesModule,
       meta,
       preamble,
       globals,
       embeddingSyntax,
+      specialForms,
       backingValue: isEmbeddedInClass(ts, node) ? 'this' : undefined,
       useJsDoc: environment.isUntypedScript(script.filename),
     });
@@ -113,12 +116,27 @@ function addOffset(location: Range, offset: number): Range {
   };
 }
 
+function collectSpecialForms(
+  importedBindings: ImportedBindings,
+  config: GlintSpecialFormConfig
+): Record<string, GlintSpecialForm> {
+  let specialForms: Record<string, GlintSpecialForm> = { ...config.globals };
+  if (config.imports) {
+    for (let [name, { specifier, source }] of Object.entries(importedBindings)) {
+      let formForImport = config.imports[source]?.[specifier];
+      if (formForImport) {
+        specialForms[name] = formForImport;
+      }
+    }
+  }
+  return specialForms;
+}
+
 function resolveTagInfo(
-  ts: TSLib,
+  importedBindings: ImportedBindings,
   tag: ts.Identifier,
   environment: GlintEnvironment
 ): { importedBinding: ImportedBinding; tagConfig: GlintTagConfig } | undefined {
-  let importedBindings = collectImportedBindings(ts, tag.getSourceFile());
   let importedBinding = importedBindings[tag.text];
   if (!importedBinding) {
     return;
