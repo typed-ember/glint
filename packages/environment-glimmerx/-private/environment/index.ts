@@ -1,4 +1,4 @@
-import { GlintEnvironmentConfig, GlintTagConfig } from '@glint/config';
+import { GlintEnvironmentConfig, GlintTagConfig } from '@glint/config/types';
 
 export default function glimmerxEnvironment(
   config: Record<string, unknown>

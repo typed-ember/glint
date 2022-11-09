@@ -36,7 +36,6 @@ module.exports = {
         'lib/*/index.js',
         'server/**/*.js',
       ],
-      parser: 'babel-eslint',
       parserOptions: {
         sourceType: 'script',
       },

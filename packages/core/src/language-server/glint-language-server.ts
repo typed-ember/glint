@@ -1,12 +1,12 @@
 import { GlintConfig } from '@glint/config';
-import TransformManager from '../common/transform-manager';
+import TransformManager from '../common/transform-manager.js';
 import type * as ts from 'typescript';
 import {
   offsetToPosition,
   filePathToUri,
   uriToFilePath,
   scriptElementKindToCompletionItemKind,
-} from './util';
+} from './util/index.js';
 import {
   Hover,
   Location,
@@ -17,13 +17,13 @@ import {
   Range,
   SymbolInformation,
 } from 'vscode-languageserver';
-import DocumentCache from '../common/document-cache';
-import { Position, positionToOffset } from './util/position';
+import DocumentCache from '../common/document-cache.js';
+import { Position, positionToOffset } from './util/position.js';
 import {
   scriptElementKindToSymbolKind,
   severityForDiagnostic,
   tagsForDiagnostic,
-} from './util/protocol';
+} from './util/protocol.js';
 import { TextEdit } from 'vscode-languageserver-textdocument';
 
 export interface GlintCompletionItem extends CompletionItem {

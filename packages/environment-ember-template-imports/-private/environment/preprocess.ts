@@ -1,4 +1,4 @@
-import { GlintExtensionPreprocess } from '@glint/config';
+import { GlintExtensionPreprocess } from '@glint/config/types';
 import { parseTemplates } from 'ember-template-imports';
 import { GLOBAL_TAG, PreprocessData, TemplateLocation } from './common';
 

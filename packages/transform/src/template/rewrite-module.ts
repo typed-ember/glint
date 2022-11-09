@@ -1,16 +1,16 @@
 import * as path from 'node:path';
 import type * as ts from 'typescript';
 import { GlintEmitMetadata, GlintEnvironment } from '@glint/config';
-import { assert, TSLib } from '../util';
-import { CorrelatedSpansResult, PartialCorrelatedSpan } from './inlining';
+import { assert, TSLib } from '../util.js';
+import { CorrelatedSpansResult, PartialCorrelatedSpan } from './inlining/index.js';
 import TransformedModule, {
   CorrelatedSpan,
   Directive,
   SourceFile,
   TransformError,
-} from './transformed-module';
-import { calculateTaggedTemplateSpans } from './inlining/tagged-strings';
-import { calculateCompanionTemplateSpans } from './inlining/companion-file';
+} from './transformed-module.js';
+import { calculateTaggedTemplateSpans } from './inlining/tagged-strings.js';
+import { calculateCompanionTemplateSpans } from './inlining/companion-file.js';
 
 /**
  * Input to the process of rewriting a template, containing one or both of:

@@ -1,13 +1,16 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import * as resolve from 'resolve';
+import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import { node, ExecaChildProcess, Options } from 'execa';
-import type GlintLanguageServer from '@glint/core/lib/language-server/glint-language-server';
-import { type GlintConfigInput } from '@glint/config/lib/config';
-import { filePathToUri, normalizeFilePath } from '@glint/core/lib/language-server/util/index';
-import { analyzeProject, ProjectAnalysis } from '@glint/core';
+import { type GlintConfigInput } from '@glint/config';
+import { pathUtils, analyzeProject, ProjectAnalysis } from '@glint/core';
 
-const ROOT = normalizeFilePath(path.resolve(__dirname, '../../ephemeral'));
+type GlintLanguageServer = ProjectAnalysis['languageServer'];
+
+const require = createRequire(import.meta.url);
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
 // definition for our purposes here in tests.
@@ -22,7 +25,7 @@ interface TsconfigWithGlint {
 }
 
 const newWorkingDir = (): string =>
-  normalizeFilePath(path.join(ROOT, Math.random().toString(16).slice(2)));
+  pathUtils.normalizeFilePath(path.join(ROOT, Math.random().toString(16).slice(2)));
 
 export class Project {
   private rootDir: string;
@@ -33,11 +36,11 @@ export class Project {
   }
 
   public filePath(fileName: string): string {
-    return normalizeFilePath(path.join(this.rootDir, fileName));
+    return pathUtils.normalizeFilePath(path.join(this.rootDir, fileName));
   }
 
   public fileURI(fileName: string): string {
-    return filePathToUri(this.filePath(fileName));
+    return pathUtils.filePathToUri(this.filePath(fileName));
   }
 
   public startLanguageServer(): GlintLanguageServer {
@@ -167,7 +170,7 @@ export class Project {
   }
 
   public check(options: Options & { flags?: string[] } = {}): ExecaChildProcess {
-    return node(resolve.sync('@glint/core/bin/glint'), options.flags, {
+    return node(require.resolve('@glint/core/bin/glint'), options.flags, {
       cwd: this.rootDir,
       ...options,
     });
@@ -180,7 +183,7 @@ export class Project {
   public build(options: Options & { flags?: string[] } = {}, debug = false): ExecaChildProcess {
     let build = ['--build'];
     let flags = options.flags ? build.concat(options.flags) : build;
-    return node(resolve.sync('@glint/core/bin/glint'), flags, {
+    return node(require.resolve('@glint/core/bin/glint'), flags, {
       cwd: this.rootDir,
       nodeOptions: debug ? ['--inspect-brk'] : [],
       ...options,

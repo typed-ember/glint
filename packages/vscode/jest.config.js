@@ -1,10 +1,9 @@
-/* eslint-env node */
-module.exports = {
+export default {
   preset: 'ts-jest',
-  testEnvironment: './__tests__/support/vscode-jest-environment',
+  testEnvironment: './__tests__/support/vscode-jest-environment.cjs',
   testMatch: ['**/__tests__/**/*.test.ts'],
   moduleNameMapper: {
-    '^vscode$': '<rootDir>/__tests__/support/vscode-shim.js',
+    '^vscode$': '<rootDir>/__tests__/support/vscode-shim.cjs',
   },
   globals: {
     'ts-jest': {

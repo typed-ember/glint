@@ -1,5 +1,8 @@
 export * from './without-function-resolution';
 
+// Exported for `environment-ember-template-imports` to reuse
+export type { ComponentKeyword } from '../intrinsics/component';
+
 import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {
   DirectInvokable,

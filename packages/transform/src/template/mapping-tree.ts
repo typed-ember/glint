@@ -1,6 +1,6 @@
 import { AST } from '@glimmer/syntax';
-import { Range } from './transformed-module';
-import { Identifier } from './map-template-contents';
+import { Range } from './transformed-module.js';
+import { Identifier } from './map-template-contents.js';
 
 export type MappingSource = AST.Node | TemplateEmbedding | TextContent | Identifier | ParseError;
 

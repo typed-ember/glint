@@ -1,12 +1,12 @@
 import * as path from 'node:path';
 import type * as ts from 'typescript';
 import { GlintEnvironment } from '@glint/config';
-import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from '.';
-import { RewriteResult } from '../map-template-contents';
-import MappingTree, { ParseError } from '../mapping-tree';
-import { templateToTypescript } from '../template-to-typescript';
-import { Directive, SourceFile, TransformError } from '../transformed-module';
-import { TSLib } from '../../util';
+import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from './index.js';
+import { RewriteResult } from '../map-template-contents.js';
+import MappingTree, { ParseError } from '../mapping-tree.js';
+import { templateToTypescript } from '../template-to-typescript.js';
+import { Directive, SourceFile, TransformError } from '../transformed-module.js';
+import { TSLib } from '../../util.js';
 
 export function calculateCompanionTemplateSpans(
   ts: TSLib,

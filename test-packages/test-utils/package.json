@@ -2,7 +2,10 @@
   "name": "@glint/test-utils",
   "version": "0.9.7",
   "private": true,
-  "main": "lib/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./lib/index.js"
+  },
   "scripts": {
     "test": "true"
   }

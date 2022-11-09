@@ -1,7 +1,7 @@
-import { assert, createSyntheticSourceFile, TSLib } from '../util';
-import TransformedModule from '../template/transformed-module';
-import type { Diagnostic } from '.';
-import { augmentDiagnostic } from './augmentation';
+import { assert, createSyntheticSourceFile, TSLib } from '../util.js';
+import TransformedModule from '../template/transformed-module.js';
+import type { Diagnostic } from './index.js';
+import { augmentDiagnostic } from './augmentation.js';
 
 /**
  * Given a TypeScript diagnostic object from a module that was rewritten

@@ -1,7 +1,10 @@
 # Compiled output
 /packages/*/lib
-/packages/scripts/bin/lib
+/packages/scripts/bin
+/test-packages/*/lib
+
 dist/
+__fixtures__
 
 # Ephemeral test applications
 /test-packages/ephemeral

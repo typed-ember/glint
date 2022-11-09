@@ -1,6 +1,6 @@
 import type * as TS from 'typescript';
-import TransformManager from '../../common/transform-manager';
-import TransformManagerPool from './transform-manager-pool';
+import TransformManager from '../../common/transform-manager.js';
+import TransformManagerPool from './transform-manager-pool.js';
 
 export function sysForCompilerHost(
   ts: typeof TS,

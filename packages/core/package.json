@@ -5,7 +5,13 @@
   "description": "A CLI for performing typechecking on Glimmer templates",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
+  "type": "module",
   "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./lsp-messages": "./lib/language-server/messages.js",
+    "./bin/*": "./bin/*.js"
+  },
   "files": [
     "README.md",
     "lib",
@@ -27,7 +33,6 @@
   "dependencies": {
     "@glint/config": "^0.9.7",
     "@glint/transform": "^0.9.7",
-    "resolve": "^1.17.0",
     "uuid": "^8.3.2",
     "vscode-languageserver": "^8.0.1",
     "vscode-languageserver-textdocument": "^1.0.5",
@@ -37,7 +42,6 @@
   "devDependencies": {
     "@glint/test-utils": "^0.9.7",
     "@types/node": "^18.11.5",
-    "@types/resolve": "^1.17.1",
     "@types/uuid": "^8.3.4",
     "@types/yargs": "^17.0.10",
     "@vitest/ui": "^0.23.4",

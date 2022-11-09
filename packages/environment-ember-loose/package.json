@@ -7,7 +7,13 @@
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "glint-environment": "-private/environment/index.js",
   "main": "-private/index.js",
-  "types": "-private/index.d.ts",
+  "exports": {
+    ".": "./-private/index.js",
+    "./package.json": "./package.json",
+    "./registry": "./registry/index.js",
+    "./-private/dsl": "./-private/dsl/index.js",
+    "./-private/dsl/without-function-resolution": "./-private/dsl/without-function-resolution.js"
+  },
   "keywords": [
     "glint-environment"
   ],

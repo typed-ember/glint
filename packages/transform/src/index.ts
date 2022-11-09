@@ -1,5 +1,5 @@
-export type { Directive, default as TransformedModule } from './template/transformed-module';
-export type { Diagnostic } from './diagnostics';
+export type { Directive, default as TransformedModule } from './template/transformed-module.js';
+export type { Diagnostic } from './diagnostics/index.js';
 
-export { rewriteModule } from './template/rewrite-module';
-export { rewriteDiagnostic, createTransformDiagnostic } from './diagnostics';
+export { rewriteModule } from './template/rewrite-module.js';
+export { rewriteDiagnostic, createTransformDiagnostic } from './diagnostics/index.js';

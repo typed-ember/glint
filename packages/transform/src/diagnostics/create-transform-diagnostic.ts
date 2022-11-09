@@ -1,6 +1,6 @@
-import { createSyntheticSourceFile, TSLib } from '../util';
-import { SourceFile, Range } from '../template/transformed-module';
-import type { Diagnostic } from '.';
+import { createSyntheticSourceFile, TSLib } from '../util.js';
+import { SourceFile, Range } from '../template/transformed-module.js';
+import type { Diagnostic } from './index.js';
 
 export function createTransformDiagnostic(
   ts: TSLib,

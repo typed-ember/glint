@@ -1,8 +1,8 @@
-import os from 'os';
-import fs from 'fs';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
-import { loadConfig } from '../src';
-import { normalizePath } from '../src/config';
+import { loadConfig } from '../src/index.js';
+import { normalizePath } from '../src/config.js';
 
 describe('loadConfig', () => {
   const testDir = `${os.tmpdir()}/glint-config-test-load-config-${process.pid}`;

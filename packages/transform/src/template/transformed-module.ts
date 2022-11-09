@@ -1,5 +1,5 @@
-import MappingTree from './mapping-tree';
-import { assert } from '../util';
+import MappingTree from './mapping-tree.js';
+import { assert } from '../util.js';
 
 export type Range = { start: number; end: number };
 export type RangeWithMapping = Range & { mapping?: MappingTree };

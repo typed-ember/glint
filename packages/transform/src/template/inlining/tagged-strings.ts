@@ -1,10 +1,10 @@
 import type * as ts from 'typescript';
 import { GlintEnvironment, GlintTagConfig } from '@glint/config';
-import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from '.';
-import { templateToTypescript } from '../template-to-typescript';
-import { Directive, SourceFile, TransformError, Range } from '../transformed-module';
-import { assert, TSLib } from '../../util';
-import { GlintEmitMetadata } from '@glint/config/src/environment';
+import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from './index.js';
+import { templateToTypescript } from '../template-to-typescript.js';
+import { Directive, SourceFile, TransformError, Range } from '../transformed-module.js';
+import { assert, TSLib } from '../../util.js';
+import { GlintEmitMetadata } from '@glint/config/types';
 
 export function calculateTaggedTemplateSpans(
   ts: TSLib,

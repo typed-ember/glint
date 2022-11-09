@@ -1,5 +1,5 @@
 import type * as ts from 'typescript';
-import { SourceFile } from './template/transformed-module';
+import { SourceFile } from './template/transformed-module.js';
 
 export type TSLib = typeof ts;
 

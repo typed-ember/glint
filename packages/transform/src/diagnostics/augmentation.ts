@@ -1,6 +1,6 @@
 import type * as ts from 'typescript';
-import { Diagnostic } from '.';
-import MappingTree, { MappingSource } from '../template/mapping-tree';
+import { Diagnostic } from './index.js';
+import MappingTree, { MappingSource } from '../template/mapping-tree.js';
 
 /**
  * Given a diagnostic and a mapping tree node corresponding to its location,

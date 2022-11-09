@@ -1,4 +1,4 @@
-import { ComponentKeyword } from '@glint/environment-ember-loose/-private/intrinsics/component';
+import { ComponentKeyword } from '@glint/environment-ember-loose/-private/dsl';
 import { Globals as EELGlobals } from '@glint/environment-ember-loose/-private/dsl';
 
 interface Keywords

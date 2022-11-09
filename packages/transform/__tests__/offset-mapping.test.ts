@@ -1,10 +1,10 @@
-import { rewriteModule, TransformedModule, rewriteDiagnostic } from '../src';
+import { rewriteModule, TransformedModule, rewriteDiagnostic } from '../src/index.js';
 import { stripIndent } from 'common-tags';
 import { describe, test, expect } from 'vitest';
-import { Range, SourceFile } from '../src/template/transformed-module';
+import { Range, SourceFile } from '../src/template/transformed-module.js';
 import * as ts from 'typescript';
-import { assert } from '../src/util';
-import { GlintEnvironment } from '@glint/config/lib/environment';
+import { assert } from '../src/util.js';
+import { GlintEnvironment } from '@glint/config';
 
 const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
 const emberLooseEnvironment = GlintEnvironment.load('ember-loose');

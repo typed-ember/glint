@@ -1,83 +1,24 @@
 import * as path from 'node:path';
-import resolve = require('resolve');
-import escapeStringRegexp = require('escape-string-regexp');
-import type * as ts from 'typescript';
-import SilentError = require('silent-error');
+import { createRequire } from 'node:module';
+import escapeStringRegexp from 'escape-string-regexp';
+import SilentError from 'silent-error';
+import {
+  GlintEnvironmentConfig,
+  GlintExtensionConfig,
+  GlintExtensionsConfig,
+  GlintTagsConfig,
+  GlintTemplateConfig,
+  PathCandidate,
+  PathCandidateWithDeferral,
+  SourceKind,
+} from './index.js';
 
-type TSLib = typeof ts;
+const require = createRequire(import.meta.url);
 
 export const DEFAULT_EXTENSIONS: GlintExtensionsConfig = {
   '.hbs': { kind: 'template' },
   '.js': { kind: 'untyped-script' },
   '.ts': { kind: 'typed-script' },
-};
-
-export type GlintEnvironmentConfig = {
-  tags?: GlintTagsConfig;
-  template?: GlintTemplateConfig;
-  extensions?: GlintExtensionsConfig;
-};
-
-export type GlintExtensionPreprocess<T> = (
-  source: string,
-  filePath: string
-) => { contents: string; data?: T };
-
-export type GlintEmitMetadata = {
-  prepend?: string;
-  append?: string;
-  templateLocation?: {
-    start: number;
-    end: number;
-    contentStart: number;
-    contentEnd: number;
-  };
-};
-
-export type GlintExtensionTransform<T> = (
-  data: T,
-  state: {
-    ts: TSLib;
-    context: ts.TransformationContext;
-    setEmitMetadata: (node: ts.TaggedTemplateExpression, meta: GlintEmitMetadata) => void;
-  }
-) => ts.Transformer<ts.Node>;
-
-export type SourceKind = 'typed-script' | 'untyped-script' | 'template';
-export type GlintExtensionConfig<PreprocessData = any> = {
-  kind: SourceKind;
-  preprocess?: GlintExtensionPreprocess<PreprocessData>;
-  transform?: GlintExtensionTransform<PreprocessData>;
-};
-
-export type GlintExtensionsConfig = {
-  [extension: string]: GlintExtensionConfig;
-};
-
-export type GlintTagConfig = {
-  typesModule: string;
-  globals?: Array<string>;
-};
-
-export type GlintTagsConfig = {
-  [importSource: string]: {
-    [importSpecifier: string]: GlintTagConfig;
-  };
-};
-
-export type PathCandidate = string | PathCandidateWithDeferral;
-export type PathCandidateWithDeferral = {
-  /** The path to be considered. */
-  path: string;
-
-  /** Other paths which, if present, should be preferred to this one. */
-  deferTo: Array<string>;
-};
-
-export type GlintTemplateConfig = {
-  typesModule: string;
-  getPossibleTemplatePaths(scriptPath: string): Array<PathCandidate>;
-  getPossibleScriptPaths(templatePath: string): Array<PathCandidate>;
 };
 
 export class GlintEnvironment {
@@ -103,7 +44,7 @@ export class GlintEnvironment {
 
   public static load(
     specifier: string | Array<string> | Record<string, unknown>,
-    { rootDir = '.' } = {}
+    { rootDir = process.cwd() } = {}
   ): GlintEnvironment {
     let envs = normalizeEnvironmentSpecifier(specifier);
     let config = loadMergedEnvironmentConfig(envs, rootDir);
@@ -320,7 +261,7 @@ function normalizePathCandidates(
 
 function tryResolve(name: string, basedir: string): string | null {
   try {
-    return resolve.sync(name, { basedir });
+    return createRequire(path.resolve(basedir, 'package.json')).resolve(name);
   } catch (error: any) {
     if (error?.code === 'MODULE_NOT_FOUND') {
       return null;

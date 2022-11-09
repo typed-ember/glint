@@ -1,2 +1,2 @@
-export * from './project';
-export * from './composite-project';
+export * from './project.js';
+export * from './composite-project.js';

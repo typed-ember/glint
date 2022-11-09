@@ -5,9 +5,13 @@
   "description": "A Glint environment to support ember-template-imports projects",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
-  "glint-environment": "-private/environment",
+  "glint-environment": "-private/environment/index.js",
   "main": "-private/index.js",
-  "types": "-private/index.d.ts",
+  "exports": {
+    ".": "./-private/index.js",
+    "./package.json": "./package.json",
+    "./-private/dsl": "./-private/dsl/index.js"
+  },
   "keywords": [
     "glint-environment"
   ],

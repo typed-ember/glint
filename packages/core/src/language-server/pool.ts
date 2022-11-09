@@ -7,11 +7,11 @@ import {
   DiagnosticSeverity,
 } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import DocumentCache from '../common/document-cache';
-import { debounce } from '../common/scheduling';
-import TransformManager from '../common/transform-manager';
-import GlintLanguageServer from './glint-language-server';
-import { uriToFilePath } from './util';
+import DocumentCache from '../common/document-cache.js';
+import { debounce } from '../common/scheduling.js';
+import TransformManager from '../common/transform-manager.js';
+import GlintLanguageServer from './glint-language-server.js';
+import { uriToFilePath } from './util/index.js';
 
 export type ServerDetails = {
   server: GlintLanguageServer;
