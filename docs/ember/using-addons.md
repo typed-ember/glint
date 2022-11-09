@@ -51,24 +51,46 @@ If you are already using [strict mode] templates (via [first class component tem
 
 But more likely you are still using classic `.hbs` template files, for which Glint needs to know e.g. which component _name_ maps to which component _class_ and hence its type. This is managed by the [Template Registry], which needs to be extended for all the components, helpers and modifiers provided by the addon.
 
-By convention according to the [Authoring Guide][authoring], the addon will ship a `glint.d.ts`
-file that already contains all the necessary registry entries. You just need to import this file from somewhere in your app, e.g. where you already import `@glint/environment-ember-loose`:
+By convention according to the [Authoring Guide][authoring], the addon will ship a `template-registry.d.ts` file that exports a type containing all the registry entries for components, helpers and modifiers it exposes. To use these entries, you can declare that the `@glint/environment-ember-loose` registry `extends` the addon registry in the same place you add your local declarations.
 
 {% code title="types/global.d.ts" %}
 
 ```typescript
 import '@glint/environment-ember-loose';
-import 'ember-responsive-image/glint';
+
+import type ResponsiveImageRegistry from 'ember-responsive-image/template-registry';
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry extends ResponsiveImageRegistry, /* other addon registries */ {
+    // local entries
+  }
+}
 ```
 
 {% endcode %}
 
 In the majority of cases this should be all you need!
 
-However, if you have for example extended or overridden a component of that addon, by having an implementation with the same name in your _app_, but with a somewhat different shape (e.g. additional arguments), then you will need to add the registry entries by yourself, as the ones provided by the addon will not match the type of your replaced component.
+However, if you have for example extended or overridden a component of that addon, by having an implementation with the same name in your _app_, but with a somewhat different shape (e.g. additional arguments), then you will need to tweak the registry entries you add, as the ones provided by the addon will not match the type of your replaced component.
 
-Add the registry entry for the replaced component as you would for any other of your app, as described under [Template Registry].
-For any other component, helper or modifier that you use from the addon as-is, you can extend the registry as described under [Typing your dependencies](#typing-your-dependencies) above. You don't need to write your own types though, as the addon already ships those. Just import the types from the addon itself:
+Add the registry entry for the replaced component as you would for any other of your app, as described under [Template Registry]. To include everything _except_ a specific component, you can use TypeScript's `Omit` utility type on the original registry to leave that entry out. 
+
+{% code title="types/global.d.ts" %}
+
+```typescript
+import type ResponsiveImageRegistry from 'ember-responsive-image/template-registry';
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry extends Omit<ResponsiveImageRegistry, 'ResponsiveImage'> {
+    ResponsiveImage: typeof MyCustomOverriddenResponsiveImage;
+    // ...
+  }
+}
+```
+
+{% endcode %}
+
+You can also ignore the registry entirely and instead import and add _only_ individual entries from an addon:
 
 {% code title="types/global.d.ts" %}
 
