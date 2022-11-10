@@ -108,7 +108,7 @@ describe('Language Server: Hover', () => {
 
         export default class MyComponent extends Component {
           static template = hbs\`
-            {{#each (array 'a' 'b' 'c') as |item index|}}
+            {{#each "abc" as |item index|}}
               Item #{{index}}: {{item}}<br>
             {{/each}}
           \`;
