@@ -168,25 +168,40 @@ export function templateToTypescript(
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition
     ): void {
+      if (formInfo.requiresConsumption) {
+        emit.text('(χ.noop(');
+        emitExpression(node.path);
+        emit.text('), ');
+      }
+
       switch (formInfo.form) {
         case 'yield':
-          return emitYieldExpression(formInfo, node, position);
+          emitYieldExpression(formInfo, node, position);
+          break;
 
         case 'if':
-          return emitIfExpression(formInfo, node);
+          emitIfExpression(formInfo, node);
+          break;
 
         case 'if-not':
-          return emitIfNotExpression(formInfo, node);
+          emitIfNotExpression(formInfo, node);
+          break;
 
         case 'object-literal':
-          return emitObjectExpression(formInfo, node);
+          emitObjectExpression(formInfo, node);
+          break;
 
         case 'array-literal':
-          return emitArrayExpression(formInfo, node);
+          emitArrayExpression(formInfo, node);
+          break;
 
         default:
           record.error(`${formInfo.name} is not valid in inline form`, rangeForNode(node));
           emit.text('undefined');
+      }
+
+      if (formInfo.requiresConsumption) {
+        emit.text(')');
       }
     }
 
@@ -303,6 +318,7 @@ export function templateToTypescript(
     type SpecialFormInfo = {
       form: GlintSpecialForm;
       name: string;
+      requiresConsumption: boolean;
     };
 
     function checkSpecialForm(node: AST.CallNode): SpecialFormInfo | null {
@@ -313,9 +329,10 @@ export function templateToTypescript(
       ) {
         let name = node.path.head.name;
         if (typeof specialForms[name] === 'string' && !scope.hasBinding(name)) {
+          let isGlobal = globals ? globals.includes(name) : true;
           let form = specialForms[name];
 
-          return { name, form };
+          return { name, form, requiresConsumption: !isGlobal };
         }
       }
 
@@ -778,6 +795,12 @@ export function templateToTypescript(
     }
 
     function emitSpecialFormStatement(formInfo: SpecialFormInfo, node: AST.BlockStatement): void {
+      if (formInfo.requiresConsumption) {
+        emitExpression(node.path);
+        emit.text(';');
+        emit.newline();
+      }
+
       switch (formInfo.form) {
         case 'if':
           emitIfStatement(formInfo, node);

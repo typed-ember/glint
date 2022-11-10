@@ -202,6 +202,82 @@ describe('rewriteTemplate', () => {
   });
 
   describe('special forms', () => {
+    describe('symbol consumption', () => {
+      test('implicit globals are ignored in statement position', () => {
+        let body = templateBody(`{{#t true}}{{/t}}`, {
+          specialForms: { t: 'if' },
+        });
+
+        expect(body).toMatchInlineSnapshot(`
+          "if (true) {
+          }"
+        `);
+      });
+
+      test('implicit globals are ignored in expression position', () => {
+        let body = templateBody(`{{obj x=123}}`, {
+          specialForms: { obj: 'object-literal' },
+        });
+
+        expect(body).toMatchInlineSnapshot(`
+          "({
+            x: 123,
+          });"
+        `);
+      });
+
+      test('explicit globals are ignored in statement position', () => {
+        let body = templateBody(`{{#t true}}{{/t}}`, {
+          specialForms: { t: 'if' },
+          globals: ['t'],
+        });
+
+        expect(body).toMatchInlineSnapshot(`
+          "if (true) {
+          }"
+        `);
+      });
+
+      test('explicit globals are ignored in expression position', () => {
+        let body = templateBody(`{{obj x=123}}`, {
+          specialForms: { obj: 'object-literal' },
+          globals: ['obj'],
+        });
+
+        expect(body).toMatchInlineSnapshot(`
+          "({
+            x: 123,
+          });"
+        `);
+      });
+
+      test('outer-scope values are consumed statement position', () => {
+        let body = templateBody(`{{#t true}}{{/t}}`, {
+          specialForms: { t: 'if' },
+          globals: [],
+        });
+
+        expect(body).toMatchInlineSnapshot(`
+          "t;
+          if (true) {
+          }"
+        `);
+      });
+
+      test('outer-scope values are consumed in expression position', () => {
+        let body = templateBody(`{{obj x=123}}`, {
+          specialForms: { obj: 'object-literal' },
+          globals: [],
+        });
+
+        expect(body).toMatchInlineSnapshot(`
+          "(χ.noop(obj), ({
+            x: 123,
+          }));"
+        `);
+      });
+    });
+
     describe('{{if}}', () => {
       test('without an alternate', () => {
         let template = '{{testIf @foo "ok"}}';
@@ -436,7 +512,9 @@ describe('rewriteTemplate', () => {
 
         let specialForms = { testArray: 'array-literal' } as const;
 
-        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`"[];"`);
+        expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(
+          '"(χ.noop(testArray), []);"'
+        );
       });
 
       test('with values', () => {
@@ -446,8 +524,8 @@ describe('rewriteTemplate', () => {
 
         let specialForms = { testArray: 'array-literal' } as const;
 
-        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"[1, true, \\"free\\"];"`
+        expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(
+          '"(χ.noop(testArray), [1, true, \\"free\\"]);"'
         );
       });
 
@@ -459,7 +537,7 @@ describe('rewriteTemplate', () => {
         let specialForms = { testArray: 'array-literal' } as const;
 
         expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(
-          '"χ.emitContent(χ.resolve(log)([1, true, \\"free\\"]));"'
+          '"χ.emitContent(χ.resolve(log)((χ.noop(testArray), [1, true, \\"free\\"])));"'
         );
       });
     });
@@ -472,7 +550,9 @@ describe('rewriteTemplate', () => {
 
         let specialForms = { testHash: 'object-literal' } as const;
 
-        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`"{};"`);
+        expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(
+          '"(χ.noop(testHash), {});"'
+        );
       });
 
       test('with values', () => {
@@ -482,11 +562,11 @@ describe('rewriteTemplate', () => {
 
         let specialForms = { testHash: 'object-literal' } as const;
 
-        expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
-          "({
+        expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(`
+          "(χ.noop(testHash), ({
             a: 1,
             b: \\"ok\\",
-          });"
+          }));"
         `);
       });
 
@@ -498,10 +578,10 @@ describe('rewriteTemplate', () => {
         let specialForms = { testHash: 'object-literal' } as const;
 
         expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(`
-          "χ.emitContent(χ.resolve(log)(({
+          "χ.emitContent(χ.resolve(log)((χ.noop(testHash), ({
             a: 1,
             b: \\"ok\\",
-          })));"
+          }))));"
         `);
       });
     });
