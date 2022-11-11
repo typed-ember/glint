@@ -90,7 +90,7 @@ interface Keywords {
   */
   'has-block-params': VM.HasBlockParamsKeyword;
 
-  // `{{if}}` is implemented directly in `@glint/transform`
+  // `{{if}}` is implemented directly in `@glint/core`
   if: void;
 
   /**
@@ -172,7 +172,7 @@ interface Keywords {
    */
   unbound: UnboundKeyword;
 
-  // `{{unless}}` is implemented directly in `@glint/transform`
+  // `{{unless}}` is implemented directly in `@glint/core`
   unless: void;
 
   /**
@@ -184,12 +184,12 @@ interface Keywords {
    */
   with: VM.WithKeyword;
 
-  // `{{yield}}` is implemented directly in `@glint/transform`
+  // `{{yield}}` is implemented directly in `@glint/core`
   yield: void;
 }
 
 export interface Globals extends Keywords, Registry {
-  // `{{array}}` is implemented directly in `@glint/transform`
+  // `{{array}}` is implemented directly in `@glint/core`
   array: void;
 
   /**
@@ -222,7 +222,7 @@ export interface Globals extends Keywords, Registry {
   */
   get: GetHelper;
 
-  // `hash` is implemented directly in `@glint/transform`
+  // `hash` is implemented directly in `@glint/core`
   hash: void;
 
   /**

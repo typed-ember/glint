@@ -78,23 +78,11 @@ In addition, **environments** also influence elements of the **transform** layer
 
 **Package name:** varies
 
-### Transform
-
-**Role:** a layer which rewrites a Glimmer template into a TypeScript module, in terms of the **template DSL**, using the **config**. This is therefore responsible for maintaining a mapping between the original source locations and the emitted locations, so that emitted diagnostics show up in the right spot in the original template. It is also the home of targeted diagnostic rewrites, which map otherwise-inscrutable TypeScript errors related to the DSL or other parts of the expansion into something useful to end users.
-
-The result of this tranformation is the only place the DSL actually appears, which is why _Find All References_ on a DSL type will generally produce no results in the codebase. The pipeline parses the Glimmer template into an AST, then emits TypeScript _as text_, merging as appropriate with any associated JS or TS.
-
-**Invariants:** This entire layer is purely functional: it accepts the contents of a script and/or template, along with the appropriate **config**, and it returns the resulting TypeScript module and mapping information. It maintains no state and never interacts with the file system or any other part of the outside world.
-
-**Home:** `packages/transform`
-
-**Package name:** `@glint/transform`
-
 ### Core
 
 **Role:** merges the **template**, **transform**, and current **environment** layers into an actual TypeScript module and invokes the TypeScript compiler. This is the home of the `glint` CLI, which runs the compiler in a batch mode, and a language server, which runs against a TypeScript server.
 
-**Invariants:** Consumes `@glint/template` and `@glint/transform`, and is never consumed _by_ them.
+**Invariants:** Emits code that consumes types from `@glint/template`, and is never consumed _by_ `@glint/template`.
 
 **Home:** `packages/core`
 
@@ -107,6 +95,16 @@ The result of this tranformation is the only place the DSL actually appears, whi
 **Invariants:** should know nothing about the rest of the pipeline; it only needs to understand how to parse a Glint configuration and hand it off to the rest of the pipeline.
 
 **Home:** `packages/core/src/config`
+
+#### Subcomponent: Transform
+
+**Role:** a layer which rewrites a Glimmer template into a TypeScript module, in terms of the **template DSL**, using the **config**. This is therefore responsible for maintaining a mapping between the original source locations and the emitted locations, so that emitted diagnostics show up in the right spot in the original template. It is also the home of targeted diagnostic rewrites, which map otherwise-inscrutable TypeScript errors related to the DSL or other parts of the expansion into something useful to end users.
+
+The result of this tranformation is the only place the DSL actually appears, which is why _Find All References_ on a DSL type will generally produce no results in the codebase. The pipeline parses the Glimmer template into an AST, then emits TypeScript _as text_, merging as appropriate with any associated JS or TS.
+
+**Invariants:** This entire layer is purely functional: it accepts the contents of a script and/or template, along with the appropriate **config**, and it returns the resulting TypeScript module and mapping information. It maintains no state and never interacts with the file system or any other part of the outside world.
+
+**Home:** `packages/core/src/transform`
 
 ### VS Code Plugin
 

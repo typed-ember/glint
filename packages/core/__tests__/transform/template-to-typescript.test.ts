@@ -3,9 +3,9 @@ import { describe, test, expect } from 'vitest';
 import {
   templateToTypescript,
   TemplateToTypescriptOptions,
-} from '../src/template/template-to-typescript.js';
+} from '../../src/transform/template/template-to-typescript.js';
 
-describe('rewriteTemplate', () => {
+describe('Transform: rewriteTemplate', () => {
   // Slices out the template boilerplate to return only the code representing
   // the body, to keep snapshots brief and focused.
   function templateBody(

@@ -1,10 +1,10 @@
 import ts from 'typescript';
 import { describe, test, expect } from 'vitest';
-import { rewriteModule } from '../src/index.js';
+import { rewriteModule } from '../../src/transform/index.js';
 import { stripIndent } from 'common-tags';
-import { GlintEnvironment } from '@glint/config';
+import { GlintEnvironment } from '../../src/config/index.js';
 
-describe('rewriteModule', () => {
+describe('Transform: rewriteModule', () => {
   describe('inline tagged template', () => {
     const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
 

@@ -1,15 +1,15 @@
-import { rewriteModule, TransformedModule, rewriteDiagnostic } from '../src/index.js';
+import { rewriteModule, TransformedModule, rewriteDiagnostic } from '../../src/transform/index.js';
 import { stripIndent } from 'common-tags';
 import { describe, test, expect } from 'vitest';
-import { Range, SourceFile } from '../src/template/transformed-module.js';
+import { Range, SourceFile } from '../../src/transform/template/transformed-module.js';
 import * as ts from 'typescript';
-import { assert } from '../src/util.js';
-import { GlintEnvironment } from '@glint/config';
+import { assert } from '../../src/transform/util.js';
+import { GlintEnvironment } from '../../src/config/index.js';
 
 const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
 const emberLooseEnvironment = GlintEnvironment.load('ember-loose');
 
-describe('Source-to-source offset mapping', () => {
+describe('Transform: Source-to-source offset mapping', () => {
   type RewrittenTestModule = {
     source: SourceFile;
     transformedModule: TransformedModule;

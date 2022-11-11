@@ -2,7 +2,7 @@ import { AST } from '@glimmer/syntax';
 import { unreachable, assert } from '../util.js';
 import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-template-contents.js';
 import ScopeStack from './scope-stack.js';
-import { GlintEmitMetadata, GlintSpecialForm } from '@glint/config/types';
+import { GlintEmitMetadata, GlintSpecialForm } from '@glint/core/config-types';
 import { TextContent } from './mapping-tree.js';
 
 const SPLATTRIBUTES = '...attributes';

@@ -4,6 +4,5 @@
     "rootDir": "src",
     "outDir": "lib"
   },
-  "include": ["src", "types"],
-  "references": [{ "path": "../transform" }]
+  "include": ["src", "types"]
 }
