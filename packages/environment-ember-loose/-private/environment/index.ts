@@ -1,4 +1,4 @@
-import { GlintEnvironmentConfig, GlintSpecialForm, PathCandidate } from '@glint/config/types';
+import { GlintEnvironmentConfig, GlintSpecialForm, PathCandidate } from '@glint/core/config-types';
 
 const REGEXES = {
   JS_SCRIPT_EXT: /\.js$/,

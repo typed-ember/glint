@@ -20,8 +20,7 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "@glimmer/syntax": "^0.84.2",
-    "@glint/config": "^0.9.7"
+    "@glimmer/syntax": "^0.84.2"
   },
   "devDependencies": {
     "@types/common-tags": "^1.8.0",

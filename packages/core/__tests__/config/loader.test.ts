@@ -1,10 +1,10 @@
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
-import { ConfigLoader } from '../src/index.js';
-import { normalizePath } from '../src/config.js';
+import { ConfigLoader } from '../../src/config/index.js';
+import { normalizePath } from '../../src/config/config.js';
 
-describe('loadConfig', () => {
+describe('Config: loadConfig', () => {
   const testDir = `${os.tmpdir()}/glint-config-test-loader-${process.pid}`;
 
   beforeEach(() => {

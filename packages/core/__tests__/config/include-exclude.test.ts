@@ -1,8 +1,8 @@
 import ts from 'typescript';
 import { describe, test, expect } from 'vitest';
-import { GlintConfig } from '../src/config.js';
+import { GlintConfig } from '../../src/config/index.js';
 
-describe('include/exclude configuration', () => {
+describe('Config: include/exclude configuration', () => {
   const root = process.cwd();
   const configPath = `${root}/tsconfig.json`;
   const environment = 'glimmerx';

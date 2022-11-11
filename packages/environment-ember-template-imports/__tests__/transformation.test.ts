@@ -3,7 +3,7 @@ import { stripIndent } from 'common-tags';
 import { describe, test, expect } from 'vitest';
 import { preprocess } from '../-private/environment/preprocess';
 import { transform } from '../-private/environment/transform';
-import { GlintEmitMetadata } from '@glint/config/types';
+import { GlintEmitMetadata } from '@glint/core/config-types';
 
 describe('Environment: ETI', () => {
   describe('preprocess', () => {

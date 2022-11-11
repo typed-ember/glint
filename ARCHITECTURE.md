@@ -32,16 +32,6 @@ This synthesized module is never persisted to disk.[^debug] Instead, it is prese
 
 Glint is composed of the following major components:
 
-### Config
-
-**Role:** a library which handles interpreting Glint configuration: Which modules should be part of the transform, and how should they be interpreted? A resolved config informs the rest of Glint what the active **environment(s)** is/are as a way of answering those questions.
-
-**Invariants:** should know nothing about the rest of the pipeline; it only needs to understand how to parse a Glint configuration and hand it off to the rest of the pipeline.
-
-**Home:** `packages/config`
-
-**Package name:** `@glint/config`
-
 ### Template DSL
 
 **Role:** a set of TypeScript type definitions which Glint uses as the TypeScript representation of the constituent elements of a template: content, elements, components, expressions, `...attributes`, modifiers, and templates themselves (with or without backing class contexts).
@@ -109,6 +99,14 @@ The result of this tranformation is the only place the DSL actually appears, whi
 **Home:** `packages/core`
 
 **Package name:** `@glint/core`
+
+#### Subcomponent: Config
+
+**Role:** a library which handles interpreting Glint configuration: Which modules should be part of the transform, and how should they be interpreted? A resolved config informs the rest of Glint what the active **environment(s)** is/are as a way of answering those questions.
+
+**Invariants:** should know nothing about the rest of the pipeline; it only needs to understand how to parse a Glint configuration and hand it off to the rest of the pipeline.
+
+**Home:** `packages/core/src/config`
 
 ### VS Code Plugin
 

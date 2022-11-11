@@ -1,3 +1,7 @@
 {
-  "extends": "../../../tsconfig.compileroptions.json"
+  "extends": "../../../tsconfig.compileroptions.json",
+  "include": [".", "../-private"],
+  "compilerOptions": {
+    "rootDir": ".."
+  }
 }

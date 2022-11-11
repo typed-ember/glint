@@ -29,7 +29,6 @@
     "registry/**/*.{js,d.ts}"
   ],
   "dependencies": {
-    "@glint/config": "^0.9.7",
     "@glint/template": "^0.9.7"
   },
   "peerDependencies": {

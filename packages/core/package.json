@@ -9,6 +9,7 @@
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
+    "./config-types": "./lib/config/types.d.cts",
     "./lsp-messages": "./lib/language-server/messages.js",
     "./bin/*": "./bin/*.js"
   },
@@ -31,8 +32,10 @@
     "typescript": "^4.7.0"
   },
   "dependencies": {
-    "@glint/config": "^0.9.7",
     "@glint/transform": "^0.9.7",
+    "escape-string-regexp": "^4.0.0",
+    "minimatch": "^3.0.4",
+    "silent-error": "^1.1.1",
     "uuid": "^8.3.2",
     "vscode-languageserver": "^8.0.1",
     "vscode-languageserver-textdocument": "^1.0.5",
@@ -41,6 +44,7 @@
   },
   "devDependencies": {
     "@glint/test-utils": "^0.9.7",
+    "@types/minimatch": "^3.0.3",
     "@types/node": "^18.11.5",
     "@types/uuid": "^8.3.4",
     "@types/yargs": "^17.0.10",
