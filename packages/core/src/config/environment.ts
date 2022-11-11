@@ -11,7 +11,7 @@ import {
   PathCandidate,
   PathCandidateWithDeferral,
   SourceKind,
-} from './index.js';
+} from '@glint/core/config-types';
 
 const require = createRequire(import.meta.url);
 

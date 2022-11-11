@@ -1,5 +1,5 @@
 import * as TS from 'typescript';
-import { ConfigLoader, GlintConfig } from '@glint/config';
+import { ConfigLoader, GlintConfig } from '../../config/index.js';
 import TransformManager from '../../common/transform-manager.js';
 import { assert } from './assert.js';
 

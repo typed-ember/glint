@@ -1,5 +1,5 @@
 import yargs = require('yargs');
-import { findTypeScript, loadConfig } from '@glint/config';
+import { findTypeScript, loadConfig } from '../config/index.js';
 import { performWatch } from './perform-watch.js';
 import { performCheck } from './perform-check.js';
 import { determineOptionsToExtend } from './options.js';

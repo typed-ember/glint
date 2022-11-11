@@ -2,8 +2,6 @@ import SilentError from 'silent-error';
 import { GlintConfig } from './config.js';
 import { ConfigLoader } from './loader.js';
 
-export * from '@glint/config/types';
-
 export { GlintConfig } from './config.js';
 export { GlintEnvironment } from './environment.js';
 export { ConfigLoader, findTypeScript } from './loader.js';

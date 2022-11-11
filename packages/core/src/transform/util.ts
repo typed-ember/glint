@@ -4,7 +4,7 @@ import { SourceFile } from './template/transformed-module.js';
 export type TSLib = typeof ts;
 
 export function unreachable(value: never, message = 'unreachable code'): never {
-  throw new Error(`[@glint/transform] Internal error: ${message}`);
+  throw new Error(`[@glint/core] Internal error: ${message}`);
 }
 
 export function assert(

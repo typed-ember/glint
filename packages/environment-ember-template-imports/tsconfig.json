@@ -3,7 +3,7 @@
   "include": ["-private"],
   "references": [
     { "path": "../environment-ember-loose" },
-    { "path": "../config" },
+    { "path": "../core" },
     { "path": "../template" }
   ]
 }

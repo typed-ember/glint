@@ -1,12 +1,10 @@
 {
   "references": [
-    { "path": "packages/config" },
     { "path": "packages/core" },
     { "path": "packages/environment-ember-loose" },
     { "path": "packages/environment-ember-template-imports" },
     { "path": "packages/environment-glimmerx" },
     { "path": "packages/template" },
-    { "path": "packages/transform" },
     { "path": "packages/vscode" },
     { "path": "packages/scripts" },
     { "path": "test-packages/test-utils" }

@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import type * as ts from 'typescript';
-import { GlintEnvironment } from '@glint/config';
+import { GlintEnvironment } from '../../../config/index.js';
 import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from './index.js';
 import { RewriteResult } from '../map-template-contents.js';
 import MappingTree, { ParseError } from '../mapping-tree.js';

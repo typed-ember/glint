@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import Minimatch from 'minimatch';
 import { GlintEnvironment } from './environment.js';
-import { GlintConfigInput } from './index.js';
+import { GlintConfigInput } from '@glint/core/config-types';
 
 /**
  * This class represents parsed Glint configuration from a `tsconfig` or `jsconfig` file,

@@ -1,4 +1,4 @@
-import { GlintEnvironmentConfig } from '@glint/config/types';
+import { GlintEnvironmentConfig } from '@glint/core/config-types';
 import { preprocess } from './preprocess';
 import { transform } from './transform';
 

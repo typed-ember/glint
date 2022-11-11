@@ -1,4 +1,4 @@
-import { ConfigLoader, GlintConfig } from '@glint/config';
+import { ConfigLoader, GlintConfig } from '../config/index.js';
 import {
   Connection,
   MessageType,

@@ -1,4 +1,4 @@
-import { GlintConfig, loadConfig } from '@glint/config';
+import { GlintConfig, loadConfig } from './config/index.js';
 import DocumentCache from './common/document-cache.js';
 import TransformManager from './common/transform-manager.js';
 import GlintLanguageServer from './language-server/glint-language-server.js';

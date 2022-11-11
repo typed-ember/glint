@@ -1,5 +1,5 @@
 import type * as ts from 'typescript';
-import { GlintExtensionTransform } from '@glint/config/types';
+import { GlintExtensionTransform } from '@glint/core/config-types';
 import { PreprocessData, GLOBAL_TAG, TemplateLocation } from './common';
 
 type TSLib = typeof ts;

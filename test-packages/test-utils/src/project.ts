@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { node, ExecaChildProcess, Options } from 'execa';
-import { type GlintConfigInput } from '@glint/config';
+import { type GlintConfigInput } from '@glint/core/config-types';
 import { pathUtils, analyzeProject, ProjectAnalysis } from '@glint/core';
 
 type GlintLanguageServer = ProjectAnalysis['languageServer'];

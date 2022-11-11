@@ -1,4 +1,4 @@
-import { GlintConfig } from '@glint/config';
+import { GlintConfig } from '../config/index.js';
 import TransformManager from '../common/transform-manager.js';
 import type * as ts from 'typescript';
 import {
