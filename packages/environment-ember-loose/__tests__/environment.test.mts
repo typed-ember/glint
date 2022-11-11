@@ -108,24 +108,16 @@ describe('Environments: Ember Loose', () => {
       'ember-loose': { allowPlainFunctionInvocation: false },
     });
 
-    expect(envWithNoConfig.getConfiguredTemplateTags()).toEqual({
-      'ember-cli-htmlbars': {
-        hbs: { typesModule: '@glint/environment-ember-loose/-private/dsl' },
-      },
-    });
+    expect(
+      envWithNoConfig.getConfiguredTemplateTags()['ember-cli-htmlbars']['hbs'].typesModule
+    ).toEqual('@glint/environment-ember-loose/-private/dsl');
 
-    expect(envWithPlainFunctions.getConfiguredTemplateTags()).toEqual({
-      'ember-cli-htmlbars': {
-        hbs: { typesModule: '@glint/environment-ember-loose/-private/dsl' },
-      },
-    });
+    expect(
+      envWithPlainFunctions.getConfiguredTemplateTags()['ember-cli-htmlbars']['hbs'].typesModule
+    ).toEqual('@glint/environment-ember-loose/-private/dsl');
 
-    expect(envWithoutPlainFunctions.getConfiguredTemplateTags()).toEqual({
-      'ember-cli-htmlbars': {
-        hbs: {
-          typesModule: '@glint/environment-ember-loose/-private/dsl/without-function-resolution',
-        },
-      },
-    });
+    expect(
+      envWithoutPlainFunctions.getConfiguredTemplateTags()['ember-cli-htmlbars']['hbs'].typesModule
+    ).toEqual('@glint/environment-ember-loose/-private/dsl/without-function-resolution');
   });
 });

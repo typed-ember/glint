@@ -7,9 +7,12 @@ export function unreachable(value: never, message = 'unreachable code'): never {
   throw new Error(`[@glint/transform] Internal error: ${message}`);
 }
 
-export function assert(test: unknown, message = 'Internal error'): asserts test {
+export function assert(
+  test: unknown,
+  message: string | (() => string) = 'Internal error'
+): asserts test {
   if (test == null || test === false) {
-    throw new Error(message);
+    throw new Error(typeof message === 'string' ? message : message());
   }
 }
 

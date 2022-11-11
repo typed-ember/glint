@@ -1,5 +1,6 @@
 import Component from '@glimmer/component';
 import { TOC } from '@ember/component/template-only';
+import { hash } from '@ember/helper';
 
 const lib = {
   MaybeComponent: undefined as TOC<{ Args: { arg: string } }> | undefined
@@ -35,4 +36,8 @@ const NUMS = [1, 2, 3];
   <List @items={{NUMS}} as |item|>
     #{{item}}
   </List>
+
+  {{#each-in (hash a=1 b='hi') as |key value|}}
+    {{key}}: {{value}}
+  {{/each-in}}
 </template>

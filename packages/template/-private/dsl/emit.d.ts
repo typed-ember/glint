@@ -143,3 +143,10 @@ export declare function applyAttributes(element: Element, attrs: Record<string, 
  *     <AnotherComponent {{someModifier}} />
  */
 export declare function applyModifier(boundModifier: ModifierReturn): void;
+
+/*
+ * Used to consume imported identifiers like `hash` or `array` when
+ * we treat them as a special form to be translated into native
+ * syntax.
+ */
+export declare function noop(value: unknown): void;

@@ -173,7 +173,7 @@ describe('Language Server: Completions', () => {
 
       export default class MyComponent extends Component {
         static template = hbs\`
-          {{#each (array "a" "b" "c") as |letter|}}
+          {{#each "abc" as |letter|}}
             {{l}}
           {{/each}}
         \`;
@@ -233,7 +233,7 @@ describe('Language Server: Completions', () => {
 
       export default class MyComponent<T> extends Component {
         static template = hbs\`
-          {{#each (array "a" "b" "c") as |letter|}}
+          {{#each "abc" as |letter|}}
             {{}}
           {{/each}}
         \`;

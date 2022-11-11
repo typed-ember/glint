@@ -9,6 +9,13 @@ export default function glimmerxEnvironment(
 
   let tagConfig: GlintTagConfig = {
     typesModule: '@glint/environment-glimmerx/-private/dsl',
+    specialForms: {
+      globals: {
+        if: 'if',
+        unless: 'if-not',
+        yield: 'yield',
+      },
+    },
     globals: [
       'component',
       'debugger',

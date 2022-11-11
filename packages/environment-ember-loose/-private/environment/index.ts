@@ -1,4 +1,4 @@
-import { GlintEnvironmentConfig, PathCandidate } from '@glint/config/types';
+import { GlintEnvironmentConfig, GlintSpecialForm, PathCandidate } from '@glint/config/types';
 
 const REGEXES = {
   JS_SCRIPT_EXT: /\.js$/,
@@ -19,14 +19,26 @@ export default function emberLooseEnvironment(
     typesModule += '/without-function-resolution';
   }
 
+  let specialForms: Record<string, GlintSpecialForm> = {
+    if: 'if',
+    unless: 'if-not',
+    yield: 'yield',
+    array: 'array-literal',
+    hash: 'object-literal',
+  };
+
   return {
     tags: {
       'ember-cli-htmlbars': {
-        hbs: { typesModule },
+        hbs: {
+          typesModule,
+          specialForms: { globals: specialForms },
+        },
       },
     },
     template: {
       typesModule,
+      specialForms,
 
       getPossibleScriptPaths(templatePath) {
         // Colocated script/template pair

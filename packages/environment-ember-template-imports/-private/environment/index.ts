@@ -8,6 +8,19 @@ export default function emberTemplateImportsEnvironment(): GlintEnvironmentConfi
       'ember-template-imports': {
         hbs: {
           typesModule: '@glint/environment-ember-template-imports/-private/dsl',
+          specialForms: {
+            globals: {
+              if: 'if',
+              unless: 'if-not',
+              yield: 'yield',
+            },
+            imports: {
+              '@ember/helper': {
+                array: 'array-literal',
+                hash: 'object-literal',
+              },
+            },
+          },
           globals: [
             'action',
             'component',
