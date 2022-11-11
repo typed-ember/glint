@@ -195,6 +195,11 @@ export function templateToTypescript(
           emitArrayExpression(formInfo, node);
           break;
 
+        case '===':
+        case '!==':
+          emitBinaryOperatorExpression(formInfo, node);
+          break;
+
         default:
           record.error(`${formInfo.name} is not valid in inline form`, rangeForNode(node));
           emit.text('undefined');
@@ -311,6 +316,27 @@ export function templateToTypescript(
           emit.text('undefined');
         }
 
+        emit.text(')');
+      });
+    }
+
+    function emitBinaryOperatorExpression(
+      formInfo: SpecialFormInfo,
+      node: AST.MustacheStatement | AST.SubExpression
+    ): void {
+      emit.forNode(node, () => {
+        assert(
+          node.hash.pairs.length === 0,
+          `{{${formInfo.name}}} only accepts positional parameters`
+        );
+        assert(node.params.length === 2, `{{${formInfo.name}}} requires exactly two parameters`);
+
+        const [left, right] = node.params;
+
+        emit.text('(');
+        emitExpression(left);
+        emit.text(` ${formInfo.form} `);
+        emitExpression(right);
         emit.text(')');
       });
     }

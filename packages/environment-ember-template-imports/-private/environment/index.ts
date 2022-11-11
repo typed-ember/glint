@@ -1,8 +1,17 @@
-import { GlintEnvironmentConfig } from '@glint/core/config-types';
+import { GlintEnvironmentConfig, GlintSpecialFormConfig } from '@glint/core/config-types';
 import { preprocess } from './preprocess';
 import { transform } from './transform';
 
-export default function emberTemplateImportsEnvironment(): GlintEnvironmentConfig {
+export default function emberTemplateImportsEnvironment(
+  options: Record<string, unknown>
+): GlintEnvironmentConfig {
+  let additionalSpecialForms =
+    typeof options['additionalSpecialForms'] === 'object'
+      ? (options['additionalSpecialForms'] as GlintSpecialFormConfig)
+      : {};
+
+  const additionalGlobalSpecialForms = additionalSpecialForms.globals ?? {};
+
   return {
     tags: {
       'ember-template-imports': {
@@ -13,12 +22,15 @@ export default function emberTemplateImportsEnvironment(): GlintEnvironmentConfi
               if: 'if',
               unless: 'if-not',
               yield: 'yield',
+              ...additionalGlobalSpecialForms,
             },
             imports: {
               '@ember/helper': {
                 array: 'array-literal',
                 hash: 'object-literal',
+                ...(additionalSpecialForms.imports?.['@ember/helper'] ?? {}),
               },
+              ...(additionalSpecialForms.imports ?? {}),
             },
           },
           globals: [
@@ -40,6 +52,7 @@ export default function emberTemplateImportsEnvironment(): GlintEnvironmentConfi
             'unless',
             'with',
             'yield',
+            ...Object.keys(additionalGlobalSpecialForms),
           ],
         },
       },

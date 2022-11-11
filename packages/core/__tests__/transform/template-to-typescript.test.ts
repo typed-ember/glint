@@ -585,6 +585,32 @@ describe('Transform: rewriteTemplate', () => {
         `);
       });
     });
+
+    describe('{{eq}}', () => {
+      test('emits ===', () => {
+        let template = stripIndent`
+          {{log (testEq 1 2)}}
+        `;
+
+        expect(templateBody(template, { globals: ['testEq'], specialForms: { testEq: '===' } }))
+          .toMatchInlineSnapshot(`
+          "χ.emitContent(χ.resolve(log)((1 === 2)));"
+        `);
+      });
+    });
+
+    describe('{{neq}}', () => {
+      test('emits !==', () => {
+        let template = stripIndent`
+          {{log (testNeq 1 2)}}
+        `;
+
+        expect(templateBody(template, { globals: ['testNeq'], specialForms: { testNeq: '!==' } }))
+          .toMatchInlineSnapshot(`
+          "χ.emitContent(χ.resolve(log)((1 !== 2)));"
+        `);
+      });
+    });
   });
 
   describe('inline curlies', () => {
@@ -1237,6 +1263,62 @@ describe('Transform: rewriteTemplate', () => {
         {
           message: '{{testArray}} only accepts positional parameters',
           location: { start: 11, end: 38 },
+        },
+      ]);
+    });
+
+    test('{{eq}} with named parameters', () => {
+      let { errors } = templateToTypescript('<Foo @attr={{testEq 123 foo="bar"}} />', {
+        typesModule: '@glint/template',
+        specialForms: { testEq: '===' },
+      });
+
+      expect(errors).toEqual([
+        {
+          message: '{{testEq}} only accepts positional parameters',
+          location: { start: 11, end: 35 },
+        },
+      ]);
+    });
+
+    test('{{eq}} with wrong number of parameters', () => {
+      let { errors } = templateToTypescript('<Foo @attr={{testEq 123 456 789}} />', {
+        typesModule: '@glint/template',
+        specialForms: { testEq: '===' },
+      });
+
+      expect(errors).toEqual([
+        {
+          message: '{{testEq}} requires exactly two parameters',
+          location: { start: 11, end: 33 },
+        },
+      ]);
+    });
+
+    test('{{neq}} with named parameters', () => {
+      let { errors } = templateToTypescript('<Foo @attr={{testNeq 123 foo="bar"}} />', {
+        typesModule: '@glint/template',
+        specialForms: { testNeq: '!==' },
+      });
+
+      expect(errors).toEqual([
+        {
+          message: '{{testNeq}} only accepts positional parameters',
+          location: { start: 11, end: 36 },
+        },
+      ]);
+    });
+
+    test('{{neq}} with wrong number of parameters', () => {
+      let { errors } = templateToTypescript('<Foo @attr={{testNeq 123 456 789}} />', {
+        typesModule: '@glint/template',
+        specialForms: { testNeq: '!==' },
+      });
+
+      expect(errors).toEqual([
+        {
+          message: '{{testNeq}} requires exactly two parameters',
+          location: { start: 11, end: 34 },
         },
       ]);
     });

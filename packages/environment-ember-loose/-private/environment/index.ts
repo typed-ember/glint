@@ -1,4 +1,9 @@
-import { GlintEnvironmentConfig, GlintSpecialForm, PathCandidate } from '@glint/core/config-types';
+import {
+  GlintEnvironmentConfig,
+  GlintSpecialForm,
+  GlintSpecialFormConfig,
+  PathCandidate,
+} from '@glint/core/config-types';
 
 const REGEXES = {
   JS_SCRIPT_EXT: /\.js$/,
@@ -19,12 +24,18 @@ export default function emberLooseEnvironment(
     typesModule += '/without-function-resolution';
   }
 
+  let additionalSpecialForms =
+    typeof options['additionalSpecialForms'] === 'object'
+      ? (options['additionalSpecialForms'] as GlintSpecialFormConfig)
+      : {};
+
   let specialForms: Record<string, GlintSpecialForm> = {
     if: 'if',
     unless: 'if-not',
     yield: 'yield',
     array: 'array-literal',
     hash: 'object-literal',
+    ...(additionalSpecialForms.globals ?? {}),
   };
 
   return {
@@ -32,7 +43,7 @@ export default function emberLooseEnvironment(
       'ember-cli-htmlbars': {
         hbs: {
           typesModule,
-          specialForms: { globals: specialForms },
+          specialForms: { globals: specialForms, imports: additionalSpecialForms.imports },
         },
       },
     },
