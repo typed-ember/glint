@@ -30,13 +30,22 @@
     "helper/**/*.{js,d.ts}",
     "component/**/*.{js,d.ts}"
   ],
-  "dependencies": {
-    "@glint/template": "^0.9.7"
-  },
   "peerDependencies": {
+    "@glint/template": "^0.9.7",
     "@glimmerx/component": "^0.6.7",
     "@glimmerx/modifier": "^0.6.7",
     "@glimmerx/helper": "^0.6.7"
+  },
+  "peerDependenciesMeta": {
+    "@glimmerx/component": {
+      "optional": true
+    },
+    "@glimmerx/helper": {
+      "optional": true
+    },
+    "@glimmerx/modifier": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@glimmerx/component": "^0.6.7",

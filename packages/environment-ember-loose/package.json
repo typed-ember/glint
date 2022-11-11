@@ -28,15 +28,33 @@
     "-private/**/*.{js,d.ts}",
     "registry/**/*.{js,d.ts}"
   ],
-  "dependencies": {
-    "@glint/template": "^0.9.7"
-  },
   "peerDependencies": {
     "@glimmer/component": "^1.1.2",
+    "@glint/template": "^0.9.7",
+    "@types/ember__array": "^4.0.2",
+    "@types/ember__component": "^4.0.10",
+    "@types/ember__controller": "^4.0.2",
+    "@types/ember__object": "^4.0.4",
+    "@types/ember__routing": "^4.0.11",
     "ember-cli-htmlbars": "^6.0.1",
     "ember-modifier": "^3.2.7"
   },
   "peerDependenciesMeta": {
+    "@types/ember__array": {
+      "optional": true
+    },
+    "@types/ember__component": {
+      "optional": true
+    },
+    "@types/ember__controller": {
+      "optional": true
+    },
+    "@types/ember__object": {
+      "optional": true
+    },
+    "@types/ember__routing": {
+      "optional": true
+    },
     "ember-cli-htmlbars": {
       "optional": true
     },
@@ -46,7 +64,11 @@
   },
   "devDependencies": {
     "@glimmer/component": "^1.1.2",
-    "@types/ember__component": "~4.0.8",
+    "@types/ember__array": "^4.0.2",
+    "@types/ember__component": "^4.0.10",
+    "@types/ember__controller": "^4.0.2",
+    "@types/ember__object": "^4.0.4",
+    "@types/ember__routing": "^4.0.11",
     "ember-modifier": "^3.2.7",
     "expect-type": "0.11.0",
     "vitest": "^0.22.0"
