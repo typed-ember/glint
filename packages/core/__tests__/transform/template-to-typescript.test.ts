@@ -759,9 +759,9 @@ describe('Transform: rewriteTemplate', () => {
           test('a shadowed global identifier', () => {
             let template = '{{#let foo as |bar|}}<Greet @message={{bar}} />{{/let}}';
 
-            expect(templateBody(template, { globals: ['foo'] })).toMatchInlineSnapshot(`
+            expect(templateBody(template, { globals: ['let', 'foo'] })).toMatchInlineSnapshot(`
               "{
-                const 𝛄 = χ.emitComponent(χ.resolve(let)(χ.Globals[\\"foo\\"]));
+                const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"let\\"])(χ.Globals[\\"foo\\"]));
                 {
                   const [bar] = 𝛄.blockParams[\\"default\\"];
                   {
@@ -769,7 +769,7 @@ describe('Transform: rewriteTemplate', () => {
                     𝛄;
                   }
                 }
-                let;
+                χ.Globals[\\"let\\"];
               }"
             `);
           });
@@ -1145,6 +1145,26 @@ describe('Transform: rewriteTemplate', () => {
                 class: \\"foo\\",
               });
             }
+          }
+          χ.Globals[\\"Foo\\"];
+        }"
+      `);
+    });
+
+    test('with a reserved block param identifier', () => {
+      let template = stripIndent`
+        <Foo as |switch|>
+          {{switch}}
+        </Foo>
+      `;
+
+      expect(templateBody(template)).toMatchInlineSnapshot(`
+        "{
+          const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"Foo\\"])());
+          𝛄;
+          {
+            const [__switch] = 𝛄.blockParams[\\"default\\"];
+            χ.emitContent(χ.resolveOrReturn(__switch)());
           }
           χ.Globals[\\"Foo\\"];
         }"
