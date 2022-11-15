@@ -28,9 +28,9 @@ export default function emberTemplateImportsEnvironment(
               '@ember/helper': {
                 array: 'array-literal',
                 hash: 'object-literal',
-                ...(additionalSpecialForms.imports?.['@ember/helper'] ?? {}),
+                ...additionalSpecialForms.imports?.['@ember/helper'],
               },
-              ...(additionalSpecialForms.imports ?? {}),
+              ...additionalSpecialForms.imports,
             },
           },
           globals: [
