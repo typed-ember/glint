@@ -327,9 +327,12 @@ export function templateToTypescript(
       emit.forNode(node, () => {
         assert(
           node.hash.pairs.length === 0,
-          `{{${formInfo.name}}} only accepts positional parameters`
+          () => `{{${formInfo.name}}} only accepts positional parameters`
         );
-        assert(node.params.length === 2, `{{${formInfo.name}}} requires exactly two parameters`);
+        assert(
+          node.params.length === 2,
+          () => `{{${formInfo.name}}} requires exactly two parameters`
+        );
 
         const [left, right] = node.params;
 
