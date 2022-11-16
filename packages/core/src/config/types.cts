@@ -45,7 +45,14 @@ export type GlintExtensionTransform<T> = (
   }
 ) => ts.Transformer<ts.Node>;
 
-export type GlintSpecialForm = 'if' | 'if-not' | 'yield' | 'object-literal' | 'array-literal';
+export type GlintSpecialForm =
+  | 'if'
+  | 'if-not'
+  | 'yield'
+  | 'object-literal'
+  | 'array-literal'
+  | '==='
+  | '!==';
 export type GlintSpecialFormConfig = {
   globals?: { [global: string]: GlintSpecialForm };
   imports?: {
