@@ -417,7 +417,7 @@ export function templateToTypescript(
         emit.identifier(JSON.stringify(name).slice(1, -1), hbsOffset, name.length);
         emit.text('"]');
       } else {
-        emit.identifier(name, hbsOffset);
+        emit.identifier(makeJSSafe(name), hbsOffset, name.length);
       }
     }
 
@@ -986,7 +986,7 @@ export function templateToTypescript(
         if (index) emit.text(', ');
 
         start = template.indexOf(param, start);
-        emit.identifier(param, start);
+        emit.identifier(makeJSSafe(param), start, param.length);
       }
 
       emit.text('] = 𝛄.blockParams');
@@ -1168,4 +1168,67 @@ export function templateToTypescript(
       return /^[a-z_$][a-z0-9_$]*$/i.test(key);
     }
   });
+}
+
+const JSKeywords = new Set([
+  'await',
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'enum',
+  'eval',
+  'export',
+  'extends',
+  'false',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'implements',
+  'import',
+  'in',
+  'instanceof',
+  'interface',
+  'let',
+  'new',
+  'null',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'return',
+  'static',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'typeof',
+  'undefined',
+  'var',
+  'void',
+  'while',
+  'with',
+  'yield',
+]);
+
+function isJSKeyword(token: string): boolean {
+  return JSKeywords.has(token);
+}
+
+function makeJSSafe(identifier: string): string {
+  if (isJSKeyword(identifier) || identifier.startsWith('__')) {
+    return `__${identifier}`;
+  }
+
+  return identifier;
 }
