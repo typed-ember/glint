@@ -51,14 +51,16 @@ export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
 // Longer term we should rationalize this to a type that doesn't carry extra baggage
 // and likely comes from a more sensible path.
 
-import { TemplateComponent } from '@glimmerx/component';
+import { TemplateComponentInstance } from '@glimmerx/component';
 
 export declare function templateExpression<
   Signature extends AnyFunction = () => ComponentReturn<EmptyObject>,
   Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
 >(
   f: (𝚪: Context, χ: never) => void
-): TemplateComponent<never> & (new () => InvokableInstance<Signature> & HasContext<Context>);
+): abstract new () => TemplateComponentInstance<never> &
+  InvokableInstance<Signature> &
+  HasContext<Context>;
 
 // We customize `applyModifier` to accept `void | () => void` as a valid modifier return type
 export function applyModifier(modifierResult: ModifierReturn | void | (() => void)): void;

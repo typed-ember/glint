@@ -1,7 +1,6 @@
 import { DirectInvokable } from '@glint/template/-private/integration';
 import ObjectProxy from '@ember/object/proxy';
 import { UnwrapComputedPropertyGetter } from '@ember/object/-private/types';
-import 'foo/bar/baz';
 
 export type GetHelper = DirectInvokable<{
   <T, K extends keyof T>(obj: T, key: K): UnwrapComputedPropertyGetter<T[K]>;

@@ -5,10 +5,9 @@ import {
   emitComponent,
   NamedArgsMarker,
 } from '@glint/environment-ember-loose/-private/dsl';
-import { ComponentReturn, NamedArgs } from '@glint/template/-private/integration';
+import { ComponentReturn, EmptyObject, NamedArgs } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
 import { ComponentKeyword } from '../../-private/intrinsics/component';
-import { EmptyObject } from '@glimmer/component/-private/component';
 import { ComponentLike, WithBoundArgs } from '@glint/template';
 
 {

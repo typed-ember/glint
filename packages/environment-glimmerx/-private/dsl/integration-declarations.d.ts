@@ -13,16 +13,14 @@ import {
 
 import '@glimmerx/component';
 
-import { ExpandSignature } from '@glimmer/component/-private/component';
-
 // Declaring that `hbs` returns a `TemplateComponent` prevents vanilla `tsc` from freaking out when
 // it sees code like `const MyThing: TC<Sig> = hbs...`. Glint itself will never see `hbs` get used, as
 // it's transformed to the template DSL before typechecking.
 type ComponentContext<This, S> = TemplateContext<
   This,
-  ExpandSignature<S>['Args']['Named'],
-  FlattenBlockParams<ExpandSignature<S>['Blocks']>,
-  ExpandSignature<S>['Element']
+  ComponentSignatureArgs<S>['Named'],
+  FlattenBlockParams<ComponentSignatureBlocks<S>>,
+  ComponentSignatureElement<S>
 >;
 
 declare module '@glimmerx/component' {
@@ -90,6 +88,11 @@ declare module '@glimmerx/helper' {
 // Modifiers
 
 import '@glimmerx/modifier';
+import {
+  ComponentSignatureArgs,
+  ComponentSignatureBlocks,
+  ComponentSignatureElement,
+} from '@glint/template/-private/signature';
 
 export interface OnModifierArgs {
   capture?: boolean;

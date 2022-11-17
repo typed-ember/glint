@@ -8,6 +8,11 @@ import {
   HasContext,
   TemplateContext,
 } from '@glint/template/-private/integration';
+import {
+  ComponentSignatureArgs,
+  ComponentSignatureBlocks,
+  ComponentSignatureElement,
+} from '@glint/template/-private/signature';
 
 //////////////////////////////////////////////////////////////////////
 // Components
@@ -16,13 +21,11 @@ import '@ember/component';
 import '@ember/component/template-only';
 import '@glimmer/component';
 
-import { ExpandSignature } from '@glimmer/component/-private/component';
-
 type ComponentContext<This, S> = TemplateContext<
   This,
-  ExpandSignature<S>['Args']['Named'],
-  FlattenBlockParams<ExpandSignature<S>['Blocks']>,
-  ExpandSignature<S>['Element']
+  ComponentSignatureArgs<S>['Named'],
+  FlattenBlockParams<ComponentSignatureBlocks<S>>,
+  ComponentSignatureElement<S>
 >;
 
 declare module '@glimmer/component' {
