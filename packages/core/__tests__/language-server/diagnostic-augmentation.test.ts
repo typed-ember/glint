@@ -372,20 +372,19 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let server = project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
+    // TS 5.0 nightlies generate a slightly different format of "here are all the overloads
+    // and why they don't work" message, so for the time being we're truncating everything
+    // after the first line of the error message. In the future when we reach a point where
+    // we don't test against 4.x, we can go back to snapshotting the full message.
+    diagnostics = diagnostics.map((diagnostic) => ({
+      ...diagnostic,
+      message: diagnostic.message.slice(0, diagnostic.message.indexOf('\n')),
+    }));
+
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
-          "message": "The given value does not appear to be usable as a component, modifier or helper.
-        No overload matches this call.
-          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
-              Property '[InvokeDirect]' is missing in type '{}' but required in type 'DirectInvokable<AnyFunction>'.
-          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
-              Type '{}' provides no match for the signature 'new (...args: unknown[]): InvokableInstance<AnyFunction>'.
-          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.
-              Type '{}' provides no match for the signature '(...params: any): any'.",
+          "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
               "character": 19,
@@ -401,14 +400,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "message": "The given value does not appear to be usable as a component, modifier or helper.
-        No overload matches this call.
-          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
-          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
-          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
+          "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
               "character": 20,
@@ -424,14 +416,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "message": "The given value does not appear to be usable as a component, modifier or helper.
-        No overload matches this call.
-          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
-          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
-          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
+          "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
               "character": 26,
@@ -447,14 +432,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "message": "The given value does not appear to be usable as a component, modifier or helper.
-        No overload matches this call.
-          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
-          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
-          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
+          "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
               "character": 25,
@@ -470,14 +448,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "message": "The given value does not appear to be usable as a component, modifier or helper.
-        No overload matches this call.
-          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
-          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
-          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
+          "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
               "character": 26,
@@ -493,14 +464,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "message": "The given value does not appear to be usable as a component, modifier or helper.
-        No overload matches this call.
-          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
-          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
-          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
+          "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
               "character": 24,
@@ -516,14 +480,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "message": "The given value does not appear to be usable as a component, modifier or helper.
-        No overload matches this call.
-          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
-          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
-          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
+          "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
               "character": 30,
@@ -539,14 +496,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "message": "The given value does not appear to be usable as a component, modifier or helper.
-        No overload matches this call.
-          Overload 1 of 3, '(item: DirectInvokable<AnyFunction>): AnyFunction', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'DirectInvokable<AnyFunction>'.
-          Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>) | null | undefined): (...args: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type 'abstract new (...args: unknown[]) => InvokableInstance<AnyFunction>'.
-          Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.
-            Argument of type '{}' is not assignable to parameter of type '(...params: any) => any'.",
+          "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
               "character": 29,
