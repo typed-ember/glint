@@ -1,17 +1,17 @@
-To use Glint with [GlimmerX](https://github.com/glimmerjs/glimmer-experimental), you'll add the `@glint/core` and `@glint/environment-glimmerx` packages to your project's `devDependencies`, then add a `"glint"` key to your project's `tsconfig.json`.
+To use Glint with [GlimmerX](https://github.com/glimmerjs/glimmer-experimental), you'll add the `@glint/core`, `@glint/template` and `@glint/environment-glimmerx` packages to your project's `devDependencies`, then add a `"glint"` key to your project's `tsconfig.json`.
 
 {% tabs %}
 {% tab title="Yarn" %}
 
 ```sh
-yarn add --dev @glint/core @glint/environment-glimmerx
+yarn add --dev @glint/core @glint/template @glint/environment-glimmerx
 ```
 
 {% endtab %}
 {% tab title="npm" %}
 
 ```sh
-npm install -D @glint/core @glint/environment-glimmerx
+npm install -D @glint/core @glint/template @glint/environment-glimmerx
 ```
 
 {% endtab %}
