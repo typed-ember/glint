@@ -1,16 +1,5 @@
 Glint works out of the box with TypeScript’s [Project References][pr] feature: Instead of running just `glint`, you run `glint --build`, and Glint will correctly do incremental builds for composite projects.
 
-{% hint style="working" %}
-
-Support for the flags associated with `--build` is still in progress (so they don't work yet!):
-
-- `--dry`
-- `--incremental`
-- `--watch`
-- `--force`
-
-{% endhint %}
-
 {% hint style="info" %}
 
 This is not a guide to project references and composite projects. Instead, see [the TypeScript docs][pr].
