@@ -15,13 +15,13 @@ Thus, installation for a JS setup looks like this:
 {% tabs %}
 {% tab title="Yarn" %}
 ```shell-session
-yarn add --dev typescript @glint/core @glint/environment-ember-loose
+yarn add --dev typescript @glint/core @glint/template @glint/environment-ember-loose
 ```
 {% endtab %}
 
 {% tab title="npm" %}
 ```shell-session
-npm install -D typescript @glint/core @glint/environment-ember-loose
+npm install -D typescript @glint/core @glint/template @glint/environment-ember-loose
 ```
 {% endtab %}
 {% endtabs %}

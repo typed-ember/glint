@@ -1,9 +1,13 @@
-// While the entire `@glint/template` package is currently private, this
-// module exports the symbols and types necessary to declare a class or
-// other entity as integrating with Glint's template system.
+// While everything in the `@glint/template` package other than its main
+// entrypoint is "private", this module exports the symbols and types
+// necessary to declare a class or other entity as integrating with Glint's
+// template system.
+// In most cases it should be possible to declare integrations in terms of
+// `ComponentLike`/`HelperLike`/`ModifierLike`, but these declarations are
+// the primitives on which those types are built.
 
-import { EmptyObject } from '@glimmer/component/-private/component';
-export { EmptyObject };
+declare const Empty: unique symbol;
+export type EmptyObject = { [Empty]?: true };
 
 /** Any function, which is the tighest bound we can put on an object's `[Invoke]` field. */
 export type AnyFunction = (...params: any) => any;
@@ -23,12 +27,6 @@ export type Invokable<F extends AnyFunction> = abstract new (...args: any) => In
 
 export declare const Context: unique symbol;
 export type HasContext<T extends AnyContext = AnyContext> = { [Context]: T };
-
-// These shenanigans are necessary to get TS to report when named args
-// are passed to a signature that doesn't expect any, because `{}` is
-// special-cased in the type system not to trigger EPC.
-
-export type GuardEmpty<T> = T extends any ? (keyof T extends never ? EmptyObject : T) : never;
 
 declare const Element: unique symbol;
 declare const Modifier: unique symbol;
@@ -83,8 +81,3 @@ export type NamedArgNames<T extends Invokable<AnyFunction>> = T extends Invokabl
   : never;
 
 export type UnwrapNamedArgs<T> = T extends NamedArgs<infer U> ? U : T;
-
-export type MaybeNamed<T> = {} extends UnwrapNamedArgs<T> ? [named?: T] : [named: T];
-
-export type Get<T, K, Otherwise = unknown> = K extends keyof T ? T[K] : Otherwise;
-export type Constrain<T, Constraint, Otherwise = Constraint> = T extends Constraint ? T : Otherwise;

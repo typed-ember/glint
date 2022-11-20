@@ -7,7 +7,7 @@ import {
   NamedArgsMarker,
 } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { EmptyObject } from '@glimmer/component/-private/component';
+import { EmptyObject } from '@glint/template/-private/integration';
 import type { ComponentLike } from '@glint/template';
 
 {

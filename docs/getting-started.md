@@ -1,6 +1,6 @@
 ## Setup
 
-First, add `@glint/core` and an appropriate Glint environment to your project's `devDependencies`.
+First, add `@glint/core`, `@glint/template` and an appropriate Glint environment to your project's `devDependencies`.
 
 Then, add a `"glint"` key in your `tsconfig.json` that tells Glint what environment you're working in and, optionally, which files it should include in its typechecking.
 

@@ -4,15 +4,18 @@ import {
   ModifierReturn,
   FlattenBlockParams,
   Invokable,
-  MaybeNamed,
-  Constrain,
-  GuardEmpty,
-  Get,
   NamedArgNames,
   UnwrapNamedArgs,
-  NamedArgs,
 } from './integration';
-import { ExpandSignature } from '@glimmer/component/-private/component';
+import {
+  ComponentSignatureArgs,
+  ComponentSignatureBlocks,
+  ComponentSignatureElement,
+  Get,
+  InvokableArgs,
+  MaybeNamed,
+  PrebindArgs,
+} from './signature';
 
 /**
  * Any value that can be safely emitted into the DOM as top-level content,
@@ -32,6 +35,14 @@ export type ContentValue =
   | SafeString
   | Node
   | ArglessCurlyComponent;
+
+// This encompasses both @glimmer/runtime and @ember/template's notion of `SafeString`s,
+// and this coverage is tested in `emit-content.test.ts`.
+type SafeString = { toHTML(): string };
+
+// `{{foo}}` becomes `emitContent(resolveOrReturn(foo)({})`, which means if `foo`
+// is a component that accepts no args, then this is a valid invocation.
+type ArglessCurlyComponent = ComponentReturn<{}, any>;
 
 /**
  * Any value that can be safely set as an HTML attribute on a DOM node.
@@ -55,13 +66,10 @@ export type AttrValue = string | number | boolean | null | undefined | SafeStrin
  */
 export type ComponentLike<S = unknown> = Invokable<
   (
-    ...args: [
-      ...positional: ExpandSignature<S>['Args']['Positional'],
-      ...named: MaybeNamed<NamedArgs<ExpandSignature<S>['Args']['Named']>>
-    ]
+    ...args: InvokableArgs<ComponentSignatureArgs<S>>
   ) => ComponentReturn<
-    FlattenBlockParams<ExpandSignature<S>['Blocks']>,
-    ExpandSignature<S>['Element']
+    FlattenBlockParams<ComponentSignatureBlocks<S>>,
+    ComponentSignatureElement<S>
   >
 >;
 
@@ -75,7 +83,7 @@ export type ComponentLike<S = unknown> = Invokable<
  * accepted by `Helper` and `helper`.
  */
 export type HelperLike<S = unknown> = Invokable<
-  (...args: InvokableArgs<S>) => Get<S, 'Return', unknown>
+  (...args: InvokableArgs<Get<S, 'Args'>>) => Get<S, 'Return', unknown>
 >;
 
 /**
@@ -88,7 +96,7 @@ export type HelperLike<S = unknown> = Invokable<
  * accepted by `Modifier` and `modifier`.
  */
 export type ModifierLike<S = unknown> = Invokable<
-  (element: Get<S, 'Element'>, ...args: InvokableArgs<S>) => ModifierReturn
+  (element: Get<S, 'Element'>, ...args: InvokableArgs<Get<S, 'Args'>>) => ModifierReturn
 >;
 
 /**
@@ -132,25 +140,5 @@ export type WithBoundArgs<
       ) => R
     >
   : never;
-
-// We use the imported `ExpandSignature` for component signatures, as they have
-// different layers of possible shorthand, but modifiers and helpers only have
-// one structure they can specify their args in, so this utility is sufficient.
-export type InvokableArgs<S> = [
-  ...positional: Constrain<Get<Get<S, 'Args'>, 'Positional'>, Array<unknown>, []>,
-  ...named: MaybeNamed<NamedArgs<GuardEmpty<Get<Get<S, 'Args'>, 'Named'>>>>
-];
-
-type PrebindArgs<T, Args extends keyof UnwrapNamedArgs<T>> = NamedArgs<
-  Omit<UnwrapNamedArgs<T>, Args> & Partial<Pick<UnwrapNamedArgs<T>, Args>>
->;
-
-// This encompasses both @glimmer/runtime and @ember/template's notion of `SafeString`s,
-// and this coverage is tested in `emit-content.test.ts`.
-type SafeString = { toHTML(): string };
-
-// `{{foo}}` becomes `emitContent(resolveOrReturn(foo)({})`, which means if `foo`
-// is a component that accepts no args, then this is a valid invocation.
-type ArglessCurlyComponent = ComponentReturn<{}, any>;
 
 export {};
