@@ -123,7 +123,7 @@ describe('Config: loadConfig', () => {
         `${testDir}/tsconfig.json`,
         JSON.stringify({
           extends: './tsconfig.base.json',
-          glint: { transform: { include: '**/*.glint.ts' } },
+          glint: { checkStandaloneTemplates: false },
         })
       );
 
@@ -131,8 +131,7 @@ describe('Config: loadConfig', () => {
 
       expect(config?.rootDir).toBe(normalizePath(testDir));
       expect(config?.environment.names).toEqual(['./local-env']);
-      expect(config?.includesFile(`${testDir}/src/foo.glint.ts`)).toBe(true);
-      expect(config?.includesFile(`${testDir}/src/foo.ts`)).toBe(false);
+      expect(config?.checkStandaloneTemplates).toBe(false);
     });
   });
 });

@@ -1,5 +1,4 @@
 import * as path from 'node:path';
-import Minimatch from 'minimatch';
 import { GlintEnvironment } from './environment.js';
 import { GlintConfigInput } from '@glint/core/config-types';
 
@@ -14,8 +13,7 @@ export class GlintConfig {
   public readonly environment: GlintEnvironment;
   public readonly checkStandaloneTemplates: boolean;
 
-  private includeMatchers: Array<Minimatch.IMinimatch>;
-  private excludeMatchers: Array<Minimatch.IMinimatch>;
+  private extensions: Array<string>;
 
   public constructor(
     ts: typeof import('typescript'),
@@ -27,21 +25,7 @@ export class GlintConfig {
     this.rootDir = path.dirname(configPath);
     this.environment = GlintEnvironment.load(config.environment, { rootDir: this.rootDir });
     this.checkStandaloneTemplates = config.checkStandaloneTemplates ?? true;
-
-    let extensions = this.environment.getConfiguredFileExtensions();
-    let transform = config.transform ?? {};
-    let include = Array.isArray(transform.include)
-      ? transform.include
-      : transform.include
-      ? [transform.include]
-      : extensions.map((ext) => `**/*${ext}`);
-
-    let exclude = Array.isArray(transform.exclude)
-      ? transform.exclude
-      : [transform.exclude ?? '**/node_modules/**'];
-
-    this.includeMatchers = this.buildMatchers(include);
-    this.excludeMatchers = this.buildMatchers(exclude);
+    this.extensions = this.environment.getConfiguredFileExtensions();
   }
 
   /**
@@ -49,12 +33,7 @@ export class GlintConfig {
    * given path.
    */
   public includesFile(rawFileName: string): boolean {
-    let fileName = normalizePath(rawFileName);
-
-    return (
-      this.excludeMatchers.every((matcher) => !matcher.match(fileName)) &&
-      this.includeMatchers.some((matcher) => matcher.match(fileName))
-    );
+    return this.extensions.some((ext) => rawFileName.endsWith(ext));
   }
 
   // Given the path of a template or script (potentially with a custom extension),
@@ -72,12 +51,6 @@ export class GlintConfig {
       default:
         return filename;
     }
-  }
-
-  private buildMatchers(globs: Array<string>): Array<Minimatch.IMinimatch> {
-    return globs.map(
-      (glob) => new Minimatch.Minimatch(normalizePath(path.resolve(this.rootDir, glob)))
-    );
   }
 }
 

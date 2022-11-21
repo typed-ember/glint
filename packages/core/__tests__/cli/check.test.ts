@@ -293,25 +293,4 @@ describe('CLI: single-pass typechecking', () => {
       "
     `);
   });
-
-  test('honors transform include/exclude configuration', async () => {
-    let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
-
-      export default class Application extends Component {
-        public static template = hbs\`
-          {{ oh look a syntax error
-        \`;
-      }
-    `;
-
-    project.write('index.ts', code);
-    project.setGlintConfig({ environment: 'glimmerx', transform: { exclude: ['index.ts'] } });
-
-    let checkResult = await project.check();
-
-    expect(checkResult.exitCode).toBe(0);
-    expect(checkResult.stdout).toBe('');
-    expect(checkResult.stderr).toBe('');
-  });
 });

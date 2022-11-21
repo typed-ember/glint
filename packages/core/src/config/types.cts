@@ -8,10 +8,6 @@ type TSLib = typeof ts;
 export type GlintConfigInput = {
   environment: string | Array<string> | Record<string, unknown>;
   checkStandaloneTemplates?: boolean;
-  transform?: {
-    include?: string | Array<string>;
-    exclude?: string | Array<string>;
-  };
 };
 
 export type GlintEnvironmentConfig = {
