@@ -86,7 +86,6 @@ function addTagImport(f: ts.NodeFactory, sourceFile: ts.SourceFile): ts.SourceFi
   return f.updateSourceFile(sourceFile, [
     f.createImportDeclaration(
       [],
-      [],
       f.createImportClause(
         false,
         undefined,
@@ -163,8 +162,6 @@ function buildStaticBlockForTemplate(
   template: ts.TaggedTemplateExpression
 ): ts.Node {
   return f.createClassStaticBlockDeclaration(
-    [],
-    [],
     f.createBlock([f.createExpressionStatement(template)])
   );
 }
