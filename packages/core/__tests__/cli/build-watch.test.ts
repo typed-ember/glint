@@ -4,7 +4,7 @@ import { stripIndent } from 'common-tags';
 import stripAnsi = require('strip-ansi');
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
-import { Project, BASE_TS_CONFIG, INPUT_SCRIPT, setupCompositeProject } from '@glint/test-utils';
+import { Project, BASE_TS_CONFIG, INPUT_SFC, setupCompositeProject } from '@glint/test-utils';
 
 const BUILD_WATCH_TSCONFIG = {
   ...BASE_TS_CONFIG,
@@ -56,7 +56,6 @@ describe('CLI: watched build mode typechecking', () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
 
         type ApplicationArgs = {
           version: string;
@@ -65,14 +64,14 @@ describe('CLI: watched build mode typechecking', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
 
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
-          \`;
+          </template>
         }
       `;
 
-      project.write(INPUT_SCRIPT, code);
+      project.write(INPUT_SFC, code);
 
       let watch = project.buildWatch({ reject: true });
       let output = await watch.awaitOutput('Watching for file changes.');
@@ -85,7 +84,6 @@ describe('CLI: watched build mode typechecking', () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
 
         type ApplicationArgs = {
           version: string;
@@ -94,15 +92,15 @@ describe('CLI: watched build mode typechecking', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
 
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
             <p>Unclosed tag.
-          \`;
+          </template>
         }
       `;
 
-      project.write(INPUT_SCRIPT, code);
+      project.write(INPUT_SFC, code);
 
       let watch = project.buildWatch({ reject: false });
       let output = await watch.awaitOutput('Watching for file changes.');
@@ -111,7 +109,7 @@ describe('CLI: watched build mode typechecking', () => {
 
       let stripped = stripAnsi(output);
       let error = stripped.slice(
-        stripped.indexOf('index.ts'),
+        stripped.indexOf('index.gts'),
         stripped.lastIndexOf(`~~~${os.EOL}`) + 3
       );
 
@@ -123,7 +121,6 @@ describe('CLI: watched build mode typechecking', () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
 
         type ApplicationArgs = {
           version: string;
@@ -135,14 +132,14 @@ describe('CLI: watched build mode typechecking', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
 
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@version}}.
             The current time is {{truncate this.startupTime 12}}.
-          \`;
+          </template>
         }
       `;
 
-      project.write(INPUT_SCRIPT, code);
+      project.write(INPUT_SFC, code);
 
       let watch = project.buildWatch();
       let output = await watch.awaitOutput('Watching for file changes.');
@@ -151,15 +148,15 @@ describe('CLI: watched build mode typechecking', () => {
 
       let stripped = stripAnsi(output);
       let error = stripped.slice(
-        stripped.indexOf('index.ts'),
+        stripped.indexOf('index.gts'),
         stripped.lastIndexOf(`~~~${os.EOL}`) + 3
       );
 
       expect(output).toMatch('Found 1 error.');
       expect(error.replace(/\r/g, '')).toMatchInlineSnapshot(`
-        "index.ts:17:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+        "index.gts:16:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-        17     The current time is {{truncate this.startupTime 12}}.
+        16     The current time is {{truncate this.startupTime 12}}.
                                               ~~~~~~~~~~~~~~~~"
       `);
     });
@@ -168,7 +165,6 @@ describe('CLI: watched build mode typechecking', () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
 
         type ApplicationArgs = {
           version: string;
@@ -177,14 +173,14 @@ describe('CLI: watched build mode typechecking', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
 
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
-          \`;
+          </template>
         }
       `;
 
-      project.write(INPUT_SCRIPT, code);
+      project.write(INPUT_SFC, code);
 
       let watch = project.buildWatch({ reject: true });
 
@@ -193,14 +189,14 @@ describe('CLI: watched build mode typechecking', () => {
 
       await pauseForTSBuffering();
 
-      project.write(INPUT_SCRIPT, code.replace('this.startupTime', 'this.startupTimee'));
+      project.write(INPUT_SFC, code.replace('this.startupTime', 'this.startupTimee'));
 
       output = await watch.awaitOutput('Watching for file changes.');
       expect(output).toMatch('Found 1 error.');
 
       await pauseForTSBuffering();
 
-      project.write(INPUT_SCRIPT, code);
+      project.write(INPUT_SFC, code);
 
       output = await watch.awaitOutput('Watching for file changes.');
       expect(output).toMatch('Found 0 errors.');
@@ -236,7 +232,6 @@ describe('CLI: watched build mode typechecking', () => {
 
     let mainCode = stripIndent`
       import Component from '@glimmer/component';
-      import { hbs } from 'ember-template-imports';
       import A from '@glint-test/a';
       import B from '@glint-test/b';
 
@@ -247,45 +242,42 @@ describe('CLI: watched build mode typechecking', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTime}}.
           <A/>
           <B/>
-        \`;
+        </template>
       }
     `;
 
     let aCode = stripIndent`
-      import { hbs } from 'ember-template-imports';
       import C from '@glint-test/c';
 
-      const A = hbs\`Hello! <C />\`;
+      const A = <template>Hello! <C /></template>;
       export default A;
     `;
 
     let bCode = stripIndent`
-      import { hbs } from 'ember-template-imports';
-      const B = hbs\`Ahoy!\`;
+      const B = <template>Ahoy!</template>;
       export default B;
     `;
 
     let cCode = stripIndent`
-      import { hbs } from 'ember-template-imports';
 
       const add = (a: number, b: number) => a + b;
 
-      const C = hbs\`{{add 123 456}}\`;
+      const C = <template>{{add 123 456}}</template>;
       export default C;
     `;
 
     beforeEach(async () => {
       projects = await setupCompositeProject();
 
-      projects.main.write(INPUT_SCRIPT, mainCode);
-      projects.children.a.write(INPUT_SCRIPT, aCode);
-      projects.children.b.write(INPUT_SCRIPT, bCode);
-      projects.children.c.write(INPUT_SCRIPT, cCode);
+      projects.main.write(INPUT_SFC, mainCode);
+      projects.children.a.write(INPUT_SFC, aCode);
+      projects.children.b.write(INPUT_SFC, bCode);
+      projects.children.c.write(INPUT_SFC, cCode);
     });
 
     afterEach(async () => {
@@ -315,29 +307,29 @@ describe('CLI: watched build mode typechecking', () => {
           await pauseForTSBuffering();
 
           projects.main.write(
-            INPUT_SCRIPT,
+            INPUT_SFC,
             mainCode.replace('{{this.startupTime}}', '{{this.startupTime}')
           );
 
           output = await watch.awaitOutput('Parse error');
           let stripped = stripAnsi(output);
           let error = stripped.slice(
-            stripped.indexOf('index.ts'),
+            stripped.indexOf('index.gts'),
             stripped.lastIndexOf(`~~~${os.EOL}`) + 3
           );
           expect(error).toMatchInlineSnapshot(`
-            "index.ts:15:32 - error TS0: Parse error on line 3:
+            "index.gts:14:32 - error TS0: Parse error on line 3:
             ...s {{this.startupTime}.    <A/>    <B/>
             -----------------------^
             Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
 
-            15     The current time is {{this.startupTime}.
+            14     The current time is {{this.startupTime}.
                                               ~~~~~~~~~~~"
           `);
 
           await pauseForTSBuffering();
 
-          projects.main.write(INPUT_SCRIPT, mainCode);
+          projects.main.write(INPUT_SFC, mainCode);
 
           output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');
@@ -353,16 +345,16 @@ describe('CLI: watched build mode typechecking', () => {
 
           await pauseForTSBuffering();
 
-          projects.children.a.write(INPUT_SCRIPT, aCode.replace('<C />', '<C>'));
+          projects.children.a.write(INPUT_SFC, aCode.replace('<C />', '<C>'));
 
           output = await watch.awaitOutput('Watching for file changes.');
           let stripped = stripAnsi(output);
           let error = stripped.slice(
-            stripped.indexOf('index.ts'),
+            stripped.indexOf('index.gts'),
             stripped.lastIndexOf(`;${os.EOL}`) + 1
           );
           expect(error).toMatchInlineSnapshot(`
-            "index.ts:4:22 - error TS0: Unclosed element \`C\`: 
+            "index.gts:3:28 - error TS0: Unclosed element \`C\`: 
 
             |
             |  <C>
@@ -370,12 +362,12 @@ describe('CLI: watched build mode typechecking', () => {
 
             (error occurred in 'an unknown module' @ line 1 : column 7)
 
-            4 const A = hbs\`Hello! <C>\`;"
+            3 const A = <template>Hello! <C></template>;"
           `);
 
           await pauseForTSBuffering();
 
-          projects.children.a.write(INPUT_SCRIPT, aCode);
+          projects.children.a.write(INPUT_SFC, aCode);
 
           output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');
@@ -391,27 +383,27 @@ describe('CLI: watched build mode typechecking', () => {
 
           await pauseForTSBuffering();
 
-          projects.children.c.write(INPUT_SCRIPT, cCode.replace('456}}', '456}'));
+          projects.children.c.write(INPUT_SFC, cCode.replace('456}}', '456}'));
 
           output = await watch.awaitOutput('Parse error');
           let stripped = stripAnsi(output);
           let error = stripped.slice(
-            stripped.indexOf('index.ts'),
+            stripped.indexOf('index.gts'),
             stripped.lastIndexOf(`~~~${os.EOL}`) + 3
           );
           expect(error).toMatchInlineSnapshot(`
-            "index.ts:5:25 - error TS0: Parse error on line 1:
+            "index.gts:3:31 - error TS0: Parse error on line 1:
             {{add 123 456}
             -------------^
             Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
 
-            5 const C = hbs\`{{add 123 456}\`;
-                                      ~~~"
+            3 const C = <template>{{add 123 456}</template>;
+                                            ~~~"
           `);
 
           await pauseForTSBuffering();
 
-          projects.children.c.write(INPUT_SCRIPT, cCode);
+          projects.children.c.write(INPUT_SFC, cCode);
 
           output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');
@@ -429,24 +421,24 @@ describe('CLI: watched build mode typechecking', () => {
 
           await pauseForTSBuffering();
 
-          projects.main.write(INPUT_SCRIPT, mainCode.replace('<A/>', '<A @foo="bar" />'));
+          projects.main.write(INPUT_SFC, mainCode.replace('<A/>', '<A @foo="bar" />'));
 
           output = await watch.awaitOutput('Watching for file changes.');
           let stripped = stripAnsi(output);
           let error = stripped.slice(
-            stripped.indexOf('index.ts'),
+            stripped.indexOf('index.gts'),
             stripped.lastIndexOf(`~~~${os.EOL}`) + 3
           );
           expect(error).toMatchInlineSnapshot(`
-            "index.ts:16:5 - error TS2554: Expected 0 arguments, but got 1.
+            "index.gts:15:5 - error TS2554: Expected 0 arguments, but got 1.
 
-            16     <A @foo=\\"bar\\" />
+            15     <A @foo=\\"bar\\" />
                    ~~~~~~~~~~~~~~~~"
           `);
 
           await pauseForTSBuffering();
 
-          projects.main.write(INPUT_SCRIPT, mainCode);
+          projects.main.write(INPUT_SFC, mainCode);
 
           output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');
@@ -462,24 +454,24 @@ describe('CLI: watched build mode typechecking', () => {
 
           await pauseForTSBuffering();
 
-          projects.children.a.write(INPUT_SCRIPT, aCode.replace('<C />', '<C @foo="bar" />'));
+          projects.children.a.write(INPUT_SFC, aCode.replace('<C />', '<C @foo="bar" />'));
 
           output = await watch.awaitOutput('Watching for file changes.');
           let stripped = stripAnsi(output);
           let error = stripped.slice(
-            stripped.indexOf('index.ts'),
+            stripped.indexOf('index.gts'),
             stripped.lastIndexOf(`~~~${os.EOL}`) + 3
           );
           expect(error).toMatchInlineSnapshot(`
-            "index.ts:4:22 - error TS2554: Expected 0 arguments, but got 1.
+            "index.gts:3:28 - error TS2554: Expected 0 arguments, but got 1.
 
-            4 const A = hbs\`Hello! <C @foo=\\"bar\\" />\`;
-                                   ~~~~~~~~~~~~~~~~"
+            3 const A = <template>Hello! <C @foo=\\"bar\\" /></template>;
+                                         ~~~~~~~~~~~~~~~~"
           `);
 
           await pauseForTSBuffering();
 
-          projects.children.a.write(INPUT_SCRIPT, aCode);
+          projects.children.a.write(INPUT_SFC, aCode);
 
           output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');
@@ -495,24 +487,24 @@ describe('CLI: watched build mode typechecking', () => {
 
           await pauseForTSBuffering();
 
-          projects.children.c.write(INPUT_SCRIPT, cCode.replace('123', '"hello"'));
+          projects.children.c.write(INPUT_SFC, cCode.replace('123', '"hello"'));
 
           output = await watch.awaitOutput('Watching for file changes.');
           let stripped = stripAnsi(output);
           let error = stripped.slice(
-            stripped.indexOf('index.ts'),
+            stripped.indexOf('index.gts'),
             stripped.lastIndexOf(`~~~${os.EOL}`) + 3
           );
           expect(error).toMatchInlineSnapshot(`
-            "index.ts:5:21 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+            "index.gts:3:27 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-            5 const C = hbs\`{{add \\"hello\\" 456}}\`;
-                                  ~~~~~~~"
+            3 const C = <template>{{add \\"hello\\" 456}}</template>;
+                                        ~~~~~~~"
           `);
 
           await pauseForTSBuffering();
 
-          projects.children.c.write(INPUT_SCRIPT, cCode);
+          projects.children.c.write(INPUT_SFC, cCode);
 
           output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');

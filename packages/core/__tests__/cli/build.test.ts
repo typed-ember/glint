@@ -10,6 +10,7 @@ import {
   CompositeProject,
   INDEX_D_TS,
   INPUT_SCRIPT,
+  INPUT_SFC,
   INPUT_TEMPLATE,
   setupCompositeProject,
 } from '@glint/test-utils';
@@ -29,7 +30,6 @@ describe('CLI: single-pass build mode typechecking', () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
 
         type ApplicationArgs = {
           version: string;
@@ -38,14 +38,14 @@ describe('CLI: single-pass build mode typechecking', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
 
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
-          \`;
+          </template>
         }
       `;
 
-      project.write(INPUT_SCRIPT, code);
+      project.write(INPUT_SFC, code);
 
       let checkResult = await project.build({ reject: false });
 
@@ -58,7 +58,6 @@ describe('CLI: single-pass build mode typechecking', () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
 
         type ApplicationArgs = {
           version: string;
@@ -67,22 +66,22 @@ describe('CLI: single-pass build mode typechecking', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
 
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
             <p>Unclosed tag.
-          \`;
+          </template>
         }
       `;
 
-      project.write(INPUT_SCRIPT, code);
+      project.write(INPUT_SFC, code);
 
       let checkResult = await project.build({ reject: false });
 
       expect(checkResult.exitCode).toBe(1);
       expect(checkResult.stdout).toEqual('');
       expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-        "src/index.ts:15:5 - error TS0: Unclosed element \`p\`: 
+        "src/index.gts:14:5 - error TS0: Unclosed element \`p\`: 
 
         |
         |  <p>
@@ -90,7 +89,7 @@ describe('CLI: single-pass build mode typechecking', () => {
 
         (error occurred in 'an unknown module' @ line 4 : column 4)
 
-        15     <p>Unclosed tag.
+        14     <p>Unclosed tag.
                
         "
       `);
@@ -100,7 +99,6 @@ describe('CLI: single-pass build mode typechecking', () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
 
         type ApplicationArgs = {
           version: string;
@@ -112,23 +110,23 @@ describe('CLI: single-pass build mode typechecking', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
 
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@version}}.
             The current time is {{truncate this.startupTime 12}}.
-          \`;
+          </template>
         }
       `;
 
-      project.write(INPUT_SCRIPT, code);
+      project.write(INPUT_SFC, code);
 
       let checkResult = await project.build({ reject: false });
 
       expect(checkResult.exitCode).toBe(1);
       expect(checkResult.stdout).toEqual('');
       expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-        "src/index.ts:17:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+        "src/index.gts:16:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-        17     The current time is {{truncate this.startupTime 12}}.
+        16     The current time is {{truncate this.startupTime 12}}.
                                               ~~~~~~~~~~~~~~~~
         "
       `);
@@ -175,7 +173,6 @@ describe('CLI: single-pass build mode typechecking', () => {
       beforeEach(async () => {
         let rootCode = stripIndent`
           import Component from '@glimmer/component';
-          import { hbs } from 'ember-template-imports';
           import A from '@glint-test/a';
           import B from '@glint-test/b';
 
@@ -186,10 +183,10 @@ describe('CLI: single-pass build mode typechecking', () => {
           export default class Application extends Component<{ Args: ApplicationArgs }> {
             private startupTime = new Date().toISOString();
 
-            public static template = hbs\`
+            <template>
               Welcome to app v{{@version}}.
               The current time is {{this.startupTime}}.
-            \`;
+            </template>
           }
         `;
 
@@ -209,10 +206,10 @@ describe('CLI: single-pass build mode typechecking', () => {
           export default C;
         `;
 
-        projects.main.write(INPUT_SCRIPT, rootCode);
-        projects.children.a.write(INPUT_SCRIPT, aCode);
-        projects.children.b.write(INPUT_SCRIPT, bCode);
-        projects.children.c.write(INPUT_SCRIPT, cCode);
+        projects.main.write(INPUT_SFC, rootCode);
+        projects.children.a.write(INPUT_SFC, aCode);
+        projects.children.b.write(INPUT_SFC, bCode);
+        projects.children.c.write(INPUT_SFC, cCode);
       });
 
       test('passes a valid composite project', async () => {
@@ -271,15 +268,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             export default C;
           `;
 
-          projects.children.a.write(INPUT_SCRIPT, aCode);
-          projects.children.b.write(INPUT_SCRIPT, bCode);
-          projects.children.c.write(INPUT_SCRIPT, cCode);
+          projects.children.a.write(INPUT_SFC, aCode);
+          projects.children.b.write(INPUT_SFC, bCode);
+          projects.children.c.write(INPUT_SFC, cCode);
         });
 
         test('for invalid TS', async () => {
           let rootCode = stripIndent`
             import Component from '@glimmer/component';
-            import { hbs } from 'ember-template-imports';
             import A from '@glint-test/a';
             import B from '@glint-test/b';
 
@@ -292,23 +288,23 @@ describe('CLI: single-pass build mode typechecking', () => {
             export default class Application extends Component<{ Args: ApplicationArgs }> {
               private startupTime = new Date().toISOString();
 
-              public static template = hbs\`
+              <template>
                 Welcome to app v{{@version}}.
                 The current time is {{this.startupTime}}.
                 {{A}}, {{B}}
-              \`;
+              </template>
             }
           `;
 
-          projects.main.write(INPUT_SCRIPT, rootCode);
+          projects.main.write(INPUT_SFC, rootCode);
 
           let checkResult = await projects.main.build({ reject: false });
           expect(checkResult.exitCode).toBe(2);
           expect(checkResult.stdout).toEqual('');
           expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-            "src/index.ts:6:5 - error TS2322: Type 'number' is not assignable to type 'string'.
+            "src/index.gts:5:5 - error TS2322: Type 'number' is not assignable to type 'string'.
 
-            6 let x: string = 123;
+            5 let x: string = 123;
                   ~
             "
           `);
@@ -321,7 +317,6 @@ describe('CLI: single-pass build mode typechecking', () => {
         test('for invalid template syntax', async () => {
           let rootCode = stripIndent`
             import Component from '@glimmer/component';
-            import { hbs } from 'ember-template-imports';
             import A from '@glint-test/a';
             import B from '@glint-test/b';
 
@@ -332,21 +327,21 @@ describe('CLI: single-pass build mode typechecking', () => {
             export default class Application extends Component<{ Args: ApplicationArgs }> {
               private startupTime = new Date().toISOString();
 
-              public static template = hbs\`
+              <template>
                 Welcome to app v{{@version}}.
                 The current time is {{this.startupTime}}.
                 <p>Unclosed!
-              \`;
+              </template>
             }
           `;
 
-          projects.main.write(INPUT_SCRIPT, rootCode);
+          projects.main.write(INPUT_SFC, rootCode);
 
           let checkResult = await projects.main.build({ reject: false });
           expect(checkResult.exitCode).toBe(2);
           expect(checkResult.stdout).toEqual('');
           expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-            "src/index.ts:16:5 - error TS0: Unclosed element \`p\`: 
+            "src/index.gts:15:5 - error TS0: Unclosed element \`p\`: 
 
             |
             |  <p>
@@ -354,7 +349,7 @@ describe('CLI: single-pass build mode typechecking', () => {
 
             (error occurred in 'an unknown module' @ line 4 : column 4)
 
-            16     <p>Unclosed!
+            15     <p>Unclosed!
                    
             "
           `);
@@ -368,7 +363,6 @@ describe('CLI: single-pass build mode typechecking', () => {
         test('for a template type error', async () => {
           let rootCode = stripIndent`
             import Component from '@glimmer/component';
-            import { hbs } from 'ember-template-imports';
             import A from '@glint-test/a';
             import B from '@glint-test/b';
 
@@ -381,23 +375,23 @@ describe('CLI: single-pass build mode typechecking', () => {
             export default class Application extends Component<{ Args: ApplicationArgs }> {
               private startupTime = new Date().toISOString();
 
-              public static template = hbs\`
+              <template>
                 Welcome to app v{{@version}}.
                 The current time is {{this.startupTime}}.
                 {{double A}}
-              \`;
+              </template>
             }
           `;
 
-          projects.main.write(INPUT_SCRIPT, rootCode);
+          projects.main.write(INPUT_SFC, rootCode);
 
           let checkResult = await projects.main.build({ reject: false });
           expect(checkResult.exitCode).toBe(2);
           expect(checkResult.stdout).toEqual('');
           expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-            "src/index.ts:18:14 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+            "src/index.gts:17:14 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-            18     {{double A}}
+            17     {{double A}}
                             ~
             "
           `);
@@ -413,7 +407,6 @@ describe('CLI: single-pass build mode typechecking', () => {
         beforeEach(async () => {
           let rootCode = stripIndent`
             import Component from '@glimmer/component';
-            import { hbs } from 'ember-template-imports';
             import A from '@glint-test/a';
             import B from '@glint-test/b';
 
@@ -424,10 +417,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             export default class Application extends Component<{ Args: ApplicationArgs }> {
               private startupTime = new Date().toISOString();
 
-              public static template = hbs\`
+              <template>
                 Welcome to app v{{@version}}.
                 The current time is {{this.startupTime}}.
-              \`;
+              </template>
             }
           `;
 
@@ -441,9 +434,9 @@ describe('CLI: single-pass build mode typechecking', () => {
             export default C;
           `;
 
-          projects.main.write(INPUT_SCRIPT, rootCode);
-          projects.children.b.write(INPUT_SCRIPT, bCode);
-          projects.children.c.write(INPUT_SCRIPT, cCode);
+          projects.main.write(INPUT_SFC, rootCode);
+          projects.children.b.write(INPUT_SFC, bCode);
+          projects.children.c.write(INPUT_SFC, cCode);
         });
 
         describe('for invalid TS', () => {
@@ -454,7 +447,7 @@ describe('CLI: single-pass build mode typechecking', () => {
               export default A;
             `;
 
-            projects.children.a.write(INPUT_SCRIPT, aCode);
+            projects.children.a.write(INPUT_SFC, aCode);
           });
 
           test('build from the main project', async () => {
@@ -463,7 +456,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../a/src/index.ts:2:15 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+              "../a/src/index.gts:2:15 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
 
               2 const A = 2 * C;
                               ~
@@ -481,7 +474,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "src/index.ts:2:15 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+              "src/index.gts:2:15 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
 
               2 const A = 2 * C;
                               ~
@@ -498,13 +491,12 @@ describe('CLI: single-pass build mode typechecking', () => {
           beforeEach(async () => {
             let aCode = stripIndent`
               import C from '@glint-test/c';
-              import { hbs } from 'ember-template-imports';
 
-              const A = hbs\`{{C}\`;
+              const A = <template>{{C}</template>;
               export default A;
             `;
 
-            projects.children.a.write(INPUT_SCRIPT, aCode);
+            projects.children.a.write(INPUT_SFC, aCode);
           });
 
           test('build from the main project', async () => {
@@ -513,13 +505,13 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../a/src/index.ts:4:17 - error TS0: Parse error on line 1:
+              "../a/src/index.gts:3:23 - error TS0: Parse error on line 1:
               {{C}
               ---^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
 
-              4 const A = hbs\`{{C}\`;
-                                ~
+              3 const A = <template>{{C}</template>;
+                                      ~
               "
             `);
 
@@ -534,13 +526,13 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "src/index.ts:4:17 - error TS0: Parse error on line 1:
+              "src/index.gts:3:23 - error TS0: Parse error on line 1:
               {{C}
               ---^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
 
-              4 const A = hbs\`{{C}\`;
-                                ~
+              3 const A = <template>{{C}</template>;
+                                      ~
               "
             `);
 
@@ -554,14 +546,13 @@ describe('CLI: single-pass build mode typechecking', () => {
           beforeEach(async () => {
             let aCode = stripIndent`
               import C from '@glint-test/c';
-              import { hbs } from 'ember-template-imports';
 
               const double = (n: number): number => n * 2;
-              const A = hbs\`{{double C}}\`;
+              const A = <template>{{double C}}</template>;
               export default A;
             `;
 
-            projects.children.a.write(INPUT_SCRIPT, aCode);
+            projects.children.a.write(INPUT_SFC, aCode);
           });
 
           test('build from the main project', async () => {
@@ -570,10 +561,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../a/src/index.ts:5:24 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+              "../a/src/index.gts:4:30 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              5 const A = hbs\`{{double C}}\`;
-                                       ~
+              4 const A = <template>{{double C}}</template>;
+                                             ~
               "
             `);
 
@@ -588,10 +579,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "src/index.ts:5:24 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+              "src/index.gts:4:30 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              5 const A = hbs\`{{double C}}\`;
-                                       ~
+              4 const A = <template>{{double C}}</template>;
+                                             ~
               "
             `);
 
@@ -606,7 +597,6 @@ describe('CLI: single-pass build mode typechecking', () => {
         beforeEach(async () => {
           let rootCode = stripIndent`
             import Component from '@glimmer/component';
-            import { hbs } from 'ember-template-imports';
             import A from '@glint-test/a';
             import B from '@glint-test/b';
 
@@ -617,10 +607,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             export default class Application extends Component<{ Args: ApplicationArgs }> {
               private startupTime = new Date().toISOString();
 
-              public static template = hbs\`
+              <template>
                 Welcome to app v{{@version}}.
                 The current time is {{this.startupTime}}.
-              \`;
+              </template>
             }
           `;
 
@@ -635,9 +625,9 @@ describe('CLI: single-pass build mode typechecking', () => {
             export default C;
           `;
 
-          projects.main.write(INPUT_SCRIPT, rootCode);
-          projects.children.a.write(INPUT_SCRIPT, aCode);
-          projects.children.c.write(INPUT_SCRIPT, cCode);
+          projects.main.write(INPUT_SFC, rootCode);
+          projects.children.a.write(INPUT_SFC, aCode);
+          projects.children.c.write(INPUT_SFC, cCode);
         });
 
         describe('for invalid TS', () => {
@@ -647,7 +637,7 @@ describe('CLI: single-pass build mode typechecking', () => {
               export default B;
             `;
 
-            projects.children.b.write(INPUT_SCRIPT, bCode);
+            projects.children.b.write(INPUT_SFC, bCode);
           });
 
           test('build from the main project', async () => {
@@ -656,7 +646,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../b/src/index.ts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
+              "../b/src/index.gts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
 
               1 const B: number = 'ahoy';
                       ~
@@ -674,7 +664,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "src/index.ts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
+              "src/index.gts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
 
               1 const B: number = 'ahoy';
                       ~
@@ -690,13 +680,12 @@ describe('CLI: single-pass build mode typechecking', () => {
         describe('for invalid template syntax', () => {
           beforeEach(async () => {
             let bCode = stripIndent`
-              import { hbs } from 'ember-template-imports';
-              const usage = hbs\`{{123}\`;
+              const usage = <template>{{123}</template>;
               const B = 'ahoy';
               export default B;
             `;
 
-            projects.children.b.write(INPUT_SCRIPT, bCode);
+            projects.children.b.write(INPUT_SFC, bCode);
           });
 
           test('build from the main project', async () => {
@@ -705,13 +694,13 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../b/src/index.ts:2:21 - error TS0: Parse error on line 1:
+              "../b/src/index.gts:1:27 - error TS0: Parse error on line 1:
               {{123}
               -----^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
 
-              2 const usage = hbs\`{{123}\`;
-                                    ~~~
+              1 const usage = <template>{{123}</template>;
+                                          ~~~
               "
             `);
 
@@ -726,13 +715,13 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "src/index.ts:2:21 - error TS0: Parse error on line 1:
+              "src/index.gts:1:27 - error TS0: Parse error on line 1:
               {{123}
               -----^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
 
-              2 const usage = hbs\`{{123}\`;
-                                    ~~~
+              1 const usage = <template>{{123}</template>;
+                                          ~~~
               "
             `);
 
@@ -745,14 +734,13 @@ describe('CLI: single-pass build mode typechecking', () => {
         describe('for a template type error', () => {
           beforeEach(async () => {
             let bCode = stripIndent`
-              import { hbs } from 'ember-template-imports';
               const double = (n: number) => n * 2;
-              const Usage = hbs\`{{double "hello"}}\`;
+              const Usage = <template>{{double "hello"}}</template>;
               const B = 'ahoy';
               export default B;
             `;
 
-            projects.children.b.write(INPUT_SCRIPT, bCode);
+            projects.children.b.write(INPUT_SFC, bCode);
           });
 
           test('build from the main project', async () => {
@@ -761,10 +749,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../b/src/index.ts:3:28 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+              "../b/src/index.gts:2:34 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              3 const Usage = hbs\`{{double \\"hello\\"}}\`;
-                                           ~~~~~~~
+              2 const Usage = <template>{{double \\"hello\\"}}</template>;
+                                                 ~~~~~~~
               "
             `);
 
@@ -779,10 +767,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "src/index.ts:3:28 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+              "src/index.gts:2:34 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              3 const Usage = hbs\`{{double \\"hello\\"}}\`;
-                                           ~~~~~~~
+              2 const Usage = <template>{{double \\"hello\\"}}</template>;
+                                                 ~~~~~~~
               "
             `);
 
@@ -797,7 +785,6 @@ describe('CLI: single-pass build mode typechecking', () => {
         beforeEach(() => {
           let rootCode = stripIndent`
             import Component from '@glimmer/component';
-            import { hbs } from 'ember-template-imports';
             import A from '@glint-test/a';
             import B from '@glint-test/b';
 
@@ -808,10 +795,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             export default class Application extends Component<{ Args: ApplicationArgs }> {
               private startupTime = new Date().toISOString();
 
-              public static template = hbs\`
+              <template>
                 Welcome to app v{{@version}}.
                 The current time is {{this.startupTime}}.
-              \`;
+              </template>
             }
           `;
 
@@ -826,9 +813,9 @@ describe('CLI: single-pass build mode typechecking', () => {
             export default B;
           `;
 
-          projects.main.write(INPUT_SCRIPT, rootCode);
-          projects.children.a.write(INPUT_SCRIPT, aCode);
-          projects.children.b.write(INPUT_SCRIPT, bCode);
+          projects.main.write(INPUT_SFC, rootCode);
+          projects.children.a.write(INPUT_SFC, aCode);
+          projects.children.b.write(INPUT_SFC, bCode);
         });
 
         describe('for invalid TS', () => {
@@ -837,7 +824,7 @@ describe('CLI: single-pass build mode typechecking', () => {
               const C: number = 'world';
               export default C;
             `;
-            projects.children.c.write(INPUT_SCRIPT, cCode);
+            projects.children.c.write(INPUT_SFC, cCode);
           });
 
           test('built from the main project', async () => {
@@ -846,7 +833,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../c/src/index.ts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
+              "../c/src/index.gts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
 
               1 const C: number = 'world';
                       ~
@@ -864,7 +851,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../c/src/index.ts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
+              "../c/src/index.gts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
 
               1 const C: number = 'world';
                       ~
@@ -882,7 +869,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "src/index.ts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
+              "src/index.gts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
 
               1 const C: number = 'world';
                       ~
@@ -898,13 +885,12 @@ describe('CLI: single-pass build mode typechecking', () => {
         describe('for invalid template syntax', () => {
           beforeEach(() => {
             let cCode = stripIndent`
-              import { hbs } from 'ember-template-imports';
-              const Bad = hbs\`{{123}\`;
+              const Bad = <template>{{123}</template>;
               const C = 'world';
               export default C;
             `;
 
-            projects.children.c.write(INPUT_SCRIPT, cCode);
+            projects.children.c.write(INPUT_SFC, cCode);
           });
 
           test('built from the main project', async () => {
@@ -913,13 +899,13 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../c/src/index.ts:2:19 - error TS0: Parse error on line 1:
+              "../c/src/index.gts:1:25 - error TS0: Parse error on line 1:
               {{123}
               -----^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
 
-              2 const Bad = hbs\`{{123}\`;
-                                  ~~~
+              1 const Bad = <template>{{123}</template>;
+                                        ~~~
               "
             `);
 
@@ -934,13 +920,13 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../c/src/index.ts:2:19 - error TS0: Parse error on line 1:
+              "../c/src/index.gts:1:25 - error TS0: Parse error on line 1:
               {{123}
               -----^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
 
-              2 const Bad = hbs\`{{123}\`;
-                                  ~~~
+              1 const Bad = <template>{{123}</template>;
+                                        ~~~
               "
             `);
 
@@ -955,13 +941,13 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "src/index.ts:2:19 - error TS0: Parse error on line 1:
+              "src/index.gts:1:25 - error TS0: Parse error on line 1:
               {{123}
               -----^
               Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
 
-              2 const Bad = hbs\`{{123}\`;
-                                  ~~~
+              1 const Bad = <template>{{123}</template>;
+                                        ~~~
               "
             `);
 
@@ -974,14 +960,13 @@ describe('CLI: single-pass build mode typechecking', () => {
         describe('for a template type error', () => {
           beforeEach(() => {
             let cCode = stripIndent`
-              import { hbs } from 'ember-template-imports';
               const double = (n: number) => n * 2;
-              const useDouble = hbs\`{{double "hello"}}\`;
+              const useDouble = <template>{{double "hello"}}</template>;
               const C = 'world';
               export default C;
             `;
 
-            projects.children.c.write(INPUT_SCRIPT, cCode);
+            projects.children.c.write(INPUT_SFC, cCode);
           });
 
           test('built from the main project', async () => {
@@ -990,10 +975,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../c/src/index.ts:3:32 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+              "../c/src/index.gts:2:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              3 const useDouble = hbs\`{{double \\"hello\\"}}\`;
-                                               ~~~~~~~
+              2 const useDouble = <template>{{double \\"hello\\"}}</template>;
+                                                     ~~~~~~~
               "
             `);
 
@@ -1008,10 +993,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "../c/src/index.ts:3:32 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+              "../c/src/index.gts:2:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              3 const useDouble = hbs\`{{double \\"hello\\"}}\`;
-                                               ~~~~~~~
+              2 const useDouble = <template>{{double \\"hello\\"}}</template>;
+                                                     ~~~~~~~
               "
             `);
 
@@ -1026,10 +1011,10 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-              "src/index.ts:3:32 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+              "src/index.gts:2:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              3 const useDouble = hbs\`{{double \\"hello\\"}}\`;
-                                               ~~~~~~~
+              2 const useDouble = <template>{{double \\"hello\\"}}</template>;
+                                                     ~~~~~~~
               "
             `);
 
@@ -1068,7 +1053,6 @@ describe('CLI: --build --clean', () => {
     let code = stripIndent`
       import '@glint/environment-ember-template-imports';
       import Component from '@glimmer/component';
-      import { hbs } from 'ember-template-imports';
 
       type ApplicationArgs = {
         version: string;
@@ -1077,14 +1061,14 @@ describe('CLI: --build --clean', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write(INPUT_SCRIPT, code);
+    project.write(INPUT_SFC, code);
 
     let buildResult = await project.build();
     expect(buildResult.exitCode).toBe(0);
@@ -1100,7 +1084,6 @@ describe('CLI: --build --clean', () => {
 
     let rootCode = stripIndent`
       import Component from '@glimmer/component';
-      import { hbs } from 'ember-template-imports';
       import A from '@glint-test/a';
       import B from '@glint-test/b';
 
@@ -1111,10 +1094,10 @@ describe('CLI: --build --clean', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
@@ -1134,10 +1117,10 @@ describe('CLI: --build --clean', () => {
       export default C;
     `;
 
-    projects.main.write(INPUT_SCRIPT, rootCode);
-    projects.children.a.write(INPUT_SCRIPT, aCode);
-    projects.children.b.write(INPUT_SCRIPT, bCode);
-    projects.children.c.write(INPUT_SCRIPT, cCode);
+    projects.main.write(INPUT_SFC, rootCode);
+    projects.children.a.write(INPUT_SFC, aCode);
+    projects.children.b.write(INPUT_SFC, bCode);
+    projects.children.c.write(INPUT_SFC, cCode);
 
     let buildResult = await projects.main.build();
     expect(buildResult.exitCode).toBe(0);
@@ -1164,7 +1147,6 @@ describe('CLI: --build --force', () => {
     let code = stripIndent`
       import '@glint/environment-ember-template-imports';
       import Component from '@glimmer/component';
-      import { hbs } from 'ember-template-imports';
 
       type ApplicationArgs = {
         version: string;
@@ -1173,14 +1155,14 @@ describe('CLI: --build --force', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write(INPUT_SCRIPT, code);
+    project.write(INPUT_SFC, code);
 
     let buildResult = await project.build();
     expect(buildResult.exitCode).toBe(0);
@@ -1202,7 +1184,6 @@ describe('CLI: --build --force', () => {
 
     let rootCode = stripIndent`
       import Component from '@glimmer/component';
-      import { hbs } from 'ember-template-imports';
       import A from '@glint-test/a';
       import B from '@glint-test/b';
 
@@ -1213,10 +1194,10 @@ describe('CLI: --build --force', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
@@ -1236,10 +1217,10 @@ describe('CLI: --build --force', () => {
       export default C;
     `;
 
-    projects.main.write(INPUT_SCRIPT, rootCode);
-    projects.children.a.write(INPUT_SCRIPT, aCode);
-    projects.children.b.write(INPUT_SCRIPT, bCode);
-    projects.children.c.write(INPUT_SCRIPT, cCode);
+    projects.main.write(INPUT_SFC, rootCode);
+    projects.children.a.write(INPUT_SFC, aCode);
+    projects.children.b.write(INPUT_SFC, bCode);
+    projects.children.c.write(INPUT_SFC, cCode);
 
     let buildResult = await projects.main.build();
     expect(buildResult.exitCode).toBe(0);
@@ -1280,7 +1261,6 @@ describe('CLI: --build --dry', () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
 
         type ApplicationArgs = {
           version: string;
@@ -1289,14 +1269,14 @@ describe('CLI: --build --dry', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
 
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
-          \`;
+          </template>
         }
       `;
 
-      project.write(INPUT_SCRIPT, code);
+      project.write(INPUT_SFC, code);
     });
 
     test('when no build has occurred', async () => {
@@ -1326,7 +1306,6 @@ describe('CLI: --build --dry', () => {
         let code = stripIndent`
           import '@glint/environment-ember-template-imports';
           import Component from '@glimmer/component';
-          import { hbs } from 'ember-template-imports';
 
           type ApplicationArgs = {
             appVersion: string;
@@ -1335,14 +1314,14 @@ describe('CLI: --build --dry', () => {
           export default class Application extends Component<{ Args: ApplicationArgs }> {
             private startupTime = new Date().toISOString();
 
-            public static template = hbs\`
+            <template>
               Welcome to app v{{@appVersion}}.
               The current time is {{this.startupTime}}.
-            \`;
+            </template>
           }
         `;
 
-        project.write(INPUT_SCRIPT, code);
+        project.write(INPUT_SFC, code);
 
         let buildResult = await project.build({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
@@ -1365,7 +1344,6 @@ describe('CLI: --build --dry', () => {
       let backingClass = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
 
         type ApplicationArgs = {
           version: string;
@@ -1412,7 +1390,6 @@ describe('CLI: --build --dry', () => {
         let backingClass = stripIndent`
           import '@glint/environment-ember-template-imports';
           import Component from '@glimmer/component';
-          import { hbs } from 'ember-template-imports';
 
           type ApplicationArgs = {
             version: string;
@@ -1439,7 +1416,7 @@ describe('CLI: --build --dry', () => {
           The current time is {{this.startupTime}}.
         `;
 
-        project.write(INPUT_SCRIPT, template);
+        project.write(INPUT_TEMPLATE, template);
 
         let buildResult = await project.build({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
@@ -1458,7 +1435,6 @@ describe('CLI: --build --dry', () => {
 
       let rootCode = stripIndent`
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
         import A from '@glint-test/a';
         import B from '@glint-test/b';
 
@@ -1469,10 +1445,10 @@ describe('CLI: --build --dry', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
 
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
-          \`;
+          </template>
         }
       `;
 
@@ -1492,10 +1468,10 @@ describe('CLI: --build --dry', () => {
         export default C;
       `;
 
-      projects.main.write(INPUT_SCRIPT, rootCode);
-      projects.children.a.write(INPUT_SCRIPT, aCode);
-      projects.children.b.write(INPUT_SCRIPT, bCode);
-      projects.children.c.write(INPUT_SCRIPT, cCode);
+      projects.main.write(INPUT_SFC, rootCode);
+      projects.children.a.write(INPUT_SFC, aCode);
+      projects.children.b.write(INPUT_SFC, bCode);
+      projects.children.c.write(INPUT_SFC, cCode);
     });
 
     test('when no build has occurred', async () => {
@@ -1543,7 +1519,6 @@ describe('CLI: --build --dry', () => {
         test('in a project which has changed with direct references which have not changed', async () => {
           let rootCode = stripIndent`
             import Component from '@glimmer/component';
-            import { hbs } from 'ember-template-imports';
             import A from '@glint-test/a';
             import B from '@glint-test/b';
 
@@ -1554,13 +1529,13 @@ describe('CLI: --build --dry', () => {
             export default class Application extends Component<{ Args: ApplicationArgs }> {
               private startupTime = new Date().toISOString();
 
-              public static template = hbs\`
+              <template>
                 Welcome to app v{{@appVersion}}.
                 The current time is {{this.startupTime}}.
-              \`;
+              </template>
             }
           `;
-          projects.main.write(INPUT_SCRIPT, rootCode);
+          projects.main.write(INPUT_SFC, rootCode);
 
           let buildResult = await projects.root.build({ flags: ['--dry'] });
           expect(buildResult.exitCode).toBe(0);
@@ -1585,7 +1560,7 @@ describe('CLI: --build --dry', () => {
             const A = 'hello there, ' + C;
             export default A;
           `;
-          projects.children.a.write(INPUT_SCRIPT, aCode);
+          projects.children.a.write(INPUT_SFC, aCode);
 
           let buildResult = await projects.root.build({ flags: ['--dry'] });
           expect(buildResult.exitCode).toBe(0);
