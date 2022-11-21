@@ -31,18 +31,16 @@ describe('Config: loadConfig', () => {
       JSON.stringify({
         glint: {
           environment: 'kaboom',
-          transform: { include: '**/*.root.ts' },
+          checkStandaloneTemplates: false,
         },
       })
     );
     fs.writeFileSync(
       `${testDir}/deeply/tsconfig.json`,
       JSON.stringify({
+        extends: '../tsconfig.json',
         glint: {
           environment: '../local-env',
-          transform: {
-            include: '**/*.nested.ts',
-          },
         },
       })
     );
@@ -51,9 +49,6 @@ describe('Config: loadConfig', () => {
 
     expect(config.rootDir).toBe(normalizePath(`${testDir}/deeply`));
     expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: {} });
-    expect(config.includesFile(`${testDir}/deeply/index.ts`)).toBe(false);
-    expect(config.includesFile(`${testDir}/deeply/index.root.ts`)).toBe(false);
-    expect(config.includesFile(`${testDir}/deeply/index.nested.ts`)).toBe(true);
-    expect(config.includesFile(`${testDir}/index.nested.ts`)).toBe(false);
+    expect(config.checkStandaloneTemplates).toBe(false);
   });
 });

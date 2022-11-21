@@ -53,7 +53,7 @@ The `auto-glint-nocheck` script automatically adds a `{{! @glint-nocheck }}` com
 
 It accepts one or more globs specifying what files it should inspect for type errors.
 
-It may be useful when first adopting Glint in an existing project. Compared to manually maintaining an `include` or `exclude` list in your `tsconfig.json`, using `glint-nocheck` comments makes it clearer to readers of your codebase which templates are or are not expected to typecheck, and it also allows Glint to provide best-effort hover information, go-to-definition, etc. even for templates that aren't typesafe yet.
+This script can be used when first adopting Glint in an existing project in order to immediately begin enforcing type safety for new templates while incrementally converting existing ones over time. Templates with a `@glint-nocheck` directive will still benefit from best-effort editor support for features such as hover information, go-to-definition, etc, though the quality of these features will improve the closer the template and its backing module are to being completely typesafe.
 
 Sample usage:
 

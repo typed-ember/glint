@@ -13,57 +13,6 @@ describe('Language Server: Diagnostics', () => {
     await project.destroy();
   });
 
-  test('querying an excluded template', () => {
-    let script = stripIndent`
-      import Component from '@glimmerx/component';
-
-      type ApplicationArgs = {
-        version: string;
-      };
-
-      export default class Application extends Component<{ Args: ApplicationArgs }> {
-        private startupTime = new Date().toISOString();
-      }
-    `;
-
-    let template = stripIndent`
-      Welcome to app v{{@nonexistentArg}}.
-      The current time is {{this.startupTime}}.
-    `;
-
-    project.setGlintConfig({ environment: 'ember-loose', transform: { include: [] } });
-    project.write('index.ts', script);
-    project.write('index.hbs', template);
-
-    let server = project.startLanguageServer();
-    let scriptDiagnostics = server.getDiagnostics(project.fileURI('index.ts'));
-    let templateDiagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
-
-    expect(templateDiagnostics).toEqual([]);
-    expect(scriptDiagnostics).toMatchInlineSnapshot(`
-      [
-        {
-          "message": "'startupTime' is declared but its value is never read.",
-          "range": {
-            "end": {
-              "character": 21,
-              "line": 7,
-            },
-            "start": {
-              "character": 10,
-              "line": 7,
-            },
-          },
-          "severity": 4,
-          "source": "glint:ts(6133)",
-          "tags": [
-            1,
-          ],
-        },
-      ]
-    `);
-  });
-
   describe('checkStandaloneTemplates', () => {
     beforeEach(() => {
       let registry = stripIndent`

@@ -113,33 +113,7 @@ function validateConfigInput(input: Record<string, unknown>): GlintConfigInput |
     'If defined, `checkStandaloneTemplates` must be a boolean'
   );
 
-  assert(
-    input['transform'] === undefined || isObject(input['transform']),
-    'If defined, `transform` must be an object'
-  );
-
-  let transform = input['transform'];
-  if (transform) {
-    assert(
-      Array.isArray(transform['include'])
-        ? transform['include'].every((item) => typeof item === 'string')
-        : !transform['include'] || typeof transform['include'] === 'string',
-      'If defined, `transform.include` must be a string or array of strings'
-    );
-
-    assert(
-      Array.isArray(transform['exclude'])
-        ? transform['exclude'].every((item) => typeof item === 'string')
-        : !transform['exclude'] || typeof transform['exclude'] === 'string',
-      'If defined, `transform.exclude` must be a string or array of strings'
-    );
-  }
-
   return input as GlintConfigInput;
-}
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && Boolean(value);
 }
 
 function assert(test: unknown, message: string): asserts test {

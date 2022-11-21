@@ -34,7 +34,6 @@
   "dependencies": {
     "@glimmer/syntax": "^0.84.2",
     "escape-string-regexp": "^4.0.0",
-    "minimatch": "^3.0.4",
     "silent-error": "^1.1.1",
     "uuid": "^8.3.2",
     "vscode-languageserver": "^8.0.1",
@@ -45,7 +44,6 @@
   "devDependencies": {
     "@glint/test-utils": "^0.9.7",
     "@types/common-tags": "^1.8.0",
-    "@types/minimatch": "^3.0.3",
     "@types/node": "^18.11.5",
     "@types/uuid": "^8.3.4",
     "@types/yargs": "^17.0.10",
