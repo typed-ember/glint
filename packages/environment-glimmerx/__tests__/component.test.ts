@@ -167,7 +167,7 @@ import { ComponentReturn } from '@glint/template/-private/integration';
   let YieldingTC: TC<YieldingTCSignature> = templateExpression(function (𝚪) {
     expectTypeOf(𝚪.this).toEqualTypeOf(null);
     expectTypeOf(𝚪.args).toEqualTypeOf<{ values: Array<number> }>();
-    expectTypeOf(𝚪.element).toBeNull();
+    expectTypeOf(𝚪.element).toBeUnknown();
     expectTypeOf(𝚪.blocks).toEqualTypeOf<YieldingTCSignature['Blocks']>();
 
     if (𝚪.args.values.length) {

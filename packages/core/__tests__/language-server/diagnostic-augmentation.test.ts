@@ -792,7 +792,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
         },
         {
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}} />'.
-        Argument of type 'Invokable<(named?: PrebindArgs<{ message?: string | undefined; }, \\"message\\"> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'ContentValue'.",
+        Argument of type 'Invokable<(named?: PrebindArgs<{ message?: string | undefined; }, \\"message\\"> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, unknown>>' is not assignable to parameter of type 'ContentValue'.",
           "range": {
             "end": {
               "character": 41,
@@ -827,7 +827,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
         },
         {
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}}>...</ComponentName>'.
-        Argument of type 'Invokable<(named?: PrebindArgs<{ message?: string | undefined; }, \\"message\\"> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, null>>' is not assignable to parameter of type 'ComponentReturn<any, any>'.",
+        Argument of type 'Invokable<(named?: PrebindArgs<{ message?: string | undefined; }, \\"message\\"> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, unknown>>' is not assignable to parameter of type 'ComponentReturn<any, any>'.",
           "range": {
             "end": {
               "character": 56,

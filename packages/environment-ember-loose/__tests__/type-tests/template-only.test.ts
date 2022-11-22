@@ -31,8 +31,8 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 
   templateForBackingValue(NoArgsComponent, function (𝚪) {
     expectTypeOf(𝚪.this).toBeNull();
-    expectTypeOf(𝚪.element).toBeNull();
     expectTypeOf(𝚪.args).toEqualTypeOf<{}>();
+    expectTypeOf(𝚪.element).toBeUnknown();
     expectTypeOf(𝚪.blocks).toEqualTypeOf<{}>();
   });
 }

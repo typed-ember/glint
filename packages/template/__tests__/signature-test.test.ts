@@ -13,8 +13,8 @@ expectTypeOf<ComponentSignatureArgs<LegacyArgs>>().toEqualTypeOf<{
   Named: LegacyArgs;
   Positional: [];
 }>();
-expectTypeOf<ComponentSignatureElement<LegacyArgs>>().toEqualTypeOf<null>();
 expectTypeOf<ComponentSignatureBlocks<LegacyArgs>>().toEqualTypeOf<{}>();
+expectTypeOf<ComponentSignatureElement<LegacyArgs>>().toEqualTypeOf<unknown>();
 
 // Here, we are testing that the types propertly distribute over union types,
 // generics which extend other types, etc.
@@ -24,8 +24,8 @@ expectTypeOf<ComponentSignatureArgs<LegacyArgsDistributive>>().toEqualTypeOf<
   | { Named: { foo: number }; Positional: [] }
   | { Named: { bar: string; baz: boolean }; Positional: [] }
 >();
-expectTypeOf<ComponentSignatureElement<LegacyArgsDistributive>>().toEqualTypeOf<null>();
 expectTypeOf<ComponentSignatureBlocks<LegacyArgsDistributive>>().toEqualTypeOf<{}>();
+expectTypeOf<ComponentSignatureElement<LegacyArgsDistributive>>().toEqualTypeOf<unknown>();
 
 interface ArgsOnly {
   Args: LegacyArgs;
@@ -35,8 +35,8 @@ expectTypeOf<ComponentSignatureArgs<ArgsOnly>>().toEqualTypeOf<{
   Named: LegacyArgs;
   Positional: [];
 }>();
-expectTypeOf<ComponentSignatureElement<ArgsOnly>>().toEqualTypeOf<null>();
 expectTypeOf<ComponentSignatureBlocks<ArgsOnly>>().toEqualTypeOf<{}>();
+expectTypeOf<ComponentSignatureElement<ArgsOnly>>().toEqualTypeOf<unknown>();
 
 interface ElementOnly {
   Element: HTMLParagraphElement;
@@ -74,7 +74,7 @@ expectTypeOf<ComponentSignatureBlocks<BlockOnlySig>>().toEqualTypeOf<{
     };
   };
 }>();
-expectTypeOf<ComponentSignatureElement<BlockOnlySig>>().toEqualTypeOf<null>();
+expectTypeOf<ComponentSignatureElement<BlockOnlySig>>().toEqualTypeOf<unknown>();
 
 interface ArgsAndBlocks {
   Args: LegacyArgs;
@@ -97,7 +97,7 @@ expectTypeOf<ComponentSignatureBlocks<ArgsAndBlocks>>().toEqualTypeOf<{
     };
   };
 }>();
-expectTypeOf<ComponentSignatureElement<ArgsAndBlocks>>().toEqualTypeOf<null>();
+expectTypeOf<ComponentSignatureElement<ArgsAndBlocks>>().toEqualTypeOf<unknown>();
 
 interface ArgsAndEl {
   Args: LegacyArgs;

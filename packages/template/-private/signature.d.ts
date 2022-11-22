@@ -44,7 +44,11 @@ export type ComponentSignatureBlocks<S> = S extends { Blocks: infer Blocks }
   : {};
 
 /** Given a component signature `S`, get back the `Element` type. */
-export type ComponentSignatureElement<S> = S extends { Element: infer Element } ? Element : null;
+export type ComponentSignatureElement<S> = S extends { Element: infer Element }
+  ? NonNullable<Element> extends never
+    ? unknown
+    : Element
+  : unknown;
 
 export type PrebindArgs<T, Args extends keyof UnwrapNamedArgs<T>> = NamedArgs<
   Omit<UnwrapNamedArgs<T>, Args> & Partial<Pick<UnwrapNamedArgs<T>, Args>>
