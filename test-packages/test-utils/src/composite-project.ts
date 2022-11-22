@@ -4,6 +4,7 @@ import * as path from 'path';
 import { Project } from './project.js';
 
 export const INPUT_DIR = 'src';
+export const INPUT_SFC = path.join(INPUT_DIR, 'index.gts');
 export const INPUT_SCRIPT = path.join(INPUT_DIR, 'index.ts');
 export const INPUT_TEMPLATE = path.join(INPUT_DIR, 'index.hbs');
 

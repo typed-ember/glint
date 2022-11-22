@@ -129,9 +129,10 @@ export type MapTemplateContentsOptions = {
 export function mapTemplateContents(
   template: string,
   { embeddingSyntax }: MapTemplateContentsOptions,
-  callback: (ast: AST.Template, mapper: Mapper) => void
+  callback: (ast: AST.Template | null, mapper: Mapper) => void
 ): RewriteResult {
-  let ast: AST.Template;
+  let ast: AST.Template | null = null;
+  let errors: Array<{ message: string; location: Range | undefined }> = [];
   let lineOffsets = calculateLineOffsets(template, embeddingSyntax.prefix.length);
   try {
     ast = preprocess(template);
@@ -151,9 +152,7 @@ export function mapTemplateContents(
       }
     }
 
-    return {
-      errors: [{ message, location }],
-    };
+    errors.push({ message, location });
   }
 
   let rangeForNode = buildRangeForNode(lineOffsets);
@@ -167,7 +166,6 @@ export function mapTemplateContents(
   let indent = '';
   let offset = 0;
   let needsIndent = false;
-  let errors: Array<{ message: string; location: Range }> = [];
   let directives: Array<LocalDirective> = [];
 
   // Associates all content emitted during the given callback with the

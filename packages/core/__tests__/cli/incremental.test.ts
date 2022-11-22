@@ -6,16 +6,15 @@ import { beforeEach, describe, expect, test } from 'vitest';
 import { Project } from '@glint/test-utils';
 
 const BUILD_INFO = 'tsconfig.tsbuildinfo';
-const INPUT_SCRIPT = 'index.ts';
+const INPUT_SCRIPT = 'index.gts';
 
 describe('CLI: --incremental', () => {
   test('when no build has occurred', async () => {
-    let project = await Project.create();
+    let project = await Project.create({ glint: { environment: 'ember-template-imports' } });
 
     let code = stripIndent`
       import '@glint/environment-ember-template-imports';
       import Component from '@glimmer/component';
-      import { hbs } from 'ember-template-imports';
 
       type ApplicationArgs = {
         version: string;
@@ -24,10 +23,10 @@ describe('CLI: --incremental', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
@@ -49,12 +48,11 @@ describe('CLI: --incremental', () => {
   describe('when a build has occurred', () => {
     let project!: Project;
     beforeEach(async () => {
-      project = await Project.create();
+      project = await Project.create({ glint: { environment: 'ember-template-imports' } });
 
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
 
         type ApplicationArgs = {
           version: string;
@@ -63,10 +61,10 @@ describe('CLI: --incremental', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
 
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
-          \`;
+          </template>
         }
       `;
 
@@ -96,7 +94,6 @@ describe('CLI: --incremental', () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
 
         type ApplicationArgs = {
           appVersion: string;
@@ -105,10 +102,10 @@ describe('CLI: --incremental', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
 
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@appVersion}}.
             The current time is {{this.startupTime}}.
-          \`;
+          </template>
         }
       `;
 
@@ -135,7 +132,6 @@ describe('CLI: --incremental', () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
-        import { hbs } from 'ember-template-imports';
   
         type ApplicationArgs = {
           version: string;
@@ -144,10 +140,10 @@ describe('CLI: --incremental', () => {
         export default class Application extends Component<{ Args: ApplicationArgs }> {
           private startupTime = new Date().toISOString();
   
-          public static template = hbs\`
+          <template>
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
-          \`;
+          </template.
         }
       `;
 

@@ -98,10 +98,15 @@ describe('Transform: rewriteModule', () => {
       let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
 
       expect(transformedModule?.errors.length).toBe(1);
-      expect(transformedModule?.transformedContents).toBe(script.contents);
-
-      expect(transformedModule?.getOriginalOffset(100)).toEqual({ offset: 100, source: script });
-      expect(transformedModule?.getTransformedOffset(script.filename, 100)).toEqual(100);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import Component, { hbs } from '@glimmerx/component';
+        export default class MyComponent extends Component {
+          static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
+          hbs;
+          𝚪; χ;
+        });
+        }"
+      `);
     });
 
     test('outer variable capture', () => {
@@ -449,13 +454,15 @@ describe('Transform: rewriteModule', () => {
       let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
 
       expect(transformedModule?.errors.length).toBe(1);
-      expect(transformedModule?.transformedContents).toBe(script.contents);
-
-      expect(transformedModule?.getOriginalOffset(50)).toEqual({ offset: 50, source: script });
-      expect(transformedModule?.getTransformedOffset(script.filename, 50)).toEqual(50);
-      expect(transformedModule?.getTransformedOffset(template.filename, 5)).toEqual(
-        script.contents.lastIndexOf('}')
-      );
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import Component from '@glimmer/component';
+        export default class MyComponent extends Component {
+        static {
+        ({} as typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-loose/-private/dsl\\")) {
+          𝚪; χ;
+        })}
+        }"
+      `);
     });
   });
 

@@ -1,4 +1,4 @@
-import { statSync as fsStatSync, Stats } from 'fs';
+import { statSync as fsStatSync, Stats, existsSync } from 'fs';
 import {
   TransformedModule,
   rewriteModule,
@@ -241,10 +241,19 @@ export default class TransformManager {
   };
 
   public getModifiedTime = (filename: string): Date | undefined => {
-    let fileStat = statSync(filename);
+    // In most circumstances we can just ask the DocumentCache what the canonical path
+    // for a given document is, but since `getModifiedTime` is invoked as part of
+    // rehydrating a `.tsbuildinfo` file, typically won't actually know the answer to
+    // that question yet.
+    let canonicalFilename = this.documents
+      .getCandidateDocumentPaths(filename)
+      .find((path) => existsSync(path));
+    if (!canonicalFilename) return undefined;
+
+    let fileStat = statSync(canonicalFilename);
     if (!fileStat) return undefined;
 
-    let companionPath = this.documents.getCompanionDocumentPath(filename);
+    let companionPath = this.documents.getCompanionDocumentPath(canonicalFilename);
     if (!companionPath) return fileStat.mtime;
 
     let companionStat = statSync(companionPath);

@@ -14,7 +14,7 @@ export default function emberTemplateImportsEnvironment(
 
   return {
     tags: {
-      'ember-template-imports': {
+      '@glint/environment-ember-template-imports/-private/tag': {
         hbs: {
           typesModule: '@glint/environment-ember-template-imports/-private/dsl',
           specialForms: {

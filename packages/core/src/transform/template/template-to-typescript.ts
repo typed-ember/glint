@@ -44,12 +44,7 @@ export function templateToTypescript(
     let scope = new ScopeStack([]);
 
     emitTemplateBoilerplate(() => {
-      for (let line of preamble) {
-        emit.text(line);
-        emit.newline();
-      }
-
-      for (let statement of ast.body) {
+      for (let statement of ast?.body ?? []) {
         emitTopLevelStatement(statement);
       }
     });
@@ -109,7 +104,14 @@ export function templateToTypescript(
       emit.newline();
       emit.indent();
 
-      emit.forNode(ast, emitBody);
+      for (let line of preamble) {
+        emit.text(line);
+        emit.newline();
+      }
+
+      if (ast) {
+        emit.forNode(ast, emitBody);
+      }
 
       // Ensure the context and lib variables are always consumed to prevent
       // an unused variable warning

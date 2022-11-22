@@ -86,7 +86,6 @@ function addTagImport(f: ts.NodeFactory, sourceFile: ts.SourceFile): ts.SourceFi
   return f.updateSourceFile(sourceFile, [
     f.createImportDeclaration(
       [],
-      [],
       f.createImportClause(
         false,
         undefined,
@@ -94,7 +93,7 @@ function addTagImport(f: ts.NodeFactory, sourceFile: ts.SourceFile): ts.SourceFi
           f.createImportSpecifier(false, f.createIdentifier('hbs'), f.createIdentifier(GLOBAL_TAG)),
         ])
       ),
-      f.createStringLiteral('ember-template-imports')
+      f.createStringLiteral('@glint/environment-ember-template-imports/-private/tag')
     ),
     ...sourceFile.statements,
   ]);
@@ -163,8 +162,6 @@ function buildStaticBlockForTemplate(
   template: ts.TaggedTemplateExpression
 ): ts.Node {
   return f.createClassStaticBlockDeclaration(
-    [],
-    [],
     f.createBlock([f.createExpressionStatement(template)])
   );
 }

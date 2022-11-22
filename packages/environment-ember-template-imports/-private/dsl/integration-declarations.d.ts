@@ -31,8 +31,3 @@ type EELLinkTo = typeof Globals.LinkTo;
 declare module '@ember/routing' {
   export interface LinkTo extends EELLinkTo {}
 }
-
-import 'ember-template-imports';
-declare module 'ember-template-imports' {
-  export function hbs(contents: TemplateStringsArray): unknown;
-}

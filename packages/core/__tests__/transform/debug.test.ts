@@ -205,7 +205,7 @@ describe('Transform: Debug utilities', () => {
         |
         | | Mapping: Template
         | |  hbs(155:200): <HelperComponent @foo={{this.bar}} />
-        | |  ts(324:451):  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar, ...χ.NamedArgsMarker }));\\\\n    𝛄;\\\\n  }
+        | |  ts(331:451):  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar, ...χ.NamedArgsMarker }));\\\\n    𝛄;\\\\n  }
         | |
         | | | Mapping: TextContent
         | | |  hbs(155:160):
@@ -260,7 +260,7 @@ describe('Transform: Debug utilities', () => {
         |
         | | Mapping: Template
         | |  hbs(299:418): <p ...attributes>\\\\n      Hello, {{@foo}}!\\\\n\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\n      {{@bar}}\\\\n    </p>
-        | |  ts(729:935):  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
+        | |  ts(736:935):  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
         | |
         | | | Mapping: TextContent
         | | |  hbs(299:304):
@@ -370,7 +370,7 @@ describe('Transform: Debug utilities', () => {
         |
         | | Mapping: Template
         | |  hbs(160:207): <HelperComponent @foo={{this.bar}} />
-        | |  ts(329:456):  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar, ...χ.NamedArgsMarker }));\\\\n    𝛄;\\\\n  }
+        | |  ts(336:456):  {\\\\n    const 𝛄 = χ.emitComponent(χ.resolve(HelperComponent)({ foo: 𝚪.this.bar, ...χ.NamedArgsMarker }));\\\\n    𝛄;\\\\n  }
         | |
         | | | Mapping: TextContent
         | | |  hbs(160:166):
@@ -425,7 +425,7 @@ describe('Transform: Debug utilities', () => {
         |
         | | Mapping: Template
         | |  hbs(310:436): <p ...attributes>\\\\r\\\\n      Hello, {{@foo}}!\\\\r\\\\n\\\\r\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\r\\\\n      {{@bar}}\\\\r\\\\n    </p>
-        | |  ts(738:944):  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
+        | |  ts(745:944):  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
         | |
         | | | Mapping: TextContent
         | | |  hbs(310:316):
