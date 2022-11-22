@@ -82,6 +82,7 @@ if (argv.build) {
     force: argv.force,
     dry: argv.dry,
   };
+
   if ('incremental' in argv) {
     buildOptions.incremental = argv.incremental;
   }
