@@ -182,6 +182,7 @@ export default class GlintLanguageServer {
     // we're in a template file, then we have no completions to offer.
     if (
       mapping?.sourceNode.type === 'TextContent' ||
+      mapping?.sourceNode.type === 'TemplateEmbedding' ||
       (!mapping && this.glintConfig.environment.isTemplate(uri))
     ) {
       return;
