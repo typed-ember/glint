@@ -5,12 +5,11 @@
   "description": "A Glint environment to support loose-mode Ember.js projects",
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
-  "glint-environment": "-private/environment/index.js",
   "main": "-private/index.js",
   "exports": {
     ".": "./-private/index.js",
-    "./package.json": "./package.json",
     "./registry": "./registry/index.js",
+    "./glint-environment-definition": "./-private/environment/index.js",
     "./-private/dsl": "./-private/dsl/index.js",
     "./-private/dsl/without-function-resolution": "./-private/dsl/without-function-resolution.js"
   },
