@@ -81,3 +81,30 @@ import { NamedArgs } from '../-private/integration';
     (args: NamedArgs<{ age: number; name?: string }>) => string
   >();
 }
+
+// Assignability
+{
+  // Helpers are contravariant with their named `Args` type
+  expectTypeOf<HelperLike<{ Args: { Named: { name: string } } }>>().toMatchTypeOf<
+    HelperLike<{ Args: { Named: { name: 'Dan' } } }>
+  >();
+  expectTypeOf<HelperLike<{ Args: { Named: { name: 'Dan' } } }>>().not.toMatchTypeOf<
+    HelperLike<{ Args: { Named: { name: string } } }>
+  >();
+
+  // Helpers are contravariant with their positional `Args` type
+  expectTypeOf<HelperLike<{ Args: { Positional: [name: string] } }>>().toMatchTypeOf<
+    HelperLike<{ Args: { Positional: [name: 'Dan'] } }>
+  >();
+  expectTypeOf<HelperLike<{ Args: { Positional: [name: 'Dan'] } }>>().not.toMatchTypeOf<
+    HelperLike<{ Args: { Positional: [name: string] } }>
+  >();
+
+  // Helpers are contravariant with their `Element` type
+  expectTypeOf<HelperLike<{ Return: 'Hello, World' }>>().toMatchTypeOf<
+    HelperLike<{ Return: string }>
+  >();
+  expectTypeOf<HelperLike<{ Return: string }>>().not.toMatchTypeOf<
+    HelperLike<{ Return: 'Hello, World' }>
+  >();
+}
