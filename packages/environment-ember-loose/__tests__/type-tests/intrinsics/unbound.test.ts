@@ -10,8 +10,8 @@ expectTypeOf(unbound(123)).toEqualTypeOf<number>();
 // @ts-expect-error: missing value
 unbound();
 
+// @ts-expect-error: unexpected named args
 unbound('hello', {
-  // @ts-expect-error: invalid named arg
   hello: 'hi',
   ...NamedArgsMarker,
 });

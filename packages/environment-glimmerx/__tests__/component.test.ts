@@ -17,12 +17,6 @@ import { ComponentReturn } from '@glint/template/-private/integration';
     });
   }
 
-  resolve(NoArgsComponent)({
-    // @ts-expect-error: extra named arg
-    foo: 'bar',
-    ...NamedArgsMarker,
-  });
-
   resolve(NoArgsComponent)(
     // @ts-expect-error: bad positional arg
     'oops'

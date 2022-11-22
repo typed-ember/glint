@@ -160,12 +160,12 @@ import { NamedArgs } from '@glint/template/-private/integration';
   let repeat = resolve(RepeatHelper);
 
   expectTypeOf(repeat).toEqualTypeOf<{
-    <T>(value: T, count?: number | undefined, args?: NamedArgs<GlintEmptyObject>): Array<T>;
+    <T>(value: T, count?: number | undefined): Array<T>;
   }>();
 
   repeat(
     'hello',
-    // @ts-expect-error: extra named arg
+    // @ts-expect-error: unexpected named args
     { word: 'hi', ...NamedArgsMarker }
   );
 

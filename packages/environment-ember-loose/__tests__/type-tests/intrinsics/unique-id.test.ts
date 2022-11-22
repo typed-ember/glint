@@ -6,8 +6,8 @@ let uniqueId = resolve(Globals['unique-id']);
 // Basic plumbing
 expectTypeOf(uniqueId()).toEqualTypeOf<string>();
 
+// @ts-expect-error: unexpected named args
 uniqueId({
-  // @ts-expect-error: invalid named arg
   hello: 'hi',
   ...NamedArgsMarker,
 });

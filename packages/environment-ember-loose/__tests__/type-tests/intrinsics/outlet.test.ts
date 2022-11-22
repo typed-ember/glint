@@ -9,8 +9,8 @@ expectTypeOf(outlet('outlet-name')).toEqualTypeOf<void>();
 // Nameless main outlet
 outlet();
 
+// @ts-expect-error: unexpected named args
 outlet('outlet-name', {
-  // @ts-expect-error: invalid named arg
   hello: 'hi',
   ...NamedArgsMarker,
 });

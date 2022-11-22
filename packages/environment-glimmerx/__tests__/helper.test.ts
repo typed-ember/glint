@@ -34,11 +34,12 @@ import '@glint/environment-glimmerx';
 
   expectTypeOf(or).toEqualTypeOf<{ <T, U>(t: T, u: U): T | U }>();
 
-  or('a', 'b', {
-    // @ts-expect-error: extra named arg
-    hello: true,
-    ...NamedArgsMarker,
-  });
+  or(
+    'a',
+    'b',
+    // @ts-expect-error: unexpected named args
+    { hello: true, ...NamedArgsMarker }
+  );
 
   // @ts-expect-error: missing positional arg
   or('a');

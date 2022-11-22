@@ -59,9 +59,8 @@ import { NamedArgs } from '../-private/integration';
   or(
     'a',
     'b',
-    'c',
     // @ts-expect-error: extra positional arg
-    { ...NamedArgsMarker }
+    'c'
   );
 
   expectTypeOf(or('a', 'b')).toEqualTypeOf<string>();

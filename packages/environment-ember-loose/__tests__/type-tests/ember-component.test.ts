@@ -18,12 +18,6 @@ import type { ComponentLike } from '@glint/template';
     }
   }
 
-  resolve(NoArgsComponent)({
-    // @ts-expect-error: extra named arg
-    foo: 'bar',
-    ...NamedArgsMarker,
-  });
-
   resolve(NoArgsComponent)(
     // @ts-expect-error: extra positional arg
     'oops'

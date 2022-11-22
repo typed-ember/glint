@@ -14,8 +14,8 @@ expectTypeOf(fn(mut('hello'))).toEqualTypeOf<(value: string) => void>();
 // @ts-expect-error: missing value
 mut();
 
+// @ts-expect-error: unexpected named args
 mut('hello', {
-  // @ts-expect-error: invalid named arg
   hello: 'hi',
   ...NamedArgsMarker,
 });

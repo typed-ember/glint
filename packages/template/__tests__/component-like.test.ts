@@ -6,16 +6,10 @@ import { ComponentReturn, NamedArgs } from '../-private/integration';
 {
   const NoArgsComponent = {} as ComponentLike<{}>;
 
+  // @ts-expect-error: extra arg
   resolve(NoArgsComponent)({
-    // @ts-expect-error: extra named arg
-    foo: 'bar',
     ...NamedArgsMarker,
   });
-
-  resolve(NoArgsComponent)(
-    // @ts-expect-error: extra positional arg
-    'oops'
-  );
 
   {
     const component = emitComponent(resolve(NoArgsComponent)());
@@ -103,7 +97,7 @@ import { ComponentReturn, NamedArgs } from '../-private/integration';
   const PositionalArgsComponent = {} as ComponentLike<PositionalArgsComponentSignature>;
 
   // @ts-expect-error: missing required positional arg
-  resolve(PositionalArgsComponent)();
+  resolve(PositionalArgsComponent)({ ...NamedArgsMarker });
 
   resolve(PositionalArgsComponent)(
     'hello',

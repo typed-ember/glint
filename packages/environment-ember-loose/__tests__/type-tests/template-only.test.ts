@@ -13,14 +13,7 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 {
   const NoArgsComponent = templateOnlyComponent();
 
-  resolve(NoArgsComponent)({
-    // @ts-expect-error: extra named arg
-    foo: 'bar',
-    ...NamedArgsMarker,
-  });
-
   resolve(NoArgsComponent)(
-    { ...NamedArgsMarker },
     // @ts-expect-error: extra positional arg
     'oops'
   );
