@@ -238,19 +238,25 @@ function loadMergedEnvironmentConfig(
 }
 
 function locateEnvironment(name: string, basedir: string): string {
-  // Resolve a package name, either shorthand or explicit
-  for (let candidate of [`@glint/environment-${name}`, `glint-environment-${name}`, name]) {
-    let pkg = tryResolve(`${candidate}/package.json`, basedir);
-    if (pkg) {
-      let relativePath = require(pkg)['glint-environment'] ?? '.';
-      return path.resolve(path.dirname(pkg), relativePath);
-    }
-  }
+  let require = createRequire(path.resolve(basedir, 'package.json'));
 
-  // Resolve a path to an explicit file
-  let literalPath = tryResolve(name, basedir);
-  if (literalPath) {
-    return literalPath;
+  for (let candidate of [
+    // 1st-party package name shorthand
+    `@glint/environment-${name}/glint-environment-definition`,
+    // 3rd-party package name shorthand
+    `glint-environment-${name}/glint-environment-definition`,
+    // Full package name
+    `${name}/glint-environment-definition`,
+    // Literal file path
+    name,
+  ]) {
+    try {
+      return require.resolve(candidate);
+    } catch (error: any) {
+      if (error?.code !== 'MODULE_NOT_FOUND') {
+        throw error;
+      }
+    }
   }
 
   throw new SilentError(`Unable to resolve environment '${name}' from ${basedir}`);
@@ -262,16 +268,4 @@ function normalizePathCandidates(
   return candidates.map((candidate) =>
     typeof candidate === 'string' ? { path: candidate, deferTo: [] } : candidate
   );
-}
-
-function tryResolve(name: string, basedir: string): string | null {
-  try {
-    return createRequire(path.resolve(basedir, 'package.json')).resolve(name);
-  } catch (error: any) {
-    if (error?.code === 'MODULE_NOT_FOUND') {
-      return null;
-    }
-
-    throw error;
-  }
 }

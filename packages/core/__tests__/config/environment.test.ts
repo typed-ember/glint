@@ -163,7 +163,9 @@ describe('Config: Environments', () => {
         `${envDir}/package.json`,
         JSON.stringify({
           name: '@glint/environment-test-env',
-          'glint-environment': 'env',
+          exports: {
+            './glint-environment-definition': './env.js',
+          },
         })
       );
 
@@ -184,7 +186,9 @@ describe('Config: Environments', () => {
         `${envDir}/package.json`,
         JSON.stringify({
           name: 'some-other-environment',
-          'glint-environment': 'third-party-env',
+          exports: {
+            './glint-environment-definition': './third-party-env.js',
+          },
         })
       );
 
@@ -202,7 +206,7 @@ describe('Config: Environments', () => {
         'module.exports = () => ({ tags: { internal: {} } });'
       );
 
-      let env = GlintEnvironment.load('./lib/my-internal-env', { rootDir: testDir });
+      let env = GlintEnvironment.load('./lib/my-internal-env.js', { rootDir: testDir });
 
       expect(env.getConfiguredTemplateTags()).toEqual({ internal: {} });
     });
@@ -217,7 +221,9 @@ describe('Config: Environments', () => {
         `${dir}/package.json`,
         JSON.stringify({
           name: `@glint/environment-${name}`,
-          'glint-environment': 'env',
+          exports: {
+            './glint-environment-definition': './env.js',
+          },
         })
       );
 
