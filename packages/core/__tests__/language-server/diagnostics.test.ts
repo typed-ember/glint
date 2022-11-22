@@ -59,7 +59,7 @@ describe('Language Server: Diagnostics', () => {
       expect(templateDiagnostics).toMatchInlineSnapshot(`
         [
           {
-            "message": "Property 'missingArg' does not exist on type 'EmptyObject'.",
+            "message": "Property 'missingArg' does not exist on type '{}'.",
             "range": {
               "end": {
                 "character": 13,
@@ -118,7 +118,7 @@ describe('Language Server: Diagnostics', () => {
 
       expect(diagnostics).toMatchObject([
         {
-          message: "Property 'foo' does not exist on type 'EmptyObject'.",
+          message: "Property 'foo' does not exist on type '{}'.",
           source: 'glint:ts(2339)',
         },
       ]);
@@ -159,7 +159,7 @@ describe('Language Server: Diagnostics', () => {
 
       expect(diagnostics).toMatchObject([
         {
-          message: "Property 'foo' does not exist on type 'EmptyObject'.",
+          message: "Property 'foo' does not exist on type '{}'.",
           source: 'glint:ts(2339)',
         },
       ]);
@@ -358,7 +358,7 @@ describe('Language Server: Diagnostics', () => {
     expect(server.getDiagnostics(project.fileURI('component-a.ts'))).toMatchInlineSnapshot(`
       [
         {
-          "message": "Property 'version' does not exist on type 'EmptyObject'.",
+          "message": "Property 'version' does not exist on type '{}'.",
           "range": {
             "end": {
               "character": 36,

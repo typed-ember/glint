@@ -6,7 +6,6 @@ import {
   emitComponent,
   NamedArgsMarker,
 } from '@glint/environment-ember-loose/-private/dsl';
-import { EmptyObject } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
 import { ComponentLike } from '@glint/template';
 
@@ -44,7 +43,7 @@ import { ComponentLike } from '@glint/template';
       templateForBackingValue(this, function* (𝚪) {
         expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
         expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
-        expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
+        expectTypeOf(𝚪.args).toEqualTypeOf<{}>();
       });
     }
   }

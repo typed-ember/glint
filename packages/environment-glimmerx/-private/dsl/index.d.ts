@@ -27,7 +27,6 @@ import {
   AnyContext,
   AnyFunction,
   DirectInvokable,
-  EmptyObject,
   HasContext,
   InvokableInstance,
   Invoke,
@@ -54,8 +53,8 @@ export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
 import { TemplateComponentInstance } from '@glimmerx/component';
 
 export declare function templateExpression<
-  Signature extends AnyFunction = () => ComponentReturn<EmptyObject>,
-  Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
+  Signature extends AnyFunction = () => ComponentReturn<{}>,
+  Context extends AnyContext = TemplateContext<void, {}, {}, void>
 >(
   f: (𝚪: Context, χ: never) => void
 ): abstract new () => TemplateComponentInstance<never> &

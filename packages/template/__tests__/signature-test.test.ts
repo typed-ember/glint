@@ -1,5 +1,4 @@
 import { expectTypeOf } from 'expect-type';
-import { EmptyObject } from '../-private/integration';
 import {
   ComponentSignatureArgs,
   ComponentSignatureBlocks,
@@ -14,8 +13,8 @@ expectTypeOf<ComponentSignatureArgs<LegacyArgs>>().toEqualTypeOf<{
   Named: LegacyArgs;
   Positional: [];
 }>();
-expectTypeOf<ComponentSignatureBlocks<LegacyArgs>>().toEqualTypeOf<EmptyObject>();
 expectTypeOf<ComponentSignatureElement<LegacyArgs>>().toEqualTypeOf<null>();
+expectTypeOf<ComponentSignatureBlocks<LegacyArgs>>().toEqualTypeOf<{}>();
 
 // Here, we are testing that the types propertly distribute over union types,
 // generics which extend other types, etc.
@@ -25,8 +24,8 @@ expectTypeOf<ComponentSignatureArgs<LegacyArgsDistributive>>().toEqualTypeOf<
   | { Named: { foo: number }; Positional: [] }
   | { Named: { bar: string; baz: boolean }; Positional: [] }
 >();
-expectTypeOf<ComponentSignatureBlocks<LegacyArgsDistributive>>().toEqualTypeOf<EmptyObject>();
 expectTypeOf<ComponentSignatureElement<LegacyArgsDistributive>>().toEqualTypeOf<null>();
+expectTypeOf<ComponentSignatureBlocks<LegacyArgsDistributive>>().toEqualTypeOf<{}>();
 
 interface ArgsOnly {
   Args: LegacyArgs;
@@ -36,18 +35,18 @@ expectTypeOf<ComponentSignatureArgs<ArgsOnly>>().toEqualTypeOf<{
   Named: LegacyArgs;
   Positional: [];
 }>();
-expectTypeOf<ComponentSignatureBlocks<ArgsOnly>>().toEqualTypeOf<EmptyObject>();
 expectTypeOf<ComponentSignatureElement<ArgsOnly>>().toEqualTypeOf<null>();
+expectTypeOf<ComponentSignatureBlocks<ArgsOnly>>().toEqualTypeOf<{}>();
 
 interface ElementOnly {
   Element: HTMLParagraphElement;
 }
 
 expectTypeOf<ComponentSignatureArgs<ElementOnly>>().toEqualTypeOf<{
-  Named: EmptyObject;
+  Named: {};
   Positional: [];
 }>();
-expectTypeOf<ComponentSignatureBlocks<ElementOnly>>().toEqualTypeOf<EmptyObject>();
+expectTypeOf<ComponentSignatureBlocks<ElementOnly>>().toEqualTypeOf<{}>();
 expectTypeOf<ComponentSignatureElement<ElementOnly>>().toEqualTypeOf<HTMLParagraphElement>();
 
 interface Blocks {
@@ -60,7 +59,7 @@ interface BlockOnlySig {
 }
 
 expectTypeOf<ComponentSignatureArgs<BlockOnlySig>>().toEqualTypeOf<{
-  Named: EmptyObject;
+  Named: {};
   Positional: [];
 }>();
 expectTypeOf<ComponentSignatureBlocks<BlockOnlySig>>().toEqualTypeOf<{
@@ -109,7 +108,7 @@ expectTypeOf<ComponentSignatureArgs<ArgsAndEl>>().toEqualTypeOf<{
   Named: LegacyArgs;
   Positional: [];
 }>();
-expectTypeOf<ComponentSignatureBlocks<ArgsAndEl>>().toEqualTypeOf<EmptyObject>();
+expectTypeOf<ComponentSignatureBlocks<ArgsAndEl>>().toEqualTypeOf<{}>();
 expectTypeOf<ComponentSignatureElement<ArgsAndEl>>().toEqualTypeOf<HTMLParagraphElement>();
 
 interface FullShortSig {

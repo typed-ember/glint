@@ -4,7 +4,6 @@ import {
   AnyContext,
   AnyFunction,
   ModifierReturn,
-  EmptyObject,
   HasContext,
   InvokableInstance,
   TemplateContext,
@@ -80,8 +79,8 @@ export declare function emitComponent<T extends ComponentReturn<any, any>>(
  * environment's DSL export.
  */
 export declare function templateExpression<
-  Signature extends AnyFunction = () => ComponentReturn<EmptyObject>,
-  Context extends AnyContext = TemplateContext<void, EmptyObject, EmptyObject, void>
+  Signature extends AnyFunction = () => ComponentReturn<{}>,
+  Context extends AnyContext = TemplateContext<void, {}, {}, void>
 >(f: (𝚪: Context, χ: never) => void): new () => InvokableInstance<Signature> & HasContext<Context>;
 
 /*

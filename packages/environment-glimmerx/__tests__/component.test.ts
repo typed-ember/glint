@@ -8,7 +8,7 @@ import {
   NamedArgsMarker,
 } from '@glint/environment-glimmerx/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { ComponentReturn, EmptyObject } from '@glint/template/-private/integration';
+import { ComponentReturn } from '@glint/template/-private/integration';
 
 {
   class NoArgsComponent extends Component {
@@ -47,7 +47,7 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
     static template = templateForBackingValue(this, function (𝚪) {
       expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
       expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
-      expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
+      expectTypeOf(𝚪.args).toEqualTypeOf<{}>();
     });
   }
 
@@ -152,11 +152,11 @@ import { ComponentReturn, EmptyObject } from '@glint/template/-private/integrati
   const NoAnnotationTC = templateExpression(function (𝚪) {
     expectTypeOf(𝚪.this).toBeVoid();
     expectTypeOf(𝚪.element).toBeVoid();
-    expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
-    expectTypeOf(𝚪.blocks).toEqualTypeOf<EmptyObject>();
+    expectTypeOf(𝚪.args).toEqualTypeOf<{}>();
+    expectTypeOf(𝚪.blocks).toEqualTypeOf<{}>();
   });
 
-  expectTypeOf(resolve(NoAnnotationTC)).toEqualTypeOf<() => ComponentReturn<EmptyObject>>();
+  expectTypeOf(resolve(NoAnnotationTC)).toEqualTypeOf<() => ComponentReturn<{}>>();
 }
 
 {

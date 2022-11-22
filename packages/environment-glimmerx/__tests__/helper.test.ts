@@ -1,6 +1,6 @@
 import { emitContent, NamedArgsMarker, resolve } from '@glint/environment-glimmerx/-private/dsl';
 import { helper, fn as fnDefinition } from '@glimmerx/helper';
-import { EmptyObject, NamedArgs } from '@glint/template/-private/integration';
+import { NamedArgs } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
 import '@glint/environment-glimmerx';
 
@@ -32,7 +32,7 @@ import '@glint/environment-glimmerx';
   let definition = helper(<T, U>([a, b]: [T, U]) => a || b);
   let or = resolve(definition);
 
-  expectTypeOf(or).toEqualTypeOf<{ <T, U>(t: T, u: U, named?: NamedArgs<EmptyObject>): T | U }>();
+  expectTypeOf(or).toEqualTypeOf<{ <T, U>(t: T, u: U): T | U }>();
 
   or('a', 'b', {
     // @ts-expect-error: extra named arg

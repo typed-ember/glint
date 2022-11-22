@@ -1,7 +1,6 @@
 import Route from '@ember/routing/route';
 import Controller from '@ember/controller';
 import { expectTypeOf } from 'expect-type';
-import { EmptyObject } from '@glint/template/-private/integration';
 import { templateForBackingValue } from '../../-private/dsl';
 
 class TestRoute extends Route {
@@ -14,7 +13,7 @@ templateForBackingValue(TestRoute, function (routeContext) {
   expectTypeOf(routeContext.args).toEqualTypeOf<{ model: { message: string } }>();
   expectTypeOf(routeContext.element).toBeNull();
   expectTypeOf(routeContext.this).toEqualTypeOf<Controller & { model: { message: string } }>();
-  expectTypeOf(routeContext.blocks).toEqualTypeOf<EmptyObject>();
+  expectTypeOf(routeContext.blocks).toEqualTypeOf<{}>();
 });
 
 class TestController extends Controller {
@@ -29,5 +28,5 @@ templateForBackingValue(TestController, function (controllerContext) {
   expectTypeOf(controllerContext.args).toEqualTypeOf<{ model: { name: string; age: number } }>();
   expectTypeOf(controllerContext.element).toBeNull();
   expectTypeOf(controllerContext.this).toEqualTypeOf<TestController>();
-  expectTypeOf(controllerContext.blocks).toEqualTypeOf<EmptyObject>();
+  expectTypeOf(controllerContext.blocks).toEqualTypeOf<{}>();
 });
