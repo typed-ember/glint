@@ -1,3 +1,4 @@
+import { dirname } from 'node:path';
 import * as TS from 'typescript';
 import { ConfigLoader, GlintConfig } from '../../config/index.js';
 import TransformManager from '../../common/transform-manager.js';
@@ -28,8 +29,12 @@ export default class TransformManagerPool {
     this.#rootSys = sys;
   }
 
-  public managerFor(path: string): TransformManager | null {
-    let config = this.#loader.configForFile(path);
+  public managerForFile(path: string): TransformManager | null {
+    return this.managerForDirectory(dirname(path));
+  }
+
+  public managerForDirectory(path: string): TransformManager | null {
+    let config = this.#loader.configForDirectory(path);
     if (!config) return null;
 
     const existing = this.#managers.get(config);
@@ -47,7 +52,8 @@ export default class TransformManagerPool {
     includes: ReadonlyArray<string>,
     depth?: number | undefined
   ): Array<string> => {
-    let readDirectory = this.managerFor(rootDir)?.readDirectory ?? this.#rootSys.readDirectory;
+    let readDirectory =
+      this.managerForDirectory(rootDir)?.readDirectory ?? this.#rootSys.readDirectory;
     return readDirectory(rootDir, extensions, excludes, includes, depth);
   };
 
@@ -58,12 +64,13 @@ export default class TransformManagerPool {
     options?: TS.WatchOptions
   ): TS.FileWatcher => {
     assert(this.#rootSys.watchDirectory);
-    let watchDirectory = this.managerFor(path)?.watchDirectory ?? this.#rootSys.watchDirectory;
+    let watchDirectory =
+      this.managerForDirectory(path)?.watchDirectory ?? this.#rootSys.watchDirectory;
     return watchDirectory(path, originalCallback, recursive, options);
   };
 
   public fileExists = (filename: string): boolean => {
-    let fileExists = this.managerFor(filename)?.fileExists ?? this.#rootSys.fileExists;
+    let fileExists = this.managerForFile(filename)?.fileExists ?? this.#rootSys.fileExists;
     return fileExists(filename);
   };
 
@@ -75,20 +82,20 @@ export default class TransformManagerPool {
   ): TS.FileWatcher => {
     assert(this.#rootSys.watchFile);
     let watchTransformedFile =
-      this.managerFor(path)?.watchTransformedFile ?? this.#rootSys.watchFile;
+      this.managerForFile(path)?.watchTransformedFile ?? this.#rootSys.watchFile;
     return watchTransformedFile(path, originalCallback, pollingInterval, options);
   };
 
   public readTransformedFile = (filename: string, encoding?: string): string | undefined => {
     let readTransformedFile =
-      this.managerFor(filename)?.readTransformedFile ?? this.#rootSys.readFile;
+      this.managerForFile(filename)?.readTransformedFile ?? this.#rootSys.readFile;
     return readTransformedFile(filename, encoding);
   };
 
   public getModifiedTime = (filename: string): Date | undefined => {
     assert(this.#rootSys.getModifiedTime);
     let getModifiedTime =
-      this.managerFor(filename)?.getModifiedTime ?? this.#rootSys.getModifiedTime;
+      this.managerForFile(filename)?.getModifiedTime ?? this.#rootSys.getModifiedTime;
     return getModifiedTime(filename);
   };
 }

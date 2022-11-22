@@ -21,7 +21,7 @@ export function patchProgram(
   if (isPool(transformManagerOrPool)) {
     let configFile = program.getCompilerOptions()['configFilePath'];
     assert(typeof configFile === 'string', 'internal error: missing TS config file');
-    manager = transformManagerOrPool.managerFor(configFile);
+    manager = transformManagerOrPool.managerForFile(configFile);
   } else {
     manager = transformManagerOrPool;
   }
