@@ -22,6 +22,8 @@ module.exports = {
   },
   rules: {
     '@typescript-eslint/no-empty-interface': 'off',
+    'ember/no-classic-components': 'off',
+    'ember/require-tagless-components': 'off',
   },
   overrides: [
     // node files
