@@ -1071,6 +1071,28 @@ describe('Transform: rewriteTemplate', () => {
       `);
     });
 
+    test('with an in-scope variable for a name', () => {
+      let template = '{{#let "div" as |div|}}<div></div>{{/let}}';
+
+      expect(templateBody(template, { globals: ['let'] })).toMatchInlineSnapshot(`
+        "{
+          const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"let\\"])(\\"div\\"));
+          {
+            const [div] = 𝛄.blockParams[\\"default\\"];
+            {
+              const 𝛄 = χ.emitComponent(χ.resolve(div)());
+              𝛄;
+              {
+                const [] = 𝛄.blockParams[\\"default\\"];
+              }
+              div;
+            }
+          }
+          χ.Globals[\\"let\\"];
+        }"
+      `);
+    });
+
     test('with a path for a name', () => {
       let template = '<foo.bar @arg="hello" />';
 
