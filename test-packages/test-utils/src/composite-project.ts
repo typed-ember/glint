@@ -22,6 +22,8 @@ export const BASE_TS_CONFIG = {
     checkJs: false,
     declaration: true,
     emitDeclarationOnly: true,
+    incremental: true,
+    noEmit: false,
     outDir: OUT_DIR,
   },
   include: [INPUT_DIR],
@@ -47,6 +49,7 @@ export async function setupCompositeProject(): Promise<CompositeProject> {
     {
       extends: `./${SHARED_TSCONFIG}`,
       references: [{ path: './main' }],
+      include: ['./local-types/**/*'],
       files: [],
     },
     {

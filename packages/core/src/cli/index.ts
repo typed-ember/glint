@@ -81,8 +81,11 @@ if (argv.build) {
     clean: argv.clean,
     force: argv.force,
     dry: argv.dry,
-    incremental: argv.incremental,
   };
+
+  if ('incremental' in argv) {
+    buildOptions.incremental = argv.incremental;
+  }
 
   // Get the closest TS to us, since we have to assume that we may be in the
   // root of a project which has no `Glint` config *at all* in its root, but
