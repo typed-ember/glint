@@ -6,9 +6,6 @@
 // `ComponentLike`/`HelperLike`/`ModifierLike`, but these declarations are
 // the primitives on which those types are built.
 
-declare const Empty: unique symbol;
-export type EmptyObject = { [Empty]?: true };
-
 /** Any function, which is the tighest bound we can put on an object's `[Invoke]` field. */
 export type AnyFunction = (...params: any) => any;
 

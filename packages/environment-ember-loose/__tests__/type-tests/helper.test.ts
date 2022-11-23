@@ -1,4 +1,4 @@
-import Helper, { helper, EmptyObject } from '@ember/component/helper';
+import Helper, { helper } from '@ember/component/helper';
 import { resolve } from '@glint/environment-ember-loose/-private/dsl';
 import {
   NamedArgsMarker,
@@ -6,7 +6,7 @@ import {
 } from '@glint/environment-ember-loose/-private/dsl/without-function-resolution';
 import { expectTypeOf } from 'expect-type';
 import { HelperLike } from '@glint/template';
-import { EmptyObject as GlintEmptyObject, NamedArgs } from '@glint/template/-private/integration';
+import { NamedArgs } from '@glint/template/-private/integration';
 
 // Functional helper: fixed signature params
 {
@@ -56,7 +56,9 @@ import { EmptyObject as GlintEmptyObject, NamedArgs } from '@glint/template/-pri
   let definition = helper(<T, U>([a, b]: [T, U]) => a || b);
   let or = resolve(definition);
 
-  expectTypeOf(or).toEqualTypeOf<{ <T, U>(t: T, u: U, named?: NamedArgs<EmptyObject>): T | U }>();
+  // Using `toMatch` rather than `toEqual` because helper resolution (currently)
+  // uses a special `EmptyObject` type to represent empty named args.
+  expectTypeOf(or).toMatchTypeOf<{ <T, U>(t: T, u: U, named?: NamedArgs<{}>): T | U }>();
 
   or('a', 'b', {
     // @ts-expect-error: extra named arg
@@ -158,12 +160,12 @@ import { EmptyObject as GlintEmptyObject, NamedArgs } from '@glint/template/-pri
   let repeat = resolve(RepeatHelper);
 
   expectTypeOf(repeat).toEqualTypeOf<{
-    <T>(value: T, count?: number | undefined, args?: NamedArgs<GlintEmptyObject>): Array<T>;
+    <T>(value: T, count?: number | undefined): Array<T>;
   }>();
 
   repeat(
     'hello',
-    // @ts-expect-error: extra named arg
+    // @ts-expect-error: unexpected named args
     { word: 'hi', ...NamedArgsMarker }
   );
 
@@ -190,9 +192,7 @@ import { EmptyObject as GlintEmptyObject, NamedArgs } from '@glint/template/-pri
 
   let maybeString = resolve(MaybeStringHelper);
 
-  expectTypeOf(maybeString).toEqualTypeOf<
-    (args?: NamedArgs<GlintEmptyObject>) => string | undefined
-  >();
+  expectTypeOf(maybeString).toEqualTypeOf<() => string | undefined>();
 }
 
 // Helpers are `HelperLike`

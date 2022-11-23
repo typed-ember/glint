@@ -5,7 +5,7 @@ import {
   emitComponent,
   NamedArgsMarker,
 } from '@glint/environment-ember-loose/-private/dsl';
-import { ComponentReturn, EmptyObject, NamedArgs } from '@glint/template/-private/integration';
+import { ComponentReturn, NamedArgs } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
 import { ComponentKeyword } from '../../-private/intrinsics/component';
 import { ComponentLike, WithBoundArgs } from '@glint/template';
@@ -13,14 +13,7 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 {
   const NoArgsComponent = templateOnlyComponent();
 
-  resolve(NoArgsComponent)({
-    // @ts-expect-error: extra named arg
-    foo: 'bar',
-    ...NamedArgsMarker,
-  });
-
   resolve(NoArgsComponent)(
-    { ...NamedArgsMarker },
     // @ts-expect-error: extra positional arg
     'oops'
   );
@@ -38,9 +31,9 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 
   templateForBackingValue(NoArgsComponent, function (𝚪) {
     expectTypeOf(𝚪.this).toBeNull();
-    expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
-    expectTypeOf(𝚪.element).toBeNull();
-    expectTypeOf(𝚪.blocks).toEqualTypeOf<EmptyObject>();
+    expectTypeOf(𝚪.args).toEqualTypeOf<{}>();
+    expectTypeOf(𝚪.element).toBeUnknown();
+    expectTypeOf(𝚪.blocks).toEqualTypeOf<{}>();
   });
 }
 
@@ -124,7 +117,7 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 
   const CurriedWithNothing = resolve(componentKeyword)('curried-component');
   expectTypeOf(resolve(CurriedWithNothing)).toEqualTypeOf<
-    (args: NamedArgs<{ a: string; b: number }>) => ComponentReturn<EmptyObject>
+    (args: NamedArgs<{ a: string; b: number }>) => ComponentReturn<{}>
   >();
 
   const CurriedWithA = resolve(componentKeyword)('curried-component', {
@@ -132,7 +125,7 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
     ...NamedArgsMarker,
   });
   expectTypeOf(resolve(CurriedWithA)).toEqualTypeOf<
-    (args: NamedArgs<{ a?: string; b: number }>) => ComponentReturn<EmptyObject>
+    (args: NamedArgs<{ a?: string; b: number }>) => ComponentReturn<{}>
   >();
 }
 

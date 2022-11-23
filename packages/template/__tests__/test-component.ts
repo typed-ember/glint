@@ -3,7 +3,7 @@
 // well as simple examples of a helper and modifier.
 
 import { ComponentLike, ModifierLike } from '../-private/index';
-import { Context, EmptyObject, TemplateContext } from '../-private/integration';
+import { Context, TemplateContext } from '../-private/integration';
 import { LetKeyword } from '../-private/keywords';
 
 export default TestComponent;
@@ -19,7 +19,7 @@ export declare const globals: {
   >;
 };
 
-type Get<T, K, Otherwise = EmptyObject> = K extends keyof T ? Exclude<T[K], undefined> : Otherwise;
+type Get<T, K, Otherwise = {}> = K extends keyof T ? Exclude<T[K], undefined> : Otherwise;
 
 interface TestComponent<T = {}> extends InstanceType<ComponentLike<T>> {}
 declare class TestComponent<T = {}> {

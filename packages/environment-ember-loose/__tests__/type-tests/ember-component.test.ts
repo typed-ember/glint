@@ -7,7 +7,6 @@ import {
   NamedArgsMarker,
 } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { EmptyObject } from '@glint/template/-private/integration';
 import type { ComponentLike } from '@glint/template';
 
 {
@@ -18,12 +17,6 @@ import type { ComponentLike } from '@glint/template';
       });
     }
   }
-
-  resolve(NoArgsComponent)({
-    // @ts-expect-error: extra named arg
-    foo: 'bar',
-    ...NamedArgsMarker,
-  });
 
   resolve(NoArgsComponent)(
     // @ts-expect-error: extra positional arg
@@ -50,7 +43,7 @@ import type { ComponentLike } from '@glint/template';
       templateForBackingValue(this, function* (𝚪) {
         expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
         expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
-        expectTypeOf(𝚪.args).toEqualTypeOf<EmptyObject>();
+        expectTypeOf(𝚪.args).toEqualTypeOf<{}>();
       });
     }
   }

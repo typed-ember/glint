@@ -96,3 +96,30 @@ import { ModifierLike, WithBoundArgs } from '@glint/template';
     ) => ModifierReturn
   >();
 }
+
+// Assignability
+{
+  // Modifiers are contravariant with their named `Args` type
+  expectTypeOf<ModifierLike<{ Args: { Named: { name: string } } }>>().toMatchTypeOf<
+    ModifierLike<{ Args: { Named: { name: 'Dan' } } }>
+  >();
+  expectTypeOf<ModifierLike<{ Args: { Named: { name: 'Dan' } } }>>().not.toMatchTypeOf<
+    ModifierLike<{ Args: { Named: { name: string } } }>
+  >();
+
+  // Modifiers are contravariant with their positional `Args` type
+  expectTypeOf<ModifierLike<{ Args: { Positional: [name: string] } }>>().toMatchTypeOf<
+    ModifierLike<{ Args: { Positional: [name: 'Dan'] } }>
+  >();
+  expectTypeOf<ModifierLike<{ Args: { Positional: [name: 'Dan'] } }>>().not.toMatchTypeOf<
+    ModifierLike<{ Args: { Positional: [name: string] } }>
+  >();
+
+  // Modifiers are contravariant with their `Element` type
+  expectTypeOf<ModifierLike<{ Element: HTMLElement }>>().toMatchTypeOf<
+    ModifierLike<{ Element: HTMLAudioElement }>
+  >();
+  expectTypeOf<ModifierLike<{ Element: HTMLAudioElement }>>().not.toMatchTypeOf<
+    ModifierLike<{ Element: HTMLElement }>
+  >();
+}

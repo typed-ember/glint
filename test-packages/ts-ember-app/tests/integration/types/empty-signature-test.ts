@@ -27,8 +27,8 @@ module('Integration | Types | empty object signature members', function (hooks) 
         <:named></:named>
       </this.component>
 
-       <this.component
-        {{! @glint-expect-error: shouldn't accept args }}
+      {{! @glint-expect-error: shouldn't accept args }}
+      <this.component
         @foo="hi"
       />
     `);

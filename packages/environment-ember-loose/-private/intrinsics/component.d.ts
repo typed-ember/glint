@@ -1,7 +1,6 @@
 import { WithBoundArgs } from '@glint/template';
 import {
   ComponentReturn,
-  EmptyObject,
   DirectInvokable,
   InvokableInstance,
   Invokable,
@@ -14,8 +13,8 @@ import {
 type ComponentNamedArgs<Component> = Component extends Invokable<(...args: infer Args) => any>
   ? Args extends [...positional: infer _, named?: infer Named]
     ? UnwrapNamedArgs<Named>
-    : EmptyObject
-  : EmptyObject;
+    : {}
+  : {};
 
 type PartiallyAppliedComponent<Component, Args> = Component extends Invokable<AnyFunction>
   ? WithBoundArgs<

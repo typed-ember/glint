@@ -3,7 +3,6 @@
 import { ComponentLike, HelperLike, ModifierLike } from '@glint/template';
 import {
   Context,
-  EmptyObject,
   FlattenBlockParams,
   HasContext,
   TemplateContext,
@@ -85,7 +84,7 @@ declare module '@ember/routing/route' {
     [Context]: TemplateContext<
       Controller & ModelField<ModelForRoute<this>>,
       ModelField<ModelForRoute<this>>,
-      EmptyObject,
+      {},
       null
     >;
   }
@@ -93,7 +92,7 @@ declare module '@ember/routing/route' {
 
 declare module '@ember/controller' {
   export default interface Controller {
-    [Context]: TemplateContext<this, ModelField<this['model']>, EmptyObject, null>;
+    [Context]: TemplateContext<this, ModelField<this['model']>, {}, null>;
   }
 }
 
@@ -103,9 +102,7 @@ declare module '@ember/controller' {
 import '@ember/test-helpers';
 import 'ember-cli-htmlbars';
 
-type TestTemplate<T> = abstract new () => HasContext<
-  TemplateContext<T, EmptyObject, EmptyObject, void>
->;
+type TestTemplate<T> = abstract new () => HasContext<TemplateContext<T, {}, {}, void>>;
 
 declare module '@ember/test-helpers' {
   export function render<T>(template: TestTemplate<T>): Promise<void>;

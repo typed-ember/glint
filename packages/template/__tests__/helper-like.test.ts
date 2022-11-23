@@ -1,7 +1,7 @@
 import { NamedArgsMarker, resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { HelperLike, WithBoundArgs } from '@glint/template';
-import { EmptyObject, NamedArgs } from '../-private/integration';
+import { NamedArgs } from '../-private/integration';
 
 // Fixed signature params
 {
@@ -54,20 +54,13 @@ import { EmptyObject, NamedArgs } from '../-private/integration';
   let definition!: new <T, U>() => InstanceType<HelperLike<GenericSignature<T, U>>>;
   let or = resolve(definition);
 
-  expectTypeOf(or).toEqualTypeOf<{ <T, U>(t: T, u: U, args?: NamedArgs<EmptyObject>): T | U }>();
-
-  or('a', 'b', {
-    // @ts-expect-error: extra named arg
-    hello: true,
-    ...NamedArgsMarker,
-  });
+  expectTypeOf(or).toEqualTypeOf<{ <T, U>(t: T, u: U): T | U }>();
 
   or(
     'a',
     'b',
-    'c',
     // @ts-expect-error: extra positional arg
-    { ...NamedArgsMarker }
+    'c'
   );
 
   expectTypeOf(or('a', 'b')).toEqualTypeOf<string>();
@@ -86,5 +79,32 @@ import { EmptyObject, NamedArgs } from '../-private/integration';
 
   expectTypeOf(resolve(definition)).toEqualTypeOf<
     (args: NamedArgs<{ age: number; name?: string }>) => string
+  >();
+}
+
+// Assignability
+{
+  // Helpers are contravariant with their named `Args` type
+  expectTypeOf<HelperLike<{ Args: { Named: { name: string } } }>>().toMatchTypeOf<
+    HelperLike<{ Args: { Named: { name: 'Dan' } } }>
+  >();
+  expectTypeOf<HelperLike<{ Args: { Named: { name: 'Dan' } } }>>().not.toMatchTypeOf<
+    HelperLike<{ Args: { Named: { name: string } } }>
+  >();
+
+  // Helpers are contravariant with their positional `Args` type
+  expectTypeOf<HelperLike<{ Args: { Positional: [name: string] } }>>().toMatchTypeOf<
+    HelperLike<{ Args: { Positional: [name: 'Dan'] } }>
+  >();
+  expectTypeOf<HelperLike<{ Args: { Positional: [name: 'Dan'] } }>>().not.toMatchTypeOf<
+    HelperLike<{ Args: { Positional: [name: string] } }>
+  >();
+
+  // Helpers are contravariant with their `Element` type
+  expectTypeOf<HelperLike<{ Return: 'Hello, World' }>>().toMatchTypeOf<
+    HelperLike<{ Return: string }>
+  >();
+  expectTypeOf<HelperLike<{ Return: string }>>().not.toMatchTypeOf<
+    HelperLike<{ Return: 'Hello, World' }>
   >();
 }
