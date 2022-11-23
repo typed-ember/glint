@@ -25,6 +25,7 @@ import {
   tagsForDiagnostic,
 } from './util/protocol.js';
 import { TextEdit } from 'vscode-languageserver-textdocument';
+import { GetIRResult } from './messages.js';
 
 export interface GlintCompletionItem extends CompletionItem {
   data: {
@@ -347,12 +348,16 @@ export default class GlintLanguageServer {
     return this.calculateOriginalLocations(references);
   }
 
-  public getTransformedContents(uri: string): string | null {
+  public getTransformedContents(uri: string): GetIRResult | undefined {
     let filePath = uriToFilePath(uri);
     let source = this.findDiagnosticsSource(filePath);
-    if (source !== filePath) return null;
+    if (!source) return;
 
-    return this.transformManager.readTransformedFile(filePath) ?? null;
+    let contents = this.transformManager.readTransformedFile(source);
+    if (contents) {
+      let uri = filePathToUri(this.documents.getCanonicalDocumentPath(source));
+      return { uri, contents };
+    }
   }
 
   private calculateOriginalLocations(spans: ReadonlyArray<ts.DocumentSpan>): Array<Location> {

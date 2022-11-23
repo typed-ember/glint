@@ -6,7 +6,7 @@ import type { Request, GetIRRequest } from '@glint/core/lsp-messages';
 
 // Code only injects itself for `require`, not `import`
 const vscode = createRequire(import.meta.url)('vscode') as typeof import('vscode');
-const { Range, window, commands, workspace } = vscode;
+const { Range, Uri, window, commands, workspace } = vscode;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Setup and extension lifecycle
@@ -50,20 +50,23 @@ async function showDebugIR(editor: TextEditor): Promise<void> {
     return;
   }
 
-  let { document } = editor;
+  let sourceURI = editor.document.uri;
   let client = clients.get(workspaceFolder.uri.fsPath);
   let request = requestKey<typeof GetIRRequest>('glint/getIR');
-  let response = await client?.sendRequest(request, { uri: document.uri.toString() });
-  if (!response) {
-    return;
-  }
+  let response = await client?.sendRequest(request, { uri: sourceURI.toString() });
+
+  // Just don't support this command for older @glint/core versions
+  if (!response || typeof response === 'string') return;
+
+  let { contents, uri } = response;
+  let targetEditor = await window.showTextDocument(Uri.parse(uri));
+  let { document } = targetEditor;
 
   let start = document.positionAt(0);
   let end = document.positionAt(document.getText().length);
-  let transformedContents = response;
 
-  await editor.edit((edit) => {
-    edit.replace(new Range(start, end), transformedContents);
+  await targetEditor.edit((edit) => {
+    edit.replace(new Range(start, end), contents);
   });
 }
 

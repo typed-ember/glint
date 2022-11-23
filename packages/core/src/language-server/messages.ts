@@ -7,10 +7,15 @@ export type Request<Name extends string, T> = {
 
 export const GetIRRequest = makeRequestType(
   'glint/getIR',
-  ProtocolRequestType<GetIRParams, string | null, void, void, void>
+  ProtocolRequestType<GetIRParams, GetIRResult | null, void, void, void>
 );
 
 export interface GetIRParams {
+  uri: string;
+}
+
+export interface GetIRResult {
+  contents: string;
   uri: string;
 }
 
