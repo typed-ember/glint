@@ -25,7 +25,7 @@ describe('Smoke test: Ember', () => {
   });
 
   describe('debugging commands', () => {
-    test('showing IR', async () => {
+    test('showing IR in the backing file', async () => {
       let scriptURI = Uri.file(`${rootDir}/app/components/colocated-layout.ts`);
       let editor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
 
@@ -33,6 +33,18 @@ describe('Smoke test: Ember', () => {
       await waitUntil(() => editor.document.getText().includes('𝚪'));
 
       expect(editor.document.getText()).toMatch('𝚪.this.message');
+    });
+
+    test('showing IR from a template', async () => {
+      let templateURI = Uri.file(`${rootDir}/app/components/colocated-layout.hbs`);
+      let scriptURI = Uri.file(`${rootDir}/app/components/colocated-layout.ts`);
+
+      await window.showTextDocument(templateURI, { viewColumn: ViewColumn.One });
+      await commands.executeCommand('glint.show-debug-ir');
+      await waitUntil(() => window.activeTextEditor?.document.getText().includes('𝚪'));
+
+      expect(window.activeTextEditor?.document.uri.toString()).toEqual(scriptURI.toString());
+      expect(window.activeTextEditor?.document.getText()).toMatch('𝚪.this.message');
     });
   });
 

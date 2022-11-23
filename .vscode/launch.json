@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "Debug Extension",
-      "type": "pwa-extensionHost",
+      "type": "extensionHost",
       "request": "launch",
       "preLaunchTask": "npm: build",
       "autoAttachChildProcesses": true,
