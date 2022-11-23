@@ -10,6 +10,9 @@
     "doc": "doc",
     "test": "tests"
   },
+  "scripts": {
+    "test": "true"
+  },
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.7.0",
