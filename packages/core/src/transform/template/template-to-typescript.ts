@@ -392,7 +392,11 @@ export function templateToTypescript(
 
     function emitElementNode(node: AST.ElementNode): void {
       let firstCharacter = node.tag.charAt(0);
-      if (firstCharacter.toUpperCase() === firstCharacter || node.tag.includes('.')) {
+      if (
+        firstCharacter.toUpperCase() === firstCharacter ||
+        node.tag.includes('.') ||
+        scope.hasBinding(node.tag)
+      ) {
         emitComponent(node);
       } else {
         emitPlainElement(node);
