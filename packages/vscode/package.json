@@ -8,8 +8,8 @@
   "private": true,
   "author": "James C. Davis (https://github.com/jamescdavis)",
   "license": "MIT",
-  "type": "module",
-  "main": "lib/entry.cjs",
+  "type": "commonjs",
+  "main": "lib/extension.js",
   "homepage": "https://github.com/typed-ember/glint/packages/vscode",
   "repository": {
     "url": "https://github.com/typed-ember/glint"
@@ -29,7 +29,7 @@
     "lib"
   ],
   "scripts": {
-    "test": "node __tests__/support/launch-from-cli.js",
+    "test": "node __tests__/support/launch-from-cli.mjs",
     "build": "tsc --build",
     "vscode:prepublish": "yarn build"
   },

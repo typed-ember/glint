@@ -11,6 +11,6 @@ src/
 tsconfig.json
 tsconfig.tsbuildinfo
 
-jest.config.js
+jest.config.mjs
 
 node_modules/**/*.d.ts
