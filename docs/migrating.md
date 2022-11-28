@@ -39,13 +39,15 @@ Glint 1.0 drops support for the `transform` configuration key, which is where `i
 earlier iteration of Glint.
 
 If you're currently relying on these keys to have Glint skip typechecking for parts of your
-codebase, consider using `@glint-nocheck` directives instead. You can automate the process of
-adding those directives to templates that have type errors using the [`glint-auto-nocheck`] script.
+codebase, consider using [`@glint-nocheck` directives][nocheck] instead. You can automate the
+process of adding those directives to templates that have type errors using the
+[`glint-auto-nocheck`] script.
 
 Note that templates with a `@glint-nocheck` directive will benefit from best-effort editor support
 for features such as hover information, go-to-definition, etc. even if they aren't typesafe,
 which is a meaningful advantage over templates that were ignored via `include`/`exclude`.
 
+[nocheck]: ../docs/directives.md#glint-nocheck
 [`glint-auto-nocheck`]: https://github.com/typed-ember/glint/tree/main/packages/scripts#auto-glint-nocheck
 
 ### Tagged Strings in `ember-template-imports`
