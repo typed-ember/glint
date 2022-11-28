@@ -1,4 +1,3 @@
-// eslint-disable-next-line ember/no-classic-components
 import Component from '@ember/component';
 
 export interface BarSignature {
@@ -7,7 +6,6 @@ export interface BarSignature {
   };
 }
 
-// eslint-disable-next-line ember/require-tagless-components
 export default class Bar extends Component<BarSignature> {
   name = 'BAR';
 }
