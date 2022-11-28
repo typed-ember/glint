@@ -2,7 +2,7 @@
   "name": "glint-vscode",
   "displayName": "Glint",
   "description": "Glint language server integration for VS Code",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0",
   "publisher": "typed-ember",
   "preview": true,
   "private": true,
