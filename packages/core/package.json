@@ -10,7 +10,7 @@
   "exports": {
     ".": "./lib/index.js",
     "./config-types": "./lib/config/types.d.cts",
-    "./lsp-messages": "./lib/language-server/messages.js",
+    "./lsp-messages": "./lib/language-server/messages.cjs",
     "./bin/*": "./bin/*.js"
   },
   "files": [

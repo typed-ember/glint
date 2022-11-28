@@ -25,7 +25,7 @@ import {
   tagsForDiagnostic,
 } from './util/protocol.js';
 import { TextEdit } from 'vscode-languageserver-textdocument';
-import { GetIRResult } from './messages.js';
+import { GetIRResult } from './messages.cjs';
 
 export interface GlintCompletionItem extends CompletionItem {
   data: {
