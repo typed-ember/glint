@@ -1,5 +1,84 @@
 # Migrating
 
+## Glint 0.9.x to 1.0
+
+{% hint style="warning" %}
+
+Glint 1.0 is currently in a beta period. We encourage you to try out the beta and report any
+issues you run into. While we don't anticipate landing any further breaking changes during the beta
+cycle, be aware that it's still possible we'll do so in response to bugs or other early feedback.
+
+{% endhint %}
+
+Most of the changes in Glint 1.0 should appear as bugfixes and improvements to the majority of 
+users migrating from 0.9.x.
+
+The main change to be aware of is that **`@glint/template` should now be explicitly added to your
+project's `devDependencies`** when you upgrade Glint. Note also that support for `include` and
+`exclude` globs has been removed.
+
+More details about these and other breaking changes are laid out below.
+
+### `@glint/template` Peer
+
+For Glint to work properly, there must be exactly one common copy of `@glint/template` present
+in your dependency hierarchy. This has been true throughout our 0.x releases, but as of 1.0
+we're making that explicit by marking `@glint/template` as a `peerDependency` of our environment
+packages rather than a hard `dependency`.
+
+Accordingly, you will need to add `@glint/template` to your project's own dependencies list
+alongside `@glint/core` and your environment package(s).
+
+Note also that if you publish an addon that depends on types from `@glint/template`, that addon
+should likewise declare a `peerDependency` on `@glint/template` and **not** a regular `dependency`.
+
+### `include`/`exclude` Configuration
+
+Glint 1.0 drops support for the `transform` configuration key, which is where `include` and
+`exclude` globs were previously specified. These options were a blunt instrument left over from an
+earlier iteration of Glint.
+
+If you're currently relying on these keys to have Glint skip typechecking for parts of your
+codebase, consider using [`@glint-nocheck` directives][nocheck] instead. You can automate the
+process of adding those directives to templates that have type errors using the
+[`glint-auto-nocheck`] script.
+
+Note that templates with a `@glint-nocheck` directive will benefit from best-effort editor support
+for features such as hover information, go-to-definition, etc. even if they aren't typesafe,
+which is a meaningful advantage over templates that were ignored via `include`/`exclude`.
+
+[nocheck]: ../docs/directives.md#glint-nocheck
+[`glint-auto-nocheck`]: https://github.com/typed-ember/glint/tree/main/packages/scripts#auto-glint-nocheck
+
+### Tagged Strings in `ember-template-imports`
+
+Since `<template>` [has been been selected][fccts] as the path forward for template imports (a.k.a
+strict mode) in Ember, the `hbs` string tag from `ember-template-imports` is no longer treated as
+a template marker by `@glint/environment-ember-template-imports`. This also aligns with the intent
+to [deprecate `hbs`][eti-no-more-hbs] in `ember-template-imports` itself.
+
+Projects using `ember-template-imports` will need to migrate to `<template>` in order to upgrade to
+Glint 1.0, as any remaining `hbs`-tagged templates will be treated as simple strings.
+
+[fccts]: https://rfcs.emberjs.com/id/0779-first-class-component-templates/
+[eti-no-more-hbs]: https://github.com/ember-template-imports/ember-template-imports/pull/18#issuecomment-1311185752
+
+### Internal Type Updates
+
+Between 0.9.x and 1.0, several updates landed to rework how Glint internally represents the types
+of many template entities. For end users, this should result in simpler error messages, better
+support for "plain-function" helpers, and more sensible assignability rules when working with types
+like `ComponentLike<...>`.
+
+This change also resulted in Glint (correctly!) flagging some new type errors that might previously
+have been missed. One notable case of this is with Ember's `{{on}}` modifier, which in prior
+versions would accept a callback that required a more specific `Event` subtype than was actually
+appropriate based on the event being listened to.
+
+Finally, note that this change is almost guaranteed to break most usage of private Glint types
+from the template layer. If you've been using private APIs in 0.9.x, you'll likely need to update
+that usage to be compatible with 1.0.
+
 ## Glint 0.8.x to 0.9.x
 
 Glint 0.9 removes support for the `.glintrc.yml` file, moving configuration into your project's `tsconfig.json` or
