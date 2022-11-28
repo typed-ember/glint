@@ -9,7 +9,7 @@
   "author": "James C. Davis (https://github.com/jamescdavis)",
   "license": "MIT",
   "type": "commonjs",
-  "main": "lib/extension.js",
+  "main": "dist/extension.js",
   "homepage": "https://github.com/typed-ember/glint/packages/vscode",
   "repository": {
     "url": "https://github.com/typed-ember/glint"
@@ -29,8 +29,11 @@
     "lib"
   ],
   "scripts": {
+    "pretest": "yarn build",
     "test": "node __tests__/support/launch-from-cli.mjs",
-    "build": "tsc --build",
+    "build": "yarn compile && yarn bundle",
+    "compile": "tsc --build",
+    "bundle": "esbuild lib/extension.js --bundle --outfile=dist/extension.js --platform=node --external:vscode --minify",
     "vscode:prepublish": "yarn build"
   },
   "engines": {
@@ -93,6 +96,7 @@
     "@types/jest": "^26.0.13",
     "@types/vscode": "^1.68.1",
     "@vscode/test-electron": "^2.2.0",
+    "esbuild": "^0.15.16",
     "intercept-stdout": "^0.1.2",
     "jest": "^26.4.2",
     "ts-jest": "^26.3.0"

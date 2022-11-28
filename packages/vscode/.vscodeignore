@@ -7,10 +7,11 @@
 __tests__/
 __fixtures__/
 src/
+lib/
 
 tsconfig.json
 tsconfig.tsbuildinfo
 
 jest.config.mjs
 
-node_modules/**/*.d.ts
+node_modules/
