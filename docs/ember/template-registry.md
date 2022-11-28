@@ -32,9 +32,12 @@ If you've nested your component inside folder(s), you'll need to add the full "s
 
 ```typescript
 export default class MyComponent extends Component {}
-export default interface Registry {
-  'Grouping::MyComponent': typeof MyComponent;
-  'grouping/my-component': typeof MyComponent;
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    'Grouping::MyComponent': typeof MyComponent;
+    'grouping/my-component': typeof MyComponent;
+  }
 }
 ```
 
