@@ -44,5 +44,5 @@ Because Glint uses your project-local copy of TypeScript and the packages whose 
 
 | Package       | Minimum Version |
 | ------------- | --------------- |
-| `typescript`  | 4.7.0           |
+| `typescript`  | 4.8.0           |
 | `@glimmerx/*` | 0.6.7           |
