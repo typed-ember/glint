@@ -47,6 +47,16 @@ linkTo({}, 123);
   expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
 }
 
+{
+  // Ensure it's also usable with only named args like `<LinkTo>`
+  emitComponent(linkTo({ route: 'index', ...NamedArgsMarker }));
+  emitComponent(linkTo({ model: {}, ...NamedArgsMarker }));
+  emitComponent(linkTo({ route: 'index', model: {}, ...NamedArgsMarker }));
+
+  // @ts-expect-error: requires at least one arg, either named or positional
+  linkTo();
+}
+
 // <LinkTo>
 
 {

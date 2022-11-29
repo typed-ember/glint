@@ -1,4 +1,5 @@
 import { ComponentLike } from '@glint/template';
+import { ComponentReturn, DirectInvokable, NamedArgs } from '@glint/template/-private/integration';
 
 type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
   {
@@ -20,12 +21,14 @@ type LinkToArgs = RequireAtLeastOne<
   'route' | 'model' | 'models' | 'query'
 >;
 
-export type LinkToKeyword = ComponentLike<{
-  Args: {
-    Positional: [route: string, ...params: unknown[], ...named: [named?: Partial<LinkToArgs>]];
-  };
-  Element: HTMLAnchorElement;
-  Blocks: { default: [] };
+type LinkToReturn = ComponentReturn<{ default: [] }, HTMLAnchorElement>;
+
+export type LinkToKeyword = DirectInvokable<{
+  // `{{link-to}}` classic invocation
+  (route: string, ...params: Array<unknown>): LinkToReturn;
+
+  // `<LinkTo>` invocation, but accessed via `'link-to'` e.g. with `{{component}}`
+  (named: NamedArgs<LinkToArgs>): LinkToReturn;
 }>;
 
 export type LinkToComponent = ComponentLike<{
