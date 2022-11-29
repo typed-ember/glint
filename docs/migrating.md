@@ -19,6 +19,10 @@ project's `devDependencies`** when you upgrade Glint. Note also that support for
 
 More details about these and other breaking changes are laid out below.
 
+### Minimum TypeScript Version
+
+Glint 1.0 requires TypeScript 4.8 or greater, dropping support for 4.7.
+
 ### `@glint/template` Peer
 
 For Glint to work properly, there must be exactly one common copy of `@glint/template` present
