@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import yargs from 'yargs';
 import { findTypeScript, loadConfig } from '../config/index.js';
 import { performWatch } from './perform-watch.js';
@@ -6,6 +7,9 @@ import { determineOptionsToExtend } from './options.js';
 import { performBuild } from './perform-build.js';
 import type * as TS from 'typescript';
 import { performBuildWatch } from './perform-build-watch.js';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../../package.json');
 
 const argv = yargs(process.argv.slice(2))
   .scriptName('glint')
@@ -58,6 +62,7 @@ const argv = yargs(process.argv.slice(2))
     boolean: false,
     description: `When true, writes out a Glint's internal intermediate representation of each file within a GLINT_DEBUG subdirectory of the current working directory. This is intended for debugging Glint itself.`,
   })
+  .version(pkg.version)
   .wrap(100)
   .strict()
   .parseSync();
