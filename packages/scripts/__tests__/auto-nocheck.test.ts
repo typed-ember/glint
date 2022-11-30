@@ -1,6 +1,6 @@
 import { stripIndent } from 'common-tags';
 import ora, { Ora } from 'ora';
-import { Project } from '@glint/test-utils';
+import { Project } from 'glint-monorepo-test-utils';
 
 import { afterEach, beforeEach, describe, test, expect } from 'vitest';
 import { autoNocheck } from '../src/lib/_auto-nocheck.js';

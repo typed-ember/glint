@@ -1,4 +1,4 @@
-import { Project } from '@glint/test-utils';
+import { Project } from 'glint-monorepo-test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
 import { CompletionItemKind } from 'vscode-languageserver';
