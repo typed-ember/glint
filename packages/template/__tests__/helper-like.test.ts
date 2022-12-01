@@ -44,6 +44,30 @@ import { NamedArgs } from '../-private/integration';
   expectTypeOf(info('Tom', { age: 123, ...NamedArgsMarker })).toEqualTypeOf<string>();
 }
 
+// Unions of arg types
+{
+  interface UnionSignature {
+    Args: {
+      Positional: [full: string] | [first: string, last: string];
+      Named: { force: boolean } | Partial<{ foo: string; bar: string }>;
+    };
+    Return: string;
+  }
+
+  let definition!: HelperLike<UnionSignature>;
+  let info = resolve(definition);
+
+  expectTypeOf(info).toEqualTypeOf<
+    (
+      ...args:
+        | [full: string, named: NamedArgs<{ force: boolean }>]
+        | [full: string, named?: NamedArgs<Partial<{ foo: string; bar: string }>>]
+        | [first: string, last: string, named: NamedArgs<{ force: boolean }>]
+        | [first: string, last: string, named?: NamedArgs<Partial<{ foo: string; bar: string }>>]
+    ) => string
+  >();
+}
+
 // Generic params
 {
   interface GenericSignature<T, U> {

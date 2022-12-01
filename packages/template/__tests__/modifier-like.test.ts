@@ -45,6 +45,44 @@ import { ModifierLike, WithBoundArgs } from '@glint/template';
   });
 }
 
+// Unions of arg types
+{
+  interface UnionSignature {
+    Element: HTMLAudioElement;
+    Args: {
+      Positional: [full: string] | [first: string, last: string];
+      Named: { force: boolean } | Partial<{ foo: string; bar: string }>;
+    };
+  }
+
+  let definition!: ModifierLike<UnionSignature>;
+  let info = resolve(definition);
+
+  expectTypeOf(info).toEqualTypeOf<
+    (
+      ...args:
+        | [element: HTMLAudioElement, full: string, named: NamedArgs<{ force: boolean }>]
+        | [
+            element: HTMLAudioElement,
+            full: string,
+            named?: NamedArgs<Partial<{ foo: string; bar: string }>>
+          ]
+        | [
+            element: HTMLAudioElement,
+            first: string,
+            last: string,
+            named: NamedArgs<{ force: boolean }>
+          ]
+        | [
+            element: HTMLAudioElement,
+            first: string,
+            last: string,
+            named?: NamedArgs<Partial<{ foo: string; bar: string }>>
+          ]
+    ) => ModifierReturn
+  >();
+}
+
 // Generic params
 {
   interface OnDestroySignature<T> {

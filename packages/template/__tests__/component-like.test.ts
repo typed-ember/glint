@@ -117,6 +117,29 @@ import TestComponent from './test-component';
   resolve(PositionalArgsComponent)('a', 1);
 }
 
+// Unions of arg types
+{
+  interface UnionSignature {
+    Args: {
+      Positional: [full: string] | [first: string, last: string];
+      Named: { force: boolean } | Partial<{ foo: string; bar: string }>;
+    };
+  }
+
+  let definition!: ComponentLike<UnionSignature>;
+  let info = resolve(definition);
+
+  expectTypeOf(info).toEqualTypeOf<
+    (
+      ...args:
+        | [full: string, named: NamedArgs<{ force: boolean }>]
+        | [full: string, named?: NamedArgs<Partial<{ foo: string; bar: string }>>]
+        | [first: string, last: string, named: NamedArgs<{ force: boolean }>]
+        | [first: string, last: string, named?: NamedArgs<Partial<{ foo: string; bar: string }>>]
+    ) => ComponentReturn<{}>
+  >();
+}
+
 // With pre-bound args
 {
   let MyComponent!: ComponentLike<{

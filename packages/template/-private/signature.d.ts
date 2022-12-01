@@ -54,11 +54,13 @@ export type PrebindArgs<T, Args extends keyof UnwrapNamedArgs<T>> = NamedArgs<
   Omit<UnwrapNamedArgs<T>, Args> & Partial<Pick<UnwrapNamedArgs<T>, Args>>
 >;
 
-export type MaybeNamed<T> = {} extends UnwrapNamedArgs<T>
-  ? keyof UnwrapNamedArgs<T> extends never
-    ? []
-    : [named?: T]
-  : [named: T];
+export type MaybeNamed<T> = T extends any
+  ? {} extends UnwrapNamedArgs<T>
+    ? keyof UnwrapNamedArgs<T> extends never
+      ? []
+      : [named?: T]
+    : [named: T]
+  : never;
 
 export type Get<T, K, Otherwise = unknown> = K extends keyof T ? T[K] : Otherwise;
 export type Constrain<T, Constraint, Otherwise = Constraint> = T extends Constraint ? T : Otherwise;
