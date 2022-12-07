@@ -121,7 +121,10 @@ describe('CLI: emitting declarations', () => {
       "
     `);
 
-    expect(project.read('signatureless-component.d.ts')).toMatchInlineSnapshot('""');
+    expect(project.read('signatureless-component.d.ts')).toMatchInlineSnapshot(`
+      "export {};
+      "
+    `);
 
     expect(project.read('template-only.d.ts')).toMatchInlineSnapshot(`
       "export interface TemplateOnlySignature {

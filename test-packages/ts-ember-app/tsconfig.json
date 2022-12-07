@@ -24,6 +24,7 @@
     "baseUrl": ".",
     "module": "es6",
     "experimentalDecorators": true,
+    "isolatedModules": true,
     "paths": {
       "ts-ember-app/tests/*": ["tests/*"],
       "ts-ember-app/*": ["app/*"],
