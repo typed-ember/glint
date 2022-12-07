@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["../src", "."],
+  "compilerOptions": {
+    "rootDir": "..",
+    "noEmit": true,
+    "incremental": false,
+    "composite": false
+  },
+  "glint": {
+    "environment": ["ember-loose", "ember-template-imports"]
+  }
+}
