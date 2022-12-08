@@ -36,6 +36,12 @@ export function activate(context: ExtensionContext): void {
     added.forEach((folder) => addWorkspaceFolder(folder, fileWatcher));
     removed.forEach((folder) => removeWorkspaceFolder(folder));
   });
+
+  workspace.onDidChangeConfiguration((changeEvent) => {
+    if (changeEvent.affectsConfiguration('glint.libraryPath')) {
+      reloadAllWorkspaces(fileWatcher);
+    }
+  });
 }
 
 export async function deactivate(): Promise<void> {
@@ -79,6 +85,17 @@ async function showDebugIR(editor: TextEditor): Promise<void> {
 ///////////////////////////////////////////////////////////////////////////////
 // Workspace folder management
 
+async function reloadAllWorkspaces(fileWatcher: FileSystemWatcher): Promise<void> {
+  let folders = workspace.workspaceFolders ?? [];
+
+  await Promise.all(
+    folders.map(async (folder) => {
+      await removeWorkspaceFolder(folder);
+      await addWorkspaceFolder(folder, fileWatcher);
+    })
+  );
+}
+
 async function addWorkspaceFolder(
   workspaceFolder: WorkspaceFolder,
   watcher: FileSystemWatcher
@@ -114,16 +131,18 @@ async function removeWorkspaceFolder(workspaceFolder: WorkspaceFolder): Promise<
 ///////////////////////////////////////////////////////////////////////////////
 // Utilities
 
-function findLanguageServer(basedir: string): string | null {
-  let requireFrom = path.resolve(basedir, 'package.json');
+function findLanguageServer(workspaceDir: string): string | null {
+  let userLibraryPath = workspace.getConfiguration().get('glint.libraryPath', '.');
+  let resolutionDir = path.resolve(workspaceDir, userLibraryPath);
+  let require = createRequire(path.join(resolutionDir, 'package.json'));
   try {
-    return createRequire(requireFrom).resolve('@glint/core/bin/glint-language-server');
+    return require.resolve('@glint/core/bin/glint-language-server');
   } catch {
     // Many workspaces with `tsconfig` files won't be Glint projects, so it's totally fine for us to
     // just bail out if we don't see `@glint/core`. If someone IS expecting Glint to run for this
     // project, though, we leave a message in our channel explaining why we didn't launch.
     outputChannel.appendLine(
-      `Unable to resolve @glint/core from ${basedir} — not launching Glint for this directory.`
+      `Unable to resolve @glint/core from ${resolutionDir} — not launching Glint for this directory.`
     );
 
     return null;
