@@ -16,6 +16,11 @@ See the [Glint home page] for a more detailed Getting Started guide.
 
 [glint home page]: https://typed-ember.gitbook.io/glint
 
+If the location where `@glint/core` is installed isn't in the root of your Code workspace, you can inform the extension on a per-workspace basis where to locate the language server in the Glint extension settings.
+
+<img width="705" alt="Input for `glint.libaryPath` in the VS Code configuration editor." src="https://user-images.githubusercontent.com/108688/206561138-aca2bb80-04f6-44dd-a23f-032d4f163f7a.png">
+
+
 ## Usage
 
 The Glint language server incorporates Glimmer templates into TypeScript-powered tooling for a project, enabling them to participate in rich editor features such as:
