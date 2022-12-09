@@ -184,7 +184,7 @@ export default class TransformedModule {
     for (let span of this.correlatedSpans) {
       if (
         transformedOffset >= span.transformedStart &&
-        transformedOffset < span.transformedStart + span.transformedLength
+        transformedOffset <= span.transformedStart + span.transformedLength
       ) {
         return {
           originalOffset: transformedOffset - span.transformedStart + span.originalStart,

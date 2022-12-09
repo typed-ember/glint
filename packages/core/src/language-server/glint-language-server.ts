@@ -16,6 +16,11 @@ import {
   WorkspaceEdit,
   Range,
   SymbolInformation,
+  CodeAction,
+  CodeActionKind,
+  TextDocumentEdit,
+  OptionalVersionedTextDocumentIdentifier,
+  TextEdit,
 } from 'vscode-languageserver';
 import DocumentCache from '../common/document-cache.js';
 import { Position, positionToOffset } from './util/position.js';
@@ -24,8 +29,8 @@ import {
   severityForDiagnostic,
   tagsForDiagnostic,
 } from './util/protocol.js';
-import { TextEdit } from 'vscode-languageserver-textdocument';
 import { GetIRResult } from './messages.cjs';
+import type { TsUserConfigLang } from './config-manager.js';
 
 export interface GlintCompletionItem extends CompletionItem {
   data: {
@@ -34,6 +39,12 @@ export interface GlintCompletionItem extends CompletionItem {
     transformedOffset: number;
     source: string | undefined;
   };
+}
+
+interface TransformedOffsets {
+  transformedFileName: string;
+  transformedStart: number;
+  transformedEnd: number;
 }
 
 export default class GlintLanguageServer {
@@ -360,6 +371,177 @@ export default class GlintLanguageServer {
     }
   }
 
+  public getCodeActions(
+    uri: string,
+    actionType: 'quickfix' | undefined,
+    range: Range,
+    diagnosticCodes: Diagnostic[],
+    formatOptions: ts.FormatCodeSettings = {},
+    preferences: ts.UserPreferences = {}
+  ): CodeAction[] {
+    // Only supports quickfixes right now but this can be expanded to support all of the
+    // the different CodeActionKinds (Refactorings, Imports, etc).
+    // @see https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeActionKind
+    if (actionType === CodeActionKind.QuickFix) {
+      return this.applyCodeAction(uri, range, diagnosticCodes, formatOptions, preferences);
+    }
+
+    return [];
+  }
+
+  public getLanguageType(uri: string): TsUserConfigLang {
+    let file = uriToFilePath(uri);
+    return this.glintConfig.environment.isTypedScript(file) ? 'typescript' : 'javascript';
+  }
+
+  private applyCodeAction(
+    uri: string,
+    range: Range,
+    diagnostics: Diagnostic[],
+    formatting: ts.FormatCodeSettings = {},
+    preferences: ts.UserPreferences = {}
+  ): CodeAction[] {
+    let errorCodes = this.cleanDiagnosticCode(diagnostics);
+
+    let { transformedStart, transformedEnd, transformedFileName } =
+      this.getTransformedOffsetsFromPositions(
+        uri,
+        {
+          line: range.start.line,
+          character: range.start.character,
+        },
+        {
+          line: range.end.line,
+          character: range.end.character,
+        }
+      );
+
+    let codeFixes = this.service.getCodeFixesAtPosition(
+      transformedFileName,
+      transformedStart,
+      transformedEnd,
+      errorCodes,
+      formatting,
+      preferences
+    );
+
+    let codeActions = this.transformCodeFixActionToCodeAction(codeFixes, uri);
+
+    return codeActions.filter((codeAction) =>
+      codeAction.edit?.documentChanges?.every((change) => {
+        if (TextDocumentEdit.is(change)) {
+          return change.edits.length > 0;
+        }
+      })
+    );
+  }
+
+  private cleanDiagnosticCode(diagnostics: Diagnostic[]): number[] {
+    return diagnostics
+      .map((diag) => {
+        if (diag.code) {
+          return typeof diag.code === 'string' ? parseInt(diag.code) : diag.code;
+        } else if (diag.source && diag.source.startsWith('glint:ts(')) {
+          return parseInt(diag.source.replace('glint:ts(', '').replace(')', ''));
+        }
+
+        return undefined;
+      })
+      .filter(onlyNumbers);
+  }
+
+  private transformCodeFixActionToCodeAction(
+    codeFixes: readonly ts.CodeFixAction[],
+    uri: string
+  ): CodeAction[] {
+    return codeFixes.map((fix) => {
+      let documentChanges = fix.changes.map((change) => {
+        let filePath = uriToFilePath(uri);
+        let version = parseInt(this.documents.getDocumentVersion(filePath));
+
+        let textChanges = change.textChanges.map((edit) => {
+          let { originalEnd, originalFileName, originalStart, mapping } =
+            this.transformManager.getOriginalRange(
+              change.fileName,
+              edit.span.start,
+              edit.span.start + edit.span.length
+            );
+
+          let contents = this.documents.getDocumentContents(originalFileName);
+          let start = offsetToPosition(contents, originalStart);
+          let end = offsetToPosition(contents, originalEnd);
+
+          // We need to re-write \@ts-ignore directives for embedded templates
+          // Failing to do so would replace the problematics code with \@ts-ignore
+          // instead of prepending it with \@glint-ignore.
+          if (
+            fix.fixName === 'disableJsDiagnostics' &&
+            (this.glintConfig.environment.isTemplate(originalFileName) || mapping?.sourceNode)
+          ) {
+            return this.insertGlintIgnore(filePath, edit, start);
+          }
+
+          return TextEdit.replace(
+            {
+              start,
+              end,
+            },
+            edit.newText
+          );
+        });
+
+        let uriForEdit = uri;
+        let companion = this.documents.getCompanionDocumentPath(filePath);
+        if (companion && this.isFixForTS(filePath, fix.fixName)) {
+          uriForEdit = filePathToUri(companion);
+        }
+
+        return TextDocumentEdit.create(
+          OptionalVersionedTextDocumentIdentifier.create(uriForEdit, version),
+          textChanges
+        );
+      });
+
+      return CodeAction.create(fix.description, { documentChanges }, CodeActionKind.QuickFix);
+    });
+  }
+
+  // This mimics what happens in TS/JS but for when we are in an embedded template context.
+  // We fix up the indenting because this is the same behavior that occurs what inserting
+  // \@ts-ignore checks
+  private insertGlintIgnore(filePath: string, edit: ts.TextChange, start: Position): TextEdit {
+    edit.newText = '{{! @glint-ignore }}\n';
+
+    let linesOfNewText = edit.newText.split('\n');
+
+    if (/^[ \t]*$/.test(linesOfNewText[linesOfNewText.length - 1])) {
+      let contents = this.documents.getDocumentContents(filePath).split('\n')[start.line];
+      let indent = /^[ |\t]+/.exec(contents)?.[0] ?? '';
+      linesOfNewText[linesOfNewText.length - 1] = indent;
+    }
+
+    return TextEdit.insert(start, linesOfNewText.join('\n'));
+  }
+
+  private isFixForTS(filePath: string, fixName: string): boolean {
+    return this.glintConfig.environment.isTemplate(filePath) && fixName !== 'disableJsDiagnostics';
+  }
+
+  private getTransformedOffsetsFromPositions(
+    uri: string,
+    startPosition: Position,
+    endPosition: Position
+  ): TransformedOffsets {
+    let start = this.getTransformedOffset(uri, startPosition);
+    let end = this.getTransformedOffset(uri, endPosition);
+
+    return {
+      transformedStart: start.transformedOffset,
+      transformedEnd: end.transformedOffset,
+      transformedFileName: start.transformedFileName,
+    };
+  }
+
   private calculateOriginalLocations(spans: ReadonlyArray<ts.DocumentSpan>): Array<Location> {
     return spans
       .map((span) => this.textSpanToLocation(span.fileName, span.textSpan))
@@ -456,4 +638,8 @@ export default class GlintLanguageServer {
       glintConfig.configPath
     );
   }
+}
+
+function onlyNumbers(entry: number | undefined): entry is number {
+  return entry !== undefined;
 }
