@@ -59,6 +59,11 @@
       {
         "title": "Glint",
         "properties": {
+          "glint.libraryPath": {
+            "markdownDescription": "The path, relative to your workspace folder root, from which to resolve `@glint/core`. Defaults to `'.'`.",
+            "order": 1,
+            "type": "string"
+          },
           "glint.debug": {
             "description": "Enable debugging commands for Glint.",
             "type": "boolean",
