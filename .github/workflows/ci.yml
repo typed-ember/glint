@@ -6,10 +6,7 @@ on:
   push:
     # filtering branches here prevents duplicate builds from pull_request and push
     branches:
-      - main
-    # always run CI for tags
-    tags:
-      - '*'
+      - v0.9
 
   # early issue detection: run CI weekly on Sundays
   schedule:
@@ -83,52 +80,3 @@ jobs:
           command: yarn workspace glint-vscode test
       - name: Test @glint/scripts
         run: yarn workspace @glint/scripts test
-
-  test-floating-deps:
-    name: Test Floating Dependencies
-    needs: [test]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-      - name: Install Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 14
-      - name: Install Dependencies
-        run: yarn install --no-lockfile
-      - name: Build
-        run: yarn build
-      - name: Run Tests
-        uses: GabrielBB/xvfb-action@v1
-        with:
-          run: yarn test
-
-  test-ts-nightly:
-    name: Test TypeScript Nightly
-    needs: [test]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-      - name: Install Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 14
-      - name: Locate Yarn Cache
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v2
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install Dependencies
-        run: yarn add --dev -W typescript@next
-      - name: Build
-        run: yarn build
-      - name: Run Tests
-        uses: GabrielBB/xvfb-action@v1
-        with:
-          run: yarn test
