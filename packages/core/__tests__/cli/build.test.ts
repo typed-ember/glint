@@ -1025,24 +1025,6 @@ describe('CLI: single-pass build mode typechecking', () => {
         });
       });
     });
-
-    describe('invalidation', () => {
-      describe('for the root', () => {
-        test.todo('when the root is invalidated');
-        test.todo('when a direct reference is invalidated');
-
-        test.todo('when a transitive reference is invalidated');
-      });
-
-      describe('for a composite subproject with a reference', () => {
-        test.todo('when the subproject is invalidated');
-        test.todo('when the other subproject referenced by the subproject is invalidated');
-      });
-
-      describe('for a composite subproject with no references', () => {
-        test.todo('when the subproject is invalidated');
-      });
-    });
   });
 });
 
