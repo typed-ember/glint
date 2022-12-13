@@ -10,6 +10,10 @@
   "exports": {
     ".": "./lib/index.js"
   },
+  "files": [
+    "README.md",
+    "lib"
+  ],
   "scripts": {
     "test": "glint -p __tests__"
   },
@@ -18,5 +22,8 @@
   },
   "peerDependencies": {
     "@glint/template": "^1.0.0-beta.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
