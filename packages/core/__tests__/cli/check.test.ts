@@ -1,7 +1,7 @@
 import { stripIndent } from 'common-tags';
 import stripAnsi = require('strip-ansi');
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
-import { Project } from '@glint/test-utils';
+import { Project } from 'glint-monorepo-test-utils';
 
 describe('CLI: single-pass typechecking', () => {
   let project!: Project;

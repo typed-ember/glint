@@ -13,7 +13,7 @@ import {
   INPUT_SFC,
   INPUT_TEMPLATE,
   setupCompositeProject,
-} from '@glint/test-utils';
+} from 'glint-monorepo-test-utils';
 
 describe('CLI: single-pass build mode typechecking', () => {
   describe('simple projects using `--build`', () => {

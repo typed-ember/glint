@@ -4,7 +4,12 @@ import { stripIndent } from 'common-tags';
 import stripAnsi = require('strip-ansi');
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
-import { Project, BASE_TS_CONFIG, INPUT_SFC, setupCompositeProject } from '@glint/test-utils';
+import {
+  Project,
+  BASE_TS_CONFIG,
+  INPUT_SFC,
+  setupCompositeProject,
+} from 'glint-monorepo-test-utils';
 
 const BUILD_WATCH_TSCONFIG = {
   ...BASE_TS_CONFIG,

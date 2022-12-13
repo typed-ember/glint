@@ -50,7 +50,7 @@
     "@glimmerx/component": "^0.6.7",
     "@glimmerx/modifier": "^0.6.7",
     "@glimmerx/helper": "^0.6.7",
-    "expect-type": "0.11.0"
+    "expect-type": "^0.15.0"
   },
   "publishConfig": {
     "access": "public"

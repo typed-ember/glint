@@ -3,7 +3,7 @@ import { existsSync, statSync, readFileSync } from 'fs';
 import { stripIndent } from 'common-tags';
 import { beforeEach, describe, expect, test } from 'vitest';
 
-import { Project } from '@glint/test-utils';
+import { Project } from 'glint-monorepo-test-utils';
 
 const BUILD_INFO = 'tsconfig.tsbuildinfo';
 const INPUT_SCRIPT = 'index.gts';
