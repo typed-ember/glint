@@ -5,7 +5,20 @@ import type TransformManagerPool from './transform-manager-pool.js';
 
 type Program = TS.Program | TS.SemanticDiagnosticsBuilderProgram;
 
+export function patchProgramBuilder<Args extends unknown[], T extends Program>(
+  ts: typeof TS,
+  transformManagerOrPool: TransformManagerPool | TransformManager,
+  builder: (...args: Args) => T
+): (...args: Args) => T {
+  return (...args: Args) => {
+    let program = builder(...args);
+    patchProgram(ts, program, transformManagerOrPool);
+    return program;
+  };
+}
+
 export function patchProgram(
+  ts: typeof TS,
   program: Program,
   transformManagerOrPool: TransformManagerPool | TransformManager
 ): void {
@@ -29,7 +42,7 @@ export function patchProgram(
   program.getSyntacticDiagnostics = function (sourceFile, cancelationToken) {
     let diagnostics = getSyntacticDiagnostics.call(program, sourceFile, cancelationToken);
     let transformDiagnostics = manager?.getTransformDiagnostics(sourceFile?.fileName) ?? [];
-    return [...diagnostics, ...transformDiagnostics];
+    return ts.sortAndDeduplicateDiagnostics([...diagnostics, ...transformDiagnostics]);
   };
 
   program.getSemanticDiagnostics = (sourceFile, cancellationToken) => {

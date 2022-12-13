@@ -2,7 +2,7 @@ import type * as TS from 'typescript';
 
 import { buildDiagnosticFormatter } from './diagnostics.js';
 import { sysForCompilerHost } from './utils/sys-for-compiler-host.js';
-import { patchProgram } from './utils/patch-program.js';
+import { patchProgramBuilder } from './utils/patch-program.js';
 import TransformManagerPool from './utils/transform-manager-pool.js';
 
 type TypeScript = typeof TS;
@@ -15,14 +15,11 @@ interface BuildOptions extends TS.BuildOptions {
 export function performBuild(ts: TypeScript, projects: string[], buildOptions: BuildOptions): void {
   let transformManagerPool = new TransformManagerPool(ts.sys);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
+  let buildProgram = ts.createEmitAndSemanticDiagnosticsBuilderProgram;
 
   let host = ts.createSolutionBuilderHost(
     sysForCompilerHost(ts, transformManagerPool),
-    (...args) => {
-      let program = ts.createEmitAndSemanticDiagnosticsBuilderProgram(...args);
-      patchProgram(program, transformManagerPool);
-      return program;
-    },
+    patchProgramBuilder(ts, transformManagerPool, buildProgram),
     (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
 
