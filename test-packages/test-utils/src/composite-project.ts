@@ -24,6 +24,7 @@ export const BASE_TS_CONFIG = {
     emitDeclarationOnly: true,
     incremental: true,
     noEmit: false,
+    noEmitOnError: true,
     outDir: OUT_DIR,
   },
   include: [INPUT_DIR],

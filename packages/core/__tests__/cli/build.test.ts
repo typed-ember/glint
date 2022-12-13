@@ -591,6 +591,48 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
           });
         });
+
+        describe('for a type error covered by `@glint-nocheck`', () => {
+          beforeEach(async () => {
+            let aCode = stripIndent`
+              import C from '@glint-test/c';
+
+              const double = (n: number): number => n * 2;
+              const A = <template>
+                {{! @glint-nocheck }}
+                {{double C}}
+              </template>;
+
+              export default A;
+            `;
+
+            projects.children.a.write(INPUT_SFC, aCode);
+          });
+
+          test('build from the main project', async () => {
+            let checkResult = await projects.main.build({ reject: false });
+
+            expect(checkResult.exitCode).toBe(0);
+            expect(checkResult.stdout).toEqual('');
+            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot('""');
+
+            expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
+            expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
+            expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
+          });
+
+          test('build from the subproject', async () => {
+            let checkResult = await projects.children.a.build({ reject: false });
+
+            expect(checkResult.exitCode).toBe(0);
+            expect(checkResult.stdout).toEqual('');
+            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot('""');
+
+            expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
+            expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
+            expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
+          });
+        });
       });
 
       describe('for a project without references directly referenced by the root', () => {
