@@ -43,7 +43,7 @@
     "@glimmer/component": "^1.1.2",
     "@types/ember__component": "~4.0.8",
     "ember-modifier": "^3.2.7",
-    "expect-type": "0.11.0",
+    "expect-type": "^0.15.0",
     "vitest": "^0.22.0"
   },
   "publishConfig": {

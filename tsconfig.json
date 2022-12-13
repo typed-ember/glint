@@ -7,6 +7,7 @@
     { "path": "packages/environment-glimmerx" },
     { "path": "packages/template" },
     { "path": "packages/transform" },
+    { "path": "packages/type-test" },
     { "path": "packages/vscode" },
     { "path": "packages/scripts" },
     { "path": "test-packages/test-utils" }
