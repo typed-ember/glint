@@ -3,7 +3,7 @@ import type TransformManager from '../../common/transform-manager.js';
 import { assert } from './assert.js';
 import type TransformManagerPool from './transform-manager-pool.js';
 
-type Program = TS.SemanticDiagnosticsBuilderProgram;
+type Program = TS.Program | TS.SemanticDiagnosticsBuilderProgram;
 
 export function patchProgram(
   program: Program,
@@ -38,6 +38,12 @@ export function patchProgram(
       manager?.rewriteDiagnostics(diagnostics, sourceFile?.fileName) ?? diagnostics;
     return rewrittenDiagnostics;
   };
+
+  // We want to patch these methods on both the outer "builder" program and, if
+  // applicable, its inner program representation.
+  if ('getProgram' in program) {
+    patchProgram(ts, program.getProgram(), transformManagerOrPool);
+  }
 }
 
 function isPool(manager: TransformManager | TransformManagerPool): manager is TransformManagerPool {
