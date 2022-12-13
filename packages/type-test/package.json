@@ -22,5 +22,8 @@
   },
   "peerDependencies": {
     "@glint/template": "^0.9.7"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
