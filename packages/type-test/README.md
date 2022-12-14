@@ -110,7 +110,7 @@ let hi: string = 'hi';
 
   <!-- string is not the same type as 'a' | 'b' -->
   {{! @glint-expect-error }}
-  {{expectTypeOf hi to.beEqualTypeOf a}}
+  {{expectTypeOf hi to.equalTypeOf a}}
 
   <!-- string is not assignable to 'a' | 'b' -->
   {{! @glint-expect-error }}
