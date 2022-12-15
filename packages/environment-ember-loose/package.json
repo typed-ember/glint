@@ -36,7 +36,7 @@
     "@types/ember__object": "^4.0.4",
     "@types/ember__routing": "^4.0.11",
     "ember-cli-htmlbars": "^6.0.1",
-    "ember-modifier": "^3.2.7"
+    "ember-modifier": "^3.2.7 || ^4.0.0"
   },
   "peerDependenciesMeta": {
     "@types/ember__array": {
@@ -68,7 +68,7 @@
     "@types/ember__controller": "^4.0.2",
     "@types/ember__object": "^4.0.4",
     "@types/ember__routing": "^4.0.11",
-    "ember-modifier": "^3.2.7",
+    "ember-modifier": "^3.2.7 || ^4.0.0",
     "expect-type": "^0.15.0",
     "vitest": "^0.22.0"
   },
