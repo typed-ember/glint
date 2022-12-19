@@ -7,9 +7,11 @@ import { determineOptionsToExtend } from './options.js';
 import { performBuild } from './perform-build.js';
 import type * as TS from 'typescript';
 import { performBuildWatch } from './perform-build-watch.js';
+import * as semver from 'semver';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../../package.json');
+const MIN_TS_VERSION = '4.8.0';
 
 const argv = yargs(process.argv.slice(2))
   .scriptName('glint')
@@ -96,8 +98,17 @@ if (argv.build) {
   // root of a project which has no `Glint` config *at all* in its root, but
   // which must have *some* TS to be useful.
   let ts = findTypeScript(cwd);
+
   if (!ts) {
     console.error('Could not find a local TypeScript');
+    process.exit(1);
+  }
+
+  // Error when our minimum requires are not met
+  if (!semver.gte(ts.version, MIN_TS_VERSION)) {
+    console.error(
+      `Detected TypeScript version, ${ts.version}, does not meet minimum required version of ${MIN_TS_VERSION}`
+    );
     process.exit(1);
   }
 
