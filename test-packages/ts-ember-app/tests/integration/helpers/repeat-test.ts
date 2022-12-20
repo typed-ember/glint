@@ -8,7 +8,6 @@ module('Integration | Helper | repeat', function (hooks) {
 
   test('it repeats', async function (assert) {
     await render(hbs`{{repeat "foo" 3}}`);
-
-    assert.equal(this.element.textContent?.trim(), 'foofoofoo');
+    assert.dom().hasText('foofoofoo');
   });
 });

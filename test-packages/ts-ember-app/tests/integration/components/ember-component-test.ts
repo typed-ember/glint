@@ -8,22 +8,12 @@ module('Integration | Component | ember', function (hooks) {
 
   test('it renders', async function (assert) {
     await render(hbs`<EmberComponent @required="foo" />`);
-
-    if (!this.element.textContent) {
-      throw new Error('No text content!');
-    }
-
-    assert.deepEqual(this.element.textContent.trim().split(/\s+/), ['foo', 'defaultValue', 'foo']);
+    assert.dom().matchesText(/foo\s+defaultValue\s+foo/);
   });
 
   test('it renders with incorrect arg type', async function (assert) {
     await render(hbs`<EmberComponent @required=1 />`);
-
-    if (!this.element.textContent) {
-      throw new Error('No text content!');
-    }
-
-    assert.deepEqual(this.element.textContent.trim().split(/\s+/), ['1', 'defaultValue', '1']);
+    assert.dom().matchesText(/1\s+defaultValue\s+1/);
   });
 
   test('it renders with missing args', async function (assert) {
@@ -32,10 +22,6 @@ module('Integration | Component | ember', function (hooks) {
       <EmberComponent />
     `);
 
-    if (!this.element.textContent) {
-      throw new Error('No text content!');
-    }
-
-    assert.equal(this.element.textContent.trim(), 'defaultValue');
+    assert.dom().hasText('defaultValue');
   });
 });
