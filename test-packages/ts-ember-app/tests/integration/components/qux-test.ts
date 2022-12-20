@@ -8,11 +8,6 @@ module('Integration | Component | qux', function (hooks) {
 
   test('it renders', async function (assert) {
     await render(hbs`<Qux />`);
-
-    if (!this.element.textContent) {
-      throw new Error('No text content!');
-    }
-
-    assert.equal(this.element.textContent.trim(), 'QUX');
+    assert.dom().hasText('QUX');
   });
 });

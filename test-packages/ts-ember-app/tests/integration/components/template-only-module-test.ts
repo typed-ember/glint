@@ -16,6 +16,6 @@ module('Integration | Component | ember', function (hooks) {
       {{/if}}
     `);
 
-    assert.deepEqual(this.element.textContent?.trim(), 'Hello, world');
+    assert.dom().hasText('Hello, world');
   });
 });

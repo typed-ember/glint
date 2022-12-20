@@ -8,11 +8,6 @@ module('Integration | Component | baz', function (hooks) {
 
   test('it renders', async function (assert) {
     await render(hbs`<Baz />`);
-
-    if (!this.element.textContent) {
-      throw new Error('No text content!');
-    }
-
-    assert.equal(this.element.textContent.trim(), 'BAZ');
+    assert.dom().hasText('BAZ');
   });
 });

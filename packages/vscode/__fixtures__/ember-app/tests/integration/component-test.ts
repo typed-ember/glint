@@ -2,12 +2,12 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
-import type { TestContext } from '@ember/test-helpers';
+import 'qunit-dom';
 
 module('Integration | component test', function (hooks) {
   setupRenderingTest(hooks);
 
-  interface MyTestContext extends TestContext {
+  interface MyTestContext {
     message: string;
   }
 
@@ -18,6 +18,6 @@ module('Integration | component test', function (hooks) {
       {{this.message}}
     `);
 
-    assert.equal(this.element.textContent?.trim(), 'message');
+    assert.dom().hasText('message');
   });
 });

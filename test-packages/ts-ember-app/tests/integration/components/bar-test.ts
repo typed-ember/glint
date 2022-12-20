@@ -9,12 +9,7 @@ module('Integration | Component | bar', function (hooks) {
 
   test('it renders', async function (assert) {
     await render(hbs`<Bar @grault={{1234}} />`);
-
-    if (!this.element.textContent) {
-      throw new Error('No text content!');
-    }
-
-    assert.equal(this.element.textContent.trim(), 'BAR-1234');
+    assert.dom().hasText('BAR-1234');
   });
 
   test('it renders with incorrect arg type', async function (assert) {
@@ -22,12 +17,7 @@ module('Integration | Component | bar', function (hooks) {
       {{! @glint-expect-error: bad type }}
       <Bar @grault="hello" />
     `);
-
-    if (!this.element.textContent) {
-      throw new Error('No text content!');
-    }
-
-    assert.equal(this.element.textContent.trim(), 'BAR-hello');
+    assert.dom().hasText('BAR-hello');
   });
 
   test('it renders with incorrect args', async function (assert) {
@@ -35,12 +25,7 @@ module('Integration | Component | bar', function (hooks) {
       {{! @glint-expect-error: bad arg name }}
       <Bar @plugh={{1234}} />
     `);
-
-    if (!this.element.textContent) {
-      throw new Error('No text content!');
-    }
-
-    assert.equal(this.element.textContent.trim(), 'BAR-');
+    assert.dom().hasText('BAR-');
   });
 
   test('it renders with missing args', async function (assert) {
@@ -48,12 +33,7 @@ module('Integration | Component | bar', function (hooks) {
       {{! @glint-expect-error: missing arg }}
       <Bar />
     `);
-
-    if (!this.element.textContent) {
-      throw new Error('No text content!');
-    }
-
-    assert.equal(this.element.textContent.trim(), 'BAR-');
+    assert.dom().hasText('BAR-');
   });
 
   module('with a custom test context', function () {
@@ -70,8 +50,7 @@ module('Integration | Component | bar', function (hooks) {
         {{! @glint-expect-error: bad arg type }}
         <Bar @grault={{this.message}} />
       `);
-
-      assert.deepEqual(this.element.textContent?.trim().split(/\s+/), ['BAR-5', 'BAR-hello']);
+      assert.dom().matchesText(/BAR-5\s+BAR-hello/);
     });
   });
 });
