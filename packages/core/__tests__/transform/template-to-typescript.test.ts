@@ -611,6 +611,67 @@ describe('Transform: rewriteTemplate', () => {
         `);
       });
     });
+
+    describe('{{and}}', () => {
+      test('with two arguments', () => {
+        let template = stripIndent`
+        {{log (testAnd 1 2)}}
+        `;
+
+        expect(templateBody(template, { globals: ['testAnd'], specialForms: { testAnd: '&&' } }))
+          .toMatchInlineSnapshot(`
+        "χ.emitContent(χ.resolve(log)((1 && 2)));"
+        `);
+      });
+
+      test('with three arguments', () => {
+        let template = stripIndent`
+        {{log (testAnd 1 2 3)}}
+        `;
+
+        expect(templateBody(template, { globals: ['testAnd'], specialForms: { testAnd: '&&' } }))
+          .toMatchInlineSnapshot(`
+        "χ.emitContent(χ.resolve(log)((1 && 2 && 3)));"
+        `);
+      });
+    });
+
+    describe('{{or}}', () => {
+      test('with two arguments', () => {
+        let template = stripIndent`
+        {{log (testOr 1 2)}}
+        `;
+
+        expect(templateBody(template, { globals: ['testOr'], specialForms: { testOr: '||' } }))
+          .toMatchInlineSnapshot(`
+        "χ.emitContent(χ.resolve(log)((1 || 2)));"
+        `);
+      });
+
+      test('with three arguments', () => {
+        let template = stripIndent`
+        {{log (testOr 1 2 3)}}
+        `;
+
+        expect(templateBody(template, { globals: ['testOr'], specialForms: { testOr: '||' } }))
+          .toMatchInlineSnapshot(`
+        "χ.emitContent(χ.resolve(log)((1 || 2 || 3)));"
+        `);
+      });
+    });
+
+    describe('{{not}}', () => {
+      test('with one argument', () => {
+        let template = stripIndent`
+        {{log (testNot 1)}}
+        `;
+
+        expect(templateBody(template, { globals: ['testNot'], specialForms: { testNot: '!' } }))
+          .toMatchInlineSnapshot(`
+        "χ.emitContent(χ.resolve(log)(!1));"
+        `);
+      });
+    });
   });
 
   describe('inline curlies', () => {
@@ -1361,6 +1422,90 @@ describe('Transform: rewriteTemplate', () => {
         {
           message: '{{testNeq}} requires exactly two parameters',
           location: { start: 11, end: 34 },
+        },
+      ]);
+    });
+
+    test('{{and}} with named parameters', () => {
+      let { errors } = templateToTypescript('<Foo @attr={{testAnd 123 456 foo="bar"}} />', {
+        typesModule: '@glint/template',
+        specialForms: { testAnd: '&&' },
+      });
+
+      expect(errors).toEqual([
+        {
+          message: '{{testAnd}} only accepts positional parameters',
+          location: { start: 11, end: 40 },
+        },
+      ]);
+    });
+
+    test('{{and}} with wrong number of parameters', () => {
+      let { errors } = templateToTypescript('<Foo @attr={{testAnd 123}} />', {
+        typesModule: '@glint/template',
+        specialForms: { testAnd: '&&' },
+      });
+
+      expect(errors).toEqual([
+        {
+          message: '{{testAnd}} requires at least two parameters',
+          location: { start: 11, end: 26 },
+        },
+      ]);
+    });
+
+    test('{{or}} with named parameters', () => {
+      let { errors } = templateToTypescript('<Foo @attr={{testOr 123 456 foo="bar"}} />', {
+        typesModule: '@glint/template',
+        specialForms: { testOr: '||' },
+      });
+
+      expect(errors).toEqual([
+        {
+          message: '{{testOr}} only accepts positional parameters',
+          location: { start: 11, end: 39 },
+        },
+      ]);
+    });
+
+    test('{{or}} with wrong number of parameters', () => {
+      let { errors } = templateToTypescript('<Foo @attr={{testOr 123}} />', {
+        typesModule: '@glint/template',
+        specialForms: { testOr: '||' },
+      });
+
+      expect(errors).toEqual([
+        {
+          message: '{{testOr}} requires at least two parameters',
+          location: { start: 11, end: 25 },
+        },
+      ]);
+    });
+
+    test('{{not}} with named parameters', () => {
+      let { errors } = templateToTypescript('<Foo @attr={{testNot 123 foo="bar"}} />', {
+        typesModule: '@glint/template',
+        specialForms: { testNot: '!' },
+      });
+
+      expect(errors).toEqual([
+        {
+          message: '{{testNot}} only accepts positional parameters',
+          location: { start: 11, end: 36 },
+        },
+      ]);
+    });
+
+    test('{{not}} with wrong number of parameters', () => {
+      let { errors } = templateToTypescript('<Foo @attr={{testNot 123 456}} />', {
+        typesModule: '@glint/template',
+        specialForms: { testNot: '!' },
+      });
+
+      expect(errors).toEqual([
+        {
+          message: '{{testNot}} requires exactly one parameter',
+          location: { start: 11, end: 30 },
         },
       ]);
     });

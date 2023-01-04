@@ -202,6 +202,15 @@ export function templateToTypescript(
           emitBinaryOperatorExpression(formInfo, node);
           break;
 
+        case '&&':
+        case '||':
+          emitLogicalExpression(formInfo, node);
+          break;
+
+        case '!':
+          emitUnaryOperatorExpression(formInfo, node);
+          break;
+
         default:
           record.error(`${formInfo.name} is not valid in inline form`, rangeForNode(node));
           emit.text('undefined');
@@ -343,6 +352,53 @@ export function templateToTypescript(
         emit.text(` ${formInfo.form} `);
         emitExpression(right);
         emit.text(')');
+      });
+    }
+
+    function emitLogicalExpression(
+      formInfo: SpecialFormInfo,
+      node: AST.MustacheStatement | AST.SubExpression
+    ): void {
+      emit.forNode(node, () => {
+        assert(
+          node.hash.pairs.length === 0,
+          () => `{{${formInfo.name}}} only accepts positional parameters`
+        );
+        assert(
+          node.params.length >= 2,
+          () => `{{${formInfo.name}}} requires at least two parameters`
+        );
+
+        emit.text('(');
+        for (const [index, param] of node.params.entries()) {
+          emitExpression(param);
+
+          if (index < node.params.length - 1) {
+            emit.text(` ${formInfo.form} `);
+          }
+        }
+        emit.text(')');
+      });
+    }
+
+    function emitUnaryOperatorExpression(
+      formInfo: SpecialFormInfo,
+      node: AST.MustacheStatement | AST.SubExpression
+    ): void {
+      emit.forNode(node, () => {
+        assert(
+          node.hash.pairs.length === 0,
+          () => `{{${formInfo.name}}} only accepts positional parameters`
+        );
+        assert(
+          node.params.length === 1,
+          () => `{{${formInfo.name}}} requires exactly one parameter`
+        );
+
+        const [param] = node.params;
+
+        emit.text(formInfo.form);
+        emitExpression(param);
       });
     }
 

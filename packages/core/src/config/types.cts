@@ -48,7 +48,10 @@ export type GlintSpecialForm =
   | 'object-literal'
   | 'array-literal'
   | '==='
-  | '!==';
+  | '!=='
+  | '&&'
+  | '||'
+  | '!';
 export type GlintSpecialFormConfig = {
   globals?: { [global: string]: GlintSpecialForm };
   imports?: {
