@@ -34,3 +34,16 @@ export default class MyRoute extends Route {
 {{this.model}} {{! MyModelType }}
 {{@model}} {{! MyModelType }}
 ```
+
+For `error` substate routes, the type of `{{@model}}` will not be automatically inferred. You will need to create a backing class for the route if you consume its model in the corresponding template:
+
+```typescript
+export default class ErrorRoute extends Route<Error> {
+  // ...
+}
+```
+
+<!-- prettier-ignore -->
+```handlebars
+{{@model}} {{! Error }}
+```
