@@ -156,6 +156,7 @@ export default class GlintLanguageServer {
         if (!file || file.fileName !== filePath) return [];
 
         return {
+          code: diagnostic.code,
           severity: severityForDiagnostic(this.ts, diagnostic),
           message: this.ts.flattenDiagnosticMessageText(messageText, '\n'),
           source: `glint${diagnostic.code ? `:ts(${diagnostic.code})` : ''}`,
@@ -401,7 +402,7 @@ export default class GlintLanguageServer {
     formatting: ts.FormatCodeSettings = {},
     preferences: ts.UserPreferences = {}
   ): CodeAction[] {
-    let errorCodes = this.cleanDiagnosticCode(diagnostics);
+    let errorCodes = this.filterDiagnosticCodes(diagnostics);
 
     let { transformedStart, transformedEnd, transformedFileName } =
       this.getTransformedOffsetsFromPositions(
@@ -436,13 +437,11 @@ export default class GlintLanguageServer {
     );
   }
 
-  private cleanDiagnosticCode(diagnostics: Diagnostic[]): number[] {
+  private filterDiagnosticCodes(diagnostics: Diagnostic[]): number[] {
     return diagnostics
       .map((diag) => {
-        if (diag.code) {
+        if (diag.code && diag.source?.startsWith('glint')) {
           return typeof diag.code === 'string' ? parseInt(diag.code) : diag.code;
-        } else if (diag.source && diag.source.startsWith('glint:ts(')) {
-          return parseInt(diag.source.replace('glint:ts(', '').replace(')', ''));
         }
 
         return undefined;

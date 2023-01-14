@@ -24,6 +24,7 @@ describe('Language Server: custom file extensions', () => {
     expect(server.getDiagnostics(project.fileURI('index.gts'))).toMatchInlineSnapshot(`
       [
         {
+          "code": 2322,
           "message": "Type 'number' is not assignable to type 'string'.",
           "range": {
             "end": {
@@ -47,6 +48,7 @@ describe('Language Server: custom file extensions', () => {
     expect(server.getDiagnostics(project.fileURI('index.gts'))).toMatchInlineSnapshot(`
       [
         {
+          "code": 2322,
           "message": "Type 'number' is not assignable to type 'string'.",
           "range": {
             "end": {
