@@ -26,7 +26,9 @@ export const capabilities: ServerCapabilities = {
   },
   referencesProvider: true,
   hoverProvider: true,
-  codeActionProvider: true,
+  codeActionProvider: {
+    codeActionKinds: [CodeActionKind.QuickFix],
+  },
   definitionProvider: true,
   workspaceSymbolProvider: true,
   renameProvider: {
@@ -119,20 +121,13 @@ export function bindLanguageServerPool({
         let language = server.getLanguageType(textDocument.uri);
         let formating = configManager.getFormatCodeSettingsFor(language);
         let preferences = configManager.getUserSettingsFor(language);
-        let diagnosticCodes = context.diagnostics;
-        // "only" is only present when a user hovers over and the codefix dropdown is requested. If it is missing the user has explicitly asked for codefixes
-        let type =
-          context.only === undefined
-            ? CodeActionKind.QuickFix
-            : context.only.includes(CodeActionKind.QuickFix)
-            ? CodeActionKind.QuickFix
-            : undefined;
+        let diagnostics = context.diagnostics;
 
         return server.getCodeActions(
           textDocument.uri,
-          type,
+          CodeActionKind.QuickFix,
           range,
-          diagnosticCodes,
+          diagnostics,
           formating,
           preferences
         );

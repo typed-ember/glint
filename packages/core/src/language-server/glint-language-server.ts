@@ -374,7 +374,7 @@ export default class GlintLanguageServer {
 
   public getCodeActions(
     uri: string,
-    actionType: 'quickfix' | undefined,
+    actionType: string,
     range: Range,
     diagnosticCodes: Diagnostic[],
     formatOptions: ts.FormatCodeSettings = {},
