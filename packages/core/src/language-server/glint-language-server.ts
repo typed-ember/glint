@@ -181,7 +181,11 @@ export default class GlintLanguageServer {
       .filter((info): info is SymbolInformation => Boolean(info));
   }
 
-  public getCompletions(uri: string, position: Position): GlintCompletionItem[] | undefined {
+  public getCompletions(
+    uri: string,
+    position: Position,
+    formatting: ts.FormatCodeSettings = {}
+  ): GlintCompletionItem[] | undefined {
     let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
     if (!this.isAnalyzableFile(transformedFileName)) return;
 
@@ -204,7 +208,8 @@ export default class GlintLanguageServer {
     let completions = this.service.getCompletionsAtPosition(
       transformedFileName,
       transformedOffset,
-      {}
+      {},
+      formatting
     );
 
     return completions?.entries.map((completionEntry) => ({
@@ -215,7 +220,11 @@ export default class GlintLanguageServer {
     }));
   }
 
-  public getCompletionDetails(item: GlintCompletionItem): GlintCompletionItem {
+  public getCompletionDetails(
+    item: GlintCompletionItem,
+    formatting: ts.FormatCodeSettings = {},
+    preferences: ts.UserPreferences = {}
+  ): GlintCompletionItem {
     let { label, data } = item;
     if (!data) {
       return item;
@@ -226,9 +235,9 @@ export default class GlintLanguageServer {
       transformedFileName,
       transformedOffset,
       label,
-      {},
+      formatting,
       source,
-      {},
+      preferences,
       // @ts-ignore: 4.3 adds a new not-optional-but-can-be-undefined `data` arg
       undefined
     );

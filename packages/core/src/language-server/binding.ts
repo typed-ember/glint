@@ -168,9 +168,11 @@ export function bindLanguageServerPool({
     // document update notification.
     await new Promise((r) => setTimeout(r, 25));
 
-    return pool.withServerForURI(textDocument.uri, ({ server }) =>
-      server.getCompletions(textDocument.uri, position)
-    );
+    return pool.withServerForURI(textDocument.uri, ({ server }) => {
+      let language = server.getLanguageType(textDocument.uri);
+      let formatting = configManager.getFormatCodeSettingsFor(language);
+      return server.getCompletions(textDocument.uri, position, formatting);
+    });
   });
 
   connection.onCompletionResolve((item) => {
@@ -178,9 +180,12 @@ export function bindLanguageServerPool({
     let glintItem = item as GlintCompletionItem;
 
     return (
-      pool.withServerForURI(glintItem.data.uri, ({ server }) =>
-        server.getCompletionDetails(glintItem)
-      ) ?? item
+      pool.withServerForURI(glintItem.data.uri, ({ server }) => {
+        let language = server.getLanguageType(glintItem.data.uri);
+        let formatting = configManager.getFormatCodeSettingsFor(language);
+        let preferences = configManager.getUserSettingsFor(language);
+        return server.getCompletionDetails(glintItem, formatting, preferences);
+      }) ?? item
     );
   });
 
