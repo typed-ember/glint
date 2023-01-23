@@ -12,6 +12,7 @@ import { debounce } from '../common/scheduling.js';
 import TransformManager from '../common/transform-manager.js';
 import GlintLanguageServer from './glint-language-server.js';
 import { uriToFilePath } from './util/index.js';
+import { validateTS } from '../common/typescript-compatibility.js';
 
 export type ServerDetails = {
   server: GlintLanguageServer;
@@ -20,7 +21,7 @@ export type ServerDetails = {
 };
 
 export class LanguageServerPool {
-  private servers = new Map<GlintConfig, ServerDetails>();
+  private servers = new Map<GlintConfig, ServerDetails | undefined>();
   private configLoader = new ConfigLoader();
 
   public constructor(
@@ -30,7 +31,9 @@ export class LanguageServerPool {
 
   public forEachServer<T>(callback: (details: ServerDetails) => T): void {
     for (let details of this.servers.values()) {
-      this.runWithCapturedErrors(callback, details);
+      if (details) {
+        this.runWithCapturedErrors(callback, details);
+      }
     }
   }
 
@@ -61,12 +64,12 @@ export class LanguageServerPool {
       let config = this.configForURI(uri);
       if (!config) return;
 
-      let details = this.servers.get(config);
-      if (!details) {
-        details = this.launchServer(config);
-        this.servers.set(config, details);
+      if (this.servers.has(config)) {
+        return this.servers.get(config);
       }
 
+      let details = this.launchServer(config);
+      this.servers.set(config, details);
       return details;
     } catch (error) {
       this.sendMessage(
@@ -76,7 +79,17 @@ export class LanguageServerPool {
     }
   }
 
-  private launchServer(glintConfig: GlintConfig): ServerDetails {
+  private launchServer(glintConfig: GlintConfig): ServerDetails | undefined {
+    let tsValidationResult = validateTS(glintConfig.ts);
+    if (!tsValidationResult.valid) {
+      this.sendMessage(
+        MessageType.Warning,
+        `Not launching Glint for this directory: ${tsValidationResult.reason}`
+      );
+
+      return;
+    }
+
     let documentCache = new DocumentCache(glintConfig);
     let transformManager = new TransformManager(glintConfig, documentCache);
     let rootDir = glintConfig.rootDir;

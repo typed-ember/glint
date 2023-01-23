@@ -34,6 +34,7 @@
   "dependencies": {
     "@glimmer/syntax": "^0.84.2",
     "escape-string-regexp": "^4.0.0",
+    "semver": "^7.3.8",
     "silent-error": "^1.1.1",
     "uuid": "^8.3.2",
     "vscode-languageserver": "^8.0.1",
@@ -45,6 +46,7 @@
     "glint-monorepo-test-utils": "^1.0.0-beta.2",
     "@types/common-tags": "^1.8.0",
     "@types/node": "^18.11.5",
+    "@types/semver": "^7.3.13",
     "@types/uuid": "^8.3.4",
     "@types/yargs": "^17.0.10",
     "@vitest/ui": "^0.23.4",

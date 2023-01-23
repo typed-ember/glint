@@ -7,6 +7,7 @@ import { determineOptionsToExtend } from './options.js';
 import { performBuild } from './perform-build.js';
 import type * as TS from 'typescript';
 import { performBuildWatch } from './perform-build-watch.js';
+import { validateTSOrExit } from '../common/typescript-compatibility.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../../package.json');
@@ -96,10 +97,8 @@ if (argv.build) {
   // root of a project which has no `Glint` config *at all* in its root, but
   // which must have *some* TS to be useful.
   let ts = findTypeScript(cwd);
-  if (!ts) {
-    console.error('Could not find a local TypeScript');
-    process.exit(1);
-  }
+
+  validateTSOrExit(ts);
 
   // This continues using the hack of a 'default command' to get the projects
   // specified (if any).
@@ -113,6 +112,9 @@ if (argv.build) {
 } else {
   const glintConfig = loadConfig(argv.project ?? cwd);
   const optionsToExtend = determineOptionsToExtend(argv);
+
+  validateTSOrExit(glintConfig.ts);
+
   if (argv.watch) {
     performWatch(glintConfig, optionsToExtend);
   } else {
