@@ -374,7 +374,7 @@ export default class GlintLanguageServer {
 
   public getCodeActions(
     uri: string,
-    actionType: string,
+    actionKind: string,
     range: Range,
     diagnosticCodes: Diagnostic[],
     formatOptions: ts.FormatCodeSettings = {},
@@ -383,7 +383,7 @@ export default class GlintLanguageServer {
     // Only supports quickfixes right now but this can be expanded to support all of the
     // the different CodeActionKinds (Refactorings, Imports, etc).
     // @see https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeActionKind
-    if (actionType === CodeActionKind.QuickFix) {
+    if (actionKind === CodeActionKind.QuickFix) {
       return this.applyCodeAction(uri, range, diagnosticCodes, formatOptions, preferences);
     }
 

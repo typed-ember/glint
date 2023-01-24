@@ -123,9 +123,22 @@ export function bindLanguageServerPool({
         let preferences = configManager.getUserSettingsFor(language);
         let diagnostics = context.diagnostics;
 
+        let kind = '';
+
+        // QuickFix requests can have their `only` field set to `undefined`.
+        // For what we've seen this is only true about `QuickFix`
+        if (context.only === undefined) {
+          kind = CodeActionKind.QuickFix;
+        } else if (context.only.includes(CodeActionKind.QuickFix)) {
+          // Otherwise we get the kind passed in the array.
+          // Because we only solicit for `CodeFix`s this array will only have
+          // a single entry in it.
+          kind = CodeActionKind.QuickFix;
+        }
+
         return server.getCodeActions(
           textDocument.uri,
-          CodeActionKind.QuickFix,
+          kind,
           range,
           diagnostics,
           formating,
