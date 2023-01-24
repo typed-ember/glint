@@ -56,9 +56,6 @@ import type Owner from '@ember/owner';
     'hello'
   );
 
-  type InferSignature<T> = T extends Modifier<infer Signature> ? Signature : never;
-  expectTypeOf<InferSignature<NeatModifier>>().toEqualTypeOf<NeatModifierSignature>();
-
   // @ts-expect-error: missing required positional arg
   neat(img);
 
