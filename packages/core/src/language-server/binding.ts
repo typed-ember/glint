@@ -5,11 +5,16 @@ import {
   SymbolInformation,
   TextDocuments,
   TextDocumentSyncKind,
+  InitializeParams as BaseInitializeParams,
+  CodeActionTriggerKind,
+  CodeActionKind,
 } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { GlintCompletionItem } from './glint-language-server.js';
 import { LanguageServerPool } from './pool.js';
 import { GetIRRequest } from './messages.cjs';
+import { ConfigManager } from './config-manager.js';
+import type * as ts from 'typescript';
 
 export const capabilities: ServerCapabilities = {
   textDocumentSync: TextDocumentSyncKind.Full,
@@ -21,6 +26,9 @@ export const capabilities: ServerCapabilities = {
   },
   referencesProvider: true,
   hoverProvider: true,
+  codeActionProvider: {
+    codeActionKinds: [CodeActionKind.QuickFix],
+  },
   definitionProvider: true,
   workspaceSymbolProvider: true,
   renameProvider: {
@@ -32,10 +40,58 @@ export type BindingArgs = {
   openDocuments: TextDocuments<TextDocument>;
   connection: Connection;
   pool: LanguageServerPool;
+  configManager: ConfigManager;
 };
 
-export function bindLanguageServerPool({ connection, pool, openDocuments }: BindingArgs): void {
-  connection.onInitialize(() => ({ capabilities }));
+interface FormattingAndPreferences {
+  format?: ts.FormatCodeSettings;
+  preferences?: ts.UserPreferences;
+}
+
+interface InitializeParams extends BaseInitializeParams {
+  initializationOptions?: {
+    typescript?: FormattingAndPreferences;
+    javascript?: FormattingAndPreferences;
+  };
+}
+
+export function bindLanguageServerPool({
+  connection,
+  pool,
+  openDocuments,
+  configManager,
+}: BindingArgs): void {
+  connection.onInitialize((config: InitializeParams) => {
+    if (config.initializationOptions?.typescript?.format) {
+      configManager.updateTsJsFormatConfig(
+        'typescript',
+        config.initializationOptions.typescript.format
+      );
+    }
+
+    if (config.initializationOptions?.typescript?.preferences) {
+      configManager.updateTsJsUserPreferences(
+        'typescript',
+        config.initializationOptions.typescript.preferences
+      );
+    }
+
+    if (config.initializationOptions?.javascript?.format) {
+      configManager.updateTsJsFormatConfig(
+        'javascript',
+        config.initializationOptions.javascript.format
+      );
+    }
+
+    if (config.initializationOptions?.javascript?.preferences) {
+      configManager.updateTsJsUserPreferences(
+        'javascript',
+        config.initializationOptions.javascript.preferences
+      );
+    }
+
+    return { capabilities };
+  });
 
   openDocuments.onDidOpen(({ document }) => {
     pool.withServerForURI(document.uri, ({ server, scheduleDiagnostics }) => {
@@ -54,6 +110,43 @@ export function bindLanguageServerPool({ connection, pool, openDocuments }: Bind
     pool.withServerForURI(document.uri, ({ server, scheduleDiagnostics }) => {
       server.updateFile(document.uri, document.getText());
       scheduleDiagnostics();
+    });
+  });
+
+  connection.onCodeAction(({ textDocument, range, context }) => {
+    return pool.withServerForURI(textDocument.uri, ({ server }) => {
+      // The user actually asked for the fix
+      // @see https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeActionTriggerKind
+      if (context.triggerKind === CodeActionTriggerKind.Invoked) {
+        let language = server.getLanguageType(textDocument.uri);
+        let formating = configManager.getFormatCodeSettingsFor(language);
+        let preferences = configManager.getUserSettingsFor(language);
+        let diagnostics = context.diagnostics;
+
+        let kind = '';
+
+        // QuickFix requests can have their `only` field set to `undefined`.
+        // For what we've seen this is only true about `QuickFix`
+        if (context.only === undefined) {
+          kind = CodeActionKind.QuickFix;
+        } else if (context.only.includes(CodeActionKind.QuickFix)) {
+          // Otherwise we get the kind passed in the array.
+          // Because we only solicit for `CodeFix`s this array will only have
+          // a single entry in it.
+          kind = CodeActionKind.QuickFix;
+        }
+
+        return server.getCodeActions(
+          textDocument.uri,
+          kind,
+          range,
+          diagnostics,
+          formating,
+          preferences
+        );
+      }
+
+      return [];
     });
   });
 

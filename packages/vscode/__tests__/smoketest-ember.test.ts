@@ -8,6 +8,8 @@ import {
   Range,
   extensions,
   Location,
+  CodeAction,
+  workspace,
 } from 'vscode';
 import * as path from 'path';
 import { waitUntil } from './helpers/async';
@@ -239,6 +241,44 @@ describe('Smoke test: Ember', () => {
       expect(positions.length).toBe(1);
       expect(positions[0].uri.fsPath).toEqual(scriptURI.fsPath);
       expect(positions[0].range).toEqual(new Range(3, 19, 3, 26));
+    });
+  });
+
+  describe('codeactions', () => {
+    test('add local props to a class', async () => {
+      let scriptURI = Uri.file(`${rootDir}/app/components/colocated-layout.ts`);
+      let templateURI = Uri.file(`${rootDir}/app/components/colocated-layout.hbs`);
+
+      // Open the script and the template
+      let templateEditor = await window.showTextDocument(templateURI, {
+        viewColumn: ViewColumn.One,
+      });
+      let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.Two });
+
+      // Ensure neither has any diagnostic messages
+      expect(languages.getDiagnostics(scriptURI)).toEqual([]);
+      expect(languages.getDiagnostics(templateURI)).toEqual([]);
+
+      await templateEditor.edit((edit) => {
+        edit.insert(new Position(1, 0), '\n{{this.localProp}} ');
+      });
+
+      // Wait for a diagnostic to appear in the template
+      await waitUntil(() => languages.getDiagnostics(templateURI).length);
+
+      const fixes = await commands.executeCommand<CodeAction[]>(
+        'vscode.executeCodeActionProvider',
+        templateURI,
+        new Range(new Position(2, 8), new Position(2, 8))
+      );
+
+      expect(fixes.length).toBe(3);
+
+      expect(fixes[1].title).toBe(`Declare property 'localProp'`);
+
+      await workspace.applyEdit(fixes![1].edit!);
+
+      await waitUntil(() => scriptEditor.document.getText().includes('localProp: any'));
     });
   });
 });

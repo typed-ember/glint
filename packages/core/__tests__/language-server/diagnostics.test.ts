@@ -59,6 +59,7 @@ describe('Language Server: Diagnostics', () => {
       expect(templateDiagnostics).toMatchInlineSnapshot(`
         [
           {
+            "code": 2339,
             "message": "Property 'missingArg' does not exist on type '{}'.",
             "range": {
               "end": {
@@ -75,6 +76,7 @@ describe('Language Server: Diagnostics', () => {
             "tags": [],
           },
           {
+            "code": 2322,
             "message": "Type 'number' is not assignable to type 'string'.",
             "range": {
               "end": {
@@ -193,6 +195,7 @@ describe('Language Server: Diagnostics', () => {
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
+          "code": 6133,
           "message": "'startupTime' is declared but its value is never read.",
           "range": {
             "end": {
@@ -211,6 +214,7 @@ describe('Language Server: Diagnostics', () => {
           ],
         },
         {
+          "code": 2551,
           "message": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
           "range": {
             "end": {
@@ -264,6 +268,7 @@ describe('Language Server: Diagnostics', () => {
     expect(scriptDiagnostics).toMatchInlineSnapshot(`
       [
         {
+          "code": 6133,
           "message": "'startupTime' is declared but its value is never read.",
           "range": {
             "end": {
@@ -287,6 +292,7 @@ describe('Language Server: Diagnostics', () => {
     expect(templateDiagnostics).toMatchInlineSnapshot(`
       [
         {
+          "code": 2551,
           "message": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
           "range": {
             "end": {
@@ -358,6 +364,7 @@ describe('Language Server: Diagnostics', () => {
     expect(server.getDiagnostics(project.fileURI('component-a.ts'))).toMatchInlineSnapshot(`
       [
         {
+          "code": 2339,
           "message": "Property 'version' does not exist on type '{}'.",
           "range": {
             "end": {
@@ -387,6 +394,7 @@ describe('Language Server: Diagnostics', () => {
     expect(server.getDiagnostics(project.fileURI('component-a.ts'))).toMatchInlineSnapshot(`
       [
         {
+          "code": 0,
           "message": "Unused '@glint-expect-error' directive.",
           "range": {
             "end": {

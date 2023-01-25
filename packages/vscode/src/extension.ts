@@ -10,6 +10,7 @@ import {
   window,
   commands,
   workspace,
+  WorkspaceConfiguration,
 } from 'vscode';
 import { Disposable, LanguageClient, ServerOptions } from 'vscode-languageclient/node.js';
 import type { Request, GetIRRequest } from '@glint/core/lsp-messages';
@@ -107,9 +108,31 @@ async function addWorkspaceFolder(
   if (!serverPath) return;
 
   let serverOptions: ServerOptions = { module: serverPath };
+
+  const typescriptFormatOptions = getOptions(workspace.getConfiguration('typescript'), 'format');
+  const typescriptUserPreferences = getOptions(
+    workspace.getConfiguration('typescript'),
+    'preferences'
+  );
+  const javascriptFormatOptions = getOptions(workspace.getConfiguration('javascript'), 'format');
+  const javascriptUserPreferences = getOptions(
+    workspace.getConfiguration('javascript'),
+    'preferences'
+  );
+
   let client = new LanguageClient('glint', 'Glint', serverOptions, {
     workspaceFolder,
     outputChannel,
+    initializationOptions: {
+      javascript: {
+        format: javascriptFormatOptions,
+        preferences: javascriptUserPreferences,
+      },
+      typescript: {
+        format: typescriptFormatOptions,
+        preferences: typescriptUserPreferences,
+      },
+    },
     documentSelector: [{ scheme: 'file', pattern: `${folderPath}/${filePattern}` }],
     synchronize: { fileEvents: watcher },
   });
@@ -165,4 +188,15 @@ function createConfigWatcher(): Disposable {
 // `@glint/core` into the extension.
 function requestKey<R extends Request<string, unknown>>(name: R['name']): R['type'] {
   return name as unknown as R['type'];
+}
+
+// Loads the TypeScript and JavaScript formating options from the workspace and subsets them to
+// pass to the language server.
+function getOptions(config: WorkspaceConfiguration, key: string): object {
+  const formatOptions = config.get<object>(key);
+  if (formatOptions) {
+    return formatOptions;
+  }
+
+  return {};
 }

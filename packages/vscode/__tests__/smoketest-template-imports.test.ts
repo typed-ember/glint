@@ -1,4 +1,14 @@
-import { commands, languages, ViewColumn, window, Uri, Range } from 'vscode';
+import {
+  commands,
+  languages,
+  ViewColumn,
+  window,
+  Uri,
+  Range,
+  Position,
+  CodeAction,
+  workspace,
+} from 'vscode';
 import * as path from 'path';
 import { waitUntil } from './helpers/async';
 
@@ -49,6 +59,83 @@ describe('Smoke test: ETI Environment', () => {
         await waitUntil(() => editor.document.getText().includes('𝚪'));
 
         expect(editor.document.getText()).toMatch('𝚪.this.message');
+      });
+    });
+
+    describe('codeactions args', () => {
+      test('adds missing args from template into Args type', async () => {
+        let scriptURI = Uri.file(`${rootDir}/src/Greeting.gts`);
+
+        // Open the script and the template
+        let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
+
+        // Ensure neither has any diagnostic messages
+        expect(languages.getDiagnostics(scriptURI)).toEqual([]);
+
+        // Comment out a property in the script that's referenced in the template
+        await scriptEditor.edit((edit) => {
+          edit.insert(new Position(10, 4), '{{@undocumentedProperty}} ');
+        });
+
+        // Wait for a diagnostic to appear in the template
+        await waitUntil(() => languages.getDiagnostics(scriptURI).length);
+
+        const fixes = await commands.executeCommand<CodeAction[]>(
+          'vscode.executeCodeActionProvider',
+          scriptURI,
+          new Range(new Position(10, 9), new Position(10, 9))
+        );
+
+        expect(fixes.length).toBe(3);
+
+        expect(fixes[1].title).toBe(`Declare property 'undocumentedProperty'`);
+
+        // apply the missing arg fix
+        await workspace.applyEdit(fixes![1].edit!);
+
+        await waitUntil(
+          () =>
+            scriptEditor.document.getText().includes('undocumentedProperty: any') &&
+            languages.getDiagnostics(scriptURI).length === 0
+        );
+      });
+    });
+
+    describe('codeactions locals', () => {
+      test('add local props to a class', async () => {
+        let scriptURI = Uri.file(`${rootDir}/src/Greeting.gts`);
+
+        // Open the script and the template
+        let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
+
+        // Ensure neither has any diagnostic messages
+        expect(languages.getDiagnostics(scriptURI)).toEqual([]);
+
+        await scriptEditor.edit((edit) => {
+          edit.insert(new Position(10, 4), '{{this.localProp}} ');
+        });
+
+        // Wait for a diagnostic to appear in the template
+        await waitUntil(() => languages.getDiagnostics(scriptURI).length);
+
+        const fixes = await commands.executeCommand<CodeAction[]>(
+          'vscode.executeCodeActionProvider',
+          scriptURI,
+          new Range(new Position(10, 12), new Position(10, 12))
+        );
+
+        expect(fixes.length).toBe(3);
+
+        expect(fixes[1].title).toBe(`Declare property 'localProp'`);
+
+        // select ignore
+        await workspace.applyEdit(fixes![0].edit!);
+
+        await waitUntil(
+          () =>
+            scriptEditor.document.getText().includes('localProp: any') &&
+            languages.getDiagnostics(scriptURI).length
+        );
       });
     });
   });

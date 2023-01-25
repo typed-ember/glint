@@ -55,6 +55,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
+          "code": 2554,
           "message": "Expected 2 arguments, but got 1.",
           "range": {
             "end": {
@@ -71,6 +72,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2554,
           "message": "Expected 2 arguments, but got 3.",
           "range": {
             "end": {
@@ -87,6 +89,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2554,
           "message": "Expected 2 arguments, but got 3. Note that named args are passed together as a final argument, so they collectively increase the given arg count by 1.",
           "range": {
             "end": {
@@ -103,6 +106,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2555,
           "message": "Expected at least 1 arguments, but got 0.",
           "range": {
             "end": {
@@ -119,6 +123,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2554,
           "message": "Expected 2 arguments, but got 1.",
           "range": {
             "end": {
@@ -135,6 +140,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2554,
           "message": "Expected 2 arguments, but got 3.",
           "range": {
             "end": {
@@ -151,6 +157,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2555,
           "message": "Expected at least 1 arguments, but got 0.",
           "range": {
             "end": {
@@ -203,6 +210,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
+          "code": 2322,
           "message": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
         Type '{}' is not assignable to type 'AttrValue'.",
           "range": {
@@ -220,6 +228,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2345,
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
@@ -237,6 +246,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2345,
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
@@ -254,6 +264,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2345,
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
@@ -271,6 +282,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2322,
           "message": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
         Type '{}' is not assignable to type 'AttrValue'.",
           "range": {
@@ -288,6 +300,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2345,
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
@@ -305,6 +318,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2345,
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
@@ -322,6 +336,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2345,
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
         Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
@@ -384,6 +399,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
+          "code": 2769,
           "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
@@ -400,6 +416,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2769,
           "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
@@ -416,6 +433,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2769,
           "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
@@ -432,6 +450,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2769,
           "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
@@ -448,6 +467,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2769,
           "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
@@ -464,6 +484,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2769,
           "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
@@ -480,6 +501,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2769,
           "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
@@ -496,6 +518,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2769,
           "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
@@ -545,6 +568,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
+          "code": 7053,
           "message": "Unknown name 'Foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
         Element implicitly has an 'any' type because expression of type '\\"Foo\\"' can't be used to index type 'Globals'.
           Property 'Foo' does not exist on type 'Globals'.",
@@ -563,6 +587,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 7053,
           "message": "Unknown name 'foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
         Element implicitly has an 'any' type because expression of type '\\"foo\\"' can't be used to index type 'Globals'.
           Property 'foo' does not exist on type 'Globals'.",
@@ -581,6 +606,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 7053,
           "message": "Unknown name 'foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
         Element implicitly has an 'any' type because expression of type '\\"foo\\"' can't be used to index type 'Globals'.
           Property 'foo' does not exist on type 'Globals'.",
@@ -599,6 +625,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 7053,
           "message": "Unknown name 'foo'. If this isn't a typo, you may be missing a registry entry for this value; see the Template Registry page in the Glint documentation for more details.
         Element implicitly has an 'any' type because expression of type '\\"foo\\"' can't be used to index type 'Globals'.
           Property 'foo' does not exist on type 'Globals'.",
@@ -617,6 +644,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 7053,
           "message": "Element implicitly has an 'any' type because expression of type '\\"bad-thing\\"' can't be used to index type '{ message: string; }'.
         Property 'bad-thing' does not exist on type '{ message: string; }'.",
           "range": {
@@ -668,6 +696,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
+          "code": 2769,
           "message": "Unknown component name 'foo'. If this isn't a typo, you may be missing a registry entry for this name; see the Template Registry page in the Glint documentation for more details.
         No overload matches this call.
           Overload 1 of 6, '(component: keyof Globals): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | FnHelper | ... 19 more ... | WithKeyword', gave the following error.
@@ -689,6 +718,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2769,
           "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
         No overload matches this call.
           Overload 1 of 6, '(component: keyof Globals): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | FnHelper | ... 19 more ... | WithKeyword', gave the following error.
@@ -710,6 +740,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2769,
           "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
         No overload matches this call.
           Overload 1 of 6, '(component: keyof Globals): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | FnHelper | ... 19 more ... | WithKeyword', gave the following error.
@@ -774,6 +805,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
+          "code": 2345,
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}} />'.
         Argument of type 'typeof MyComponent' is not assignable to parameter of type 'ContentValue'.",
           "range": {
@@ -791,6 +823,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2345,
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}} />'.
         Argument of type 'Invokable<(named?: PrebindArgs<{ message?: string | undefined; }, \\"message\\"> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, unknown>>' is not assignable to parameter of type 'ContentValue'.",
           "range": {
@@ -808,6 +841,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2345,
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}}>...</ComponentName>'.
         Argument of type 'typeof MyComponent' is not assignable to parameter of type 'ComponentReturn<any, any>'.
           Type 'typeof MyComponent' is missing the following properties from type 'ComponentReturn<any, any>': [Blocks], [Element]",
@@ -826,6 +860,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
+          "code": 2345,
           "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}}>...</ComponentName>'.
         Argument of type 'Invokable<(named?: PrebindArgs<{ message?: string | undefined; }, \\"message\\"> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, unknown>>' is not assignable to parameter of type 'ComponentReturn<any, any>'.",
           "range": {
