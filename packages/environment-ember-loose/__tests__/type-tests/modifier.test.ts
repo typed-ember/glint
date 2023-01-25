@@ -1,8 +1,10 @@
-import Modifier, { modifier } from 'ember-modifier';
+import Modifier, { modifier, type ArgsFor } from 'ember-modifier';
 import { NamedArgsMarker, resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { ModifierReturn } from '@glint/template/-private/integration';
 import { ModifierLike } from '@glint/template';
+import { registerDestructor } from '@ember/destroyable';
+import type Owner from '@ember/owner';
 
 // Class-based modifier
 {
@@ -16,29 +18,27 @@ import { ModifierLike } from '@glint/template';
 
   class NeatModifier extends Modifier<NeatModifierSignature> {
     private interval?: number;
+    private multiplier?: number;
 
-    get lengthOfInput(): number {
-      return this.args.positional[0].length;
+    constructor(owner: Owner, args: ArgsFor<NeatModifierSignature>) {
+      super(owner, args);
+
+      registerDestructor(this, () => window.clearInterval(this.interval));
     }
 
-    get multiplier(): number {
-      if (this.args.named.multiplier === undefined) {
-        return 1000;
-      }
+    override modify(
+      element: HTMLImageElement,
+      [input]: NeatModifierSignature['Args']['Positional'],
+      { multiplier }: NeatModifierSignature['Args']['Named']
+    ): void {
+      // expectTypeOf(element).toEqualTypeOf<HTMLImageElement>();
+      this.multiplier = multiplier ?? 1000;
+      const lengthOfInput = input.length;
 
-      return this.args.named.multiplier;
-    }
-
-    override didReceiveArguments(): void {
-      expectTypeOf(this.element).toEqualTypeOf<HTMLImageElement>();
-
+      window.clearInterval(this.interval);
       this.interval = window.setInterval(() => {
         alert('this is a typesafe modifier!');
-      }, this.multiplier * this.lengthOfInput);
-    }
-
-    override willDestroy(): void {
-      window.clearInterval(this.interval);
+      }, this.multiplier * lengthOfInput);
     }
   }
 
@@ -55,9 +55,6 @@ import { ModifierLike } from '@glint/template';
     new HTMLDivElement(),
     'hello'
   );
-
-  type InferSignature<T> = T extends Modifier<infer Signature> ? Signature : never;
-  expectTypeOf<InferSignature<NeatModifier>>().toEqualTypeOf<NeatModifierSignature>();
 
   // @ts-expect-error: missing required positional arg
   neat(img);
@@ -142,7 +139,7 @@ import { ModifierLike } from '@glint/template';
   }
 
   class MyModifier extends Modifier<TestSignature> {}
-  const myModifier = modifier<TestSignature>(() => {}, { eager: false });
+  const myModifier = modifier<TestSignature>(() => {});
 
   expectTypeOf(MyModifier).toMatchTypeOf<ModifierLike<TestSignature>>();
   expectTypeOf(myModifier).toMatchTypeOf<ModifierLike<TestSignature>>();

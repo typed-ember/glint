@@ -64,9 +64,9 @@ declare module '@ember/component/helper' {
 //////////////////////////////////////////////////////////////////////
 // Modifiers
 
-import 'ember-modifier/-private/class/modifier';
+import 'ember-modifier';
 
-declare module 'ember-modifier/-private/class/modifier' {
+declare module 'ember-modifier' {
   export default interface ClassBasedModifier<S> extends InstanceType<ModifierLike<S>> {}
 }
 
