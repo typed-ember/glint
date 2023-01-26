@@ -143,7 +143,8 @@ describe('Transform: rewriteTemplate', () => {
         },
       ]);
       expect(templateBody(template)).toMatchInlineSnapshot(`
-        "{
+        "// @glint-nocheck
+        {
           const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals[\\"Foo\\"])());
           𝛄;
         }

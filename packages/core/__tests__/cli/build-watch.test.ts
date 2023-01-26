@@ -208,6 +208,7 @@ describe('CLI: watched build mode typechecking', () => {
 
       await watch.terminate();
     });
+
     test('reports on errors introduced after removing a glint-nocheck directive', async () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
