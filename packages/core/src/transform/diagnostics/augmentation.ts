@@ -32,6 +32,7 @@ const diagnosticHandlers: Record<number, DiagnosticHandler | undefined> = {
   2554: noteNamedArgsAffectArity, // TS2554: Expected N arguments, but got M.
   2555: noteNamedArgsAffectArity, // TS2555: Expected at least N arguments, but got M.
   2769: checkResolveError, // TS2769: No overload matches this call.
+  4111: checkIndexAccessError, // TS4111: Property 'x' comes from an index signature, so it must be accessed with ['x'].
   7053: checkImplicitAnyError, // TS7053: Element implicitly has an 'any' type because expression of type '"X"' can't be used to index type 'Y'.
 };
 
@@ -208,6 +209,18 @@ function checkImplicitAnyError(
           `for this value; see the Template Registry page in the Glint documentation for more details.`
       );
     }
+  }
+}
+
+function checkIndexAccessError(diagnostic: Diagnostic, mapping: MappingTree): string | undefined {
+  if (mapping.sourceNode.type === 'Identifier') {
+    let messageText =
+      typeof diagnostic.messageText === 'string'
+        ? diagnostic.messageText
+        : diagnostic.messageText.messageText;
+
+    // "accessed with ['x']" => "accessed with {{get ... 'x'}}"
+    return messageText.replace(/\[(['"])(.*)\1\]/, `{{get ... $1$2$1}}`);
   }
 }
 
