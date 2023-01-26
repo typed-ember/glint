@@ -68,7 +68,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2554)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -85,7 +85,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2554)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -102,7 +102,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2554)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -119,7 +119,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2555)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -136,7 +136,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2554)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -153,7 +153,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2554)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -170,7 +170,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2555)",
+          "source": "glint",
           "tags": [],
         },
       ]
@@ -224,7 +224,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2322)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -242,7 +242,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2345)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -260,7 +260,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2345)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -278,7 +278,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2345)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -296,7 +296,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2322)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -314,7 +314,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2345)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -332,7 +332,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2345)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -350,7 +350,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2345)",
+          "source": "glint",
           "tags": [],
         },
       ]
@@ -412,7 +412,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2769)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -429,7 +429,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2769)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -446,7 +446,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2769)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -463,7 +463,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2769)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -480,7 +480,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2769)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -497,7 +497,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2769)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -514,7 +514,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2769)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -531,7 +531,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2769)",
+          "source": "glint",
           "tags": [],
         },
       ]
@@ -583,7 +583,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(7053)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -602,7 +602,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(7053)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -621,7 +621,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(7053)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -640,7 +640,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(7053)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -658,7 +658,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(7053)",
+          "source": "glint",
           "tags": [],
         },
       ]
@@ -714,7 +714,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2769)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -736,7 +736,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2769)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -758,7 +758,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2769)",
+          "source": "glint",
           "tags": [],
         },
       ]
@@ -819,7 +819,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2345)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -837,7 +837,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2345)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -856,7 +856,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2345)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -874,7 +874,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2345)",
+          "source": "glint",
           "tags": [],
         },
       ]
@@ -919,7 +919,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(4111)",
+          "source": "glint",
           "tags": [],
         },
         {
@@ -936,7 +936,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(4111)",
+          "source": "glint",
           "tags": [],
         },
       ]

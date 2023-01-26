@@ -72,7 +72,7 @@ describe('Language Server: Diagnostics', () => {
               },
             },
             "severity": 1,
-            "source": "glint:ts(2339)",
+            "source": "glint",
             "tags": [],
           },
           {
@@ -89,7 +89,7 @@ describe('Language Server: Diagnostics', () => {
               },
             },
             "severity": 1,
-            "source": "glint:ts(2322)",
+            "source": "glint",
             "tags": [],
           },
         ]
@@ -121,7 +121,8 @@ describe('Language Server: Diagnostics', () => {
       expect(diagnostics).toMatchObject([
         {
           message: "Property 'foo' does not exist on type '{}'.",
-          source: 'glint:ts(2339)',
+          source: 'glint',
+          code: 2339,
         },
       ]);
 
@@ -162,7 +163,8 @@ describe('Language Server: Diagnostics', () => {
       expect(diagnostics).toMatchObject([
         {
           message: "Property 'foo' does not exist on type '{}'.",
-          source: 'glint:ts(2339)',
+          source: 'glint',
+          code: 2339,
         },
       ]);
     });
@@ -208,7 +210,7 @@ describe('Language Server: Diagnostics', () => {
             },
           },
           "severity": 4,
-          "source": "glint:ts(6133)",
+          "source": "glint",
           "tags": [
             1,
           ],
@@ -227,7 +229,7 @@ describe('Language Server: Diagnostics', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2551)",
+          "source": "glint",
           "tags": [],
         },
       ]
@@ -281,7 +283,7 @@ describe('Language Server: Diagnostics', () => {
             },
           },
           "severity": 4,
-          "source": "glint:ts(6133)",
+          "source": "glint",
           "tags": [
             1,
           ],
@@ -305,7 +307,7 @@ describe('Language Server: Diagnostics', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2551)",
+          "source": "glint",
           "tags": [],
         },
       ]
@@ -377,7 +379,7 @@ describe('Language Server: Diagnostics', () => {
             },
           },
           "severity": 1,
-          "source": "glint:ts(2339)",
+          "source": "glint",
           "tags": [],
         },
       ]
