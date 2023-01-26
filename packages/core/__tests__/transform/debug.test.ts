@@ -256,11 +256,11 @@ describe('Transform: Debug utilities', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(295:419): hbs\`\\\\n    <p ...attributes>\\\\n      Hello, {{@foo}}!\\\\n\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\n      {{@bar}}\\\\n    </p>\\\\n  \`
-        |  ts(556:946):  ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {\\\\n  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }\\\\n  𝚪; χ;\\\\n})
+        |  ts(556:973):  ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {\\\\n  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    // @glint-expect-error\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }\\\\n  𝚪; χ;\\\\n})
         |
         | | Mapping: Template
         | |  hbs(299:418): <p ...attributes>\\\\n      Hello, {{@foo}}!\\\\n\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\n      {{@bar}}\\\\n    </p>
-        | |  ts(736:935):  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
+        | |  ts(736:962):  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    // @glint-expect-error\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
         | |
         | | | Mapping: TextContent
         | | |  hbs(299:304):
@@ -268,7 +268,7 @@ describe('Transform: Debug utilities', () => {
         | | |
         | | | Mapping: ElementNode
         | | |  hbs(304:415): <p ...attributes>\\\\n      Hello, {{@foo}}!\\\\n\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\n      {{@bar}}\\\\n    </p>
-        | | |  ts(736:935):  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
+        | | |  ts(736:962):  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    // @glint-expect-error\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
         | | |
         | | | | Mapping: AttrNode
         | | | |  hbs(307:320): ...attributes
@@ -298,34 +298,34 @@ describe('Transform: Debug utilities', () => {
         | | | |
         | | | | Mapping: MustacheCommentStatement
         | | | |  hbs(352:391): {{! @glint-expect-error: no @bar arg }}
-        | | | |  ts(878:878):
+        | | | |  ts(878:905):  // @glint-expect-error
         | | | |
         | | | | Mapping: TextContent
         | | | |  hbs(392:398):
-        | | | |  ts(878:878):
+        | | | |  ts(905:905):
         | | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(398:406): {{@bar}}
-        | | | |  ts(878:929):  χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)())
+        | | | |  ts(905:956):  χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)())
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(400:404): @bar
-        | | | | |  ts(914:925):  𝚪.args.bar
+        | | | | |  ts(941:952):  𝚪.args.bar
         | | | | |
         | | | | | | Mapping: Identifier
         | | | | | |  hbs(401:404): bar
-        | | | | | |  ts(922:925):  bar
+        | | | | | |  ts(949:952):  bar
         | | | | | |
         | | | | |
         | | | |
         | | | | Mapping: TextContent
         | | | |  hbs(406:411):
-        | | | |  ts(931:931):
+        | | | |  ts(958:958):
         | | | |
         | | |
         | | | Mapping: TextContent
         | | |  hbs(415:418):
-        | | |  ts(935:935):
+        | | |  ts(962:962):
         | | |
         | |
         |"
@@ -421,11 +421,11 @@ describe('Transform: Debug utilities', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(306:437): hbs\`\\\\r\\\\n    <p ...attributes>\\\\r\\\\n      Hello, {{@foo}}!\\\\r\\\\n\\\\r\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\r\\\\n      {{@bar}}\\\\r\\\\n    </p>\\\\r\\\\n  \`
-        |  ts(565:955):  ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {\\\\n  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }\\\\n  𝚪; χ;\\\\n})
+        |  ts(565:982):  ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {\\\\n  hbs;\\\\n  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    // @glint-expect-error\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }\\\\n  𝚪; χ;\\\\n})
         |
         | | Mapping: Template
         | |  hbs(310:436): <p ...attributes>\\\\r\\\\n      Hello, {{@foo}}!\\\\r\\\\n\\\\r\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\r\\\\n      {{@bar}}\\\\r\\\\n    </p>
-        | |  ts(745:944):  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
+        | |  ts(745:971):  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    // @glint-expect-error\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
         | |
         | | | Mapping: TextContent
         | | |  hbs(310:316):
@@ -433,7 +433,7 @@ describe('Transform: Debug utilities', () => {
         | | |
         | | | Mapping: ElementNode
         | | |  hbs(316:432): <p ...attributes>\\\\r\\\\n      Hello, {{@foo}}!\\\\r\\\\n\\\\r\\\\n      {{! @glint-expect-error: no @bar arg }}\\\\r\\\\n      {{@bar}}\\\\r\\\\n    </p>
-        | | |  ts(745:944):  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
+        | | |  ts(745:971):  {\\\\n    const 𝛄 = χ.emitElement(\\"p\\");\\\\n    χ.applySplattributes(𝚪.element, 𝛄.element);\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());\\\\n    // @glint-expect-error\\\\n    χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)());\\\\n  }
         | | |
         | | | | Mapping: AttrNode
         | | | |  hbs(319:332): ...attributes
@@ -463,34 +463,34 @@ describe('Transform: Debug utilities', () => {
         | | | |
         | | | | Mapping: MustacheCommentStatement
         | | | |  hbs(367:406): {{! @glint-expect-error: no @bar arg }}
-        | | | |  ts(887:887):
+        | | | |  ts(887:914):  // @glint-expect-error
         | | | |
         | | | | Mapping: TextContent
         | | | |  hbs(408:414):
-        | | | |  ts(887:887):
+        | | | |  ts(914:914):
         | | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(414:422): {{@bar}}
-        | | | |  ts(887:938):  χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)())
+        | | | |  ts(914:965):  χ.emitContent(χ.resolveOrReturn(𝚪.args.bar)())
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(416:420): @bar
-        | | | | |  ts(923:934):  𝚪.args.bar
+        | | | | |  ts(950:961):  𝚪.args.bar
         | | | | |
         | | | | | | Mapping: Identifier
         | | | | | |  hbs(417:420): bar
-        | | | | | |  ts(931:934):  bar
+        | | | | | |  ts(958:961):  bar
         | | | | | |
         | | | | |
         | | | |
         | | | | Mapping: TextContent
         | | | |  hbs(422:428):
-        | | | |  ts(940:940):
+        | | | |  ts(967:967):
         | | | |
         | | |
         | | | Mapping: TextContent
         | | |  hbs(432:436):
-        | | |  ts(944:944):
+        | | |  ts(971:971):
         | | |
         | |
         |"

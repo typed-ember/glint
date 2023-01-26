@@ -208,6 +208,42 @@ describe('CLI: watched build mode typechecking', () => {
 
       await watch.terminate();
     });
+
+    test('reports on errors introduced after removing a glint-nocheck directive', async () => {
+      let code = stripIndent`
+        import '@glint/environment-ember-template-imports';
+        import Component from '@glimmer/component';
+
+        type ApplicationArgs = {
+          version: string;
+        };
+
+        export default class Application extends Component<{ Args: ApplicationArgs }> {
+          private startupTime = new Date().toISOString();
+
+          <template>
+            {{! @glint-nocheck }}
+            <DoesNotExistYet />
+          </template>
+        }
+      `;
+
+      project.write(INPUT_SFC, code);
+
+      let watch = project.buildWatch({ reject: true });
+
+      let output = await watch.awaitOutput('Watching for file changes.');
+      expect(output).toMatch('Found 0 errors.');
+
+      await pauseForTSBuffering();
+
+      project.write(INPUT_SFC, code.replace('{{! @glint-nocheck }}', ''));
+
+      output = await watch.awaitOutput('Watching for file changes.');
+      expect(output).toMatch('Found 1 error.');
+
+      await watch.terminate();
+    });
   });
 
   describe('composite projects', () => {

@@ -134,11 +134,11 @@ export function templateToTypescript(
     }
 
     function emitComment(node: AST.MustacheCommentStatement | AST.CommentStatement): void {
-      emit.nothing(node);
-
       let text = node.value.trim();
       let match = /^@glint-([a-z-]+)/i.exec(text);
-      if (!match) return;
+      if (!match) {
+        return emit.nothing(node);
+      }
 
       let kind = match[1];
       let location = rangeForNode(node);
@@ -151,6 +151,11 @@ export function templateToTypescript(
       } else {
         record.error(`Unknown directive @glint-${kind}`, location);
       }
+
+      emit.forNode(node, () => {
+        emit.text(`// @glint-${kind}`);
+        emit.newline();
+      });
     }
 
     // Captures the context in which a given invocation (i.e. a mustache or
