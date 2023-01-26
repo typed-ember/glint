@@ -122,10 +122,15 @@ export class Project {
     return project;
   }
 
-  public setGlintConfig(config: unknown): void {
+  public updateTsconfig(update: (config: TsconfigWithGlint) => TsconfigWithGlint | void): void {
     let tsconfig = JSON.parse(this.read('tsconfig.json'));
-    tsconfig.glint = config;
-    this.write('tsconfig.json', JSON.stringify(tsconfig, null, 2));
+    this.write('tsconfig.json', JSON.stringify(update(tsconfig) ?? tsconfig, null, 2));
+  }
+
+  public setGlintConfig(config: TsconfigWithGlint['glint']): void {
+    this.updateTsconfig((tsconfig) => {
+      tsconfig.glint = config;
+    });
   }
 
   public write(files: Record<string, string>): void;
