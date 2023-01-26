@@ -880,4 +880,66 @@ describe('Language Server: Diagnostic Augmentation', () => {
       ]
     `);
   });
+
+  test('`noPropertyAccessFromIndexSignature` violation', () => {
+    project.updateTsconfig((tsconfig) => {
+      tsconfig.glint = { environment: ['ember-loose', 'ember-template-imports'] };
+      tsconfig.compilerOptions ??= {};
+      tsconfig.compilerOptions['noPropertyAccessFromIndexSignature'] = true;
+    });
+
+    project.write({
+      'index.gts': stripIndent`
+        declare const stringRecord: Record<string, string>;
+
+        stringRecord.fooBar;
+
+        <template>
+          {{stringRecord.fooBar}}          
+        </template>
+      `,
+    });
+
+    let server = project.startLanguageServer();
+    let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "code": 4111,
+          "message": "Property 'fooBar' comes from an index signature, so it must be accessed with ['fooBar'].",
+          "range": {
+            "end": {
+              "character": 19,
+              "line": 2,
+            },
+            "start": {
+              "character": 13,
+              "line": 2,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(4111)",
+          "tags": [],
+        },
+        {
+          "code": 4111,
+          "message": "Property 'fooBar' comes from an index signature, so it must be accessed with {{get ... 'fooBar'}}.",
+          "range": {
+            "end": {
+              "character": 23,
+              "line": 5,
+            },
+            "start": {
+              "character": 17,
+              "line": 5,
+            },
+          },
+          "severity": 1,
+          "source": "glint:ts(4111)",
+          "tags": [],
+        },
+      ]
+    `);
+  });
 });
