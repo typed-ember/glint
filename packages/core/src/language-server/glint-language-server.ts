@@ -156,10 +156,10 @@ export default class GlintLanguageServer {
         if (!file || file.fileName !== filePath) return [];
 
         return {
+          source: 'glint',
           code: diagnostic.code,
           severity: severityForDiagnostic(this.ts, diagnostic),
           message: this.ts.flattenDiagnosticMessageText(messageText, '\n'),
-          source: `glint${diagnostic.code ? `:ts(${diagnostic.code})` : ''}`,
           tags: tagsForDiagnostic(diagnostic),
           range: {
             start: offsetToPosition(file.text, start),

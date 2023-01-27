@@ -46,7 +46,8 @@ describe('Smoke test: js-glimmerx', () => {
       expect(languages.getDiagnostics(scriptURI)).toMatchObject([
         {
           message: "Property 'undocumentedProperty' does not exist on type '{ message: string; }'.",
-          source: 'glint:ts(2339)',
+          source: 'glint',
+          code: 2339,
           range: new Range(11, 31, 11, 51),
         },
       ]);
@@ -70,7 +71,8 @@ describe('Smoke test: js-glimmerx', () => {
       expect(languages.getDiagnostics(scriptURI)).toMatchObject([
         {
           message: "Property 'foo' does not exist on type 'TestComponent'.",
-          source: 'glint:ts(2339)',
+          source: 'glint',
+          code: 2339,
           range: new Range(10, 15, 10, 18),
         },
       ]);
