@@ -2,7 +2,7 @@
   "name": "glint-vscode",
   "displayName": "Glint",
   "description": "Glint language server integration for VS Code",
-  "version": "1.0.0-beta.3",
+  "version": "1.0.2",
   "publisher": "typed-ember",
   "preview": true,
   "private": true,
@@ -24,17 +24,15 @@
     "Programming Languages",
     "Linters"
   ],
-  "files": [
-    "README.md",
-    "lib"
-  ],
   "scripts": {
     "pretest": "yarn build",
     "test": "node __tests__/support/launch-from-cli.mjs",
     "build": "yarn compile && yarn bundle",
     "compile": "tsc --build",
     "bundle": "esbuild lib/extension.js --bundle --outfile=dist/extension.js --platform=node --external:vscode --minify",
-    "vscode:prepublish": "yarn build"
+    "vscode:prepublish": "yarn build",
+    "extension:package": "vsce package --no-depencencies",
+    "extension:publish": "vsce publish --no-dependencies"
   },
   "engines": {
     "vscode": "^1.68.1"
