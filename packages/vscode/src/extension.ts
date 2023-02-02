@@ -165,7 +165,9 @@ function findLanguageServer(workspaceDir: string): string | null {
     // just bail out if we don't see `@glint/core`. If someone IS expecting Glint to run for this
     // project, though, we leave a message in our channel explaining why we didn't launch.
     outputChannel.appendLine(
-      `Unable to resolve @glint/core from ${resolutionDir} — not launching Glint for this directory.`
+      `Unable to resolve @glint/core from ${resolutionDir} — not launching Glint for this directory.\n` +
+        `If Glint is installed in a child directory, you may wish to set the 'glint.libraryPath' option ` +
+        `in your workspace settings for the Glint VS Code extension.`
     );
 
     return null;

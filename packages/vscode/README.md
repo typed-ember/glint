@@ -16,10 +16,13 @@ See the [Glint home page] for a more detailed Getting Started guide.
 
 [glint home page]: https://typed-ember.gitbook.io/glint
 
-If the location where `@glint/core` is installed isn't in the root of your Code workspace, you can inform the extension on a per-workspace basis where to locate the language server in the Glint extension settings.
+### Monorepos and Other Non-Workspace-Root Installations
+
+If the location where `@glint/core` is installed isn't in the root of your Code workspace, you can inform the extension on a per-workspace basis where to locate the language server in the Glint extension settings under **Glint: Library Path**.
 
 <img width="705" alt="Input for `glint.libaryPath` in the VS Code configuration editor." src="https://user-images.githubusercontent.com/108688/206561138-aca2bb80-04f6-44dd-a23f-032d4f163f7a.png">
 
+For example, if your dependency on `@glint/core` were declared in `frontend/package.json` in your workspace, you could set the library path to `./frontend` in order for the extension to be able to locate it.
 
 ## Usage
 
