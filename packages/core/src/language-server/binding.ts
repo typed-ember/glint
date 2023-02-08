@@ -26,6 +26,7 @@ export const capabilities: ServerCapabilities = {
   },
   referencesProvider: true,
   hoverProvider: true,
+  inlayHintProvider: true,
   codeActionProvider: {
     codeActionKinds: [CodeActionKind.QuickFix],
   },
@@ -110,6 +111,13 @@ export function bindLanguageServerPool({
     pool.withServerForURI(document.uri, ({ server, scheduleDiagnostics }) => {
       server.updateFile(document.uri, document.getText());
       scheduleDiagnostics();
+    });
+  });
+
+  connection.languages.inlayHint.on((hint) => {
+    return pool.withServerForURI(hint.textDocument.uri, ({ server }) => {
+      let language = server.getLanguageType(hint.textDocument.uri);
+      return server.getInlayHints(hint, configManager.getUserSettingsFor(language));
     });
   });
 

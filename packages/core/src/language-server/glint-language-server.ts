@@ -21,6 +21,10 @@ import {
   TextDocumentEdit,
   OptionalVersionedTextDocumentIdentifier,
   TextEdit,
+  InlayHint,
+  InlayHintParams,
+  Position as LSPPosition,
+  InlayHintKind,
 } from 'vscode-languageserver';
 import DocumentCache from '../common/document-cache.js';
 import { Position, positionToOffset } from './util/position.js';
@@ -381,6 +385,42 @@ export default class GlintLanguageServer {
     }
   }
 
+  public getInlayHints(hint: InlayHintParams, preferences: ts.UserPreferences = {}): InlayHint[] {
+    let { uri } = hint.textDocument;
+    let { range } = hint;
+    let fileName = uriToFilePath(uri);
+
+    let { transformedStart, transformedEnd, transformedFileName } =
+      this.getTransformedOffsetsFromPositions(
+        uri,
+        {
+          line: range.start.line,
+          character: range.start.character,
+        },
+        {
+          line: range.end.line,
+          character: range.end.character,
+        }
+      );
+
+    const inlayHints = this.service.provideInlayHints(
+      transformedFileName,
+      {
+        start: transformedStart,
+        length: transformedEnd - transformedStart,
+      },
+      preferences
+    );
+
+    let content = this.documents.getDocumentContents(fileName);
+
+    return inlayHints
+      .map((tsInlayHint) => {
+        return this.transformTSInlayToLSPInlay(tsInlayHint, transformedFileName, content);
+      })
+      .filter(isHint);
+  }
+
   public getCodeActions(
     uri: string,
     actionKind: string,
@@ -402,6 +442,32 @@ export default class GlintLanguageServer {
   public getLanguageType(uri: string): TsUserConfigLang {
     let file = uriToFilePath(uri);
     return this.glintConfig.environment.isTypedScript(file) ? 'typescript' : 'javascript';
+  }
+
+  private transformTSInlayToLSPInlay(
+    hint: ts.InlayHint,
+    fileName: string,
+    contents: string
+  ): InlayHint | undefined {
+    let { position, text } = hint;
+    let { originalStart } = this.transformManager.getOriginalRange(
+      fileName,
+      position,
+      position + text.length
+    );
+
+    const { line, character } = offsetToPosition(contents, originalStart);
+
+    let kind =
+      hint.kind === 'Parameter'
+        ? InlayHintKind.Parameter
+        : hint.kind === 'Type'
+        ? InlayHintKind.Type
+        : undefined; // enums are not supported by LSP;
+
+    if (isInlayHintKind(kind)) {
+      return InlayHint.create(LSPPosition.create(line, character), hint.text, kind);
+    }
   }
 
   private applyCodeAction(
@@ -650,4 +716,12 @@ export default class GlintLanguageServer {
 
 function onlyNumbers(entry: number | undefined): entry is number {
   return entry !== undefined;
+}
+
+function isHint(hint: InlayHint | undefined): hint is InlayHint {
+  return hint !== undefined;
+}
+
+function isInlayHintKind(kind: number | undefined): kind is InlayHintKind {
+  return kind !== undefined;
 }

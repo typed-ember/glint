@@ -10,10 +10,11 @@ import {
   window,
   commands,
   workspace,
-  WorkspaceConfiguration,
 } from 'vscode';
 import { Disposable, LanguageClient, ServerOptions } from 'vscode-languageclient/node.js';
 import type { Request, GetIRRequest } from '@glint/core/lsp-messages';
+import { intoFormatting } from './formatting';
+import { intoPreferences } from './preferences';
 
 ///////////////////////////////////////////////////////////////////////////////
 // Setup and extension lifecycle
@@ -109,28 +110,25 @@ async function addWorkspaceFolder(
 
   let serverOptions: ServerOptions = { module: serverPath };
 
-  const typescriptFormatOptions = getOptions(workspace.getConfiguration('typescript'), 'format');
-  const typescriptUserPreferences = getOptions(
-    workspace.getConfiguration('typescript'),
-    'preferences'
-  );
-  const javascriptFormatOptions = getOptions(workspace.getConfiguration('javascript'), 'format');
-  const javascriptUserPreferences = getOptions(
-    workspace.getConfiguration('javascript'),
-    'preferences'
-  );
+  let typescriptConfig = workspace.getConfiguration('typescript');
+  let typescriptFormatOptions = workspace.getConfiguration('typescript.format');
+  let typescriptUserPreferences = workspace.getConfiguration('typescript.preferences');
+
+  let javaScriptConfig = workspace.getConfiguration('javascript');
+  let javascriptFormatOptions = workspace.getConfiguration('javascript.format');
+  let javascriptUserPreferences = workspace.getConfiguration('javascript.preferences');
 
   let client = new LanguageClient('glint', 'Glint', serverOptions, {
     workspaceFolder,
     outputChannel,
     initializationOptions: {
       javascript: {
-        format: javascriptFormatOptions,
-        preferences: javascriptUserPreferences,
+        format: intoFormatting(javascriptFormatOptions),
+        preferences: intoPreferences(javaScriptConfig, javascriptUserPreferences),
       },
       typescript: {
-        format: typescriptFormatOptions,
-        preferences: typescriptUserPreferences,
+        format: intoFormatting(typescriptFormatOptions),
+        preferences: intoPreferences(typescriptConfig, typescriptUserPreferences),
       },
     },
     documentSelector: [{ scheme: 'file', pattern: `${folderPath}/${filePattern}` }],
@@ -190,15 +188,4 @@ function createConfigWatcher(): Disposable {
 // `@glint/core` into the extension.
 function requestKey<R extends Request<string, unknown>>(name: R['name']): R['type'] {
   return name as unknown as R['type'];
-}
-
-// Loads the TypeScript and JavaScript formating options from the workspace and subsets them to
-// pass to the language server.
-function getOptions(config: WorkspaceConfiguration, key: string): object {
-  const formatOptions = config.get<object>(key);
-  if (formatOptions) {
-    return formatOptions;
-  }
-
-  return {};
 }
