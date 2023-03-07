@@ -27,6 +27,7 @@ npm install -D @glint/core @glint/template @glint/environment-ember-loose
   }
 }
 ```
+If you are using `ember-template-imports` in your project, also install the `@glint/environment-ember-template-imports` package and configure it in `tsconfig.json` under `glint.environment`. 
 
 {% endcode %}
 
