@@ -10,7 +10,6 @@ export interface ProjectAnalysis {
   glintConfig: GlintConfig;
   transformManager: TransformManager;
   languageServer: GlintLanguageServer;
-  documents: DocumentCache;
   service: ts.LanguageService;
   shutdown: () => void;
 }
@@ -39,10 +38,9 @@ export function analyzeProject(projectDirectory: string = process.cwd()): Projec
     glintConfig,
     transformManager,
     languageServer,
-    documents,
     service: languageServer.service,
     shutdown,
   };
 }
 
-export type { DocumentCache, TransformManager, GlintConfig, GlintLanguageServer };
+export type { TransformManager, GlintConfig, GlintLanguageServer };

@@ -369,6 +369,11 @@ export default class GlintLanguageServer {
     return this.calculateOriginalLocations(references);
   }
 
+  public getOriginalContents(uri: string): string | undefined {
+    let filePath = uriToFilePath(uri);
+    return this.documents.getDocumentContents(filePath);
+  }
+
   public getTransformedContents(uri: string): GetIRResult | undefined {
     let filePath = uriToFilePath(uri);
     let source = this.findDiagnosticsSource(filePath);
