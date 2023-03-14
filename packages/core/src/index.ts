@@ -45,4 +45,4 @@ export function analyzeProject(projectDirectory: string = process.cwd()): Projec
   };
 }
 
-export { DocumentCache, TransformManager, GlintConfig, loadConfig, GlintLanguageServer };
+export type { DocumentCache, TransformManager, GlintConfig, GlintLanguageServer };
