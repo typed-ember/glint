@@ -48,7 +48,7 @@ interface TransformedOffsets {
 }
 
 export default class GlintLanguageServer {
-  private service: ts.LanguageService;
+  readonly service: ts.LanguageService;
   private openFileNames: Set<string>;
   private rootFileNames: Set<string>;
   private ts: typeof import('typescript');
