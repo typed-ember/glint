@@ -26,5 +26,4 @@ interface Keywords
   component: ComponentKeyword<{}>;
 }
 
-
 export const Globals: Keywords & Globals;
