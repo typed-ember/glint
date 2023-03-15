@@ -4,3 +4,4 @@ tsconfig.tsbuildinfo
 
 !jest.config.js
 !-private/dsl/**/*.d.ts
+!globals/**/*.d.ts

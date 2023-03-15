@@ -12,6 +12,10 @@ export default function emberTemplateImportsEnvironment(
 
   const additionalGlobalSpecialForms = additionalSpecialForms.globals ?? {};
 
+  const additionalGlobals = Array.isArray(options['additionalGlobals'])
+    ? options['additionalGlobals']
+    : [];
+
   return {
     tags: {
       '@glint/environment-ember-template-imports/-private/tag': {
@@ -53,6 +57,7 @@ export default function emberTemplateImportsEnvironment(
             'with',
             'yield',
             ...Object.keys(additionalGlobalSpecialForms),
+            ...additionalGlobals,
           ],
         },
       },

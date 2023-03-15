@@ -1,7 +1,12 @@
 {
   "extends": "../../tsconfig.compileroptions.json",
-  "include": ["src"],
+  "include": ["src", "types"],
   "glint": {
-    "environment": ["ember-loose", "ember-template-imports"]
+    "environment": {
+      "ember-loose": {},
+      "ember-template-imports": {
+        "additionalGlobals": ["t"]
+      }
+    }
   }
 }

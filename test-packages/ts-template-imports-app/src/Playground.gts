@@ -40,4 +40,6 @@ const NUMS = [1, 2, 3];
   {{#each-in (hash a=1 b='hi') as |key value|}}
     {{key}}: {{value}}
   {{/each-in}}
+
+  {{t "NOT IMPORTED!"}}
 </template>

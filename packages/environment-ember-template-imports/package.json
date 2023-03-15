@@ -8,6 +8,7 @@
   "main": "-private/index.js",
   "exports": {
     ".": "./-private/index.js",
+    "./globals": "./globals/index.js",
     "./glint-environment-definition": "./-private/environment/index.js",
     "./-private/dsl": "./-private/dsl/index.js"
   },
@@ -22,7 +23,8 @@
   },
   "files": [
     "README.md",
-    "-private/**/*.{js,d.ts}"
+    "-private/**/*.{js,d.ts}",
+    "globals/index.d.ts"
   ],
   "peerDependencies": {
     "@glint/environment-ember-loose": "^1.0.0-beta.3",
