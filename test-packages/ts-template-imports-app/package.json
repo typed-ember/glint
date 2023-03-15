@@ -6,11 +6,6 @@
   "scripts": {
     "test": "glint"
   },
-  "devDependencies": {
-    "@glint/core": "*",
-    "@glint/environment-ember-loose": "*",
-    "@glint/environment-ember-template-imports": "*"
-  },
   "volta": {
     "extends": "../../package.json"
   }
