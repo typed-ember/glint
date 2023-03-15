@@ -32,5 +32,12 @@ export function analyzeProject(projectDirectory: string = process.cwd()): Projec
   let languageServer = new GlintLanguageServer(glintConfig, documents, transformManager);
   let shutdown = (): void => languageServer.dispose();
 
-  return { glintConfig, transformManager, languageServer, shutdown };
+  return {
+    glintConfig,
+    transformManager,
+    languageServer,
+    shutdown,
+  };
 }
+
+export type { TransformManager, GlintConfig, GlintLanguageServer };
