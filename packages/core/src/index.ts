@@ -3,14 +3,12 @@ import DocumentCache from './common/document-cache.js';
 import TransformManager from './common/transform-manager.js';
 import GlintLanguageServer from './language-server/glint-language-server.js';
 import * as utils from './language-server/util/index.js';
-import * as ts from 'typescript';
 
 /** @internal */
 export interface ProjectAnalysis {
   glintConfig: GlintConfig;
   transformManager: TransformManager;
   languageServer: GlintLanguageServer;
-  service: ts.LanguageService;
   shutdown: () => void;
 }
 
@@ -38,7 +36,6 @@ export function analyzeProject(projectDirectory: string = process.cwd()): Projec
     glintConfig,
     transformManager,
     languageServer,
-    service: languageServer.service,
     shutdown,
   };
 }
