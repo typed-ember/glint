@@ -1,5 +1,6 @@
 import { ComponentKeyword } from '@glint/environment-ember-loose/-private/dsl';
 import { Globals as EELGlobals } from '@glint/environment-ember-loose/-private/dsl';
+import Globals from '../../globals';
 
 interface Keywords
   extends Pick<
@@ -25,6 +26,5 @@ interface Keywords
   component: ComponentKeyword<{}>;
 }
 
-export interface Globals extends Keywords {}
 
-export const Globals: Globals;
+export const Globals: Keywords & Globals;
