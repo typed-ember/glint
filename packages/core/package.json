@@ -1,6 +1,6 @@
 {
   "name": "@glint/core",
-  "version": "1.0.0-beta.3",
+  "version": "1.0.0-beta.4",
   "repository": "typed-ember/glint",
   "description": "A CLI for performing typechecking on Glimmer templates",
   "license": "MIT",
@@ -43,7 +43,7 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
-    "glint-monorepo-test-utils": "^1.0.0-beta.3",
+    "glint-monorepo-test-utils": "^1.0.0-beta.4",
     "@types/common-tags": "^1.8.0",
     "@types/node": "^18.11.5",
     "@types/semver": "^7.3.13",

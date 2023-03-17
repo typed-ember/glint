@@ -2,7 +2,7 @@
   "name": "glint-vscode",
   "displayName": "Glint",
   "description": "Glint language server integration for VS Code",
-  "version": "1.0.2",
+  "version": "1.0.0-beta.4",
   "publisher": "typed-ember",
   "preview": true,
   "private": true,
@@ -98,7 +98,7 @@
     "@vscode/test-electron": "Dropped support for Node < 16 in the 2.2.1 patch release, so locking to 2.2.0 while we still support Node 14."
   },
   "devDependencies": {
-    "@glint/core": "^1.0.0-beta.3",
+    "@glint/core": "^1.0.0-beta.4",
     "@types/jest": "^26.0.13",
     "@types/vscode": "^1.68.1",
     "@vscode/test-electron": "2.2.0",
