@@ -3,5 +3,8 @@
   "compilerOptions": {
     "composite": false,
     "noEmit": true
+  },
+  "glint": {
+    "environment": "ember-loose"
   }
 }

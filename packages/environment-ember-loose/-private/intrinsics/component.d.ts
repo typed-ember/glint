@@ -38,6 +38,10 @@ export type ComponentKeyword<Registry> = DirectInvokable<{
     args: NamedArgs<GivenArgs>
   ): null | PartiallyAppliedComponent<Registry[Name], keyof GivenArgs>;
 
+  // {{component this.someComponent}}
+  <T extends Invokable<any>>(component: T): T;
+  <T extends Invokable<any>>(component: T | null | undefined): T | null;
+
   // {{component someCurriedComponent arg=value}}
   <
     Named,
