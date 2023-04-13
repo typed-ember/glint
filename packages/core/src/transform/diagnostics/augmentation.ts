@@ -134,6 +134,8 @@ function noteNamedArgsAffectArity(
   }
 }
 
+let bindHelpers = ['component', 'helper', 'modifier'];
+
 function checkResolveError(
   diagnostic: Diagnostic,
   mapping: MappingTree
@@ -141,29 +143,46 @@ function checkResolveError(
   // The diagnostic might fall on a lone identifier or a full path; if the former,
   // we need to traverse up through the path to find the true parent.
   let sourceMapping = mapping.sourceNode.type === 'Identifier' ? mapping.parent : mapping;
+
+  if (
+    (sourceMapping?.sourceNode.type === 'SubExpression' ||
+      sourceMapping?.sourceNode.type === 'MustacheStatement') &&
+    sourceMapping.sourceNode.path.type === 'PathExpression' &&
+    bindHelpers.includes(sourceMapping.sourceNode.path.original)
+  ) {
+    let kind = sourceMapping.sourceNode.path.original;
+    return addGlintDetails(
+      diagnostic,
+      `Unable to pre-bind the given args to the given ${kind}. This likely indicates a type ` +
+        `mismatch between its signature and the values you're passing.`
+    );
+  }
+
   let parentNode = sourceMapping?.parent?.sourceNode;
 
-  // If this error is on the first param to a {{component}} invocation, this means
+  // If this error is on the first param to a {{component}} or other bind invocation, this means
   // we either have a non-component value or a string that's missing from the registry.
   if (
     (parentNode?.type === 'SubExpression' || parentNode?.type === 'MustacheStatement') &&
     parentNode.path.type === 'PathExpression' &&
-    parentNode.path.original === 'component' &&
+    bindHelpers.includes(parentNode.path.original) &&
     parentNode.params[0] === sourceMapping?.sourceNode
   ) {
+    let kind = parentNode.path.original;
+
     if (sourceMapping.sourceNode.type === 'StringLiteral') {
       return addGlintDetails(
         diagnostic,
-        `Unknown component name '${sourceMapping.sourceNode.value}'. If this isn't a typo, you may be ` +
+        `Unknown ${kind} name '${sourceMapping.sourceNode.value}'. If this isn't a typo, you may be ` +
           `missing a registry entry for this name; see the Template Registry page in the Glint ` +
           `documentation for more details.`
       );
     } else {
       return addGlintDetails(
         diagnostic,
-        `The type of this expression doesn't appear to be a valid value to pass the {{component}} ` +
+        `The type of this expression doesn't appear to be a valid value to pass the {{${kind}}} ` +
           `helper. If possible, you may need to give the expression a narrower type, ` +
-          `for example \`'component-a' | 'component-b'\` rather than \`string\`.`
+          `for example \`'thing-a' | 'thing-b'\` rather than \`string\`.`
       );
     }
   }

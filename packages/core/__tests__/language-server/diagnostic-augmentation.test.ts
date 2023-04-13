@@ -699,9 +699,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "code": 2769,
           "message": "Unknown component name 'foo'. If this isn't a typo, you may be missing a registry entry for this name; see the Template Registry page in the Glint documentation for more details.
         No overload matches this call.
-          Overload 1 of 6, '(component: keyof Globals): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | FnHelper | ... 19 more ... | WithKeyword', gave the following error.
-            Argument of type '\\"foo\\"' is not assignable to parameter of type 'keyof Globals'.
-          Overload 2 of 6, '(component: keyof Globals | null | undefined): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | ... 21 more ... | null', gave the following error.
+          The last overload gave the following error.
             Argument of type '\\"foo\\"' is not assignable to parameter of type 'keyof Globals | null | undefined'.",
           "range": {
             "end": {
@@ -719,11 +717,9 @@ describe('Language Server: Diagnostic Augmentation', () => {
         },
         {
           "code": 2769,
-          "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
+          "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'thing-a' | 'thing-b'\` rather than \`string\`.
         No overload matches this call.
-          Overload 1 of 6, '(component: keyof Globals): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | FnHelper | ... 19 more ... | WithKeyword', gave the following error.
-            Argument of type '\\"bar\\"' is not assignable to parameter of type 'keyof Globals'.
-          Overload 2 of 6, '(component: keyof Globals | null | undefined): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | ... 21 more ... | null', gave the following error.
+          The last overload gave the following error.
             Argument of type '\\"bar\\"' is not assignable to parameter of type 'keyof Globals | null | undefined'.",
           "range": {
             "end": {
@@ -741,11 +737,9 @@ describe('Language Server: Diagnostic Augmentation', () => {
         },
         {
           "code": 2769,
-          "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'component-a' | 'component-b'\` rather than \`string\`.
+          "message": "The type of this expression doesn't appear to be a valid value to pass the {{component}} helper. If possible, you may need to give the expression a narrower type, for example \`'thing-a' | 'thing-b'\` rather than \`string\`.
         No overload matches this call.
-          Overload 1 of 6, '(component: keyof Globals): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | FnHelper | ... 19 more ... | WithKeyword', gave the following error.
-            Argument of type 'string' is not assignable to parameter of type 'keyof Globals'.
-          Overload 2 of 6, '(component: keyof Globals | null | undefined): void | LetKeyword | ComponentKeyword<Globals> | ConcatHelper | ... 21 more ... | null', gave the following error.
+          The last overload gave the following error.
             Argument of type 'string' is not assignable to parameter of type 'keyof Globals | null | undefined'.",
           "range": {
             "end": {
@@ -765,57 +759,46 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('direct invocation of `{{component}}`', () => {
-    project.setGlintConfig({ environment: ['ember-loose'] });
+  test('bad `component`/`helper`/`modifier` arg type', () => {
+    project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
-      'index.ts': stripIndent`
-        import Component from '@glimmer/component';
+      'index.gts': stripIndent`
+        import { ComponentLike, HelperLike, ModifierLike } from '@glint/template';
 
-        export interface MyComponentSignature {
-          Args: {
-            message?: string;
-          };
-          Blocks: {
-            default: [];
-          };
-        }
+        declare const Comp: ComponentLike<{ Args: { foo: string } }>;
+        declare const help: HelperLike<{ Args: { Named: { foo: string } } }>;
+        declare const mod: ModifierLike<{ Args: { Named: { foo: string } } }>;
 
-        export default class MyComponent extends Component<MyComponentSignature> {}
-
-        declare module '@glint/environment-ember-loose/registry' {
-          export default interface Registry {
-            'my-component': typeof MyComponent;
-          }
-        }
-      `,
-      'index.hbs': stripIndent`
-        {{! inline invocation }}
-        {{component 'my-component'}}
-        {{component 'my-component' message="hi"}}
-
-        {{! block invocation }}
-        {{#component 'my-component'}}{{/component}}
-        {{#component 'my-component' message="hi"}}{{/component}}
+        <template>
+          {{#let
+            (component Comp foo=123)
+            (helper help foo=123)
+            (modifier mod foo=123)
+          }}
+          {{/let}}
+        </template>
       `,
     });
 
     let server = project.startLanguageServer();
-    let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
+    let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
-          "code": 2345,
-          "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}} />'.
-        Argument of type 'typeof MyComponent' is not assignable to parameter of type 'ContentValue'.",
+          "code": 2769,
+          "message": "Unable to pre-bind the given args to the given component. This likely indicates a type mismatch between its signature and the values you're passing.
+        No overload matches this call.
+          The last overload gave the following error.
+            Type 'number' is not assignable to type 'string'.",
           "range": {
             "end": {
-              "character": 28,
-              "line": 1,
+              "character": 23,
+              "line": 8,
             },
             "start": {
-              "character": 0,
-              "line": 1,
+              "character": 20,
+              "line": 8,
             },
           },
           "severity": 1,
@@ -823,17 +806,19 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "code": 2345,
-          "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}} />'.
-        Argument of type 'Invokable<(named?: PrebindArgs<{ message?: string | undefined; }, \\"message\\"> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, unknown>>' is not assignable to parameter of type 'ContentValue'.",
+          "code": 2769,
+          "message": "Unable to pre-bind the given args to the given helper. This likely indicates a type mismatch between its signature and the values you're passing.
+        No overload matches this call.
+          The last overload gave the following error.
+            Type 'number' is not assignable to type 'string'.",
           "range": {
             "end": {
-              "character": 41,
-              "line": 2,
+              "character": 20,
+              "line": 9,
             },
             "start": {
-              "character": 0,
-              "line": 2,
+              "character": 17,
+              "line": 9,
             },
           },
           "severity": 1,
@@ -841,36 +826,19 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "code": 2345,
-          "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}}>...</ComponentName>'.
-        Argument of type 'typeof MyComponent' is not assignable to parameter of type 'ComponentReturn<any, any>'.
-          Type 'typeof MyComponent' is missing the following properties from type 'ComponentReturn<any, any>': [Blocks], [Element]",
+          "code": 2769,
+          "message": "Unable to pre-bind the given args to the given modifier. This likely indicates a type mismatch between its signature and the values you're passing.
+        No overload matches this call.
+          The last overload gave the following error.
+            Type 'number' is not assignable to type 'string'.",
           "range": {
             "end": {
-              "character": 43,
-              "line": 5,
+              "character": 21,
+              "line": 10,
             },
             "start": {
-              "character": 0,
-              "line": 5,
-            },
-          },
-          "severity": 1,
-          "source": "glint",
-          "tags": [],
-        },
-        {
-          "code": 2345,
-          "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}}>...</ComponentName>'.
-        Argument of type 'Invokable<(named?: PrebindArgs<{ message?: string | undefined; }, \\"message\\"> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, unknown>>' is not assignable to parameter of type 'ComponentReturn<any, any>'.",
-          "range": {
-            "end": {
-              "character": 56,
-              "line": 6,
-            },
-            "start": {
-              "character": 0,
-              "line": 6,
+              "character": 18,
+              "line": 10,
             },
           },
           "severity": 1,
