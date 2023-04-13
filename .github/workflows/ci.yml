@@ -45,7 +45,7 @@ jobs:
       - name: Build
         run: yarn build
       - name: Run Tests
-        uses: GabrielBB/xvfb-action@v1
+        uses: coactions/setup-xvfb@v1
         with:
           run: yarn test
 
@@ -99,7 +99,7 @@ jobs:
       - name: Build
         run: yarn build
       - name: Run Tests
-        uses: GabrielBB/xvfb-action@v1
+        uses: coactions/setup-xvfb@v1
         with:
           run: yarn test
 
@@ -127,6 +127,6 @@ jobs:
       - name: Build
         run: yarn build
       - name: Run Tests
-        uses: GabrielBB/xvfb-action@v1
+        uses: coactions/setup-xvfb@v1
         with:
           run: yarn test
