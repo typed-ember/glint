@@ -1,6 +1,6 @@
 import { NamedArgsMarker, resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { HelperLike, WithBoundArgs } from '@glint/template';
+import { HelperLike, WithBoundArgs, WithBoundPositionals } from '@glint/template';
 import { NamedArgs } from '../-private/integration';
 
 // Fixed signature params
@@ -104,6 +104,18 @@ import { NamedArgs } from '../-private/integration';
   expectTypeOf(resolve(definition)).toEqualTypeOf<
     (args: NamedArgs<{ age: number; name?: string }>) => string
   >();
+}
+
+// With bound positionals
+{
+  interface InfoSignature {
+    Args: { Positional: [age: number, name: string] };
+    Return: string;
+  }
+
+  let definition!: WithBoundPositionals<HelperLike<InfoSignature>, 1>;
+
+  expectTypeOf(resolve(definition)).toEqualTypeOf<(name: string) => string>();
 }
 
 // Assignability

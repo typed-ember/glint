@@ -15,6 +15,7 @@ import {
   InvokableArgs,
   MaybeNamed,
   PrebindArgs,
+  SliceFrom,
 } from './signature';
 
 /**
@@ -139,6 +140,46 @@ export type WithBoundArgs<
         ]
       ) => R
     >
+  : never;
+
+/**
+ * Similar to `WithBoundArgs`, this utility type provides a shorthand
+ * for specifying the type of a helper or modifier whose positional
+ * argument(s) have been pre-bound.
+ *
+ * Given the type of the helper or modifier in question and the number
+ * of positional arguments that have been pre-bound, this helper returns
+ * the same item back, but without those leading positional arguments.
+ *
+ * For instance, given a helper `FooHelper` with positional arg types
+ * `[secret: symbol, name: string, age: number]`, then if you wrote
+ * the following in a template:
+ *
+ * ```handlebars
+ * {{yield (helper FooHelper this.secret)}}
+ * ```
+ *
+ * You could represent that in your signature as:
+ *
+ * ```ts
+ * Blocks: {
+ *   default: [WithBoundPositionals<typeof FooHelper, 1>];
+ * };
+ * ```
+ *
+ * Note that you can use `WithBoundPositionals` and `WithBoundArgs`
+ * together if you're pre-binding both positional and named arguments
+ * in the same location.
+ */
+export type WithBoundPositionals<
+  T extends Invokable<AnyFunction> | AnyFunction,
+  Count extends number
+> = T extends Invokable<(el: infer El, ...args: infer A) => ModifierReturn>
+  ? Invokable<(el: El, ...args: SliceFrom<A, Count>) => ModifierReturn>
+  : T extends Invokable<(...args: infer A) => infer R>
+  ? Invokable<(...args: SliceFrom<A, Count>) => R>
+  : T extends (...args: infer A) => infer R
+  ? Invokable<(...args: SliceFrom<A, Count>) => R>
   : never;
 
 export {};
