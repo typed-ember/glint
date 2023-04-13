@@ -47,3 +47,20 @@ export declare function resolve<Args extends unknown[], Instance extends Invokab
  */
 
 export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
+
+/*
+ * Binding helpers like `{{component}}` and `{{helper}}` accept a variety of possible
+ * environment-specific initial arguments. This variant `resolve` signature allows
+ * environments to dictate how that argument is interpreted before being handed off to
+ * the actual helper definition. By resolving to the internal invokable form as described
+ * above, TypeScript can "do the right thing" in more cases for type inference, particularly
+ * with invokables whose signatures include type parameters.
+ */
+
+export declare function resolveForBind<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
+export declare function resolveForBind<Args extends unknown[], Instance extends InvokableInstance>(
+  item: abstract new (...args: Args) => Instance
+): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
+export declare function resolveForBind<Args extends unknown[], Instance extends InvokableInstance>(
+  item: null | undefined | (abstract new (...args: Args) => Instance)
+): null | ((...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>);
