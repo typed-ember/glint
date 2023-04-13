@@ -1,7 +1,6 @@
 import * as VM from '@glint/template/-private/keywords';
 
 import { ActionKeyword } from '../intrinsics/action';
-import { ComponentKeyword } from '../intrinsics/component';
 import { ConcatHelper } from '../intrinsics/concat';
 import { EachKeyword } from '../intrinsics/each';
 import { EachInKeyword } from '../intrinsics/each-in';
@@ -43,7 +42,7 @@ interface Keywords {
 
     [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/component?anchor=component
    */
-  component: ComponentKeyword<Globals>;
+  component: VM.ComponentKeyword;
 
   /**
     Execute the `debugger` statement in the current template's context.

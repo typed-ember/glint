@@ -35,6 +35,7 @@ export default function emberLooseEnvironment(
     yield: 'yield',
     array: 'array-literal',
     hash: 'object-literal',
+    component: 'bind-invokable',
     ...additionalSpecialForms.globals,
   };
 

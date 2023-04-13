@@ -82,22 +82,15 @@ class ParametricComponent<T> extends Component<{
   Blocks: { default: [T, number] };
 }> {}
 
-// The only way to fix a type parameter as part of using the component keyword is to
-// say ahead of time the type you're trying to bind it as.
-const BoundParametricComponent = ParametricComponent<string>;
-
-// Simple no-op binding (requires fixing the parametric type ahead of time)
+// Simple no-op binding
 typeTest(
-  { BoundParametricComponent, formModifier },
+  { ParametricComponent, formModifier },
   hbs`
-    {{#let (component this.BoundParametricComponent) as |NoopCurriedParametricComponent|}}
+    {{#let (component this.ParametricComponent) as |NoopCurriedParametricComponent|}}
       <NoopCurriedParametricComponent @values={{array "hi"}} {{this.formModifier}} />
 
       {{! @glint-expect-error: missing required arg }}
       <NoopCurriedParametricComponent />
-
-      {{! @glint-expect-error: wrong type for what we pre-bound above }}
-      <NoopCurriedParametricComponent @values={{array 1 2 3}} />
 
       <NoopCurriedParametricComponent
         @values={{array}}
@@ -109,15 +102,20 @@ typeTest(
         {{@expectTypeOf value @to.beString}}
         {{@expectTypeOf index @to.beNumber}}
       </NoopCurriedParametricComponent>
+
+      <NoopCurriedParametricComponent @values={{array true}} {{this.formModifier}} as |value index|>
+        {{@expectTypeOf value @to.beBoolean}}
+        {{@expectTypeOf index @to.beNumber}}
+      </NoopCurriedParametricComponent>
     {{/let}}
   `
 );
 
 // Binding a required arg makes it optional
 typeTest(
-  { BoundParametricComponent, formModifier },
+  { ParametricComponent, formModifier },
   hbs`
-    {{#let (component this.BoundParametricComponent values=(array "hi")) as |RequiredValueCurriedParametricComponent|}}
+    {{#let (component this.ParametricComponent values=(array "hi")) as |RequiredValueCurriedParametricComponent|}}
       <RequiredValueCurriedParametricComponent @values={{array "hi"}} {{this.formModifier}} />
 
       <RequiredValueCurriedParametricComponent />
@@ -140,16 +138,13 @@ typeTest(
 
 // Binding an optional arg still leaves the required one(s)
 typeTest(
-  { BoundParametricComponent, formModifier },
+  { ParametricComponent, formModifier },
   hbs`
-    {{#let (component this.BoundParametricComponent optional="hi") as |OptionalValueCurriedParametricComponent|}}
+    {{#let (component this.ParametricComponent optional="hi") as |OptionalValueCurriedParametricComponent|}}
       <OptionalValueCurriedParametricComponent @values={{array "hi"}} {{this.formModifier}} />
 
       {{! @glint-expect-error: missing required arg }}
       <OptionalValueCurriedParametricComponent />
-
-      {{! @glint-expect-error: wrong type for what we pre-bound above }}
-      <OptionalValueCurriedParametricComponent @values={{array 1 2 3}} />
 
       <OptionalValueCurriedParametricComponent
         {{! @glint-expect-error: extra arg }}
@@ -158,6 +153,12 @@ typeTest(
 
       <OptionalValueCurriedParametricComponent @values={{array "ok"}} {{this.formModifier}} as |value index|>
         {{@expectTypeOf value @to.beString}}
+        {{@expectTypeOf index @to.beNumber}}
+      </OptionalValueCurriedParametricComponent>
+
+
+      <OptionalValueCurriedParametricComponent @values={{array true}} {{this.formModifier}} as |value index|>
+        {{@expectTypeOf value @to.beBoolean}}
         {{@expectTypeOf index @to.beNumber}}
       </OptionalValueCurriedParametricComponent>
     {{/let}}

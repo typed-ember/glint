@@ -5,9 +5,7 @@ import {
   emitComponent,
   NamedArgsMarker,
 } from '@glint/environment-ember-loose/-private/dsl';
-import { ComponentReturn, NamedArgs } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';
-import { ComponentKeyword } from '../../-private/intrinsics/component';
 import { ComponentLike, WithBoundArgs } from '@glint/template';
 
 {
@@ -99,34 +97,6 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
     expectTypeOf(𝚪.element).toEqualTypeOf<YieldingComponentSignature['Element']>();
     expectTypeOf(𝚪.blocks).toEqualTypeOf<YieldingComponentSignature['Blocks']>();
   });
-}
-
-// Template-only components can be the target of `{{component}}`
-{
-  interface CurriedComponentSignature {
-    Args: {
-      a: string;
-      b: number;
-    };
-  }
-
-  const CurriedComponent = templateOnlyComponent<CurriedComponentSignature>();
-  const componentKeyword = null as unknown as ComponentKeyword<{
-    'curried-component': typeof CurriedComponent;
-  }>;
-
-  const CurriedWithNothing = resolve(componentKeyword)('curried-component');
-  expectTypeOf(resolve(CurriedWithNothing)).toEqualTypeOf<
-    (args: NamedArgs<{ a: string; b: number }>) => ComponentReturn<{}>
-  >();
-
-  const CurriedWithA = resolve(componentKeyword)('curried-component', {
-    a: 'hi',
-    ...NamedArgsMarker,
-  });
-  expectTypeOf(resolve(CurriedWithA)).toEqualTypeOf<
-    (args: NamedArgs<{ a?: string; b: number }>) => ComponentReturn<{}>
-  >();
 }
 
 // Template-only components are `ComponentLike`

@@ -26,6 +26,7 @@ export default function emberTemplateImportsEnvironment(
               if: 'if',
               unless: 'if-not',
               yield: 'yield',
+              component: 'bind-invokable',
               ...additionalGlobalSpecialForms,
             },
             imports: {

@@ -14,6 +14,7 @@ export default function glimmerxEnvironment(
         if: 'if',
         unless: 'if-not',
         yield: 'yield',
+        component: 'bind-invokable',
       },
     },
     globals: [
