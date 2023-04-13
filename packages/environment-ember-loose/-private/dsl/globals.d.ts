@@ -89,6 +89,16 @@ interface Keywords {
   */
   'has-block-params': VM.HasBlockParamsKeyword;
 
+  /**
+    Use the `{{helper}}` helper to create a contextual helper so that it can be passed
+    around as first-class values in templates.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/helper?anchor=helper
+  */
+  helper: VM.HelperKeyword;
+
   // `{{if}}` is implemented directly in `@glint/core`
   if: void;
 
@@ -130,6 +140,16 @@ interface Keywords {
     [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/log?anchor=log
    */
   log: LogHelper;
+
+  /**
+    Use the `{{modifier}}` helper to create a contextual modifier so that it can be passed
+    around as first-class values in templates.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/modifier?anchor=modifier
+  */
+  modifier: VM.ModifierKeyword;
 
   /**
     The `{{mount}}` helper lets you embed a routeless engine in a template.
