@@ -17,7 +17,7 @@
     "glint-environment"
   ],
   "scripts": {
-    "test": "tsc --project __tests__/type-tests && vitest run",
+    "test": "glint --project __tests__/type-tests && vitest run",
     "test:watch": "vitest watch",
     "build": "tsc --build",
     "prepack": "yarn build"

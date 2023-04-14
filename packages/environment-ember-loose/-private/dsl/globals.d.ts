@@ -1,7 +1,6 @@
 import * as VM from '@glint/template/-private/keywords';
 
 import { ActionKeyword } from '../intrinsics/action';
-import { ComponentKeyword } from '../intrinsics/component';
 import { ConcatHelper } from '../intrinsics/concat';
 import { EachKeyword } from '../intrinsics/each';
 import { EachInKeyword } from '../intrinsics/each-in';
@@ -43,7 +42,7 @@ interface Keywords {
 
     [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/component?anchor=component
    */
-  component: ComponentKeyword<Globals>;
+  component: VM.ComponentKeyword;
 
   /**
     Execute the `debugger` statement in the current template's context.
@@ -90,6 +89,16 @@ interface Keywords {
   */
   'has-block-params': VM.HasBlockParamsKeyword;
 
+  /**
+    Use the `{{helper}}` helper to create a contextual helper so that it can be passed
+    around as first-class values in templates.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/helper?anchor=helper
+  */
+  helper: VM.HelperKeyword;
+
   // `{{if}}` is implemented directly in `@glint/core`
   if: void;
 
@@ -131,6 +140,16 @@ interface Keywords {
     [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/log?anchor=log
    */
   log: LogHelper;
+
+  /**
+    Use the `{{modifier}}` helper to create a contextual modifier so that it can be passed
+    around as first-class values in templates.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/modifier?anchor=modifier
+  */
+  modifier: VM.ModifierKeyword;
 
   /**
     The `{{mount}}` helper lets you embed a routeless engine in a template.

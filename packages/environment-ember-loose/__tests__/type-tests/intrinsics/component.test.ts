@@ -1,308 +1,166 @@
-import { expectTypeOf } from 'expect-type';
-import {
-  resolve,
-  applySplattributes,
-  emitComponent,
-  Globals,
-  NamedArgsMarker,
-} from '@glint/environment-ember-loose/-private/dsl';
 import Component from '@ember/component';
-import { ComponentKeyword } from '../../../-private/intrinsics/component';
-import { WithBoundArgs, ComponentLike } from '@glint/template';
+import { hbs } from 'ember-cli-htmlbars';
+import { typeTest } from '@glint/type-test';
+import { WithBoundArgs, ModifierLike } from '@glint/template';
 
-const componentKeyword = resolve({} as ComponentKeyword<LocalRegistry>);
+// String-based lookups
+typeTest(
+  {},
+  hbs`
+    {{#let (component 'input') as |BoundInput|}}
+      <BoundInput @value="hello" />
 
-declare function maybe<T>(arg: T): T | undefined;
+      {{! @glint-expect-error: wrong arg type}}
+      <BoundInput @value={{array 1 2 3}} />
+    {{/let}}
+  `
+);
 
-type LocalRegistry = {
-  string: typeof StringComponent;
-  parametric: typeof ParametricComponent;
-};
+declare const formModifier: ModifierLike<{
+  Element: HTMLFormElement;
+}>;
 
 class StringComponent extends Component<{
   Element: HTMLFormElement;
   Args: { value: string };
-  Blocks: { default?: [string] };
+  Blocks: { default: [string] };
 }> {}
 
-const NoopCurriedStringComponent = componentKeyword('string');
-const ValueCurriedStringComponent = componentKeyword('string', {
-  value: 'hello',
-  ...NamedArgsMarker,
-});
+// Simple no-op binding
+typeTest(
+  { StringComponent, formModifier },
+  hbs`
+    {{#let (component this.StringComponent) as |NoopCurriedStringComponent|}}
+      <NoopCurriedStringComponent @value="hi" {{this.formModifier}} />
 
-const MaybeNoopCurriedStringComponent = componentKeyword(maybe('string'));
-const MaybeValueCurriedStringComponent = componentKeyword(maybe('string'), {
-  value: 'hello',
-  ...NamedArgsMarker,
-});
+      {{! @glint-expect-error: missing required arg }}
+      <NoopCurriedStringComponent />
 
-// Once value is curried, it should be optional in args
-expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
-  ComponentLike<{
-    Element: HTMLFormElement;
-    Args: { value?: string };
-    Blocks: { default?: [string] };
-  }>
->();
-
-// {{component maybeAString}} returns Component | null
-expectTypeOf(MaybeNoopCurriedStringComponent).toEqualTypeOf<null | typeof StringComponent>();
-expectTypeOf(MaybeValueCurriedStringComponent).toEqualTypeOf<
-  null | typeof ValueCurriedStringComponent
->();
-
-// This is also equivalent to this `ComponentWithBoundArgs` shorthand:
-expectTypeOf(ValueCurriedStringComponent).toEqualTypeOf<
-  WithBoundArgs<typeof ValueCurriedStringComponent, 'value'>
->();
-
-// Invoking the noop-curried component
-{
-  const component = emitComponent(
-    resolve(NoopCurriedStringComponent)({ value: 'hello', ...NamedArgsMarker })
-  );
-
-  // Applying attributes/modifiers
-  applySplattributes(new HTMLFormElement(), component.element);
-}
-
-resolve(NoopCurriedStringComponent)(
-  // @ts-expect-error: Invoking the curried component but forgetting `value`
-  { ...NamedArgsMarker }
+      <NoopCurriedStringComponent @value="ok" {{this.formModifier}} as |value|>
+        {{@expectTypeOf value @to.beString}}
+      </NoopCurriedStringComponent>
+    {{/let}}
+  `
 );
 
-resolve(NoopCurriedStringComponent)({
-  // @ts-expect-error: Invoking the curried component with an invalid value
-  value: 123,
-  ...NamedArgsMarker,
-});
+// Nullable in, nullable out
+typeTest(
+  { StringComponent: StringComponent as typeof StringComponent | null },
+  hbs`
+    {{#let (component this.StringComponent) as |NoopCurriedStringComponent|}}
+      <NoopCurriedStringComponent @value="hi" />
 
-// Invoking the noop-curried component with a valid block
-{
-  const component = emitComponent(
-    resolve(NoopCurriedStringComponent)({ value: 'hello', ...NamedArgsMarker })
-  );
+      {{@expectTypeOf null @to.beAssignableToTypeOf NoopCurriedStringComponent}}
+    {{/let}}
+  `
+);
 
+// Currying a named arg makes it optional but still override-able
+typeTest(
   {
-    const [...args] = component.blockParams.default;
-    expectTypeOf(args).toEqualTypeOf<[string]>();
-  }
-}
+    StringComponent,
+    formModifier,
+    expectedType: {} as WithBoundArgs<typeof StringComponent, 'value'>,
+  },
+  hbs`
+    {{#let (component this.StringComponent value="hello") as |BoundStringComponent|}}
+      <BoundStringComponent />
+      <BoundStringComponent @value="overridden" />
 
-// Invoking the noop-curried component with an invalid block
-{
-  const component = emitComponent(
-    resolve(NoopCurriedStringComponent)({ value: 'hello', ...NamedArgsMarker })
-  );
+      {{@expectTypeOf BoundStringComponent @to.equalTypeOf this.expectedType}}
 
-  // @ts-expect-error: invalid block name
-  component.blockParams.asdf;
-}
-
-// Invoking the curried-with-value component with no value
-emitComponent(resolve(ValueCurriedStringComponent)());
-
-// Invoking the curried-with-value component with a valid value
-{
-  const component = emitComponent(
-    resolve(ValueCurriedStringComponent)({ value: 'hi', ...NamedArgsMarker })
-  );
-  applySplattributes(new HTMLFormElement(), component.element);
-}
-
-emitComponent(
-  resolve(ValueCurriedStringComponent)({
-    // @ts-expect-error: Invoking the curred-with-value component with an invalid value
-    value: 123,
-    ...NamedArgsMarker,
-  })
+      <BoundStringComponent {{this.formModifier}} as |value|>
+        {{@expectTypeOf value @to.beString}}
+      </BoundStringComponent>
+    {{/let}}
+  `
 );
-
-componentKeyword(StringComponent, {
-  // @ts-expect-error: Attempting to curry an arg with the wrong type
-  value: 123,
-  ...NamedArgsMarker,
-});
 
 class ParametricComponent<T> extends Component<{
   Element: HTMLFormElement;
   Args: { values: Array<T>; optional?: string };
-  Blocks: { default?: [T, number] };
+  Blocks: { default: [T, number] };
 }> {}
 
-const NoopCurriedParametricComponent = componentKeyword('parametric');
+// Simple no-op binding
+typeTest(
+  { ParametricComponent, formModifier },
+  hbs`
+    {{#let (component this.ParametricComponent) as |NoopCurriedParametricComponent|}}
+      <NoopCurriedParametricComponent @values={{array "hi"}} {{this.formModifier}} />
 
-// The only way to fix a type parameter as part of using the component keyword is to
-// say ahead of time the type you're trying to bind it as.
-const BoundParametricComponent = ParametricComponent as new () => ParametricComponent<string>;
+      {{! @glint-expect-error: missing required arg }}
+      <NoopCurriedParametricComponent />
 
-const RequiredValueCurriedParametricComponent = componentKeyword(BoundParametricComponent, {
-  values: ['hello'],
-  ...NamedArgsMarker,
-});
+      <NoopCurriedParametricComponent
+        @values={{array}}
+        {{! @glint-expect-error: extra arg }}
+        @extra={{true}}
+      />
 
-const OptionalValueCurriedParametricComponent = componentKeyword(componentKeyword('parametric'), {
-  optional: 'hi',
-  ...NamedArgsMarker,
-});
+      <NoopCurriedParametricComponent @values={{array "ok"}} {{this.formModifier}} as |value index|>
+        {{@expectTypeOf value @to.beString}}
+        {{@expectTypeOf index @to.beNumber}}
+      </NoopCurriedParametricComponent>
 
-// Invoking the noop-curried component with number values
-{
-  const component = emitComponent(
-    resolve(NoopCurriedParametricComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
-  );
-
-  {
-    const [value] = component.blockParams.default;
-    expectTypeOf(value).toEqualTypeOf<number>();
-  }
-}
-
-// Invoking the noop-curried component with string values
-{
-  const component = emitComponent(
-    resolve(NoopCurriedParametricComponent)({ values: ['hello'], ...NamedArgsMarker })
-  );
-
-  {
-    const [value] = component.blockParams.default;
-    expectTypeOf(value).toEqualTypeOf<string>();
-  }
-
-  applySplattributes(new HTMLFormElement(), component.element);
-}
-
-emitComponent(
-  // @ts-expect-error: expect 1 args but got 0
-  resolve(NoopCurriedParametricComponent)()
+      <NoopCurriedParametricComponent @values={{array true}} {{this.formModifier}} as |value index|>
+        {{@expectTypeOf value @to.beBoolean}}
+        {{@expectTypeOf index @to.beNumber}}
+      </NoopCurriedParametricComponent>
+    {{/let}}
+  `
 );
 
-emitComponent(
-  resolve(NoopCurriedParametricComponent)({
-    // @ts-expect-error: wrong type for `values`
-    values: 'hello',
-    ...NamedArgsMarker,
-  })
+// Binding a required arg makes it optional
+typeTest(
+  { ParametricComponent, formModifier },
+  hbs`
+    {{#let (component this.ParametricComponent values=(array "hi")) as |RequiredValueCurriedParametricComponent|}}
+      <RequiredValueCurriedParametricComponent @values={{array "hi"}} {{this.formModifier}} />
+
+      <RequiredValueCurriedParametricComponent />
+
+      {{! @glint-expect-error: wrong type for what we pre-bound above }}
+      <RequiredValueCurriedParametricComponent @values={{array 1 2 3}} />
+
+      <RequiredValueCurriedParametricComponent
+        {{! @glint-expect-error: extra arg }}
+        @extra={{true}}
+      />
+
+      <RequiredValueCurriedParametricComponent {{this.formModifier}} as |value index|>
+        {{@expectTypeOf value @to.beString}}
+        {{@expectTypeOf index @to.beNumber}}
+      </RequiredValueCurriedParametricComponent>
+    {{/let}}
+  `
 );
 
-emitComponent(
-  resolve(NoopCurriedParametricComponent)({
-    values: [1, 2, 3],
-    // @ts-expect-error: extra arg
-    extra: 'uh oh',
-    ...NamedArgsMarker,
-  })
+// Binding an optional arg still leaves the required one(s)
+typeTest(
+  { ParametricComponent, formModifier },
+  hbs`
+    {{#let (component this.ParametricComponent optional="hi") as |OptionalValueCurriedParametricComponent|}}
+      <OptionalValueCurriedParametricComponent @values={{array "hi"}} {{this.formModifier}} />
+
+      {{! @glint-expect-error: missing required arg }}
+      <OptionalValueCurriedParametricComponent />
+
+      <OptionalValueCurriedParametricComponent
+        {{! @glint-expect-error: extra arg }}
+        @extra={{true}}
+      />
+
+      <OptionalValueCurriedParametricComponent @values={{array "ok"}} {{this.formModifier}} as |value index|>
+        {{@expectTypeOf value @to.beString}}
+        {{@expectTypeOf index @to.beNumber}}
+      </OptionalValueCurriedParametricComponent>
+
+
+      <OptionalValueCurriedParametricComponent @values={{array true}} {{this.formModifier}} as |value index|>
+        {{@expectTypeOf value @to.beBoolean}}
+        {{@expectTypeOf index @to.beNumber}}
+      </OptionalValueCurriedParametricComponent>
+    {{/let}}
+  `
 );
-
-// Invoking the curred component with no additional args
-{
-  const component = emitComponent(resolve(RequiredValueCurriedParametricComponent)());
-
-  {
-    const [value] = component.blockParams.default;
-    expectTypeOf(value).toEqualTypeOf<string>();
-  }
-}
-
-// Invoking the curred component and overriding the given arg
-{
-  const component = emitComponent(
-    resolve(RequiredValueCurriedParametricComponent)({ values: ['ok'], ...NamedArgsMarker })
-  );
-
-  {
-    const [value] = component.blockParams.default;
-    expectTypeOf(value).toEqualTypeOf<string>();
-  }
-}
-
-emitComponent(
-  resolve(RequiredValueCurriedParametricComponent)({
-    // @ts-expect-error: wrong type for arg override
-    values: [1, 2, 3],
-    ...NamedArgsMarker,
-  })
-);
-
-emitComponent(
-  resolve(RequiredValueCurriedParametricComponent)({
-    // @ts-expect-error: extra arg
-    extra: 'bad',
-    ...NamedArgsMarker,
-  })
-);
-
-// Invoking the curried component, supplying missing required args
-{
-  const component = emitComponent(
-    resolve(OptionalValueCurriedParametricComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
-  );
-
-  {
-    const [value] = component.blockParams.default;
-    expectTypeOf(value).toEqualTypeOf<number>();
-  }
-}
-
-emitComponent(
-  resolve(OptionalValueCurriedParametricComponent)(
-    // @ts-expect-error: missing required arg `values`
-    {}
-  )
-);
-
-// {{component (component BoundParametricComponent values=(array "hello")) optional="hi"}}
-const DoubleCurriedComponent = componentKeyword(RequiredValueCurriedParametricComponent, {
-  optional: 'hi',
-  ...NamedArgsMarker,
-});
-
-const MaybeDoubleCurriedParametricComponent = componentKeyword(
-  maybe(RequiredValueCurriedParametricComponent),
-  { optional: 'hi', ...NamedArgsMarker }
-);
-
-expectTypeOf(MaybeDoubleCurriedParametricComponent).toEqualTypeOf<
-  null | typeof DoubleCurriedComponent
->();
-
-// Invoking the component with no args
-{
-  const component = emitComponent(resolve(DoubleCurriedComponent)());
-
-  {
-    const [value] = component.blockParams.default;
-    expectTypeOf(value).toEqualTypeOf<string>();
-  }
-}
-
-// Invoking the component overriding an arg correctly
-emitComponent(resolve(DoubleCurriedComponent)({ values: ['a', 'b'], ...NamedArgsMarker }));
-
-emitComponent(
-  resolve(DoubleCurriedComponent)({
-    // @ts-expect-error: invalid arg override
-    values: [1, 2, 3],
-    ...NamedArgsMarker,
-  })
-);
-
-emitComponent(
-  resolve(DoubleCurriedComponent)({
-    // @ts-expect-error: unexpected args
-    foo: 'bar',
-    ...NamedArgsMarker,
-  })
-);
-
-{
-  // This 'real' version of `{{component}}` uses the definition available to downstream consumers,
-  // rather than the one above that's tied to our isolated testing registry so we can ensure
-  // appropriate global values are available to consumers.
-  const realComponentKeyword = resolve(Globals['component']);
-
-  expectTypeOf(realComponentKeyword('input')).toEqualTypeOf(Globals.input);
-  expectTypeOf(realComponentKeyword('link-to')).toEqualTypeOf(Globals['link-to']);
-  expectTypeOf(realComponentKeyword('textarea')).toEqualTypeOf(Globals['textarea']);
-}

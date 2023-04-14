@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { TOC } from '@ember/component/template-only';
 import { hash } from '@ember/helper';
+import { ComponentLike, ModifierLike, HelperLike } from '@glint/template';
 
 const lib = {
   MaybeComponent: undefined as TOC<{ Args: { arg: string } }> | undefined
@@ -42,4 +43,19 @@ const NUMS = [1, 2, 3];
   {{/each-in}}
 
   {{t "NOT IMPORTED!"}}
+</template>
+
+
+declare const CanvasThing: ComponentLike<{ Args: { str: string }; Element: HTMLCanvasElement }>;
+declare const makeString: HelperLike<{ Args: { Named: { len: number } }; Return: string }>;
+declare const drawCanvasStuff: ModifierLike<{ Args: { Named: { width: number; height: number } }; Element: HTMLCanvasElement }>;
+
+export const CanvasPlayground = <template>
+  {{#let (component CanvasThing str="hi") as |BoundCanvasThing|}}
+    <BoundCanvasThing />
+  {{/let}}
+
+  {{#let (helper makeString len=5) (modifier drawCanvasStuff width=10) as |boundMakeString boundDrawCanvasStuff|}}
+    <CanvasThing @str={{(boundMakeString)}} {{boundDrawCanvasStuff height=5}} />
+  {{/let}}
 </template>

@@ -1,5 +1,5 @@
 import { expectTypeOf } from 'expect-type';
-import { emitComponent, NamedArgsMarker, resolve } from '../../-private/dsl';
+import { emitComponent, NamedArgsMarker, resolve, resolveForBind } from '../../-private/dsl';
 import { ComponentKeyword } from '../../-private/keywords';
 import TestComponent from '../test-component';
 
@@ -10,8 +10,8 @@ class StringComponent extends TestComponent<{
   Blocks: { default: [string] };
 }> {}
 
-const NoopCurriedStringComponent = componentKeyword(StringComponent);
-const ValueCurriedStringComponent = componentKeyword(StringComponent, {
+const NoopCurriedStringComponent = componentKeyword(resolveForBind(StringComponent));
+const ValueCurriedStringComponent = componentKeyword(resolveForBind(StringComponent), {
   value: 'hello',
   ...NamedArgsMarker,
 });
@@ -68,7 +68,7 @@ emitComponent(
   })
 );
 
-componentKeyword(StringComponent, {
+componentKeyword(resolveForBind(StringComponent), {
   // @ts-expect-error: Attempting to curry an arg with the wrong type
   value: 123,
   ...NamedArgsMarker,
@@ -79,21 +79,27 @@ class ParametricComponent<T> extends TestComponent<{
   Blocks: { default?: [T, number] };
 }> {}
 
-const NoopCurriedParametricComponent = componentKeyword(ParametricComponent);
+const NoopCurriedParametricComponent = componentKeyword(resolveForBind(ParametricComponent));
 
 // The only way to fix a type parameter as part of using the component keyword is to
 // say ahead of time the type you're trying to bind it as.
 const BoundParametricComponent = ParametricComponent<string>;
 
-const RequiredValueCurriedParametricComponent = componentKeyword(BoundParametricComponent, {
-  values: ['hello'],
-  ...NamedArgsMarker,
-});
+const RequiredValueCurriedParametricComponent = componentKeyword(
+  resolveForBind(BoundParametricComponent),
+  {
+    values: ['hello'],
+    ...NamedArgsMarker,
+  }
+);
 
-const OptionalValueCurriedParametricComponent = componentKeyword(ParametricComponent, {
-  optional: 'hi',
-  ...NamedArgsMarker,
-});
+const OptionalValueCurriedParametricComponent = componentKeyword(
+  resolveForBind(ParametricComponent),
+  {
+    optional: 'hi',
+    ...NamedArgsMarker,
+  }
+);
 
 // Invoking the noop-curried component with number values
 {
@@ -204,10 +210,13 @@ emitComponent(
 );
 
 // {{component (component BoundParametricComponent values=(array "hello")) optional="hi"}}
-const DoubleCurriedComponent = componentKeyword(RequiredValueCurriedParametricComponent, {
-  optional: 'hi',
-  ...NamedArgsMarker,
-});
+const DoubleCurriedComponent = componentKeyword(
+  resolveForBind(RequiredValueCurriedParametricComponent),
+  {
+    optional: 'hi',
+    ...NamedArgsMarker,
+  }
+);
 
 // Invoking the component with no args
 {

@@ -202,6 +202,10 @@ export function templateToTypescript(
           emitArrayExpression(formInfo, node);
           break;
 
+        case 'bind-invokable':
+          emitBindInvokableExpression(formInfo, node);
+          break;
+
         case '===':
         case '!==':
           emitBinaryOperatorExpression(formInfo, node);
@@ -224,6 +228,38 @@ export function templateToTypescript(
       if (formInfo.requiresConsumption) {
         emit.text(')');
       }
+    }
+
+    function emitBindInvokableExpression(
+      formInfo: SpecialFormInfo,
+      node: AST.MustacheStatement | AST.SubExpression
+    ): void {
+      emit.forNode(node, () => {
+        assert(
+          node.params.length >= 1,
+          () => `{{${formInfo.name}}} requires at least one positional argument`
+        );
+
+        assert(
+          node.params.length === 1 || node.hash.pairs.length === 0,
+          () =>
+            `Due to TypeScript inference limitations, {{${formInfo.name}}} can only pre-bind ` +
+            `either named or positional arguments in a single pass. You can instead break the ` +
+            `binding into two parts, e.g. ` +
+            `{{${formInfo.name} (${formInfo.name} ... posA posB) namedA=true namedB=true}}`
+        );
+
+        // Treat the first argument to a bind-invokable expression (`{{component}}`,
+        // `{{helper}}`, etc) as special: we wrap it in a `resolve` call so that the
+        // type machinery for those helpers can always operate against the resolved value.
+        emit.text('χ.resolve(');
+        emitExpression(node.path);
+        emit.text(')(χ.resolveForBind(');
+        emitExpression(node.params[0]);
+        emit.text('), ');
+        emitArgs(node.params.slice(1), node.hash);
+        emit.text(')');
+      });
     }
 
     function emitObjectExpression(
@@ -798,7 +834,7 @@ export function templateToTypescript(
           emit.text('χ.applyModifier(χ.resolve(');
           emitExpression(modifier.path);
           emit.text(')(𝛄.element, ');
-          emitArgs(modifier);
+          emitArgs(modifier.params, modifier.hash);
           emit.text('));');
           emit.newline();
         });
@@ -904,6 +940,13 @@ export function templateToTypescript(
 
         case 'if-not':
           emitUnlessStatement(formInfo, node);
+          break;
+
+        case 'bind-invokable':
+          record.error(
+            `The {{${formInfo.name}}} helper can't be used directly in block form under Glint. Consider first binding the result to a variable, e.g. '{{#let (${formInfo.name} ...) as |...|}}'.`,
+            rangeForNode(node.path)
+          );
           break;
 
         default:
@@ -1096,13 +1139,13 @@ export function templateToTypescript(
       emit.text('(');
       emitExpression(node.path);
       emit.text(')(');
-      emitArgs(node);
+      emitArgs(node.params, node.hash);
       emit.text(')');
     }
 
-    function emitArgs(node: CurlyInvocationNode): void {
+    function emitArgs(positional: Array<AST.Expression>, named: AST.Hash): void {
       // Emit positional args
-      for (let [index, param] of node.params.entries()) {
+      for (let [index, param] of positional.entries()) {
         if (index) {
           emit.text(', ');
         }
@@ -1111,17 +1154,17 @@ export function templateToTypescript(
       }
 
       // Emit named args
-      if (node.hash.pairs.length) {
-        emit.text(node.params.length ? ', { ' : '{ ');
+      if (named.pairs.length) {
+        emit.text(positional.length ? ', { ' : '{ ');
 
-        let { start } = rangeForNode(node.hash);
-        for (let [index, pair] of node.hash.pairs.entries()) {
+        let { start } = rangeForNode(named);
+        for (let [index, pair] of named.pairs.entries()) {
           start = template.indexOf(pair.key, start);
           emitHashKey(pair.key, start);
           emit.text(': ');
           emitExpression(pair.value);
 
-          if (index === node.hash.pairs.length - 1) {
+          if (index === named.pairs.length - 1) {
             emit.text(' ');
           }
 

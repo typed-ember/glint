@@ -33,7 +33,7 @@ declare module '@glint/environment-ember-loose/registry' {
 {{yield (component 'my-component' someArg=true)}}
 ```
 
-In that case, you can use the `ComponentLike` or `WithBoundArgs` helpers as discussed in [Contextual Components](ember/contextual-components.md):
+In that case, you can use the `ComponentLike` or `WithBoundArgs` types as discussed in [Glint Types](./glint-types.md):
 
 ```typescript
 import Component from '@glimmer/component';

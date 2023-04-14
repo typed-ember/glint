@@ -64,3 +64,20 @@ export type MaybeNamed<T> = T extends any
 
 export type Get<T, K, Otherwise = unknown> = K extends keyof T ? T[K] : Otherwise;
 export type Constrain<T, Constraint, Otherwise = Constraint> = T extends Constraint ? T : Otherwise;
+
+export type TupleOfSize<Len extends number, Acc extends unknown[] = []> = Acc['length'] extends Len
+  ? Acc
+  : TupleOfSize<Len, [any, ...Acc]>;
+
+export type SliceTo<T extends unknown[], Index extends number> = T['length'] extends Index
+  ? T
+  : T extends [...infer Rest, any?]
+  ? SliceTo<Rest, Index>
+  : [];
+
+export type SliceFrom<T extends unknown[], Index extends number> = T extends [
+  ...TupleOfSize<Index>,
+  ...infer Rest
+]
+  ? Rest
+  : [];

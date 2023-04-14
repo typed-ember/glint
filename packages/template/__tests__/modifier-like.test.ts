@@ -1,7 +1,7 @@
 import { NamedArgsMarker, resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { ModifierReturn, NamedArgs } from '@glint/template/-private/integration';
-import { ModifierLike, WithBoundArgs } from '@glint/template';
+import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/template';
 
 // Fixed signature params
 {
@@ -132,6 +132,20 @@ import { ModifierLike, WithBoundArgs } from '@glint/template';
       el: HTMLImageElement,
       args: NamedArgs<{ multiplier?: number; input: string }>
     ) => ModifierReturn
+  >();
+}
+
+// With bound positionals
+{
+  interface NeatModifierSignature {
+    Args: { Positional: [multiplier: number, input: string] };
+    Element: HTMLImageElement;
+  }
+
+  let NeatModifier!: WithBoundPositionals<ModifierLike<NeatModifierSignature>, 1>;
+
+  expectTypeOf(resolve(NeatModifier)).toEqualTypeOf<
+    (el: HTMLImageElement, input: string) => ModifierReturn
   >();
 }
 

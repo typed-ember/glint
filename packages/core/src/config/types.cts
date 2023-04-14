@@ -47,11 +47,13 @@ export type GlintSpecialForm =
   | 'yield'
   | 'object-literal'
   | 'array-literal'
+  | 'bind-invokable'
   | '==='
   | '!=='
   | '&&'
   | '||'
   | '!';
+
 export type GlintSpecialFormConfig = {
   globals?: { [global: string]: GlintSpecialForm };
   imports?: {
