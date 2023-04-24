@@ -3,7 +3,7 @@ import {
   emitComponent,
   Globals,
   NamedArgsMarker,
-  resolve
+  resolve,
 } from '@glint/environment-ember-loose/-private/dsl';
 
 let eachIn = resolve(Globals['each-in']);
