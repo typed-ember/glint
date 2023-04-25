@@ -42,7 +42,17 @@ export declare function resolveForBind<T extends ((...params: any) => any) | nul
 // String lookups
 export declare function resolveForBind<T extends keyof Globals>(
   item: T
-): Globals[T] extends Invokable<infer F> ? F : Globals[T];
+): Globals[T] extends Invokable<infer F>
+  ? F
+  : Globals[T] extends DirectInvokable<infer F>
+  ? F
+  : Globals[T];
 export declare function resolveForBind<T extends keyof Globals>(
   item: T | null | undefined
-): (Globals[T] extends Invokable<infer F> ? F : Globals[T]) | null;
+):
+  | (Globals[T] extends Invokable<infer F>
+      ? F
+      : Globals[T] extends DirectInvokable<infer F>
+      ? F
+      : Globals[T])
+  | null;
