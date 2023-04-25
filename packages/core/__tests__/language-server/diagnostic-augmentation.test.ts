@@ -759,6 +759,119 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
+  test('direct invocation of `{{component}}`', () => {
+    project.setGlintConfig({ environment: ['ember-loose'] });
+    project.write({
+      'index.ts': stripIndent`
+        import Component from '@glimmer/component';
+
+        export interface MyComponentSignature {
+          Args: {
+            message?: string;
+          };
+          Blocks: {
+            default: [];
+          };
+        }
+
+        export default class MyComponent extends Component<MyComponentSignature> {}
+
+        declare module '@glint/environment-ember-loose/registry' {
+          export default interface Registry {
+            'my-component': typeof MyComponent;
+          }
+        }
+      `,
+      'index.hbs': stripIndent`
+        {{! inline invocation }}
+        {{component 'my-component'}}
+        {{component 'my-component' message="hi"}}
+
+        {{! block invocation }}
+        {{#component 'my-component'}}{{/component}}
+        {{#component 'my-component' message="hi"}}{{/component}}
+      `,
+    });
+
+    let server = project.startLanguageServer();
+    let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "code": 2345,
+          "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}} />'.
+        Argument of type 'Invokable<(named?: NamedArgs<{ message?: string | undefined; }> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, unknown>>' is not assignable to parameter of type 'ContentValue'.",
+          "range": {
+            "end": {
+              "character": 28,
+              "line": 1,
+            },
+            "start": {
+              "character": 0,
+              "line": 1,
+            },
+          },
+          "severity": 1,
+          "source": "glint",
+          "tags": [],
+        },
+        {
+          "code": 2345,
+          "message": "The {{component}} helper can't be used to directly invoke a component under Glint. Consider first binding the result to a variable, e.g. '{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as '<ComponentName @arg={{value}} />'.
+        Argument of type 'Invokable<(named?: PrebindArgs<{ message?: string | undefined; } & NamedArgsMarker, never> | undefined) => ComponentReturn<FlattenBlockParams<{ default: { Params: { Positional: []; }; }; }>, unknown>>' is not assignable to parameter of type 'ContentValue'.",
+          "range": {
+            "end": {
+              "character": 41,
+              "line": 2,
+            },
+            "start": {
+              "character": 0,
+              "line": 2,
+            },
+          },
+          "severity": 1,
+          "source": "glint",
+          "tags": [],
+        },
+        {
+          "code": 0,
+          "message": "The {{component}} helper can't be used directly in block form under Glint. Consider first binding the result to a variable, e.g. '{{#let (component ...) as |...|}}' and then using the bound value.",
+          "range": {
+            "end": {
+              "character": 12,
+              "line": 5,
+            },
+            "start": {
+              "character": 3,
+              "line": 5,
+            },
+          },
+          "severity": 1,
+          "source": "glint",
+          "tags": [],
+        },
+        {
+          "code": 0,
+          "message": "The {{component}} helper can't be used directly in block form under Glint. Consider first binding the result to a variable, e.g. '{{#let (component ...) as |...|}}' and then using the bound value.",
+          "range": {
+            "end": {
+              "character": 12,
+              "line": 6,
+            },
+            "start": {
+              "character": 3,
+              "line": 6,
+            },
+          },
+          "severity": 1,
+          "source": "glint",
+          "tags": [],
+        },
+      ]
+    `);
+  });
+
   test('bad `component`/`helper`/`modifier` arg type', () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({

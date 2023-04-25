@@ -59,20 +59,6 @@ function checkAssignabilityError(
         'If you want to set an event listener, consider using the `{{on}}` modifier instead.'
     );
   } else if (
-    node.type === 'BlockStatement' &&
-    node.path.type === 'PathExpression' &&
-    node.path.original === 'component'
-  ) {
-    // If it's attempted direct usage of `{{#component}}` as a curly block component,
-    // give a special note that that's not supported.
-    return addGlintDetails(
-      message,
-      `The {{component}} helper can't be used to directly invoke a component under Glint. ` +
-        `Consider first binding the result to a variable, e.g. ` +
-        `'{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as ` +
-        `'<ComponentName @arg={{value}}>...</ComponentName>'.`
-    );
-  } else if (
     node.type === 'MustacheStatement' &&
     (parentNode.type === 'Template' ||
       parentNode.type === 'BlockStatement' ||
