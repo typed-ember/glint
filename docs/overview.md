@@ -18,12 +18,6 @@ The Glint language server implements the standardized [Language Server Protocol]
 
 ![Suggesting component arguments in typeahead with type information and documentation](https://user-images.githubusercontent.com/108688/111070948-3f9b2f00-84d4-11eb-9eaa-077cadf6f380.png)
 
-## Stability Note
-
-{% hint style="warning" %}
-Note: **Glint is still under active development!** Please bear with us and expect breaking changes and rough edges as we work toward a stable release. Also note that Glint is currently only compatible with TypeScript projects, but our aim is ultimately to support JavaScript as well, as TypeScript's tooling can provide best-in-class support for both TS and JS projects.
-{% endhint %}
-
 [ember.js]: https://www.emberjs.com
 [glimmerx]: https://github.com/glimmerjs/glimmer-experimental
 [vetur]: https://github.com/vuejs/vetur

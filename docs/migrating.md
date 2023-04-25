@@ -2,14 +2,6 @@
 
 ## Glint 0.9.x to 1.0
 
-{% hint style="warning" %}
-
-Glint 1.0 is currently in a beta period. We encourage you to try out the beta and report any
-issues you run into. While we don't anticipate landing any further breaking changes during the beta
-cycle, be aware that it's still possible we'll do so in response to bugs or other early feedback.
-
-{% endhint %}
-
 Most of the changes in Glint 1.0 should appear as bugfixes and improvements to the majority of 
 users migrating from 0.9.x.
 
