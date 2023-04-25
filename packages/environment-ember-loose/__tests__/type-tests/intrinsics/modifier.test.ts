@@ -70,3 +70,26 @@ typeTest(
     {{/let}}
   `
 );
+
+// Prebinding args at different locations
+typeTest(
+  {
+    myriad: class MyriadPositionals extends Modifier<{
+      Args: { Positional: [string, boolean, number] };
+    }> {},
+  },
+  hbs`
+    <div {{this.myriad "one" true 3}}></div>
+    
+    <div {{(modifier this.myriad "one" true 3)}}></div>
+    <div {{(modifier this.myriad "one" true) 3}}></div>
+    <div {{(modifier this.myriad "one") true 3}}></div>
+    <div {{(modifier this.myriad) "one" true 3}}></div>
+
+    {{! @glint-expect-error: missing arg }}
+    <div {{(modifier this.myriad "one" true)}}></div>
+
+    {{! @glint-expect-error: extra arg }}
+    <div {{(modifier this.myriad "one" true 3) "four"}}></div>
+  `
+);

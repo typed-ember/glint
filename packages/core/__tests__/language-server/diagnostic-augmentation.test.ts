@@ -786,18 +786,21 @@ describe('Language Server: Diagnostic Augmentation', () => {
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
-          "code": 2769,
+          "code": 2345,
           "message": "Unable to pre-bind the given args to the given component. This likely indicates a type mismatch between its signature and the values you're passing.
-        No overload matches this call.
-          The last overload gave the following error.
-            Type 'number' is not assignable to type 'string'.",
+        Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
+          Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.
+            Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type 'NamedArgs<{ foo: string; }>'.
+              Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type '{ foo: string; }'.
+                Types of property 'foo' are incompatible.
+                  Type 'number' is not assignable to type 'string'.",
           "range": {
             "end": {
-              "character": 23,
+              "character": 28,
               "line": 8,
             },
             "start": {
-              "character": 20,
+              "character": 4,
               "line": 8,
             },
           },
@@ -806,18 +809,21 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "code": 2769,
+          "code": 2345,
           "message": "Unable to pre-bind the given args to the given helper. This likely indicates a type mismatch between its signature and the values you're passing.
-        No overload matches this call.
-          The last overload gave the following error.
-            Type 'number' is not assignable to type 'string'.",
+        Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
+          Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.
+            Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type 'NamedArgs<{ foo: string; }>'.
+              Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type '{ foo: string; }'.
+                Types of property 'foo' are incompatible.
+                  Type 'number' is not assignable to type 'string'.",
           "range": {
             "end": {
-              "character": 20,
+              "character": 25,
               "line": 9,
             },
             "start": {
-              "character": 17,
+              "character": 4,
               "line": 9,
             },
           },
@@ -826,18 +832,21 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "tags": [],
         },
         {
-          "code": 2769,
+          "code": 2345,
           "message": "Unable to pre-bind the given args to the given modifier. This likely indicates a type mismatch between its signature and the values you're passing.
-        No overload matches this call.
-          The last overload gave the following error.
-            Type 'number' is not assignable to type 'string'.",
+        Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
+          Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.
+            Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type 'NamedArgs<{ foo: string; }>'.
+              Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type '{ foo: string; }'.
+                Types of property 'foo' are incompatible.
+                  Type 'number' is not assignable to type 'string'.",
           "range": {
             "end": {
-              "character": 21,
+              "character": 26,
               "line": 10,
             },
             "start": {
-              "character": 18,
+              "character": 4,
               "line": 10,
             },
           },

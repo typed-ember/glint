@@ -134,3 +134,27 @@ typeTest(
     {{/let}}
   `
 );
+
+// Prebinding args at different locations
+typeTest(
+  {
+    myriad: class MyriadPositionals extends Helper<{
+      Args: { Positional: [string, boolean, number] };
+      Return: string;
+    }> {},
+  },
+  hbs`
+    {{this.myriad "one" true 3}}
+    
+    {{(helper this.myriad "one" true 3)}}
+    {{(helper this.myriad "one" true) 3}}
+    {{(helper this.myriad "one") true 3}}
+    {{(helper this.myriad) "one" true 3}}
+
+    {{! @glint-expect-error: missing arg }}
+    {{(helper this.myriad "one" true)}}
+
+    {{! @glint-expect-error: extra arg }}
+    {{(helper this.myriad "one" true 3) "four"}}
+  `
+);

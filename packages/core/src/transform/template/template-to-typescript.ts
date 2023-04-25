@@ -252,11 +252,16 @@ export function templateToTypescript(
         // Treat the first argument to a bind-invokable expression (`{{component}}`,
         // `{{helper}}`, etc) as special: we wrap it in a `resolve` call so that the
         // type machinery for those helpers can always operate against the resolved value.
+        // We wrap the `resolveForBind` call in an IIFE to prevent "backpressure" in
+        // type inference from the subsequent arguments that are being passed: the bound
+        // invokable is the source of record for its own type and we don't want inference
+        // from the `resolveForBind` call to be affected by other (potentially incorrect)
+        // parameter types.
         emit.text('χ.resolve(');
         emitExpression(node.path);
-        emit.text(')(χ.resolveForBind(');
+        emit.text(')((() => χ.resolveForBind(');
         emitExpression(node.params[0]);
-        emit.text('), ');
+        emit.text('))(), ');
         emitArgs(node.params.slice(1), node.hash);
         emit.text(')');
       });

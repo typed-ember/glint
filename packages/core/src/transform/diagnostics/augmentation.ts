@@ -36,6 +36,8 @@ const diagnosticHandlers: Record<number, DiagnosticHandler | undefined> = {
   7053: checkImplicitAnyError, // TS7053: Element implicitly has an 'any' type because expression of type '"X"' can't be used to index type 'Y'.
 };
 
+const bindHelpers = ['component', 'helper', 'modifier'];
+
 function checkAssignabilityError(
   message: Diagnostic,
   mapping: MappingTree
@@ -95,6 +97,21 @@ function checkAssignabilityError(
       'Only primitive values and certain DOM objects (see `ContentValue` in `@glint/template`) are ' +
         'usable as top-level template content.'
     );
+  } else if (
+    (mapping?.sourceNode.type === 'SubExpression' ||
+      mapping?.sourceNode.type === 'MustacheStatement') &&
+    mapping.sourceNode.path.type === 'PathExpression' &&
+    bindHelpers.includes(mapping.sourceNode.path.original)
+  ) {
+    // If we're looking at a binding helper subexpression like `(component ...)`, error messages
+    // may be very straightforward or may be horrendously complex when users start playing games
+    // with parametrized types, so we add a hint here.
+    let kind = mapping.sourceNode.path.original;
+    return addGlintDetails(
+      message,
+      `Unable to pre-bind the given args to the given ${kind}. This likely indicates a type ` +
+        `mismatch between its signature and the values you're passing.`
+    );
   }
 }
 
@@ -134,8 +151,6 @@ function noteNamedArgsAffectArity(
   }
 }
 
-let bindHelpers = ['component', 'helper', 'modifier'];
-
 function checkResolveError(
   diagnostic: Diagnostic,
   mapping: MappingTree
@@ -143,21 +158,6 @@ function checkResolveError(
   // The diagnostic might fall on a lone identifier or a full path; if the former,
   // we need to traverse up through the path to find the true parent.
   let sourceMapping = mapping.sourceNode.type === 'Identifier' ? mapping.parent : mapping;
-
-  if (
-    (sourceMapping?.sourceNode.type === 'SubExpression' ||
-      sourceMapping?.sourceNode.type === 'MustacheStatement') &&
-    sourceMapping.sourceNode.path.type === 'PathExpression' &&
-    bindHelpers.includes(sourceMapping.sourceNode.path.original)
-  ) {
-    let kind = sourceMapping.sourceNode.path.original;
-    return addGlintDetails(
-      diagnostic,
-      `Unable to pre-bind the given args to the given ${kind}. This likely indicates a type ` +
-        `mismatch between its signature and the values you're passing.`
-    );
-  }
-
   let parentNode = sourceMapping?.parent?.sourceNode;
 
   // If this error is on the first param to a {{component}} or other bind invocation, this means
