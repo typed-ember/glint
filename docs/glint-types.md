@@ -79,3 +79,97 @@ interface MyComponentSignature {
 ```
 
 Where `WithBoundArgs` accepts the names of the pre-bound arguments, `WithBoundPositionals` accepts the number of positional arguments that are pre-bound, since binding a positional argument with `{{component}}`/`{{modifier}}`/`{{helper}}` sets that argument in a way that downstream users can't override.
+
+## Advanced Types Usage
+
+From Glint's perspective, what _makes_ a value usable as a component is being typed as a constructor
+for a value type that matches the instance type of `ComponentLike`. The same is true of helpers with
+`HelperLike` and modifiers with `ModifierLike`.
+
+While this may seem like a negligible detail, making use of this fact can allow authors with a good
+handle on TypeScript's type system to pull of some very flexible "tricks" when working with Glint.
+
+### Custom Glint Entities
+
+Ember (and the underlying Glimmer VM) has a notion of _managers_ that allow authors to define custom
+values that act as components, helpers or modifiers when used in a template. Glint can't know how
+these custom entities will work, but by using `ComponentLike`/`HelperLike`/`ModifierLike`, you can
+explain to the typechecker how they function in a template.
+
+For example, if you had a custom DOM-less "fetcher component" base class, you could use TypeScript
+[declaration merging](https://www.typescriptlang.org/docs/handbook/declaration-merging.html) to
+tell Glint that its instance type extended `InstanceType<ComponentLike<S>>`, where `S` is an
+appropriate component signature based on how your custom component works.
+
+```typescript
+// Define the custom component base class
+class FetcherComponent<Params, Payload> {
+  // ...
+}
+
+// Set its manager and, if necessary, template
+setComponentManager(/*...*/, FetcherComponent);
+setComponentTemplate(/*...*/, FetcherComponent);
+
+// Use declaration merging to declare that the base class acts, from Glint's perspective,
+// like a component with the given signature when used in a template.
+interface FetcherComponent<Params, Payload> extends InstanceType<
+  ComponentLike<{
+    Args: { params: Params };
+    Blocks: {
+      loading: [];
+      error: [message: string];
+      ready: [payload: Payload];
+    };
+  }
+>> {}
+```
+
+This is a fairly contrived example, and in most circumstances it would be simpler to use a standard
+base class like `@glimmer/component`, but nevertheless the option exists.
+
+**Note**: this declaration merging technique using `InstanceType<ComponentLike<...>>` is _exactly_
+how Glint's own 1st-party environment packages like `@glint/environment-ember-loose` set up the
+template-aware types for `@glimmer/component`, `@ember/component/helper`, etc.
+
+### Type Parameters
+
+When defining a class-based component, modifier or helper, you have a natural place to introduce
+any type parameters you may need. For example:
+
+```typescript
+export interface MyEachSignature<T> {
+  Args: { items: Array<T> };
+  Blocks: {
+    default: [item: T, index: number];
+  };
+}
+
+export class MyEach<T> extends Component<MyEachSignature<T>> {
+  // ...
+}
+```
+
+However, if you aren't working with a concrete base type and can only say that your value is,
+for instance, some kind of `ComponentLike`, then TypeScript no longer offers you a place to
+introduce a type parameter into scope:
+
+```typescript
+// 💥 Syntax error
+declare const MyEach<T>: ComponentLike<MyEachSignature<T>>;
+
+// 💥 Cannot find name 'T'. ts(2304)
+declare const MyEach: ComponentLike<MyEachSignature<T>>;
+```
+
+Since what matters is the _instance_ type, however, it is possible to define `MyEach` using just
+`ComponentLike` and slightly more type machinery:
+
+```typescript
+declare const MyEach: abstract new <T>() => InstanceType<
+  ComponentLike<MyEachSignature<T>>
+>;
+```
+
+This shouldn't be a tool you frequently find the need to reach for, but it can be useful on
+occasion when working with complex declarations.
