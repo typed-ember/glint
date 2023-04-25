@@ -36,6 +36,69 @@ alongside `@glint/core` and your environment package(s).
 Note also that if you publish an addon that depends on types from `@glint/template`, that addon
 should likewise declare a `peerDependency` on `@glint/template` and **not** a regular `dependency`.
 
+### `{{component}}` Typing
+
+In `@glint/environment-ember-loose`, if you used the `{{component}}` helper to expose a "contextual
+component" to your consumers without binding any additional arguments, e.g.:
+
+```handlebars
+{{yield (hash Child=(component "some-child-component"))}}
+```
+
+In 0.9.x, Glint would allow you to type that yielded component as something like:
+
+```typescript
+export interface MyComponentSignature {
+  Blocks: {
+    default: [{ Child: typeof SomeChildComponent }];
+  };
+}
+```
+
+However, this was never quite correct: when you use the `{{component}}` helper, the value it returns
+is not the actual component class itself. If `SomeChildComponent` had static members, for instance,
+then according to `Child: typeof SomeChildComponent`, consumers should be able to access those
+properties from the yielded `Child` value, but they wouldn't be there in the value returned from
+`{{component}}`.
+
+The only thing you are guaranteed to be able to do with the result of the `{{component}}` helper is
+invoke it as a component in a template.
+
+Accordingly, in Glint 1.0 the above combination will no longer typecheck. To fix the situation, you
+can either update the signature to match the template:
+
+```typescript
+export interface MyComponentSignature {
+  Blocks: {
+    default: [{ Child: ComponentLike<SomeChildComponentSignature> }];
+  };
+}
+```
+
+Or update the template to match the signature:
+
+
+{% tabs %}
+{% tab title="Template" %}
+
+```handlebars
+{{yield (hash Child=this.SomeChildComponent)}}
+```
+
+{% endtab %}
+{% tab title="Backing Class" %}
+
+```typescript
+import SomeChildComponent from './some-child-component';
+
+export default class MyComponent /* ... */ {
+  SomeChildComponent = SomeChildComponent;
+}
+```
+
+{% endtab %}
+{% endtabs %}
+
 ### `include`/`exclude` Configuration
 
 Glint 1.0 drops support for the `transform` configuration key, which is where `include` and
