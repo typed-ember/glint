@@ -203,7 +203,7 @@ export function templateToTypescript(
           break;
 
         case 'bind-invokable':
-          emitBindInvokableExpression(formInfo, node);
+          emitBindInvokableExpression(formInfo, node, position);
           break;
 
         case '===':
@@ -232,7 +232,8 @@ export function templateToTypescript(
 
     function emitBindInvokableExpression(
       formInfo: SpecialFormInfo,
-      node: AST.MustacheStatement | AST.SubExpression
+      node: AST.MustacheStatement | AST.SubExpression,
+      position: InvokePosition
     ): void {
       emit.forNode(node, () => {
         assert(
@@ -249,16 +250,29 @@ export function templateToTypescript(
             `{{${formInfo.name} (${formInfo.name} ... posA posB) namedA=true namedB=true}}`
         );
 
+        if (position === 'top-level') {
+          emit.text('χ.emitContent(');
+        }
+
         // Treat the first argument to a bind-invokable expression (`{{component}}`,
         // `{{helper}}`, etc) as special: we wrap it in a `resolve` call so that the
         // type machinery for those helpers can always operate against the resolved value.
+        // We wrap the `resolveForBind` call in an IIFE to prevent "backpressure" in
+        // type inference from the subsequent arguments that are being passed: the bound
+        // invokable is the source of record for its own type and we don't want inference
+        // from the `resolveForBind` call to be affected by other (potentially incorrect)
+        // parameter types.
         emit.text('χ.resolve(');
         emitExpression(node.path);
-        emit.text(')(χ.resolveForBind(');
+        emit.text(')((() => χ.resolveForBind(');
         emitExpression(node.params[0]);
-        emit.text('), ');
+        emit.text('))(), ');
         emitArgs(node.params.slice(1), node.hash);
         emit.text(')');
+
+        if (position === 'top-level') {
+          emit.text(')');
+        }
       });
     }
 
@@ -944,7 +958,9 @@ export function templateToTypescript(
 
         case 'bind-invokable':
           record.error(
-            `The {{${formInfo.name}}} helper can't be used directly in block form under Glint. Consider first binding the result to a variable, e.g. '{{#let (${formInfo.name} ...) as |...|}}'.`,
+            `The {{${formInfo.name}}} helper can't be used directly in block form under Glint. ` +
+              `Consider first binding the result to a variable, e.g. '{{#let (${formInfo.name} ...) as |...|}}' ` +
+              `and then using the bound value.`,
             rangeForNode(node.path)
           );
           break;

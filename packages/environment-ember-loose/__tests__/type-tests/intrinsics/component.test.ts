@@ -16,6 +16,16 @@ typeTest(
   `
 );
 
+// String-based lookups of special builtins
+typeTest(
+  {},
+  hbs`
+    {{#let (component 'link-to' route="widgets") as |Link|}}
+      <Link @models={{array 123}} />
+    {{/let}}
+  `
+);
+
 declare const formModifier: ModifierLike<{
   Element: HTMLFormElement;
 }>;

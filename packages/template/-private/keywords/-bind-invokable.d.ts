@@ -63,36 +63,32 @@ export type BindInvokableKeyword<Prefix extends number, Kind> = DirectInvokable<
   >;
   // {{bind invokable positional}}
   <
-    Named,
     Positional extends any[],
     Return extends Kind,
     GivenPositional extends PrefixOf<SliceFrom<Positional, Prefix>>
   >(
-    invokable: (...args: [...Positional, NamedArgs<Named>]) => Return,
+    invokable: (...args: [...Positional]) => Return,
     ...args: GivenPositional
   ): Invokable<
     (
       ...args: [
         ...SliceTo<Positional, Prefix>,
-        ...SliceFrom<SliceFrom<Positional, Prefix>, GivenPositional['length']>,
-        ...MaybeNamed<NamedArgs<Named>>
+        ...SliceFrom<SliceFrom<Positional, Prefix>, GivenPositional['length']>
       ]
     ) => Return
   >;
   <
-    Named,
     Positional extends any[],
     Return extends Kind,
     GivenPositional extends PrefixOf<SliceFrom<Positional, Prefix>>
   >(
-    invokable: null | undefined | ((...args: [...Positional, NamedArgs<Named>]) => Return),
+    invokable: null | undefined | ((...args: [...Positional]) => Return),
     ...args: GivenPositional
   ): null | Invokable<
     (
       ...args: [
         ...SliceTo<Positional, Prefix>,
-        ...SliceFrom<SliceFrom<Positional, Prefix>, GivenPositional['length']>,
-        ...MaybeNamed<NamedArgs<Named>>
+        ...SliceFrom<SliceFrom<Positional, Prefix>, GivenPositional['length']>
       ]
     ) => Return
   >;

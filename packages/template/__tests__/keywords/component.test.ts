@@ -68,11 +68,11 @@ emitComponent(
   })
 );
 
-componentKeyword(resolveForBind(StringComponent), {
+componentKeyword(
+  resolveForBind(StringComponent),
   // @ts-expect-error: Attempting to curry an arg with the wrong type
-  value: 123,
-  ...NamedArgsMarker,
-});
+  { value: 123, ...NamedArgsMarker }
+);
 
 class ParametricComponent<T> extends TestComponent<{
   Args: { values: Array<T>; optional?: string };
