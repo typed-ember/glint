@@ -1,5 +1,10 @@
 import { expectTypeOf } from 'expect-type';
-import { emitComponent, Globals, resolve } from '@glint/environment-ember-loose/-private/dsl';
+import {
+  emitComponent,
+  Globals,
+  NamedArgsMarker,
+  resolve,
+} from '@glint/environment-ember-loose/-private/dsl';
 
 let eachIn = resolve(Globals['each-in']);
 
@@ -95,5 +100,16 @@ declare const maybeVal: { a: number; b: number } | undefined;
   {
     const [...args] = component.blockParams.else;
     expectTypeOf(args).toEqualTypeOf<[]>();
+  }
+}
+
+// Accept a `key` string
+{
+  const component = emitComponent(eachIn({ a: 5, b: 3 }, { key: 'id', ...NamedArgsMarker }));
+
+  {
+    const [key, value] = component.blockParams.default;
+    expectTypeOf(key).toEqualTypeOf<'a' | 'b'>();
+    expectTypeOf(value).toEqualTypeOf<number>();
   }
 }

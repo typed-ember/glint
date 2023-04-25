@@ -2,7 +2,10 @@ import { ComponentLike } from '@glint/template';
 
 export type EachInKeyword = abstract new <T>() => InstanceType<
   ComponentLike<{
-    Args: { Positional: [object: T] };
+    Args: {
+      Positional: [object: T];
+      Named: { key?: string };
+    };
     Blocks: {
       default: [key: EachInKey<T>, value: Exclude<T, null | undefined>[EachInKey<T>]];
       else?: [];
