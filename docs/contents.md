@@ -7,7 +7,7 @@
 
 * [Configuration](configuration/\_index.md)
 * [Glint Types](glint-types.md)
-* [@glint Directives](directives.md)
+* [`@glint` Directives](directives.md)
 * [Glint with JavaScript](with-js.md)
 * [Project References](configuration/project-references.md)
 
