@@ -20,10 +20,6 @@ export default function emberLooseEnvironment(
   options: Record<string, unknown>
 ): GlintEnvironmentConfig {
   let typesModule = '@glint/environment-ember-loose/-private/dsl';
-  if (options['allowPlainFunctionInvocation'] === false) {
-    typesModule += '/without-function-resolution';
-  }
-
   let additionalSpecialForms =
     typeof options['additionalSpecialForms'] === 'object'
       ? (options['additionalSpecialForms'] as GlintSpecialFormConfig)

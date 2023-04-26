@@ -87,22 +87,4 @@ describe('Environments: Ember Loose', () => {
       '/routes/hello.js',
     ]);
   });
-
-  test('honors `allowPlainFunctionInvocation` configuration', () => {
-    let envWithNoConfig = envDefinition({});
-    let envWithPlainFunctions = envDefinition({ allowPlainFunctionInvocation: true });
-    let envWithoutPlainFunctions = envDefinition({ allowPlainFunctionInvocation: false });
-
-    expect(envWithNoConfig.tags?.['ember-cli-htmlbars']['hbs'].typesModule).toEqual(
-      '@glint/environment-ember-loose/-private/dsl'
-    );
-
-    expect(envWithPlainFunctions.tags?.['ember-cli-htmlbars']['hbs'].typesModule).toEqual(
-      '@glint/environment-ember-loose/-private/dsl'
-    );
-
-    expect(envWithoutPlainFunctions.tags?.['ember-cli-htmlbars']['hbs'].typesModule).toEqual(
-      '@glint/environment-ember-loose/-private/dsl/without-function-resolution'
-    );
-  });
 });
