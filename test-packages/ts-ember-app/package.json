@@ -1,6 +1,6 @@
 {
   "name": "ts-ember-app",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0",
   "private": true,
   "description": "Small description for ts-ember-app goes here",
   "repository": "",
@@ -28,8 +28,8 @@
     "@ember/test-helpers": "^2.9.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@glint/core": "^1.0.0-beta.5",
-    "@glint/environment-ember-loose": "^1.0.0-beta.5",
+    "@glint/core": "^1.0.0",
+    "@glint/environment-ember-loose": "^1.0.0",
     "@types/ember": "~4.0.0",
     "@types/qunit": "^2.11.1",
     "broccoli-asset-rev": "^3.0.0",
