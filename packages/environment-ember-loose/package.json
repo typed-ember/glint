@@ -10,8 +10,7 @@
     ".": "./-private/index.js",
     "./registry": "./registry/index.js",
     "./glint-environment-definition": "./-private/environment/index.js",
-    "./-private/dsl": "./-private/dsl/index.js",
-    "./-private/dsl/without-function-resolution": "./-private/dsl/without-function-resolution.js"
+    "./-private/dsl": "./-private/dsl/index.js"
   },
   "keywords": [
     "glint-environment"

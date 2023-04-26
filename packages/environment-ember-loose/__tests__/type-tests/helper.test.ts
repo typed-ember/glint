@@ -1,9 +1,5 @@
 import Helper, { helper } from '@ember/component/helper';
-import { resolve } from '@glint/environment-ember-loose/-private/dsl';
-import {
-  NamedArgsMarker,
-  resolve as resolveWithoutFunctionResolution,
-} from '@glint/environment-ember-loose/-private/dsl/without-function-resolution';
+import { resolve, NamedArgsMarker } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { HelperLike } from '@glint/template';
 import { NamedArgs } from '@glint/template/-private/integration';
@@ -214,9 +210,6 @@ import { NamedArgs } from '@glint/template/-private/integration';
 
 // Bare-function helpers
 {
-  // @ts-expect-error: the env with no support for function resolution should reject this
-  resolveWithoutFunctionResolution(() => 'hi');
-
   let positionalOnlyConcrete = resolve((a: number, b: number) => a + b);
   expectTypeOf(positionalOnlyConcrete).toEqualTypeOf<(a: number, b: number) => number>();
   expectTypeOf(positionalOnlyConcrete(1, 2)).toBeNumber();

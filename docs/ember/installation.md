@@ -65,29 +65,6 @@ Because Glint uses your project-local copy of TypeScript and the packages whose 
 
 It's possible to use the 4.x versions of the `@types/ember*` packages even if your project is still using an Ember 3.x LTS. Just note that any deprecated APIs you're using that were removed in 4.0 won't be available in the types, and APIs added later _will_ be present in them.
 
-## Functions as Helpers
-
-By default, `@glint/environment-ember-loose` includes support for the [default helper manager RFC](https://github.com/emberjs/rfcs/pull/756).
-
-If your project uses an older version of Ember, you can have Glint treat attempted use of functions as helpers as a type error by setting `allowPlainFunctionInvocation: false` in your environment configuration.
-
-{% code title="tsconfig.json" %}
-
-```javascript
-{
-  "compilerOptions": { /* ... */ },
-  "glint": {
-    "environment": {
-      "ember-loose": {
-        "allowPlainFunctionInvocation": false
-      }
-    }
-  }
-}
-```
-
-{% endcode %}
-
 ## Ember CLI TypeScript
 
 If you are using Glint with TypeScript and Ember, visit the [Ember CLI TypeScript documentation](https://docs.ember-cli-typescript.com/) for more information.

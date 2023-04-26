@@ -109,6 +109,14 @@ which is a meaningful advantage over templates that were ignored via `include`/`
 [nocheck]: ../docs/directives.md#glint-nocheck
 [`glint-auto-nocheck`]: https://github.com/typed-ember/glint/tree/main/packages/scripts#auto-glint-nocheck
 
+### `allowPlainFunctionInvocation`
+
+The `allowPlainFunctionInvocation` flag has been dropped from `@glint/environment-ember-loose`'s
+configuration. If you are not using Ember 4.5+ with native support for functions as helpers,
+consider adopting [the functions-as-helpers polyfill][functions-as-helpers].
+
+[functions-as-helpers]: https://github.com/ember-polyfills/ember-functions-as-helper-polyfill
+
 ### Tagged Strings in `ember-template-imports`
 
 Since `<template>` [has been been selected][fccts] as the path forward for template imports (a.k.a

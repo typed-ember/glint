@@ -1,4 +1,4 @@
-export * from './without-function-resolution';
+import './integration-declarations';
 
 import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {
@@ -9,6 +9,9 @@ import {
   InvokeDirect,
 } from '@glint/template/-private/integration';
 import { Globals } from './globals';
+
+export * from '@glint/template/-private/dsl';
+export { Globals };
 
 // Items that can be directly invoked by value
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
