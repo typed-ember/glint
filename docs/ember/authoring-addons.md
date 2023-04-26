@@ -92,12 +92,6 @@ export default interface AwesomeAddonRegistry {
 
 By defining the component, helper, and modifier types in separate importable files (rather than just directly in `template-registry.d.ts`), consumers using [first class component templates] can import them from the correct paths.
 
-## Stability Note
-
-{% hint style="warning" %}
-Note: **Glint is still under active development!** Please bear with us and expect breaking changes and rough edges as we work toward a stable release. This could also affect the users of your addon, so you might want to see your addon's Glint support as experimental for now!
-{% endhint %}
-
 [strict mode]: http://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html
 [first class component templates]: http://emberjs.github.io/rfcs/0779-first-class-component-templates.html
 [template registry]: template-registry.md

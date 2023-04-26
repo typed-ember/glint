@@ -55,6 +55,22 @@ declare module '@glint/environment-ember-loose/registry' {
 }
 ```
 
+## Invalid module name in augmentation
+
+```
+Invalid module name in augmentation: module '@glint/environment-ember-loose/registry' cannot be found.`
+```
+
+TypeScript will only allow you to add declarations for a module if it's already seen the original. In other words,
+if you've never directly or transitively imported `@glint/environment-ember-loose/registry` anywhere in your project
+that TypeScript can see then it won't allow you to add a registry entry.
+
+To fix this, [add `import '@glint/environment-ember-loose'` somewhere in your project][env-import]. This will ensure that the
+registry, as well as other important type information like template-aware declarations, are visible to vanilla
+`tsc` and `tsserver`.
+
+[env-import]: ./ember/installation.md
+
 ## Does not satisfy the constraint 'Invokable<AnyFunction>'
 
 ```

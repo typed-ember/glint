@@ -1,5 +1,3 @@
-**Glint is not yet stable** and is still under active development. As such, there are currently several known limitations to be aware of.
-
 ### Ember-Specific
 
 Glint is not currently integrated with `ember-cli-typescript`, so typechecking performed during an `ember-cli` build will not take templates into account.

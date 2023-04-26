@@ -6,7 +6,13 @@
 ## Using Glint
 
 * [Configuration](configuration/\_index.md)
-  * [Project References](configuration/project-references.md)
+* [Glint Types](glint-types.md)
+* [`@glint` Directives](directives.md)
+* [Glint with JavaScript](with-js.md)
+* [Project References](configuration/project-references.md)
+
+## Environments
+
 * [Ember](using-glint/ember/README.md)
   * [Installation](ember/installation.md)
   * [Component Signatures](ember/component-signatures.md)
@@ -21,9 +27,8 @@
   * [Installation](glimmerx/installation.md)
   * [Component Signatures](glimmerx/component-signatures.md)
   * [Template Components](glimmerx/template-components.md)
-* [Glint with JavaScript](with-js.md)
-* [@glint Directives](directives.md)
-* [Glint Types](glint-types.md)
-* [Migrating](migrating.md)
-* [Diagnosing Common Error Messages](diagnosing-common-error-messages.md)
+
+## Troubleshooting
+* [Migration Notes](migrating.md)
+* [Common Error Messages](diagnosing-common-error-messages.md)
 * [Known Limitations](known-limitations.md)

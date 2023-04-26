@@ -5,6 +5,9 @@ Glint's behavior. Additional comment text can follow directives to document
 their purpose. These directives correspond to the similarly-named directives
 in TypeScript.
 
+`@glint` directives may _only_ be applied in template comments, not in
+TypeScript outside of templates.
+
 ## `@glint-expect-error`
 
 The `@glint-expect-error` directive operates similarly to `@glint-ignore` in
@@ -48,7 +51,7 @@ migration process.
 Example:
 
 ```hbs
-{{! @glint-nocheck: this whole teplate needs work }}
+{{! @glint-nocheck: this whole template needs work }}
 
 <MyComponent @stringArg={{123}} />
 
@@ -56,3 +59,11 @@ Example:
 
 {{two-arg-helper 'bar'}}
 ```
+
+**Note**: the [`auto-glint-nocheck`] script in the `@glint/scripts` package
+can automate the process of adding `@glint-nocheck` directives at the top
+of every template with type errors in your project. This allows you to adopt
+Glint in a project immediately for all new templates while incrementally
+migrating your existing ones to make them typesafe over time.
+
+[`auto-glint-nocheck`]: https://github.com/typed-ember/glint/tree/main/packages/scripts#auto-glint-nocheck

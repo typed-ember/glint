@@ -6,8 +6,6 @@ TypeScript-powered tooling for Glimmer templates.
 
 [Glint] is a set of tools to aid in developing code that uses the Glimmer VM for rendering, such as [Ember.js] v3.24+ and [GlimmerX] projects. Similar to [Vetur] for Vue projects or [Svelte Language Tools], Glint consists of a CLI and a language server to provide feedback and enforce correctness both locally during editing and project-wide in CI.
 
-⚠️ Note: **Glint is still under active development!** Please bear with us and expect breaking changes and rough edges as we work toward a stable release.
-
 [glint]: https://typed-ember.gitbook.io/glint
 [ember.js]: https://www.emberjs.com
 [glimmerx]: https://github.com/glimmerjs/glimmer-experimental
