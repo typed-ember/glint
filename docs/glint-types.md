@@ -87,7 +87,7 @@ for a value type that matches the instance type of `ComponentLike`. The same is 
 `HelperLike` and modifiers with `ModifierLike`.
 
 While this may seem like a negligible detail, making use of this fact can allow authors with a good
-handle on TypeScript's type system to pull of some very flexible "tricks" when working with Glint.
+handle on TypeScript's type system to pull off some very flexible "tricks" when working with Glint.
 
 ### Custom Glint Entities
 
