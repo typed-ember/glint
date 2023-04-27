@@ -8,7 +8,7 @@ Glint's CLI provides a template-aware tool for performing end-to-end TypeScript 
 
 ## Glint Language Server
 
-The Glint language server implements the standardized [Language Server Protocol], allowing it to be easily incorporated into a variety of editors. The server enables Glimmer templates to participate in your editor's rich IED features.
+The Glint language server implements the standardized [Language Server Protocol], allowing it to be easily incorporated into a variety of editors. The server enables Glimmer templates to participate in your editor's rich IDE features.
 
 ![Showing type information and documentation in templates on hover.](https://user-images.githubusercontent.com/108688/111069238-6eada280-84cc-11eb-9abb-c2d3af5e8976.png)
 
