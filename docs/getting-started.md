@@ -4,7 +4,7 @@ First, add `@glint/core`, `@glint/template` and an appropriate Glint environment
 
 Then, add a `"glint"` key in your `tsconfig.json` that tells Glint what environment you're working in and, optionally, which files it should include in its typechecking.
 
-See the [Configuration](configuration.md) page for more details about options you can specify under the `"glint"` key. For setup instructions specific to your project type, check out the links below:
+See the [Configuration](configuration/_index.md) page for more details about options you can specify under the `"glint"` key. For setup instructions specific to your project type, check out the links below:
 
 - [GlimmerX Installation](glimmerx/installation.md)
 - [Ember.js Installation](ember/installation.md)
@@ -42,6 +42,5 @@ You can also use the `glint` command locally with the `--watch` flag to monitor 
 You can install an editor extension to display Glint's diagnostics inline in your templates and provide richer editor support&mdash;typechecking, type information on hover, automated refactoring, and more&mdash;powered by `glint-language-server`:
 
 - Install the [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=typed-ember.glint-vscode).
-- Learn more about the [Glint Language Server](glint-language-server.md).
 
 ![A type error being shown inline for a template file in VS Code](https://user-images.githubusercontent.com/108688/111076679-995c2300-84ed-11eb-934a-3a29f21be89a.png)
