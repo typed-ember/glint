@@ -80,7 +80,12 @@ export default class TransformManager {
     originalFileName: string,
     originalStart: number,
     originalEnd: number
-  ): { transformedFileName: string; transformedStart: number; transformedEnd: number } {
+  ): {
+    transformedFileName: string;
+    transformedStart: number;
+    transformedEnd: number;
+    mapping?: MappingTree | undefined;
+  } {
     let transformInfo = this.findTransformInfoForOriginalFile(originalFileName);
     if (!transformInfo?.transformedModule) {
       return {
@@ -101,6 +106,7 @@ export default class TransformManager {
       transformedFileName,
       transformedStart: transformedRange.start,
       transformedEnd: transformedRange.end,
+      mapping: transformedRange.mapping,
     };
   }
 
