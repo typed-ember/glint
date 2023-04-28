@@ -57,7 +57,7 @@ describe('Language Server: Completions', () => {
     expect(completions).toBeUndefined();
   });
 
-  test('in a template with syntax errors', () => {
+  test('in a companion template with syntax errors', () => {
     project.setGlintConfig({ environment: 'ember-loose' });
 
     let code = stripIndent`
@@ -70,6 +70,26 @@ describe('Language Server: Completions', () => {
     let completions = server.getCompletions(project.fileURI('index.hbs'), {
       line: 0,
       character: 4,
+    });
+
+    // Ensure we don't spew all ~900 completions available at the top level
+    // in module scope in a JS/TS file.
+    expect(completions).toBeUndefined();
+  });
+
+  test('in an embedded template with syntax errors', () => {
+    project.setGlintConfig({ environment: 'ember-template-imports' });
+
+    let code = stripIndent`
+      <template>Hello, {{this.target.}}!</template>
+    `;
+
+    project.write('index.gts', code);
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(project.fileURI('index.gts'), {
+      line: 0,
+      character: 31,
     });
 
     // Ensure we don't spew all ~900 completions available at the top level

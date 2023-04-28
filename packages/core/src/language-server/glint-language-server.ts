@@ -31,6 +31,7 @@ import {
 } from './util/protocol.js';
 import { GetIRResult } from './messages.cjs';
 import type { TsUserConfigLang } from './config-manager.js';
+import MappingTree from '../transform/template/mapping-tree.js';
 
 export interface GlintCompletionItem extends CompletionItem {
   data: {
@@ -186,14 +187,12 @@ export default class GlintLanguageServer {
     position: Position,
     formatting: ts.FormatCodeSettings = {}
   ): GlintCompletionItem[] | undefined {
-    let { transformedFileName, transformedOffset } = this.getTransformedOffset(uri, position);
-    if (!this.isAnalyzableFile(transformedFileName)) return;
-
-    let { mapping } = this.transformManager.getOriginalRange(
-      transformedFileName,
-      transformedOffset,
-      transformedOffset
+    let { transformedFileName, transformedOffset, mapping } = this.getTransformedOffset(
+      uri,
+      position
     );
+
+    if (!this.isAnalyzableFile(transformedFileName)) return;
 
     // If we're in a free-text region of a template, or if there's no mapping and yet
     // we're in a template file, then we have no completions to offer.
@@ -591,17 +590,16 @@ export default class GlintLanguageServer {
   private getTransformedOffset(
     originalURI: string,
     originalPosition: Position
-  ): { transformedFileName: string; transformedOffset: number } {
+  ): { transformedFileName: string; transformedOffset: number; mapping?: MappingTree | undefined } {
     let originalFileName = uriToFilePath(originalURI);
     let originalFileContents = this.documents.getDocumentContents(originalFileName);
     let originalOffset = positionToOffset(originalFileContents, originalPosition);
-    let { transformedOffset, transformedFileName } = this.transformManager.getTransformedOffset(
-      originalFileName,
-      originalOffset
-    );
+    let { transformedStart, transformedFileName, mapping } =
+      this.transformManager.getTransformedRange(originalFileName, originalOffset, originalOffset);
 
     return {
-      transformedOffset,
+      mapping,
+      transformedOffset: transformedStart,
       transformedFileName: this.glintConfig.getSynthesizedScriptPathForTS(transformedFileName),
     };
   }
