@@ -19,8 +19,8 @@ Glint is broken into several different packages that you may use, depending on t
 For more specific details on setting up Glint in your project, take a look at [the documentation], in particular the Installation pages [for Ember.js projects] and [for GlimmerX projects].
 
 [the documentation]: https://typed-ember.gitbook.io/glint
-[for ember.js projects]: https://typed-ember.gitbook.io/glint/using-glint/ember/installation
-[for glimmerx projects]: https://typed-ember.gitbook.io/glint/using-glint/glimmerx/installation
+[for ember.js projects]: https://typed-ember.gitbook.io/glint/environments/ember/installation
+[for glimmerx projects]: https://typed-ember.gitbook.io/glint/environments/glimmerx/installation
 
 ## Using Glint
 
