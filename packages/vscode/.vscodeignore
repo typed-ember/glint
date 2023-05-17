@@ -12,6 +12,4 @@ lib/
 tsconfig.json
 tsconfig.tsbuildinfo
 
-jest.config.mjs
-
 node_modules/
