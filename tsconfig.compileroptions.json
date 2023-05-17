@@ -10,6 +10,7 @@
     "esModuleInterop": false,
     "composite": true,
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "types": []
   }
 }

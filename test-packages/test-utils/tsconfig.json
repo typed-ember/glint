@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.compileroptions.json",
   "compilerOptions": {
     "outDir": "lib",
-    "rootDir": "src"
+    "rootDir": "src",
+    "types": ["node"]
   },
   "include": ["src"],
   "references": [{ "path": "../../packages/core" }]
