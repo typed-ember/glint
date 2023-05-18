@@ -25,12 +25,12 @@
   ],
   "scripts": {
     "pretest": "yarn build",
-    "test": "node __tests__/support/launch-from-cli.mjs",
+    "test": "node lib/__tests__/support/launch-from-cli.mjs",
     "build": "yarn compile && yarn bundle",
     "compile": "tsc --build",
-    "bundle": "esbuild lib/extension.js --bundle --outfile=dist/extension.js --platform=node --external:vscode --minify",
+    "bundle": "esbuild lib/src/extension.js --bundle --outfile=dist/extension.js --platform=node --external:vscode --minify",
     "vscode:prepublish": "yarn build",
-    "extension:package": "vsce package --no-depencencies",
+    "extension:package": "vsce package --no-dependencies",
     "extension:publish": "vsce publish --no-dependencies"
   },
   "engines": {
@@ -85,11 +85,6 @@
     "color": "#1E293B",
     "theme": "dark"
   },
-  "workspaces": {
-    "nohoist": [
-      "**/*"
-    ]
-  },
   "dependencies": {
     "vscode-languageclient": "^8.0.1"
   },
@@ -98,13 +93,17 @@
   },
   "devDependencies": {
     "@glint/core": "^1.0.2",
-    "@types/jest": "^26.0.13",
+    "@types/mocha": "^10.0.1",
     "@types/vscode": "^1.68.1",
     "@vscode/test-electron": "2.2.0",
+    "@vscode/vsce": "^2.19.0",
     "esbuild": "^0.15.16",
-    "intercept-stdout": "^0.1.2",
-    "jest": "^26.4.2",
-    "ts-jest": "^26.3.0"
+    "expect": "^29.5.0",
+    "mocha": "^10.2.0",
+    "glob": "^10.2.4"
+  },
+  "volta": {
+    "extends": "../../package.json"
   },
   "__metadata": {
     "id": "f1370239-cb1d-475c-b9da-20961224a998",

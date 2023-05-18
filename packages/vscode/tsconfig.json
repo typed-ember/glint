@@ -1,10 +1,9 @@
 {
   "extends": "../../tsconfig.compileroptions.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "rootDir": "src",
+    "module": "Node16",
     "outDir": "lib"
   },
-  "include": ["src"],
+  "include": ["src", "__tests__"],
   "references": [{ "path": "../core" }]
 }
