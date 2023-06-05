@@ -16,6 +16,7 @@ type LinkToArgs = RequireAtLeastOne<
     activeClass?: string;
     'current-when'?: string | boolean;
     preventDefault?: boolean;
+    replace?: boolean;
     tagName?: string;
   },
   'route' | 'model' | 'models' | 'query'
