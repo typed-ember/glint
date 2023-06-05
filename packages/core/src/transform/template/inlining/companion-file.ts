@@ -31,11 +31,14 @@ export function calculateCompanionTemplateSpans(
     return { errors, directives, partialSpans };
   }
 
-  let { typesModule, specialForms } = templateConfig;
+  let { typesModule, specialForms, preprocess, postprocessAst, mapTemplateContent } = templateConfig;
   let useJsDoc = environment.isUntypedScript(script.filename);
   let targetNode = findCompanionTemplateTarget(ts, ast);
   if (targetNode && ts.isClassLike(targetNode)) {
-    let rewriteResult = templateToTypescript(template.contents, {
+    let rewriteResult = templateToTypescript(template, {
+      preprocess,
+      postprocessAst,
+      mapTemplateContent,
       typesModule,
       specialForms,
       useJsDoc,
@@ -56,7 +59,10 @@ export function calculateCompanionTemplateSpans(
         : `({} as unknown as typeof import('./${moduleName}').default)`;
     }
 
-    let rewriteResult = templateToTypescript(template.contents, {
+    let rewriteResult = templateToTypescript(template, {
+      preprocess,
+      postprocessAst,
+      mapTemplateContent,
       typesModule,
       backingValue,
       specialForms,

@@ -4,10 +4,15 @@ import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-templ
 import ScopeStack from './scope-stack.js';
 import { GlintEmitMetadata, GlintSpecialForm } from '@glint/core/config-types';
 import { TextContent } from './mapping-tree.js';
+import { SourceFile } from './transformed-module.js';
 
 const SPLATTRIBUTES = '...attributes';
 
 export type TemplateToTypescriptOptions = {
+  template: string;
+  preprocess?: (templateInfo: SourceFile, args: Pick<TemplateToTypescriptOptions, 'globals' | 'preamble'>) => Pick<TemplateToTypescriptOptions, 'globals' | 'preamble'> & { template: string};
+  postprocessAst?: (ast: AST.Template) => AST.Template;
+  mapTemplateContent?: Record<string, any>;
   typesModule: string;
   meta?: GlintEmitMetadata | undefined;
   globals?: Array<string> | undefined;
@@ -24,8 +29,12 @@ export type TemplateToTypescriptOptions = {
  * the original and transformed contents.
  */
 export function templateToTypescript(
-  originalTemplate: string,
-  {
+  templateInfo: SourceFile,
+  args: TemplateToTypescriptOptions
+): RewriteResult {
+  let result = args.preprocess?.(templateInfo, args) || args;
+  let {
+    template: originalTemplate,
     typesModule,
     globals,
     meta,
@@ -33,19 +42,74 @@ export function templateToTypescript(
     preamble = [],
     embeddingSyntax = { prefix: '', suffix: '' },
     specialForms = {},
-    useJsDoc = false,
-  }: TemplateToTypescriptOptions
-): RewriteResult {
+    useJsDoc = false
+  } = Object.assign({}, args, result);
+  originalTemplate = originalTemplate || templateInfo.contents;
   let { prefix, suffix } = embeddingSyntax;
   let template = `${''.padEnd(prefix.length)}${originalTemplate}${''.padEnd(suffix.length)}`;
 
-  return mapTemplateContents(originalTemplate, { embeddingSyntax }, (ast, mapper) => {
+  return mapTemplateContents(originalTemplate, { embeddingSyntax, postprocessAst: args.postprocessAst }, (ast, mapper) => {
     let { emit, record, rangeForLine, rangeForNode } = mapper;
     let scope = new ScopeStack([]);
 
-    emitTemplateBoilerplate(() => {
+    const emitters= {
+      emitTemplateBoilerplate,
+      emitTopLevelStatement,
+      emitTopLevelTextNode,
+      emitComment,
+      emitTopLevelMustacheStatement,
+      emitBlockStatement,
+      emitElementNode,
+      emitMustacheStatement,
+      emitYieldExpression,
+      emitIfNotExpression,
+      emitObjectExpression,
+      emitArrayExpression,
+      emitBindInvokableExpression,
+      emitIfExpression,
+      emitBinaryOperatorExpression,
+      emitLogicalExpression,
+      emitUnaryOperatorExpression,
+      emitHashKey,
+      emitExpression,
+      emitPath,
+      emitSubExpression,
+      emitLiteral,
+      emitComponent,
+      emitConcatStatement,
+      emitPlainElement,
+      emitBlockContents,
+      emitPathContents,
+      emitAttributesAndModifiers,
+      emitSplattributes,
+      emitPlainAttributes,
+      emitModifiers,
+      emitArgs,
+      emitSpecialFormExpression,
+      emitResolve,
+      emitIfStatement,
+      emitUnlessStatement,
+      emitSpecialFormStatement,
+      emitBlock,
+      emitPropertyAccesss,
+      emitIdentifierReference,
+      emitIdentifierString
+    };
+
+    const originalEmitters = Object.assign({}, emitters);
+
+    Object.keys(args.mapTemplateContent || {}).forEach((key) => {
+      const k: keyof typeof emitters = key as any;
+      if (args.mapTemplateContent![k]) {
+        emitters[k] = function (...emitterArgs: any) {
+          return args.mapTemplateContent![k](originalEmitters[k], originalEmitters, mapper, ...emitterArgs);
+        } as any
+      }
+    });
+
+    emitters.emitTemplateBoilerplate(() => {
       for (let statement of ast?.body ?? []) {
-        emitTopLevelStatement(statement);
+        emitters.emitTopLevelStatement(statement);
       }
     });
 
@@ -58,20 +122,20 @@ export function templateToTypescript(
           throw new Error(`Internal error: unexpected top-level ${node.type}`);
 
         case 'TextNode':
-          return emitTopLevelTextNode(node);
+          return emitters.emitTopLevelTextNode(node);
 
         case 'CommentStatement':
         case 'MustacheCommentStatement':
-          return emitComment(node);
+          return emitters.emitComment(node);
 
         case 'MustacheStatement':
-          return emitTopLevelMustacheStatement(node);
+          return emitters.emitTopLevelMustacheStatement(node);
 
         case 'BlockStatement':
-          return emitBlockStatement(node);
+          return emitters.emitBlockStatement(node);
 
         case 'ElementNode':
-          return emitElementNode(node);
+          return emitters.emitElementNode(node);
 
         default:
           unreachable(node);
@@ -165,7 +229,7 @@ export function templateToTypescript(
     type InvokePosition = 'top-level' | 'attr' | 'arg' | 'concat' | 'sexpr';
 
     function emitTopLevelMustacheStatement(node: AST.MustacheStatement): void {
-      emitMustacheStatement(node, 'top-level');
+      emitters.emitMustacheStatement(node, 'top-level');
       emit.text(';');
       emit.newline();
     }
@@ -183,41 +247,41 @@ export function templateToTypescript(
 
       switch (formInfo.form) {
         case 'yield':
-          emitYieldExpression(formInfo, node, position);
+          emitters.emitYieldExpression(formInfo, node, position);
           break;
 
         case 'if':
-          emitIfExpression(formInfo, node);
+          emitters.emitIfExpression(formInfo, node);
           break;
 
         case 'if-not':
-          emitIfNotExpression(formInfo, node);
+          emitters.emitIfNotExpression(formInfo, node);
           break;
 
         case 'object-literal':
-          emitObjectExpression(formInfo, node);
+          emitters.emitObjectExpression(formInfo, node);
           break;
 
         case 'array-literal':
-          emitArrayExpression(formInfo, node);
+          emitters.emitArrayExpression(formInfo, node);
           break;
 
         case 'bind-invokable':
-          emitBindInvokableExpression(formInfo, node, position);
+          emitters.emitBindInvokableExpression(formInfo, node, position);
           break;
 
         case '===':
         case '!==':
-          emitBinaryOperatorExpression(formInfo, node);
+          emitters.emitBinaryOperatorExpression(formInfo, node);
           break;
 
         case '&&':
         case '||':
-          emitLogicalExpression(formInfo, node);
+          emitters.emitLogicalExpression(formInfo, node);
           break;
 
         case '!':
-          emitUnaryOperatorExpression(formInfo, node);
+          emitters.emitUnaryOperatorExpression(formInfo, node);
           break;
 
         default:
@@ -298,9 +362,9 @@ export function templateToTypescript(
         let start = template.indexOf('hash', rangeForNode(node).start) + 4;
         for (let pair of node.hash.pairs) {
           start = template.indexOf(pair.key, start);
-          emitHashKey(pair.key, start);
+          emitters.emitHashKey(pair.key, start);
           emit.text(': ');
-          emitExpression(pair.value);
+          emitters.emitExpression(pair.value);
           emit.text(',');
           emit.newline();
         }
@@ -345,13 +409,13 @@ export function templateToTypescript(
         );
 
         emit.text('(');
-        emitExpression(node.params[0]);
+        emitters.emitExpression(node.params[0]);
         emit.text(') ? (');
-        emitExpression(node.params[1]);
+        emitters.emitExpression(node.params[1]);
         emit.text(') : (');
 
         if (node.params[2]) {
-          emitExpression(node.params[2]);
+          emitters.emitExpression(node.params[2]);
         } else {
           emit.text('undefined');
         }
@@ -371,13 +435,13 @@ export function templateToTypescript(
         );
 
         emit.text('!(');
-        emitExpression(node.params[0]);
+        emitters.emitExpression(node.params[0]);
         emit.text(') ? (');
-        emitExpression(node.params[1]);
+        emitters.emitExpression(node.params[1]);
         emit.text(') : (');
 
         if (node.params[2]) {
-          emitExpression(node.params[2]);
+          emitters.emitExpression(node.params[2]);
         } else {
           emit.text('undefined');
         }
@@ -403,9 +467,9 @@ export function templateToTypescript(
         const [left, right] = node.params;
 
         emit.text('(');
-        emitExpression(left);
+        emitters.emitExpression(left);
         emit.text(` ${formInfo.form} `);
-        emitExpression(right);
+        emitters.emitExpression(right);
         emit.text(')');
       });
     }
@@ -426,7 +490,7 @@ export function templateToTypescript(
 
         emit.text('(');
         for (const [index, param] of node.params.entries()) {
-          emitExpression(param);
+          emitters.emitExpression(param);
 
           if (index < node.params.length - 1) {
             emit.text(` ${formInfo.form} `);
@@ -484,17 +548,17 @@ export function templateToTypescript(
     function emitExpression(node: AST.Expression): void {
       switch (node.type) {
         case 'PathExpression':
-          return emitPath(node);
+          return emitters.emitPath(node);
 
         case 'SubExpression':
-          return emitSubExpression(node);
+          return emitters.emitSubExpression(node);
 
         case 'BooleanLiteral':
         case 'NullLiteral':
         case 'NumberLiteral':
         case 'StringLiteral':
         case 'UndefinedLiteral':
-          return emitLiteral(node);
+          return emitters.emitLiteral(node);
 
         default:
           unreachable(node);
@@ -508,9 +572,9 @@ export function templateToTypescript(
         node.tag.includes('.') ||
         scope.hasBinding(node.tag)
       ) {
-        emitComponent(node);
+        emitters.emitComponent(node);
       } else {
-        emitPlainElement(node);
+        emitters.emitPlainElement(node);
       }
     }
 
@@ -520,7 +584,7 @@ export function templateToTypescript(
         for (let part of node.parts) {
           if (part.type === 'MustacheStatement') {
             emit.text('$' + '{');
-            emitMustacheStatement(part, 'concat');
+            emitters.emitMustacheStatement(part, 'concat');
             emit.text('}');
           }
         }
@@ -587,7 +651,7 @@ export function templateToTypescript(
         let { start, path, kind } = tagNameToPathContents(node);
 
         for (let comment of node.comments) {
-          emitComment(comment);
+          emitters.emitComment(comment);
         }
 
         emit.text('{');
@@ -613,10 +677,10 @@ export function templateToTypescript(
                   emit.text(JSON.stringify(attr.value.chars));
                   break;
                 case 'ConcatStatement':
-                  emitConcatStatement(attr.value);
+                  emitters.emitConcatStatement(attr.value);
                   break;
                 case 'MustacheStatement':
-                  emitMustacheStatement(attr.value, 'arg');
+                  emitters.emitMustacheStatement(attr.value, 'arg');
                   break;
                 default:
                   unreachable(attr.value);
@@ -633,14 +697,14 @@ export function templateToTypescript(
         emit.text('));');
         emit.newline();
 
-        emitAttributesAndModifiers(node);
+        emitters.emitAttributesAndModifiers(node);
 
         if (!node.selfClosing) {
           let blocks = determineBlockChildren(node);
           if (blocks.type === 'named') {
             for (const child of blocks.children) {
               if (child.type === 'CommentStatement' || child.type === 'MustacheCommentStatement') {
-                emitComment(child);
+                emitters.emitComment(child);
                 continue;
               }
 
@@ -650,7 +714,7 @@ export function templateToTypescript(
               let name = child.tag.slice(1);
 
               emit.forNode(child, () =>
-                emitBlockContents(
+                  emitters.emitBlockContents(
                   name,
                   nameStart,
                   child.blockParams,
@@ -661,7 +725,7 @@ export function templateToTypescript(
             }
           } else {
             let blockParamsStart = template.indexOf('|', rangeForNode(node).start);
-            emitBlockContents(
+            emitters.emitBlockContents(
               'default',
               undefined,
               node.blockParams,
@@ -672,7 +736,7 @@ export function templateToTypescript(
 
           // Emit `ComponentName;` to represent the closing tag, so we have
           // an anchor for things like symbol renames.
-          emitPathContents(path, template.lastIndexOf(node.tag, rangeForNode(node).end), kind);
+          emitters.emitPathContents(path, template.lastIndexOf(node.tag, rangeForNode(node).end), kind);
           emit.text(';');
           emit.newline();
         }
@@ -751,7 +815,7 @@ export function templateToTypescript(
     function emitPlainElement(node: AST.ElementNode): void {
       emit.forNode(node, () => {
         for (let comment of node.comments) {
-          emitComment(comment);
+          emitters.emitComment(comment);
         }
 
         emit.text('{');
@@ -763,10 +827,10 @@ export function templateToTypescript(
         emit.text(');');
         emit.newline();
 
-        emitAttributesAndModifiers(node);
+        emitters.emitAttributesAndModifiers(node);
 
         for (let child of node.children) {
-          emitTopLevelStatement(child);
+          emitters.emitTopLevelStatement(child);
         }
 
         emit.dedent();
@@ -782,9 +846,9 @@ export function templateToTypescript(
         emit.text('𝛄;');
         emit.newline();
       } else {
-        emitSplattributes(node);
-        emitPlainAttributes(node);
-        emitModifiers(node);
+        emitters.emitSplattributes(node);
+        emitters.emitPlainAttributes(node);
+        emitters.emitModifiers(node);
       }
     }
 
@@ -805,13 +869,13 @@ export function templateToTypescript(
         emit.forNode(attr, () => {
           start = template.indexOf(attr.name, start + 1);
 
-          emitHashKey(attr.name, start);
+          emitters.emitHashKey(attr.name, start);
           emit.text(': ');
 
           if (attr.value.type === 'MustacheStatement') {
-            emitMustacheStatement(attr.value, 'attr');
+            emitters.emitMustacheStatement(attr.value, 'attr');
           } else if (attr.value.type === 'ConcatStatement') {
-            emitConcatStatement(attr.value);
+            emitters.emitConcatStatement(attr.value);
           } else {
             emit.text(JSON.stringify(attr.value.chars));
           }
@@ -846,9 +910,9 @@ export function templateToTypescript(
       for (let modifier of node.modifiers) {
         emit.forNode(modifier, () => {
           emit.text('χ.applyModifier(χ.resolve(');
-          emitExpression(modifier.path);
+          emitters.emitExpression(modifier.path);
           emit.text(')(𝛄.element, ');
-          emitArgs(modifier.params, modifier.hash);
+          emitters.emitArgs(modifier.params, modifier.hash);
           emit.text('));');
           emit.newline();
         });
@@ -858,7 +922,7 @@ export function templateToTypescript(
     function emitMustacheStatement(node: AST.MustacheStatement, position: InvokePosition): void {
       let specialFormInfo = checkSpecialForm(node);
       if (specialFormInfo) {
-        emitSpecialFormExpression(specialFormInfo, node, position);
+        emitters.emitSpecialFormExpression(specialFormInfo, node, position);
         return;
       } else if (node.path.type !== 'PathExpression' && node.path.type !== 'SubExpression') {
         // This assertion is currently meaningless, as @glimmer/syntax silently drops
@@ -879,13 +943,13 @@ export function templateToTypescript(
         // component/helper, and returned as a value otherwise.
         let hasParams = Boolean(node.hash.pairs.length || node.params.length);
         if (!hasParams && position === 'arg' && !isGlobal(node.path)) {
-          emitExpression(node.path);
+          emitters.emitExpression(node.path);
         } else if (position === 'top-level') {
           emit.text('χ.emitContent(');
-          emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
+          emitters.emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
           emit.text(')');
         } else {
-          emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
+          emitters.emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
         }
       });
     }
@@ -942,18 +1006,18 @@ export function templateToTypescript(
 
     function emitSpecialFormStatement(formInfo: SpecialFormInfo, node: AST.BlockStatement): void {
       if (formInfo.requiresConsumption) {
-        emitExpression(node.path);
+        emitters.emitExpression(node.path);
         emit.text(';');
         emit.newline();
       }
 
       switch (formInfo.form) {
         case 'if':
-          emitIfStatement(formInfo, node);
+          emitters.emitIfStatement(formInfo, node);
           break;
 
         case 'if-not':
-          emitUnlessStatement(formInfo, node);
+          emitters.emitUnlessStatement(formInfo, node);
           break;
 
         case 'bind-invokable':
@@ -984,7 +1048,7 @@ export function templateToTypescript(
         emit.indent();
 
         for (let statement of node.program.body) {
-          emitTopLevelStatement(statement);
+          emitters.emitTopLevelStatement(statement);
         }
 
         if (node.inverse) {
@@ -994,7 +1058,7 @@ export function templateToTypescript(
           emit.newline();
 
           for (let statement of node.inverse.body) {
-            emitTopLevelStatement(statement);
+            emitters.emitTopLevelStatement(statement);
           }
         }
 
@@ -1012,13 +1076,13 @@ export function templateToTypescript(
         );
 
         emit.text('if (!(');
-        emitExpression(node.params[0]);
+        emitters.emitExpression(node.params[0]);
         emit.text(')) {');
         emit.newline();
         emit.indent();
 
         for (let statement of node.program.body) {
-          emitTopLevelStatement(statement);
+          emitters.emitTopLevelStatement(statement);
         }
 
         if (node.inverse) {
@@ -1028,7 +1092,7 @@ export function templateToTypescript(
           emit.newline();
 
           for (let statement of node.inverse.body) {
-            emitTopLevelStatement(statement);
+            emitters.emitTopLevelStatement(statement);
           }
         }
 
@@ -1041,7 +1105,7 @@ export function templateToTypescript(
     function emitBlockStatement(node: AST.BlockStatement): void {
       let specialFormInfo = checkSpecialForm(node);
       if (specialFormInfo) {
-        emitSpecialFormStatement(specialFormInfo, node);
+        emitters.emitSpecialFormStatement(specialFormInfo, node);
         return;
       }
 
@@ -1051,14 +1115,14 @@ export function templateToTypescript(
         emit.indent();
 
         emit.text('const 𝛄 = χ.emitComponent(');
-        emitResolve(node, 'resolve');
+        emitters.emitResolve(node, 'resolve');
         emit.text(');');
         emit.newline();
 
-        emitBlock('default', node.program);
+        emitters.emitBlock('default', node.program);
 
         if (node.inverse) {
-          emitBlock('else', node.inverse);
+          emitters.emitBlock('else', node.inverse);
         }
 
         // TODO: emit something corresponding to `{{/foo}}` like we do
@@ -1066,7 +1130,7 @@ export function templateToTypescript(
         // A little hairier (ha) for mustaches, since they
         if (node.path.type === 'PathExpression') {
           let start = template.lastIndexOf(node.path.original, rangeForNode(node).end);
-          emitPathContents(node.path.parts, start, determinePathKind(node.path));
+          emitters.emitPathContents(node.path.parts, start, determinePathKind(node.path));
           emit.text(';');
           emit.newline();
         }
@@ -1084,7 +1148,7 @@ export function templateToTypescript(
         template.lastIndexOf('|', rangeForNode(node).start) - 1
       );
 
-      emitBlockContents(name, undefined, node.blockParams, paramsStart, node.body);
+      emitters.emitBlockContents(name, undefined, node.blockParams, paramsStart, node.body);
     }
 
     function emitBlockContents(
@@ -1116,12 +1180,12 @@ export function templateToTypescript(
       }
 
       emit.text('] = 𝛄.blockParams');
-      emitPropertyAccesss(name, { offset: nameOffset, synthetic: true });
+      emitters.emitPropertyAccesss(name, { offset: nameOffset, synthetic: true });
       emit.text(';');
       emit.newline();
 
       for (let statement of children) {
-        emitTopLevelStatement(statement);
+        emitters.emitTopLevelStatement(statement);
       }
 
       emit.dedent();
@@ -1133,12 +1197,12 @@ export function templateToTypescript(
     function emitSubExpression(node: AST.SubExpression): void {
       let specialFormInfo = checkSpecialForm(node);
       if (specialFormInfo) {
-        emitSpecialFormExpression(specialFormInfo, node, 'sexpr');
+        emitters.emitSpecialFormExpression(specialFormInfo, node, 'sexpr');
         return;
       }
 
       emit.forNode(node, () => {
-        emitResolve(node, 'resolve');
+        emitters.emitResolve(node, 'resolve');
       });
     }
 
@@ -1166,7 +1230,7 @@ export function templateToTypescript(
           emit.text(', ');
         }
 
-        emitExpression(param);
+        emitters.emitExpression(param);
       }
 
       // Emit named args
@@ -1176,9 +1240,9 @@ export function templateToTypescript(
         let { start } = rangeForNode(named);
         for (let [index, pair] of named.pairs.entries()) {
           start = template.indexOf(pair.key, start);
-          emitHashKey(pair.key, start);
+          emitters.emitHashKey(pair.key, start);
           emit.text(': ');
-          emitExpression(pair.value);
+          emitters.emitExpression(pair.value);
 
           if (index === named.pairs.length - 1) {
             emit.text(' ');
@@ -1197,7 +1261,7 @@ export function templateToTypescript(
     function emitPath(node: AST.PathExpression): void {
       emit.forNode(node, () => {
         let { start } = rangeForNode(node);
-        emitPathContents(node.parts, start, determinePathKind(node));
+        emitters.emitPathContents(node.parts, start, determinePathKind(node));
       });
     }
 
@@ -1224,9 +1288,9 @@ export function templateToTypescript(
       // The first segment of a non-this, non-arg path must resolve
       // to some in-scope identifier.
       if (kind === 'free') {
-        emitIdentifierReference(head, start);
+        emitters.emitIdentifierReference(head, start);
       } else {
-        emitPropertyAccesss(head, { offset: start, optional: false });
+        emitters.emitPropertyAccesss(head, { offset: start, optional: false });
       }
 
       start += head.length;
@@ -1234,7 +1298,7 @@ export function templateToTypescript(
       for (let i = 1; i < parts.length; i++) {
         let part = parts[i];
         start = template.indexOf(part, start);
-        emitPropertyAccesss(part, { offset: start, optional: true });
+        emitters.emitPropertyAccesss(part, { offset: start, optional: true });
         start += part.length;
       }
     }
@@ -1262,7 +1326,7 @@ export function templateToTypescript(
       } else {
         emit.text(optional ? '?.[' : '[');
         if (offset) {
-          emitIdentifierString(name, offset);
+          emitters.emitIdentifierString(name, offset);
         } else {
           emit.text(JSON.stringify(name));
         }
@@ -1274,7 +1338,7 @@ export function templateToTypescript(
       if (isSafeKey(name)) {
         emit.identifier(name, start);
       } else {
-        emitIdentifierString(name, start);
+        emitters.emitIdentifierString(name, start);
       }
     }
 

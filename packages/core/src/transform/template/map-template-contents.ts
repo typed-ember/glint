@@ -118,6 +118,7 @@ export type EmbeddingSyntax = {
 
 export type MapTemplateContentsOptions = {
   embeddingSyntax: EmbeddingSyntax;
+  postprocessAst?: (ast: AST.Template) => AST.Template;
 };
 
 /**
@@ -128,7 +129,7 @@ export type MapTemplateContentsOptions = {
  */
 export function mapTemplateContents(
   template: string,
-  { embeddingSyntax }: MapTemplateContentsOptions,
+  { embeddingSyntax, postprocessAst }: MapTemplateContentsOptions,
   callback: (ast: AST.Template | null, mapper: Mapper) => void
 ): RewriteResult {
   let ast: AST.Template | null = null;
@@ -136,6 +137,7 @@ export function mapTemplateContents(
   let lineOffsets = calculateLineOffsets(template, embeddingSyntax.prefix.length);
   try {
     ast = preprocess(template);
+    ast = postprocessAst?.(ast) || ast;
   } catch (error) {
     let message = getErrorMessage(error);
     let location: Range | undefined;

@@ -12,6 +12,8 @@ import {
   PathCandidateWithDeferral,
   SourceKind,
 } from '@glint/core/config-types';
+import TransformManager from '../common/transform-manager.js';
+import * as util from '../language-server/util/index.js';
 
 const require = createRequire(import.meta.url);
 
@@ -94,11 +96,11 @@ export class GlintEnvironment {
    * they support.
    */
   public getStandaloneTemplateConfig():
-    | Pick<GlintTemplateConfig, 'typesModule' | 'specialForms'>
+    | Pick<GlintTemplateConfig, 'typesModule' | 'specialForms' | 'preprocess' | 'postprocessAst' | 'mapTemplateContent'>
     | undefined {
     if (this.standaloneTemplateConfig) {
-      let { typesModule, specialForms } = this.standaloneTemplateConfig;
-      return { typesModule, specialForms };
+      let { typesModule, specialForms, preprocess, postprocessAst, mapTemplateContent } = this.standaloneTemplateConfig;
+      return { typesModule, specialForms, preprocess, postprocessAst, mapTemplateContent };
     }
   }
 
@@ -189,7 +191,6 @@ function loadMergedEnvironmentConfig(
     }
 
     let config = envFunction(envUserConfig ?? {}) as GlintEnvironmentConfig;
-
     if (config.template) {
       if (template) {
         throw new SilentError(
