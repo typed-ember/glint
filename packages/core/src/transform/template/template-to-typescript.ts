@@ -65,7 +65,7 @@ export function templateToTypescript(
       let scope = new ScopeStack([]);
 
       if (preprocessingError) {
-        record.error(preprocessingError, { start: 1, end: 1 });
+        record.error(preprocessingError, { start: 0, end: 0 });
       }
 
       const emitters = {
