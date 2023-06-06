@@ -97,7 +97,10 @@ export type PathCandidateWithDeferral = {
 };
 
 export type GlintTemplateConfig = {
-  preprocess: (templateInfo: { contents: string, filename: string }, args: {globals?: string[], preamble?: string[]}) => { globals: string[], preamble: string[], template: string};
+  preprocess: (
+    templateInfo: { contents: string; filename: string },
+    args: { globals?: string[]; preamble?: string[] }
+  ) => { globals: string[]; preamble: string[]; template: string };
   postprocessAst: (ast: ASTv1.Program) => ASTv1.Program;
   mapTemplateContent: Record<string, any>;
   typesModule: string;

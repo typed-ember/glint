@@ -31,7 +31,8 @@ export function calculateCompanionTemplateSpans(
     return { errors, directives, partialSpans };
   }
 
-  let { typesModule, specialForms, preprocess, postprocessAst, mapTemplateContent } = templateConfig;
+  let { typesModule, specialForms, preprocess, postprocessAst, mapTemplateContent } =
+    templateConfig;
   let useJsDoc = environment.isUntypedScript(script.filename);
   let targetNode = findCompanionTemplateTarget(ts, ast);
   if (targetNode && ts.isClassLike(targetNode)) {
