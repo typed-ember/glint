@@ -53,7 +53,7 @@ export function templateToTypescript(
     specialForms = {},
     useJsDoc = false,
   } = Object.assign({}, args, result);
-  let originalTemplate = (templateInfo as SourceFile).contents || (templateInfo as string);
+  let originalTemplate = (templateInfo as SourceFile).contents ?? (templateInfo as string);
   let { prefix, suffix } = embeddingSyntax;
   let template = `${''.padEnd(prefix.length)}${originalTemplate}${''.padEnd(suffix.length)}`;
 
