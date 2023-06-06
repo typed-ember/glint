@@ -9,7 +9,6 @@ import { SourceFile } from './transformed-module.js';
 const SPLATTRIBUTES = '...attributes';
 
 export type TemplateToTypescriptOptions = {
-  template: string;
   preprocess?: (
     templateInfo: SourceFile,
     args: Pick<TemplateToTypescriptOptions, 'globals' | 'preamble'>
@@ -45,7 +44,6 @@ export function templateToTypescript(
     preprocessingError = (e as Error).message;
   }
   let {
-    template: originalTemplate,
     typesModule,
     globals,
     meta,
@@ -55,8 +53,7 @@ export function templateToTypescript(
     specialForms = {},
     useJsDoc = false,
   } = Object.assign({}, args, result);
-  originalTemplate =
-    originalTemplate || (templateInfo as SourceFile).contents || (templateInfo as string);
+  let originalTemplate = (templateInfo as SourceFile).contents || (templateInfo as string);
   let { prefix, suffix } = embeddingSyntax;
   let template = `${''.padEnd(prefix.length)}${originalTemplate}${''.padEnd(suffix.length)}`;
 
