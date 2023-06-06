@@ -12,8 +12,6 @@ import {
   PathCandidateWithDeferral,
   SourceKind,
 } from '@glint/core/config-types';
-import TransformManager from '../common/transform-manager.js';
-import * as util from '../language-server/util/index.js';
 
 const require = createRequire(import.meta.url);
 

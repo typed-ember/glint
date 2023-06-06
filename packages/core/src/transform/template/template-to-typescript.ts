@@ -29,10 +29,18 @@ export type TemplateToTypescriptOptions = {
  * the original and transformed contents.
  */
 export function templateToTypescript(
-  templateInfo: SourceFile,
+  templateInfo: SourceFile | string,
   args: TemplateToTypescriptOptions
 ): RewriteResult {
-  let result = args.preprocess?.(templateInfo, args) || args;
+  let result = {};
+  let preprocessingError = '';
+  try {
+    if ((templateInfo as SourceFile).contents) {
+      result = args.preprocess?.(templateInfo as SourceFile, args) || {}
+    }
+  } catch (e) {
+    preprocessingError = (e as Error).message;
+  }
   let {
     template: originalTemplate,
     typesModule,
@@ -44,13 +52,17 @@ export function templateToTypescript(
     specialForms = {},
     useJsDoc = false
   } = Object.assign({}, args, result);
-  originalTemplate = originalTemplate || templateInfo.contents;
+  originalTemplate = originalTemplate || (templateInfo as SourceFile).contents || (templateInfo as string);
   let { prefix, suffix } = embeddingSyntax;
   let template = `${''.padEnd(prefix.length)}${originalTemplate}${''.padEnd(suffix.length)}`;
 
   return mapTemplateContents(originalTemplate, { embeddingSyntax, postprocessAst: args.postprocessAst }, (ast, mapper) => {
     let { emit, record, rangeForLine, rangeForNode } = mapper;
     let scope = new ScopeStack([]);
+
+    if (preprocessingError) {
+      record.error(preprocessingError, {start: 1, end: 1})
+    }
 
     const emitters= {
       emitTemplateBoilerplate,
