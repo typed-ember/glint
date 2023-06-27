@@ -50,6 +50,15 @@ declare const CanvasThing: ComponentLike<{ Args: { str: string }; Element: HTMLC
 declare const makeString: HelperLike<{ Args: { Named: { len: number } }; Return: string }>;
 declare const drawCanvasStuff: ModifierLike<{ Args: { Named: { width: number; height: number } }; Element: HTMLCanvasElement }>;
 
+declare const customModifierManagerExample: abstract new <El extends Element, Args extends Array<any>>() => InstanceType<ModifierLike<{
+  Element: El,
+  Args: {
+    Positional: [(element: El, args: Args) => void, ...Args]
+  }
+}>>;
+
+declare function exampleCallback(el: Element, pos: [number, string]): void;
+
 export const CanvasPlayground = <template>
   {{#let (component CanvasThing str="hi") as |BoundCanvasThing|}}
     <BoundCanvasThing />
@@ -57,5 +66,9 @@ export const CanvasPlayground = <template>
 
   {{#let (helper makeString len=5) (modifier drawCanvasStuff width=10) as |boundMakeString boundDrawCanvasStuff|}}
     <CanvasThing @str={{(boundMakeString)}} {{boundDrawCanvasStuff height=5}} />
+  {{/let}}
+
+  {{#let (modifier customModifierManagerExample exampleCallback) as |m|}}
+    <div {{m}}></div>
   {{/let}}
 </template>

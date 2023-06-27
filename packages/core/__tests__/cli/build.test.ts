@@ -1,4 +1,5 @@
 import { existsSync, statSync } from 'fs';
+import { sep } from 'path';
 
 import { stripIndent } from 'common-tags';
 import stripAnsi = require('strip-ansi');
@@ -16,6 +17,9 @@ import {
 } from 'glint-monorepo-test-utils';
 
 const TIMESTAMP = /\d{1,2}:\d{2}:\d{2} (AM|PM)/g;
+let EPHEMERAL = new RegExp(`(test-packages${sep}ephemeral${sep}[\\d\\w]+)${sep}`);
+
+// <time stamp> - Building project '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/d526aeff72031/c/tsconfig.json'...
 
 describe('CLI: single-pass build mode typechecking', () => {
   describe('simple projects using `--build`', () => {
@@ -132,89 +136,6 @@ describe('CLI: single-pass build mode typechecking', () => {
                                               ~~~~~~~~~~~~~~~~
         "
       `);
-    });
-
-    describe('with `--verbose`', () => {
-      test('prints verbose output for a valid basic project', async () => {
-        let code = stripIndent`
-          import '@glint/environment-ember-template-imports';
-          import Component from '@glimmer/component';
-  
-          type ApplicationArgs = {
-            version: string;
-          };
-  
-          export default class Application extends Component<{ Args: ApplicationArgs }> {
-            private startupTime = new Date().toISOString();
-  
-            <template>
-              Welcome to app v{{@version}}.
-              The current time is {{this.startupTime}}.
-            </template>
-          }
-        `;
-
-        project.write(INPUT_SFC, code);
-
-        let checkResult = await project.build({ reject: false, flags: ['--verbose'] });
-
-        expect(checkResult.exitCode).toBe(0);
-        expect(checkResult.stdout.replace(TIMESTAMP, '<time stamp>')).toMatchInlineSnapshot(`
-          "<time stamp> - Projects in this build: 
-              * tsconfig.json
-
-          <time stamp> - Project 'tsconfig.json' is out of date because output file 'dist/tsconfig.tsbuildinfo' does not exist
-
-          <time stamp> - Building project '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/d6cdd8c6a1fd6/tsconfig.json'...
-          "
-        `);
-        expect(checkResult.stderr).toEqual('');
-      });
-
-      test('prints verbose output for a project with a basic template type error', async () => {
-        let code = stripIndent`
-          import '@glint/environment-ember-template-imports';
-          import Component from '@glimmer/component';
-  
-          type ApplicationArgs = {
-            version: string;
-          };
-  
-          const truncate = (length: number, s: string): string =>
-            s.slice(0, length);
-  
-          export default class Application extends Component<{ Args: ApplicationArgs }> {
-            private startupTime = new Date().toISOString();
-  
-            <template>
-              Welcome to app v{{@version}}.
-              The current time is {{truncate this.startupTime 12}}.
-            </template>
-          }
-        `;
-
-        project.write(INPUT_SFC, code);
-
-        let checkResult = await project.build({ reject: false, flags: ['--verbose'] });
-
-        expect(checkResult.exitCode).toBe(1);
-        expect(checkResult.stdout.replace(TIMESTAMP, '<time stamp>')).toMatchInlineSnapshot(`
-          "<time stamp> - Projects in this build: 
-              * tsconfig.json
-
-          <time stamp> - Project 'tsconfig.json' is out of date because output file 'dist/tsconfig.tsbuildinfo' does not exist
-
-          <time stamp> - Building project '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/c9e994479a9ca/tsconfig.json'...
-          "
-        `);
-        expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-          "src/index.gts:16:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
-
-          16     The current time is {{truncate this.startupTime 12}}.
-                                                ~~~~~~~~~~~~~~~~
-          "
-        `);
-      });
     });
   });
 
@@ -1174,36 +1095,6 @@ describe('CLI: single-pass build mode typechecking', () => {
       });
 
       test('for a project transitively referenced by the root with a template type error, built from the main project', async () => {
-        let rootCode = stripIndent`
-          import Component from '@glimmer/component';
-          import A from '@glint-test/a';
-          import B from '@glint-test/b';
-
-          type ApplicationArgs = {
-            version: string;
-          };
-
-          export default class Application extends Component<{ Args: ApplicationArgs }> {
-            private startupTime = new Date().toISOString();
-
-            <template>
-              Welcome to app v{{@version}}.
-              The current time is {{this.startupTime}}.
-            </template>
-          }
-        `;
-
-        let aCode = stripIndent`
-          import C from '@glint-test/c';
-          const A = 'hello ' + C;
-          export default A;
-        `;
-
-        let bCode = stripIndent`
-          const B = 'ahoy';
-          export default B;
-        `;
-
         let cCode = stripIndent`
           const double = (n: number) => n * 2;
           const useDouble = <template>{{double "hello"}}</template>;
@@ -1211,9 +1102,6 @@ describe('CLI: single-pass build mode typechecking', () => {
           export default C;
         `;
 
-        projects.main.write(INPUT_SFC, rootCode);
-        projects.children.a.write(INPUT_SFC, aCode);
-        projects.children.b.write(INPUT_SFC, bCode);
         projects.children.c.write(INPUT_SFC, cCode);
 
         let checkResult = await projects.main.build({ reject: false, flags: ['--verbose'] });
@@ -1780,6 +1668,236 @@ describe('CLI: --build --dry', () => {
           expect(buildResult.stderr).toEqual('');
         });
       });
+    });
+  });
+});
+
+describe('CLI: --build --verbose', () => {
+  describe('for basic projects', () => {
+    let project!: Project;
+    beforeEach(async () => {
+      project = await Project.createExact(BASE_TS_CONFIG);
+    });
+
+    afterEach(async () => {
+      await project.destroy();
+    });
+
+    test('prints verbose output for a valid basic project', async () => {
+      let code = stripIndent`
+        import '@glint/environment-ember-template-imports';
+        import Component from '@glimmer/component';
+
+        type ApplicationArgs = {
+          version: string;
+        };
+
+        export default class Application extends Component<{ Args: ApplicationArgs }> {
+          private startupTime = new Date().toISOString();
+
+          <template>
+            Welcome to app v{{@version}}.
+            The current time is {{this.startupTime}}.
+          </template>
+        }
+      `;
+
+      project.write(INPUT_SFC, code);
+
+      let checkResult = await project.build({ reject: false, flags: ['--verbose'] });
+
+      expect(checkResult.exitCode).toBe(0);
+      expect(checkResult.stdout.replace(TIMESTAMP, '<time stamp>')).toMatchInlineSnapshot(`
+        "<time stamp> - Projects in this build: 
+            * tsconfig.json
+
+        <time stamp> - Project 'tsconfig.json' is out of date because output file 'dist/tsconfig.tsbuildinfo' does not exist
+
+        <time stamp> - Building project '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/d6cdd8c6a1fd6/tsconfig.json'...
+        "
+      `);
+      expect(checkResult.stderr).toEqual('');
+    });
+
+    test('prints verbose output for a project with a basic template type error', async () => {
+      let code = stripIndent`
+        import '@glint/environment-ember-template-imports';
+        import Component from '@glimmer/component';
+
+        type ApplicationArgs = {
+          version: string;
+        };
+
+        const truncate = (length: number, s: string): string =>
+          s.slice(0, length);
+
+        export default class Application extends Component<{ Args: ApplicationArgs }> {
+          private startupTime = new Date().toISOString();
+
+          <template>
+            Welcome to app v{{@version}}.
+            The current time is {{truncate this.startupTime 12}}.
+          </template>
+        }
+      `;
+
+      project.write(INPUT_SFC, code);
+
+      let checkResult = await project.build({ reject: false, flags: ['--verbose'] });
+
+      expect(checkResult.exitCode).toBe(1);
+      expect(checkResult.stdout.replace(TIMESTAMP, '<time stamp>')).toMatchInlineSnapshot(`
+        "<time stamp> - Projects in this build: 
+            * tsconfig.json
+
+        <time stamp> - Project 'tsconfig.json' is out of date because output file 'dist/tsconfig.tsbuildinfo' does not exist
+
+        <time stamp> - Building project '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/c9e994479a9ca/tsconfig.json'...
+        "
+      `);
+      expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+        "src/index.gts:16:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+
+        16     The current time is {{truncate this.startupTime 12}}.
+                                              ~~~~~~~~~~~~~~~~
+        "
+      `);
+    });
+  });
+
+  describe('for composite projects', () => {
+    // The basic structure here is designed to give minimal coverage over all
+    // interesting combinations of project invalidation:
+    //
+    // - main -> a invalidated itself
+    // - main -> a invalidated via c invalidated
+    // - main -> b invalidated
+    // - a invalidated itself
+    // - a -> c invalidated
+    // - b invalidated
+    // - c invalidated
+    //
+    // The `root` is the workspace root, while the others are packages nested
+    // within the workspace. There are other possible designs, but this is the
+    // most common and the one we teach.
+    let projects!: {
+      root: Project;
+      main: Project;
+      children: {
+        a: Project;
+        b: Project;
+        c: Project;
+      };
+    };
+
+    beforeEach(async () => {
+      projects = await setupCompositeProject();
+    });
+
+    afterEach(async () => {
+      // Invariant: this will clean up properly as long as `destroy()` continues
+      // to recursively remove all directories *and* all child projects are
+      // rooted in the root project.
+      await projects.root.destroy();
+    });
+
+    beforeEach(async () => {
+      let rootCode = stripIndent`
+        import Component from '@glimmer/component';
+        import A from '@glint-test/a';
+        import B from '@glint-test/b';
+  
+        type ApplicationArgs = {
+          version: string;
+        };
+  
+        export default class Application extends Component<{ Args: ApplicationArgs }> {
+          private startupTime = new Date().toISOString();
+  
+          <template>
+            Welcome to app v{{@version}}.
+            The current time is {{this.startupTime}}.
+          </template>
+        }
+      `;
+
+      let aCode = stripIndent`
+        import C from '@glint-test/c';
+        const A = 'hello ' + C;
+        export default A;
+      `;
+
+      let bCode = stripIndent`
+        const B = 'ahoy';
+        export default B;
+      `;
+
+      let cCode = stripIndent`
+        const C = 'world';
+        export default C;
+      `;
+
+      projects.main.write(INPUT_SFC, rootCode);
+      projects.children.a.write(INPUT_SFC, aCode);
+      projects.children.b.write(INPUT_SFC, bCode);
+      projects.children.c.write(INPUT_SFC, cCode);
+    });
+
+    test('for a valid composite subproject with a reference', async () => {
+      let checkResult = await projects.children.a.build({ reject: false, flags: ['--verbose'] });
+
+      expect(checkResult.stdout.replace(TIMESTAMP, '<time stamp>')).toMatchInlineSnapshot(`
+        "<time stamp> - Projects in this build: 
+            * ../c/tsconfig.json
+            * tsconfig.json
+
+        <time stamp> - Project '../c/tsconfig.json' is out of date because output file '../c/tsconfig.tsbuildinfo' does not exist
+
+        <time stamp> - Building project '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/d75a8393430fd/c/tsconfig.json'...
+
+        <time stamp> - Project 'tsconfig.json' is out of date because output file 'tsconfig.tsbuildinfo' does not exist
+
+        <time stamp> - Building project '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/d75a8393430fd/a/tsconfig.json'...
+        "
+      `);
+    });
+
+    test('for a project transitively referenced by the root with a template type error, built from the main project', async () => {
+      let cCode = stripIndent`
+        const double = (n: number) => n * 2;
+        const useDouble = <template>{{double "hello"}}</template>;
+        const C = 'world';
+        export default C;
+      `;
+
+      projects.children.c.write(INPUT_SFC, cCode);
+
+      let checkResult = await projects.main.build({ reject: false, flags: ['--verbose'] });
+
+      expect(checkResult.stdout).toMatchInlineSnapshot(`
+        "12:10:54 PM - Projects in this build: 
+            * ../c/tsconfig.json
+            * ../a/tsconfig.json
+            * ../b/tsconfig.json
+            * tsconfig.json
+
+        12:10:54 PM - Project '../c/tsconfig.json' is out of date because output file '../c/tsconfig.tsbuildinfo' does not exist
+
+        12:10:54 PM - Building project '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/c9e5192458bc8/c/tsconfig.json'...
+
+        12:10:55 PM - Project '../a/tsconfig.json' can't be built because its dependency '../c' has errors
+
+        12:10:55 PM - Skipping build of project '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/c9e5192458bc8/a/tsconfig.json' because its dependency '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/c9e5192458bc8/c' has errors
+
+        12:10:55 PM - Project '../b/tsconfig.json' is out of date because output file '../b/tsconfig.tsbuildinfo' does not exist
+
+        12:10:55 PM - Building project '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/c9e5192458bc8/b/tsconfig.json'...
+
+        12:10:55 PM - Project 'tsconfig.json' can't be built because its dependency '../a' was not built
+
+        12:10:55 PM - Skipping build of project '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/c9e5192458bc8/main/tsconfig.json' because its dependency '/Users/ckrycho/dev/typed-ember/glint/test-packages/ephemeral/c9e5192458bc8/a' was not built
+        "
+      `);
     });
   });
 });
