@@ -34,7 +34,7 @@
   "dependencies": {
     "@glimmer/syntax": "^0.84.2",
     "escape-string-regexp": "^4.0.0",
-    "semver": "^7.3.8",
+    "semver": "^7.5.2",
     "silent-error": "^1.1.1",
     "uuid": "^8.3.2",
     "vscode-languageserver": "^8.0.1",
