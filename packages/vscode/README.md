@@ -10,7 +10,17 @@ See the [Glint home page] for a more detailed Getting Started guide.
 
 1. Add `@glint/core`, `@glint/template` and an appropriate environment package to your project's `devDependencies`.
 1. Add a `"glint"` key to your project's `tsconfig.json` or `jsconfig.json` specifying your environment and any other relevant configuration.
-1. Consider disabling the built-in `vscode.typescript-language-features` extension for any workspaces where you use Glint to avoid extraneous diagnostics. <details><summary>Screenshot</summary>
+1. Consider disabling the built-in `vscode.typescript-language-features` extension for any workspaces where you use Glint to avoid extraneous diagnostics. 
+
+<details><summary>Instructions</summary>
+
+1. In your project workspace, bring up the command palette with `Ctrl + Shift + P` (macOS: `Cmd + Shift + P`).
+2. Type `built` and select "Extensions: Show Built-in Extensions".
+3. Type `typescript` in the extension search box (do not remove `@builtin` prefix).
+4. Click the little gear icon of "TypeScript and JavaScript Language Features", and select "Disable (Workspace)".
+5. Reload the workspace. Glint will now take over TS language services.
+</details>
+<details><summary>Screenshot</summary>
 <img src="https://user-images.githubusercontent.com/108688/111069039-6dc84100-84cb-11eb-8339-18a589be2ac5.png" width="500">
 </details>
 
