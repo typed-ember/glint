@@ -14,11 +14,10 @@ See the [Glint home page] for a more detailed Getting Started guide.
 
 <details><summary>Instructions</summary>
 
-1. In your project workspace, bring up the command palette with `Ctrl + Shift + P` (macOS: `Cmd + Shift + P`).
-2. Type `built` and select "Extensions: Show Built-in Extensions".
-3. Type `typescript` in the extension search box (do not remove `@builtin` prefix).
-4. Click the little gear icon of "TypeScript and JavaScript Language Features", and select "Disable (Workspace)".
-5. Reload the workspace. Glint will now take over TS language services.
+1. In your project workspace, bring up the extensions sidebar `Ctrl + Shift + X` (macOS: `Cmd + Shift + X`).
+1. Type `@builtin typescript` in the extension search box
+1. Click the little gear icon of "TypeScript and JavaScript Language Features", and select "Disable (Workspace)".
+1. Reload the workspace. Glint will now take over TS language services.
 
 <img src="https://user-images.githubusercontent.com/108688/111069039-6dc84100-84cb-11eb-8339-18a589be2ac5.png" width="500">
 </details>

@@ -47,10 +47,9 @@ You can install an editor extension to display Glint's diagnostics inline in you
 
 To get Ember/Glimmer and TypeScript working together, Glint creates a separate TS language service instance patched with Ember-specific support. To prevent invalid or duplicate diagnostics you need to disable VSCode's built-in TS language service in your project's workspace only by following these steps:
 
-1. In your project workspace, bring up the command palette with `Ctrl + Shift + P` (macOS: `Cmd + Shift + P`).
-2. Type `built` and select "Extensions: Show Built-in Extensions".
-3. Type `typescript` in the extension search box (do not remove `@builtin` prefix).
-4. Click the little gear icon of "TypeScript and JavaScript Language Features", and select "Disable (Workspace)".
-5. Reload the workspace. Glint will now take over TS language services.
+1. In your project workspace, bring up the extensions sidebar `Ctrl + Shift + X` (macOS: `Cmd + Shift + X`).
+1. Type `@builtin typescript` in the extension search box
+1. Click the little gear icon of "TypeScript and JavaScript Language Features", and select "Disable (Workspace)".
+1. Reload the workspace. Glint will now take over TS language services.
 
 ![Disabling built-in TS language service per workspace](https://user-images.githubusercontent.com/108688/111069039-6dc84100-84cb-11eb-8339-18a589be2ac5.png)
