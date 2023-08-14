@@ -115,7 +115,7 @@ The `Globals` type represents any values that are globally in scope in a templat
 
 If you see this error in a loose mode template, ensure that:
  - A registry entry exists for the name in question
- - You have imported the file where the entry is defined, if it comes from a library (i.e. `import 'ember-page-title/glint';`)
+ - You have imported the file where the entry is defined, if it comes from a library (i.e. `import 'ember-svg-jar/glint';`)
  - You only have one copy of the environment package in your dependency tree
 
 If you have multiple copies of the environment package in your dependencies, this can result in multiple disjoint registries, as TypeScript will maintain a separate version of the `Registry` type for each copy, meaning the registry your dependencies are adding entries to might be different than the one your application is actually using.
