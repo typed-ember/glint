@@ -40,4 +40,6 @@ export function analyzeProject(projectDirectory: string = process.cwd()): Projec
   };
 }
 
+export { loadConfig };
+
 export type { TransformManager, GlintConfig, GlintLanguageServer };
