@@ -5151,6 +5151,11 @@ content-disposition@0.5.4:
   dependencies:
     safe-buffer "5.2.1"
 
+content-tag@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/content-tag/-/content-tag-1.1.0.tgz#fcef4bdcf1850f9b67bf0b6f7aee217c6d7ea9fa"
+  integrity sha512-bktivDORs9M890KwVKrIONYvHhwshfgF4b1G/TFPrjH12Ag2GDiSdxVHqIzMxWZ297VgIRPSImURlpcOzJP/LQ==
+
 content-type@~1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/content-type/-/content-type-1.0.4.tgz#e138cc75e040c727b1966fe5e5f8c9aee256fe3b"
@@ -6461,7 +6466,7 @@ ember-template-imports@^1.1.1:
     ember-cli-version-checker "^5.1.2"
     validate-peer-dependencies "^1.1.0"
 
-ember-template-imports@^3.0.0, ember-template-imports@^3.1.1:
+ember-template-imports@^3.1.1:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/ember-template-imports/-/ember-template-imports-3.4.0.tgz#c40757e2d41e289ce08c0fe80671000bf216e0ef"
   integrity sha512-3Cwcj3NXA129g3ZhmrQ/nYOxksFonTmB/qxyaSNTHrLBSoc93UZys47hBz13DlcfoeSCCrNt2Qpq1j890I04PQ==
