@@ -24,8 +24,8 @@ export interface AddSignature {
 }
 
 export default class AddHelper extends Helper<AddSignature> {
-  public compute(positional: Positional, named: Named): number {
-    let total = positional.reduce((sum, next) => sum + next, 0);
+  public compute(values: Positional, named: Named): number {
+    let total = values.reduce((sum, next) => sum + next, 0);
     if (typeof named.andThenMultiplyBy === 'number') {
       total *= named.andThenMultiplyBy;
     }
@@ -49,7 +49,7 @@ export interface AddSignature {
 }
 
 const add = helper<AddSignature>((values, { andThenMultiplyBy }) => {
-  let total = positional.reduce((sum, next) => sum + next, 0);
+  let total = values.reduce((sum, next) => sum + next, 0);
   if (typeof andThenMultiplyBy === 'number') {
     total *= andThenMultiplyBy;
   }
@@ -66,7 +66,7 @@ export default add;
 import { helper } from '@ember/component/helper';
 
 const add = helper((values: Array<number>, named: { andThenMultiplyBy?: number }) => {
-  let total = positional.reduce((sum, next) => sum + next, 0);
+  let total = values.reduce((sum, next) => sum + next, 0);
   if (typeof named.andThenMultiplyBy === 'number') {
     total *= named.andThenMultiplyBy;
   }
