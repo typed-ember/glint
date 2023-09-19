@@ -24,6 +24,7 @@ export type GlintExtensionPreprocess<T> = (
 export type GlintEmitMetadata = {
   prepend?: string;
   append?: string;
+  replaceExtension?: string;
   templateLocation?: {
     start: number;
     end: number;
@@ -37,7 +38,10 @@ export type GlintExtensionTransform<T> = (
   state: {
     ts: TSLib;
     context: ts.TransformationContext;
-    setEmitMetadata: (node: ts.TaggedTemplateExpression, meta: GlintEmitMetadata) => void;
+    setEmitMetadata: (
+      node: ts.TaggedTemplateExpression | ts.ImportDeclaration,
+      meta: GlintEmitMetadata
+    ) => void;
   }
 ) => ts.Transformer<ts.Node>;
 

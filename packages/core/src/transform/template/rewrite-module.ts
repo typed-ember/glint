@@ -12,6 +12,7 @@ import TransformedModule, {
 } from './transformed-module.js';
 import { calculateTaggedTemplateSpans } from './inlining/tagged-strings.js';
 import { calculateCompanionTemplateSpans } from './inlining/companion-file.js';
+import { calculateImportSpan } from './import-declaration-span.js';
 
 /**
  * Input to the process of rewriting a template, containing one or both of:
@@ -72,7 +73,7 @@ function calculateCorrelatedSpans(
   let partialSpans: Array<PartialCorrelatedSpan> = [];
 
   let { ast, emitMetadata } = parseScript(ts, script, environment);
-
+  let tsPrinter = ts.createPrinter();
   ts.transform(ast, [
     (context) =>
       function visit<T extends ts.Node>(node: T): T {
@@ -86,8 +87,13 @@ function calculateCorrelatedSpans(
         } else if (ts.isModuleDeclaration(node)) {
           // don't traverse into declare module
           return node;
+        } else if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
+          let meta = emitMetadata.get(node);
+          let result = calculateImportSpan(ts, node, meta, script, tsPrinter);
+          directives.push(...result.directives);
+          errors.push(...result.errors);
+          partialSpans.push(...result.partialSpans);
         }
-
         return ts.visitEachChild(node, visit, context);
       },
   ]);

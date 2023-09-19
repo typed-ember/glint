@@ -1,4 +1,4 @@
-import Greeting from './Greeting';
+import Greeting from './Greeting.gts';
 
 export default <template>
   <Greeting @target="World" />

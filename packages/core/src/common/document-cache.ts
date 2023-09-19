@@ -58,8 +58,15 @@ export default class DocumentCache {
     );
   }
 
+  private gtsAwareExtName(filename: string): string {
+    if (filename.endsWith('.gts.ts')) {
+      return '.gts.ts';
+    }
+    return path.extname(filename);
+  }
+
   public getCandidateDocumentPaths(filename: string): Array<string> {
-    let extension = path.extname(filename);
+    let extension = this.gtsAwareExtName(filename);
     let filenameWithoutExtension = filename.slice(0, filename.lastIndexOf(extension));
 
     return this.getCandidateExtensions(filename).map((ext) => `${filenameWithoutExtension}${ext}`);

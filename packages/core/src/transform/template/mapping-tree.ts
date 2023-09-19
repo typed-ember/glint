@@ -2,7 +2,13 @@ import { AST } from '@glimmer/syntax';
 import { Range } from './transformed-module.js';
 import { Identifier } from './map-template-contents.js';
 
-export type MappingSource = AST.Node | TemplateEmbedding | TextContent | Identifier | ParseError;
+export type MappingSource =
+  | AST.Node
+  | TemplateEmbedding
+  | TextContent
+  | Identifier
+  | GtsImport
+  | ParseError;
 
 /**
  * In cases where we're unable to parse a template, we still want to
@@ -32,6 +38,13 @@ export class TextContent {
  */
 export class TemplateEmbedding {
   public readonly type = 'TemplateEmbedding';
+}
+
+/**
+ * This node represents an import declaration of a .gts file.
+ */
+export class GtsImport {
+  public readonly type = 'GtsImport';
 }
 
 /**
@@ -109,23 +122,23 @@ export default class MappingTree {
   }): string {
     let { originalSource, transformedSource, indent = '| ' } = options;
     let { sourceNode, originalRange, transformedRange, children } = this;
-    let hbsStart = options.originalStart + originalRange.start;
-    let hbsEnd = options.originalStart + originalRange.end;
+    let sourceStart = options.originalStart + originalRange.start;
+    let sourceEnd = options.originalStart + originalRange.end;
     let tsStart = options.transformedStart + transformedRange.start;
     let tsEnd = options.transformedStart + transformedRange.end;
     let lines = [];
 
     lines.push(`${indent}Mapping: ${sourceNode.type}`);
 
+    let sourceDesc = sourceNode.type === 'GtsImport' ? 'ts' : 'hbs';
     lines.push(
-      `${indent}${` hbs(${hbsStart}:${hbsEnd}):`.padEnd(15)}${this.getSourceRange(
-        originalSource,
-        originalRange
-      )}`
+      `${indent}${` in: ${sourceDesc}(${sourceStart}:${sourceEnd}):`.padEnd(
+        20
+      )}${this.getSourceRange(originalSource, originalRange)}`
     );
 
     lines.push(
-      `${indent}${` ts(${tsStart}:${tsEnd}):`.padEnd(15)}${this.getSourceRange(
+      `${indent}${` out: ts(${tsStart}:${tsEnd}):`.padEnd(20)}${this.getSourceRange(
         transformedSource,
         transformedRange
       )}`

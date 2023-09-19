@@ -1,5 +1,6 @@
 import Component from '@glimmer/component';
 import { TOC } from '@ember/component/template-only';
+import repeat from '../helpers/repeat';
 
 export interface GreetingSignature {
   Args: { target: string };
@@ -13,10 +14,12 @@ export default class Greeting extends Component<GreetingSignature> {
   </template>
 }
 
-function repeat(value: string, times: number): string {
-  return Array(times).fill(value).join('');
-}
-
 const Bang: TOC<{ Args: { times: number } }> = <template>
   {{repeat '!' @times}}
 </template>
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    Greeting: typeof Greeting;
+  }
+}
