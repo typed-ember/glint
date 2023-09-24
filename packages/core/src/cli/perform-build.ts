@@ -13,7 +13,7 @@ interface BuildOptions extends TS.BuildOptions {
 }
 
 export function performBuild(ts: TypeScript, projects: string[], buildOptions: BuildOptions): void {
-  let transformManagerPool = new TransformManagerPool(ts.sys);
+  let transformManagerPool = new TransformManagerPool(ts);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
   let buildProgram = ts.createEmitAndSemanticDiagnosticsBuilderProgram;
 
@@ -22,6 +22,9 @@ export function performBuild(ts: TypeScript, projects: string[], buildOptions: B
     patchProgramBuilder(ts, transformManagerPool, buildProgram),
     (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
+
+  // @ts-ignore: This hook was added in TS5, and is safely irrelevant in earlier versions. Once we drop support for 4.x, we can also remove this @ts-ignore comment.
+  host.resolveModuleNameLiterals = transformManagerPool.resolveModuleNameLiterals;
 
   let builder = ts.createSolutionBuilder(host, projects, buildOptions);
   let exitStatus = buildOptions.clean ? builder.clean() : builder.build();

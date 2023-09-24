@@ -10,7 +10,7 @@ export function performBuildWatch(
   projects: string[],
   buildOptions: TS.BuildOptions
 ): void {
-  let transformManagerPool = new TransformManagerPool(ts.sys);
+  let transformManagerPool = new TransformManagerPool(ts);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
   let buildProgram = ts.createEmitAndSemanticDiagnosticsBuilderProgram;
 
@@ -19,6 +19,9 @@ export function performBuildWatch(
     patchProgramBuilder(ts, transformManagerPool, buildProgram),
     (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
+
+  // @ts-ignore: This hook was added in TS5, and is safely irrelevant in earlier versions. Once we drop support for 4.x, we can also remove this @ts-ignore comment.
+  host.resolveModuleNameLiterals = transformManagerPool.resolveModuleNameLiterals;
 
   let builder = ts.createSolutionBuilderWithWatch(host, projects, buildOptions);
   builder.build();

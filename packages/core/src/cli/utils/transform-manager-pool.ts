@@ -17,6 +17,7 @@ import { assert } from './assert.js';
  *   config.
  */
 export default class TransformManagerPool {
+  #rootTS: typeof TS;
   #rootSys: TS.System;
   #managers = new Map<GlintConfig, TransformManager>();
   #loader = new ConfigLoader();
@@ -25,8 +26,9 @@ export default class TransformManagerPool {
     return true;
   }
 
-  constructor(sys: TS.System) {
-    this.#rootSys = sys;
+  constructor(ts: typeof TS) {
+    this.#rootTS = ts;
+    this.#rootSys = ts.sys;
   }
 
   public managerForFile(path: string): TransformManager | null {
@@ -44,6 +46,34 @@ export default class TransformManagerPool {
     this.#managers.set(config, manager);
     return manager;
   }
+
+  public resolveModuleNameLiterals = (
+    moduleLiterals: readonly TS.StringLiteralLike[],
+    containingFile: string,
+    redirectedReference: TS.ResolvedProjectReference | undefined,
+    options: TS.CompilerOptions
+  ): readonly TS.ResolvedModuleWithFailedLookupLocations[] => {
+    let resolveModuleNameLiterals = this.managerForFile(containingFile)?.resolveModuleNameLiterals;
+    if (resolveModuleNameLiterals) {
+      return resolveModuleNameLiterals(
+        moduleLiterals,
+        containingFile,
+        redirectedReference,
+        options
+      );
+    } else {
+      return moduleLiterals.map((literal) =>
+        this.#rootTS.resolveModuleName(
+          literal.text,
+          containingFile,
+          options,
+          this.#rootSys,
+          undefined,
+          redirectedReference
+        )
+      );
+    }
+  };
 
   public readDirectory = (
     rootDir: string,
