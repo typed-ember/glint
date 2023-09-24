@@ -1,6 +1,8 @@
 import { Project } from 'glint-monorepo-test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
+import typescript from 'typescript';
+import semver from 'semver';
 
 describe('Language Server: custom file extensions', () => {
   let project!: Project;
@@ -253,5 +255,60 @@ describe('Language Server: custom file extensions', () => {
         },
       ]);
     });
+  });
+
+  describe('module resolution with explicit extensions', () => {
+    beforeEach(() => {
+      project.setGlintConfig({ environment: 'ember-template-imports' });
+      project.write({
+        'index.gts': stripIndent`
+          import Greeting from './Greeting.gts';
+          <template><Greeting /></template>
+        `,
+        'Greeting.gts': stripIndent`
+          <template>Hello!</template>
+        `,
+      });
+    });
+
+    test('is illegal by default', async () => {
+      let server = project.startLanguageServer();
+
+      expect(server.getDiagnostics(project.fileURI('index.gts'))).toMatchInlineSnapshot(`
+        [
+          {
+            "code": 2307,
+            "message": "Cannot find module './Greeting.gts' or its corresponding type declarations.",
+            "range": {
+              "end": {
+                "character": 37,
+                "line": 0,
+              },
+              "start": {
+                "character": 21,
+                "line": 0,
+              },
+            },
+            "severity": 1,
+            "source": "glint",
+            "tags": [],
+          },
+        ]
+      `);
+    });
+
+    test.runIf(semver.gte(typescript.version, '5.0.0'))(
+      'works with `allowImportingTsExtensions: true`',
+      async () => {
+        project.updateTsconfig((config) => {
+          config.compilerOptions ??= {};
+          config.compilerOptions['allowImportingTsExtensions'] = true;
+        });
+
+        let server = project.startLanguageServer();
+
+        expect(server.getDiagnostics(project.fileURI('index.gts'))).toEqual([]);
+      }
+    );
   });
 });
