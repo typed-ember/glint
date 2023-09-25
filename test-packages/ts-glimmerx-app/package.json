@@ -1,6 +1,6 @@
 {
   "name": "ts-glimmerx-app",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A brand new Glimmer app.",
   "directories": {
     "doc": "doc",
@@ -27,8 +27,8 @@
     "@glimmerx/helper": "^0.6.7",
     "@glimmerx/modifier": "^0.6.7",
     "@glimmerx/service": "^0.6.7",
-    "@glint/core": "^1.1.0",
-    "@glint/environment-glimmerx": "^1.1.0",
+    "@glint/core": "^1.2.0",
+    "@glint/environment-glimmerx": "^1.2.0",
     "@types/qunit": "^2.9.1",
     "babel-loader": "^8.1.0",
     "clean-webpack-plugin": "^3.0.0",
