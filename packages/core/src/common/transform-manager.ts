@@ -21,13 +21,25 @@ type TransformInfo = {
 
 export default class TransformManager {
   private transformCache = new Map<string, TransformInfo>();
+  private moduleResolutionHost: ts.ModuleResolutionHost;
   private readonly ts: typeof import('typescript');
+
+  public readonly moduleResolutionCache: ts.ModuleResolutionCache;
 
   constructor(
     private glintConfig: GlintConfig,
     private documents: DocumentCache = new DocumentCache(glintConfig)
   ) {
     this.ts = glintConfig.ts;
+    this.moduleResolutionCache = this.ts.createModuleResolutionCache(
+      this.ts.sys.getCurrentDirectory(),
+      (name) => name
+    );
+    this.moduleResolutionHost = {
+      ...this.ts.sys,
+      readFile: this.readTransformedFile,
+      fileExists: this.fileExists,
+    };
   }
 
   public getTransformDiagnostics(fileName?: string): Array<Diagnostic> {
@@ -161,6 +173,32 @@ export default class TransformManager {
     return { transformedFileName, transformedOffset };
   }
 
+  public resolveModuleNameLiterals = (
+    moduleLiterals: readonly ts.StringLiteralLike[],
+    containingFile: string,
+    redirectedReference: ts.ResolvedProjectReference | undefined,
+    options: ts.CompilerOptions
+  ): readonly ts.ResolvedModuleWithFailedLookupLocations[] => {
+    return moduleLiterals.map((literal) => {
+      // If import paths are allowed to include TS extensions (`.ts`, `.tsx`, etc), then we want to
+      // ensure we normalize things like `.gts` to the standard script path we present elsewhere so
+      // that TS understands the intent.
+      // @ts-ignore: this flag isn't available in the oldest versions of TS we support
+      let scriptPath = options.allowImportingTsExtensions
+        ? this.getScriptPathForTS(literal.text)
+        : literal.text;
+
+      return this.ts.resolveModuleName(
+        scriptPath,
+        containingFile,
+        options,
+        this.moduleResolutionHost,
+        this.moduleResolutionCache,
+        redirectedReference
+      );
+    });
+  };
+
   public watchTransformedFile = (
     path: string,
     originalCallback: ts.FileWatcherCallback,
@@ -175,6 +213,8 @@ export default class TransformManager {
     let { glintConfig, documents } = this;
     let callback: ts.FileWatcherCallback = (watchedPath, eventKind) => {
       if (eventKind === this.ts.FileWatcherEventKind.Deleted) {
+        // Adding or removing a file invalidates most of what we think we know about module resolution
+        this.moduleResolutionCache.clear();
         this.documents.removeDocument(watchedPath);
       } else {
         this.documents.markDocumentStale(watchedPath);
@@ -213,8 +253,11 @@ export default class TransformManager {
       throw new Error('Internal error: TS `watchDirectory` unavailable');
     }
 
-    let callback: ts.DirectoryWatcherCallback = (filename) =>
+    let callback: ts.DirectoryWatcherCallback = (filename) => {
+      // Adding or removing a file invalidates most of what we think we know about module resolution
+      this.moduleResolutionCache.clear();
       originalCallback(this.getScriptPathForTS(filename));
+    };
 
     return this.ts.sys.watchDirectory(path, callback, recursive, options);
   };

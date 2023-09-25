@@ -3,6 +3,8 @@ import { stripIndent } from 'common-tags';
 import stripAnsi = require('strip-ansi');
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { Project } from 'glint-monorepo-test-utils';
+import typescript from 'typescript';
+import semver from 'semver';
 
 describe('CLI: custom extensions', () => {
   let project!: Project;
@@ -120,5 +122,48 @@ describe('CLI: custom extensions', () => {
 
       await watch.terminate();
     });
+  });
+
+  describe('module resolution with explicit extensions', () => {
+    beforeEach(() => {
+      project.setGlintConfig({ environment: 'ember-template-imports' });
+      project.write({
+        'index.gts': stripIndent`
+          import Greeting from './Greeting.gts';
+          <template><Greeting /></template>
+        `,
+        'Greeting.gts': stripIndent`
+          <template>Hello!</template>
+        `,
+      });
+    });
+
+    test('is illegal by default', async () => {
+      let result = await project.check({ reject: false });
+
+      expect(result.exitCode).toBe(1);
+      expect(stripAnsi(result.stderr)).toMatchInlineSnapshot(`
+        "index.gts:1:22 - error TS2307: Cannot find module './Greeting.gts' or its corresponding type declarations.
+
+        1 import Greeting from './Greeting.gts';
+                               ~~~~~~~~~~~~~~~~
+        "
+      `);
+    });
+
+    test.runIf(semver.gte(typescript.version, '5.0.0'))(
+      'works with `allowImportingTsExtensions: true`',
+      async () => {
+        project.updateTsconfig((config) => {
+          config.compilerOptions ??= {};
+          config.compilerOptions['allowImportingTsExtensions'] = true;
+        });
+
+        let result = await project.check();
+
+        expect(result.exitCode).toBe(0);
+        expect(result.stderr).toBe('');
+      }
+    );
   });
 });

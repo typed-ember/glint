@@ -77,6 +77,8 @@ export default class GlintLanguageServer {
       fileExists: this.transformManager.fileExists,
       readFile: this.transformManager.readTransformedFile,
       readDirectory: this.transformManager.readDirectory,
+      // @ts-ignore: This hook was added in TS5, and is safely irrelevant in earlier versions. Once we drop support for 4.x, we can also remove this @ts-ignore comment.
+      resolveModuleNameLiterals: this.transformManager.resolveModuleNameLiterals,
       getCompilationSettings: () => parsedConfig.options,
       // Yes, this looks like a mismatch, but built-in lib declarations don't resolve
       // correctly otherwise, and this is what the TS wiki uses in their code snippet.
@@ -119,6 +121,9 @@ export default class GlintLanguageServer {
     if (filePath.startsWith(this.glintConfig.rootDir)) {
       this.rootFileNames.add(this.transformManager.getScriptPathForTS(filePath));
     }
+
+    // Adding or removing a file invalidates most of what we think we know about module resolution.
+    this.transformManager.moduleResolutionCache.clear();
   }
 
   public watchedFileDidChange(uri: string): void {
@@ -136,6 +141,9 @@ export default class GlintLanguageServer {
     if (!companionPath || this.glintConfig.getSynthesizedScriptPathForTS(companionPath) !== path) {
       this.rootFileNames.delete(this.glintConfig.getSynthesizedScriptPathForTS(path));
     }
+
+    // Adding or removing a file invalidates most of what we think we know about module resolution.
+    this.transformManager.moduleResolutionCache.clear();
   }
 
   public getDiagnostics(uri: string): Array<Diagnostic> {

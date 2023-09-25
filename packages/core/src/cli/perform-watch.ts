@@ -19,5 +19,8 @@ export function performWatch(glintConfig: GlintConfig, optionsToExtend: ts.Compi
     (diagnostic) => console.error(formatDiagnostic(diagnostic))
   );
 
+  // @ts-ignore: This hook was added in TS5, and is safely irrelevant in earlier versions. Once we drop support for 4.x, we can also remove this @ts-ignore comment.
+  host.resolveModuleNameLiterals = transformManager.resolveModuleNameLiterals;
+
   ts.createWatchProgram(host);
 }
