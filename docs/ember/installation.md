@@ -35,7 +35,27 @@ npm install -D @glint/core @glint/template @glint/environment-ember-loose
 
 {% endcode %}
 
-If you are using `ember-template-imports` in your project, you also need to install the `@glint/environment-ember-template-imports` package and configure it in `tsconfig.json` under `glint.environment`. 
+<details>
+
+<summary>Using ember-template-imports?</summary>
+
+If you are using `ember-template-imports` in your project, you also need to install the `@glint/environment-ember-template-imports` package and configure it in `tsconfig.json` under `glint.environment`:
+
+{% code title="tsconfig.json" %}
+```json
+{
+  "compilerOptions": { /* ... */ },
+  "glint": {
+    "environment": [
+      "ember-loose",
+      "ember-template-imports",
+    ]
+  }
+}
+```
+{% endcode %}
+
+</details>
 
 Note that, by default, Glint will assume you want it to analyze all templates in the codebase that are covered by your `tsconfig.json`. To ignore any type errors up front so that you can incrementally migrate your project to typesafe templates, consider using [the `auto-glint-nocheck` script](https://github.com/typed-ember/glint/tree/main/packages/scripts#auto-glint-nocheck) to add [`@glint-nocheck` comments](../directives.md#glint-nocheck) to your existing templates that would produce errors.
 
