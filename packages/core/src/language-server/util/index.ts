@@ -1,14 +1,14 @@
 export { positionToOffset, offsetToPosition } from './position.js';
 export { scriptElementKindToCompletionItemKind } from './protocol.js';
 
-import VSCodeURI from 'vscode-uri';
+import { URI } from 'vscode-uri';
 
 export function uriToFilePath(uri: string): string {
-  return VSCodeURI.URI.parse(uri).fsPath.replace(/\\/g, '/');
+  return URI.parse(uri).fsPath.replace(/\\/g, '/');
 }
 
 export function filePathToUri(filePath: string): string {
-  return VSCodeURI.URI.file(filePath).toString();
+  return URI.file(filePath).toString();
 }
 
 export function normalizeFilePath(filePath: string): string {
