@@ -2606,7 +2606,7 @@
     rimraf "^3.0.2"
     unzipper "^0.10.11"
 
-"@vscode/vsce@^2.21.1":
+"@vscode/vsce@^2.19.0":
   version "2.21.1"
   resolved "https://registry.yarnpkg.com/@vscode/vsce/-/vsce-2.21.1.tgz#793c78d992483b428611a3927211a9640041be14"
   integrity sha512-f45/aT+HTubfCU2oC7IaWnH9NjOWp668ML002QiFObFRVUCoLtcwepp9mmql/ArFUy+HCHp54Xrq4koTcOD6TA==
