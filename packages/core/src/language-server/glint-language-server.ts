@@ -565,48 +565,56 @@ export default class GlintLanguageServer {
 
   public getFoldingRanges(uri: string): FoldingRange[] {
     const filePath = uriToFilePath(uri);
-    const documentContents = this.documents.getDocumentContents(filePath);
-    const spans = this.service.getOutliningSpans(filePath);
 
-    let foldingRanges = [];
+    let foldingRanges: FoldingRange[] = [];
+    this.service.getOutliningSpans(filePath).forEach((outliningSpan, index) => {
+      const foldingRange = this.outliningSpanToFoldingRange(outliningSpan, filePath);
 
-    for (const span of spans) {
-      const foldingRange = this.asFoldingRange(span, documentContents);
-      if (foldingRange) {
-        foldingRanges.push(foldingRange);
+      if (
+        !foldingRange ||
+        (index > 0 && foldingRange.startLine === 0) ||
+        foldingRange.startLine === foldingRange.endLine
+      ) {
+        return;
       }
-    }
+
+      foldingRanges.push(foldingRange);
+    });
 
     return foldingRanges;
   }
 
-  private asFoldingRange(span: ts.OutliningSpan, fileContents: string): FoldingRange {
-    const start = offsetToPosition(fileContents, span.textSpan.start);
-    const end = offsetToPosition(fileContents, span.textSpan.start + span.textSpan.length);
-    const kind = this.asFoldingRangeKind(span);
+  private outliningSpanToFoldingRange(
+    span: ts.OutliningSpan,
+    fileName: string
+  ): FoldingRange | undefined {
+    // The OutliningSpan.textSpan's length is inclusive. This is a
+    // workaround for off-by-one & out-of-range errors caused by this.
+    span.textSpan.length = span.textSpan.length - 1;
+    const location = this.textSpanToLocation(fileName, span.textSpan);
 
-    // TODO: Implement this before opening a PR
-    // // workaround for https://github.com/Microsoft/vscode/issues/49904
-    // if (span.kind === 'comment') {
-    //   const line = document.getLine(range.start.line);
-    //   if (line.match(/\/\/\s*#endregion/gi)) {
-    //     return undefined;
-    //   }
-    // }
+    if (!location) {
+      return;
+    }
+
+    const { start, end } = location.range;
 
     // workaround for https://github.com/Microsoft/vscode/issues/47240
-    let lastCharOfSpan = fileContents[span.textSpan.start + span.textSpan.length - 1];
-    const endLine = lastCharOfSpan === '}' ? Math.max(end.line - 1, start.line) : end.line;
+    const originalContents = this.documents.getDocumentContents(fileName);
+    const originalEnd = positionToOffset(originalContents, end);
+    const lastCharOfSpan = originalContents[originalEnd];
 
     return {
       startLine: start.line,
-      endLine,
-      kind,
+      endLine: lastCharOfSpan === '}' ? Math.max(end.line - 1, start.line) : end.line,
+      kind: this.outliningSpanKindToFoldingRangeKind(span),
     };
   }
 
-  private asFoldingRangeKind(span: ts.OutliningSpan): FoldingRangeKind | undefined {
-    switch (span.kind) {
+  private outliningSpanKindToFoldingRangeKind(
+    outliningSpan: ts.OutliningSpan
+  ): FoldingRangeKind | undefined {
+    switch (outliningSpan.kind) {
       case 'comment':
         return FoldingRangeKind.Comment;
       case 'region':
