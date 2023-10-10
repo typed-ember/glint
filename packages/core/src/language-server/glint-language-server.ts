@@ -22,6 +22,8 @@ import {
   OptionalVersionedTextDocumentIdentifier,
   TextEdit,
   MarkupContent,
+  FoldingRange,
+  FoldingRangeKind,
 } from 'vscode-languageserver';
 import DocumentCache from '../common/document-cache.js';
 import { Position, positionToOffset } from './util/position.js';
@@ -559,6 +561,62 @@ export default class GlintLanguageServer {
     }
 
     return edits;
+  }
+
+  public getFoldingRanges(uri: string): FoldingRange[] {
+    const filePath = uriToFilePath(uri);
+    const documentContents = this.documents.getDocumentContents(filePath);
+    const spans = this.service.getOutliningSpans(filePath);
+
+    let foldingRanges = [];
+
+    for (const span of spans) {
+      const foldingRange = this.asFoldingRange(span, documentContents);
+      if (foldingRange) {
+        foldingRanges.push(foldingRange);
+      }
+    }
+
+    return foldingRanges;
+  }
+
+  private asFoldingRange(span: ts.OutliningSpan, fileContents: string): FoldingRange {
+    const start = offsetToPosition(fileContents, span.textSpan.start);
+    const end = offsetToPosition(fileContents, span.textSpan.start + span.textSpan.length);
+    const kind = this.asFoldingRangeKind(span);
+
+    // TODO: Implement this before opening a PR
+    // // workaround for https://github.com/Microsoft/vscode/issues/49904
+    // if (span.kind === 'comment') {
+    //   const line = document.getLine(range.start.line);
+    //   if (line.match(/\/\/\s*#endregion/gi)) {
+    //     return undefined;
+    //   }
+    // }
+
+    // workaround for https://github.com/Microsoft/vscode/issues/47240
+    let lastCharOfSpan = fileContents[span.textSpan.start + span.textSpan.length - 1];
+    const endLine = lastCharOfSpan === '}' ? Math.max(end.line - 1, start.line) : end.line;
+
+    return {
+      startLine: start.line,
+      endLine,
+      kind,
+    };
+  }
+
+  private asFoldingRangeKind(span: ts.OutliningSpan): FoldingRangeKind | undefined {
+    switch (span.kind) {
+      case 'comment':
+        return FoldingRangeKind.Comment;
+      case 'region':
+        return FoldingRangeKind.Region;
+      case 'imports':
+        return FoldingRangeKind.Imports;
+      case 'code':
+      default:
+        return undefined;
+    }
   }
 
   private applyCodeAction(
