@@ -71,7 +71,11 @@ function calculateCorrelatedSpans(
   let errors: Array<TransformError> = [];
   let partialSpans: Array<PartialCorrelatedSpan> = [];
 
-  let { ast, emitMetadata } = parseScript(ts, script, environment);
+  let { ast, emitMetadata, error } = parseScript(ts, script, environment);
+
+  if (error) {
+    errors.push({ message: error, location: { start: 0, end: 0 }, source: script });
+  }
 
   ts.transform(ast, [
     (context) =>
@@ -106,6 +110,7 @@ function calculateCorrelatedSpans(
 type ParseResult = {
   ast: ts.SourceFile;
   emitMetadata: WeakMap<ts.Node, GlintEmitMetadata>;
+  error?: string;
 };
 
 function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironment): ParseResult {
@@ -116,7 +121,31 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
     void emitMetadata.set(node, Object.assign(emitMetadata.get(node) ?? {}, data));
 
   let { preprocess, transform } = environment.getConfigForExtension(extension) ?? {};
-  let preprocessed = preprocess?.(contents, filename) ?? { contents };
+  let original: {
+    contents: string;
+    data?: {
+      // SAFETY: type exists elsewhere (the environments)
+      templateLocations: any[];
+    };
+  } = { contents, data: { templateLocations: [] } };
+  let preprocessed = original;
+  let error: string | undefined;
+
+  try {
+    preprocessed = preprocess?.(contents, filename) ?? original;
+  } catch (e) {
+    if (typeof e === 'object' && e !== null) {
+      // Parse Errors from the rust parser
+      if ('source_code' in e) {
+        // @ts-expect-error object / property narrowing isn't available until TS 5.1
+        error = e.source_code;
+      }
+    } else {
+      console.log(e);
+      error = `${e}`;
+    }
+  }
+
   let ast = ts.createSourceFile(
     filename,
     preprocessed.contents,
@@ -133,7 +162,7 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
     ast = transformed[0];
   }
 
-  return { ast, emitMetadata };
+  return { ast, emitMetadata, error };
 }
 
 /**

@@ -8,8 +8,6 @@ import { GLOBAL_TAG, PreprocessData, TemplateLocation } from './common';
 const TEMPLATE_START = `[${GLOBAL_TAG}\``;
 const TEMPLATE_END = '`]';
 
-// NOTE: This import is a lie -- We are not real ESM, and this is compiled to CJS.
-//       ESM usage would be different here, and this is the CJS version of content-tag.
 import { Preprocessor } from 'content-tag';
 const p = new Preprocessor();
 
