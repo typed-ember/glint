@@ -50,6 +50,10 @@
         "title": "Glint: Show IR for Debugging",
         "command": "glint.show-debug-ir",
         "enablement": "config.glint.debug == true"
+      },
+      {
+        "title": "Glint: Sort Imports",
+        "command": "glint.sort-imports"
       }
     ],
     "configuration": [

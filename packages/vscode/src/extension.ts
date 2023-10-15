@@ -11,9 +11,11 @@ import {
   commands,
   workspace,
   WorkspaceConfiguration,
+  WorkspaceEdit,
+  Position,
 } from 'vscode';
 import { Disposable, LanguageClient, ServerOptions } from 'vscode-languageclient/node.js';
-import type { Request, GetIRRequest } from '@glint/core/lsp-messages';
+import type { Request, GetIRRequest, SortImportsRequest } from '@glint/core/lsp-messages';
 
 ///////////////////////////////////////////////////////////////////////////////
 // Setup and extension lifecycle
@@ -29,6 +31,7 @@ export function activate(context: ExtensionContext): void {
   context.subscriptions.push(fileWatcher, createConfigWatcher());
   context.subscriptions.push(
     commands.registerCommand('glint.restart-language-server', restartClients),
+    commands.registerTextEditorCommand('glint.sort-imports', sortImports),
     commands.registerTextEditorCommand('glint.show-debug-ir', showDebugIR)
   );
 
@@ -55,6 +58,32 @@ export async function deactivate(): Promise<void> {
 async function restartClients(): Promise<void> {
   outputChannel.appendLine(`Restarting Glint language server...`);
   await Promise.all([...clients.values()].map((client) => client.restart()));
+}
+
+async function sortImports(editor: TextEditor): Promise<void> {
+  let workspaceFolder = workspace.getWorkspaceFolder(editor.document.uri);
+  if (!workspaceFolder) {
+    return;
+  }
+
+  let client = clients.get(workspaceFolder.uri.fsPath);
+  let request = requestKey<typeof SortImportsRequest>('glint/sortImports');
+  const edits = await client?.sendRequest(request, { uri: editor.document.uri.toString() });
+
+  if (!edits) {
+    return;
+  }
+
+  const workspaceEdit = new WorkspaceEdit();
+
+  for (const edit of edits) {
+    const start = new Position(edit.range.start.line, edit.range.start.character);
+    const end = new Position(edit.range.end.line, edit.range.end.character);
+    const range = new Range(start, end);
+    workspaceEdit.replace(editor.document.uri, range, edit.newText);
+  }
+
+  workspace.applyEdit(workspaceEdit);
 }
 
 async function showDebugIR(editor: TextEditor): Promise<void> {

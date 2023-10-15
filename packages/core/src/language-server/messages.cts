@@ -1,4 +1,4 @@
-import { ProtocolRequestType } from 'vscode-languageserver';
+import { ProtocolRequestType, TextEdit } from 'vscode-languageserver';
 
 export type Request<Name extends string, T> = {
   name: Name;
@@ -7,10 +7,15 @@ export type Request<Name extends string, T> = {
 
 export const GetIRRequest = makeRequestType(
   'glint/getIR',
-  ProtocolRequestType<GetIRParams, GetIRResult | null, void, void, void>
+  ProtocolRequestType<RequestParams, GetIRResult | null, void, void, void>
 );
 
-export interface GetIRParams {
+export const SortImportsRequest = makeRequestType(
+  'glint/sortImports',
+  ProtocolRequestType<RequestParams, TextEdit[] | null, void, void, void>
+);
+
+export interface RequestParams {
   uri: string;
 }
 

@@ -416,6 +416,45 @@ export default class GlintLanguageServer {
     return this.glintConfig.environment.isTypedScript(file) ? 'typescript' : 'javascript';
   }
 
+  public organizeImports(
+    uri: string,
+    formatOptions: ts.FormatCodeSettings = {},
+    preferences: ts.UserPreferences = {}
+  ): TextEdit[] {
+    const transformInfo = this.transformManager.findTransformInfoForOriginalFile(
+      uriToFilePath(uri)
+    );
+
+    if (!transformInfo) {
+      return [];
+    }
+
+    const fileTextChanges = this.service.organizeImports(
+      {
+        type: 'file',
+        fileName: transformInfo.transformedFileName,
+        skipDestructiveCodeActions: true,
+      },
+      formatOptions,
+      preferences
+    );
+    const edits: TextEdit[] = [];
+
+    for (const fileTextChange of fileTextChanges) {
+      for (const textChange of fileTextChange.textChanges) {
+        const location = this.textSpanToLocation(fileTextChange.fileName, textChange.span);
+        if (location) {
+          edits.push({
+            range: location.range,
+            newText: textChange.newText,
+          });
+        }
+      }
+    }
+
+    return edits;
+  }
+
   private applyCodeAction(
     uri: string,
     range: Range,
