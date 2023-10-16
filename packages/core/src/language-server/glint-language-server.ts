@@ -59,6 +59,8 @@ export default class GlintLanguageServer {
     private documents: DocumentCache,
     private transformManager: TransformManager
   ) {
+    console.log('Glint starting...');
+
     let parsedConfig = this.parseTsconfig(glintConfig, transformManager);
 
     this.ts = glintConfig.ts;
@@ -94,6 +96,7 @@ export default class GlintLanguageServer {
 
     // Kickstart typechecking
     this.service.getProgram();
+    console.log('Glint started');
   }
 
   public dispose(): void {

@@ -70,11 +70,31 @@ function calculateCorrelatedSpans(
   let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
   let partialSpans: Array<PartialCorrelatedSpan> = [];
-
   let { ast, emitMetadata, error } = parseScript(ts, script, environment);
 
   if (error) {
-    errors.push({ message: error, location: { start: 0, end: 0 }, source: script });
+    if (typeof error === 'string') {
+      errors.push({ message: error, location: { start: 0, end: script.contents.length - 1 }, source: script });
+    } else if ('raw' in error) {
+      // these lines exclude the line with the error, because
+      // adding the column offset will get us on to the line with the error
+      let lines = script.contents.split('\n').slice(0, error.line);
+      let start = lines.reduce((sum, line) => sum + line.length, 0) + error.column - 1;
+      let end = start + 1;
+
+      errors.push({
+        message: error.message + '\n' + error.help,
+        source: script,
+        location: {
+          start,
+          end,
+        }
+      })
+    }
+
+    // We've hit a parsing error, so we need to immediately return as the parsed
+    // document must be correct before we can continue.
+    return { errors, directives, partialSpans };
   }
 
   ts.transform(ast, [
@@ -107,10 +127,19 @@ function calculateCorrelatedSpans(
   return { errors, directives, partialSpans };
 }
 
+type ParseError = string | { 
+  message: string; 
+  line: number; 
+  column: number; 
+  file: string; 
+  help: string;
+  raw: string;
+};
+
 type ParseResult = {
   ast: ts.SourceFile;
   emitMetadata: WeakMap<ts.Node, GlintEmitMetadata>;
-  error?: string;
+  error?: ParseError;
 };
 
 function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironment): ParseResult {
@@ -129,7 +158,7 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
     };
   } = { contents, data: { templateLocations: [] } };
   let preprocessed = original;
-  let error: string | undefined;
+  let error: ParseError | undefined;
 
   try {
     preprocessed = preprocess?.(contents, filename) ?? original;
@@ -137,11 +166,42 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
     if (typeof e === 'object' && e !== null) {
       // Parse Errors from the rust parser
       if ('source_code' in e) {
+        // We remove the blank links in the error because swc
+        // pads errors with a leading and trailing blank line.
+        // the error is typically meant for the terminal, so making it
+        // stand out a bit more is a good, but that's more a presentation
+        // concern than just pure error information (which is what we need).
         // @ts-expect-error object / property narrowing isn't available until TS 5.1
-        error = e.source_code;
+        let lines = e.source_code.split('\n').filter(Boolean);
+        // Example:
+        // '  × Unexpected eof'
+        // '   ╭─[/home/nullvoxpopuli/Development/OpenSource/glint/test-packages/ts-template-imports-app/src/index.gts:6:1]'
+        // ' 6 │ '
+        // ' 7 │ export const X = <tem'
+        // '   ╰────'
+        let raw = lines.join('\n');
+        let message = lines[0].replace('×', '').trim();
+        let info = lines[1];
+        // a filename may have numbers in it, so we want to remove the filename
+        // before regex searching for numbers at the end of this line
+        let strippedInfo = info.replace(filename, '');
+        let matches = [...strippedInfo.matchAll(/\d+/g)];
+        let line = parseInt(matches[0][0], 10);
+        let column = parseInt(matches[1][0], 10);
+        let help = lines.slice(1).join('\n');
+
+        error = {
+          raw,
+          message,
+          line,
+          column,
+          file: filename,
+          help,
+        }
+      } else {
+        error = `${e}`;
       }
     } else {
-      console.log(e);
       error = `${e}`;
     }
   }

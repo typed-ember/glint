@@ -63,7 +63,11 @@ export default class TransformManager {
   ): ReadonlyArray<ts.Diagnostic> {
     let unusedExpectErrors = new Set(this.getExpectErrorDirectives(fileName));
     let allDiagnostics = [];
+
     for (let diagnostic of diagnostics) {
+      if (diagnostic.messageText === `Cannot find name 'template'`) {
+        continue;
+      }
       let { rewrittenDiagnostic, appliedDirective } = this.rewriteDiagnostic(diagnostic);
       if (rewrittenDiagnostic) {
         allDiagnostics.push(rewrittenDiagnostic);
@@ -84,6 +88,15 @@ export default class TransformManager {
         )
       );
     }
+
+    // When we have syntax errors we get _too many errors_
+    // if we have an issue with <template> tranformation, we should 
+    // make the user fix their syntax before revealing all the other errors.
+    let glint = allDiagnostics.filter((diagnostic) => 'isGlintTransformDiagnostic' in diagnostic);
+    if (glint.length) {
+      return this.ts.sortAndDeduplicateDiagnostics(glint);
+    }
+
 
     return this.ts.sortAndDeduplicateDiagnostics(allDiagnostics);
   }
