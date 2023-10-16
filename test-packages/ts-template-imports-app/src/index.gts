@@ -1,2 +1,5 @@
-2=;
-export const Y = <template></template>;
+import Greeting from './Greeting';
+
+export default <template>
+  <Greeting @target="World" />
+</template>
