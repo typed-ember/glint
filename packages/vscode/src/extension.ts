@@ -12,7 +12,6 @@ import {
   workspace,
   WorkspaceConfiguration,
   WorkspaceEdit,
-  Position,
 } from 'vscode';
 import { Disposable, LanguageClient, ServerOptions } from 'vscode-languageclient/node.js';
 import type { Request, GetIRRequest, SortImportsRequest } from '@glint/core/lsp-messages';
@@ -61,7 +60,7 @@ async function restartClients(): Promise<void> {
 }
 
 async function sortImports(editor: TextEditor): Promise<void> {
-  let workspaceFolder = workspace.getWorkspaceFolder(editor.document.uri);
+  const workspaceFolder = workspace.getWorkspaceFolder(editor.document.uri);
   if (!workspaceFolder) {
     return;
   }
@@ -77,9 +76,12 @@ async function sortImports(editor: TextEditor): Promise<void> {
   const workspaceEdit = new WorkspaceEdit();
 
   for (const edit of edits) {
-    const start = new Position(edit.range.start.line, edit.range.start.character);
-    const end = new Position(edit.range.end.line, edit.range.end.character);
-    const range = new Range(start, end);
+    const range = new Range(
+      edit.range.start.line,
+      edit.range.start.character,
+      edit.range.end.line,
+      edit.range.end.character
+    );
     workspaceEdit.replace(editor.document.uri, range, edit.newText);
   }
 
