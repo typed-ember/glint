@@ -7,15 +7,15 @@ export type Request<Name extends string, T> = {
 
 export const GetIRRequest = makeRequestType(
   'glint/getIR',
-  ProtocolRequestType<RequestParams, GetIRResult | null, void, void, void>
+  ProtocolRequestType<GetIRParams, GetIRResult | null, void, void, void>
 );
 
 export const SortImportsRequest = makeRequestType(
   'glint/sortImports',
-  ProtocolRequestType<RequestParams, TextEdit[] | null, void, void, void>
+  ProtocolRequestType<SortImportsParams, SortImportsResult | null, void, void, void>
 );
 
-export interface RequestParams {
+export interface GetIRParams {
   uri: string;
 }
 
@@ -23,6 +23,12 @@ export interface GetIRResult {
   contents: string;
   uri: string;
 }
+
+export interface SortImportsParams {
+  uri: string;
+}
+
+export type SortImportsResult = TextEdit[];
 
 // This utility allows us to encode type information to enforce that we're using
 // a valid request name along with its associated param/response types without
