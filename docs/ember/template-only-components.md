@@ -28,6 +28,8 @@ Note that the runtime content of this module (effectively `export default templa
 
 Additionally, you can create a backing module using the `TOC` type, which is a convenience alias for `templateOnlyComponent`.
 
+{% code title="app/components/shout.ts" %}
+
 ```typescript
 import type { TOC } From '@ember/component/template-only';
 
@@ -42,6 +44,8 @@ interface ShoutSignature {
 declare const Shout: TOC<ShoutSignature>;
 export default Shout;
 ```
+
+{% endcode %}
 
 Due to the way TypeScript works, it's not possible to have a generic signature for template-only components:
 
