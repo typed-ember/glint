@@ -181,8 +181,10 @@ export class Project {
     });
   }
 
-  public watch(options?: Options): Watch {
-    return new Watch(this.check({ ...options, flags: ['--watch'], reject: false }));
+  public watch(options: Options & { flags?: string[] } = {}): Watch {
+    let watchFlag = ['--watch'];
+    let flags = options.flags ? watchFlag.concat(options.flags) : watchFlag;
+    return new Watch(this.check({ ...options, flags, reject: false }));
   }
 
   public build(options: Options & { flags?: string[] } = {}, debug = false): ExecaChildProcess {
@@ -195,13 +197,20 @@ export class Project {
     });
   }
 
-  public buildWatch(options: Options = {}): Watch {
-    return new Watch(this.build({ ...options, flags: ['--watch'], reject: false }));
+  public buildWatch(options: Options & { flags?: string[] } = {}): Watch {
+    let watchFlag = ['--watch'];
+    let flags = options.flags ? watchFlag.concat(options.flags) : watchFlag;
+    return new Watch(this.build({ ...options, flags, reject: false }));
   }
 }
 
 class Watch {
-  public constructor(private process: ExecaChildProcess) {}
+  allOutput = '';
+
+  public constructor(private process: ExecaChildProcess) {
+    this.process.stdout?.on('data', this.collectAllOutput);
+    this.process.stderr?.on('data', this.collectAllOutput);
+  }
 
   public awaitOutput(target: string, { timeout = 20_000 } = {}): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -236,7 +245,13 @@ class Watch {
     });
   }
 
+  private collectAllOutput = (chunk: any): void => {
+    this.allOutput += chunk.toString();
+  };
+
   public terminate(): ExecaChildProcess {
+    this.process.stdout?.off('data', this.collectAllOutput);
+    this.process.stderr?.off('data', this.collectAllOutput);
     this.process.kill();
     return this.process;
   }
