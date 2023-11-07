@@ -39,7 +39,7 @@ npm install -D @glint/core @glint/template @glint/environment-ember-loose
 
 Using `ember-template-imports`? See [Ember: Template Imports][etii] for additional installation steps.
 
-[etii]: ../ember/installation.md#installation
+[etii]: ../ember/template-imports.md#installation
 
 {% endhint %}
 
