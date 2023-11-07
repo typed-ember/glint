@@ -1,6 +1,6 @@
 import { rewriteModule, TransformedModule, rewriteDiagnostic } from '../../src/transform/index.js';
 import { stripIndent } from 'common-tags';
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { Range, SourceFile } from '../../src/transform/template/transformed-module.js';
 import * as ts from 'typescript';
 import { assert } from '../../src/transform/util.js';
@@ -464,7 +464,12 @@ describe('Transform: Source-to-source offset mapping', () => {
       `,
     };
 
-    const rewritten = rewriteModule(ts, { script: source }, glimmerxEnvironment)!;
+    let rewritten;
+
+    beforeEach(() => {
+      rewritten = rewriteModule(ts, { script: source }, glimmerxEnvironment)!;
+    });
+
 
     test('bounds that cross a rewritten span', () => {
       let originalStart = source.contents.indexOf('// start');
@@ -524,8 +529,12 @@ describe('Diagnostic offset mapping', () => {
     `,
   };
 
-  const transformedModule = rewriteModule(ts, { script: source }, glimmerxEnvironment);
-  assert(transformedModule);
+  let transformedModule;
+
+  beforeEach(() => {
+    transformedModule = rewriteModule(ts, { script: source }, glimmerxEnvironment);
+    assert(transformedModule);
+  });
 
   test('without related information', () => {
     let category = ts.DiagnosticCategory.Error;

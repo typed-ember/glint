@@ -124,6 +124,7 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
     true // setParentNodes
   );
 
+  // transformations from environment plugins
   if (transform) {
     let { transformed } = ts.transform(ast, [
       (context) => transform!(preprocessed.data, { ts, context, setEmitMetadata }),
@@ -133,7 +134,58 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
     ast = transformed[0];
   }
 
+  ast = removeExtensions(ts, ast);
+
   return { ast, emitMetadata };
+}
+
+// transformations to handle extensions present in import specifiers
+// because we drop the extensions elsewhere so that plain .d.ts files are emitted.
+//
+// Note that these examples do not guarantee that transpilation would succeed.
+// This transform is purely concerned about resolving type declarations.
+//
+// import { X } from 'foo.gts'; 
+//    => implies a foo.d.ts exists, rather than foo.gts.d.ts, as Svelte does
+//       as Svelte would (tho, they have only one file type for both js and ts 
+//       (foo.svelte => foo.svelte.d.ts))
+// import { X } from 'foo.gjs'; 
+//    => implies a foo.d.ts exists, rather than foo.gjs.d.ts, 
+//       as Svelte would (tho, they have only one file type for both js and ts
+//       (foo.svelte => foo.svelte.d.ts))
+// import { X } from 'foo';
+//    => no change, this is default behavior, implies a foo.d.ts exists
+// import { X } from 'foo.js';
+//    => no change, this is default behavior, implies a foo.d.ts exists
+// import { X } from 'foo.ts';
+//    => no change, this is default behavior, implies a foo.d.ts exists
+function removeExtensions(ts: TSLib, ast: ts.SourceFile): ts.SourceFile {
+  let { transformed } = ts.transform(ast, [
+    (context) => 
+      function visit<T extends ts.Node>(node: T): T {
+        if (ts.isImportDeclaration(node)) {
+          
+          // types are missing
+          let specifier: any = node.moduleSpecifier;
+          let _ts: any = ts;
+          if (_ts.isModuleSpecifierLike) {
+            if (_ts.isModuleSpecifierLike(specifier) && specifier.text.endsWith('.gts')) {
+              return _ts.factory.createImportDeclaration(
+                node.modifiers,
+                node.importClause,
+                _ts.factory.createStringLiteral(specifier.text.replace(/\.gts$/, ''))
+              );
+            }
+          }
+        }
+
+        return ts.visitEachChild(node, child => visit(child), context);
+      }
+  ]);
+
+  ast = transformed[0];
+
+  return ast;
 }
 
 /**

@@ -438,9 +438,23 @@ export default class TransformManager {
           };
 
           transformedModule = rewriteModule(this.ts, { script, template }, glintConfig.environment);
+        } else {
+            let candidates = documents.getCandidateDocumentPaths(filename);
+            for (let candidate of candidates) {
+              if (documents.documentExists(candidate)) {
+                let contents = documents.getDocumentContents(filename, encoding);
+                let canonicalPath = documents.getCanonicalDocumentPath(filename);
+                let script = { filename: canonicalPath, contents };
+                let template = undefined;
+          
+                transformedModule = rewriteModule(this.ts, { script, template }, environment);
+              }
+            }
+
         }
       }
     }
+
 
     let transformedFileName = glintConfig.getSynthesizedScriptPathForTS(filename);
     let cacheEntry = { version, transformedFileName, transformedModule };

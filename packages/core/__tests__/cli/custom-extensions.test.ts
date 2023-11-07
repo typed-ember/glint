@@ -185,9 +185,14 @@ describe('CLI: custom extensions', () => {
         let emitResult = await project.check({ flags: ['--declaration'] });
 
         expect(emitResult.exitCode).toBe(0);
-
+        
         expect(project.read('re-export.d.ts')).toMatchInlineSnapshot(`
           "export { default as Greeting } from './Greeting';
+          "
+        `);
+        expect(project.read('./Greeting.d.ts')).toMatchInlineSnapshot(`
+          "declare const _default: import(\\"@ember/component/template-only\\").TemplateOnlyComponent<never> & (abstract new () => import(\\"@glint/template/-private/integration\\").InvokableInstance<() => import(\\"@glint/template/-private/integration\\").ComponentReturn<{}>> & import(\\"@glint/template/-private/integration\\").HasContext<import(\\"@glint/template/-private/integration\\").TemplateContext<void, {}, {}, void>>);
+          export default _default;
           "
         `);
       }
