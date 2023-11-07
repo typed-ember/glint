@@ -28,7 +28,7 @@ Note that the runtime content of this module (effectively `export default templa
 
 {% hint style="info" %}
 
-Using `ember-template-imports`? See [Ember: Template Imports][etitoc] on how to create a backing module for a template-import template-only component.
+Using `ember-template-imports`? See [Ember: Template Imports][etitoc] on how to declare types for a `<template>`-only component.
 
 [etitoc]: ../ember/template-imports.md#template-only-components
 {% endhint %}
