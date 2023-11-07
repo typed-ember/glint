@@ -135,6 +135,9 @@ describe('CLI: custom extensions', () => {
         'Greeting.gts': stripIndent`
           <template>Hello!</template>
         `,
+        're-export.gts': stripIndent`
+          export { default as Greeting } from './Greeting.gts';
+        `,
       });
     });
 
@@ -147,6 +150,11 @@ describe('CLI: custom extensions', () => {
 
         1 import Greeting from './Greeting.gts';
                                ~~~~~~~~~~~~~~~~
+
+        re-export.gts:1:37 - error TS2307: Cannot find module './Greeting.gts' or its corresponding type declarations.
+
+        1 export { default as Greeting } from './Greeting.gts';
+                                              ~~~~~~~~~~~~~~~~
         "
       `);
     });
@@ -163,6 +171,25 @@ describe('CLI: custom extensions', () => {
 
         expect(result.exitCode).toBe(0);
         expect(result.stderr).toBe('');
+      }
+    );
+
+    test.runIf(semver.gte(typescript.version, '5.0.0'))(
+      'declarations work with `allowImportingTsExtensions: true`',
+      async () => {
+        project.updateTsconfig((config) => {
+          config.compilerOptions ??= {};
+          config.compilerOptions['allowImportingTsExtensions'] = true;
+        });
+
+        let emitResult = await project.check({ flags: ['--declaration'] });
+
+        expect(emitResult.exitCode).toBe(0);
+
+        expect(project.read('re-export.d.ts')).toMatchInlineSnapshot(`
+          "export { default as Greeting } from './Greeting';
+          "
+        `);
       }
     );
   });
