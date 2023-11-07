@@ -45,7 +45,7 @@ import '@glint/environment-ember-template-imports';
 
 ## Template-Only Components
 
-When using `ember-template-imports`, you can define a backing module using the `TOC` type:
+When using `ember-template-imports`, you can declare the type of a `<template>` component using the `TOC` type:
 
 {% code title="app/components/shout.gts %}
 
