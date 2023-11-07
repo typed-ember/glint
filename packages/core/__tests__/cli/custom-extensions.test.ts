@@ -138,6 +138,12 @@ describe('CLI: custom extensions', () => {
         're-export.gts': stripIndent`
           export { default as Greeting } from './Greeting.gts';
         `,
+        'vanilla.ts': 'export const two = 2;',
+        'barrel.ts': stripIndent`
+          export { default as Greeting } from './Greeting.gts';
+          export { Greeting as Greeting2 } from './re-export.gts';
+          export { two } from './vanilla.ts';
+        `
       });
     });
 
@@ -188,6 +194,12 @@ describe('CLI: custom extensions', () => {
         
         expect(project.read('re-export.d.ts')).toMatchInlineSnapshot(`
           "export { default as Greeting } from './Greeting';
+          "
+        `);
+        expect(project.read('barrel.d.ts')).toMatchInlineSnapshot(`
+          "export { default as Greeting } from './Greeting';
+          export { Greeting as Greeting2 } from './re-export';
+          export { two } from './vanilla';
           "
         `);
         expect(project.read('./Greeting.d.ts')).toMatchInlineSnapshot(`
