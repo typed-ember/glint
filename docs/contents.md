@@ -23,6 +23,7 @@
   * [Rendering Tests](ember/rendering-tests.md)
   * [Using Addons](ember/using-addons.md)
   * [Authoring Addons](ember/authoring-addons.md)
+  * [Template Imports](ember/template-imports.md)
 * [GlimmerX](using-glint/glimmerx/README.md)
   * [Installation](glimmerx/installation.md)
   * [Component Signatures](glimmerx/component-signatures.md)
