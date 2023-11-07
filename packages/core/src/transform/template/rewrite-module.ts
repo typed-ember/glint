@@ -161,8 +161,10 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
 //    => for the 3 above,
 //    => no change, this is default behavior, implies a foo.d.ts exists
 function removeExtensions(ts: TSLib, ast: ts.SourceFile): ts.SourceFile {
-  function isRelevantImport(text: string): boolean {
-    return text.endsWith('.gts') || text.endsWith('.gjs');
+  function isRelevantImport(specifier: { text: string }): boolean {
+    if (!specifier.text) return false;
+
+    return /\.g?(t|j)s$/.test(specifier?.text);
   }
 
   let { transformed } = ts.transform(ast, [
@@ -171,13 +173,13 @@ function removeExtensions(ts: TSLib, ast: ts.SourceFile): ts.SourceFile {
         if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
           let specifier: any = node.moduleSpecifier;
 
-          if (!isRelevantImport(specifier?.getText?.())) return node;
+          if (!isRelevantImport(specifier)) return node;
 
           if ('importClause' in node) {
             return ts.factory.createImportDeclaration(
               node.modifiers,
               node.importClause,
-              ts.factory.createStringLiteral(specifier.text.replace(/\.g(t|j)s$/, '')),
+              ts.factory.createStringLiteral(specifier.text.replace(/\.g?(t|j)s$/, '')),
               node.assertClause
             ) as unknown as T;
           }
@@ -187,7 +189,7 @@ function removeExtensions(ts: TSLib, ast: ts.SourceFile): ts.SourceFile {
               node.modifiers,
               node.isTypeOnly,
               node.exportClause,
-              ts.factory.createStringLiteral(specifier.text.replace(/\.g(t|j)s$/, ''))
+              ts.factory.createStringLiteral(specifier.text.replace(/\.g?(t|j)s$/, ''))
             ) as unknown as T;
           }
         }
