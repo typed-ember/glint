@@ -42,3 +42,30 @@ import '@glint/environment-ember-template-imports';
 ```
 
 {% endcode %}
+
+## Template-Only Components
+
+When using `ember-template-imports`, you can define a backing module using the `TOC` type:
+
+{% code title="app/components/shout.gts %}
+
+```typescript
+import type { TOC } From '@ember/component/template-only';
+
+interface ShoutSignature {
+  Element: HTMLDivElement;
+  Args: { message: string };
+  Blocks: {
+    default: [shoutedMessage: string];
+  };
+}
+
+const Shout: TOC<ShoutSignature> = <template>
+    <div ...attributes>
+        {{yield (uppercase this.args.message)}}
+    </div>
+</template>;
+export default Shout;
+```
+
+{% endcode %}
