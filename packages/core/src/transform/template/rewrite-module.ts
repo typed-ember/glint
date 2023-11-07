@@ -146,37 +146,51 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
 // This transform is purely concerned about resolving type declarations.
 //
 // import { X } from 'foo.gts'; 
-//    => implies a foo.d.ts exists, rather than foo.gts.d.ts, as Svelte does
-//       as Svelte would (tho, they have only one file type for both js and ts 
-//       (foo.svelte => foo.svelte.d.ts))
 // import { X } from 'foo.gjs'; 
+//    => for both above,
 //    => implies a foo.d.ts exists, rather than foo.gjs.d.ts, 
 //       as Svelte would (tho, they have only one file type for both js and ts
 //       (foo.svelte => foo.svelte.d.ts))
+//       tbf, svelte's approach is similar to treating these files as not 
+//       having extensions at all, and using gts/gjs (or .svelte in their case)
+//       as just part of the file name.
+//
 // import { X } from 'foo';
-//    => no change, this is default behavior, implies a foo.d.ts exists
 // import { X } from 'foo.js';
-//    => no change, this is default behavior, implies a foo.d.ts exists
 // import { X } from 'foo.ts';
+//    => for the 3 above,
 //    => no change, this is default behavior, implies a foo.d.ts exists
 function removeExtensions(ts: TSLib, ast: ts.SourceFile): ts.SourceFile {
+  function isRelevantImport(text: string): boolean {
+    return text.endsWith('.gts') || text.endsWith('.gjs');
+  }
+
   let { transformed } = ts.transform(ast, [
     (context) => 
       function visit<T extends ts.Node>(node: T): T {
-        if (ts.isImportDeclaration(node)) {
+        if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
           
-          // types are missing
           let specifier: any = node.moduleSpecifier;
-          let _ts: any = ts;
-          if (_ts.isModuleSpecifierLike) {
-            if (_ts.isModuleSpecifierLike(specifier) && specifier.text.endsWith('.gts')) {
-              return _ts.factory.createImportDeclaration(
-                node.modifiers,
-                node.importClause,
-                _ts.factory.createStringLiteral(specifier.text.replace(/\.gts$/, ''))
-              );
-            }
+
+          if (!isRelevantImport(specifier?.getText?.())) return node;
+
+          if ('importClause' in node) {
+            return ts.factory.createImportDeclaration(
+              node.modifiers,
+              node.importClause,
+              ts.factory.createStringLiteral(specifier.text.replace(/\.g(t|j)s$/, '')),
+              node.assertClause
+            ) as unknown as T;
           }
+
+          if ('exportClause' in node) {
+            return ts.factory.createExportDeclaration(
+              node.modifiers,
+              node.isTypeOnly,
+              node.exportClause,
+              ts.factory.createStringLiteral(specifier.text.replace(/\.g(t|j)s$/, ''))
+            ) as unknown as T;
+           }
         }
 
         return ts.visitEachChild(node, child => visit(child), context);
