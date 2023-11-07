@@ -35,27 +35,13 @@ npm install -D @glint/core @glint/template @glint/environment-ember-loose
 
 {% endcode %}
 
-<details>
+{% hint style="info" %}
 
-<summary>Using ember-template-imports?</summary>
+Using `ember-template-imports`? See [Ember: Template Imports][etii] for additional installation steps.
 
-If you are using `ember-template-imports` in your project, you also need to install the `@glint/environment-ember-template-imports` package and configure it in `tsconfig.json` under `glint.environment`:
+[etii]: ../ember/installation.md#installation
 
-{% code title="tsconfig.json" %}
-```json
-{
-  "compilerOptions": { /* ... */ },
-  "glint": {
-    "environment": [
-      "ember-loose",
-      "ember-template-imports",
-    ]
-  }
-}
-```
-{% endcode %}
-
-</details>
+{% endhint %}
 
 Note that, by default, Glint will assume you want it to analyze all templates in the codebase that are covered by your `tsconfig.json`. To ignore any type errors up front so that you can incrementally migrate your project to typesafe templates, consider using [the `auto-glint-nocheck` script](https://github.com/typed-ember/glint/tree/main/packages/scripts#auto-glint-nocheck) to add [`@glint-nocheck` comments](../directives.md#glint-nocheck) to your existing templates that would produce errors.
 
@@ -63,12 +49,6 @@ Finally, ensure you've added the following statement somewhere in your project's
 
 ```typescript
 import '@glint/environment-ember-loose';
-```
-
-If using `ember-template-imports`, add a corresponding line for that environment as well:
-
-```typescript
-import '@glint/environment-ember-template-imports';
 ```
 
 You may also choose to disable TypeScript's "unused symbol" warnings in your editor, since Glint will flag any symbols that are actually unused, while `tsserver` won't understand any symbol usage that only occurs in templates.
