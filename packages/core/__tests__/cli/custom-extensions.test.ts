@@ -157,6 +157,21 @@ describe('CLI: custom extensions', () => {
         1 import Greeting from './Greeting.gts';
                                ~~~~~~~~~~~~~~~~
 
+        barrel.ts:1:37 - error TS2307: Cannot find module './Greeting.gts' or its corresponding type declarations.
+
+        1 export { default as Greeting } from './Greeting.gts';
+                                              ~~~~~~~~~~~~~~~~
+
+        barrel.ts:2:39 - error TS2307: Cannot find module './re-export.gts' or its corresponding type declarations.
+
+        2 export { Greeting as Greeting2 } from './re-export.gts';
+                                                ~~~~~~~~~~~~~~~~~
+
+        barrel.ts:3:21 - error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+
+        3 export { two } from './vanilla.ts';
+                              ~~~~~~~~~~~~~~
+
         re-export.gts:1:37 - error TS2307: Cannot find module './Greeting.gts' or its corresponding type declarations.
 
         1 export { default as Greeting } from './Greeting.gts';
