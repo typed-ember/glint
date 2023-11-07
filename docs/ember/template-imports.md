@@ -1,5 +1,3 @@
-If you're adding Glint into a project that uses `ember-template-imports`, there are several key factors to keep in mind.
-
 ## Installation
 
 In addition to the `@glint/core`, `@glint/template` and `@glint/environment-ember-loose` packages, you also need to install the `@glint/environment-ember-template-imports` package and configure it in `tsconfig.json` under `glint.environment`:
