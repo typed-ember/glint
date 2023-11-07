@@ -64,7 +64,7 @@ louderPlease = (message: string) => message.toUpperCase();
 
 const Shout: TOC<ShoutSignature> = <template>
     <div ...attributes>
-        {{yield (louderPlease this.args.message)}}
+        {{yield (louderPlease @message)}}
     </div>
 </template>;
 export default Shout;
