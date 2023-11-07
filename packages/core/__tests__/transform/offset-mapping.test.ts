@@ -470,7 +470,6 @@ describe('Transform: Source-to-source offset mapping', () => {
       rewritten = rewriteModule(ts, { script: source }, glimmerxEnvironment)!;
     });
 
-
     test('bounds that cross a rewritten span', () => {
       let originalStart = source.contents.indexOf('// start');
       let originalEnd = source.contents.indexOf('// end');

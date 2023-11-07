@@ -442,7 +442,6 @@ export default class TransformManager {
       }
     }
 
-
     let transformedFileName = glintConfig.getSynthesizedScriptPathForTS(filename);
     let cacheEntry = { version, transformedFileName, transformedModule };
     this.transformCache.set(documentID, cacheEntry);

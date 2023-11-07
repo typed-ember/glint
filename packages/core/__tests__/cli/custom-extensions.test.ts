@@ -143,7 +143,7 @@ describe('CLI: custom extensions', () => {
           export { default as Greeting } from './Greeting.gts';
           export { Greeting as Greeting2 } from './re-export.gts';
           export { two } from './vanilla.ts';
-        `
+        `,
       });
     });
 
@@ -191,7 +191,7 @@ describe('CLI: custom extensions', () => {
         let emitResult = await project.check({ flags: ['--declaration'] });
 
         expect(emitResult.exitCode).toBe(0);
-        
+
         expect(project.read('re-export.d.ts')).toMatchInlineSnapshot(`
           "export { default as Greeting } from './Greeting';
           "

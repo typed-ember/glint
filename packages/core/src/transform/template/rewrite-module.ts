@@ -145,13 +145,13 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
 // Note that these examples do not guarantee that transpilation would succeed.
 // This transform is purely concerned about resolving type declarations.
 //
-// import { X } from 'foo.gts'; 
-// import { X } from 'foo.gjs'; 
+// import { X } from 'foo.gts';
+// import { X } from 'foo.gjs';
 //    => for both above,
-//    => implies a foo.d.ts exists, rather than foo.gjs.d.ts, 
+//    => implies a foo.d.ts exists, rather than foo.gjs.d.ts,
 //       as Svelte would (tho, they have only one file type for both js and ts
 //       (foo.svelte => foo.svelte.d.ts))
-//       tbf, svelte's approach is similar to treating these files as not 
+//       tbf, svelte's approach is similar to treating these files as not
 //       having extensions at all, and using gts/gjs (or .svelte in their case)
 //       as just part of the file name.
 //
@@ -166,10 +166,9 @@ function removeExtensions(ts: TSLib, ast: ts.SourceFile): ts.SourceFile {
   }
 
   let { transformed } = ts.transform(ast, [
-    (context) => 
+    (context) =>
       function visit<T extends ts.Node>(node: T): T {
         if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
-          
           let specifier: any = node.moduleSpecifier;
 
           if (!isRelevantImport(specifier?.getText?.())) return node;
@@ -190,11 +189,11 @@ function removeExtensions(ts: TSLib, ast: ts.SourceFile): ts.SourceFile {
               node.exportClause,
               ts.factory.createStringLiteral(specifier.text.replace(/\.g(t|j)s$/, ''))
             ) as unknown as T;
-           }
+          }
         }
 
-        return ts.visitEachChild(node, child => visit(child), context);
-      }
+        return ts.visitEachChild(node, (child) => visit(child), context);
+      },
   ]);
 
   ast = transformed[0];
