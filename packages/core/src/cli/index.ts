@@ -25,6 +25,12 @@ const argv = yargs(process.argv.slice(2))
     boolean: true,
     description: 'Whether to perform an ongoing watched build',
   })
+  .option('preserveWatchOutput', {
+    implies: 'watch',
+    boolean: true,
+    description:
+      'Whether to keep outdated console output in watch mode instead of clearing the screen every time a change happened.',
+  })
   .option('declaration', {
     alias: 'd',
     boolean: true,
@@ -91,6 +97,10 @@ if (argv.build) {
 
   if ('incremental' in argv) {
     buildOptions.incremental = argv.incremental;
+  }
+
+  if ('watch' in argv) {
+    buildOptions['preserveWatchOutput'] = argv.preserveWatchOutput;
   }
 
   // Get the closest TS to us, since we have to assume that we may be in the
