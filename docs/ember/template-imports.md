@@ -60,7 +60,7 @@ interface ShoutSignature {
   };
 }
 
-louderPlease = (message: string) => message.toUpperCase();
+const louderPlease = (message: string) => message.toUpperCase();
 
 const Shout: TOC<ShoutSignature> = <template>
     <div ...attributes>
