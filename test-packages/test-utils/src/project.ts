@@ -17,6 +17,7 @@ const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'
 interface TsconfigWithGlint {
   extends?: string;
   compilerOptions?: Record<string, unknown>; // no appropriate types exist :sigh:
+  watchOptions?: Record<string, unknown>; // https://www.typescriptlang.org/tsconfig#watchOptions
   references?: Array<{ path: string }>;
   files?: Array<string>;
   include?: Array<string>;
@@ -69,7 +70,7 @@ export class Project {
     }
 
     let project = new Project(rootDir);
-    let tsconfig = {
+    let tsconfig: TsconfigWithGlint = {
       compilerOptions: {
         strict: true,
         target: 'es2019',
@@ -79,6 +80,10 @@ export class Project {
         allowJs: true,
         checkJs: false,
         ...config.compilerOptions,
+      },
+      watchOptions: {
+        watchFile: 'fixedPollingInterval',
+        watchDirectory: 'fixedPollingInterval',
       },
       glint: config.glint ?? {
         environment: 'glimmerx',
