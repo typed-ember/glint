@@ -31,10 +31,12 @@
     "typescript": "~4.8.0"
   },
   "resolutions:notes": {
-    "@types/yargs": "Locking temporarily to avoid an issue with the ESM types in 17.0.14; see DT#63373"
+    "@types/yargs": "Locking temporarily to avoid an issue with the ESM types in 17.0.14; see DT#63373",
+    "@types/node": "Locking to avoid conflicts between the declared version in packages/core and floating '*' versions when we run in CI without the lockfile"
   },
   "resolutions": {
     "@types/yargs": "17.0.13",
+    "@types/node": "^18.11.5",
     "ember-cli-htmlbars": "^6.0.1"
   },
   "version": "1.2.1"
