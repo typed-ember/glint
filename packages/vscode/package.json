@@ -50,8 +50,20 @@
         "title": "Glint: Show IR for Debugging",
         "command": "glint.show-debug-ir",
         "enablement": "config.glint.debug == true"
+      },
+      {
+        "title": "Glint: Sort Imports",
+        "command": "glint.sort-imports"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "glint.sort-imports",
+          "when": "editorLangId =~ /javascript|typescript|glimmer-js|glimmer-ts/"
+        }
+      ]
+    },
     "configuration": [
       {
         "title": "Glint",
