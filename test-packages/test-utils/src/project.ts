@@ -84,6 +84,7 @@ export class Project {
       watchOptions: {
         watchFile: 'fixedPollingInterval',
         watchDirectory: 'fixedPollingInterval',
+        synchronousWatchDirectory: true,
       },
       glint: config.glint ?? {
         environment: 'glimmerx',
@@ -267,7 +268,9 @@ class Watch {
         // If there's still been no output and we have a file to touch, give that a try.
         if (waited < timeout && touchFile && output === '') {
           let now = new Date();
-          fs.utimesSync(this.project.filePath(touchFile), now, now);
+          let filePath = this.project.filePath(touchFile);
+          fs.utimesSync(filePath, now, now);
+          fs.closeSync(fs.openSync(filePath, 'a'));
         }
       };
 

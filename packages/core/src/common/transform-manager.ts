@@ -212,6 +212,7 @@ export default class TransformManager {
 
     let { glintConfig, documents } = this;
     let callback: ts.FileWatcherCallback = (watchedPath, eventKind) => {
+      // console.log('watchFileCallback', watchedPath, path);
       if (eventKind === this.ts.FileWatcherEventKind.Deleted) {
         // Adding or removing a file invalidates most of what we think we know about module resolution
         this.moduleResolutionCache.clear();
@@ -254,6 +255,7 @@ export default class TransformManager {
     }
 
     let callback: ts.DirectoryWatcherCallback = (filename) => {
+      // console.log('watchDirectoryCallback', filename, this.getScriptPathForTS(filename));
       // Adding or removing a file invalidates most of what we think we know about module resolution
       this.moduleResolutionCache.clear();
       originalCallback(this.getScriptPathForTS(filename));

@@ -81,7 +81,11 @@ describe('CLI: custom extensions', () => {
         "Cannot find module './other' or its corresponding type declarations."
       );
 
-      await watch.writeAndAwaitOutput('other.gjs', 'export const foo = 123;', 'Found 0 errors.');
+      try {
+        await watch.writeAndAwaitOutput('other.gjs', 'export const foo = 123;', 'Found 0 errors.');
+      } finally {
+        console.log(stripAnsi(watch.allOutput));
+      }
       await watch.terminate();
     });
 
@@ -99,7 +103,6 @@ describe('CLI: custom extensions', () => {
         'Watching for file changes.'
       );
 
-      console.log(stripAnsi(watch.allOutput));
       expect(output).toMatch('Found 1 error.');
       expect(output).toMatch('TS2362');
 
@@ -114,11 +117,9 @@ describe('CLI: custom extensions', () => {
 
       expect(output).toMatch('Found 0 errors.');
 
-      await new Promise((r) => setTimeout(r, 250));
       project.remove('other.gjs');
       output = await watch.awaitOutput('Watching for file changes.');
 
-      console.log(stripAnsi(watch.allOutput));
       expect(output).toMatch('Found 1 error.');
       expect(output).toMatch(
         "Cannot find module './other' or its corresponding type declarations."

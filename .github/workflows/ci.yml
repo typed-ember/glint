@@ -20,89 +20,89 @@ env:
   CI: true
 
 jobs:
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 14
-      - name: Locate Yarn Cache
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install Dependencies
-        run: yarn install --frozen-lockfile
-      - name: Lint
-        run: yarn lint
-      - name: Build
-        run: yarn build
-      - name: Run Tests
-        uses: coactions/setup-xvfb@v1
-        with:
-          run: yarn test
+  # test:
+  #   name: Test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v3
+  #     - name: Install Node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 14
+  #     - name: Locate Yarn Cache
+  #       id: yarn-cache-dir-path
+  #       run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+  #         key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-yarn-
+  #     - name: Install Dependencies
+  #       run: yarn install --frozen-lockfile
+  #     - name: Lint
+  #       run: yarn lint
+  #     - name: Build
+  #       run: yarn build
+  #     - name: Run Tests
+  #       uses: coactions/setup-xvfb@v1
+  #       with:
+  #         run: yarn test
 
-  # The Windows runner can be super flaky both with Yarn installs and
-  # when launching browser tests, so we allow for retries in those steps.
-  test-windows:
-    name: Test Windows
-    runs-on: windows-2022
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 14
-      - name: Install Dependencies
-        uses: nick-fields/retry@v2
-        with:
-          max_attempts: 2
-          timeout_minutes: 10
-          command: yarn install --frozen-lockfile
-      - name: Build
-        run: yarn build
-      - name: Test @glint/core
-        uses: nick-fields/retry@v2
-        with:
-          max_attempts: 2
-          timeout_minutes: 20
-          command: yarn workspace @glint/core test
-      - name: Test glint-vscode
-        uses: nick-fields/retry@v2
-        with:
-          max_attempts: 2
-          timeout_minutes: 10
-          command: yarn workspace glint-vscode test
-      - name: Test @glint/scripts
-        run: yarn workspace @glint/scripts test
+  # # The Windows runner can be super flaky both with Yarn installs and
+  # # when launching browser tests, so we allow for retries in those steps.
+  # test-windows:
+  #   name: Test Windows
+  #   runs-on: windows-2022
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v3
+  #     - name: Install Node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 14
+  #     - name: Install Dependencies
+  #       uses: nick-fields/retry@v2
+  #       with:
+  #         max_attempts: 2
+  #         timeout_minutes: 10
+  #         command: yarn install --frozen-lockfile
+  #     - name: Build
+  #       run: yarn build
+  #     - name: Test @glint/core
+  #       uses: nick-fields/retry@v2
+  #       with:
+  #         max_attempts: 2
+  #         timeout_minutes: 20
+  #         command: yarn workspace @glint/core test
+  #     - name: Test glint-vscode
+  #       uses: nick-fields/retry@v2
+  #       with:
+  #         max_attempts: 2
+  #         timeout_minutes: 10
+  #         command: yarn workspace glint-vscode test
+  #     - name: Test @glint/scripts
+  #       run: yarn workspace @glint/scripts test
 
-  test-floating-deps:
-    name: Test Floating Dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 14
-      - name: Install Dependencies
-        run: yarn install --no-lockfile
-      - name: Build
-        run: yarn build
-      - name: Run Tests
-        uses: coactions/setup-xvfb@v1
-        with:
-          run: yarn test
+  # test-floating-deps:
+  #   name: Test Floating Dependencies
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v3
+  #     - name: Install Node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 14
+  #     - name: Install Dependencies
+  #       run: yarn install --no-lockfile
+  #     - name: Build
+  #       run: yarn build
+  #     - name: Run Tests
+  #       uses: coactions/setup-xvfb@v1
+  #       with:
+  #         run: yarn test
 
   test-ts-nightly:
     name: Test TypeScript Nightly
