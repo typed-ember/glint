@@ -50,7 +50,7 @@ When using `ember-template-imports`, you can declare the type of a `<template>` 
 {% code title="app/components/shout.gts %}
 
 ```typescript
-import type { TOC } From '@ember/component/template-only';
+import type { TOC } from '@ember/component/template-only';
 
 interface ShoutSignature {
   Element: HTMLDivElement;
