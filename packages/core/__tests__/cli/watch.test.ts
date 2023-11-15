@@ -154,14 +154,14 @@ describe('CLI: watched typechecking', () => {
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
-    project.write('index.ts', code.replace('this.startupTime', 'this.startupTimee'));
-
-    output = await watch.awaitOutput('Watching for file changes.');
+    output = await watch.writeAndAwaitOutput(
+      'index.ts',
+      code.replace('this.startupTime', 'this.startupTimee'),
+      'Watching for file changes.'
+    );
     expect(output).toMatch('Found 1 error.');
 
-    project.write('index.ts', code);
-
-    output = await watch.awaitOutput('Watching for file changes.');
+    output = await watch.writeAndAwaitOutput('index.ts', code, 'Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
     expect(watch.allOutput).toMatch(/\033c/); // output should include screen reset control sequence
@@ -196,19 +196,25 @@ describe('CLI: watched typechecking', () => {
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
-    project.write('my-component.hbs', template.replace('target', 'tarrget'));
-
-    output = await watch.awaitOutput('Watching for file changes.');
+    output = await watch.writeAndAwaitOutput(
+      'my-component.hbs',
+      template.replace('target', 'tarrget'),
+      'Watching for file changes.'
+    );
     expect(output).toMatch('Found 1 error.');
 
-    project.write('my-component.hbs', template);
-
-    output = await watch.awaitOutput('Watching for file changes.');
+    output = await watch.writeAndAwaitOutput(
+      'my-component.hbs',
+      template,
+      'Watching for file changes.'
+    );
     expect(output).toMatch('Found 0 errors.');
 
-    project.write('my-component.hbs', template.replace('@message', '@messagee'));
-
-    output = await watch.awaitOutput('Watching for file changes.');
+    output = await watch.writeAndAwaitOutput(
+      'my-component.hbs',
+      template.replace('@message', '@messagee'),
+      'Watching for file changes.'
+    );
     expect(output).toMatch('Found 1 error.');
 
     project.remove('my-component.hbs');
@@ -238,14 +244,14 @@ describe('CLI: watched typechecking', () => {
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
-    project.write('index.gts', code.replace('this.startupTime', 'this.startupTimee'));
-
-    output = await watch.awaitOutput('Watching for file changes.');
+    output = await watch.writeAndAwaitOutput(
+      'index.gts',
+      code.replace('this.startupTime', 'this.startupTimee'),
+      'Watching for file changes.'
+    );
     expect(output).toMatch('Found 1 error.');
 
-    project.write('index.gts', code);
-
-    output = await watch.awaitOutput('Watching for file changes.');
+    output = await watch.writeAndAwaitOutput('index.gts', code, 'Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
     await watch.terminate();
@@ -278,14 +284,18 @@ describe('CLI: watched typechecking', () => {
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
-    project.write('my-component.ts', script.replace('// ', ''));
-
-    output = await watch.awaitOutput('Watching for file changes.');
+    output = await watch.writeAndAwaitOutput(
+      'my-component.ts',
+      script.replace('// ', ''),
+      'Watching for file changes.'
+    );
     expect(output).toMatch('Found 1 error.');
 
-    project.write('my-component.ts', script);
-
-    output = await watch.awaitOutput('Watching for file changes.');
+    output = await watch.writeAndAwaitOutput(
+      'my-component.ts',
+      script,
+      'Watching for file changes.'
+    );
     expect(output).toMatch('Found 0 errors.');
 
     await watch.terminate();
@@ -316,14 +326,14 @@ describe('CLI: watched typechecking', () => {
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
-    project.write('index.ts', code.replace('this.startupTime', 'this.startupTimee'));
-
-    output = await watch.awaitOutput('Watching for file changes.');
+    output = await watch.writeAndAwaitOutput(
+      'index.ts',
+      code.replace('this.startupTime', 'this.startupTimee'),
+      'Watching for file changes.'
+    );
     expect(output).toMatch('Found 1 error.');
 
-    project.write('index.ts', code);
-
-    output = await watch.awaitOutput('Watching for file changes.');
+    output = await watch.writeAndAwaitOutput('index.ts', code, 'Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
     expect(watch.allOutput).not.toMatch(/\033c/); // output should not include screen reset control sequence

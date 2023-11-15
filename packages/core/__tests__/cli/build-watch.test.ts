@@ -194,16 +194,16 @@ describe('CLI: watched build mode typechecking', () => {
 
       await pauseForTSBuffering();
 
-      project.write(INPUT_SFC, code.replace('this.startupTime', 'this.startupTimee'));
-
-      output = await watch.awaitOutput('Watching for file changes.');
+      output = await watch.writeAndAwaitOutput(
+        INPUT_SFC,
+        code.replace('this.startupTime', 'this.startupTimee'),
+        'Watching for file changes.'
+      );
       expect(output).toMatch('Found 1 error.');
 
       await pauseForTSBuffering();
 
-      project.write(INPUT_SFC, code);
-
-      output = await watch.awaitOutput('Watching for file changes.');
+      output = await watch.writeAndAwaitOutput(INPUT_SFC, code, 'Watching for file changes.');
       expect(output).toMatch('Found 0 errors.');
 
       await watch.terminate();
@@ -237,9 +237,11 @@ describe('CLI: watched build mode typechecking', () => {
 
       await pauseForTSBuffering();
 
-      project.write(INPUT_SFC, code.replace('{{! @glint-nocheck }}', ''));
-
-      output = await watch.awaitOutput('Watching for file changes.');
+      output = await watch.writeAndAwaitOutput(
+        INPUT_SFC,
+        code.replace('{{! @glint-nocheck }}', ''),
+        'Watching for file changes.'
+      );
       expect(output).toMatch('Found 1 error.');
 
       await watch.terminate();

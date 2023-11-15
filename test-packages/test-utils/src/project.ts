@@ -189,7 +189,7 @@ export class Project {
   public watch(options: Options & { flags?: string[] } = {}): Watch {
     let watchFlag = ['--watch'];
     let flags = options.flags ? watchFlag.concat(options.flags) : watchFlag;
-    return new Watch(this.check({ ...options, flags, reject: false }));
+    return new Watch(this, this.check({ ...options, flags, reject: false }));
   }
 
   public build(options: Options & { flags?: string[] } = {}, debug = false): ExecaChildProcess {
@@ -205,42 +205,88 @@ export class Project {
   public buildWatch(options: Options & { flags?: string[] } = {}): Watch {
     let watchFlag = ['--watch'];
     let flags = options.flags ? watchFlag.concat(options.flags) : watchFlag;
-    return new Watch(this.build({ ...options, flags, reject: false }));
+    return new Watch(this, this.build({ ...options, flags, reject: false }));
   }
 }
 
-class Watch {
-  allOutput = '';
+type AwaitOutputOptions = {
+  timeout?: number;
+  touchFile?: string;
+  touchFileTimeout?: number;
+};
 
-  public constructor(private process: ExecaChildProcess) {
+class Watch {
+  public allOutput = '';
+
+  public constructor(private project: Project, private process: ExecaChildProcess) {
     this.process.stdout?.on('data', this.collectAllOutput);
     this.process.stderr?.on('data', this.collectAllOutput);
   }
 
-  public awaitOutput(target: string, { timeout = 20_000 } = {}): Promise<string> {
+  /**
+   * "Write a file, then wait for the CLI to emit some output" is a common pattern in tests, but
+   * in CI, TypeScript's filesystem watcher can occasionally miss events, so 'tickling' the file we
+   * just wrote periodically to make sure the CLI noticed the change may help tests that are stable
+   * locally but flaky in CI.
+   *
+   * This method encapsulates that entire process into a single action that should stabilize such
+   * usage in CI.
+   */
+  public writeAndAwaitOutput(
+    filePath: string,
+    fileContent: string,
+    output: string,
+    options: Omit<AwaitOutputOptions, 'touchFile'> = {}
+  ): Promise<string> {
+    this.project.write(filePath, fileContent);
+    return this.awaitOutput(output, { ...options, touchFile: filePath });
+  }
+
+  public awaitOutput(target: string, options: AwaitOutputOptions = {}): Promise<string> {
+    let { timeout = 20_000, touchFile, touchFileTimeout = 5_000 } = options;
+
     return new Promise((resolve, reject) => {
       let output = '';
       let handleOutput = (chunk: any): void => {
         output += chunk.toString();
         if (output.includes(target)) {
           detach();
+          clearInterval(checkInterval);
           resolve(output);
         }
       };
 
-      let timeoutHandle = setTimeout(() => {
-        detach();
-        reject(
-          new Error(
-            `Timed out waiting to see ${JSON.stringify(target)}. Instead saw: ${JSON.stringify(
-              output
-            )}`
-          )
-        );
-      }, timeout);
+      let waited = 0;
+      let checkInterval = setInterval(() => {
+        waited += touchFileTimeout;
+        touchFileIfNeeded();
+        terminateIfTimedOut();
+      }, touchFileTimeout);
+
+      let touchFileIfNeeded = (): void => {
+        // If there's still been no output and we have a file to touch, give that a try.
+        if (waited < timeout && touchFile && output === '') {
+          let now = new Date();
+          fs.utimesSync(this.project.filePath(touchFile), now, now);
+        }
+      };
+
+      let terminateIfTimedOut = (): void => {
+        if (waited >= timeout) {
+          clearInterval(checkInterval);
+          detach();
+          reject(
+            new Error(
+              `Timed out waiting to see ${JSON.stringify(target)}. Instead saw: ${JSON.stringify(
+                output
+              )}`
+            )
+          );
+        }
+      };
 
       let detach = (): void => {
-        clearTimeout(timeoutHandle);
+        clearTimeout(checkInterval);
         this.process.stdout?.off('data', handleOutput);
         this.process.stderr?.off('data', handleOutput);
       };
