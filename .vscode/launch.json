@@ -8,6 +8,10 @@
       "preLaunchTask": "npm: build",
       "autoAttachChildProcesses": true,
       "runtimeExecutable": "${execPath}",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js",
+        "!**/node_modules/**"
+      ],
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
         "${workspaceFolder}/test-packages"
