@@ -118,7 +118,7 @@ describe('Language Server: Organize Imports', () => {
 
       class List<T> extends Component {
         <template>
-          <MaybeComponent />
+          <MaybeComponent @arg="hi" />
           <ol>
             {{#each-in (hash a=1 b='hi') as |key value|}}
               <li>{{key}}: {{value}}</li>
@@ -131,7 +131,7 @@ describe('Language Server: Organize Imports', () => {
       import { ComponentLike, ModifierLike, HelperLike } from '@glint/template';
       import { TOC } from '@ember/component/template-only';
 
-      const MaybeComponent: undefined as TOC<{ Args: { arg: string } }> | undefined;
+      const MaybeComponent = undefined as TOC<{ Args: { arg: string } }> | undefined;
       declare const CanvasThing: ComponentLike<{ Args: { str: string }; Element: HTMLCanvasElement }>;
       `,
     });
