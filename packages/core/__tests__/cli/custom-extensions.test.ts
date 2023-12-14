@@ -135,6 +135,15 @@ describe('CLI: custom extensions', () => {
         'Greeting.gts': stripIndent`
           <template>Hello!</template>
         `,
+        're-export.gts': stripIndent`
+          export { default as Greeting } from './Greeting.gts';
+        `,
+        'vanilla.ts': 'export const two = 2;',
+        'barrel.ts': stripIndent`
+          export { default as Greeting } from './Greeting.gts';
+          export { Greeting as Greeting2 } from './re-export.gts';
+          export { two } from './vanilla.ts';
+        `,
       });
     });
 
@@ -147,6 +156,26 @@ describe('CLI: custom extensions', () => {
 
         1 import Greeting from './Greeting.gts';
                                ~~~~~~~~~~~~~~~~
+
+        barrel.ts:1:37 - error TS2307: Cannot find module './Greeting.gts' or its corresponding type declarations.
+
+        1 export { default as Greeting } from './Greeting.gts';
+                                              ~~~~~~~~~~~~~~~~
+
+        barrel.ts:2:39 - error TS2307: Cannot find module './re-export.gts' or its corresponding type declarations.
+
+        2 export { Greeting as Greeting2 } from './re-export.gts';
+                                                ~~~~~~~~~~~~~~~~~
+
+        barrel.ts:3:21 - error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+
+        3 export { two } from './vanilla.ts';
+                              ~~~~~~~~~~~~~~
+
+        re-export.gts:1:37 - error TS2307: Cannot find module './Greeting.gts' or its corresponding type declarations.
+
+        1 export { default as Greeting } from './Greeting.gts';
+                                              ~~~~~~~~~~~~~~~~
         "
       `);
     });
@@ -163,6 +192,36 @@ describe('CLI: custom extensions', () => {
 
         expect(result.exitCode).toBe(0);
         expect(result.stderr).toBe('');
+      }
+    );
+
+    test.runIf(semver.gte(typescript.version, '5.0.0'))(
+      'declarations work with `allowImportingTsExtensions: true`',
+      async () => {
+        project.updateTsconfig((config) => {
+          config.compilerOptions ??= {};
+          config.compilerOptions['allowImportingTsExtensions'] = true;
+        });
+
+        let emitResult = await project.check({ flags: ['--declaration'] });
+
+        expect(emitResult.exitCode).toBe(0);
+
+        expect(project.read('re-export.d.ts')).toMatchInlineSnapshot(`
+          "export { default as Greeting } from './Greeting';
+          "
+        `);
+        expect(project.read('barrel.d.ts')).toMatchInlineSnapshot(`
+          "export { default as Greeting } from './Greeting';
+          export { Greeting as Greeting2 } from './re-export';
+          export { two } from './vanilla';
+          "
+        `);
+        expect(project.read('./Greeting.d.ts')).toMatchInlineSnapshot(`
+          "declare const _default: import(\\"@ember/component/template-only\\").TemplateOnlyComponent<never> & (abstract new () => import(\\"@glint/template/-private/integration\\").InvokableInstance<() => import(\\"@glint/template/-private/integration\\").ComponentReturn<{}>> & import(\\"@glint/template/-private/integration\\").HasContext<import(\\"@glint/template/-private/integration\\").TemplateContext<void, {}, {}, void>>);
+          export default _default;
+          "
+        `);
       }
     );
   });
