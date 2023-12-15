@@ -167,7 +167,7 @@ describe('CLI: custom extensions', () => {
         2 export { Greeting as Greeting2 } from './re-export.gts';
                                                 ~~~~~~~~~~~~~~~~~
 
-        barrel.ts:3:21 - error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+        barrel.ts:3:21 - error TS2691: An import path cannot end with a '.ts' extension. Consider importing './vanilla.js' instead.
 
         3 export { two } from './vanilla.ts';
                               ~~~~~~~~~~~~~~
