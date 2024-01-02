@@ -133,7 +133,10 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
-export declare function applyAttributes(element: Element, attrs: Record<string, AttrValue>): void;
+export declare function applyAttributes<T extends Element>(
+  element: T,
+  attrs: Partial<T & Record<string, AttrValue>>
+): void;
 
 /*
  * Applies a modifier to an element or component.
