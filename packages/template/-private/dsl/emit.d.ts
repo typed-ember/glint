@@ -9,7 +9,7 @@ import {
   TemplateContext,
   NamedArgs,
 } from '../integration';
-import { ElementForTagName } from './types';
+import { ElementForTagName, SVGElementForTagName } from './types';
 
 /**
  * Used during emit to denote an object literal that corresponds
@@ -47,6 +47,10 @@ export declare function emitContent(value: ContentValue): void;
 export declare function emitElement<Name extends string>(
   name: Name
 ): { element: ElementForTagName<Name> };
+
+export declare function emitSVGElement<Name extends string>(
+  name: Name
+): { element: SVGElementForTagName<Name> };
 
 /*
  * Emits the given value as an entity that expects to receive blocks
@@ -133,9 +137,14 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
+
+type WithSvgStrings<T> = {
+  [P in keyof T]?: T[P] extends SVGAnimatedString ? string : T[P];
+}
+
 export declare function applyAttributes<T extends Element>(
   element: T,
-  attrs: Partial<T & Record<string, AttrValue>>
+  attrs: Partial<T & Record<string, AttrValue> | WithSvgStrings<T>>
 ): void;
 
 /*
