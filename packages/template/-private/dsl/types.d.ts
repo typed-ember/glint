@@ -10,7 +10,7 @@ export type ResolveOrReturn<T> = T & (<U>(item: U) => () => U);
  */
 export type ElementForTagName<Name extends string> = Name extends keyof HTMLElementTagNameMap
   ? Name extends keyof SVGElementTagNameMap
-    ? HTMLElementTagNameMap[Name] & SVGElementTagNameMap[Name]
+    ? HTMLElementTagNameMap[Name] | SVGElementTagNameMap[Name]
     : HTMLElementTagNameMap[Name]
   : Name extends keyof SVGElementTagNameMap
   ? SVGElementTagNameMap[Name]
