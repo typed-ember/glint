@@ -24,7 +24,7 @@
     "baseUrl": ".",
     "module": "es6",
     "experimentalDecorators": true,
-    "isolatedModules": false,
+    "isolatedModules": false, //TODO: reset to `true` when @types/node supports this for nightly ts
     "paths": {
       "ts-ember-app/tests/*": ["tests/*"],
       "ts-ember-app/*": ["app/*"],
