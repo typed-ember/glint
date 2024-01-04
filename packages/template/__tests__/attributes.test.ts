@@ -6,7 +6,8 @@ import {
   applySplattributes,
   applyAttributes,
   emitElement,
-  emitComponent, emitSVGElement
+  emitComponent,
+  emitSVGElement,
 } from '../-private/dsl';
 import TestComponent from './test-component';
 import { htmlSafe } from '@ember/template';
