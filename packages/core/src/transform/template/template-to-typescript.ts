@@ -152,7 +152,7 @@ export function templateToTypescript(
         inSVG = true;
       } else if (kind === 'out-svg') {
         inSVG = false;
-      }else {
+      } else {
         record.error(`Unknown directive @glint-${kind}`, location);
       }
 

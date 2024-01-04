@@ -15,16 +15,17 @@ export type ElementForTagName<Name extends string> = Name extends keyof HTMLElem
   ? HTMLElementTagNameMap[Name]
   : Element;
 
-
 export type SVGElementForTagName<Name extends string> = Name extends keyof SVGElementTagNameMap
-    ? SVGElementTagNameMap[Name]
-    : Element;
+  ? SVGElementTagNameMap[Name]
+  : Element;
 
-type ObjectKey<O, T> = {[K in keyof O]: O[K] extends T ? K : never}[keyof O & string]
+type ObjectKey<O, T> = { [K in keyof O]: O[K] extends T ? K : never }[keyof O & string];
 
-
-export type AttributesForElement<Elem extends Element, K = ObjectKey<HTMLElementTagNameMap|SVGElementTagNameMap, Elem>> = K extends keyof HtmlElementAttributes.HtmlElements
+export type AttributesForElement<
+  Elem extends Element,
+  K = ObjectKey<HTMLElementTagNameMap | SVGElementTagNameMap, Elem>
+> = K extends keyof HtmlElementAttributes.HtmlElements
   ? HtmlElementAttributes.HtmlElements[K]
   : K extends keyof SvgElementAttributes.SvgElements
-    ? SvgElementAttributes.SvgElements[K]
-    : Record<string, AttrValue>
+  ? SvgElementAttributes.SvgElements[K]
+  : Record<string, AttrValue>;
