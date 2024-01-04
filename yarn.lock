@@ -3304,6 +3304,11 @@ argparse@^2.0.1:
   resolved "https://registry.yarnpkg.com/argparse/-/argparse-2.0.1.tgz#246f50f3ca78a3240f6c997e8a9bd1eac49e4b38"
   integrity sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==
 
+aria-attributes@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/aria-attributes/-/aria-attributes-2.0.1.tgz#61272838bd5698328dfa6d9ebfb0e670d28abf5f"
+  integrity sha512-cxeGg3YamjVap7OLwsl75FfowoKhRlUiXtbL5nKFqvDJ+B51ktWhCdMtMTyYMa+qIzHE5mznODCYDn64asnraQ==
+
 aria-query@^5.0.2:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/aria-query/-/aria-query-5.3.0.tgz#650c569e41ad90b51b3d7df5e5eed1c7549c103e"
@@ -8859,10 +8864,20 @@ hpack.js@^2.1.6:
     readable-stream "^2.0.1"
     wbuf "^1.1.0"
 
+html-element-attributes@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/html-element-attributes/-/html-element-attributes-3.3.0.tgz#3798bda49966784c04117181c3394f1d36d339e1"
+  integrity sha512-6tMMBCSRlzSWHdic4dHC0SD6mxkPprQjuXKwjhICyeqhy5NPb2NgxJZ6/TEX90Pxb3tzRzVEGnz5+O6eD1Wl4A==
+
 html-entities@^1.3.1:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-1.4.0.tgz#cfbd1b01d2afaf9adca1b10ae7dffab98c71d2dc"
   integrity sha512-8nxjcBcd8wovbeKx7h3wTji4e6+rhaVuPNpMqwWgnHh+N9ToqsCs6XztWRBPQ+UtzsoMAdKZtUENoVzU/EMtZA==
+
+html-event-attributes@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/html-event-attributes/-/html-event-attributes-2.2.0.tgz#ee5335b3c933b1501925dddb9be0028364699324"
+  integrity sha512-RMkzFsa/KQQ/j5nXMwjQY3p50IzElwlJAXfckcI8Ea4Od8JiHDkJQ6nJe/D8jzLCn8VE7OW8jSPtnOZETZLtEg==
 
 html-minifier-terser@^5.0.1:
   version "5.1.1"
@@ -14348,6 +14363,16 @@ supports-preserve-symlinks-flag@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
+
+svg-element-attributes@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/svg-element-attributes/-/svg-element-attributes-2.1.0.tgz#8a2ba7ac9dbcf58dcd96bf514cf3b4076d29f0f3"
+  integrity sha512-Tq0WY3uGw/rltlSlAsro/WWqbg5oNiaRwzq13I9H1m/dYjMjesuxKV76dGSlpacjslGyAis8VIwqPXaUUXw26w==
+
+svg-event-attributes@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/svg-event-attributes/-/svg-event-attributes-2.0.2.tgz#5783848f8d19b053cefc17bd65c2972146ee3ff9"
+  integrity sha512-q8c6knvA5SccFLurAhSANIgMnYEN+KO7lxV92nr8ORB1pYSe1XSQ9NT57J9kyUJ71krR3th8R3+ufYdo5w7ffA==
 
 symlink-or-copy@^1.0.0, symlink-or-copy@^1.0.1, symlink-or-copy@^1.1.8, symlink-or-copy@^1.2.0, symlink-or-copy@^1.3.1:
   version "1.3.1"

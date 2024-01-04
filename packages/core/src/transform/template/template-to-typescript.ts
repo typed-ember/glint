@@ -758,6 +758,10 @@ export function templateToTypescript(
           emitComment(comment);
         }
 
+        if (node.tag === 'svg') {
+          inSVG = true;
+        }
+
         emit.text('{');
         emit.newline();
         emit.indent();
@@ -771,9 +775,6 @@ export function templateToTypescript(
         emit.newline();
 
         emitAttributesAndModifiers(node);
-        if (node.tag === 'svg') {
-          inSVG = true;
-        }
         for (let child of node.children) {
           emitTopLevelStatement(child);
         }

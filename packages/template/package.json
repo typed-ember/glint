@@ -19,7 +19,12 @@
     "@glimmerx/component": "^0.6.7",
     "@types/ember__component": "~4.0.8",
     "expect-type": "^0.15.0",
-    "sums-up": "^2.1.0"
+    "sums-up": "^2.1.0",
+    "aria-attributes": "^2.0.1",
+    "html-element-attributes": "^3.3.0",
+    "html-event-attributes": "^2.2.0",
+    "svg-element-attributes": "^2.1.0",
+    "svg-event-attributes": "^2.0.2"
   },
   "publishConfig": {
     "access": "public"

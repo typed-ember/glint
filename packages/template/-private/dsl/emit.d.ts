@@ -9,7 +9,11 @@ import {
   TemplateContext,
   NamedArgs,
 } from '../integration';
-import { ElementForTagName, SVGElementForTagName } from './types';
+import {
+  AttributesForElement,
+  ElementForTagName,
+  SVGElementForTagName
+} from './types';
 
 /**
  * Used during emit to denote an object literal that corresponds
@@ -44,11 +48,12 @@ export declare function emitContent(value: ContentValue): void;
  *       applyModifier(𝛄.element, resolve(on)({}, 'click', this.clicked));
  *     });
  */
-export declare function emitElement<Name extends string>(
+export declare function emitElement<Name extends string | keyof HTMLElementTagNameMap>(
   name: Name
 ): { element: ElementForTagName<Name> };
 
-export declare function emitSVGElement<Name extends string>(
+
+export declare function emitSVGElement<Name extends string | keyof SVGElementTagNameMap>(
   name: Name
 ): { element: SVGElementForTagName<Name> };
 
@@ -142,10 +147,15 @@ type WithSvgStrings<T> = {
   [P in keyof T]?: T[P] extends SVGAnimatedString ? string : T[P];
 }
 
+type ElementAttributes<T, A, P extends string | number | symbol = keyof A, V = P extends keyof T? T[P] : AttrValue> = Record<P, V>
+
 export declare function applyAttributes<T extends Element>(
   element: T,
-  attrs: Partial<T & Record<string, AttrValue> | WithSvgStrings<T>>
+  attrs: WithSvgStrings<ElementAttributes<T, AttributesForElement<T>>> & Record<string, AttrValue>
 ): void;
+
+type X = AttributesForElement<SVGAElement>
+type B = keyof X;
 
 /*
  * Applies a modifier to an element or component.

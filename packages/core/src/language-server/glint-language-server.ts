@@ -255,9 +255,11 @@ export default class GlintLanguageServer {
       formatting
     );
 
+    const isInElementAttributes = mapping?.sourceNode.type === "AttrNode";
+
     return completions?.entries.map((completionEntry) => {
       const glintCompletionItem: GlintCompletionItem = {
-        label: completionEntry.name,
+        label: isInElementAttributes ? completionEntry.name.replace(/["']/g, '') : completionEntry.name,
         preselect: completionEntry.isRecommended ? true : undefined,
         kind: scriptElementKindToCompletionItemKind(this.ts, completionEntry.kind),
 
