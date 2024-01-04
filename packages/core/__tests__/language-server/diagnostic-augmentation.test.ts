@@ -212,8 +212,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "code": 2322,
           "message": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
-        Type '{}' is not assignable to type '(this: GlobalEventHandlers, ev: MouseEvent) => any'.
-          Type '{}' provides no match for the signature '(this: GlobalEventHandlers, ev: MouseEvent): any'.",
+        Type '{}' is not assignable to type 'AttrValue'.",
           "range": {
             "end": {
               "character": 16,
@@ -285,7 +284,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {
           "code": 2322,
           "message": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
-        Type '{}' is not assignable to type '(this: GlobalEventHandlers, ev: MouseEvent) => any'.",
+        Type '{}' is not assignable to type 'AttrValue'.",
           "range": {
             "end": {
               "character": 16,
