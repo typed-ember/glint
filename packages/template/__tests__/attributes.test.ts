@@ -6,7 +6,7 @@ import {
   applySplattributes,
   applyAttributes,
   emitElement,
-  emitComponent,
+  emitComponent, emitSVGElement
 } from '../-private/dsl';
 import TestComponent from './test-component';
 import { htmlSafe } from '@ember/template';
@@ -80,7 +80,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
  * ```
  */
 {
-  const ctx = emitElement('svg');
+  const ctx = emitSVGElement('svg');
   applySplattributes(new SVGSVGElement(), ctx.element);
 }
 
@@ -91,7 +91,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
  */
 {
   const ctx = emitElement('a');
-  expectTypeOf(ctx).toEqualTypeOf<{ element: HTMLAnchorElement & SVGAElement }>();
+  expectTypeOf(ctx).toEqualTypeOf<{ element: HTMLAnchorElement }>();
   applyModifier(resolve(anchorModifier)(ctx.element));
 }
 
