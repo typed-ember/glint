@@ -40,7 +40,7 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
    * ```
    */
   static {
-    templateForBackingValue(this, function (𝚪) {
+    templateForBackingValue(this, function(𝚪) {
       const component = emitComponent(resolve(globals.let)(𝚪.this.state.ready));
       const [isReady] = component.blockParams.default;
 

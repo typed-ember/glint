@@ -37,7 +37,7 @@ declare function value<T>(): T;
      * ```
      */
     static {
-      templateForBackingValue(this, function (𝚪) {
+      templateForBackingValue(this, function(𝚪) {
         {
           const component = emitComponent(resolve(globals.let)(𝚪.this.state.ready));
 
@@ -60,11 +60,11 @@ declare function value<T>(): T;
   expectTypeOf(resolve(MyComponent)).toEqualTypeOf<ExpectedSignature>();
 
   // Template context is inferred correctly
-  templateForBackingValue(MyComponent<number>, function (context) {
+  templateForBackingValue(MyComponent<number>, function(context) {
     expectTypeOf(context).toEqualTypeOf<ExpectedContext<number>>();
   });
 
-  templateForBackingValue(MyComponent<string>, function (context) {
+  templateForBackingValue(MyComponent<string>, function(context) {
     expectTypeOf(context).toEqualTypeOf<ExpectedContext<string>>();
   });
 }

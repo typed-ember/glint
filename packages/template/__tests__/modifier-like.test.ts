@@ -1,6 +1,6 @@
 import { NamedArgsMarker, resolve } from '@glint/environment-ember-loose/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { ModifierReturn, NamedArgs } from '@glint/template/-private/integration';
+import { ModifierReturn, NamedArgs } from '../-private/integration';
 import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/template';
 
 // Fixed signature params
@@ -63,22 +63,22 @@ import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/templa
       ...args:
         | [element: HTMLAudioElement, full: string, named: NamedArgs<{ force: boolean }>]
         | [
-            element: HTMLAudioElement,
-            full: string,
-            named?: NamedArgs<Partial<{ foo: string; bar: string }>>
-          ]
+          element: HTMLAudioElement,
+          full: string,
+          named?: NamedArgs<Partial<{ foo: string; bar: string }>>
+        ]
         | [
-            element: HTMLAudioElement,
-            first: string,
-            last: string,
-            named: NamedArgs<{ force: boolean }>
-          ]
+          element: HTMLAudioElement,
+          first: string,
+          last: string,
+          named: NamedArgs<{ force: boolean }>
+        ]
         | [
-            element: HTMLAudioElement,
-            first: string,
-            last: string,
-            named?: NamedArgs<Partial<{ foo: string; bar: string }>>
-          ]
+          element: HTMLAudioElement,
+          first: string,
+          last: string,
+          named?: NamedArgs<Partial<{ foo: string; bar: string }>>
+        ]
     ) => ModifierReturn
   >();
 }

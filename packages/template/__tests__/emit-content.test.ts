@@ -1,9 +1,8 @@
-import { SafeString } from '@glimmer/runtime';
 import { htmlSafe } from '@ember/template';
 import { emitContent } from '../-private/dsl';
 
 // Glimmer's SafeString interface
-let safeString: SafeString = {
+let safeString: ReturnType<typeof htmlSafe> = {
   toHTML(): string {
     return '<span>Foo</span>';
   },
@@ -20,7 +19,7 @@ emitContent(false);
 emitContent(undefined);
 emitContent(null);
 
-const returnsVoid = (): void => {};
+const returnsVoid = (): void => { };
 
 // Using something that returns void at the top level is reasonable
 emitContent(returnsVoid());
