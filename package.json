@@ -2,10 +2,6 @@
   "name": "glint",
   "repository": "https://github.com/typed-ember/glint",
   "private": true,
-  "workspaces": [
-    "packages/*",
-    "test-packages/*"
-  ],
   "scripts": {
     "lint": "yarn lint:scripts && yarn lint:formatting",
     "lint:scripts": "yarn eslint --max-warnings 0 --cache .",
