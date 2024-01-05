@@ -47,6 +47,8 @@
     }
   },
   "devDependencies": {
+    "@glint/template": "workspace:*",
+    "@glint/core": "workspace:*",
     "@glimmerx/component": "^0.6.7",
     "@glimmerx/modifier": "^0.6.7",
     "@glimmerx/helper": "^0.6.7",

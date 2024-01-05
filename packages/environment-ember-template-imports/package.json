@@ -52,6 +52,9 @@
     }
   },
   "devDependencies": {
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/core": "workspace:*",
+    "@glint/template": "workspace:*",
     "@types/ember": "^4.0.0",
     "@types/ember__component": "^4.0.10",
     "@types/ember__helper": "^4.0.1",

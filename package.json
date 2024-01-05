@@ -18,6 +18,7 @@
     "@release-it-plugins/lerna-changelog": "^5.0.0",
     "@release-it-plugins/workspaces": "^3.2.0",
     "@types/babel__traverse": "^7.18.2",
+    "@types/node": "^18.11.5",
     "@types/yargs": "^17.0.10",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
