@@ -21,7 +21,11 @@
     "expect-type": "^0.15.0"
   },
   "peerDependencies": {
-    "@glint/template": "^1.2.1"
+    "@glint/template": "workspace:*"
+  },
+  "devDependencies": {
+    "@glint/environment-ember-loose": "workspace:^",
+    "@glint/template": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

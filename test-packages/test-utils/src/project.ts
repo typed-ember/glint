@@ -88,7 +88,7 @@ export class Project {
     fs.rmSync(project.rootDir, { recursive: true, force: true });
     fs.mkdirSync(project.rootDir, { recursive: true });
 
-    fs.writeFileSync(path.join(project.rootDir, 'package.json'), '{}');
+    fs.writeFileSync(path.join(project.rootDir, 'package.json'), `{}`);
     fs.writeFileSync(
       path.join(project.rootDir, 'tsconfig.json'),
       JSON.stringify(tsconfig, null, 2)
