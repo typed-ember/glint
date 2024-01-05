@@ -1,6 +1,6 @@
 {
   "name": "@glint/type-test",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "repository": "typed-ember/glint",
   "description": "Tools for testing inferred types in Glint-enabled templates",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "expect-type": "^0.15.0"
   },
   "peerDependencies": {
-    "@glint/template": "^1.2.1"
+    "@glint/template": "^1.2.2"
   },
   "publishConfig": {
     "access": "public"
