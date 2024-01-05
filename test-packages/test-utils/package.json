@@ -11,8 +11,5 @@
   },
   "devDependencies": {
     "@glint/core": "workspace:*"
-  },
-  "scripts": {
-    "test": "true"
   }
 }
