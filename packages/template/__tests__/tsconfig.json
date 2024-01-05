@@ -6,7 +6,7 @@
     "paths": {
       "@glint/template": [".."],
       "@glint/template/*": ["../*"],
-      "@glint/environment-ember-loose/*": ["../../environment-ember-loose/*"] 
+      "@glint/environment-ember-loose/*": ["../../environment-ember-loose/*"]
     }
   }
 }
