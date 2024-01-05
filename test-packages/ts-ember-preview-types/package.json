@@ -18,6 +18,8 @@
     "@ember/test-helpers": "^2.9.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
+    "@glint/environment-ember-loose": "workspace:^",
+    "@glint/template": "workspace:^",
     "babel-eslint": "^10.1.0",
     "ember-page-title": "^7.0.0",
     "ember-source": "~4.8.2",
