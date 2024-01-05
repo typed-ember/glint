@@ -24,6 +24,7 @@
     "@glint/template": "workspace:*"
   },
   "devDependencies": {
+    "@glint/environment-ember-loose": "workspace:^",
     "@glint/template": "workspace:*"
   },
   "publishConfig": {

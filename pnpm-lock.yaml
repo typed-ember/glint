@@ -279,6 +279,9 @@ importers:
         specifier: ^0.15.0
         version: 0.15.0
     devDependencies:
+      '@glint/environment-ember-loose':
+        specifier: workspace:^
+        version: link:../environment-ember-loose
       '@glint/template':
         specifier: workspace:*
         version: link:../template
@@ -687,7 +690,11 @@ importers:
         specifier: ^3.10.3
         version: 3.11.3(webpack-cli@3.3.12)(webpack@4.47.0)
 
-  test-packages/ts-template-imports-app: {}
+  test-packages/ts-template-imports-app:
+    devDependencies:
+      '@glint/environment-ember-loose':
+        specifier: workspace:^
+        version: link:../../packages/environment-ember-loose
 
 packages:
 

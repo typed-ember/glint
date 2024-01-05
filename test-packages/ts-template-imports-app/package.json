@@ -8,5 +8,8 @@
   },
   "volta": {
     "extends": "../../package.json"
+  },
+  "devDependencies": {
+    "@glint/environment-ember-loose": "workspace:^"
   }
 }
