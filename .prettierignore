@@ -24,3 +24,5 @@ dist/
 # the formatting applied by Gitbook. Having both present is a recipe for ongoing
 # CI problems.
 *.md
+*.yml
+*.yaml

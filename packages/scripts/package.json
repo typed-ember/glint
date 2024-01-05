@@ -21,7 +21,7 @@
   "scripts": {
     "test": "vitest run",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "dependencies": {
     "golden-fleece": "^1.0.9",

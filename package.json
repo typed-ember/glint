@@ -3,10 +3,10 @@
   "repository": "https://github.com/typed-ember/glint",
   "private": true,
   "scripts": {
-    "lint": "yarn lint:scripts && yarn lint:formatting",
-    "lint:scripts": "yarn eslint --max-warnings 0 --cache .",
-    "lint:formatting": "yarn prettier --check .",
-    "test": "yarn workspaces run test",
+    "lint": "pnpm lint:scripts && pnpm lint:formatting",
+    "lint:scripts": "pnpm eslint --max-warnings 0 --cache .",
+    "lint:formatting": "pnpm prettier --check .",
+    "test": "pnpm --filter '*' run test",
     "build": "tsc --build",
     "release-it": "echo \"Running release-it via yarn breaks publishing! Use npx or a Volta global installation.\""
   },

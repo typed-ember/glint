@@ -19,7 +19,7 @@
     "test": "glint --project __tests__/type-tests && vitest run",
     "test:watch": "vitest watch",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "files": [
     "README.md",

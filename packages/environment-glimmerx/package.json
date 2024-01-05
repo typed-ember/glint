@@ -18,7 +18,7 @@
   "scripts": {
     "test": "tsc --project __tests__",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "files": [
     "README.md",
