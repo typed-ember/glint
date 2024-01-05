@@ -2,7 +2,7 @@
 // declarations necessary for it to be used as a component in glint, as
 // well as simple examples of a helper and modifier.
 
-import { ComponentLike, ModifierLike } from '@glint/template';
+import { ComponentLike, ModifierLike } from '../-private/index';
 import { Context, TemplateContext } from '../-private/integration';
 import { LetKeyword } from '../-private/keywords';
 
