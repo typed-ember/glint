@@ -21,7 +21,7 @@ export declare const globals: {
 
 type Get<T, K, Otherwise = {}> = K extends keyof T ? Exclude<T[K], undefined> : Otherwise;
 
-interface TestComponent<T = {}> extends InstanceType<ComponentLike<T>> { }
+interface TestComponent<T = {}> extends InstanceType<ComponentLike<T>> {}
 declare class TestComponent<T = {}> {
   readonly args: Get<T, 'Args'>;
   [Context]: TemplateContext<this, Get<T, 'Args'>, Get<T, 'Blocks'>, Get<T, 'Element', null>>;

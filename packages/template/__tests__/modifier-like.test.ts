@@ -63,22 +63,22 @@ import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/templa
       ...args:
         | [element: HTMLAudioElement, full: string, named: NamedArgs<{ force: boolean }>]
         | [
-          element: HTMLAudioElement,
-          full: string,
-          named?: NamedArgs<Partial<{ foo: string; bar: string }>>
-        ]
+            element: HTMLAudioElement,
+            full: string,
+            named?: NamedArgs<Partial<{ foo: string; bar: string }>>
+          ]
         | [
-          element: HTMLAudioElement,
-          first: string,
-          last: string,
-          named: NamedArgs<{ force: boolean }>
-        ]
+            element: HTMLAudioElement,
+            first: string,
+            last: string,
+            named: NamedArgs<{ force: boolean }>
+          ]
         | [
-          element: HTMLAudioElement,
-          first: string,
-          last: string,
-          named?: NamedArgs<Partial<{ foo: string; bar: string }>>
-        ]
+            element: HTMLAudioElement,
+            first: string,
+            last: string,
+            named?: NamedArgs<Partial<{ foo: string; bar: string }>>
+          ]
     ) => ModifierReturn
   >();
 }

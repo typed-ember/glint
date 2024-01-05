@@ -19,7 +19,7 @@ emitContent(false);
 emitContent(undefined);
 emitContent(null);
 
-const returnsVoid = (): void => { };
+const returnsVoid = (): void => {};
 
 // Using something that returns void at the top level is reasonable
 emitContent(returnsVoid());
