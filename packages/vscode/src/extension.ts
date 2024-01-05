@@ -14,7 +14,7 @@ import {
   WorkspaceEdit,
 } from 'vscode';
 import { Disposable, LanguageClient, ServerOptions } from 'vscode-languageclient/node.js';
-import type { Request, GetIRRequest, SortImportsRequest } from '@glint/core/lsp-messages';
+import type { Request, GetIRRequest, OrganizeImportsRequest } from '@glint/core/lsp-messages';
 
 ///////////////////////////////////////////////////////////////////////////////
 // Setup and extension lifecycle
@@ -30,7 +30,12 @@ export function activate(context: ExtensionContext): void {
   context.subscriptions.push(fileWatcher, createConfigWatcher());
   context.subscriptions.push(
     commands.registerCommand('glint.restart-language-server', restartClients),
-    commands.registerTextEditorCommand('glint.sort-imports', sortImports),
+    commands.registerTextEditorCommand('glint.sort-imports', (editor) =>
+      organizeImports(editor, true)
+    ),
+    commands.registerTextEditorCommand('glint.organize-imports', (editor) =>
+      organizeImports(editor, false)
+    ),
     commands.registerTextEditorCommand('glint.show-debug-ir', showDebugIR)
   );
 
@@ -59,15 +64,21 @@ async function restartClients(): Promise<void> {
   await Promise.all([...clients.values()].map((client) => client.restart()));
 }
 
-async function sortImports(editor: TextEditor): Promise<void> {
+async function organizeImports(
+  editor: TextEditor,
+  skipDestructiveCodeActions: boolean
+): Promise<void> {
   const workspaceFolder = workspace.getWorkspaceFolder(editor.document.uri);
   if (!workspaceFolder) {
     return;
   }
 
   let client = clients.get(workspaceFolder.uri.fsPath);
-  let request = requestKey<typeof SortImportsRequest>('glint/sortImports');
-  const edits = await client?.sendRequest(request, { uri: editor.document.uri.toString() });
+  let request = requestKey<typeof OrganizeImportsRequest>('glint/organizeImports');
+  const edits = await client?.sendRequest(request, {
+    uri: editor.document.uri.toString(),
+    skipDestructiveCodeActions,
+  });
 
   if (!edits) {
     return;

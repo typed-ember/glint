@@ -10,9 +10,9 @@ export const GetIRRequest = makeRequestType(
   ProtocolRequestType<GetIRParams, GetIRResult | null, void, void, void>
 );
 
-export const SortImportsRequest = makeRequestType(
-  'glint/sortImports',
-  ProtocolRequestType<SortImportsParams, SortImportsResult | null, void, void, void>
+export const OrganizeImportsRequest = makeRequestType(
+  'glint/organizeImports',
+  ProtocolRequestType<OrganizeImportsParams, OrganizeImportsResult | null, void, void, void>
 );
 
 export interface GetIRParams {
@@ -24,15 +24,16 @@ export interface GetIRResult {
   uri: string;
 }
 
-export interface SortImportsParams {
+export interface OrganizeImportsParams {
   uri: string;
+  skipDestructiveCodeActions: boolean;
 }
 
-export type SortImportsResult = TextEdit[];
+export type OrganizeImportsResult = TextEdit[];
 
 // This utility allows us to encode type information to enforce that we're using
 // a valid request name along with its associated param/response types without
-// actually requring the runtime code here to be imported elsewhere.
+// actually requiring the runtime code here to be imported elsewhere.
 // See `requestKey` in the Code extension.
 function makeRequestType<Name extends string, T>(
   name: Name,
