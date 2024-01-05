@@ -12,7 +12,7 @@
   },
   "volta": {
     "node": "16.17.1",
-    "yarn": "1.22.4"
+    "pnpm": "8.14.0"
   },
   "devDependencies": {
     "@release-it-plugins/lerna-changelog": "^5.0.0",
