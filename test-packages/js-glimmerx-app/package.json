@@ -23,7 +23,7 @@
     "@glimmerx/eslint-plugin": "^0.6.7",
     "@glimmerx/helper": "^0.6.7",
     "@glimmerx/modifier": "^0.6.7",
-    "@glint/core": "^1.2.1",
+    "@glint/core": "workspace:*",
     "babel-loader": "^8.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^5.1.1",

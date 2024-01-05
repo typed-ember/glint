@@ -104,7 +104,7 @@
     "@vscode/test-electron": "Dropped support for Node < 16 in the 2.2.1 patch release, so locking to 2.2.0 while we still support Node 14."
   },
   "devDependencies": {
-    "@glint/core": "^1.2.1",
+    "@glint/core": "workspace:*",
     "@types/mocha": "^10.0.1",
     "@types/vscode": "^1.68.1",
     "@vscode/test-electron": "^2.3.8",

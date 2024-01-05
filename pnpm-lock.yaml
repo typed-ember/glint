@@ -250,7 +250,7 @@ importers:
         version: 8.1.0
     devDependencies:
       '@glint/core':
-        specifier: ^1.2.1
+        specifier: workspace:*
         version: link:../core
       '@types/mocha':
         specifier: ^10.0.1
@@ -313,7 +313,7 @@ importers:
         specifier: ^0.6.7
         version: 0.6.8
       '@glint/core':
-        specifier: ^1.2.1
+        specifier: workspace:*
         version: link:../../packages/core
       babel-loader:
         specifier: ^8.1.0
@@ -388,10 +388,10 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@glint/core':
-        specifier: ^1.2.1
+        specifier: workspace:*
         version: link:../../packages/core
       '@glint/environment-ember-loose':
-        specifier: ^1.2.1
+        specifier: workspace:*
         version: link:../../packages/environment-ember-loose
       '@types/ember':
         specifier: ~4.0.0
@@ -574,10 +574,10 @@ importers:
         specifier: ^0.6.7
         version: 0.6.8
       '@glint/core':
-        specifier: ^1.2.1
+        specifier: workspace:*
         version: link:../../packages/core
       '@glint/environment-glimmerx':
-        specifier: ^1.2.1
+        specifier: workspace:*
         version: link:../../packages/environment-glimmerx
       '@types/qunit':
         specifier: ^2.9.1
