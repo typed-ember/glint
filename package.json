@@ -26,7 +26,13 @@
     "release-it": "^15.5.0",
     "typescript": "~4.8.0"
   },
+  "pnpm": {
+    "overrides": {
+      "@glimmer/validator": ">= 0.83.0"
+    }
+  },
   "resolutions:notes": {
+    "@glimmer/validator": "Due to semver, and some dependency in the graph specifying @glimmer/validator 0.44, 0.44 is what gets installed. However, this is incorrect for type definitions",
     "@types/yargs": "Locking temporarily to avoid an issue with the ESM types in 17.0.14; see DT#63373",
     "@types/node": "Locking to avoid conflicts between the declared version in packages/core and floating '*' versions when we run in CI without the lockfile"
   },

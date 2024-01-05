@@ -8,6 +8,7 @@ overrides:
   '@types/yargs': 17.0.13
   '@types/node': ^20.10.6
   ember-cli-htmlbars: ^6.0.1
+  '@glimmer/validator': '>= 0.83.0'
 
 importers:
 
@@ -2509,7 +2510,7 @@ packages:
     resolution: {integrity: sha512-cyV32zsHh+CnftuRX84ALZpd2rpbDrhLhJnTXn9W//QpqdRZ5rdMsxSY9fOsj0CKEc706tmEU299oNnDc0d7tA==}
     dependencies:
       '@glimmer/env': 0.1.7
-      '@glimmer/validator': 0.44.0
+      '@glimmer/validator': 0.84.3
     dev: true
 
   /@glimmer/tracking@2.0.0-beta.21:
@@ -2537,10 +2538,6 @@ packages:
       '@glimmer/env': 0.1.7
       '@glimmer/interfaces': 0.84.3
       '@simple-dom/interface': 1.4.0
-
-  /@glimmer/validator@0.44.0:
-    resolution: {integrity: sha512-i01plR0EgFVz69GDrEuFgq1NheIjZcyTy3c7q+w7d096ddPVeVcRzU3LKaqCfovvLJ+6lJx40j45ecycASUUyw==}
-    dev: true
 
   /@glimmer/validator@0.84.0:
     resolution: {integrity: sha512-8kNz2FIxX8HWS1RvqHCIGcUK2w+t0/TJgZdhCP7ZNTLpS2QpDMoA4TnTRPk/wMxrgBOtrhFXODk3jk8ko+bTVw==}
