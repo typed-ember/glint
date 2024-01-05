@@ -263,6 +263,9 @@ importers:
       '@types/ember__component':
         specifier: ~4.0.8
         version: 4.0.21
+      '@types/ember__template':
+        specifier: ^4.0.5
+        version: 4.0.5
       expect-type:
         specifier: ^0.15.0
         version: 0.15.0
