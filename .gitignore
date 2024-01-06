@@ -4,3 +4,5 @@ test-packages/ephemeral
 .eslintcache
 *.tsbuildinfo
 *.js.map
+/.yarn/*
+!/.yarn/releases

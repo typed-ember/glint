@@ -9,21 +9,21 @@
   "scripts": {
     "build": "NODE_ENV=production webpack",
     "start": "webpack-dev-server",
-    "test": "true # TODO: we'll make this do type-checking soon!"
+    "test": "echo \"TODO: we'll make this do type-checking soon!\""
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.0",
-    "@glimmerx/babel-preset": "^0.6.7",
     "@glimmer/babel-plugin-glimmer-env": "~2.0.0-beta.12",
     "@glimmer/env": "^0.1.7",
     "@glimmer/syntax": "^0.84.2",
+    "@glimmerx/babel-preset": "^0.6.7",
     "@glimmerx/component": "^0.6.7",
     "@glimmerx/core": "^0.6.7",
     "@glimmerx/eslint-plugin": "^0.6.7",
     "@glimmerx/helper": "^0.6.7",
     "@glimmerx/modifier": "^0.6.7",
-    "@glint/core": "^1.2.2",
+    "@glint/core": "workspace:*",
     "babel-loader": "^8.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^5.1.1",

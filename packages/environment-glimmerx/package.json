@@ -30,10 +30,10 @@
     "component/**/*.{js,d.ts}"
   ],
   "peerDependencies": {
-    "@glint/template": "^1.2.2",
     "@glimmerx/component": "^0.6.7",
+    "@glimmerx/helper": "^0.6.7",
     "@glimmerx/modifier": "^0.6.7",
-    "@glimmerx/helper": "^0.6.7"
+    "@glint/template": "^1.2.2"
   },
   "peerDependenciesMeta": {
     "@glimmerx/component": {
@@ -48,8 +48,10 @@
   },
   "devDependencies": {
     "@glimmerx/component": "^0.6.7",
-    "@glimmerx/modifier": "^0.6.7",
     "@glimmerx/helper": "^0.6.7",
+    "@glimmerx/modifier": "^0.6.7",
+    "@glint/core": "workspace:*",
+    "@glint/template": "workspace:*",
     "expect-type": "^0.15.0"
   },
   "publishConfig": {

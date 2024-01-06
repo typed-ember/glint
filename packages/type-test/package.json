@@ -23,6 +23,10 @@
   "peerDependencies": {
     "@glint/template": "^1.2.2"
   },
+  "devDependencies": {
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/template": "workspace:*"
+  },
   "publishConfig": {
     "access": "public"
   }
