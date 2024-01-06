@@ -62,6 +62,8 @@
   },
   "devDependencies": {
     "@glimmer/component": "^1.1.2",
+    "@glint/core": "workspace:*",
+    "@glint/template": "workspace:*",
     "@types/ember__array": "^4.0.2",
     "@types/ember__component": "^4.0.10",
     "@types/ember__controller": "^4.0.2",

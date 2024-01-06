@@ -8,6 +8,6 @@ export default class Greeting extends Component<GreetingSignature> {
   private message = 'Hello';
 
   <template>
-    {{this.message}}, {{@target}}!
+    {{@undocumentedProperty}} {{this.message}}, {{@target}}!
   </template>
 }

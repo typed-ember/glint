@@ -9,7 +9,7 @@
   "dependencies": {
     "execa": "^7.1.1"
   },
-  "scripts": {
-    "test": "true"
+  "devDependencies": {
+    "@glint/core": "workspace:*"
   }
 }

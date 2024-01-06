@@ -43,7 +43,6 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
-    "glint-monorepo-test-utils": "^1.2.2",
     "@types/common-tags": "^1.8.0",
     "@types/node": "^18.11.5",
     "@types/semver": "^7.3.13",
@@ -52,6 +51,7 @@
     "@vitest/ui": "^0.23.4",
     "common-tags": "^1.8.0",
     "execa": "^4.0.1",
+    "glint-monorepo-test-utils": "workspace:*",
     "strip-ansi": "^6.0.0",
     "vitest": "^0.22.0"
   },
