@@ -120,7 +120,6 @@ export function bindLanguageServerPool({
       if (context.triggerKind === CodeActionTriggerKind.Invoked) {
         let language = server.getLanguageType(textDocument.uri);
         let formating = configManager.getFormatCodeSettingsFor(language);
-        let preferences = configManager.getUserSettingsFor(language);
         let diagnostics = context.diagnostics;
 
         let kind = '';
@@ -142,7 +141,7 @@ export function bindLanguageServerPool({
           range,
           diagnostics,
           formating,
-          preferences
+          PREFERENCES
         );
       }
 
@@ -162,6 +161,38 @@ export function bindLanguageServerPool({
     );
   });
 
+  // TODO: decide which of these to make configurable
+  const PREFERENCES: ts.UserPreferences = {
+    disableSuggestions: false,
+    quotePreference: 'auto',
+    includeCompletionsForModuleExports: true,
+    includeCompletionsForImportStatements: true,
+    includeCompletionsWithSnippetText: true,
+    includeAutomaticOptionalChainCompletions: true,
+    includeCompletionsWithInsertText: true,
+    includeCompletionsWithClassMemberSnippets: true,
+    includeCompletionsWithObjectLiteralMethodSnippets: true,
+    useLabelDetailsInCompletionEntries: true,
+    allowIncompleteCompletions: true,
+    importModuleSpecifierPreference: undefined, // this corresponds to the default 'shortest' option
+    importModuleSpecifierEnding: 'auto',
+    allowTextChangesInNewFiles: true,
+    providePrefixAndSuffixTextForRename: true,
+    includePackageJsonAutoImports: 'auto',
+    provideRefactorNotApplicableReason: true,
+    jsxAttributeCompletionStyle: 'auto',
+    includeInlayParameterNameHints: 'all',
+    includeInlayParameterNameHintsWhenArgumentMatchesName: true,
+    includeInlayFunctionParameterTypeHints: true,
+    includeInlayVariableTypeHints: true,
+    includeInlayVariableTypeHintsWhenTypeMatchesName: true,
+    includeInlayPropertyDeclarationTypeHints: true,
+    includeInlayFunctionLikeReturnTypeHints: true,
+    includeInlayEnumMemberValueHints: true,
+    allowRenameOfImportPath: true,
+    autoImportFileExcludePatterns: [],
+  };
+
   connection.onCompletion(async ({ textDocument, position }) => {
     // Pause briefly to allow any editor change events to be transmitted as well.
     // VS Code explicitly sends the the autocomplete request BEFORE it sends the
@@ -171,15 +202,7 @@ export function bindLanguageServerPool({
     return pool.withServerForURI(textDocument.uri, ({ server }) => {
       let language = server.getLanguageType(textDocument.uri);
       let formatting = configManager.getFormatCodeSettingsFor(language);
-      let preferences = configManager.getUserSettingsFor(language);
-
-      // tmp hack -- uncomment me when testing via extension host with default TS extension disabled
-      // (because I think that clears out all the TS preferences, including whether auto-import is enabled)
-      // preferences = {
-      //   includeCompletionsForModuleExports: true,
-      // };
-
-      return server.getCompletions(textDocument.uri, position, formatting, preferences);
+      return server.getCompletions(textDocument.uri, position, formatting, PREFERENCES);
     });
   });
 
@@ -191,15 +214,7 @@ export function bindLanguageServerPool({
       pool.withServerForURI(glintItem.data.uri, ({ server }) => {
         let language = server.getLanguageType(glintItem.data.uri);
         let formatting = configManager.getFormatCodeSettingsFor(language);
-        let preferences = configManager.getUserSettingsFor(language);
-
-        // tmp hack -- uncomment me when testing via extension host with default TS extension disabled
-        // (because I think that clears out all the TS preferences, including whether auto-import is enabled)
-        // preferences = {
-        //   includeCompletionsForModuleExports: true,
-        // };
-
-        return server.getCompletionDetails(glintItem, formatting, preferences);
+        return server.getCompletionDetails(glintItem, formatting, PREFERENCES);
       }) ?? item
     );
   });
@@ -238,8 +253,7 @@ export function bindLanguageServerPool({
     return pool.withServerForURI(uri, ({ server }) => {
       const language = server.getLanguageType(uri);
       const formatting = configManager.getFormatCodeSettingsFor(language);
-      const preferences = configManager.getUserSettingsFor(language);
-      return server.organizeImports(uri, formatting, preferences);
+      return server.organizeImports(uri, formatting, PREFERENCES);
     });
   });
 
