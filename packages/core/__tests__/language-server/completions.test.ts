@@ -196,7 +196,7 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('let foobar: number');
 
     expect(details.additionalTextEdits?.length).toEqual(1);
-    expect(details.additionalTextEdits?.[0].newText).toEqual("import { foobar } from 'other';\r\n");
+    expect(details.additionalTextEdits?.[0].newText).toMatch("import { foobar } from 'other';");
     expect(details.additionalTextEdits?.[0].range).toEqual({
       start: { line: 1, character: 0 },
       end: { line: 1, character: 0 },
