@@ -260,6 +260,15 @@ export default class GlintLanguageServer {
       return item;
     }
 
+    if (details.codeActions) {
+      // CodeActions (such as auto-imports) need to be converted to TextEdits
+      // that will be applied when the user selects the Completion.
+      item.additionalTextEdits = this.convertCodeActionToTextEdit(
+        transformedFileName,
+        details.codeActions
+      );
+    }
+
     return {
       ...item,
       detail: this.ts.displayPartsToString(details.displayParts),
@@ -268,6 +277,27 @@ export default class GlintLanguageServer {
         value: this.ts.displayPartsToString(details.documentation),
       },
     };
+  }
+
+  private convertCodeActionToTextEdit(uri: string, codeActions: ts.CodeAction[]): TextEdit[] {
+    const textEdits: TextEdit[] = [];
+
+    for (const action of codeActions) {
+      for (const change of action.changes) {
+        for (const textChange of change.textChanges) {
+          const location = this.textSpanToLocation(uri, textChange.span);
+
+          if (location) {
+            textEdits.push({
+              range: location.range,
+              newText: textChange.newText,
+            });
+          }
+        }
+      }
+    }
+
+    return textEdits;
   }
 
   public prepareRename(uri: string, position: Position): Range | undefined {

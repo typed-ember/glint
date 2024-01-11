@@ -7,7 +7,11 @@ describe('Language Server: Completions', () => {
   let project!: Project;
 
   beforeEach(async () => {
-    project = await Project.create();
+    project = await Project.create({
+      compilerOptions: {
+        baseUrl: '.',
+      },
+    });
   });
 
   afterEach(async () => {
@@ -156,27 +160,27 @@ describe('Language Server: Completions', () => {
   });
 
   test('auto imports', () => {
-    let other = stripIndent`
-      export let foobar = 123;
-    `;
+    project.write({
+      'other.ts': stripIndent`
+        export let foobar = 123;
+      `,
+      'index.ts': stripIndent`
+        import { thing } from 'nonexistent';
 
-    project.write('other.ts', other);
-
-    let code = stripIndent`
-      let a = foo
-    `;
-
-    project.write('index.ts', code);
+        let a = foo
+      `,
+    });
 
     const preferences = {
       includeCompletionsForModuleExports: true,
+      allowIncompleteCompletions: true,
     };
 
     let server = project.startLanguageServer();
     let completions = server.getCompletions(
       project.fileURI('index.ts'),
       {
-        line: 0,
+        line: 2,
         character: 11,
       },
       {},
@@ -190,6 +194,13 @@ describe('Language Server: Completions', () => {
     let details = server.getCompletionDetails(importCompletion!, {}, preferences);
 
     expect(details.detail).toEqual('let foobar: number');
+
+    expect(details.additionalTextEdits?.length).toEqual(1);
+    expect(details.additionalTextEdits?.[0].newText).toEqual("import { foobar } from 'other';\r\n");
+    expect(details.additionalTextEdits?.[0].range).toEqual({
+      start: { line: 1, character: 0 },
+      end: { line: 1, character: 0 },
+    });
   });
 
   test('referencing own args', async () => {
