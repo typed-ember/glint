@@ -39,6 +39,7 @@ export interface GlintCompletionItem extends CompletionItem {
     transformedFileName: string;
     transformedOffset: number;
     source: string | undefined;
+    entryData: ts.CompletionEntryData | undefined;
   };
 }
 
@@ -223,7 +224,13 @@ export default class GlintLanguageServer {
     return completions?.entries.map((completionEntry) => ({
       label: completionEntry.name,
       kind: scriptElementKindToCompletionItemKind(this.ts, completionEntry.kind),
-      data: { uri, transformedFileName, transformedOffset, source: completionEntry.source },
+      data: {
+        uri,
+        transformedFileName,
+        transformedOffset,
+        source: completionEntry.source,
+        entryData: completionEntry.data,
+      },
       sortText: completionEntry.sortText,
     }));
   }
@@ -238,7 +245,7 @@ export default class GlintLanguageServer {
       return item;
     }
 
-    let { transformedFileName, transformedOffset, source } = data;
+    let { transformedFileName, transformedOffset, source, entryData } = data;
     let details = this.service.getCompletionEntryDetails(
       transformedFileName,
       transformedOffset,
@@ -246,8 +253,7 @@ export default class GlintLanguageServer {
       formatting,
       source,
       preferences,
-      // @ts-ignore: 4.3 adds a new not-optional-but-can-be-undefined `data` arg
-      undefined
+      entryData
     );
 
     if (!details) {

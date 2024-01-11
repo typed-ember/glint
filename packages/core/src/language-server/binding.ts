@@ -172,6 +172,13 @@ export function bindLanguageServerPool({
       let language = server.getLanguageType(textDocument.uri);
       let formatting = configManager.getFormatCodeSettingsFor(language);
       let preferences = configManager.getUserSettingsFor(language);
+
+      // tmp hack -- uncomment me when testing via extension host with default TS extension disabled
+      // (because I think that clears out all the TS preferences, including whether auto-import is enabled)
+      // preferences = {
+      //   includeCompletionsForModuleExports: true,
+      // };  
+
       return server.getCompletions(textDocument.uri, position, formatting, preferences);
     });
   });
@@ -185,6 +192,13 @@ export function bindLanguageServerPool({
         let language = server.getLanguageType(glintItem.data.uri);
         let formatting = configManager.getFormatCodeSettingsFor(language);
         let preferences = configManager.getUserSettingsFor(language);
+
+      // tmp hack -- uncomment me when testing via extension host with default TS extension disabled
+      // (because I think that clears out all the TS preferences, including whether auto-import is enabled)
+      // preferences = {
+      //   includeCompletionsForModuleExports: true,
+      // };  
+
         return server.getCompletionDetails(glintItem, formatting, preferences);
       }) ?? item
     );
