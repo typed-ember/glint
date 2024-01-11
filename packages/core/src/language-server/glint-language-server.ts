@@ -193,7 +193,8 @@ export default class GlintLanguageServer {
   public getCompletions(
     uri: string,
     position: Position,
-    formatting: ts.FormatCodeSettings = {}
+    formatting: ts.FormatCodeSettings = {},
+    preferences: ts.UserPreferences = {}
   ): GlintCompletionItem[] | undefined {
     let { transformedFileName, transformedOffset, mapping } = this.getTransformedOffset(
       uri,
@@ -215,7 +216,7 @@ export default class GlintLanguageServer {
     let completions = this.service.getCompletionsAtPosition(
       transformedFileName,
       transformedOffset,
-      {},
+      preferences,
       formatting
     );
 

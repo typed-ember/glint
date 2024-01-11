@@ -155,6 +155,43 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('(property) MyComponent.message: string');
   });
 
+  test.only('auto imports', () => {
+    let other = stripIndent`
+      export let foobar = 123;
+    `;
+
+    project.write('other.ts', other);
+
+    let code = stripIndent`
+      let a = foo
+    `;
+
+    project.write('index.ts', code);
+
+    const preferences = {
+      includeCompletionsForModuleExports: true,
+    };
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(
+      project.fileURI('index.ts'),
+      {
+        line: 0,
+        character: 11,
+      },
+      {},
+      preferences
+    );
+
+    let importCompletion = completions?.find(
+      (k) => k.kind == CompletionItemKind.Variable && k.label == 'foobar'
+    );
+
+    let details = server.getCompletionDetails(importCompletion!, {}, preferences);
+
+    expect(details.detail).toEqual('let foobar: number');
+  });
+
   test('referencing own args', async () => {
     let code = stripIndent`
       import Component, { hbs } from '@glimmerx/component';

@@ -171,7 +171,8 @@ export function bindLanguageServerPool({
     return pool.withServerForURI(textDocument.uri, ({ server }) => {
       let language = server.getLanguageType(textDocument.uri);
       let formatting = configManager.getFormatCodeSettingsFor(language);
-      return server.getCompletions(textDocument.uri, position, formatting);
+      let preferences = configManager.getUserSettingsFor(language);
+      return server.getCompletions(textDocument.uri, position, formatting, preferences);
     });
   });
 
