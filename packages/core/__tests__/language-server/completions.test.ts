@@ -155,7 +155,7 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('(property) MyComponent.message: string');
   });
 
-  test.only('auto imports', () => {
+  test('auto imports', () => {
     let other = stripIndent`
       export let foobar = 123;
     `;
