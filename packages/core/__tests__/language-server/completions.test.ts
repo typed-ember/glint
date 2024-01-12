@@ -259,6 +259,40 @@ describe('Language Server: Completions', () => {
     });
   });
 
+  test('auto import - import statements - ensure all completions are resolvable', () => {
+    project.write({
+      'other.ts': stripIndent`
+        export let foobar = 123;
+      `,
+      'index.ts': stripIndent`
+        import foo
+      `,
+    });
+
+    const preferences = {
+      includeCompletionsForModuleExports: true,
+      allowIncompleteCompletions: true,
+      includeCompletionsForImportStatements: true,
+      includeCompletionsWithInsertText: true, // needs to be present for `includeCompletionsForImportStatements` to work
+    };
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(
+      project.fileURI('index.ts'),
+      {
+        line: 0,
+        character: 10,
+      },
+      {},
+      preferences
+    );
+
+    completions?.forEach((completion) => {
+      let details = server.getCompletionDetails(completion, {}, preferences);
+      expect(details).toBeTruthy();
+    });
+  });
+
   test('referencing own args', async () => {
     let code = stripIndent`
       import Component, { hbs } from '@glimmerx/component';

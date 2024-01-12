@@ -163,10 +163,10 @@ export function bindLanguageServerPool({
 
   // TODO: decide which of these to make configurable
   const PREFERENCES: ts.UserPreferences = {
-    disableSuggestions: false,
-    quotePreference: 'auto',
-    includeCompletionsForModuleExports: true,
+    // disableSuggestions: false,
+    // quotePreference: 'auto',
     includeCompletionsForImportStatements: true,
+    includeCompletionsForModuleExports: true,
     includeCompletionsWithSnippetText: true,
     includeAutomaticOptionalChainCompletions: true,
     includeCompletionsWithInsertText: true,
