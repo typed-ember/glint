@@ -269,7 +269,7 @@ export default class GlintLanguageServer {
     };
 
     if (details?.documentation?.length) {
-      documentation.value += this.ts.displayPartsToString(details.documentation) + '\n\n'
+      documentation.value += this.ts.displayPartsToString(details.documentation) + '\n\n';
     }
 
     if (details.tags) {
