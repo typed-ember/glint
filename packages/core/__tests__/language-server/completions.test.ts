@@ -201,6 +201,62 @@ describe('Language Server: Completions', () => {
       start: { line: 1, character: 0 },
       end: { line: 1, character: 0 },
     });
+    expect(details?.documentation).toEqual({
+      kind: 'markdown',
+      value: 'Add import from "other"\n\n',
+    });
+  });
+
+  test('auto imports with documentation and tags', () => {
+    project.write({
+      'other.ts': stripIndent`
+        /**
+         * This is a doc comment
+         * @param foo
+         */
+        export let foobar = 123;
+      `,
+      'index.ts': stripIndent`
+        import { thing } from 'nonexistent';
+
+        let a = foo
+      `,
+    });
+
+    const preferences = {
+      includeCompletionsForModuleExports: true,
+      allowIncompleteCompletions: true,
+    };
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(
+      project.fileURI('index.ts'),
+      {
+        line: 2,
+        character: 11,
+      },
+      {},
+      preferences
+    );
+
+    let importCompletion = completions?.find(
+      (k) => k.kind == CompletionItemKind.Variable && k.label == 'foobar'
+    );
+
+    let details = server.getCompletionDetails(importCompletion!, {}, preferences);
+
+    expect(details.detail).toEqual('let foobar: number');
+
+    expect(details.additionalTextEdits?.length).toEqual(1);
+    expect(details.additionalTextEdits?.[0].newText).toMatch("import { foobar } from 'other';");
+    expect(details.additionalTextEdits?.[0].range).toEqual({
+      start: { line: 1, character: 0 },
+      end: { line: 1, character: 0 },
+    });
+    expect(details?.documentation).toEqual({
+      kind: 'markdown',
+      value: 'This is a doc comment\n\n*@param* `foo`\n\nAdd import from "other"\n\n',
+    });
   });
 
   test('referencing own args', async () => {
