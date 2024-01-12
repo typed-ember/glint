@@ -41,7 +41,7 @@ export interface GlintCompletionItem extends CompletionItem {
     transformedFileName: string;
     transformedOffset: number;
     source: string | undefined;
-    entryData: ts.CompletionEntryData | undefined;
+    tsData: ts.CompletionEntryData | undefined;
   };
 }
 
@@ -223,18 +223,26 @@ export default class GlintLanguageServer {
       formatting
     );
 
-    return completions?.entries.map((completionEntry) => ({
-      label: completionEntry.name,
-      kind: scriptElementKindToCompletionItemKind(this.ts, completionEntry.kind),
-      data: {
-        uri,
-        transformedFileName,
-        transformedOffset,
-        source: completionEntry.source,
-        entryData: completionEntry.data,
-      },
-      sortText: completionEntry.sortText,
-    }));
+    return completions?.entries.map((completionEntry) => {
+      const glintCompletionItem: GlintCompletionItem = {
+        label: completionEntry.name,
+        detail: "I AM DETAIL",
+        preselect: completionEntry.isRecommended ? true : undefined,
+        kind: scriptElementKindToCompletionItemKind(this.ts, completionEntry.kind),
+
+        // This data gets passed through to getCompletionDetails to fetch additional completion details
+        data: {
+          uri,
+          transformedFileName,
+          transformedOffset,
+          source: completionEntry.source,
+          tsData: completionEntry.data,
+        },
+        sortText: completionEntry.sortText,
+      };
+
+      return glintCompletionItem;
+    });
   }
 
   public getCompletionDetails(
@@ -247,7 +255,7 @@ export default class GlintLanguageServer {
       return item;
     }
 
-    let { transformedFileName, transformedOffset, source, entryData } = data;
+    let { transformedFileName, transformedOffset, source, tsData } = data;
     let details = this.service.getCompletionEntryDetails(
       transformedFileName,
       transformedOffset,
@@ -255,7 +263,7 @@ export default class GlintLanguageServer {
       formatting,
       source,
       preferences,
-      entryData
+      tsData
     );
 
     if (!details) {
@@ -267,6 +275,22 @@ export default class GlintLanguageServer {
       kind: 'markdown',
       value: '',
     };
+
+    if (details.codeActions) {
+      // CodeActions (such as auto-imports) need to be converted to TextEdits
+      // that will be applied when the user selects the Completion.
+      item.additionalTextEdits = this.convertCodeActionToTextEdit(
+        transformedFileName,
+        details.codeActions
+      );
+
+      details.codeActions.forEach((action) => {
+        if (action.description) {
+          // Prefix details, e.g. 'Add import from "@glimmer/component"'
+          item.detail = `${action.description}\n\n${item.detail}`;
+        }
+      });
+    }
 
     if (details?.documentation?.length) {
       documentation.value += this.ts.displayPartsToString(details.documentation) + '\n\n';
@@ -283,24 +307,9 @@ export default class GlintLanguageServer {
       }
     }
 
-    if (details.codeActions) {
-      // CodeActions (such as auto-imports) need to be converted to TextEdits
-      // that will be applied when the user selects the Completion.
-      item.additionalTextEdits = this.convertCodeActionToTextEdit(
-        transformedFileName,
-        details.codeActions
-      );
-
-      details.codeActions.forEach((action) => {
-        if (action.description) {
-          documentation.value += action.description + '\n\n';
-        }
-      });
-    }
-
     return {
       ...item,
-      detail: this.ts.displayPartsToString(details.displayParts),
+      // detail: this.ts.displayPartsToString(details.displayParts),
       documentation,
     };
   }

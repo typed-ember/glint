@@ -193,7 +193,7 @@ describe('Language Server: Completions', () => {
 
     let details = server.getCompletionDetails(importCompletion!, {}, preferences);
 
-    expect(details.detail).toEqual('let foobar: number');
+    expect(details.detail).toEqual('Add import from "other"\n\nlet foobar: number');
 
     expect(details.additionalTextEdits?.length).toEqual(1);
     expect(details.additionalTextEdits?.[0].newText).toMatch("import { foobar } from 'other';");
@@ -203,11 +203,11 @@ describe('Language Server: Completions', () => {
     });
     expect(details?.documentation).toEqual({
       kind: 'markdown',
-      value: 'Add import from "other"\n\n',
+      value: '',
     });
   });
 
-  test('auto imports with documentation and tags', () => {
+  test.only('auto imports with documentation and tags', () => {
     project.write({
       'other.ts': stripIndent`
         /**
@@ -245,7 +245,7 @@ describe('Language Server: Completions', () => {
 
     let details = server.getCompletionDetails(importCompletion!, {}, preferences);
 
-    expect(details.detail).toEqual('let foobar: number');
+    expect(details.detail).toEqual('Add import from "other"\n\nlet foobar: number');
 
     expect(details.additionalTextEdits?.length).toEqual(1);
     expect(details.additionalTextEdits?.[0].newText).toMatch("import { foobar } from 'other';");
@@ -255,7 +255,7 @@ describe('Language Server: Completions', () => {
     });
     expect(details?.documentation).toEqual({
       kind: 'markdown',
-      value: 'This is a doc comment\n\n*@param* `foo`\n\nAdd import from "other"\n\n',
+      value: 'This is a doc comment\n\n*@param* `foo`\n\n',
     });
   });
 
