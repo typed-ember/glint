@@ -31,7 +31,6 @@ import {
   tagsForDiagnostic,
 } from './util/protocol.js';
 import { GetIRResult } from './messages.cjs';
-import type { TsUserConfigLang } from './config-manager.js';
 import MappingTree from '../transform/template/mapping-tree.js';
 import { getTagDocumentation, plain } from './util/previewer.js';
 
@@ -488,11 +487,6 @@ export default class GlintLanguageServer {
     }
 
     return [];
-  }
-
-  public getLanguageType(uri: string): TsUserConfigLang {
-    let file = uriToFilePath(uri);
-    return this.glintConfig.environment.isTypedScript(file) ? 'typescript' : 'javascript';
   }
 
   public organizeImports(

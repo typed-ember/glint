@@ -5,7 +5,6 @@ import {
   SymbolInformation,
   TextDocuments,
   TextDocumentSyncKind,
-  InitializeParams as BaseInitializeParams,
   CodeActionTriggerKind,
   CodeActionKind,
 } from 'vscode-languageserver';
@@ -74,18 +73,6 @@ export type BindingArgs = {
   connection: Connection;
   pool: LanguageServerPool;
 };
-
-interface FormattingAndPreferences {
-  format?: ts.FormatCodeSettings;
-  preferences?: ts.UserPreferences;
-}
-
-interface InitializeParams extends BaseInitializeParams {
-  initializationOptions?: {
-    typescript?: FormattingAndPreferences;
-    javascript?: FormattingAndPreferences;
-  };
-}
 
 export function bindLanguageServerPool({ connection, pool, openDocuments }: BindingArgs): void {
   connection.onInitialize(() => {
