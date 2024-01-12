@@ -226,9 +226,13 @@ export default class GlintLanguageServer {
     return completions?.entries.map((completionEntry) => {
       const glintCompletionItem: GlintCompletionItem = {
         label: completionEntry.name,
-        detail: "I AM DETAIL",
         preselect: completionEntry.isRecommended ? true : undefined,
         kind: scriptElementKindToCompletionItemKind(this.ts, completionEntry.kind),
+
+        labelDetails: {
+          // This displays the module specific for auto-imports, e.g. "../../component" or "@glimmer/component"
+          description: completionEntry.data?.moduleSpecifier,
+        },
 
         // This data gets passed through to getCompletionDetails to fetch additional completion details
         data: {
@@ -307,9 +311,12 @@ export default class GlintLanguageServer {
       }
     }
 
+    // Clean up any extra newlines
+    documentation.value = documentation.value.replace(/\n+$/, '');
+    item.detail = item.detail.replace(/\n+$/, '');
+
     return {
       ...item,
-      // detail: this.ts.displayPartsToString(details.displayParts),
       documentation,
     };
   }

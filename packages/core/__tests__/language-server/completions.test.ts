@@ -205,9 +205,10 @@ describe('Language Server: Completions', () => {
       kind: 'markdown',
       value: '',
     });
+    expect(details?.labelDetails?.description).toEqual('other');
   });
 
-  test.only('auto imports with documentation and tags', () => {
+  test('auto imports with documentation and tags', () => {
     project.write({
       'other.ts': stripIndent`
         /**
@@ -255,7 +256,7 @@ describe('Language Server: Completions', () => {
     });
     expect(details?.documentation).toEqual({
       kind: 'markdown',
-      value: 'This is a doc comment\n\n*@param* `foo`\n\n',
+      value: 'This is a doc comment\n\n*@param* `foo`',
     });
   });
 
