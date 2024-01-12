@@ -25,7 +25,7 @@ export const capabilities: ServerCapabilities = {
     triggerCharacters: ['.', '@'],
     completionItem: {
       labelDetailsSupport: true,
-    }
+    },
   },
   referencesProvider: true,
   hoverProvider: true,
