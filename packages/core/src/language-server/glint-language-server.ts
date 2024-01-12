@@ -21,6 +21,7 @@ import {
   TextDocumentEdit,
   OptionalVersionedTextDocumentIdentifier,
   TextEdit,
+  MarkupContent,
 } from 'vscode-languageserver';
 import DocumentCache from '../common/document-cache.js';
 import { Position, positionToOffset } from './util/position.js';
@@ -32,6 +33,7 @@ import {
 import { GetIRResult } from './messages.cjs';
 import type { TsUserConfigLang } from './config-manager.js';
 import MappingTree from '../transform/template/mapping-tree.js';
+import { getTagDocumentation, plain } from './util/previewer.js';
 
 export interface GlintCompletionItem extends CompletionItem {
   data: {
@@ -260,6 +262,27 @@ export default class GlintLanguageServer {
       return item;
     }
 
+    item.detail = plain(this.ts.displayPartsToString(details.displayParts));
+    const documentation: MarkupContent = {
+      kind: 'markdown',
+      value: '',
+    };
+
+    if (details?.documentation?.length) {
+      documentation.value += this.ts.displayPartsToString(details.documentation) + '\n\n'
+    }
+
+    if (details.tags) {
+      if (details.tags) {
+        details.tags.forEach((x) => {
+          const tagDoc = getTagDocumentation(x);
+          if (tagDoc) {
+            documentation.value += tagDoc + '\n\n';
+          }
+        });
+      }
+    }
+
     if (details.codeActions) {
       // CodeActions (such as auto-imports) need to be converted to TextEdits
       // that will be applied when the user selects the Completion.
@@ -267,15 +290,18 @@ export default class GlintLanguageServer {
         transformedFileName,
         details.codeActions
       );
+
+      details.codeActions.forEach((action) => {
+        if (action.description) {
+          documentation.value += action.description + '\n\n';
+        }
+      });
     }
 
     return {
       ...item,
       detail: this.ts.displayPartsToString(details.displayParts),
-      documentation: {
-        kind: 'markdown',
-        value: this.ts.displayPartsToString(details.documentation),
-      },
+      documentation,
     };
   }
 
