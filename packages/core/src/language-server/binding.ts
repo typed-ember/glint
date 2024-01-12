@@ -23,6 +23,9 @@ export const capabilities: ServerCapabilities = {
     // By default `@` won't trigger autocompletion, but it's an important character
     // for us since it signifies the beginning of an arg name.
     triggerCharacters: ['.', '@'],
+    completionItem: {
+      labelDetailsSupport: true,
+    }
   },
   referencesProvider: true,
   hoverProvider: true,
