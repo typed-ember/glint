@@ -46,7 +46,7 @@ const PREFERENCES: ts.UserPreferences = {
   includeCompletionsWithClassMemberSnippets: true,
   includeCompletionsWithObjectLiteralMethodSnippets: true,
   useLabelDetailsInCompletionEntries: true,
-  importModuleSpecifierPreference: "shortest",
+  importModuleSpecifierPreference: 'shortest',
   importModuleSpecifierEnding: 'auto',
   allowTextChangesInNewFiles: true,
   providePrefixAndSuffixTextForRename: true,
