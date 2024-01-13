@@ -7,11 +7,7 @@ describe('Language Server: Completions', () => {
   let project!: Project;
 
   beforeEach(async () => {
-    project = await Project.create({
-      compilerOptions: {
-        baseUrl: '.',
-      },
-    });
+    project = await Project.create();
   });
 
   afterEach(async () => {
@@ -193,10 +189,10 @@ describe('Language Server: Completions', () => {
 
     let details = server.getCompletionDetails(importCompletion!, {}, preferences);
 
-    expect(details.detail).toEqual('Add import from "other"\n\nlet foobar: number');
+    expect(details.detail).toEqual('Add import from "./other"\n\nlet foobar: number');
 
     expect(details.additionalTextEdits?.length).toEqual(1);
-    expect(details.additionalTextEdits?.[0].newText).toMatch("import { foobar } from 'other';");
+    expect(details.additionalTextEdits?.[0].newText).toMatch("import { foobar } from './other';");
     expect(details.additionalTextEdits?.[0].range).toEqual({
       start: { line: 1, character: 0 },
       end: { line: 1, character: 0 },
@@ -205,7 +201,7 @@ describe('Language Server: Completions', () => {
       kind: 'markdown',
       value: '',
     });
-    expect(details?.labelDetails?.description).toEqual('other');
+    expect(details?.labelDetails?.description).toEqual('./other');
   });
 
   test('auto imports with documentation and tags', () => {
@@ -246,10 +242,10 @@ describe('Language Server: Completions', () => {
 
     let details = server.getCompletionDetails(importCompletion!, {}, preferences);
 
-    expect(details.detail).toEqual('Add import from "other"\n\nlet foobar: number');
+    expect(details.detail).toEqual('Add import from "./other"\n\nlet foobar: number');
 
     expect(details.additionalTextEdits?.length).toEqual(1);
-    expect(details.additionalTextEdits?.[0].newText).toMatch("import { foobar } from 'other';");
+    expect(details.additionalTextEdits?.[0].newText).toMatch("import { foobar } from './other';");
     expect(details.additionalTextEdits?.[0].range).toEqual({
       start: { line: 1, character: 0 },
       end: { line: 1, character: 0 },

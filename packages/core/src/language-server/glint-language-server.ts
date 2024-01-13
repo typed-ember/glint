@@ -90,6 +90,7 @@ export default class GlintLanguageServer {
       directoryExists: this.ts.sys.directoryExists,
       getDirectories: this.ts.sys.getDirectories,
       realpath: this.ts.sys.realpath,
+      useCaseSensitiveFileNames: () => true,
     };
 
     this.service = this.ts.createLanguageService(serviceHost);
