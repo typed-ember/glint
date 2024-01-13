@@ -38,6 +38,7 @@
   "resolutions": {
     "@glimmer/manager": "0.84.3",
     "@glimmer/interfaces": "0.84.3",
+    "@glimmer/runtime": "0.84.3",
     "@glimmer/reference": "0.84.3",
     "@glimmer/util": "0.84.3",
     "@glimmer/validator": "0.84.3",
