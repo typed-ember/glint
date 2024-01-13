@@ -232,7 +232,6 @@ export default class GlintLanguageServer {
       uri,
       position
     );
-    console.error(`ALEX getting completions ${+new Date()}`);
 
     if (!this.isAnalyzableFile(transformedFileName)) return;
 
@@ -252,8 +251,6 @@ export default class GlintLanguageServer {
       preferences,
       formatting
     );
-
-    console.error(`ALEX DONE getting completions ${+new Date()}`);
 
     return completions?.entries.map((completionEntry) => {
       const glintCompletionItem: GlintCompletionItem = {
