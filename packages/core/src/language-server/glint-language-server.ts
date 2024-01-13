@@ -229,7 +229,7 @@ export default class GlintLanguageServer {
         kind: scriptElementKindToCompletionItemKind(this.ts, completionEntry.kind),
 
         labelDetails: {
-          // This displays the module specific for auto-imports, e.g. "../../component" or "@glimmer/component"
+          // This displays the module specifier for auto-imports, e.g. "../../component" or "@glimmer/component"
           description: completionEntry.data?.moduleSpecifier,
         },
 

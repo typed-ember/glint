@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Extension",
+      "name": "Debug Extension (TS LSP Enabled)",
       "type": "extensionHost",
       "request": "launch",
       "preLaunchTask": "npm: build",
@@ -14,6 +14,24 @@
       ],
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+        "${workspaceFolder}/test-packages"
+      ]
+    },
+    {
+      "name": "Debug Extension (TS LSP Disabled)",
+      "type": "extensionHost",
+      "request": "launch",
+      "preLaunchTask": "npm: build",
+      "autoAttachChildProcesses": true,
+      "runtimeExecutable": "${execPath}",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js",
+        "!**/node_modules/**"
+      ],
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+        "--disable-extension",
+        "vscode.typescript-language-features",
         "${workspaceFolder}/test-packages"
       ]
     }
