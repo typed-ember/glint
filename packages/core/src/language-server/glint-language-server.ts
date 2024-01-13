@@ -67,6 +67,12 @@ export default class GlintLanguageServer {
     this.openFileNames = new Set();
     this.rootFileNames = new Set(parsedConfig.fileNames);
 
+    let exportMapCache = null;
+
+    const ts = this.glintConfig.ts;
+
+    let program: ts.Program | undefined;
+
     let serviceHost: ts.LanguageServiceHost = {
       getScriptFileNames: () => [...new Set(this.allKnownFileNames())],
       getScriptVersion: (fileName) => this.documents.getDocumentVersion(fileName),
@@ -91,12 +97,34 @@ export default class GlintLanguageServer {
       getDirectories: this.ts.sys.getDirectories,
       realpath: this.ts.sys.realpath,
       useCaseSensitiveFileNames: () => true,
+
+      getCachedExportInfoMap() {
+        // This hook is required so that when resolving a completion item, we can fetch export info
+        // cached from the previous call to getCompletions. Without this, attempting to resolve a completion
+        // item for exports that have at least 2 exports (due to re-exporting) will fail with an error.
+        // See here for additional details on the ExportInfoMap.
+        // https://github.com/microsoft/TypeScript/pull/52686
+
+        // @ts-expect-error This method does actually exist since 4.4+, but not sure why it's not in the types
+        return (exportMapCache ||= ts.createCacheableExportInfoMap({
+          getCurrentProgram: () => program,
+          getPackageJsonAutoImportProvider: () => null,
+          getGlobalTypingsCacheLocation: () => null,
+        }));
+      },
+
+      // This can be temporarily uncommented when debugging the internal TS Language Server.
+      // Logs will show up in the Debug Console. NOTE: don't change to console.log() because
+      // it will interfere with transmitting messages back to the client.
+      // log(message: string) {
+      //   console.error(message);
+      // },
     };
 
     this.service = this.ts.createLanguageService(serviceHost);
 
     // Kickstart typechecking
-    this.service.getProgram();
+    program = this.service.getProgram();
   }
 
   public dispose(): void {
@@ -203,6 +231,7 @@ export default class GlintLanguageServer {
       uri,
       position
     );
+    console.error(`ALEX getting completions ${+new Date()}`);
 
     if (!this.isAnalyzableFile(transformedFileName)) return;
 
@@ -222,6 +251,8 @@ export default class GlintLanguageServer {
       preferences,
       formatting
     );
+
+    console.error(`ALEX DONE getting completions ${+new Date()}`);
 
     return completions?.entries.map((completionEntry) => {
       const glintCompletionItem: GlintCompletionItem = {
