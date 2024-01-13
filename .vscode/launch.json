@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Extension (TS LSP Enabled)",
+      "name": "Debug Extension (Glint + TS)",
       "type": "extensionHost",
       "request": "launch",
       "preLaunchTask": "npm: build",
@@ -18,7 +18,7 @@
       ]
     },
     {
-      "name": "Debug Extension (TS LSP Disabled)",
+      "name": "Debug Extension (Glint Only, No TS)",
       "type": "extensionHost",
       "request": "launch",
       "preLaunchTask": "npm: build",
