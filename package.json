@@ -38,6 +38,8 @@
   "resolutions": {
     "@glimmer/manager": "0.84.3",
     "@glimmer/interfaces": "0.84.3",
+    "@glimmer/reference": "0.84.3",
+    "@glimmer/util": "0.84.3",
     "@glimmer/validator": "0.84.3",
     "@types/yargs": "17.0.13",
     "@types/node": "^20.10.6",
