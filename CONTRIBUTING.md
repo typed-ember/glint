@@ -32,7 +32,7 @@ Then you can configure your editor to point to the absolute path of the `./packa
 
 With the running `tsc --build --watch` command, the language server will rebuild when any source code files change. _Important_: after any source code file change and subsequent rebuild, you will need to restart the language server from within your editor in order for the changes to be reflected in your editor. In VSCode, this means running "Glint: Restart Glint Server" from the Command Palette.
 
-## How to glint-language-server locally in debug mode?
+## How to run glint-language-server locally in debug mode?
 
 There are a few VSCode Launch Configurations within `./vscode/launch.json` that are handy for debugging:
 
