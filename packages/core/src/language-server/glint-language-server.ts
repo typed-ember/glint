@@ -98,6 +98,7 @@ export default class GlintLanguageServer {
       realpath: this.ts.sys.realpath,
       useCaseSensitiveFileNames: () => true,
 
+      // @ts-ignore Undocumented method.
       getCachedExportInfoMap() {
         // This hook is required so that when resolving a completion item, we can fetch export info
         // cached from the previous call to getCompletions. Without this, attempting to resolve a completion
@@ -105,7 +106,7 @@ export default class GlintLanguageServer {
         // See here for additional details on the ExportInfoMap.
         // https://github.com/microsoft/TypeScript/pull/52686
 
-        // @ts-expect-error This method does actually exist since 4.4+, but not sure why it's not in the types
+        // @ts-ignore This method does actually exist since 4.4+, but not sure why it's not in the types
         return (exportMapCache ||= ts.createCacheableExportInfoMap({
           getCurrentProgram: () => program,
           getPackageJsonAutoImportProvider: () => null,
