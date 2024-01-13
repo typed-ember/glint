@@ -32,7 +32,21 @@ Then you can configure your editor to point to the absolute path of the `./packa
 
 With the running `tsc --build --watch` command, the language server will rebuild when any source code files change. _Important_: after any source code file change and subsequent rebuild, you will need to restart the language server from within your editor in order for the changes to be reflected in your editor. In VSCode, this means running "Glint: Restart Glint Server" from the Command Palette.
 
-_NOTE_: these instructions only apply to debugging the language server in a live-rebuilding manner; if you are interested in testing out the VSCode extension code, see below.
+## How to glint-language-server locally in debug mode?
+
+There are a few VSCode Launch Configurations within `./vscode/launch.json` that are handy for debugging:
+
+- Both will enable the TS/JS debugger on both the language server and the client-side VSCode extension code, meaning the debug breakpoints will pause execution to allow you to debug things like text completions
+- Debug Extension (Glint + TS)
+  - This spins up a VSCode window with both Glint and the built-in TS language server running.
+  - In this mode, both language servers will provide duplicate completions and suggestions, which can be useful for testing out feature parity between Glint and TS
+- Debug Extension (Glint Only)
+  - This is useful for testing out the "takeover" mode of running Glint, where Glint is responsible for providing all of the language features (debugging, diagnostics, etc); this is the ideal way to run Glint, but at the time of writing we have not yet achieved feature parity with built-in TS
+- By default these extensions will launch the VSCode Extension Host in the `test-packages` subfolder, which have Ember and Glimmerx apps that you can do some basic testing on
+- _TIP_: you can open any workspace with the Extension Host, meaning you can even debug the language server with breakpoints on a totally separate Ember repo, for example.
+- _NOTE_: debugging takes place within the `glint` workspace, i.e. if you are debugging completions, you'd trigger a completion within the Extension Host, and the breakpoint would pause within the Glint workspace VSCode instance.
+
+These launch configurations can be run via the Run and Debug tab in VSCode.
 
 ## How to test out the VSCode extension locally?
 
@@ -42,16 +56,4 @@ Firstly, there is an entire suite of integration tests that will spin up instanc
 yarn run test
 ```
 
-If you would like a more interactive environment in which to test out the extension, there are a few VSCode Launch Configurations within `./vscode/launch.json` that can be used.
-
-- Both of them spin up a new VSCode window in "Development Extension Host" mode to test out the extension code
-- Additionally, both will enable the TS/JS debugger on the language server, meaning the debug breakpoints will pause execution to allow you to debug things like text completions
-- Debug Extension (Glint + TS)
-  - This spins up a VSCode window with both Glint and the built-in TS language server running.
-  - In this mode, both language servers will provide duplicate completions and suggestions, which can be useful for testing out feature parity between Glint and TS
-- Debug Extension (Glint Only)
-  - This is useful for testing out the "takeover" mode of running Glint, where Glint is responsible for providing all of the language features (debugging, diagnostics, etc); this is the ideal way to run Glint, but at the time of writing we have not yet achieved feature parity with built-in TS
-
-
-These launch configurations can be run via the Run and Debug tab in VSCode.
-
+Secondly, the Launch Configurations described above (I believe) will run your client-side extension code in debug mode, along with the language server.
