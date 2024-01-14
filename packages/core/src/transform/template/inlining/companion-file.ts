@@ -34,7 +34,7 @@ export function calculateCompanionTemplateSpans(
   let { typesModule, specialForms } = templateConfig;
   let useJsDoc = environment.isUntypedScript(script.filename);
   let targetNode = findCompanionTemplateTarget(ts, ast);
-  if (targetNode && ts.isClassLike(targetNode)) {
+  if (targetNode && ts.isClassLike(targetNode)) { // is targetNode an exported default class?
     let rewriteResult = templateToTypescript(template.contents, {
       typesModule,
       specialForms,

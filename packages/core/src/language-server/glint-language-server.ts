@@ -22,7 +22,7 @@ import {
   OptionalVersionedTextDocumentIdentifier,
   TextEdit,
   MarkupContent,
-} from 'vscode-languageserver';
+} from '@volar/language-server';
 import DocumentCache from '../common/document-cache.js';
 import { Position, positionToOffset } from './util/position.js';
 import {

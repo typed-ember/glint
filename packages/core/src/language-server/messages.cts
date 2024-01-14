@@ -1,4 +1,4 @@
-import { ProtocolRequestType, TextEdit } from 'vscode-languageserver';
+import { ProtocolRequestType, TextEdit } from '@volar/language-server';
 
 export type Request<Name extends string, T> = {
   name: Name;

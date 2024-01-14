@@ -4,7 +4,7 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   SymbolKind,
-} from 'vscode-languageserver';
+} from '@volar/language-server';
 
 type TS = typeof ts;
 

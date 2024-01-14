@@ -1,7 +1,7 @@
 import { Project } from 'glint-monorepo-test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
-import { SymbolKind } from 'vscode-languageserver-types';
+import { SymbolKind } from '@volar/language-server';
 
 describe('Language Server: Symbol Search', () => {
   let project!: Project;

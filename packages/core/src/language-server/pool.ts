@@ -5,7 +5,7 @@ import {
   ShowMessageNotification,
   TextDocuments,
   DiagnosticSeverity,
-} from 'vscode-languageserver';
+} from '@volar/language-server';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import DocumentCache from '../common/document-cache.js';
 import { debounce } from '../common/scheduling.js';
@@ -16,7 +16,6 @@ import { validateTS } from '../common/typescript-compatibility.js';
 
 export type ServerDetails = {
   server: GlintLanguageServer;
-  rootDir: string;
   scheduleDiagnostics: () => void;
 };
 
@@ -61,6 +60,7 @@ export class LanguageServerPool {
 
   private getServerDetailsForURI(uri: string): ServerDetails | undefined {
     try {
+      // This is where we create GlintConfig to wrap tsconfig, etc,
       let config = this.configForURI(uri);
       if (!config) return;
 
@@ -79,6 +79,7 @@ export class LanguageServerPool {
     }
   }
 
+  // NO LONGER CALLED
   private launchServer(glintConfig: GlintConfig): ServerDetails | undefined {
     let tsValidationResult = validateTS(glintConfig.ts);
     if (!tsValidationResult.valid) {
@@ -92,11 +93,10 @@ export class LanguageServerPool {
 
     let documentCache = new DocumentCache(glintConfig);
     let transformManager = new TransformManager(glintConfig, documentCache);
-    let rootDir = glintConfig.rootDir;
     let server = new GlintLanguageServer(glintConfig, documentCache, transformManager);
     let scheduleDiagnostics = this.buildDiagnosticScheduler(server, glintConfig);
 
-    return { server, rootDir, scheduleDiagnostics };
+    return { server, scheduleDiagnostics };
   }
 
   private buildDiagnosticScheduler(

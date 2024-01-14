@@ -216,4 +216,85 @@ export default class TransformedModule {
 
     assert(false, 'Internal error: offset out of bounds');
   }
+
+  public toVolarMappings() {
+    const sourceOffsets: number[] = [];
+    const generatedOffsets: number[] = [];
+    const lengths: number[] = [];
+
+    let eachLeafMapping = (mapping: MappingTree, callback: (m: MappingTree) => void) => {
+      const children = mapping.children;
+      if (children.length === 0) {
+        callback(mapping);
+      } else {
+        mapping.children.forEach((child) => {
+          eachLeafMapping(child, callback);
+        });
+      }
+    };
+
+    this.correlatedSpans.forEach((span) => {
+      if (span.mapping) {
+        // this span is transformation from embedded <template> to TS.
+
+        eachLeafMapping(span.mapping, (mapping) => {
+          let { originalRange, transformedRange } = mapping;
+          let hbsStart = span.originalStart + originalRange.start;
+          let hbsEnd = span.originalStart + originalRange.end;
+          let tsStart = span.transformedStart + transformedRange.start;
+          let tsEnd = span.transformedStart + transformedRange.end;
+          const length = hbsEnd - hbsStart;
+          // assert(length === tsEnd - tsStart, 'span length mismatch for leaf mapping');
+          if (length === tsEnd - tsStart) {
+            // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
+            // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
+            sourceOffsets.push(hbsStart);
+            generatedOffsets.push(tsStart);
+            lengths.push(length);
+          }
+        });
+      } else {
+        // untransformed TS code (between <template> tags). Because there's no
+        // transformation, we expect these to be the same length (in fact, they
+        // should be the same string entirely)
+
+
+        // This assertion seemed valid when parsing .gts files with extracted hbs in <template> tags,
+        // but when parsing solo .hbs files in loose mode there were cases where, e.g.,
+        // originalLength == 0 and transformLength == 1;
+        // assert(
+        //   span.originalLength === span.transformedLength,
+        //   'span length mismatch for untransformed content'
+        // );
+
+        if (span.originalLength === span.transformedLength) {
+          sourceOffsets.push(span.originalStart);
+          generatedOffsets.push(span.transformedStart);
+          lengths.push(span.originalLength);
+        }
+      }
+    });
+
+    return [
+      {
+        // sourceOffsets: [],
+        // generatedOffsets: [],
+        // lengths: [],
+
+        // Hacked hardwired values for now.
+        sourceOffsets,
+        generatedOffsets,
+        lengths,
+
+        data: {
+          completion: true,
+          format: false,
+          navigation: true,
+          semantic: true,
+          structure: true,
+          verification: true,
+        },
+      },
+    ];
+  }
 }

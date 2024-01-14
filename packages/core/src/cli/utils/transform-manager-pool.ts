@@ -5,6 +5,8 @@ import TransformManager from '../../common/transform-manager.js';
 import { assert } from './assert.js';
 
 /**
+ * NOTE: this class ONLY used for CLI commands like in `perform-build-watch` and `perform-build`.
+ * 
  * A lazy cache/lookup map for the parts of `TS.System` which `TransformManager`
  * cares about, such that any given file will be resolved against its closest
  * `GlintConfig`. This provides us three things:

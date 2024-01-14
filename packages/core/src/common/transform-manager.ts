@@ -209,6 +209,8 @@ export default class TransformManager {
     });
   };
 
+  // This is only called when using TransformManagerPool, which is only
+  // used for CLI commands like in `perform-build-watch` and `perform-build`.
   public watchTransformedFile = (
     path: string,
     originalCallback: ts.FileWatcherCallback,
@@ -341,6 +343,7 @@ export default class TransformManager {
 
   /** @internal `TransformInfo` is an unstable internal type */
   public findTransformInfoForOriginalFile(originalFileName: string): TransformInfo | null {
+    // when we're fetching completions for a template, we need to try and find the companion object, i.e. backing TS file.
     let transformedFileName = this.glintConfig.environment.isTemplate(originalFileName)
       ? this.documents.getCompanionDocumentPath(originalFileName)
       : originalFileName;
@@ -415,10 +418,11 @@ export default class TransformManager {
 
     let transformedModule: TransformedModule | null = null;
     if (environment.isScript(filename) && glintConfig.includesFile(filename)) {
+      // if file (e.g. foo.ts) is script and glintConfig has registered extensions matching file
       if (documents.documentExists(filename)) {
-        let contents = documents.getDocumentContents(filename, encoding);
-        let templatePath = documents.getCompanionDocumentPath(filename);
-        let canonicalPath = documents.getCanonicalDocumentPath(filename);
+        let contents = documents.getDocumentContents(filename, encoding); // filename is ember-component.ts
+        let templatePath = documents.getCompanionDocumentPath(filename); // templatePath is ember-component.hbs
+        let canonicalPath = documents.getCanonicalDocumentPath(filename); // same as filename (ember-component.ts)
         let mayHaveEmbeds = environment.moduleMayHaveEmbeddedTemplates(canonicalPath, contents);
 
         if (mayHaveEmbeds || templatePath) {
@@ -430,9 +434,10 @@ export default class TransformManager {
               }
             : undefined;
 
-          transformedModule = rewriteModule(this.ts, { script, template }, environment);
+          transformedModule = rewriteModule(this.ts, { script, template }, environment); // rewrite .ts to have embedded .hbs file
         }
       } else {
+        // i don't know... this isn't a real file?
         let templatePath = templatePathForSynthesizedModule(filename);
         if (
           documents.documentExists(templatePath) &&
@@ -448,7 +453,7 @@ export default class TransformManager {
           };
 
           transformedModule = rewriteModule(this.ts, { script, template }, glintConfig.environment);
-        }
+        } // ELSE set breakpoint? when does this happen?
       }
     }
 

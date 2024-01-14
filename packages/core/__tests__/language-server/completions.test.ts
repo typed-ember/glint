@@ -1,7 +1,7 @@
 import { Project } from 'glint-monorepo-test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
-import { CompletionItemKind } from 'vscode-languageserver';
+import { CompletionItemKind } from '@volar/language-server';
 
 describe('Language Server: Completions', () => {
   let project!: Project;
