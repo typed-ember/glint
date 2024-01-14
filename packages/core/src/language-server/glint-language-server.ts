@@ -96,7 +96,7 @@ export default class GlintLanguageServer {
       directoryExists: this.ts.sys.directoryExists,
       getDirectories: this.ts.sys.getDirectories,
       realpath: this.ts.sys.realpath,
-      useCaseSensitiveFileNames: () => true,
+      // useCaseSensitiveFileNames: () => true,
 
       // @ts-ignore Undocumented method.
       getCachedExportInfoMap() {
