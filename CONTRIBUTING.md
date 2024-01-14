@@ -57,3 +57,29 @@ yarn run test
 ```
 
 Secondly, the Launch Configurations described above (I believe) will run your client-side extension code in debug mode, along with the language server.
+
+## How to see the transformed Intermediate Representation (IR) code of a template
+
+Glint transforms template code into TypeScript code so that it can be type-checked by the vanilla TS compiler. Transformed IR code looks something like:
+
+```ts
+static {
+({} as typeof import("@glint/environment-ember-loose/-private/dsl")
+       .templateForBackingValue(this, function(𝚪, χ: typeof import("@glint/environment-ember-loose/-private/dsl")) {
+  {
+    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals["FooComponent"])
+      ({ desc: "notchHeight _ footer", ...χ.NamedArgsMarker }));
+    𝛄;
+    {
+      const [] = 𝛄.blockParams["default"];
+      {
+  // ...
+```
+
+Sometimes it is useful to see the IR of any .hbs template or .gts/.gjs file for debugging purposes; if you're using VSCode you can see the IR by:
+
+1. Enable "Glint: Debug" in your VSCode user preferences
+2. Run the "Glint: Show IR for Debugging" command
+
+Your template code will be replaced by the IR directly in your editor window.
+
