@@ -32,7 +32,7 @@
     "typescript": ">=4.8.0"
   },
   "dependencies": {
-    "@glimmer/syntax": "^0.84.2",
+    "@glimmer/syntax": "^0.84.3",
     "escape-string-regexp": "^4.0.0",
     "semver": "^7.5.2",
     "silent-error": "^1.1.1",
