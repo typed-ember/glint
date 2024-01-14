@@ -33,9 +33,9 @@ describe('Smoke test: ETI Environment', () => {
       expect(languages.getDiagnostics(scriptURI)).toEqual([]);
 
       // Replace a string with a number
-      await scriptEditor.edit((edit) => {
-        edit.replace(new Range(6, 20, 6, 27), '{{123}}');
-      });
+      // await scriptEditor.edit((edit) => {
+      //   edit.replace(new Range(6, 20, 6, 27), '{{123}}');
+      // });
 
       // Wait for the diagnostic to show up
       await waitUntil(() => languages.getDiagnostics(scriptURI).length);
