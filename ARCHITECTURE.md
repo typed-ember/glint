@@ -69,7 +69,7 @@ In addition, **environments** also influence elements of the **transform** layer
 
 **Invariants:**
 
-- Environments have one entrypoint for their configuration (specified by the `glint-environment` key in `package.json`), and one or more types-only entrypoints where they expose their specialized **template DSL** implementation(s).[^environments-dsl]
+- Environments have one entrypoint for their configuration (specified by the `"./glint-environment-definition"` export in `package.json`), and one or more types-only entrypoints where they expose their specialized **template DSL** implementation(s).[^environments-dsl]
 - An environment will typically depend on the bedrock **template DSL** as a basis for its own DSL implementation, and it might reference types from the **config** package in defining its configuration, but an environment should have no reason to ever execute code from other Glint packages.
 
 [^environments-dsl]: I don't think any environments have multiple entrypoints today, but a hypothetical unified Ember environment in the near future would have separate DSLs for loose-mode and strict-mode templates.
