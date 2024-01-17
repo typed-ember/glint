@@ -12,7 +12,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { GlintCompletionItem } from './glint-language-server.js';
 import { LanguageServerPool } from './pool.js';
-import { GetIRRequest, SortImportsRequest } from './messages.cjs';
+import { GetIRRequest, OrganizeImportsRequest } from './messages.cjs';
 import { ConfigManager } from './config-manager.js';
 import type * as ts from 'typescript';
 
@@ -219,12 +219,12 @@ export function bindLanguageServerPool({
     return pool.withServerForURI(uri, ({ server }) => server.getTransformedContents(uri));
   });
 
-  connection.onRequest(SortImportsRequest.type, ({ uri }) => {
+  connection.onRequest(OrganizeImportsRequest.type, ({ uri, skipDestructiveCodeActions }) => {
     return pool.withServerForURI(uri, ({ server }) => {
       const language = server.getLanguageType(uri);
       const formatting = configManager.getFormatCodeSettingsFor(language);
       const preferences = configManager.getUserSettingsFor(language);
-      return server.organizeImports(uri, formatting, preferences);
+      return server.organizeImports(uri, formatting, preferences, skipDestructiveCodeActions);
     });
   });
 

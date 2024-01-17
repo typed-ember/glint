@@ -419,7 +419,8 @@ export default class GlintLanguageServer {
   public organizeImports(
     uri: string,
     formatOptions: ts.FormatCodeSettings = {},
-    preferences: ts.UserPreferences = {}
+    preferences: ts.UserPreferences = {},
+    skipDestructiveCodeActions: boolean
   ): TextEdit[] {
     const transformInfo = this.transformManager.findTransformInfoForOriginalFile(
       uriToFilePath(uri)
@@ -433,7 +434,7 @@ export default class GlintLanguageServer {
       {
         type: 'file',
         fileName: transformInfo.transformedFileName,
-        skipDestructiveCodeActions: true,
+        skipDestructiveCodeActions,
       },
       formatOptions,
       preferences

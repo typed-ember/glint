@@ -54,12 +54,20 @@
       {
         "title": "Glint: Sort Imports",
         "command": "glint.sort-imports"
+      },
+      {
+        "title": "Glint: Organize Imports",
+        "command": "glint.organize-imports"
       }
     ],
     "menus": {
       "commandPalette": [
         {
           "command": "glint.sort-imports",
+          "when": "editorLangId =~ /javascript|typescript|glimmer-js|glimmer-ts/"
+        },
+        {
+          "command": "glint.organize-imports",
           "when": "editorLangId =~ /javascript|typescript|glimmer-js|glimmer-ts/"
         }
       ]

@@ -26,10 +26,16 @@ describe('Language Server: Organize Imports', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
-    let formatting = ts.getDefaultFormatCodeSettings();
-    let preferences = {};
-    let edits = server.organizeImports(project.fileURI('index.ts'), formatting, preferences);
+    const server = project.startLanguageServer();
+    const formatting = ts.getDefaultFormatCodeSettings();
+    const preferences = {};
+    const skipDestructiveCodeActions = true;
+    const edits = server.organizeImports(
+      project.fileURI('index.ts'),
+      formatting,
+      preferences,
+      skipDestructiveCodeActions
+    );
 
     expect(edits).toEqual([]);
   });
@@ -62,11 +68,17 @@ describe('Language Server: Organize Imports', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    const server = project.startLanguageServer();
 
-    let formatting = ts.getDefaultFormatCodeSettings();
-    let preferences = {};
-    let edits = server.organizeImports(project.fileURI('index.ts'), formatting, preferences);
+    const formatting = ts.getDefaultFormatCodeSettings();
+    const preferences = {};
+    const skipDestructiveCodeActions = true;
+    const edits = server.organizeImports(
+      project.fileURI('index.ts'),
+      formatting,
+      preferences,
+      skipDestructiveCodeActions
+    );
 
     expect(edits).toEqual([
       {
@@ -136,11 +148,17 @@ describe('Language Server: Organize Imports', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    const server = project.startLanguageServer();
 
-    let formatting = ts.getDefaultFormatCodeSettings();
-    let preferences = {};
-    let edits = server.organizeImports(project.fileURI('index.gts'), formatting, preferences);
+    const formatting = ts.getDefaultFormatCodeSettings();
+    const preferences = {};
+    const skipDestructiveCodeActions = true;
+    const edits = server.organizeImports(
+      project.fileURI('index.gts'),
+      formatting,
+      preferences,
+      skipDestructiveCodeActions
+    );
 
     expect(edits).toEqual([
       {
@@ -171,6 +189,61 @@ describe('Language Server: Organize Imports', () => {
         range: {
           start: { character: 0, line: 16 },
           end: { character: 0, line: 17 },
+        },
+      },
+    ]);
+  });
+  test('gts: removes unused imports when skipDestructiveCodeActions is `false`', () => {
+    project.setGlintConfig({ environment: 'ember-template-imports' });
+    project.write({
+      'index.gts': stripIndent`
+      import Component from '@glimmer/component';
+      import { hash } from '@ember/helper';
+      import SomeUnusedImport from 'some-unused-import';
+
+      class List<T> extends Component {
+        <template>
+            {{#each-in (hash a=1 b='hi') as |key value|}}
+              <li>{{key}}: {{value}}</li>
+            {{/each-in}}
+        </template>
+      }
+      `,
+    });
+
+    const server = project.startLanguageServer();
+
+    const formatting = ts.getDefaultFormatCodeSettings();
+    const preferences = {};
+    const skipDestructiveCodeActions = false;
+    const edits = server.organizeImports(
+      project.fileURI('index.gts'),
+      formatting,
+      preferences,
+      skipDestructiveCodeActions
+    );
+
+    expect(edits).toEqual([
+      {
+        newText:
+          "import { hash } from '@ember/helper';\nimport Component from '@glimmer/component';\n",
+        range: {
+          start: { character: 0, line: 0 },
+          end: { character: 0, line: 1 },
+        },
+      },
+      {
+        newText: '',
+        range: {
+          start: { character: 0, line: 1 },
+          end: { character: 0, line: 2 },
+        },
+      },
+      {
+        newText: '',
+        range: {
+          start: { character: 0, line: 2 },
+          end: { character: 0, line: 3 },
         },
       },
     ]);
