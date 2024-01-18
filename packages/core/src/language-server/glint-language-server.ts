@@ -21,6 +21,7 @@ import {
   TextDocumentEdit,
   OptionalVersionedTextDocumentIdentifier,
   TextEdit,
+  MarkupContent,
 } from 'vscode-languageserver';
 import DocumentCache from '../common/document-cache.js';
 import { Position, positionToOffset } from './util/position.js';
@@ -30,8 +31,8 @@ import {
   tagsForDiagnostic,
 } from './util/protocol.js';
 import { GetIRResult } from './messages.cjs';
-import type { TsUserConfigLang } from './config-manager.js';
 import MappingTree from '../transform/template/mapping-tree.js';
+import { getTagDocumentation, plain } from './util/previewer.js';
 
 export interface GlintCompletionItem extends CompletionItem {
   data: {
@@ -39,6 +40,7 @@ export interface GlintCompletionItem extends CompletionItem {
     transformedFileName: string;
     transformedOffset: number;
     source: string | undefined;
+    tsData: ts.CompletionEntryData | undefined;
   };
 }
 
@@ -65,6 +67,12 @@ export default class GlintLanguageServer {
     this.openFileNames = new Set();
     this.rootFileNames = new Set(parsedConfig.fileNames);
 
+    let exportMapCache = null;
+
+    const ts = this.glintConfig.ts;
+
+    let program: ts.Program | undefined;
+
     let serviceHost: ts.LanguageServiceHost = {
       getScriptFileNames: () => [...new Set(this.allKnownFileNames())],
       getScriptVersion: (fileName) => this.documents.getDocumentVersion(fileName),
@@ -88,12 +96,39 @@ export default class GlintLanguageServer {
       directoryExists: this.ts.sys.directoryExists,
       getDirectories: this.ts.sys.getDirectories,
       realpath: this.ts.sys.realpath,
+
+      // A proper choice for case sensitivity impacts things like resolving
+      // relative paths for module specifiers for auto imports.
+      useCaseSensitiveFileNames: () => this.ts.sys.useCaseSensitiveFileNames,
+
+      // @ts-ignore Undocumented method.
+      getCachedExportInfoMap() {
+        // This hook is required so that when resolving a completion item, we can fetch export info
+        // cached from the previous call to getCompletions. Without this, attempting to resolve a completion
+        // item for exports that have at least 2 exports (due to re-exporting) will fail with an error.
+        // See here for additional details on the ExportInfoMap.
+        // https://github.com/microsoft/TypeScript/pull/52686
+
+        // @ts-ignore This method does actually exist since 4.4+, but not sure why it's not in the types
+        return (exportMapCache ||= ts.createCacheableExportInfoMap({
+          getCurrentProgram: () => program,
+          getPackageJsonAutoImportProvider: () => null,
+          getGlobalTypingsCacheLocation: () => null,
+        }));
+      },
+
+      // This can be temporarily uncommented when debugging the internal TS Language Server.
+      // Logs will show up in the Debug Console. NOTE: don't change to console.log() because
+      // it will interfere with transmitting messages back to the client.
+      // log(message: string) {
+      //   console.error(message);
+      // },
     };
 
     this.service = this.ts.createLanguageService(serviceHost);
 
     // Kickstart typechecking
-    this.service.getProgram();
+    program = this.service.getProgram();
   }
 
   public dispose(): void {
@@ -193,7 +228,8 @@ export default class GlintLanguageServer {
   public getCompletions(
     uri: string,
     position: Position,
-    formatting: ts.FormatCodeSettings = {}
+    formatting: ts.FormatCodeSettings = {},
+    preferences: ts.UserPreferences = {}
   ): GlintCompletionItem[] | undefined {
     let { transformedFileName, transformedOffset, mapping } = this.getTransformedOffset(
       uri,
@@ -215,16 +251,34 @@ export default class GlintLanguageServer {
     let completions = this.service.getCompletionsAtPosition(
       transformedFileName,
       transformedOffset,
-      {},
+      preferences,
       formatting
     );
 
-    return completions?.entries.map((completionEntry) => ({
-      label: completionEntry.name,
-      kind: scriptElementKindToCompletionItemKind(this.ts, completionEntry.kind),
-      data: { uri, transformedFileName, transformedOffset, source: completionEntry.source },
-      sortText: completionEntry.sortText,
-    }));
+    return completions?.entries.map((completionEntry) => {
+      const glintCompletionItem: GlintCompletionItem = {
+        label: completionEntry.name,
+        preselect: completionEntry.isRecommended ? true : undefined,
+        kind: scriptElementKindToCompletionItemKind(this.ts, completionEntry.kind),
+
+        labelDetails: {
+          // This displays the module specifier for auto-imports, e.g. "../../component" or "@glimmer/component"
+          description: completionEntry.data?.moduleSpecifier,
+        },
+
+        // This data gets passed through to getCompletionDetails to fetch additional completion details
+        data: {
+          uri,
+          transformedFileName,
+          transformedOffset,
+          source: completionEntry.source,
+          tsData: completionEntry.data,
+        },
+        sortText: completionEntry.sortText,
+      };
+
+      return glintCompletionItem;
+    });
   }
 
   public getCompletionDetails(
@@ -237,7 +291,7 @@ export default class GlintLanguageServer {
       return item;
     }
 
-    let { transformedFileName, transformedOffset, source } = data;
+    let { transformedFileName, transformedOffset, source, tsData } = data;
     let details = this.service.getCompletionEntryDetails(
       transformedFileName,
       transformedOffset,
@@ -245,22 +299,79 @@ export default class GlintLanguageServer {
       formatting,
       source,
       preferences,
-      // @ts-ignore: 4.3 adds a new not-optional-but-can-be-undefined `data` arg
-      undefined
+      tsData
     );
 
     if (!details) {
       return item;
     }
 
+    item.detail = plain(this.ts.displayPartsToString(details.displayParts));
+    const documentation: MarkupContent = {
+      kind: 'markdown',
+      value: '',
+    };
+
+    if (details.codeActions) {
+      // CodeActions (such as auto-imports) need to be converted to TextEdits
+      // that will be applied when the user selects the Completion.
+      item.additionalTextEdits = this.convertCodeActionToTextEdit(
+        transformedFileName,
+        details.codeActions
+      );
+
+      details.codeActions.forEach((action) => {
+        if (action.description) {
+          // Prefix details, e.g. 'Add import from "@glimmer/component"'
+          item.detail = `${action.description}\n\n${item.detail}`;
+        }
+      });
+    }
+
+    if (details?.documentation?.length) {
+      documentation.value += this.ts.displayPartsToString(details.documentation) + '\n\n';
+    }
+
+    if (details.tags) {
+      if (details.tags) {
+        details.tags.forEach((x) => {
+          const tagDoc = getTagDocumentation(x);
+          if (tagDoc) {
+            documentation.value += tagDoc + '\n\n';
+          }
+        });
+      }
+    }
+
+    // Clean up any extra newlines
+    documentation.value = documentation.value.replace(/\n+$/, '');
+    item.detail = item.detail.replace(/\n+$/, '');
+
     return {
       ...item,
-      detail: this.ts.displayPartsToString(details.displayParts),
-      documentation: {
-        kind: 'markdown',
-        value: this.ts.displayPartsToString(details.documentation),
-      },
+      documentation,
     };
+  }
+
+  private convertCodeActionToTextEdit(uri: string, codeActions: ts.CodeAction[]): TextEdit[] {
+    const textEdits: TextEdit[] = [];
+
+    for (const action of codeActions) {
+      for (const change of action.changes) {
+        for (const textChange of change.textChanges) {
+          const location = this.textSpanToLocation(uri, textChange.span);
+
+          if (location) {
+            textEdits.push({
+              range: location.range,
+              newText: textChange.newText,
+            });
+          }
+        }
+      }
+    }
+
+    return textEdits;
   }
 
   public prepareRename(uri: string, position: Position): Range | undefined {
@@ -409,11 +520,6 @@ export default class GlintLanguageServer {
     }
 
     return [];
-  }
-
-  public getLanguageType(uri: string): TsUserConfigLang {
-    let file = uriToFilePath(uri);
-    return this.glintConfig.environment.isTypedScript(file) ? 'typescript' : 'javascript';
   }
 
   public organizeImports(

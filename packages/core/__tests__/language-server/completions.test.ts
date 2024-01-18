@@ -155,6 +155,141 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('(property) MyComponent.message: string');
   });
 
+  test('auto imports', () => {
+    project.write({
+      'other.ts': stripIndent`
+        export let foobar = 123;
+      `,
+      'index.ts': stripIndent`
+        import { thing } from 'nonexistent';
+
+        let a = foo
+      `,
+    });
+
+    const preferences = {
+      includeCompletionsForModuleExports: true,
+      allowIncompleteCompletions: true,
+    };
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(
+      project.fileURI('index.ts'),
+      {
+        line: 2,
+        character: 11,
+      },
+      {},
+      preferences
+    );
+
+    let importCompletion = completions?.find(
+      (k) => k.kind == CompletionItemKind.Variable && k.label == 'foobar'
+    );
+
+    let details = server.getCompletionDetails(importCompletion!, {}, preferences);
+
+    expect(details.detail).toEqual('Add import from "./other"\n\nlet foobar: number');
+
+    expect(details.additionalTextEdits?.length).toEqual(1);
+    expect(details.additionalTextEdits?.[0].newText).toMatch("import { foobar } from './other';");
+    expect(details.additionalTextEdits?.[0].range).toEqual({
+      start: { line: 1, character: 0 },
+      end: { line: 1, character: 0 },
+    });
+    expect(details?.documentation).toEqual({
+      kind: 'markdown',
+      value: '',
+    });
+    expect(details?.labelDetails?.description).toEqual('./other');
+  });
+
+  test('auto imports with documentation and tags', () => {
+    project.write({
+      'other.ts': stripIndent`
+        /**
+         * This is a doc comment
+         * @param foo
+         */
+        export let foobar = 123;
+      `,
+      'index.ts': stripIndent`
+        import { thing } from 'nonexistent';
+
+        let a = foo
+      `,
+    });
+
+    const preferences = {
+      includeCompletionsForModuleExports: true,
+      allowIncompleteCompletions: true,
+    };
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(
+      project.fileURI('index.ts'),
+      {
+        line: 2,
+        character: 11,
+      },
+      {},
+      preferences
+    );
+
+    let importCompletion = completions?.find(
+      (k) => k.kind == CompletionItemKind.Variable && k.label == 'foobar'
+    );
+
+    let details = server.getCompletionDetails(importCompletion!, {}, preferences);
+
+    expect(details.detail).toEqual('Add import from "./other"\n\nlet foobar: number');
+
+    expect(details.additionalTextEdits?.length).toEqual(1);
+    expect(details.additionalTextEdits?.[0].newText).toMatch("import { foobar } from './other';");
+    expect(details.additionalTextEdits?.[0].range).toEqual({
+      start: { line: 1, character: 0 },
+      end: { line: 1, character: 0 },
+    });
+    expect(details?.documentation).toEqual({
+      kind: 'markdown',
+      value: 'This is a doc comment\n\n*@param* `foo`',
+    });
+  });
+
+  test('auto import - import statements - ensure all completions are resolvable', () => {
+    project.write({
+      'other.ts': stripIndent`
+        export let foobar = 123;
+      `,
+      'index.ts': stripIndent`
+        import foo
+      `,
+    });
+
+    const preferences = {
+      includeCompletionsForModuleExports: true,
+      allowIncompleteCompletions: true,
+      includeCompletionsForImportStatements: true,
+      includeCompletionsWithInsertText: true, // needs to be present for `includeCompletionsForImportStatements` to work
+    };
+
+    let server = project.startLanguageServer();
+    let completions = server.getCompletions(
+      project.fileURI('index.ts'),
+      {
+        line: 0,
+        character: 10,
+      },
+      {},
+      preferences
+    );
+
+    completions?.forEach((completion) => {
+      let details = server.getCompletionDetails(completion, {}, preferences);
+      expect(details).toBeTruthy();
+    });
+  });
+
   test('referencing own args', async () => {
     let code = stripIndent`
       import Component, { hbs } from '@glimmerx/component';

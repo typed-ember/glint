@@ -1,5 +1,8 @@
 {
   "extends": "../../tsconfig.compileroptions.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
   "include": ["src", "types"],
   "glint": {
     "environment": {

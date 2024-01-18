@@ -39,3 +39,7 @@ Similarly, `glint-language-server` can be used by editor integrations to expose 
 The language server can also enable your editor to provide other richer help, such as type information on hover, automated refactoring, and more. See [the VS Code extension README](packages/vscode) for further examples.
 
 [using-glint]: https://typed-ember.gitbook.io/glint/getting-started#using-glint
+
+## Debugging Glint
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for instructions on how to run and debug the Glint language server and VSCode extension locally.

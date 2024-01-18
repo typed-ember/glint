@@ -5,7 +5,6 @@ import {
   SymbolInformation,
   TextDocuments,
   TextDocumentSyncKind,
-  InitializeParams as BaseInitializeParams,
   CodeActionTriggerKind,
   CodeActionKind,
 } from 'vscode-languageserver';
@@ -13,7 +12,6 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { GlintCompletionItem } from './glint-language-server.js';
 import { LanguageServerPool } from './pool.js';
 import { GetIRRequest, SortImportsRequest } from './messages.cjs';
-import { ConfigManager } from './config-manager.js';
 import type * as ts from 'typescript';
 
 export const capabilities: ServerCapabilities = {
@@ -23,6 +21,9 @@ export const capabilities: ServerCapabilities = {
     // By default `@` won't trigger autocompletion, but it's an important character
     // for us since it signifies the beginning of an arg name.
     triggerCharacters: ['.', '@'],
+    completionItem: {
+      labelDetailsSupport: true,
+    },
   },
   referencesProvider: true,
   hoverProvider: true,
@@ -36,60 +37,44 @@ export const capabilities: ServerCapabilities = {
   },
 };
 
+const PREFERENCES: ts.UserPreferences = {
+  includeCompletionsForImportStatements: true,
+  includeCompletionsForModuleExports: true,
+  includeCompletionsWithSnippetText: true,
+  includeAutomaticOptionalChainCompletions: true,
+  includeCompletionsWithInsertText: true,
+  includeCompletionsWithClassMemberSnippets: true,
+  includeCompletionsWithObjectLiteralMethodSnippets: true,
+  useLabelDetailsInCompletionEntries: true,
+  importModuleSpecifierPreference: 'shortest',
+  importModuleSpecifierEnding: 'auto',
+  allowTextChangesInNewFiles: true,
+  providePrefixAndSuffixTextForRename: true,
+  includePackageJsonAutoImports: 'auto',
+  provideRefactorNotApplicableReason: true,
+  jsxAttributeCompletionStyle: 'auto',
+  includeInlayParameterNameHints: 'all',
+  includeInlayParameterNameHintsWhenArgumentMatchesName: true,
+  includeInlayFunctionParameterTypeHints: true,
+  includeInlayVariableTypeHints: true,
+  includeInlayVariableTypeHintsWhenTypeMatchesName: true,
+  includeInlayPropertyDeclarationTypeHints: true,
+  includeInlayFunctionLikeReturnTypeHints: true,
+  includeInlayEnumMemberValueHints: true,
+  allowRenameOfImportPath: true,
+  autoImportFileExcludePatterns: [],
+};
+
+const FORMATTING_OPTIONS: ts.FormatCodeSettings = {};
+
 export type BindingArgs = {
   openDocuments: TextDocuments<TextDocument>;
   connection: Connection;
   pool: LanguageServerPool;
-  configManager: ConfigManager;
 };
 
-interface FormattingAndPreferences {
-  format?: ts.FormatCodeSettings;
-  preferences?: ts.UserPreferences;
-}
-
-interface InitializeParams extends BaseInitializeParams {
-  initializationOptions?: {
-    typescript?: FormattingAndPreferences;
-    javascript?: FormattingAndPreferences;
-  };
-}
-
-export function bindLanguageServerPool({
-  connection,
-  pool,
-  openDocuments,
-  configManager,
-}: BindingArgs): void {
-  connection.onInitialize((config: InitializeParams) => {
-    if (config.initializationOptions?.typescript?.format) {
-      configManager.updateTsJsFormatConfig(
-        'typescript',
-        config.initializationOptions.typescript.format
-      );
-    }
-
-    if (config.initializationOptions?.typescript?.preferences) {
-      configManager.updateTsJsUserPreferences(
-        'typescript',
-        config.initializationOptions.typescript.preferences
-      );
-    }
-
-    if (config.initializationOptions?.javascript?.format) {
-      configManager.updateTsJsFormatConfig(
-        'javascript',
-        config.initializationOptions.javascript.format
-      );
-    }
-
-    if (config.initializationOptions?.javascript?.preferences) {
-      configManager.updateTsJsUserPreferences(
-        'javascript',
-        config.initializationOptions.javascript.preferences
-      );
-    }
-
+export function bindLanguageServerPool({ connection, pool, openDocuments }: BindingArgs): void {
+  connection.onInitialize(() => {
     return { capabilities };
   });
 
@@ -118,9 +103,6 @@ export function bindLanguageServerPool({
       // The user actually asked for the fix
       // @see https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeActionTriggerKind
       if (context.triggerKind === CodeActionTriggerKind.Invoked) {
-        let language = server.getLanguageType(textDocument.uri);
-        let formating = configManager.getFormatCodeSettingsFor(language);
-        let preferences = configManager.getUserSettingsFor(language);
         let diagnostics = context.diagnostics;
 
         let kind = '';
@@ -141,8 +123,8 @@ export function bindLanguageServerPool({
           kind,
           range,
           diagnostics,
-          formating,
-          preferences
+          FORMATTING_OPTIONS,
+          PREFERENCES
         );
       }
 
@@ -169,9 +151,7 @@ export function bindLanguageServerPool({
     await new Promise((r) => setTimeout(r, 25));
 
     return pool.withServerForURI(textDocument.uri, ({ server }) => {
-      let language = server.getLanguageType(textDocument.uri);
-      let formatting = configManager.getFormatCodeSettingsFor(language);
-      return server.getCompletions(textDocument.uri, position, formatting);
+      return server.getCompletions(textDocument.uri, position, FORMATTING_OPTIONS, PREFERENCES);
     });
   });
 
@@ -181,10 +161,7 @@ export function bindLanguageServerPool({
 
     return (
       pool.withServerForURI(glintItem.data.uri, ({ server }) => {
-        let language = server.getLanguageType(glintItem.data.uri);
-        let formatting = configManager.getFormatCodeSettingsFor(language);
-        let preferences = configManager.getUserSettingsFor(language);
-        return server.getCompletionDetails(glintItem, formatting, preferences);
+        return server.getCompletionDetails(glintItem, FORMATTING_OPTIONS, PREFERENCES);
       }) ?? item
     );
   });
@@ -221,10 +198,7 @@ export function bindLanguageServerPool({
 
   connection.onRequest(SortImportsRequest.type, ({ uri }) => {
     return pool.withServerForURI(uri, ({ server }) => {
-      const language = server.getLanguageType(uri);
-      const formatting = configManager.getFormatCodeSettingsFor(language);
-      const preferences = configManager.getUserSettingsFor(language);
-      return server.organizeImports(uri, formatting, preferences);
+      return server.organizeImports(uri, FORMATTING_OPTIONS, PREFERENCES);
     });
   });
 
