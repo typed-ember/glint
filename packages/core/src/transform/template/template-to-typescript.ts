@@ -599,13 +599,15 @@ export function templateToTypescript(
         emit.indent();
 
         emit.text('const 𝛄 = χ.emitComponent(χ.resolve(');
-        emitPathContents(path, start, kind);
+        emit.forNode(node.nameNode, () => {
+          emitPathContents(path, start, kind);
+        })
         emit.text(')(');
 
         let dataAttrs = node.attributes.filter(({ name }) => name.startsWith('@'));
-        if (dataAttrs.length) {
-          emit.text('{ ');
+        emit.text('{ ');
 
+        emit.forNode(node.startTag, () => {
           for (let attr of dataAttrs) {
             emit.forNode(attr, () => {
               start = template.indexOf(attr.name, start + 1);
@@ -630,9 +632,11 @@ export function templateToTypescript(
             start = rangeForNode(attr.value).end;
             emit.text(', ');
           }
+          // in case there are no attributes, this would allow completions to trigger
+          emit.text(' ');
+        })
 
-          emit.text('...χ.NamedArgsMarker }');
-        }
+        emit.text('...χ.NamedArgsMarker }');
 
         emit.text('));');
         emit.newline();
@@ -833,7 +837,8 @@ export function templateToTypescript(
             emit.newline();
           });
         }
-
+        // in case there are no attributes, this would allow completions to trigger
+        emit.text(' ');
         emit.dedent();
       });
       emit.text('});');
