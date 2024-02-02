@@ -61,7 +61,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 {
   const component = emitComponent(resolve(MyComponent)());
   applySplattributes(new HTMLImageElement(), component.element);
-  applyAttributes(component.element, { foo: 'bar' });
+  applyAttributes(component.element, [['foo', 'bar']]);
 }
 
 /**
@@ -179,21 +179,21 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   applyAttributes(
     // @ts-expect-error: Trying to apply attributes to a component with no root element
     component.element,
-    { foo: 'bar' }
+    [['foo', 'bar']]
   );
 }
 
 {
-  applyAttributes(document.createElement('div'), {
-    string: 'ok',
-    safeString: htmlSafe('ok'),
-    number: 123,
-    bool: false,
-    null: null,
-    undefined: undefined,
+  applyAttributes(document.createElement('div'), [
+    ['string', 'ok'],
+    ['safeString', htmlSafe('ok')],
+    ['number', 123],
+    ['bool', false],
+    ['null', null],
+    ['undefined', undefined],
     // @ts-expect-error: setting a `void` return as an attr makes no sense
-    nothing: undefined as void,
+    ['nothing', undefined as void],
     // @ts-expect-error: DOM nodes aren't valid values
-    div: document.createElement('div'),
-  });
+    ['div', document.createElement('div')],
+  ]);
 }

@@ -215,11 +215,11 @@ describe('Language Server: Diagnostic Augmentation', () => {
         Type '{}' is not assignable to type 'AttrValue'.",
           "range": {
             "end": {
-              "character": 16,
+              "character": 35,
               "line": 9,
             },
             "start": {
-              "character": 9,
+              "character": 17,
               "line": 9,
             },
           },
@@ -287,11 +287,11 @@ describe('Language Server: Diagnostic Augmentation', () => {
         Type '{}' is not assignable to type 'AttrValue'.",
           "range": {
             "end": {
-              "character": 16,
+              "character": 39,
               "line": 14,
             },
             "start": {
-              "character": 9,
+              "character": 17,
               "line": 14,
             },
           },

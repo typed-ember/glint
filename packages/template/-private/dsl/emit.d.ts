@@ -40,7 +40,7 @@ export declare function emitContent(value: ContentValue): void;
  *
  *     emitElement('div', (𝛄) => {
  *       applySplattributes(𝚪.element, 𝛄.element);
- *       applyAttributes(𝛄.element, { class: 'hello' });
+ *       applyAttributes(𝛄.element, [[ 'class': 'hello' ]]);
  *       applyModifier(𝛄.element, resolve(on)({}, 'click', this.clicked));
  *     });
  */
@@ -133,7 +133,7 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
-export declare function applyAttributes(element: Element, attrs: Record<string, AttrValue>): void;
+export declare function applyAttributes(element: Element, attrs: Array<[string, AttrValue]>): void;
 
 /*
  * Applies a modifier to an element or component.

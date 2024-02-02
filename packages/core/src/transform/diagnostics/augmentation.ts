@@ -47,7 +47,7 @@ function checkAssignabilityError(
   if (!parentNode) return;
 
   if (
-    node.type === 'Identifier' &&
+    node.type === 'MustacheStatement' &&
     parentNode.type === 'AttrNode' &&
     !/^(@|\.)/.test(parentNode.name)
   ) {
