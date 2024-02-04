@@ -21,7 +21,7 @@ import type { Request, GetIRRequest, SortImportsRequest } from '@glint/core/lsp-
 
 const outputChannel = window.createOutputChannel('Glint Language Server');
 const clients = new Map<string, LanguageClient>();
-const extensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
+const extensions = ['.js', '.ts', '.gjs', '.gts', '.hbs', '.jsx', '.tsx'];
 const filePattern = `**/*{${extensions.join(',')}}`;
 
 export function activate(context: ExtensionContext): void {
