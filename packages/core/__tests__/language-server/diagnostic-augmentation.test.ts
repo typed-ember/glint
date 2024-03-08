@@ -112,7 +112,6 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-
   test('expected argument count', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({

@@ -7,7 +7,7 @@ export function createTransformDiagnostic(
   source: SourceFile,
   message: string,
   location: Range,
-  isContentTagError = false,
+  isContentTagError = false
 ): Diagnostic {
   return {
     isContentTagError,

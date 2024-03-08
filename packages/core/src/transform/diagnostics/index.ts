@@ -1,8 +1,8 @@
 import type * as ts from 'typescript';
 
-export type Diagnostic = ts.Diagnostic & { 
-    isGlintTransformDiagnostic?: boolean 
-    isContentTagError?: boolean;
+export type Diagnostic = ts.Diagnostic & {
+  isGlintTransformDiagnostic?: boolean;
+  isContentTagError?: boolean;
 };
 
 export { rewriteDiagnostic } from './rewrite-diagnostic.js';

@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "lint": "yarn lint:scripts && yarn lint:formatting",
+    "lint:fix": "yarn lint:scripts --fix && yarn prettier --write .",
     "lint:scripts": "yarn eslint --max-warnings 0 --cache .",
     "lint:formatting": "yarn prettier --check .",
     "test": "yarn workspaces run test",
