@@ -465,7 +465,7 @@ export default class TransformManager {
         error.source,
         error.message,
         error.location,
-        Boolean((error as any).isContentTagError)
+        error.isContentTagError
       )
     );
   }

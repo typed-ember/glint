@@ -229,7 +229,8 @@ function parseError(e: unknown, filename: string): ParseError {
       let matches = [...strippedInfo.matchAll(/\d+/g)];
       let line = parseInt(matches[0][0], 10);
       let column = parseInt(matches[1][0], 10);
-      let help = lines.slice(1).join('\n');
+      // The help omits the original file name, because TS will provide that.
+      let help = lines.slice(2).join('\n');
 
       return {
         isContentTagError: true,

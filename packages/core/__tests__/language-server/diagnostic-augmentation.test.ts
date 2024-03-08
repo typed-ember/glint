@@ -35,7 +35,6 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "code": 0,
           "message": "Unexpected eof
 
-         ╭─[/home/nvp/Development/OpenSource/emberjs/glint-2/test-packages/ephemeral/355235d183698/index.gts:5:1]
        5 │ <template>
        6 │   {{expectsTwoArgs \\"one\\"}}
          ╰────",
@@ -90,7 +89,6 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "code": 0,
           "message": "Unexpected token \`<lexing error: Error { error: (Span { lo: BytePos(382), hi: BytePos(382), ctxt: #0 }, Eof) }>\`. Expected content tag
 
-          ╭─[/home/nvp/Development/OpenSource/emberjs/glint-2/test-packages/ephemeral/0e81eb82760e2/index.gts:16:1]
        16 │     {{expectsTwoArgs \\"one\\"}}
        17 │ }
           ╰────",
