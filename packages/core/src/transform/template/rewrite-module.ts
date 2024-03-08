@@ -137,6 +137,7 @@ function calculateCorrelatedSpans(
 type ParseError =
   | string
   | {
+      isContentTagError: true;
       message: string;
       line: number;
       column: number;
@@ -202,6 +203,7 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
         let help = lines.slice(1).join('\n');
 
         error = {
+          isContentTagError: true,
           raw,
           message,
           line,
