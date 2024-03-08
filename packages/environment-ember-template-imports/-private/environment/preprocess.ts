@@ -4,7 +4,7 @@ import { GLOBAL_TAG, PreprocessData, TemplateLocation } from './common';
 const TEMPLATE_START = `[${GLOBAL_TAG}\``;
 const TEMPLATE_END = '`]';
 
-// content-tag 1.2.2:
+// content-tag 1.2.2+ (including v2+):
 //   The current file is a CommonJS module whose imports will produce 'require' calls;
 //   however, the referenced file is an ECMAScript module and cannot be imported with 'require'.
 //   Consider writing a dynamic 'import("content-tag")' call instead.
@@ -26,7 +26,7 @@ const p = new Preprocessor();
 export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, path) => {
   // NOTE: https://github.com/embroider-build/content-tag/issues/45
   //       All indicies are byte-index, not char-index.
-  let templates = p.parse(source, path);
+  let templates = p.parse(source, { filename: path });
 
   let templateLocations: Array<TemplateLocation> = [];
   let segments: Array<string> = [];
