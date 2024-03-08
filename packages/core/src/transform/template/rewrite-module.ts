@@ -80,7 +80,7 @@ function calculateCorrelatedSpans(
         location: { start: 0, end: script.contents.length - 1 },
         source: script,
       });
-    } else if ('raw' in error) {
+    } else if ('isContentTagError' in error && error.isContentTagError) {
       // these lines exclude the line with the error, because
       // adding the column offset will get us on to the line with the error
       let lines = script.contents.split('\n').slice(0, error.line);
@@ -88,6 +88,7 @@ function calculateCorrelatedSpans(
       let end = start + 1;
 
       errors.push({
+        isContentTagError: true,
         // we have to show the "help" because content-tag has different line numbers
         // than we are able to discern ourselves.
         message: error.message + '\n\n' + error.help,
@@ -175,48 +176,7 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
   try {
     preprocessed = preprocess?.(contents, filename) ?? original;
   } catch (e) {
-    if (typeof e === 'object' && e !== null) {
-      // Parse Errors from the rust parser
-      if ('source_code' in e) {
-        // We remove the blank links in the error because swc
-        // pads errors with a leading and trailing blank line.
-        // the error is typically meant for the terminal, so making it
-        // stand out a bit more is a good, but that's more a presentation
-        // concern than just pure error information (which is what we need).
-        // @ts-expect-error object / property narrowing isn't available until TS 5.1
-        let lines = e.source_code.split('\n').filter(Boolean);
-        // Example:
-        // '  × Unexpected eof'
-        // '   ╭─[/home/nullvoxpopuli/Development/OpenSource/glint/test-packages/ts-template-imports-app/src/index.gts:6:1]'
-        // ' 6 │ '
-        // ' 7 │ export const X = <tem'
-        // '   ╰────'
-        let raw = lines.join('\n');
-        let message = lines[0].replace('×', '').trim();
-        let info = lines[1];
-        // a filename may have numbers in it, so we want to remove the filename
-        // before regex searching for numbers at the end of this line
-        let strippedInfo = info.replace(filename, '');
-        let matches = [...strippedInfo.matchAll(/\d+/g)];
-        let line = parseInt(matches[0][0], 10);
-        let column = parseInt(matches[1][0], 10);
-        let help = lines.slice(1).join('\n');
-
-        error = {
-          isContentTagError: true,
-          raw,
-          message,
-          line,
-          column,
-          file: filename,
-          help,
-        };
-      } else {
-        error = `${e}`;
-      }
-    } else {
-      error = `${e}`;
-    }
+    error = parseError(e, filename);
   }
 
   let ast = ts.createSourceFile(
@@ -241,6 +201,49 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
   }
 
   return { ast, emitMetadata, error };
+}
+
+function parseError(e: unknown, filename: string): ParseError {
+  if (typeof e === 'object' && e !== null) {
+    // Parse Errors from the rust parser
+    if ('source_code' in e) {
+      // We remove the blank links in the error because swc
+      // pads errors with a leading and trailing blank line.
+      // the error is typically meant for the terminal, so making it
+      // stand out a bit more is a good, but that's more a presentation
+      // concern than just pure error information (which is what we need).
+      // @ts-expect-error object / property narrowing isn't available until TS 5.1
+      let lines = e.source_code.split('\n').filter(Boolean);
+      // Example:
+      // '  × Unexpected eof'
+      // '   ╭─[/home/nullvoxpopuli/Development/OpenSource/glint/test-packages/ts-template-imports-app/src/index.gts:6:1]'
+      // ' 6 │ '
+      // ' 7 │ export const X = <tem'
+      // '   ╰────'
+      let raw = lines.join('\n');
+      let message = lines[0].replace('×', '').trim();
+      let info = lines[1];
+      // a filename may have numbers in it, so we want to remove the filename
+      // before regex searching for numbers at the end of this line
+      let strippedInfo = info.replace(filename, '');
+      let matches = [...strippedInfo.matchAll(/\d+/g)];
+      let line = parseInt(matches[0][0], 10);
+      let column = parseInt(matches[1][0], 10);
+      let help = lines.slice(1).join('\n');
+
+      return {
+        isContentTagError: true,
+        raw,
+        message,
+        line,
+        column,
+        file: filename,
+        help,
+      };
+    }
+  }
+
+  return `${e}`;
 }
 
 /**
