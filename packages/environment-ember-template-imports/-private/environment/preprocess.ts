@@ -42,9 +42,6 @@ export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, pat
     let endTagLengthBytes = template.endRange.end - template.endRange.start;
     let startTagOffsetBytes = template.startRange.start;
     let endTagOffsetBytes = template.endRange.start;
-
-    // if (startTagOffset === -1 || endTagOffset === -1) continue;
-
     let transformedStartBytes = startTagOffsetBytes - deltaBytes;
 
     /**

@@ -5,7 +5,8 @@
       "name": "Debug Extension (Glint + TS)",
       "type": "extensionHost",
       "request": "launch",
-      "preLaunchTask": "npm: build",
+      // this errors. Run `yarn build` before launching this task
+      // "preLaunchTask": "npm: build",
       "autoAttachChildProcesses": true,
       "runtimeExecutable": "${execPath}",
       "outFiles": [
