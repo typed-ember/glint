@@ -11,6 +11,6 @@
     "composite": true,
     "declaration": true,
     "sourceMap": true,
-    "types": []
+    "types": ["@types/node"]
   }
 }

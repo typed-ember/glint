@@ -85,6 +85,16 @@ export default class TransformManager {
       );
     }
 
+    // When we have syntax errors we get _too many errors_
+    // if we have an issue with <template> tranformation, we should
+    // make the user fix their syntax before revealing all the other errors.
+    let contentTagErrors = allDiagnostics.filter(
+      (diagnostic) => (diagnostic as Diagnostic).isContentTagError
+    );
+    if (contentTagErrors.length) {
+      return this.ts.sortAndDeduplicateDiagnostics(contentTagErrors);
+    }
+
     return this.ts.sortAndDeduplicateDiagnostics(allDiagnostics);
   }
 
@@ -450,7 +460,13 @@ export default class TransformManager {
 
   private buildTransformDiagnostics(transformedModule: TransformedModule): Array<Diagnostic> {
     return transformedModule.errors.map((error) =>
-      createTransformDiagnostic(this.ts, error.source, error.message, error.location)
+      createTransformDiagnostic(
+        this.ts,
+        error.source,
+        error.message,
+        error.location,
+        error.isContentTagError
+      )
     );
   }
 }

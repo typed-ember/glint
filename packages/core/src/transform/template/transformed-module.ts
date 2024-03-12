@@ -32,6 +32,7 @@ export type Directive = {
 };
 
 export type TransformError = {
+  isContentTagError?: boolean;
   message: string;
   location: Range;
   source: SourceFile;

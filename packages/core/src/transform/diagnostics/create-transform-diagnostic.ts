@@ -6,9 +6,11 @@ export function createTransformDiagnostic(
   ts: TSLib,
   source: SourceFile,
   message: string,
-  location: Range
+  location: Range,
+  isContentTagError = false
 ): Diagnostic {
   return {
+    isContentTagError,
     isGlintTransformDiagnostic: true,
     category: ts.DiagnosticCategory.Error,
     code: 0,

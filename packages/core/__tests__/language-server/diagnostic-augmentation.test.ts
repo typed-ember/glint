@@ -13,6 +13,103 @@ describe('Language Server: Diagnostic Augmentation', () => {
     await project.destroy();
   });
 
+  test('There is a content-tag parse error (for a template-only component)', async () => {
+    project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
+    project.write({
+      'index.gts': stripIndent`
+        function expectsTwoArgs(a: string, b: number) {
+          console.log(a, b);
+        }
+
+        <template>
+          {{expectsTwoArgs "one"}}
+      `,
+    });
+
+    let server = project.startLanguageServer();
+    let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "code": 0,
+          "message": "Unexpected eof
+
+       5 │ <template>
+       6 │   {{expectsTwoArgs \\"one\\"}}
+         ╰────",
+          "range": {
+            "end": {
+              "character": 7,
+              "line": 4,
+            },
+            "start": {
+              "character": 6,
+              "line": 4,
+            },
+          },
+          "severity": 1,
+          "source": "glint",
+          "tags": [],
+        },
+      ]
+    `);
+  });
+
+  test('There is a content-tag parse error (for a class component)', async () => {
+    project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
+    project.write({
+      'index.gts': stripIndent`
+        import Component from '@glimmer/component';
+
+        export interface AppSignature {
+          Blocks: {
+            expectsTwoParams: [a: string, b: number];
+            expectsAtLeastOneParam: [a: string, ...rest: Array<string>];
+          }
+        }
+
+        function expectsTwoArgs(a: string, b: number) {
+          console.log(a, b);
+        }
+
+        export default class App extends Component<AppSignature> {
+          <template>
+            {{expectsTwoArgs "one"}}
+        }
+      `,
+    });
+
+    let server = project.startLanguageServer();
+    let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "code": 0,
+          "message": "Unexpected token \`<lexing error: Error { error: (Span { lo: BytePos(382), hi: BytePos(382), ctxt: #0 }, Eof) }>\`. Expected content tag
+
+       16 │     {{expectsTwoArgs \\"one\\"}}
+       17 │ }
+          ╰────",
+          "range": {
+            "end": {
+              "character": 14,
+              "line": 15,
+            },
+            "start": {
+              "character": 13,
+              "line": 15,
+            },
+          },
+          "severity": 1,
+          "source": "glint",
+          "tags": [],
+        },
+      ]
+    `);
+  });
+
   test('expected argument count', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
