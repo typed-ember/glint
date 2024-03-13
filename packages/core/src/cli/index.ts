@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import yargs from 'yargs';
-import { findTypeScript, loadConfig } from '../config/index.js';
+import { findTypeScript, loadClosestConfig, loadConfigFromProject } from '../config/index.js';
 import { performWatch } from './perform-watch.js';
 import { performCheck } from './perform-check.js';
 import { determineOptionsToExtend } from './options.js';
@@ -18,7 +18,7 @@ const argv = yargs(process.argv.slice(2))
   .option('project', {
     alias: 'p',
     string: true,
-    description: 'The path to the tsconfig file to use',
+    description: 'The path to the tsconfig file to use or the folder containing it',
   })
   .option('watch', {
     alias: 'w',
@@ -120,7 +120,8 @@ if (argv.build) {
     performBuild(ts, projects, buildOptions);
   }
 } else {
-  const glintConfig = loadConfig(argv.project ?? cwd);
+  const glintConfig =
+    argv.project !== undefined ? loadConfigFromProject(argv.project) : loadClosestConfig(cwd);
   const optionsToExtend = determineOptionsToExtend(argv);
 
   validateTSOrExit(glintConfig.ts);

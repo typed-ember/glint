@@ -1,4 +1,4 @@
-import { GlintConfig, loadConfig } from './config/index.js';
+import { GlintConfig, loadClosestConfig, loadConfigFromProject } from './config/index.js';
 import DocumentCache from './common/document-cache.js';
 import TransformManager from './common/transform-manager.js';
 import GlintLanguageServer from './language-server/glint-language-server.js';
@@ -25,8 +25,9 @@ export const pathUtils = utils;
  *
  * @internal
  */
-export function analyzeProject(projectDirectory: string = process.cwd()): ProjectAnalysis {
-  let glintConfig = loadConfig(projectDirectory);
+export function analyzeProject(from?: string): ProjectAnalysis {
+  let glintConfig =
+    from !== undefined ? loadConfigFromProject(from) : loadClosestConfig(process.cwd());
   let documents = new DocumentCache(glintConfig);
   let transformManager = new TransformManager(glintConfig, documents);
   let languageServer = new GlintLanguageServer(glintConfig, documents, transformManager);
@@ -40,6 +41,6 @@ export function analyzeProject(projectDirectory: string = process.cwd()): Projec
   };
 }
 
-export { loadConfig };
+export { loadClosestConfig, loadConfigFromProject };
 
 export type { TransformManager, GlintConfig, GlintLanguageServer };

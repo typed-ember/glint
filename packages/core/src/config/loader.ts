@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
+import * as fs from 'node:fs';
 import SilentError from 'silent-error';
 import { GlintConfig } from './config.js';
 import { GlintConfigInput } from '@glint/core/config-types';
@@ -10,18 +11,48 @@ const require = createRequire(import.meta.url);
 type TypeScript = typeof TS;
 
 /**
- * `ConfigLoader` provides an interface for finding the Glint config that
- * applies to a given file or directory, ensuring that only a single instance
- * of `GlintConfig` is ever created for a given `tsconfig.json` or
- * `jsconfig.json` source file.
+ * `ConfigLoader` provides an interface for finding and loading GLint
+ * configurations from config files (e.g. `tsconfig.json` or `jsconfig.json`),
+ * and ensuring that only a single instance of `GlintConfig` is ever created for
+ * a given config file.
  */
 export class ConfigLoader {
   private configs = new Map<string, GlintConfig | null>();
 
+  /**
+   * Given the path to a configuration file, or to a folder containing a
+   * `tsconfig.json` or `jsconfig.json`, load the configuration. This is meant
+   * to implement the behavior of `glint`/`tsc`'s `--project` command-line
+   * option.
+   */
+  public configForProjectPath(configPath: string): GlintConfig | null {
+    let tsConfigPath = path.join(configPath, 'tsconfig.json');
+    let jsConfigPath = path.join(configPath, 'tsconfig.json');
+
+    if (fileExists(configPath)) {
+      return this.configForConfigFile(configPath);
+    } else if (fileExists(tsConfigPath)) {
+      return this.configForConfigFile(tsConfigPath);
+    } else if (fileExists(jsConfigPath)) {
+      return this.configForConfigFile(jsConfigPath);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Given the path to a file, find the closest `tsconfig.json` or
+   * `jsconfig.json` file in the directory structure and load its configuration.
+   */
   public configForFile(filePath: string): GlintConfig | null {
     return this.configForDirectory(path.dirname(filePath));
   }
 
+  /**
+   * Give the path to a directory, find the closest `tsconfig.json` or
+   * `jsconfig.json` file in the directory structure, including in the directory
+   * itself, and load its configuration.
+   */
   public configForDirectory(directory: string): GlintConfig | null {
     let ts = findTypeScript(directory);
     if (!ts) return null;
@@ -29,13 +60,23 @@ export class ConfigLoader {
     let configPath = findNearestConfigFile(ts, directory);
     if (!configPath) return null;
 
-    let existing = this.configs.get(configPath);
+    return this.configForConfigFile(configPath, ts);
+  }
+
+  private configForConfigFile(configPath: string, tsArg?: TypeScript): GlintConfig | null {
+    let ts = tsArg || findTypeScript(path.dirname(configPath));
+    if (!ts) return null;
+
+    // Normalize the config path
+    let absPath = path.resolve(configPath);
+
+    let existing = this.configs.get(absPath);
     if (existing !== undefined) return existing;
 
-    let configInput = loadConfigInput(ts, configPath);
-    let config = configInput ? new GlintConfig(ts, configPath, configInput) : null;
+    let configInput = loadConfigInput(ts, absPath);
+    let config = configInput ? new GlintConfig(ts, absPath, configInput) : null;
 
-    this.configs.set(configPath, config);
+    this.configs.set(absPath, config);
 
     return config;
   }
@@ -58,6 +99,14 @@ function tryResolve<T>(load: () => T): T | null {
     }
 
     throw error;
+  }
+}
+
+function fileExists(filePath: string): boolean {
+  try {
+    return fs.statSync(filePath).isFile();
+  } catch (e) {
+    return false;
   }
 }
 
