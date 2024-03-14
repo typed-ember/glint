@@ -9,7 +9,7 @@ import {
   TemplateContext,
   NamedArgs,
 } from '../integration';
-import { ElementForTagName } from './types';
+import { AttributesForElement, ElementForTagName, SVGElementForTagName } from './types';
 
 /**
  * Used during emit to denote an object literal that corresponds
@@ -44,9 +44,13 @@ export declare function emitContent(value: ContentValue): void;
  *       applyModifier(𝛄.element, resolve(on)({}, 'click', this.clicked));
  *     });
  */
-export declare function emitElement<Name extends string>(
+export declare function emitElement<Name extends string | keyof HTMLElementTagNameMap>(
   name: Name
 ): { element: ElementForTagName<Name> };
+
+export declare function emitSVGElement<Name extends string | keyof SVGElementTagNameMap>(
+  name: Name
+): { element: SVGElementForTagName<Name> };
 
 /*
  * Emits the given value as an entity that expects to receive blocks
@@ -133,7 +137,25 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
-export declare function applyAttributes(element: Element, attrs: Record<string, AttrValue>): void;
+
+type WithSvgStrings<T> = {
+  [P in keyof T]?: T[P] extends SVGAnimatedString ? string : T[P];
+};
+
+// TODO: improve this to allow other keys
+type WithOther<T> = keyof T;
+
+type ElementAttributes<
+  T,
+  A,
+  P extends string | number | symbol = WithOther<A>,
+  V = P extends keyof T ? T[P] : AttrValue
+> = Record<P, V>;
+
+export declare function applyAttributes<T extends Element>(
+  element: T,
+  attrs: WithSvgStrings<ElementAttributes<T, AttributesForElement<T>>> & Record<string, AttrValue>
+): void;
 
 /*
  * Applies a modifier to an element or component.

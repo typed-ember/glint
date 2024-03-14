@@ -42,7 +42,7 @@ export function templateToTypescript(
   return mapTemplateContents(originalTemplate, { embeddingSyntax }, (ast, mapper) => {
     let { emit, record, rangeForLine, rangeForNode } = mapper;
     let scope = new ScopeStack([]);
-
+    let inSVG = false;
     emitTemplateBoilerplate(() => {
       for (let statement of ast?.body ?? []) {
         emitTopLevelStatement(statement);
@@ -148,6 +148,10 @@ export function templateToTypescript(
         record.directive(kind, location, rangeForLine(node.loc.end.line + 1));
       } else if (kind === 'nocheck') {
         record.directive('ignore', location, { start: 0, end: template.length - 1 });
+      } else if (kind === 'in-svg') {
+        inSVG = true;
+      } else if (kind === 'out-svg') {
+        inSVG = false;
       } else {
         record.error(`Unknown directive @glint-${kind}`, location);
       }
@@ -595,13 +599,15 @@ export function templateToTypescript(
         emit.indent();
 
         emit.text('const 𝛄 = χ.emitComponent(χ.resolve(');
-        emitPathContents(path, start, kind);
+        emit.forNode(node.nameNode, () => {
+          emitPathContents(path, start, kind);
+        })
         emit.text(')(');
 
         let dataAttrs = node.attributes.filter(({ name }) => name.startsWith('@'));
-        if (dataAttrs.length) {
-          emit.text('{ ');
+        emit.text('{ ');
 
+        emit.forNode(node.startTag, () => {
           for (let attr of dataAttrs) {
             emit.forNode(attr, () => {
               start = template.indexOf(attr.name, start + 1);
@@ -626,9 +632,11 @@ export function templateToTypescript(
             start = rangeForNode(attr.value).end;
             emit.text(', ');
           }
+          // in case there are no attributes, this would allow completions to trigger
+          emit.text(' ');
+        })
 
-          emit.text('...χ.NamedArgsMarker }');
-        }
+        emit.text('...χ.NamedArgsMarker }');
 
         emit.text('));');
         emit.newline();
@@ -754,21 +762,31 @@ export function templateToTypescript(
           emitComment(comment);
         }
 
+        if (node.tag === 'svg') {
+          inSVG = true;
+        }
+
         emit.text('{');
         emit.newline();
         emit.indent();
-
-        emit.text('const 𝛄 = χ.emitElement(');
-        emit.text(JSON.stringify(node.tag));
+        if (!inSVG) {
+          emit.text('const 𝛄 = χ.emitElement(');
+        } else {
+          emit.text('const 𝛄 = χ.emitSVGElement(');
+        }
+        emit.forNode(node.nameNode, () => {
+          emit.text(JSON.stringify(node.tag));
+        });
         emit.text(');');
         emit.newline();
 
         emitAttributesAndModifiers(node);
-
         for (let child of node.children) {
           emitTopLevelStatement(child);
         }
-
+        if (node.tag === 'svg') {
+          inSVG = false;
+        }
         emit.dedent();
         emit.text('}');
         emit.newline();
@@ -793,35 +811,36 @@ export function templateToTypescript(
         (attr) => !attr.name.startsWith('@') && attr.name !== SPLATTRIBUTES
       );
 
-      if (!attributes.length) return;
-
       emit.text('χ.applyAttributes(𝛄.element, {');
-      emit.newline();
-      emit.indent();
+      emit.forNode(node.startTag, () => {
+        emit.newline();
+        emit.indent();
 
-      let start = template.indexOf(node.tag, rangeForNode(node).start) + node.tag.length;
+        let start = template.indexOf(node.tag, rangeForNode(node).start) + node.tag.length;
 
-      for (let attr of attributes) {
-        emit.forNode(attr, () => {
-          start = template.indexOf(attr.name, start + 1);
+        for (let attr of attributes) {
+          emit.forNode(attr, () => {
+            start = template.indexOf(attr.name, start + 1);
 
-          emitHashKey(attr.name, start);
-          emit.text(': ');
+            emitHashKey(attr.name, start);
+            emit.text(': ');
 
-          if (attr.value.type === 'MustacheStatement') {
-            emitMustacheStatement(attr.value, 'attr');
-          } else if (attr.value.type === 'ConcatStatement') {
-            emitConcatStatement(attr.value);
-          } else {
-            emit.text(JSON.stringify(attr.value.chars));
-          }
+            if (attr.value.type === 'MustacheStatement') {
+              emitMustacheStatement(attr.value, 'attr');
+            } else if (attr.value.type === 'ConcatStatement') {
+              emitConcatStatement(attr.value);
+            } else {
+              emit.text(JSON.stringify(attr.value.chars));
+            }
 
-          emit.text(',');
-          emit.newline();
-        });
-      }
-
-      emit.dedent();
+            emit.text(',');
+            emit.newline();
+          });
+        }
+        // in case there are no attributes, this would allow completions to trigger
+        emit.text(' ');
+        emit.dedent();
+      });
       emit.text('});');
       emit.newline();
     }

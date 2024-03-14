@@ -1,3 +1,6 @@
+import { HtmlElementAttributes, SvgElementAttributes } from '../elements';
+import { AttrValue } from '../index';
+
 /**
  * A utility for constructing the type of an environment's `resolveOrReturn` from
  * the type of its `resolve` function.
@@ -9,9 +12,20 @@ export type ResolveOrReturn<T> = T & (<U>(item: U) => () => U);
  * NOTE: This will return a union for elements that exist both in HTML and SVG. Technically, this will be too permissive.
  */
 export type ElementForTagName<Name extends string> = Name extends keyof HTMLElementTagNameMap
-  ? Name extends keyof SVGElementTagNameMap
-    ? HTMLElementTagNameMap[Name] & SVGElementTagNameMap[Name]
-    : HTMLElementTagNameMap[Name]
-  : Name extends keyof SVGElementTagNameMap
+  ? HTMLElementTagNameMap[Name]
+  : Element;
+
+export type SVGElementForTagName<Name extends string> = Name extends keyof SVGElementTagNameMap
   ? SVGElementTagNameMap[Name]
   : Element;
+
+type ObjectKey<O, T> = { [K in keyof O]: O[K] extends T ? K : never }[keyof O & string];
+
+export type AttributesForElement<
+  Elem extends Element,
+  K = ObjectKey<HTMLElementTagNameMap | SVGElementTagNameMap, Elem>
+> = K extends keyof HtmlElementAttributes.HtmlElements
+  ? HtmlElementAttributes.HtmlElements[K]
+  : K extends keyof SvgElementAttributes.SvgElements
+  ? SvgElementAttributes.SvgElements[K]
+  : Record<string, AttrValue>;
