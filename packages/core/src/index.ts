@@ -41,6 +41,16 @@ export function analyzeProject(from?: string): ProjectAnalysis {
   };
 }
 
+/**
+ * Deprecated method to load the config -- use `loadConfigFromProject` instead.
+ */
+export function loadConfig(from: string): GlintConfig {
+  console.warn(
+    'DEPRECATION: `loadConfig` is deprecated. Use `loadClosestConfig` instead, or consider using `loadConfigFromProject`.'
+  );
+  return loadClosestConfig(from);
+}
+
 export { loadClosestConfig, loadConfigFromProject };
 
 export type { TransformManager, GlintConfig, GlintLanguageServer };

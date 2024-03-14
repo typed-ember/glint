@@ -27,7 +27,7 @@ export class ConfigLoader {
    */
   public configForProjectPath(configPath: string): GlintConfig | null {
     let tsConfigPath = path.join(configPath, 'tsconfig.json');
-    let jsConfigPath = path.join(configPath, 'tsconfig.json');
+    let jsConfigPath = path.join(configPath, 'jsconfig.json');
 
     if (fileExists(configPath)) {
       return this.configForConfigFile(configPath);

@@ -82,9 +82,22 @@ describe('Config', () => {
       );
     });
 
-    test('loads from a folder', () => {
+    test('loads from a tsconfig.json in a folder', () => {
       fs.writeFileSync(
         `${testDir}/tsconfig.json`,
+        JSON.stringify({
+          glint: {
+            environment: './local-env',
+          },
+        })
+      );
+
+      expect(loadConfigFromProject(testDir).rootDir).toBe(normalizePath(testDir));
+    });
+
+    test('loads from a jsconfig.json in a folder', () => {
+      fs.writeFileSync(
+        `${testDir}/jsconfig.json`,
         JSON.stringify({
           glint: {
             environment: './local-env',
