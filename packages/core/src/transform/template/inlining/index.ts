@@ -21,6 +21,9 @@ export function isEmbeddedInClass(ts: TSLib, node: ts.Node): boolean {
     // TODO: this should likely actually filter on whether the template appears in a
     // static block or property definition, but just "am I in a class body" is the
     // current status quo and has been ok so far.
+    if (ts.isHeritageClause(current)) {
+      return false;
+    }
     if (ts.isClassLike(current)) {
       return true;
     }
