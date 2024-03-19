@@ -4,11 +4,10 @@ TypeScript-powered tooling for Glimmer templates.
 
 ## Overview
 
-[Glint] is a set of tools to aid in developing code that uses the Glimmer VM for rendering, such as [Ember.js] v3.24+ and [GlimmerX] projects. Similar to [Vetur] for Vue projects or [Svelte Language Tools], Glint consists of a CLI and a language server to provide feedback and enforce correctness both locally during editing and project-wide in CI.
+[Glint] is a set of tools to aid in developing code that uses the Glimmer VM for rendering, such as [Ember.js] v3.24+. Similar to [Vetur] for Vue projects or [Svelte Language Tools], Glint consists of a CLI and a language server to provide feedback and enforce correctness both locally during editing and project-wide in CI.
 
 [glint]: https://typed-ember.gitbook.io/glint
 [ember.js]: https://www.emberjs.com
-[glimmerx]: https://github.com/glimmerjs/glimmer-experimental
 [vetur]: https://github.com/vuejs/vetur
 [svelte language tools]: https://github.com/sveltejs/language-tools
 
@@ -16,11 +15,10 @@ TypeScript-powered tooling for Glimmer templates.
 
 Glint is broken into several different packages that you may use, depending on the details of your project. Typically you'll add `@glint/core`, `@glint/template` and a Glint environment package that reflects the type of project you're working on, then add a `"glint"` key to your `tsconfig.json` that tells Glint what it should look at.
 
-For more specific details on setting up Glint in your project, take a look at [the documentation], in particular the Installation pages [for Ember.js projects] and [for GlimmerX projects].
+For more specific details on setting up Glint in your project, take a look at [the documentation], in particular the Installation pages [for Ember.js projects].
 
 [the documentation]: https://typed-ember.gitbook.io/glint
 [for ember.js projects]: https://typed-ember.gitbook.io/glint/environments/ember/installation
-[for glimmerx projects]: https://typed-ember.gitbook.io/glint/environments/glimmerx/installation
 
 ## Using Glint
 

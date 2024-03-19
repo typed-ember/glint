@@ -236,19 +236,10 @@ When you've finished your migration, you can update to Glint 0.8 and remove the
 `import '@glint/environment-ember-loose/native-integration';` line from your project, leaving only
 `import '@glint/environment-ember-loose';`.
 
-{% hint style="warning" %}
-Note: `@glint/environment-glimmerx` currently does not support native imports and has been held back temporarily from
-release for version 0.8.0. Until a new release of GlimmerX is available, please remain on Glint 0.7 for projects using
-GlimmerX.
-{% endhint %}
-
 ## Native Signatures and Imports
 
 This guide provides direction for migrating from custom Glint-specific import paths and signature formats to the
 native imports and standardized signatures for `@ember/component`, `@glimmer/component` and `ember-modifier`.
-
-Note that this guide applies to `@glint/environment-ember-loose`, but `@glint/environment-glimmerx` doesn't yet support
-native imports, pending an upgrade of GlimmerX's own dependencies.
 
 ### Background
 

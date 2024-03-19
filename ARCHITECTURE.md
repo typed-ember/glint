@@ -48,7 +48,7 @@ Note: The fact that the synthesized module is _not_ persisted to disk means that
 
 **Invariants:**
 
-- The core **template DSL** has no knowledge of semantics that are particular to a given environment (e.g. GlimmerX's functions-as-modifiers), nor of any built-in globals or keywords.[^dsl-invariants]
+- The core **template DSL** has no knowledge of semantics that are particular to a given environment, nor of any built-in globals or keywords.[^dsl-invariants]
 - Code emitted by the **transform** layer never directly references `@glint/template`. Rather, **environment** packages re-export the contents of `@glint/template` with tweaks or additions to the types that reflect their runtime behavior. This typically includes declaring the set of available `Globals` and defining appropriate semantics for `resolve`.
 
 [^dsl-invariants]: It does have _definitions_ for a small number of keywords that are core to the VM, but it's still up to individual environments to expose them.
@@ -124,4 +124,4 @@ This relationship looks roughly like this:
 
 [matklad]: https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html
 
-[^env]: Each environment is specific to a single context (“environment”) like Ember, GlimmerX, etc. Accordingly, they are likely to move _out_ of the Glint monorepo in the long-term, but will remain part of the Glint ecosystem and working model.
+[^env]: Each environment is specific to a single context (“environment”) like Ember, etc. Accordingly, they are likely to move _out_ of the Glint monorepo in the long-term, but will remain part of the Glint ecosystem and working model.

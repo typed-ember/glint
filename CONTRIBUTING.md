@@ -42,7 +42,7 @@ There are a few VSCode Launch Configurations within `./vscode/launch.json` that 
   - In this mode, both language servers will provide duplicate completions and suggestions, which can be useful for testing out feature parity between Glint and TS
 - Debug Extension (Glint Only)
   - This is useful for testing out the "takeover" mode of running Glint, where Glint is responsible for providing all of the language features (debugging, diagnostics, etc); this is the ideal way to run Glint, but at the time of writing we have not yet achieved feature parity with built-in TS
-- By default these extensions will launch the VSCode Extension Host in the `test-packages` subfolder, which have Ember and Glimmerx apps that you can do some basic testing on
+- By default these extensions will launch the VSCode Extension Host in the `test-packages` subfolder, which have Ember apps that you can do some basic testing on
 - _TIP_: you can open any workspace with the Extension Host, meaning you can even debug the language server with breakpoints on a totally separate Ember repo, for example.
 - _NOTE_: debugging takes place within the `glint` workspace, i.e. if you are debugging completions, you'd trigger a completion within the Extension Host, and the breakpoint would pause within the Glint workspace VSCode instance.
 

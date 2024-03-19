@@ -24,10 +24,6 @@
   * [Using Addons](ember/using-addons.md)
   * [Authoring Addons](ember/authoring-addons.md)
   * [Template Imports](ember/template-imports.md)
-* [GlimmerX](using-glint/glimmerx/README.md)
-  * [Installation](glimmerx/installation.md)
-  * [Component Signatures](glimmerx/component-signatures.md)
-  * [Template Components](glimmerx/template-components.md)
 
 ## Troubleshooting
 * [Migration Notes](migrating.md)
