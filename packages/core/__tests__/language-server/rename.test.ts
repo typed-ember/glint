@@ -49,7 +49,7 @@ describe('Language Server: Renaming Symbols', () => {
   test('preparing rename-able and unrename-able elements', () => {
     project.write({
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         type GreetingArgs = {
           message: string;
@@ -58,10 +58,10 @@ describe('Language Server: Renaming Symbols', () => {
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
           private foo = 'hi';
 
-          static template = hbs\`
+          <template>
             {{this.foo}}
             {{@missingArg}}
-          \`;
+          </template>
         }
       `,
     });
@@ -88,24 +88,24 @@ describe('Language Server: Renaming Symbols', () => {
   test('renaming an arg', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         export type GreetingArgs = {
           message: string;
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          static template = hbs\`{{@message}}, World!\`;
+          <template>{{@message}}, World!\`;
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
         import Greeting from './greeting';
 
         export class Application extends Component {
-          static template = hbs\`
+          <template>
             <Greeting @message="Hello" />
-          \`;
+          </template>
         }
       `,
     });
@@ -172,14 +172,14 @@ describe('Language Server: Renaming Symbols', () => {
   test('renaming a block param', () => {
     project.write({
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         export default class Application extends Component {
-          static template = hbs\`
+          <template>
             {{#each (array 'a' 'b' 'c') as |letter|}}
               {{letter}}
             {{/each}}
-          \`;
+          </template>
         }
       `,
     });
@@ -228,24 +228,24 @@ describe('Language Server: Renaming Symbols', () => {
   test('renaming a component', async () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         export type GreetingArgs = {
           message: string;
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          static template = hbs\`{{@message}}, World!\`;
+          <template>{{@message}}, World!\`;
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
         import Greeting from './greeting';
 
         export class Application extends Component {
-          static template = hbs\`
+          <template>
             <Greeting @message="Hello" />
-          \`;
+          </template>
         }
       `,
     });

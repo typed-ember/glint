@@ -44,28 +44,28 @@ describe('Language Server: References', () => {
   test('component references', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         export default class Greeting extends Component {
           private nested = Math.random() > 0.5;
 
-          static template = hbs\`
+          <template>
             {{#if this.nested}}
               <Greeting />!
             {{else}}
               Hello!
             {{/if}}
-          \`;
+          </template>
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
         import Greeting from './greeting';
 
         export default class Application extends Component {
-          static template = hbs\`
+          <template>
             <Greeting />
-          \`;
+          </template>
         }
       `,
     });
@@ -120,7 +120,7 @@ describe('Language Server: References', () => {
   test('arg references', async () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         export type GreetingArgs = {
           /** Who to greet */
@@ -128,19 +128,19 @@ describe('Language Server: References', () => {
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          static template = hbs\`
+          <template>
             Hello, {{@target}}
-          \`;
+          </template>
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
         import Greeting from './greeting';
 
         export default class Application extends Component {
-          static template = hbs\`
+          <template>
             <Greeting @target="World" />
-          \`;
+          </template>
         }
       `,
     });

@@ -12,9 +12,9 @@ describe('Transform: rewriteModule', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import Component from '@glimmer/component';
           export default class MyComponent extends Component {
-            static template = hbs\`\`;
+            <template>\`;
           }
         `,
       };
@@ -23,7 +23,7 @@ describe('Transform: rewriteModule', () => {
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from '@glimmerx/component';
+        "import Component from '@glimmer/component';
         export default class MyComponent extends Component {
           static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
           hbs;
@@ -37,9 +37,9 @@ describe('Transform: rewriteModule', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import Component from '@glimmer/component';
           export default class MyComponent<K extends string> extends Component<{ value: K }> {
-            static template = hbs\`\`;
+            <template>\`;
           }
         `,
       };
@@ -48,7 +48,7 @@ describe('Transform: rewriteModule', () => {
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from '@glimmerx/component';
+        "import Component from '@glimmer/component';
         export default class MyComponent<K extends string> extends Component<{ value: K }> {
           static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
           hbs;
@@ -62,9 +62,9 @@ describe('Transform: rewriteModule', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import Component from '@glimmer/component';
           export default class extends Component {
-            static template = hbs\`\`;
+            <template>\`;
           }
         `,
       };
@@ -72,7 +72,7 @@ describe('Transform: rewriteModule', () => {
       let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
 
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from '@glimmerx/component';
+        "import Component from '@glimmer/component';
         export default class extends Component {
           static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
           hbs;
@@ -86,11 +86,11 @@ describe('Transform: rewriteModule', () => {
       let script = {
         filename: 'test.ts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import Component from '@glimmer/component';
           export default class MyComponent extends Component {
-            static template = hbs\`
+            <template>
               {{hello
-            \`;
+            </template>
           }
         `,
       };
@@ -99,7 +99,7 @@ describe('Transform: rewriteModule', () => {
 
       expect(transformedModule?.errors.length).toBe(1);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from '@glimmerx/component';
+        "import Component from '@glimmer/component';
         export default class MyComponent extends Component {
           static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
           hbs;

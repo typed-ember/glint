@@ -19,12 +19,12 @@ describe('Transform: Source-to-source offset mapping', () => {
     let script = {
       filename: 'test.ts',
       contents: stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         export default class MyComponent extends Component {
-          static template = hbs\`
+          <template>
             ${contents}
-          \`;
+          </template>
         }
       `,
     };
@@ -450,16 +450,16 @@ describe('Transform: Source-to-source offset mapping', () => {
     const source = {
       filename: 'test.ts',
       contents: stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         // start
         export default class MyComponent extends Component {
-          static template = hbs\`<Greeting />\`;
+          <template><Greeting />\`;
         }
         // end
 
         export class Greeting extends Component {
-          static template = hbs\`Hello, world!\`;
+          <template>Hello, world!\`;
         }
       `,
     };
@@ -513,13 +513,13 @@ describe('Diagnostic offset mapping', () => {
   const source = {
     filename: 'test.ts',
     contents: stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
       export default class MyComponent extends Component {
-        static template = hbs\`
+        <template>
           {{#each foo as |bar|}}
             {{concat bar}}
           {{/each}}
-        \`;
+        </template>
       }
     `,
   };

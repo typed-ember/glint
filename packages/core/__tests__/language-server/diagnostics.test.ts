@@ -173,7 +173,7 @@ describe('Language Server: Diagnostics', () => {
   test('reports diagnostics for an inline template type error', () => {
     let code = stripIndent`
       // Here's a leading comment to make sure we handle trivia right
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;
@@ -182,10 +182,10 @@ describe('Language Server: Diagnostics', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        public <template>
           Welcome to app <code>v{{@version}}</code>.
           The current time is {{this.startupTimee}}.
-        \`;
+        </template>
       }
     `;
 
@@ -325,26 +325,26 @@ describe('Language Server: Diagnostics', () => {
 
   test('honors @glint-ignore and @glint-expect-error', () => {
     let componentA = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       export default class ComponentA extends Component {
-        public static template = hbs\`
+        public <template>
           {{! @glint-expect-error }}
           Welcome to app <code>v{{@version}}</code>.
-        \`;
+        </template>
       }
     `;
 
     let componentB = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       export default class ComponentB extends Component {
         public startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        public <template>
           {{! @glint-ignore: this looks like a typo but for some reason it isn't }}
           The current time is {{this.startupTimee}}.
-        \`;
+        </template>
       }
     `;
 

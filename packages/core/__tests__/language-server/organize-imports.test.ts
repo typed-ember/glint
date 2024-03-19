@@ -19,9 +19,9 @@ describe('Language Server: Organize Imports', () => {
       'index.ts': stripIndent`
 
       export default class Application extends Component {
-        static template = hbs\`
+        <template>
           Hello, world!
-        \`;
+        </template>
       }
       `,
     });

@@ -17,24 +17,24 @@ describe('Language Server: Symbol Search', () => {
   test('component definition', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         export type GreetingArgs = {
           message: string;
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          static template = hbs\`{{@message}}, World!\`;
+          <template>{{@message}}, World!\`;
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
         import Greeting from './greeting';
 
         export class Application extends Component {
-          static template = hbs\`
+          <template>
             <Greeting @message="Hello" />
-          \`;
+          </template>
         }
       `,
     });
