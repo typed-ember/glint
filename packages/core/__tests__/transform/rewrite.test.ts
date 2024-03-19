@@ -467,6 +467,30 @@ describe('Transform: rewriteModule', () => {
   });
 
   describe('ember-template-imports', () => {
+    test('in class extends', () => {
+      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let script = {
+        filename: 'test.gts',
+        contents: stripIndent`
+          import Component, { hbs } from 'special/component';
+          export default class MyComponent extends Component(<template></template>) {
+            
+          }
+        `,
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, customEnv);
+
+
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import Component, { hbs } from 'special/component';
+        export default class MyComponent extends Component(({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {
+          𝚪; χ;
+        })) {
+          
+        }"
+      `);
+    });
     test('embedded gts templates', () => {
       let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
       let script = {
