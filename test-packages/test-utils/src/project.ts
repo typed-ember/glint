@@ -81,7 +81,7 @@ export class Project {
         ...config.compilerOptions,
       },
       glint: config.glint ?? {
-        environment: ["ember-loose", "ember-template-imports"]
+        environment: ['ember-loose', 'ember-template-imports'],
       },
     };
 
