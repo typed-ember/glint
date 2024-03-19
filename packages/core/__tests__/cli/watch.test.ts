@@ -16,7 +16,7 @@ describe('CLI: watched typechecking', () => {
 
   test('passes a valid project', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;
@@ -25,14 +25,14 @@ describe('CLI: watched typechecking', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let watch = project.watch({ reject: true });
     let output = await watch.awaitOutput('Watching for file changes.');
@@ -44,7 +44,7 @@ describe('CLI: watched typechecking', () => {
 
   test('reports diagnostics for a template syntax error', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;
@@ -53,14 +53,14 @@ describe('CLI: watched typechecking', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let watch = project.watch();
     let output = await watch.awaitOutput('Watching for file changes.');
@@ -69,13 +69,13 @@ describe('CLI: watched typechecking', () => {
 
     let stripped = stripAnsi(output);
     let error = stripped.slice(
-      stripped.indexOf('index.ts'),
+      stripped.indexOf('index.gts'),
       stripped.lastIndexOf(`~~~${os.EOL}`) + 3
     );
 
     expect(output).toMatch('Found 1 error.');
     expect(error.replace(/\r/g, '')).toMatchInlineSnapshot(`
-      "index.ts:11:24 - error TS0: Parse error on line 2:
+      "index.gts:11:24 - error TS0: Parse error on line 2:
       ...e to app v{{@version}.    The current t
       -----------------------^
       Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
@@ -87,7 +87,7 @@ describe('CLI: watched typechecking', () => {
 
   test('reports diagnostics for a template type error', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;
@@ -96,14 +96,14 @@ describe('CLI: watched typechecking', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTimee}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let watch = project.watch();
     let output = await watch.awaitOutput('Watching for file changes.');
@@ -112,18 +112,18 @@ describe('CLI: watched typechecking', () => {
 
     let stripped = stripAnsi(output);
     let error = stripped.slice(
-      stripped.indexOf('index.ts'),
+      stripped.indexOf('index.gts'),
       stripped.lastIndexOf(`~~~${os.EOL}`) + 3
     );
 
     expect(output).toMatch('Found 1 error.');
     expect(error.replace(/\r/g, '')).toMatchInlineSnapshot(`
-      "index.ts:12:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
+      "index.gts:12:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
 
       12     The current time is {{this.startupTimee}}.
                                         ~~~~~~~~~~~~
 
-        index.ts:8:11
+        index.gts:8:11
           8   private startupTime = new Date().toISOString();
                       ~~~~~~~~~~~"
     `);
@@ -131,7 +131,7 @@ describe('CLI: watched typechecking', () => {
 
   test('reports on errors introduced and cleared during the watch', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;
@@ -140,26 +140,26 @@ describe('CLI: watched typechecking', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let watch = project.watch({ reject: true });
 
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
-    project.write('index.ts', code.replace('this.startupTime', 'this.startupTimee'));
+    project.write('index.gts', code.replace('this.startupTime', 'this.startupTimee'));
 
     output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 1 error.');
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
@@ -293,7 +293,7 @@ describe('CLI: watched typechecking', () => {
 
   test('reports on errors introduced and cleared during the watch with --preserveWatchOutput', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;
@@ -302,26 +302,26 @@ describe('CLI: watched typechecking', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let watch = project.watch({ flags: ['--preserveWatchOutput'], reject: true });
 
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
-    project.write('index.ts', code.replace('this.startupTime', 'this.startupTimee'));
+    project.write('index.gts', code.replace('this.startupTime', 'this.startupTimee'));
 
     output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 1 error.');
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
