@@ -15,7 +15,7 @@ describe('CLI: single-pass typechecking', () => {
 
   test('passes a valid project', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;
@@ -24,14 +24,14 @@ describe('CLI: single-pass typechecking', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let checkResult = await project.check();
 
@@ -101,7 +101,7 @@ describe('CLI: single-pass typechecking', () => {
 
   test('reports diagnostics for a template syntax error', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;
@@ -110,21 +110,21 @@ describe('CLI: single-pass typechecking', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let checkResult = await project.check({ reject: false });
 
     expect(checkResult.exitCode).toBe(1);
     expect(checkResult.stdout).toEqual('');
     expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-      "index.ts:11:24 - error TS0: Parse error on line 2:
+      "index.gts:11:24 - error TS0: Parse error on line 2:
       ...e to app v{{@version}.    The current t
       -----------------------^
       Expecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'
@@ -137,7 +137,7 @@ describe('CLI: single-pass typechecking', () => {
 
   test('reports diagnostics for an inline template type error', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;
@@ -146,26 +146,27 @@ describe('CLI: single-pass typechecking', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTimee}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let checkResult = await project.check({ reject: false });
 
     expect(checkResult.exitCode).toBe(1);
     expect(checkResult.stdout).toEqual('');
+
     expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-      "index.ts:12:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
+      "index.gts:12:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
 
       12     The current time is {{this.startupTimee}}.
                                         ~~~~~~~~~~~~
 
-        index.ts:8:11
+        index.gts:8:11
           8   private startupTime = new Date().toISOString();
                       ~~~~~~~~~~~
           'startupTime' is declared here.

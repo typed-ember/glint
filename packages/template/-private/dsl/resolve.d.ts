@@ -27,8 +27,8 @@ import { ResolveOrReturn } from './types';
  *    down to their most general form, which breaks complex declarations like `fn` that
  *    rely on having multiple overrides to be typed correctly.
  *
- * In GlimmerX (and potentially other future environments), plain functions can themselves
- * be invokables with their own particular resolution semantics.
+ * In modern Ember.js, plain functions can themselves be invokables with their
+ * own particular resolution semantics.
  */
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];

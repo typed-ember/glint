@@ -25,7 +25,6 @@ try {
       emptyTempDir,
       // Load the app fixtures
       `${packageRoot}/__fixtures__/ember-app`,
-      `${packageRoot}/__fixtures__/js-glimmerx-app`,
       `${packageRoot}/__fixtures__/template-imports-app`,
     ],
   });
