@@ -8,7 +8,7 @@ In addition to the `@glint/core`, `@glint/template` and `@glint/environment-embe
 {% tab title="Yarn" %}
 
 ```sh
-yarn add --dev @glint/core @glint/template @glint/environment-ember-loose @glint/environment-ember-template-imports
+pnpm add --dev @glint/core @glint/template @glint/environment-ember-loose @glint/environment-ember-template-imports
 ```
 
 {% endtab %}

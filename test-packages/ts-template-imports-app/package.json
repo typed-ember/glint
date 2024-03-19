@@ -6,6 +6,9 @@
   "scripts": {
     "test": "glint"
   },
+  "devDependencies": {
+    "@glint/core": "workspace:*"
+  },
   "volta": {
     "extends": "../../package.json"
   }

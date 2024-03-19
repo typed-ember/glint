@@ -15,7 +15,7 @@ Thus, installation for a JS setup looks like this:
 {% tabs %}
 {% tab title="Yarn" %}
 ```shell-session
-yarn add --dev typescript @glint/core @glint/template @glint/environment-ember-loose
+pnpm add --dev typescript @glint/core @glint/template @glint/environment-ember-loose
 ```
 {% endtab %}
 

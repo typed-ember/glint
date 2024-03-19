@@ -21,8 +21,8 @@ Or by installing `@glint/scripts` as a project-local dependency and then executi
 npm install -D @glint/scripts
 npx {script-name} {...script-args}
 # or
-yarn add --dev @glint/scripts
-yarn {script-name} {...script-args}
+pnpm add --dev @glint/scripts
+pnpm {script-name} {...script-args}
 # or
 pnpm i -D @glint/scripts
 pnpm {script-name} {...script-args}

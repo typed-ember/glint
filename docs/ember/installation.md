@@ -9,7 +9,7 @@ Read on for a more detailed explanation of each of these steps.
 {% tab title="Yarn" %}
 
 ```sh
-yarn add --dev @glint/core @glint/template @glint/environment-ember-loose
+pnpm add --dev @glint/core @glint/template @glint/environment-ember-loose
 ```
 
 {% endtab %}
