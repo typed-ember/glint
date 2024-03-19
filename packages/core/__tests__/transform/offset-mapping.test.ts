@@ -454,12 +454,12 @@ describe('Transform: Source-to-source offset mapping', () => {
 
         // start
         export default class MyComponent extends Component {
-          <template><Greeting />\`;
+          <template><Greeting /></template>
         }
         // end
 
         export class Greeting extends Component {
-          <template>Hello, world!\`;
+          <template>Hello, world!</template>
         }
       `,
     };

@@ -39,7 +39,7 @@ describe('Language Server: Definitions', () => {
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
         export default class Greeting extends Component<{ Args: { message: string } }> {
-          <template>{{@message}}, World!\`;
+          <template>{{@message}}, World!</template>
         }
       `,
       'index.gts': stripIndent`
@@ -81,7 +81,7 @@ describe('Language Server: Definitions', () => {
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!\`;
+          <template>{{@message}}, World!</template>
         }
       `,
       'index.gts': stripIndent`
@@ -124,7 +124,7 @@ describe('Language Server: Definitions', () => {
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!\`;
+          <template>{{@message}}, World!</template>
         }
       `,
     });
@@ -156,7 +156,7 @@ describe('Language Server: Definitions', () => {
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!\`;
+          <template>{{@message}}, World!</template>
         }
       `,
       'index.gts': stripIndent`

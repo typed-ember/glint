@@ -14,7 +14,7 @@ describe('Transform: rewriteModule', () => {
         contents: stripIndent`
           import Component from '@glimmer/component';
           export default class MyComponent extends Component {
-            <template>\`;
+            <template></template>
           }
         `,
       };
@@ -39,7 +39,7 @@ describe('Transform: rewriteModule', () => {
         contents: stripIndent`
           import Component from '@glimmer/component';
           export default class MyComponent<K extends string> extends Component<{ value: K }> {
-            <template>\`;
+            <template></template>
           }
         `,
       };
@@ -64,7 +64,7 @@ describe('Transform: rewriteModule', () => {
         contents: stripIndent`
           import Component from '@glimmer/component';
           export default class extends Component {
-            <template>\`;
+            <template></template>
           }
         `,
       };
@@ -127,9 +127,9 @@ describe('Transform: rewriteModule', () => {
 
           const message = 'hello';
 
-          hbsCaptureAll\`{{global}} {{message}}\`;
-          hbsCaptureSome\`{{global}} {{message}}\`;
-          hbsCaptureNone\`{{global}} {{message}}\`;
+          hbsCaptureAll\`{{global}} {{message}}</template>
+          hbsCaptureSome\`{{global}} {{message}}</template>
+          hbsCaptureNone\`{{global}} {{message}}</template>
         `,
       };
 

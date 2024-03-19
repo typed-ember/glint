@@ -16,7 +16,7 @@ describe('Language Server: Symbol Search', () => {
 
   test('component definition', () => {
     project.write({
-      'greeting.ts': stripIndent`
+      'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
 
         export type GreetingArgs = {
@@ -24,10 +24,10 @@ describe('Language Server: Symbol Search', () => {
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!\`;
+          <template>{{@message}}, World!</template>
         }
       `,
-      'index.ts': stripIndent`
+      'index.gts': stripIndent`
         import Component from '@glimmer/component';
         import Greeting from './greeting';
 
@@ -45,7 +45,7 @@ describe('Language Server: Symbol Search', () => {
         name: 'Greeting',
         kind: SymbolKind.Class,
         location: {
-          uri: project.fileURI('greeting.ts'),
+          uri: project.fileURI('greeting.gts'),
           range: {
             start: { line: 6, character: 0 },
             end: { line: 8, character: 1 },
@@ -56,7 +56,7 @@ describe('Language Server: Symbol Search', () => {
         name: 'Greeting',
         kind: SymbolKind.Variable,
         location: {
-          uri: project.fileURI('index.ts'),
+          uri: project.fileURI('index.gts'),
           range: {
             start: { line: 1, character: 7 },
             end: { line: 1, character: 15 },
@@ -67,7 +67,7 @@ describe('Language Server: Symbol Search', () => {
         name: 'GreetingArgs',
         kind: SymbolKind.Variable,
         location: {
-          uri: project.fileURI('greeting.ts'),
+          uri: project.fileURI('greeting.gts'),
           range: {
             start: { line: 2, character: 0 },
             end: { line: 4, character: 2 },

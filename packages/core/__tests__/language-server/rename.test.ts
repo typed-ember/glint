@@ -96,7 +96,7 @@ describe('Language Server: Renaming Symbols', () => {
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!\`;
+          <template>{{@message}}, World!</template>
         }
       `,
       'index.gts': stripIndent`
@@ -236,7 +236,7 @@ describe('Language Server: Renaming Symbols', () => {
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!\`;
+          <template>{{@message}}, World!</template>
         }
       `,
       'index.gts': stripIndent`
