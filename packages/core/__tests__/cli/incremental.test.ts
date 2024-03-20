@@ -143,7 +143,7 @@ describe('CLI: --incremental', () => {
           <template>
             Welcome to app v{{@version}}.
             The current time is {{this.startupTime}}.
-          </template.
+          </template>
         }
       `;
 

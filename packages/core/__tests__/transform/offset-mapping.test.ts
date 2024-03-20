@@ -6,8 +6,8 @@ import * as ts from 'typescript';
 import { assert } from '../../src/transform/util.js';
 import { GlintEnvironment } from '../../src/config/index.js';
 
-const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
 const emberLooseEnvironment = GlintEnvironment.load('ember-loose');
+const emberTemplateImportsEnvironment = GlintEnvironment.load('ember-template-imports');
 
 describe('Transform: Source-to-source offset mapping', () => {
   type RewrittenTestModule = {
@@ -17,7 +17,7 @@ describe('Transform: Source-to-source offset mapping', () => {
 
   function rewriteInlineTemplate({ contents }: { contents: string }): RewrittenTestModule {
     let script = {
-      filename: 'test.ts',
+      filename: 'test.gts',
       contents: stripIndent`
         import Component from '@glimmer/component';
 
@@ -29,7 +29,7 @@ describe('Transform: Source-to-source offset mapping', () => {
       `,
     };
 
-    let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
+    let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
     if (!transformedModule) {
       throw new Error('Expected module to have rewritten contents');
     }
@@ -448,7 +448,7 @@ describe('Transform: Source-to-source offset mapping', () => {
 
   describe('spans outside of mapped segments', () => {
     const source = {
-      filename: 'test.ts',
+      filename: 'test.gts',
       contents: stripIndent`
         import Component from '@glimmer/component';
 
@@ -464,7 +464,7 @@ describe('Transform: Source-to-source offset mapping', () => {
       `,
     };
 
-    const rewritten = rewriteModule(ts, { script: source }, glimmerxEnvironment)!;
+    const rewritten = rewriteModule(ts, { script: source }, emberTemplateImportsEnvironment)!;
 
     test('bounds that cross a rewritten span', () => {
       let originalStart = source.contents.indexOf('// start');
@@ -511,7 +511,7 @@ describe('Transform: Source-to-source offset mapping', () => {
 describe('Diagnostic offset mapping', () => {
   const transformedContentsFile = { fileName: 'transformed' } as ts.SourceFile;
   const source = {
-    filename: 'test.ts',
+    filename: 'test.gts',
     contents: stripIndent`
       import Component from '@glimmer/component';
       export default class MyComponent extends Component {
@@ -524,7 +524,7 @@ describe('Diagnostic offset mapping', () => {
     `,
   };
 
-  const transformedModule = rewriteModule(ts, { script: source }, glimmerxEnvironment);
+  const transformedModule = rewriteModule(ts, { script: source }, emberTemplateImportsEnvironment);
   assert(transformedModule);
 
   test('without related information', () => {
