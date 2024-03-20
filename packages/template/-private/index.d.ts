@@ -26,15 +26,15 @@ import {
  * values like `null` and `undefined`; DOM nodes; and blockless curly
  * component invocations.
  */
-export type ContentValue = 
+export type ContentValue =
   | string
   | number
   | boolean
+  | Date
   | null
   | undefined
   | void
   | SafeString
-  | { toString(): string }
   | Node
   | ArglessCurlyComponent;
 
