@@ -21,8 +21,6 @@ describe('Transform: rewriteModule', () => {
 
       let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
 
-      console.log(transformedModule?.transformedContents)
-
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
