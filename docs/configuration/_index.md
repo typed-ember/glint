@@ -34,7 +34,7 @@ Some environments may accept user-specified configuration. To pass configuration
 ```javascript
 "glint" {
   "environment": {
-    "ember-loose": {
+    "ember-template-imports": {
       "additionalGlobals": ["my-special-template-macro"]
     }
   }
