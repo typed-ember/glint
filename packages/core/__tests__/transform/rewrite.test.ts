@@ -481,7 +481,6 @@ describe('Transform: rewriteModule', () => {
 
       let transformedModule = rewriteModule(ts, { script }, customEnv);
 
-
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component, { hbs } from 'special/component';
         export default class MyComponent extends Component(({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {
