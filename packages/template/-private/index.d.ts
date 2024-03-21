@@ -30,6 +30,7 @@ export type ContentValue =
   | string
   | number
   | boolean
+  | Date
   | null
   | undefined
   | void
