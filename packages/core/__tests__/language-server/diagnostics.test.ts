@@ -173,7 +173,7 @@ describe('Language Server: Diagnostics', () => {
   test('reports diagnostics for an inline template type error', () => {
     let code = stripIndent`
       // Here's a leading comment to make sure we handle trivia right
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type ApplicationArgs = {
         version: string;
@@ -182,17 +182,17 @@ describe('Language Server: Diagnostics', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app <code>v{{@version}}</code>.
           The current time is {{this.startupTimee}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let server = project.startLanguageServer();
-    let diagnostics = server.getDiagnostics(project.fileURI('index.ts'));
+    let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
       [
@@ -235,10 +235,10 @@ describe('Language Server: Diagnostics', () => {
       ]
     `);
 
-    server.openFile(project.fileURI('index.ts'), code);
-    server.updateFile(project.fileURI('index.ts'), code.replace('startupTimee', 'startupTime'));
+    server.openFile(project.fileURI('index.gts'), code);
+    server.updateFile(project.fileURI('index.gts'), code.replace('startupTimee', 'startupTime'));
 
-    expect(server.getDiagnostics(project.fileURI('index.ts'))).toEqual([]);
+    expect(server.getDiagnostics(project.fileURI('index.gts'))).toEqual([]);
   });
 
   test('reports diagnostics for a companion template type error', () => {
@@ -325,45 +325,45 @@ describe('Language Server: Diagnostics', () => {
 
   test('honors @glint-ignore and @glint-expect-error', () => {
     let componentA = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       export default class ComponentA extends Component {
-        public static template = hbs\`
+        <template>
           {{! @glint-expect-error }}
           Welcome to app <code>v{{@version}}</code>.
-        \`;
+        </template>
       }
     `;
 
     let componentB = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       export default class ComponentB extends Component {
         public startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           {{! @glint-ignore: this looks like a typo but for some reason it isn't }}
           The current time is {{this.startupTimee}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write('component-a.ts', componentA);
-    project.write('component-b.ts', componentB);
+    project.write('component-a.gts', componentA);
+    project.write('component-b.gts', componentB);
 
     let server = project.startLanguageServer();
 
-    expect(server.getDiagnostics(project.fileURI('component-a.ts'))).toEqual([]);
-    expect(server.getDiagnostics(project.fileURI('component-b.ts'))).toEqual([]);
+    expect(server.getDiagnostics(project.fileURI('component-a.gts'))).toEqual([]);
+    expect(server.getDiagnostics(project.fileURI('component-b.gts'))).toEqual([]);
 
-    server.openFile(project.fileURI('component-a.ts'), componentA);
+    server.openFile(project.fileURI('component-a.gts'), componentA);
     server.updateFile(
-      project.fileURI('component-a.ts'),
+      project.fileURI('component-a.gts'),
       componentA.replace('{{! @glint-expect-error }}', '')
     );
 
-    expect(server.getDiagnostics(project.fileURI('component-b.ts'))).toEqual([]);
-    expect(server.getDiagnostics(project.fileURI('component-a.ts'))).toMatchInlineSnapshot(`
+    expect(server.getDiagnostics(project.fileURI('component-b.gts'))).toEqual([]);
+    expect(server.getDiagnostics(project.fileURI('component-a.gts'))).toMatchInlineSnapshot(`
       [
         {
           "code": 2339,
@@ -385,15 +385,15 @@ describe('Language Server: Diagnostics', () => {
       ]
     `);
 
-    server.updateFile(project.fileURI('component-a.ts'), componentA);
+    server.updateFile(project.fileURI('component-a.gts'), componentA);
 
-    expect(server.getDiagnostics(project.fileURI('component-a.ts'))).toEqual([]);
-    expect(server.getDiagnostics(project.fileURI('component-b.ts'))).toEqual([]);
+    expect(server.getDiagnostics(project.fileURI('component-a.gts'))).toEqual([]);
+    expect(server.getDiagnostics(project.fileURI('component-b.gts'))).toEqual([]);
 
-    server.updateFile(project.fileURI('component-a.ts'), componentA.replace('{{@version}}', ''));
+    server.updateFile(project.fileURI('component-a.gts'), componentA.replace('{{@version}}', ''));
 
-    expect(server.getDiagnostics(project.fileURI('component-b.ts'))).toEqual([]);
-    expect(server.getDiagnostics(project.fileURI('component-a.ts'))).toMatchInlineSnapshot(`
+    expect(server.getDiagnostics(project.fileURI('component-b.gts'))).toEqual([]);
+    expect(server.getDiagnostics(project.fileURI('component-a.gts'))).toMatchInlineSnapshot(`
       [
         {
           "code": 0,

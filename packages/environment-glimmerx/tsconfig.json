@@ -1,5 +1,0 @@
-{
-  "extends": "../../tsconfig.compileroptions.json",
-  "exclude": ["__tests__"],
-  "references": [{ "path": "../template" }, { "path": "../core" }]
-}

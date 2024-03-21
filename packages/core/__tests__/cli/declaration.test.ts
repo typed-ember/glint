@@ -14,7 +14,7 @@ describe('CLI: emitting declarations', () => {
 
   test('emit for a valid project with embedded templates', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       export interface ApplicationArgs {
         version: string;
@@ -23,21 +23,21 @@ describe('CLI: emitting declarations', () => {
       export default class Application extends Component<{ Args: ApplicationArgs }> {
         private startupTime = new Date().toISOString();
 
-        public static template = hbs\`
+        <template>
           Welcome to app v{{@version}}.
           The current time is {{this.startupTime}}.
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let emitResult = await project.check({ flags: ['--declaration'] });
 
     expect(emitResult.exitCode).toBe(0);
 
     expect(project.read('index.d.ts')).toMatchInlineSnapshot(`
-      "import Component from '@glimmerx/component';
+      "import Component from '@glimmer/component';
       export interface ApplicationArgs {
           version: string;
       }
@@ -45,7 +45,6 @@ describe('CLI: emitting declarations', () => {
           Args: ApplicationArgs;
       }> {
           private startupTime;
-          static template: abstract new () => unknown;
       }
       "
     `);

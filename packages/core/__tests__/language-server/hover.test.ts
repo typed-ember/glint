@@ -34,22 +34,22 @@ describe('Language Server: Hover', () => {
 
   test('using private properties', () => {
     project.write({
-      'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+      'index.gts': stripIndent`
+        import Component from '@glimmer/component';
 
         export default class MyComponent extends Component {
           /** A message. */
           private message = 'hi';
 
-          static template = hbs\`
+          <template>
             {{this.message}}
-          \`;
+          </template>
         }
       `,
     });
 
     let server = project.startLanguageServer();
-    let messageInfo = server.getHover(project.fileURI('index.ts'), {
+    let messageInfo = server.getHover(project.fileURI('index.gts'), {
       line: 7,
       character: 12,
     });
@@ -66,8 +66,8 @@ describe('Language Server: Hover', () => {
 
   test('using args', () => {
     project.write({
-      'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+      'index.gts': stripIndent`
+        import Component from '@glimmer/component';
 
         interface MyComponentArgs {
           /** Some string */
@@ -75,15 +75,15 @@ describe('Language Server: Hover', () => {
         }
 
         export default class MyComponent extends Component<{ Args: MyComponentArgs }> {
-          static template = hbs\`
+          <template>
             {{@str}}
-          \`;
+          </template>
         }
       `,
     });
 
     let server = project.startLanguageServer();
-    let strInfo = server.getHover(project.fileURI('index.ts'), {
+    let strInfo = server.getHover(project.fileURI('index.gts'), {
       line: 9,
       character: 7,
     });
@@ -103,21 +103,21 @@ describe('Language Server: Hover', () => {
 
   test('curly block params', () => {
     project.write({
-      'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+      'index.gts': stripIndent`
+        import Component from '@glimmer/component';
 
         export default class MyComponent extends Component {
-          static template = hbs\`
+          <template>
             {{#each "abc" as |item index|}}
               Item #{{index}}: {{item}}<br>
             {{/each}}
-          \`;
+          </template>
         }
       `,
     });
 
     let server = project.startLanguageServer();
-    let indexInfo = server.getHover(project.fileURI('index.ts'), {
+    let indexInfo = server.getHover(project.fileURI('index.gts'), {
       line: 5,
       character: 14,
     });
@@ -131,7 +131,7 @@ describe('Language Server: Hover', () => {
       },
     });
 
-    let itemInfo = server.getHover(project.fileURI('index.ts'), {
+    let itemInfo = server.getHover(project.fileURI('index.gts'), {
       line: 5,
       character: 25,
     });

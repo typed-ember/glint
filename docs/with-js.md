@@ -45,34 +45,32 @@ You can also use a `tsconfig.json` file with `compilerOptions.allowJs: true`.
 
 To receive equivalent rich editor support for component JS files in your project, you will need to document your components with valid JSDoc. For example:
 
-```javascript
-// SimpleComponent.js
+```gjs
+// SimpleComponent.gjs
 
-import Component from '@glint/environment-glimmerx/component';
-import { hbs } from '@glimmerx/component';
-import { helper } from '@glint/environment-glimmerx/helper';
+import Component from '@glimmer/component';
 
-const or = helper(
-  /**
-   * @template T
-   * @template U
-   * @param {[a: T, b: U]} param
-   * @returns T | U
-   */
-  ([a, b]) => a || b
-);
+/**
+ * Multiplies two numbers
+ * @param {number} a - The first operand
+ * @param {number} b - The second operand
+ * @returns {number} The multiplied value.
+ */
+const multiply = (a, b) => a * b;
 
 /**
  * @typedef SimpleComponentSignature
  * @property {object} Args
- * @property {string} Args.message
+ * @property {number} Args.num
  */
 
 /** @extends {Component<SimpleComponentSignature>} */
 export default class SimpleComponent extends Component {
-  static template = hbs`
-    <h1>This is my simple message: {{or @message 'hello'}}</h1>
-  `;
+  foo = 5
+
+  <template>
+    <h1>{{@num}} * {{this.foo}} = {{multiply @num this.foo}}</h1>
+  </template>
 }
 ```
 

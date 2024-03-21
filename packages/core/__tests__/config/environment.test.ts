@@ -43,20 +43,6 @@ describe('Config: Environments', () => {
         env.moduleMayHaveEmbeddedTemplates('foo.ts', 'import { hbs } from "another-env"\n')
       ).toBe(false);
     });
-
-    test('getting specified template tag config', () => {
-      let tags = {
-        '@glimmerx/component': {
-          hbs: {
-            typesModule: '@glint/environment-glimmerx/-private/dsl',
-          },
-        },
-      };
-
-      let env = new GlintEnvironment(['test-env'], { tags });
-
-      expect(env.getConfiguredTemplateTags()).toBe(tags);
-    });
   });
 
   describe('standalone template config', () => {

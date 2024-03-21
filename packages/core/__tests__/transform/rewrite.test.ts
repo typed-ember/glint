@@ -6,159 +6,102 @@ import { GlintEnvironment } from '../../src/config/index.js';
 
 describe('Transform: rewriteModule', () => {
   describe('inline tagged template', () => {
-    const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
+    const emberTemplateImportsEnvironment = GlintEnvironment.load('ember-template-imports');
 
     test('with a simple class', () => {
       let script = {
-        filename: 'test.ts',
+        filename: 'test.gts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import Component from '@glimmer/component';
           export default class MyComponent extends Component {
-            static template = hbs\`\`;
+            <template></template>
           }
         `,
       };
 
-      let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from '@glimmerx/component';
+        "import Component from '@glimmer/component';
         export default class MyComponent extends Component {
-          static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
-          hbs;
+          static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {
           𝚪; χ;
-        });
+        }) }
         }"
       `);
     });
 
     test('with a class with type parameters', () => {
       let script = {
-        filename: 'test.ts',
+        filename: 'test.gts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import Component from '@glimmer/component';
           export default class MyComponent<K extends string> extends Component<{ value: K }> {
-            static template = hbs\`\`;
+            <template></template>
           }
         `,
       };
 
-      let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from '@glimmerx/component';
+        "import Component from '@glimmer/component';
         export default class MyComponent<K extends string> extends Component<{ value: K }> {
-          static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
-          hbs;
+          static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {
           𝚪; χ;
-        });
+        }) }
         }"
       `);
     });
 
     test('with an anonymous class', () => {
       let script = {
-        filename: 'test.ts',
+        filename: 'test.gts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import Component from '@glimmer/component';
           export default class extends Component {
-            static template = hbs\`\`;
+            <template></template>
           }
         `,
       };
 
-      let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
 
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from '@glimmerx/component';
+        "import Component from '@glimmer/component';
         export default class extends Component {
-          static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
-          hbs;
+          static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {
           𝚪; χ;
-        });
+        }) }
         }"
       `);
     });
 
     test('with a syntax error', () => {
       let script = {
-        filename: 'test.ts',
+        filename: 'test.gts',
         contents: stripIndent`
-          import Component, { hbs } from '@glimmerx/component';
+          import Component from '@glimmer/component';
           export default class MyComponent extends Component {
-            static template = hbs\`
+            <template>
               {{hello
-            \`;
+            </template>
           }
         `,
       };
 
-      let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
 
       expect(transformedModule?.errors.length).toBe(1);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from '@glimmerx/component';
+        "import Component from '@glimmer/component';
         export default class MyComponent extends Component {
-          static template = ({} as typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-glimmerx/-private/dsl\\")) {
-          hbs;
+          static { ({} as typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")).templateForBackingValue(this, function(𝚪, χ: typeof import(\\"@glint/environment-ember-template-imports/-private/dsl\\")) {
           𝚪; χ;
-        });
+        }) }
         }"
-      `);
-    });
-
-    test('outer variable capture', () => {
-      let testEnvironment = new GlintEnvironment(['test'], {
-        tags: {
-          '@glint/test-env': {
-            hbsCaptureAll: { typesModule: '@glint/test-env', globals: [] },
-            hbsCaptureSome: { typesModule: '@glint/test-env', globals: ['global'] },
-            hbsCaptureNone: { typesModule: '@glint/test-env' },
-          },
-        },
-      });
-
-      let script = {
-        filename: 'test.ts',
-        contents: stripIndent`
-          import { hbsCaptureAll, hbsCaptureSome, hbsCaptureNone } from '@glint/test-env';
-
-          const message = 'hello';
-
-          hbsCaptureAll\`{{global}} {{message}}\`;
-          hbsCaptureSome\`{{global}} {{message}}\`;
-          hbsCaptureNone\`{{global}} {{message}}\`;
-        `,
-      };
-
-      let transformedModule = rewriteModule(ts, { script }, testEnvironment);
-
-      expect(transformedModule?.errors).toEqual([]);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import { hbsCaptureAll, hbsCaptureSome, hbsCaptureNone } from '@glint/test-env';
-
-        const message = 'hello';
-
-        ({} as typeof import(\\"@glint/test-env\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/test-env\\")) {
-          hbsCaptureAll;
-          χ.emitContent(χ.resolveOrReturn(global)());
-          χ.emitContent(χ.resolveOrReturn(message)());
-          𝚪; χ;
-        });
-        ({} as typeof import(\\"@glint/test-env\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/test-env\\")) {
-          hbsCaptureSome;
-          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"global\\"])());
-          χ.emitContent(χ.resolveOrReturn(message)());
-          𝚪; χ;
-        });
-        ({} as typeof import(\\"@glint/test-env\\")).templateExpression(function(𝚪, χ: typeof import(\\"@glint/test-env\\")) {
-          hbsCaptureNone;
-          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"global\\"])());
-          χ.emitContent(χ.resolveOrReturn(χ.Globals[\\"message\\"])());
-          𝚪; χ;
-        });"
       `);
     });
   });

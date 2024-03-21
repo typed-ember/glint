@@ -6,8 +6,8 @@ import * as ts from 'typescript';
 import { assert } from '../../src/transform/util.js';
 import { GlintEnvironment } from '../../src/config/index.js';
 
-const glimmerxEnvironment = GlintEnvironment.load('glimmerx');
 const emberLooseEnvironment = GlintEnvironment.load('ember-loose');
+const emberTemplateImportsEnvironment = GlintEnvironment.load('ember-template-imports');
 
 describe('Transform: Source-to-source offset mapping', () => {
   type RewrittenTestModule = {
@@ -17,19 +17,19 @@ describe('Transform: Source-to-source offset mapping', () => {
 
   function rewriteInlineTemplate({ contents }: { contents: string }): RewrittenTestModule {
     let script = {
-      filename: 'test.ts',
+      filename: 'test.gts',
       contents: stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         export default class MyComponent extends Component {
-          static template = hbs\`
+          <template>
             ${contents}
-          \`;
+          </template>
         }
       `,
     };
 
-    let transformedModule = rewriteModule(ts, { script }, glimmerxEnvironment);
+    let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
     if (!transformedModule) {
       throw new Error('Expected module to have rewritten contents');
     }
@@ -448,23 +448,23 @@ describe('Transform: Source-to-source offset mapping', () => {
 
   describe('spans outside of mapped segments', () => {
     const source = {
-      filename: 'test.ts',
+      filename: 'test.gts',
       contents: stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         // start
         export default class MyComponent extends Component {
-          static template = hbs\`<Greeting />\`;
+          <template><Greeting /></template>
         }
         // end
 
         export class Greeting extends Component {
-          static template = hbs\`Hello, world!\`;
+          <template>Hello, world!</template>
         }
       `,
     };
 
-    const rewritten = rewriteModule(ts, { script: source }, glimmerxEnvironment)!;
+    const rewritten = rewriteModule(ts, { script: source }, emberTemplateImportsEnvironment)!;
 
     test('bounds that cross a rewritten span', () => {
       let originalStart = source.contents.indexOf('// start');
@@ -511,20 +511,20 @@ describe('Transform: Source-to-source offset mapping', () => {
 describe('Diagnostic offset mapping', () => {
   const transformedContentsFile = { fileName: 'transformed' } as ts.SourceFile;
   const source = {
-    filename: 'test.ts',
+    filename: 'test.gts',
     contents: stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
       export default class MyComponent extends Component {
-        static template = hbs\`
+        <template>
           {{#each foo as |bar|}}
             {{concat bar}}
           {{/each}}
-        \`;
+        </template>
       }
     `,
   };
 
-  const transformedModule = rewriteModule(ts, { script: source }, glimmerxEnvironment);
+  const transformedModule = rewriteModule(ts, { script: source }, emberTemplateImportsEnvironment);
   assert(transformedModule);
 
   test('without related information', () => {

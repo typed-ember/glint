@@ -6,7 +6,6 @@ Then, add a `"glint"` key in your `tsconfig.json` that tells Glint what environm
 
 See the [Configuration](configuration/_index.md) page for more details about options you can specify under the `"glint"` key. For setup instructions specific to your project type, check out the links below:
 
-- [GlimmerX Installation](glimmerx/installation.md)
 - [Ember.js Installation](ember/installation.md)
 
 ## Using Glint

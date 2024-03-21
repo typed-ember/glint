@@ -44,28 +44,28 @@ describe('Language Server: References', () => {
   test('component references', () => {
     project.write({
       'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
 
         export default class Greeting extends Component {
           private nested = Math.random() > 0.5;
 
-          static template = hbs\`
+          <template>
             {{#if this.nested}}
               <Greeting />!
             {{else}}
               Hello!
             {{/if}}
-          \`;
+          </template>
         }
       `,
       'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+        import Component from '@glimmer/component';
         import Greeting from './greeting';
 
         export default class Application extends Component {
-          static template = hbs\`
+          <template>
             <Greeting />
-          \`;
+          </template>
         }
       `,
     });
@@ -119,8 +119,8 @@ describe('Language Server: References', () => {
 
   test('arg references', async () => {
     project.write({
-      'greeting.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+      'greeting.gts': stripIndent`
+        import Component from '@glimmer/component';
 
         export type GreetingArgs = {
           /** Who to greet */
@@ -128,19 +128,19 @@ describe('Language Server: References', () => {
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          static template = hbs\`
+          <template>
             Hello, {{@target}}
-          \`;
+          </template>
         }
       `,
-      'index.ts': stripIndent`
-        import Component, { hbs } from '@glimmerx/component';
+      'index.gts': stripIndent`
+        import Component from '@glimmer/component';
         import Greeting from './greeting';
 
         export default class Application extends Component {
-          static template = hbs\`
+          <template>
             <Greeting @target="World" />
-          \`;
+          </template>
         }
       `,
     });
@@ -148,21 +148,21 @@ describe('Language Server: References', () => {
     let server = project.startLanguageServer();
     let expectedReferences = new Set([
       {
-        uri: project.fileURI('index.ts'),
+        uri: project.fileURI('index.gts'),
         range: {
           start: { line: 5, character: 15 },
           end: { line: 5, character: 21 },
         },
       },
       {
-        uri: project.fileURI('greeting.ts'),
+        uri: project.fileURI('greeting.gts'),
         range: {
           start: { line: 9, character: 14 },
           end: { line: 9, character: 20 },
         },
       },
       {
-        uri: project.fileURI('greeting.ts'),
+        uri: project.fileURI('greeting.gts'),
         range: {
           start: { line: 4, character: 2 },
           end: { line: 4, character: 8 },
@@ -170,21 +170,21 @@ describe('Language Server: References', () => {
       },
     ]);
 
-    let referencesFromDefinition = server.getReferences(project.fileURI('greeting.ts'), {
+    let referencesFromDefinition = server.getReferences(project.fileURI('greeting.gts'), {
       line: 4,
       character: 4,
     });
 
     expect(new Set(referencesFromDefinition)).toEqual(expectedReferences);
 
-    let referencesFromInvocation = server.getReferences(project.fileURI('index.ts'), {
+    let referencesFromInvocation = server.getReferences(project.fileURI('index.gts'), {
       line: 5,
       character: 17,
     });
 
     expect(new Set(referencesFromInvocation)).toEqual(expectedReferences);
 
-    let referencesFromUsage = server.getReferences(project.fileURI('greeting.ts'), {
+    let referencesFromUsage = server.getReferences(project.fileURI('greeting.gts'), {
       line: 9,
       character: 16,
     });

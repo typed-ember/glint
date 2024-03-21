@@ -543,7 +543,7 @@ export function templateToTypescript(
         // If we have a known set of global identifiers, we should only treat
         // members of that set as global and assume everything else is local.
         // This is typically true in environments that capture scope, like
-        // GlimmerX or strict-mode Ember.
+        // strict-mode Ember.
         return globals.includes(name);
       } else {
         // Otherwise, we assume everything is global unless we can see it

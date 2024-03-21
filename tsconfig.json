@@ -3,7 +3,6 @@
     { "path": "./packages/core" },
     { "path": "./packages/environment-ember-loose" },
     { "path": "./packages/environment-ember-template-imports" },
-    { "path": "./packages/environment-glimmerx" },
     { "path": "./packages/template" },
     { "path": "./packages/type-test" },
     { "path": "./packages/vscode" },

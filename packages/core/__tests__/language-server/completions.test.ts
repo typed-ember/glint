@@ -35,21 +35,21 @@ describe('Language Server: Completions', () => {
 
   test('in unstructured text', () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       export default class MyComponent extends Component {
-        static template = hbs\`
+        <template>
           <div>
             hello
           </div>
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let server = project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.ts'), {
+    let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 4,
       character: 4,
     });
@@ -99,21 +99,21 @@ describe('Language Server: Completions', () => {
 
   test('passing component args', () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       export default class MyComponent extends Component {
-        static template = hbs\`
+        <template>
           <Inner @ />
-        \`;
+        </template>
       }
 
       class Inner extends Component<{ Args: { foo?: string; 'bar-baz'?: number | undefined } }> {}
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let server = project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.ts'), {
+    let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 4,
       character: 12,
     });
@@ -127,21 +127,21 @@ describe('Language Server: Completions', () => {
 
   test('referencing class properties', () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       export default class MyComponent extends Component {
         private message = 'hello';
 
-        static template = hbs\`
+        <template>
           {{this.me}}
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let server = project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.ts'), {
+    let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 6,
       character: 13,
     });
@@ -292,23 +292,23 @@ describe('Language Server: Completions', () => {
 
   test('referencing own args', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       type MyComponentArgs<T> = {
         items: Set<T>;
       };
 
       export default class MyComponent<T> extends Component<{ Args: MyComponentArgs<T> }> {
-        static template = hbs\`
+        <template>
           {{@i}}
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let server = project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.ts'), {
+    let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 8,
       character: 8,
     });
@@ -324,21 +324,21 @@ describe('Language Server: Completions', () => {
 
   test('referencing block params', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       export default class MyComponent extends Component {
-        static template = hbs\`
+        <template>
           {{#each "abc" as |letter|}}
             {{l}}
           {{/each}}
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let server = project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.ts'), {
+    let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 5,
       character: 9,
     });
@@ -354,14 +354,14 @@ describe('Language Server: Completions', () => {
 
   test('referencing module-scope identifiers', async () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       const greeting: string = 'hello';
 
       export default class MyComponent extends Component {
-        static template = hbs\`
+        <template>
           {{g}}
-        \`;
+        </template>
       }
     `;
 
@@ -384,24 +384,24 @@ describe('Language Server: Completions', () => {
 
   test('immediately after a change', () => {
     let code = stripIndent`
-      import Component, { hbs } from '@glimmerx/component';
+      import Component from '@glimmer/component';
 
       export default class MyComponent<T> extends Component {
-        static template = hbs\`
+        <template>
           {{#each "abc" as |letter|}}
             {{}}
           {{/each}}
-        \`;
+        </template>
       }
     `;
 
-    project.write('index.ts', code);
+    project.write('index.gts', code);
 
     let server = project.startLanguageServer();
 
-    server.updateFile(project.fileURI('index.ts'), code.replace('{{}}', '{{l}}'));
+    server.updateFile(project.fileURI('index.gts'), code.replace('{{}}', '{{l}}'));
 
-    let completions = server.getCompletions(project.fileURI('index.ts'), {
+    let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 5,
       character: 9,
     });
