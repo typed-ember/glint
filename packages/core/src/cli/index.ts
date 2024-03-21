@@ -60,6 +60,12 @@ const argv = yargs(process.argv.slice(2))
     description: `Show what would be built (or deleted, if specified with '--clean'). Same as the TS \`--dry\` flag.`,
     type: 'boolean',
   })
+  .option('verbose', {
+    implies: 'build',
+    description:
+      'Prints out verbose logging to explain what’s going on (may be combined with any other flag). Same as the TS `--verbose` flag.',
+    type: 'boolean',
+  })
   .option('incremental', {
     description:
       'Save .tsbuildinfo files to allow for incremental compilation of projects. Same as the TS `--incremental` flag.',
@@ -93,6 +99,7 @@ if (argv.build) {
     clean: argv.clean,
     force: argv.force,
     dry: argv.dry,
+    verbose: argv.verbose,
   };
 
   if ('incremental' in argv) {
