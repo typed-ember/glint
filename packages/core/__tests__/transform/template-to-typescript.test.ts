@@ -756,9 +756,9 @@ describe('Transform: rewriteTemplate', () => {
           expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
             "{
               const 𝛄 = χ.emitComponent(χ.resolve(Foo)());
-              χ.applyAttributes(𝛄.element, {
-                \\"data-bar\\": χ.resolve(helper)({ param: true , ...χ.NamedArgsMarker }),
-              });
+              χ.applyAttributes(𝛄.element, [
+                [\\"data-bar\\", χ.resolve(helper)({ param: true , ...χ.NamedArgsMarker })],
+              ]);
             }"
           `);
         });
@@ -790,9 +790,9 @@ describe('Transform: rewriteTemplate', () => {
           expect(templateBody(template)).toMatchInlineSnapshot(`
             "{
               const 𝛄 = χ.emitElement(\\"div\\");
-              χ.applyAttributes(𝛄.element, {
-                \\"data-attr\\": χ.resolveOrReturn(𝚪.args.input)(),
-              });
+              χ.applyAttributes(𝛄.element, [
+                [\\"data-attr\\", χ.resolveOrReturn(𝚪.args.input)()],
+              ]);
             }"
           `);
         });
@@ -803,9 +803,9 @@ describe('Transform: rewriteTemplate', () => {
           expect(templateBody(template)).toMatchInlineSnapshot(`
             "{
               const 𝛄 = χ.emitElement(\\"div\\");
-              χ.applyAttributes(𝛄.element, {
-                \\"data-attr\\": \`\${χ.resolveOrReturn(𝚪.args.input)()}\`,
-              });
+              χ.applyAttributes(𝛄.element, [
+                [\\"data-attr\\", \`\${χ.resolveOrReturn(𝚪.args.input)()}\`],
+              ]);
             }"
           `);
         });
@@ -957,9 +957,9 @@ describe('Transform: rewriteTemplate', () => {
       expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
           const 𝛄 = χ.emitElement(\\"div\\");
-          χ.applyAttributes(𝛄.element, {
-            \\"data-attr\\": χ.resolve(concat)(χ.resolve(foo)(1), χ.resolve(foo)(true)),
-          });
+          χ.applyAttributes(𝛄.element, [
+            [\\"data-attr\\", χ.resolve(concat)(χ.resolve(foo)(1), χ.resolve(foo)(true))],
+          ]);
         }"
       `);
     });
@@ -1058,9 +1058,9 @@ describe('Transform: rewriteTemplate', () => {
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
           const 𝛄 = χ.emitElement(\\"div\\");
-          χ.applyAttributes(𝛄.element, {
-            \\"data-foo\\": χ.resolveOrReturn(𝚪.args.foo)(),
-          });
+          χ.applyAttributes(𝛄.element, [
+            [\\"data-foo\\", χ.resolveOrReturn(𝚪.args.foo)()],
+          ]);
         }"
       `);
     });
@@ -1071,9 +1071,9 @@ describe('Transform: rewriteTemplate', () => {
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
           const 𝛄 = χ.emitElement(\\"div\\");
-          χ.applyAttributes(𝛄.element, {
-            \\"data-foo\\": \`\${χ.resolveOrReturn(𝚪.args.foo)()}\${χ.resolveOrReturn(𝚪.args.bar)()}\`,
-          });
+          χ.applyAttributes(𝛄.element, [
+            [\\"data-foo\\", \`\${χ.resolveOrReturn(𝚪.args.foo)()}\${χ.resolveOrReturn(𝚪.args.bar)()}\`],
+          ]);
         }"
       `);
     });
@@ -1251,9 +1251,9 @@ describe('Transform: rewriteTemplate', () => {
             const [NS] = 𝛄.blockParams[\\"default\\"];
             {
               const 𝛄 = χ.emitComponent(χ.resolve(NS?.Nested?.Custom)());
-              χ.applyAttributes(𝛄.element, {
-                class: \\"foo\\",
-              });
+              χ.applyAttributes(𝛄.element, [
+                [\\"class\\", \\"foo\\"],
+              ]);
             }
           }
           χ.Globals[\\"Foo\\"];

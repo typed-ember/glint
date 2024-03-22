@@ -795,7 +795,7 @@ export function templateToTypescript(
 
       if (!attributes.length) return;
 
-      emit.text('χ.applyAttributes(𝛄.element, {');
+      emit.text('χ.applyAttributes(𝛄.element, [');
       emit.newline();
       emit.indent();
 
@@ -805,8 +805,9 @@ export function templateToTypescript(
         emit.forNode(attr, () => {
           start = template.indexOf(attr.name, start + 1);
 
-          emitHashKey(attr.name, start);
-          emit.text(': ');
+          emit.text('[');
+          emitIdentifierString(attr.name, start);
+          emit.text(', ');
 
           if (attr.value.type === 'MustacheStatement') {
             emitMustacheStatement(attr.value, 'attr');
@@ -816,13 +817,13 @@ export function templateToTypescript(
             emit.text(JSON.stringify(attr.value.chars));
           }
 
-          emit.text(',');
+          emit.text('],');
           emit.newline();
         });
       }
 
       emit.dedent();
-      emit.text('});');
+      emit.text(']);');
       emit.newline();
     }
 
