@@ -62,8 +62,50 @@ describe('Config: loadConfig', () => {
     let loader = new ConfigLoader();
     let configA = loader.configForFile(`${testDir}/src/a.ts`);
     let configB = loader.configForFile(`${testDir}/src/b.ts`);
+    let configC = loader.configForFile(`${testDir}/src/../src/c.ts`);
 
     expect(configA).toBe(configB);
+    expect(configA).toBe(configC);
+  });
+
+  test('returns config from project file path', () => {
+    fs.writeFileSync(
+      `${testDir}/tsconfig.customname.json`,
+      JSON.stringify({
+        glint: { environment: './local-env.js' },
+      })
+    );
+
+    expect(
+      new ConfigLoader().configForProjectPath(`${testDir}/tsconfig.customname.json`)?.rootDir
+    ).toBe(normalizePath(`${testDir}`));
+  });
+
+  test('returns config from project folder path', () => {
+    fs.writeFileSync(
+      `${testDir}/tsconfig.json`,
+      JSON.stringify({
+        glint: { environment: './local-env.js' },
+      })
+    );
+
+    expect(new ConfigLoader().configForProjectPath(testDir)?.rootDir).toBe(
+      normalizePath(`${testDir}`)
+    );
+  });
+
+  test('returns null for invalid project paths', () => {
+    fs.mkdirSync(`${testDir}/packages/a/src`, { recursive: true });
+
+    fs.writeFileSync(
+      `${testDir}/tsconfig.json`,
+      JSON.stringify({
+        glint: { environment: './local-env.js' },
+      })
+    );
+
+    expect(new ConfigLoader().configForProjectPath(`${testDir}/tsconfig.missing.json`)).toBeNull();
+    expect(new ConfigLoader().configForProjectPath(`${testDir}/packages/a/src`)).toBeNull();
   });
 
   describe('extending other config', () => {
