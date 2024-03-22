@@ -69,6 +69,18 @@ function createCompilerHost(
   host.readFile = transformManager.readTransformedFile;
   host.readDirectory = transformManager.readDirectory;
 
+  // Postprocess .d.ts files to temporarily patch '.gts' to '.ts'
+  // https://github.com/typed-ember/glint/issues/628
+  const tsWriteFile = host.writeFile;
+  const matchGtsImport = /\.gts';/gm;
+  host.writeFile = (fileName, data, writeByteOrderMark, onError) => {
+    const isDts = fileName.endsWith('.d.ts');
+    if (isDts && matchGtsImport.test(data)) {
+      data = data.replace(matchGtsImport, ".ts';");
+    }
+    tsWriteFile(fileName, data, writeByteOrderMark, onError);
+  };
+
   return host;
 }
 
