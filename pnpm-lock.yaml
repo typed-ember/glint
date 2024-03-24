@@ -346,6 +346,18 @@ importers:
       '@glint/template':
         specifier: workspace:*
         version: link:../../packages/template
+      '@types/ember__component':
+        specifier: ^4.0.10
+        version: 4.0.22(@babel/core@7.24.0)
+      '@types/ember__helper':
+        specifier: ^4.0.1
+        version: 4.0.7(@babel/core@7.24.0)
+      '@types/ember__modifier':
+        specifier: ^4.0.3
+        version: 4.0.9(@babel/core@7.24.0)
+      '@types/ember__routing':
+        specifier: ^4.0.12
+        version: 4.0.22(@babel/core@7.24.0)
       '@types/node':
         specifier: ^20.10.6
         version: 20.11.29

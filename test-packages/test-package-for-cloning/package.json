@@ -11,7 +11,11 @@
     "@glint/environment-ember-loose": "workspace:*",
     "@glint/environment-ember-template-imports": "workspace:*",
     "@glint/template": "workspace:*",
-    "@types/node": "^18.11.5"
+    "@types/ember__component": "^4.0.10",
+    "@types/ember__helper": "^4.0.1",
+    "@types/ember__modifier": "^4.0.3",
+    "@types/node": "^18.11.5",
+    "@types/ember__routing": "^4.0.12"
   },
   "keywords": [],
   "author": "",
