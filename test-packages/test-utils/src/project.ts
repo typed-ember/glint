@@ -11,6 +11,9 @@ type GlintLanguageServer = ProjectAnalysis['languageServer'];
 const require = createRequire(import.meta.url);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
+const TEST_PACKAGE_FOR_CLONING_ROOT = pathUtils.normalizeFilePath(
+  path.resolve(dirname, '../../test-package-for-cloning')
+);
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
 // definition for our purposes here in tests.
@@ -88,7 +91,18 @@ export class Project {
     fs.rmSync(project.rootDir, { recursive: true, force: true });
     fs.mkdirSync(project.rootDir, { recursive: true });
 
-    fs.writeFileSync(path.join(project.rootDir, 'package.json'), '{}');
+    fs.writeFileSync(
+      path.join(project.rootDir, 'package.json'),
+      fs.readFileSync(path.join(TEST_PACKAGE_FOR_CLONING_ROOT, 'package.json'))
+    );
+
+    // symlink to the node_modules folder within original test package
+    fs.symlinkSync(
+      path.join(TEST_PACKAGE_FOR_CLONING_ROOT, 'node_modules'),
+      path.join(project.rootDir, 'node_modules'),
+      'dir'
+    );
+
     fs.writeFileSync(
       path.join(project.rootDir, 'tsconfig.json'),
       JSON.stringify(tsconfig, null, 2)

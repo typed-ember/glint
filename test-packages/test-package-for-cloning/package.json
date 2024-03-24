@@ -1,0 +1,17 @@
+{
+  "name": "test-package-for-cloning",
+  "description": "This folder is cloned as part of our integration tests. Any cloned packages will have a node_modules that symlinks to the node_modules folder in this directly. This allows us to have pnpm-compliant throwaway/ephermal packages for testing.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@glint/core": "workspace:*",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/environment-ember-template-imports": "workspace:*",
+    "@types/node": "^18.11.5"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

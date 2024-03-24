@@ -329,6 +329,21 @@ importers:
         specifier: ^10.2.0
         version: 10.3.0
 
+  test-packages/test-package-for-cloning:
+    devDependencies:
+      '@glint/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@glint/environment-ember-loose':
+        specifier: workspace:*
+        version: link:../../packages/environment-ember-loose
+      '@glint/environment-ember-template-imports':
+        specifier: workspace:*
+        version: link:../../packages/environment-ember-template-imports
+      '@types/node':
+        specifier: ^20.10.6
+        version: 20.11.29
+
   test-packages/test-utils:
     dependencies:
       execa:
