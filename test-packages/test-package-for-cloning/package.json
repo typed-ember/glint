@@ -10,6 +10,7 @@
     "@glint/core": "workspace:*",
     "@glint/environment-ember-loose": "workspace:*",
     "@glint/environment-ember-template-imports": "workspace:*",
+    "@glint/template": "workspace:*",
     "@types/node": "^18.11.5"
   },
   "keywords": [],

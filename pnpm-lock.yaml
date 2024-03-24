@@ -343,6 +343,9 @@ importers:
       '@glint/environment-ember-template-imports':
         specifier: workspace:*
         version: link:../../packages/environment-ember-template-imports
+      '@glint/template':
+        specifier: workspace:*
+        version: link:../../packages/template
       '@types/node':
         specifier: ^20.10.6
         version: 20.11.29
