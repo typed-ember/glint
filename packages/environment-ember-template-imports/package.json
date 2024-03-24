@@ -19,7 +19,7 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "files": [
     "README.md",
@@ -52,6 +52,7 @@
     }
   },
   "devDependencies": {
+    "@glint/core": "workspace:*",
     "@types/node": "^18.11.5",
     "@types/ember": "^4.0.0",
     "@types/ember__component": "^4.0.10",

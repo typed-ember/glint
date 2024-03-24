@@ -23,31 +23,17 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
+      - uses: wyvox/action@v1.1.5
         with:
-          node-version: 16
-      - name: Locate Yarn Cache
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+          pnpm-args: --frozen-lockfile
       - name: Lint
-        run: yarn lint
+        run: pnpm lint
       - name: Build
-        run: yarn build
+        run: pnpm build
       - name: Run Tests
         uses: coactions/setup-xvfb@v1
         with:
-          run: yarn test
+          run: pnpm test
 
   # The Windows runner can be super flaky both with Yarn installs and
   # when launching browser tests, so we allow for retries in those steps.
@@ -55,78 +41,50 @@ jobs:
     name: Test Windows
     runs-on: windows-2022
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
+      - uses: wyvox/action@v1.1.5
         with:
-          node-version: 16
-      - name: Install Dependencies
-        uses: nick-fields/retry@v2
-        with:
-          max_attempts: 2
-          timeout_minutes: 10
-          command: yarn install --frozen-lockfile
+          pnpm-args: --frozen-lockfile
       - name: Build
-        run: yarn build
+        run: pnpm build
       - name: Test @glint/core
         uses: nick-fields/retry@v2
         with:
           max_attempts: 2
           timeout_minutes: 20
-          command: yarn workspace @glint/core test
+          command: pnpm --filter '*' @glint/core test
       - name: Test glint-vscode
         uses: nick-fields/retry@v2
         with:
           max_attempts: 2
           timeout_minutes: 10
-          command: yarn workspace glint-vscode test
+          command: pnpm --filter '*' glint-vscode test
       - name: Test @glint/scripts
-        run: yarn workspace @glint/scripts test
+        run: pnpm --filter '*' @glint/scripts test
 
   test-floating-deps:
     name: Test Floating Dependencies
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
+      - uses: wyvox/action@v1.1.5
         with:
-          node-version: 16
-      - name: Install Dependencies
-        run: yarn install --no-lockfile
+          pnpm-args: --frozen-lockfile
       - name: Build
-        run: yarn build
+        run: pnpm build
       - name: Run Tests
         uses: coactions/setup-xvfb@v1
         with:
-          run: yarn test
+          run: pnpm test
 
   test-ts-nightly:
     name: Test TypeScript Nightly
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
+      - uses: wyvox/action@v1.1.5
         with:
-          node-version: 16
-      - name: Locate Yarn Cache
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install Dependencies
-        run: yarn add --dev -W typescript@next
+          pnpm-args: --frozen-lockfile
       - name: Build
-        run: yarn build
+        run: pnpm build
       - name: Run Tests
         uses: coactions/setup-xvfb@v1
         with:
-          run: yarn test
+          run: pnpm test

@@ -11,6 +11,9 @@ type GlintLanguageServer = ProjectAnalysis['languageServer'];
 const require = createRequire(import.meta.url);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
+const TEST_PACKAGE_FOR_CLONING_ROOT = pathUtils.normalizeFilePath(
+  path.resolve(dirname, '../../test-package-for-cloning')
+);
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
 // definition for our purposes here in tests.
@@ -26,6 +29,9 @@ interface TsconfigWithGlint {
 
 const newWorkingDir = (): string =>
   pathUtils.normalizeFilePath(path.join(ROOT, Math.random().toString(16).slice(2)));
+
+const defaultPackageJson = (): Record<string, unknown> =>
+  JSON.parse(fs.readFileSync(path.join(TEST_PACKAGE_FOR_CLONING_ROOT, 'package.json'), 'utf-8'));
 
 export class Project {
   private rootDir: string;
@@ -88,7 +94,18 @@ export class Project {
     fs.rmSync(project.rootDir, { recursive: true, force: true });
     fs.mkdirSync(project.rootDir, { recursive: true });
 
-    fs.writeFileSync(path.join(project.rootDir, 'package.json'), '{}');
+    fs.writeFileSync(
+      path.join(project.rootDir, 'package.json'),
+      fs.readFileSync(path.join(TEST_PACKAGE_FOR_CLONING_ROOT, 'package.json'))
+    );
+
+    // symlink to the node_modules folder within original test package
+    fs.symlinkSync(
+      path.join(TEST_PACKAGE_FOR_CLONING_ROOT, 'node_modules'),
+      path.join(project.rootDir, 'node_modules'),
+      'dir'
+    );
+
     fs.writeFileSync(
       path.join(project.rootDir, 'tsconfig.json'),
       JSON.stringify(tsconfig, null, 2)
@@ -104,7 +121,7 @@ export class Project {
    */
   public static async createExact(
     tsconfig: TsconfigWithGlint,
-    packageJson: Record<string, unknown> = {},
+    packageJson: Record<string, unknown> = defaultPackageJson(),
     rootDir = newWorkingDir()
   ): Promise<Project> {
     if (!rootDir.includes(ROOT)) {
@@ -118,6 +135,13 @@ export class Project {
 
     project.write('package.json', JSON.stringify(packageJson, null, 2));
     project.write('tsconfig.json', JSON.stringify(tsconfig, null, 2));
+
+    // symlink to the node_modules folder within original test package
+    fs.symlinkSync(
+      path.join(TEST_PACKAGE_FOR_CLONING_ROOT, 'node_modules'),
+      path.join(project.rootDir, 'node_modules'),
+      'dir'
+    );
 
     return project;
   }

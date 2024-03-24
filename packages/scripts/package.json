@@ -21,7 +21,7 @@
   "scripts": {
     "test": "vitest run",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "dependencies": {
     "golden-fleece": "^1.0.9",
@@ -33,7 +33,10 @@
     "zod": "^3.22.3"
   },
   "devDependencies": {
+    "@glint/core": "workspace:*",
+    "@types/glob": "^8.1.0",
     "@types/js-yaml": "^4.0.5",
+    "@types/node": "^18.11.5",
     "@types/yargs": "^17.0.10",
     "json5": "^2.2.2",
     "vitest": "^0.22.0"

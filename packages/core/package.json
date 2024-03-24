@@ -26,7 +26,7 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "peerDependencies": {
     "typescript": ">=4.8.0"

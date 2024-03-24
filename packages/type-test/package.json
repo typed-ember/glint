@@ -20,6 +20,10 @@
   "dependencies": {
     "expect-type": "^0.15.0"
   },
+  "devDependencies": {
+    "@glint/core": "workspace:*",
+    "@types/node": "^18.11.5"
+  },
   "peerDependencies": {
     "@glint/template": "^1.4.0"
   },

@@ -16,7 +16,12 @@
   ],
   "devDependencies": {
     "@glimmer/component": "^1.1.2",
+    "@types/ember__template": "~4.0.7",
+    "@glimmer/runtime": "0.84.3",
+    "@glint/template": "workspace:*",
+    "@glint/environment-ember-loose": "workspace:*",
     "@types/ember__component": "~4.0.8",
+    "@types/node": "^18.11.5",
     "expect-type": "^0.15.0",
     "sums-up": "^2.1.0"
   },
