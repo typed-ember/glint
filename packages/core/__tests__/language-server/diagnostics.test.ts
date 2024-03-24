@@ -112,7 +112,7 @@ describe('Language Server: Diagnostics', () => {
       project.setGlintConfig({ environment: 'ember-loose' });
     });
 
-    test.only('adding a backing module', () => {
+    test('adding a backing module', () => {
       project.write('component.hbs', '{{@foo}}');
 
       let server = project.startLanguageServer();
