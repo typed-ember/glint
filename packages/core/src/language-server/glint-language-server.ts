@@ -22,6 +22,8 @@ import {
   OptionalVersionedTextDocumentIdentifier,
   TextEdit,
   MarkupContent,
+  FoldingRange,
+  FoldingRangeKind,
 } from 'vscode-languageserver';
 import DocumentCache from '../common/document-cache.js';
 import { Position, positionToOffset } from './util/position.js';
@@ -559,6 +561,70 @@ export default class GlintLanguageServer {
     }
 
     return edits;
+  }
+
+  public getFoldingRanges(uri: string): FoldingRange[] {
+    const filePath = uriToFilePath(uri);
+
+    let foldingRanges: FoldingRange[] = [];
+    this.service.getOutliningSpans(filePath).forEach((outliningSpan, index) => {
+      const foldingRange = this.outliningSpanToFoldingRange(outliningSpan, filePath);
+
+      if (
+        !foldingRange ||
+        (index > 0 && foldingRange.startLine === 0) ||
+        foldingRange.startLine === foldingRange.endLine
+      ) {
+        return;
+      }
+
+      foldingRanges.push(foldingRange);
+    });
+
+    return foldingRanges;
+  }
+
+  private outliningSpanToFoldingRange(
+    span: ts.OutliningSpan,
+    fileName: string
+  ): FoldingRange | undefined {
+    // The OutliningSpan.textSpan's length is inclusive. This is a
+    // workaround for off-by-one & out-of-range errors caused by this.
+    span.textSpan.length = span.textSpan.length - 1;
+    const location = this.textSpanToLocation(fileName, span.textSpan);
+
+    if (!location) {
+      return;
+    }
+
+    const { start, end } = location.range;
+
+    // workaround for https://github.com/Microsoft/vscode/issues/47240
+    const originalContents = this.documents.getDocumentContents(fileName);
+    const originalEnd = positionToOffset(originalContents, end);
+    const lastCharOfSpan = originalContents[originalEnd];
+
+    return {
+      startLine: start.line,
+      endLine: lastCharOfSpan === '}' ? Math.max(end.line - 1, start.line) : end.line,
+      kind: this.outliningSpanKindToFoldingRangeKind(span),
+    };
+  }
+
+  private outliningSpanKindToFoldingRangeKind(
+    outliningSpan: ts.OutliningSpan
+  ): FoldingRangeKind | undefined {
+    switch (outliningSpan.kind) {
+      case 'comment':
+        return FoldingRangeKind.Comment;
+      case 'region':
+        return FoldingRangeKind.Region;
+      case 'imports':
+        return FoldingRangeKind.Imports;
+      case 'code':
+      default:
+        return undefined;
+    }
   }
 
   private applyCodeAction(

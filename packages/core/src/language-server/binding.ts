@@ -30,6 +30,7 @@ export const capabilities: ServerCapabilities = {
   codeActionProvider: {
     codeActionKinds: [CodeActionKind.QuickFix],
   },
+  foldingRangeProvider: true,
   definitionProvider: true,
   workspaceSymbolProvider: true,
   renameProvider: {
@@ -216,5 +217,11 @@ export function bindLanguageServerPool({ connection, pool, openDocuments }: Bind
 
       scheduleDiagnostics();
     });
+  });
+
+  connection.onFoldingRanges((params) => {
+    return pool.withServerForURI(params.textDocument.uri, ({ server }) =>
+      server.getFoldingRanges(params.textDocument.uri)
+    );
   });
 }
