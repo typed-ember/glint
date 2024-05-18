@@ -62,9 +62,6 @@ export default function emberLooseEnvironment(
             templatePath.replace(REGEXES.POD_TEMPLATE, '/controller.ts'),
             templatePath.replace(REGEXES.POD_TEMPLATE, '/route.ts')
           );
-        } else if (templatePath.includes('/templates/components/')) {
-          // Classic component
-          candidates.push(colocatedTsScriptPath.replace('/templates/components/', '/components/'));
         } else if (templatePath.includes('/templates/')) {
           // Classic controller/route
           candidates.push(
