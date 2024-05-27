@@ -10,11 +10,13 @@ import '@ember/helper';
 type EELConcat = typeof Globals.concat;
 type EELFn = typeof Globals.fn;
 type EELGet = typeof Globals.get;
+type EELUniqueId = typeof Globals['unique-id'];
 declare module '@ember/helper' {
   // export interface ArrayHelper extends EELArray {}
   export interface ConcatHelper extends EELConcat {}
   export interface FnHelper extends EELFn {}
   export interface GetHelper extends EELGet {}
+  export interface UniqueIdHelper extends EELUniqueId {}
   // export interface HashHelper extends EELHash {}
 }
 
