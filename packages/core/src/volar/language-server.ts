@@ -5,11 +5,11 @@ import {
   createServer,
   createTypeScriptProject,
 } from '@volar/language-server/node.js';
-import { create as createTypeScriptServicePlugin } from 'volar-service-typescript';
+import { create as createTypeScriptServicePlugins } from 'volar-service-typescript';
 import { createGtsLanguagePlugin } from './gts-language-plugin.js';
 import { assert } from '../transform/util.js';
 import { ConfigLoader } from '../config/loader.js';
-import * as ts from 'typescript';
+import ts from 'typescript';
 
 const connection = createConnection();
 const server = createServer(connection);
@@ -45,7 +45,7 @@ connection.onInitialize((parameters) => {
     // (TS + Handlebars) combined into one, but we can use the TS language service because the only
     // scripts we pass to the TS service for type-checking is transformed Intermediate Representation (IR)
     // TypeScript code with all <template> tags converted to type-checkable TS.
-    createTypeScriptServicePlugin(ts),
+    createTypeScriptServicePlugins(ts),
     project
   )
 });
