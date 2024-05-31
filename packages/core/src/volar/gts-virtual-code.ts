@@ -13,7 +13,7 @@ export class VirtualGtsCode implements VirtualCode {
   /**
    * The virtual files embedded in the GTS file. (such as <template>)
    */
-  embeddedCodes: VirtualCode<string>[] = [];
+  embeddedCodes: VirtualCode[] = [];
 
   /**
    * The id is a unique (within the VirtualCode and its embedded files) id for Volar to identify it. It could be any string.
