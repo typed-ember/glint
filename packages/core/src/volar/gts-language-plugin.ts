@@ -51,6 +51,8 @@ export function createGtsLanguagePlugin(glintConfig: GlintConfig): LanguagePlugi
         { extension: 'hbs', isMixedContent: true, scriptKind: 7 },
       ],
 
+      resolveHiddenExtensions: true,
+
       // This is called when TS requests the file that we'll be typechecking, which in our case
       // is the transformed Intermediate Representation of ths .gts with the <template> tags
       // converted to type-checkable TS.
