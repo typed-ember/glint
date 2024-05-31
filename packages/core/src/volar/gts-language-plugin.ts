@@ -7,14 +7,28 @@ import type ts from 'typescript';
 import { GlintConfig, loadConfig } from '../index.js';
 import { assert } from '../transform/util.js';
 import { VirtualHandlebarsCode } from './handlebars-virtual-code.js';
+import { URI } from 'vscode-uri';
 export type TS = typeof ts;
 
 /**
  * Create a [Volar](https://volarjs.dev) language module to support GTS.
  */
-export function createGtsLanguagePlugin(glintConfig: GlintConfig): LanguagePlugin {
+export function createGtsLanguagePlugin(glintConfig: GlintConfig): LanguagePlugin<URI> {
   return {
-    createVirtualCode(fileId, languageId, snapshot) {
+    // Resolve language ID for drive files
+    getLanguageId(uri) {
+      if (uri.path.endsWith('.gts')) {
+        return 'glimmer-ts';
+      }
+      if (uri.path.endsWith('.gjs')) {
+        return 'glimmer-js';
+      }
+      if (uri.path.endsWith('.hbs')) {
+        return 'handlebars';
+      }
+    },
+
+    createVirtualCode(uri, languageId, snapshot) {
       // TODO: won't we need to point the TS component code to the same thing?
       if (languageId === 'handlebars') {
         return new VirtualHandlebarsCode(glintConfig, snapshot);
@@ -25,7 +39,7 @@ export function createGtsLanguagePlugin(glintConfig: GlintConfig): LanguagePlugi
       }
     },
 
-    updateVirtualCode(fileId, virtualCode, snapshot) {
+    updateVirtualCode(uri, virtualCode, snapshot) {
       (virtualCode as VirtualGtsCode).update(snapshot);
       return virtualCode;
     },
@@ -40,9 +54,12 @@ export function createGtsLanguagePlugin(glintConfig: GlintConfig): LanguagePlugi
       // This is called when TS requests the file that we'll be typechecking, which in our case
       // is the transformed Intermediate Representation of ths .gts with the <template> tags
       // converted to type-checkable TS.
-      getScript(rootVirtualCode) {
+      getServiceScript(rootVirtualCode) {
         // The first embeddedCode is always the TS Intermediate Representation code
-        const transformedCode = rootVirtualCode.embeddedCodes[0];
+        const transformedCode = rootVirtualCode.embeddedCodes?.[0];
+        if (!transformedCode) {
+          return;
+        }
 
         switch (rootVirtualCode.languageId) {
           case 'glimmer-ts':
