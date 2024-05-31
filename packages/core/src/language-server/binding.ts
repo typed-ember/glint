@@ -12,7 +12,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { GlintCompletionItem } from './glint-language-server.js';
 import { LanguageServerPool } from './pool.js';
 import { GetIRRequest, SortImportsRequest } from './messages.cjs';
-import type * as ts from 'typescript';
+import type ts from 'typescript';
 
 export const capabilities: ServerCapabilities = {
   textDocumentSync: TextDocumentSyncKind.Full,
@@ -202,7 +202,7 @@ export function bindLanguageServerPool({ connection, pool, openDocuments }: Bind
     });
   });
 
-  // VSCode will fire this on for: 
+  // VSCode will fire this on for:
   // ['.js', '.ts', '.gjs', '.gts', '.hbs'];
   // ('**/{ts,js}config*.json');
   connection.onDidChangeWatchedFiles(({ changes }) => {

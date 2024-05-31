@@ -3,7 +3,7 @@
 // import {unified} from 'unified'
 import { LanguagePlugin } from '@volar/language-core';
 import { VirtualGtsCode } from './gts-virtual-code.js';
-import type * as ts from 'typescript';
+import type ts from 'typescript';
 import { GlintConfig, loadConfig } from '../index.js';
 import { assert } from '../transform/util.js';
 import { VirtualHandlebarsCode } from './handlebars-virtual-code.js';

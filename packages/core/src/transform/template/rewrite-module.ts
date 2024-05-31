@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import type * as ts from 'typescript';
+import type ts from 'typescript';
 import { GlintEnvironment } from '../../config/index.js';
 import { GlintEmitMetadata } from '@glint/core/config-types';
 import { assert, TSLib } from '../util.js';

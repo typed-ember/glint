@@ -7,7 +7,7 @@ import {
   Diagnostic,
   createTransformDiagnostic,
 } from '../transform/index.js';
-import type * as ts from 'typescript';
+import type ts from 'typescript';
 import { GlintConfig } from '../config/index.js';
 import DocumentCache, { templatePathForSynthesizedModule } from './document-cache.js';
 

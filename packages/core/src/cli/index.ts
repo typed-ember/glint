@@ -5,7 +5,7 @@ import { performWatch } from './perform-watch.js';
 import { performCheck } from './perform-check.js';
 import { determineOptionsToExtend } from './options.js';
 import { performBuild } from './perform-build.js';
-import type * as TS from 'typescript';
+import type TS from 'typescript';
 import { performBuildWatch } from './perform-build-watch.js';
 import { validateTSOrExit } from '../common/typescript-compatibility.js';
 

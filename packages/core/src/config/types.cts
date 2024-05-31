@@ -1,4 +1,4 @@
-import type * as ts from 'typescript';
+import type ts from 'typescript';
 
 // This file is explicitly `.cts` so that environment packages written
 // in CJS can import its types from `@glint/core/config-types`.

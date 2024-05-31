@@ -1,4 +1,4 @@
-import type * as TS from 'typescript';
+import type TS from 'typescript';
 
 type TypeScript = typeof TS;
 

@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import SilentError from 'silent-error';
 import { GlintConfig } from './config.js';
 import { GlintConfigInput } from '@glint/core/config-types';
-import type * as TS from 'typescript';
+import type TS from 'typescript';
 
 const require = createRequire(import.meta.url);
 

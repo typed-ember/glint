@@ -1,4 +1,4 @@
-import type * as TS from 'typescript';
+import type TS from 'typescript';
 import TransformManager from '../common/transform-manager.js';
 import { GlintConfig } from '../config/index.js';
 import { buildDiagnosticFormatter } from './diagnostics.js';

@@ -1,4 +1,4 @@
-import type * as TS from 'typescript';
+import type TS from 'typescript';
 
 import { buildDiagnosticFormatter } from './diagnostics.js';
 import { sysForCompilerHost } from './utils/sys-for-compiler-host.js';
