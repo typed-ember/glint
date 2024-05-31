@@ -172,7 +172,7 @@ describe('Language Server: custom file extensions', () => {
 
     expect(diagnostics).toMatchObject([
       {
-        source: 'glint',
+        source: 'ts', // previously 'ts'
         code: 2307,
         range: {
           start: { line: 0, character: 27 },
@@ -201,7 +201,7 @@ describe('Language Server: custom file extensions', () => {
       expect(diagnostics).toMatchObject([
         {
           message: "Cannot find module './other' or its corresponding type declarations.",
-          source: 'glint',
+          source: 'ts', // previously 'ts'
           code: 2307,
         },
       ]);
@@ -250,7 +250,7 @@ describe('Language Server: custom file extensions', () => {
       expect(diagnostics).toMatchObject([
         {
           message: "Cannot find module './other' or its corresponding type declarations.",
-          source: 'glint',
+          source: 'ts', // previously 'ts'
           code: 2307,
         },
       ]);
