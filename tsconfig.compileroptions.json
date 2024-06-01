@@ -13,6 +13,7 @@
     "esModuleInterop": false,
     "composite": true,
     "declaration": true,
+    "declarationMap": true,
     "sourceMap": true,
     "types": ["@types/node"],
     
