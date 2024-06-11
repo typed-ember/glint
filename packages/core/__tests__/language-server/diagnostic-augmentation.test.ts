@@ -56,6 +56,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
+  // TODO: get this passing again -- need to dig into how to handle the transform failure
   test.only('There is a content-tag parse error (for a class component)', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
@@ -82,10 +83,8 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
     // how is this working? is it spinning up old Glint server?
     let server = await project.startLanguageServer();
-    // change this to mdx
-    // let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
-
-    const { uri } = await server.openTextDocument(project.fileURI('index.gts'), 'mdx');
+    const gtsUri = project.filePath('index.gts');
+    const { uri } = await server.openTextDocument(gtsUri, 'gts');
     const diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(diagnostics).toMatchInlineSnapshot(`

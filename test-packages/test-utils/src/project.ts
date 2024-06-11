@@ -62,13 +62,16 @@ export class Project {
     // let server = await startLanguageServer(bin, cwd);
 
     // TODO: rootDir might not be necessary? cwd arg is optional.
-    this.languageServerHandle = startLanguageServer('../../../core/bin/glint-language-server');
+    this.languageServerHandle = startLanguageServer('../core/bin/glint-language-server.js');
 
 
     // , this.
     await this.languageServerHandle.initialize(this.rootDir, {
       // typescript: {enabled: true, tsdk}
-    })
+    }).catch(e => {
+      let a = 123;
+      // debugger;
+    } )
   
 
   
