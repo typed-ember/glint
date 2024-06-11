@@ -5,8 +5,9 @@ import { createRequire } from 'node:module';
 import { execaNode, ExecaChildProcess, Options } from 'execa';
 import { type GlintConfigInput } from '@glint/core/config-types';
 import { pathUtils, analyzeProject, ProjectAnalysis } from '@glint/core';
+import { startLanguageServer, LanguageServerHandle } from '@volar/test-utils';
 
-type GlintLanguageServer = ProjectAnalysis['languageServer'];
+// type GlintLanguageServer = ProjectAnalysis['languageServer'];
 
 const require = createRequire(import.meta.url);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,9 +28,12 @@ interface TsconfigWithGlint {
 const newWorkingDir = (): string =>
   pathUtils.normalizeFilePath(path.join(ROOT, Math.random().toString(16).slice(2)));
 
+// export type LanguageServerHandle = ReturnType<typeof startLanguageServer>;
+
 export class Project {
   private rootDir: string;
-  private projectAnalysis?: ProjectAnalysis;
+  // private projectAnalysis?: ProjectAnalysis;
+  private languageServerHandle?: LanguageServerHandle;
 
   private constructor(rootDir: string) {
     this.rootDir = rootDir;
@@ -43,14 +47,33 @@ export class Project {
     return pathUtils.filePathToUri(this.filePath(fileName));
   }
 
-  public startLanguageServer(): GlintLanguageServer {
-    if (this.projectAnalysis) {
+  public async startLanguageServer() {
+    // GlintLanguageServer {
+    if (this.languageServerHandle) {
       throw new Error('Language server is already running');
     }
 
-    this.projectAnalysis = analyzeProject(this.rootDir);
+    // this.projectAnalysis = analyzeProject(this.rootDir);
 
-    return this.projectAnalysis.languageServer;
+    // spin up a language server where bin is the bin path to the language server
+    // and url is ../
+    // let server = await startLanguageServer(bin, new URL('..', import.meta.url));
+    // const cwd = new URL('..', import.meta.url);
+    // let server = await startLanguageServer(bin, cwd);
+
+    // TODO: rootDir might not be necessary? cwd arg is optional.
+    this.languageServerHandle = startLanguageServer('../../../core/bin/glint-language-server');
+
+
+    // , this.
+    await this.languageServerHandle.initialize(this.rootDir, {
+      // typescript: {enabled: true, tsdk}
+    })
+  
+
+  
+
+    return this.languageServerHandle;
   }
 
   /**
@@ -170,7 +193,9 @@ export class Project {
   }
 
   public async destroy(): Promise<void> {
-    this.projectAnalysis?.shutdown();
+    // this.projectAnalysis?.shutdown();
+    this.languageServerHandle?.connection.dispose();
+
     fs.rmSync(this.rootDir, { recursive: true, force: true });
   }
 

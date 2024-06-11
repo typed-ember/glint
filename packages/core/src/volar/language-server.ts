@@ -12,13 +12,19 @@ import { ConfigLoader } from '../config/loader.js';
 import ts from 'typescript';
 
 const connection = createConnection();
+
+// this file basically boots and loads the server as a side effect of requiring this file.
+// - [x] identify glint-main's effect-ful require():
+//   - it is in language-server.ts;
+//   - doesn't directly import language server
+// - [ ] identify in glint main at what point the server is started / connected
 const server = createServer(connection);
 
 connection.onInitialize((parameters) => {
   const project = createTypeScriptProject(
     ts,
     undefined,
-    // Return the language plugins required/used by our language server. Language Plugins 
+    // Return the language plugins required/used by our language server. Language Plugins
     (env, { configFileName }) => {
       const languagePlugins = [];
 
@@ -39,15 +45,16 @@ connection.onInitialize((parameters) => {
   );
   return server.initialize(
     parameters,
+    project,
+
     // Return the service plugins required/used by our language server. Service plugins provide
     // functionality for a single file/language type. For example, we use Volar's TypeScript service
     // for type-checking our .gts/.gjs files, but .gts/.gjs files are actually two separate languages
     // (TS + Handlebars) combined into one, but we can use the TS language service because the only
     // scripts we pass to the TS service for type-checking is transformed Intermediate Representation (IR)
     // TypeScript code with all <template> tags converted to type-checkable TS.
-    createTypeScriptServicePlugins(ts),
-    project
-  )
+    createTypeScriptServicePlugins(ts)
+  );
 });
 
 // connection.onRequest('mdx/toggleDelete', async (parameters) => {
@@ -79,7 +86,7 @@ connection.onInitialized(() => {
     'gts',
     'hbs',
     // 'ts',
-  ])
+  ]);
 });
 
 connection.listen();

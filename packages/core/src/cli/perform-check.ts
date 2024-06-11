@@ -12,7 +12,7 @@ export function performCheck(glintConfig: GlintConfig, optionsToExtend: TS.Compi
   let parsedConfig = loadTsconfig(ts, transformManager, glintConfig.configPath, optionsToExtend);
   let compilerHost = createCompilerHost(ts, parsedConfig.options, transformManager);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
-
+``
   let createProgram = parsedConfig.options.incremental
     ? ts.createIncrementalProgram
     : ts.createProgram;

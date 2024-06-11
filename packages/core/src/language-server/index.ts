@@ -1,22 +1,22 @@
 // This file is the bin/entrypoint for the glint language server
+// require()ing this file has the effect of starting the language server and
+// having it connect to the port provided to it, etc.
+//
+// in Volar this has been moved to src/volar/language-server.ts
+//
+// original code:
 
-/*
-import { TextDocuments, createConnection } from 'vscode-languageserver/node.js';
-import { TextDocument } from 'vscode-languageserver-textdocument';
-import { bindLanguageServerPool } from './binding.js';
-import { LanguageServerPool } from './pool.js';
 
-const connection = createConnection(process.stdin, process.stdout);
-const openDocuments = new TextDocuments(TextDocument);
-const pool = new LanguageServerPool(connection, openDocuments);
+// import { TextDocuments, createConnection } from 'vscode-languageserver/node.js';
+// import { TextDocument } from 'vscode-languageserver-textdocument';
+// import { bindLanguageServerPool } from './binding.js';
+// import { LanguageServerPool } from './pool.js';
 
-bindLanguageServerPool({ connection, openDocuments, pool });
+// const connection = createConnection(process.stdin, process.stdout);
+// const openDocuments = new TextDocuments(TextDocument);
+// const pool = new LanguageServerPool(connection, openDocuments);
 
-openDocuments.listen(connection);
-connection.listen();
-*/
+// bindLanguageServerPool({ connection, openDocuments, pool });
 
-// import { createConnection, createNodeServer } from '@volar/language-server/node.js';
-// // import { plugin } from './language-server-plugin.js';
-
-// createNodeServer(createConnection(), plugin);
+// openDocuments.listen(connection);
+// connection.listen();

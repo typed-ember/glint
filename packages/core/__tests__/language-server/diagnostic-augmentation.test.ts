@@ -56,7 +56,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('There is a content-tag parse error (for a class component)', async () => {
+  test.only('There is a content-tag parse error (for a class component)', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
       'index.gts': stripIndent`
@@ -80,8 +80,13 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
-    let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
+    // how is this working? is it spinning up old Glint server?
+    let server = await project.startLanguageServer();
+    // change this to mdx
+    // let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
+
+    const { uri } = await server.openTextDocument(project.fileURI('index.gts'), 'mdx');
+    const diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(diagnostics).toMatchInlineSnapshot(`
       [
@@ -454,7 +459,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('unresolvable template entities', () => {
+  test('unresolvable template entities', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
       'index.gts': stripIndent`
@@ -481,19 +486,33 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
-    let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
+    let server = await project.startLanguageServer();
+
+    const { uri } = await server.openTextDocument(project.fileURI('index.gts'), 'gts');
+    const diagnostics = await server.sendDocumentDiagnosticRequest(uri);
+
+    // assert.deepEqual(diagnostics, {
+    //   kind: 'full',
+    //   items:
+
+    // const diagnostics = await serverHandle.sendDocumentDiagnosticRequest(uri)
+
+    // server.openTextDocument
+
+    // server.openDocument(project.fileURI('index.gts'));
+    // server.
+    // let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
     // TS 5.0 nightlies generate a slightly different format of "here are all the overloads
     // and why they don't work" message, so for the time being we're truncating everything
     // after the first line of the error message. In the future when we reach a point where
     // we don't test against 4.x, we can go back to snapshotting the full message.
-    diagnostics = diagnostics.map((diagnostic) => ({
-      ...diagnostic,
-      message: diagnostic.message.slice(0, diagnostic.message.indexOf('\n')),
-    }));
+    // diagnostics = diagnostics.map((diagnostic) => ({
+    //   ...diagnostic,
+    //   message: diagnostic.message.slice(0, diagnostic.message.indexOf('\n')),
+    // }));
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    expect(diagnostics.items).toMatchInlineSnapshot(`
       [
         {
           "code": 2769,

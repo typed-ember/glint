@@ -16,7 +16,7 @@
     "release-it": "echo \"Running release-it via yarn breaks publishing! Use npx or a Volta global installation.\""
   },
   "volta": {
-    "node": "16.17.1",
+    "node": "18.20.3",
     "yarn": "1.22.4"
   },
   "devDependencies:notes": {
