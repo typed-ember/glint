@@ -1,9 +1,6 @@
 import { Project } from 'glint-monorepo-test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
-import { FullDocumentDiagnosticReport } from '@volar/language-service';
-import { Diagnostic } from 'typescript';
-import { URI } from 'vscode-uri';
 
 describe('Language Server: Diagnostics', () => {
   let project!: Project;
@@ -194,48 +191,21 @@ describe('Language Server: Diagnostics', () => {
 
     project.write('index.gts', code);
 
-    // old code:
-    // let server = project.startLanguageServer();
-    // let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
-
-    // volar-ized
     let server = await project.startLanguageServer();
     const gtsUri = project.filePath('index.gts');
     const { uri } = await server.openTextDocument(gtsUri, 'glimmer-ts');
-    const diagnostics = (await server.sendDocumentDiagnosticRequest(
-      uri
-    )) as FullDocumentDiagnosticReport;
+    const diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
 
-    function normalizedDiagnostics(fileName: string, diagnosticItems: Diagnostic[]) {
-      let stringified = JSON.stringify(diagnosticItems, null, 2);
-
-      const fileUri = project.fileURI(fileName);
-      const volarEmbeddedContentUri = URI.from({
-        scheme: 'volar-embedded-content',
-        authority: 'ts',
-        path: '/' + encodeURIComponent(fileUri),
-      });
-
-      const normalized = stringified
-        .replaceAll(
-          volarEmbeddedContentUri.toString(),
-          `volar-embedded-content://URI_ENCODED_PATH_TO/${fileName}`
-        )
-        .replaceAll(fileUri.toString(), `file://PATH_TO/${fileName}`);
-
-      return JSON.parse(normalized);
-    }
-
-    expect(normalizedDiagnostics('index.gts', diagnostics.items as any)).toMatchInlineSnapshot(`
+    expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
           "code": 2551,
           "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/index.gts",
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file://PATH_TO/index.gts",
+            "uri": "file://PATH_TO/FILE",
             "version": 0,
           },
           "message": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
@@ -262,7 +232,7 @@ describe('Language Server: Diagnostics', () => {
                     "line": 8,
                   },
                 },
-                "uri": "file://PATH_TO/index.gts",
+                "uri": "file://PATH_TO/FILE",
               },
               "message": "'startupTime' is declared here.",
             },
@@ -273,11 +243,11 @@ describe('Language Server: Diagnostics', () => {
         {
           "code": 6133,
           "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/index.gts",
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file://PATH_TO/index.gts",
+            "uri": "file://PATH_TO/FILE",
             "version": 0,
           },
           "message": "'startupTime' is declared but its value is never read.",
@@ -299,80 +269,6 @@ describe('Language Server: Diagnostics', () => {
         },
       ]
     `);
-
-    // expect(trimmedDiagnostics)diagnostics.items)).toMatchInlineSnapshot(`
-    //   [
-    //     {
-    //       "code": 2551,
-    //       "data": {
-    //         "documentUri": "volar-embedded-content://ts/file%253A%252F%252F%252FUsers%252Fmachty%252Fcode%252Fglint%252Ftest-packages%252Fephemeral%252F20a1e773c09b8%252Findex.gts",
-    //         "isFormat": false,
-    //         "original": {},
-    //         "pluginIndex": 0,
-    //         "uri": "file:///Users/machty/code/glint/test-packages/ephemeral/20a1e773c09b8/index.gts",
-    //         "version": 0,
-    //       },
-    //       "message": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
-    //       "range": {
-    //         "end": {
-    //           "character": 43,
-    //           "line": 12,
-    //         },
-    //         "start": {
-    //           "character": 31,
-    //           "line": 12,
-    //         },
-    //       },
-    //       "relatedInformation": [
-    //         {
-    //           "location": {
-    //             "range": {
-    //               "end": {
-    //                 "character": 21,
-    //                 "line": 8,
-    //               },
-    //               "start": {
-    //                 "character": 10,
-    //                 "line": 8,
-    //               },
-    //             },
-    //             "uri": "file:///Users/machty/code/glint/test-packages/ephemeral/20a1e773c09b8/index.gts",
-    //           },
-    //           "message": "'startupTime' is declared here.",
-    //         },
-    //       ],
-    //       "severity": 1,
-    //       "source": "glint",
-    //     },
-    //     {
-    //       "code": 6133,
-    //       "data": {
-    //         "documentUri": "volar-embedded-content://ts/file%253A%252F%252F%252FUsers%252Fmachty%252Fcode%252Fglint%252Ftest-packages%252Fephemeral%252F20a1e773c09b8%252Findex.gts",
-    //         "isFormat": false,
-    //         "original": {},
-    //         "pluginIndex": 0,
-    //         "uri": "file:///Users/machty/code/glint/test-packages/ephemeral/20a1e773c09b8/index.gts",
-    //         "version": 0,
-    //       },
-    //       "message": "'startupTime' is declared but its value is never read.",
-    //       "range": {
-    //         "end": {
-    //           "character": 21,
-    //           "line": 8,
-    //         },
-    //         "start": {
-    //           "character": 10,
-    //           "line": 8,
-    //         },
-    //       },
-    //       "severity": 4,
-    //       "source": "glint",
-    //       "tags": [
-    //         1,
-    //       ],
-    //     },
-    //   ]
-    // `);
 
     server.openFile(project.fileURI('index.gts'), code);
     server.updateFile(project.fileURI('index.gts'), code.replace('startupTimee', 'startupTime'));

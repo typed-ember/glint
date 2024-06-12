@@ -6,6 +6,9 @@ import { execaNode, ExecaChildProcess, Options } from 'execa';
 import { type GlintConfigInput } from '@glint/core/config-types';
 import { pathUtils, analyzeProject, ProjectAnalysis } from '@glint/core';
 import { startLanguageServer, LanguageServerHandle } from '@volar/test-utils';
+import { FullDocumentDiagnosticReport } from '@volar/language-service';
+import { URI } from 'vscode-uri';
+import { Diagnostic } from 'typescript';
 
 // type GlintLanguageServer = ProjectAnalysis['languageServer'];
 
@@ -48,34 +51,55 @@ export class Project {
   }
 
   public async startLanguageServer() {
-    // GlintLanguageServer {
     if (this.languageServerHandle) {
       throw new Error('Language server is already running');
     }
 
-    // this.projectAnalysis = analyzeProject(this.rootDir);
+    const languageServerHandle = startLanguageServer('../core/bin/glint-language-server.js');
+    this.languageServerHandle = languageServerHandle;
 
-    // spin up a language server where bin is the bin path to the language server
-    // and url is ../
-    // let server = await startLanguageServer(bin, new URL('..', import.meta.url));
-    // const cwd = new URL('..', import.meta.url);
-    // let server = await startLanguageServer(bin, cwd);
+    await this.languageServerHandle.initialize(this.rootDir, {}).catch((e) => {
+      console.error(e);
+      throw e;
+    });
 
-    // TODO: rootDir might not be necessary? cwd arg is optional.
-    this.languageServerHandle = startLanguageServer('../core/bin/glint-language-server.js');
+    return {
+      ...this.languageServerHandle,
+      sendDocumentDiagnosticRequestNormalized: async (uri: string) => {
+        const value = (await languageServerHandle.sendDocumentDiagnosticRequest(
+          uri
+        )) as FullDocumentDiagnosticReport;
+        return this.normalizedDiagnostics(uri, value.items);
+      },
+    };
+  }
 
-    // , this.
-    await this.languageServerHandle
-      .initialize(this.rootDir, {
-        // typescript: {enabled: true, tsdk}
-        // typescript: { enabled: true },
-      })
-      .catch((e) => {
-        console.error(e);
-        throw e;
-      });
+  /**
+   * Processes the diagnostics passed in and converts any absolute URIs to
+   * local files (which differ between localhost and CI) to static strings
+   * so that they can be easily snapshotted in tests using `toMatchInlineSnapshot`.
+   *
+   * @param uri
+   * @param diagnosticItems
+   * @returns array of diagnostic
+   */
+  normalizedDiagnostics(uri: string, diagnosticItems: any[]): Diagnostic[] {
+    let stringified = JSON.stringify(diagnosticItems);
 
-    return this.languageServerHandle;
+    const volarEmbeddedContentUri = URI.from({
+      scheme: 'volar-embedded-content',
+      authority: 'ts',
+      path: '/' + encodeURIComponent(uri),
+    });
+
+    const normalized = stringified
+      .replaceAll(
+        volarEmbeddedContentUri.toString(),
+        `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
+      )
+      .replaceAll(uri, `file://PATH_TO/FILE`);
+
+    return JSON.parse(normalized);
   }
 
   /**
