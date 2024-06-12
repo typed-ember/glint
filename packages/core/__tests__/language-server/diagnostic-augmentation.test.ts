@@ -57,7 +57,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
   });
 
   // TODO: get this passing again -- need to dig into how to handle the transform failure
-  test.only('There is a content-tag parse error (for a class component)', async () => {
+  test('There is a content-tag parse error (for a class component)', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
       'index.gts': stripIndent`

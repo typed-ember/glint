@@ -1,6 +1,7 @@
 import { Project } from 'glint-monorepo-test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
+import { FullDocumentDiagnosticReport } from '@volar/language-service';
 
 describe('Language Server: Diagnostics', () => {
   let project!: Project;
@@ -170,7 +171,7 @@ describe('Language Server: Diagnostics', () => {
     });
   });
 
-  test('reports diagnostics for an inline template type error', () => {
+  test.only('reports diagnostics for an inline template type error', async () => {
     let code = stripIndent`
       // Here's a leading comment to make sure we handle trivia right
       import Component from '@glimmer/component';
@@ -191,10 +192,19 @@ describe('Language Server: Diagnostics', () => {
 
     project.write('index.gts', code);
 
-    let server = project.startLanguageServer();
-    let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
+    // old code:
+    // let server = project.startLanguageServer();
+    // let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    // volar-ized
+    let server = await project.startLanguageServer();
+    const gtsUri = project.filePath('index.gts');
+    const { uri } = await server.openTextDocument(gtsUri, 'glimmer-ts');
+    const diagnostics = (await server.sendDocumentDiagnosticRequest(
+      uri
+    )) as FullDocumentDiagnosticReport;
+
+    expect(diagnostics.items).toMatchInlineSnapshot(`
       [
         {
           "code": 6133,
