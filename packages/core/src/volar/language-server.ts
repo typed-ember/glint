@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import {
+  LanguageServicePlugin,
+  LanguageServicePluginInstance,
   createConnection,
   createServer,
   createTypeScriptProject,
@@ -10,6 +12,8 @@ import { createGtsLanguagePlugin } from './gts-language-plugin.js';
 import { assert } from '../transform/util.js';
 import { ConfigLoader } from '../config/loader.js';
 import ts from 'typescript';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
+import type * as vscode from 'vscode-languageserver-protocol';
 
 const connection = createConnection();
 
@@ -53,7 +57,55 @@ connection.onInitialize((parameters) => {
     // (TS + Handlebars) combined into one, but we can use the TS language service because the only
     // scripts we pass to the TS service for type-checking is transformed Intermediate Representation (IR)
     // TypeScript code with all <template> tags converted to type-checkable TS.
-    createTypeScriptServicePlugins(ts)
+    createTypeScriptServicePlugins(ts).map<LanguageServicePlugin>((plugin) => {
+      if (plugin.name === 'typescript-semantic') {
+        // Extend the default TS service with Glint-specific customizations.
+        // Similar approach as:
+        // https://github.com/withastro/language-tools/blob/main/packages/language-server/src/plugins/typescript/index.ts#L14
+        return {
+          ...plugin,
+          create(context): LanguageServicePluginInstance {
+            const typeScriptPlugin = plugin.create(context);
+
+            return {
+              ...typeScriptPlugin,
+              async provideDiagnostics(document: TextDocument, token: vscode.CancellationToken) {
+                const diagnostics = await typeScriptPlugin.provideDiagnostics!(document, token);
+                if (!diagnostics) {
+                  return null;
+                }
+                return diagnostics.map((diagnostic) => {
+                  return {
+                    ...diagnostic,
+                    source: 'glint',
+                  };
+                });
+              },
+              async provideSemanticDiagnostics(
+                document: TextDocument,
+                token: vscode.CancellationToken
+              ) {
+                const diagnostics = await typeScriptPlugin.provideSemanticDiagnostics!(
+                  document,
+                  token
+                );
+                if (!diagnostics) {
+                  return null;
+                }
+                return diagnostics.map((diagnostic) => {
+                  return {
+                    ...diagnostic,
+                    source: 'glint',
+                  };
+                });
+              },
+            };
+          },
+        };
+      } else {
+        return plugin;
+      }
+    })
   );
 });
 
