@@ -171,7 +171,7 @@ describe('Language Server: Diagnostics', () => {
     });
   });
 
-  test.only('reports diagnostics for an inline template type error', async () => {
+  test('reports diagnostics for an inline template type error', async () => {
     let code = stripIndent`
       // Here's a leading comment to make sure we handle trivia right
       import Component from '@glimmer/component';

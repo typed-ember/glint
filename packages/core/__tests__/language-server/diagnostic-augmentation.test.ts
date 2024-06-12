@@ -486,21 +486,9 @@ describe('Language Server: Diagnostic Augmentation', () => {
     });
 
     let server = await project.startLanguageServer();
-
-    const { uri } = await server.openTextDocument(project.fileURI('index.gts'), 'gts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(uri);
-
-    // assert.deepEqual(diagnostics, {
-    //   kind: 'full',
-    //   items:
-
-    // const diagnostics = await serverHandle.sendDocumentDiagnosticRequest(uri)
-
-    // server.openTextDocument
-
-    // server.openDocument(project.fileURI('index.gts'));
-    // server.
-    // let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
+    const gtsUri = project.filePath('index.gts');
+    const { uri } = await server.openTextDocument(gtsUri, 'glimmer-ts');
+    const diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
 
     // TS 5.0 nightlies generate a slightly different format of "here are all the overloads
     // and why they don't work" message, so for the time being we're truncating everything
@@ -511,7 +499,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     //   message: diagnostic.message.slice(0, diagnostic.message.indexOf('\n')),
     // }));
 
-    expect(diagnostics.items).toMatchInlineSnapshot(`
+    expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
           "code": 2769,
