@@ -58,10 +58,35 @@ export class Project {
     const languageServerHandle = startLanguageServer('../core/bin/glint-language-server.js');
     this.languageServerHandle = languageServerHandle;
 
-    await this.languageServerHandle.initialize(this.rootDir, {}).catch((e) => {
-      console.error(e);
-      throw e;
-    });
+    const initializeParams = {
+      // TODO: is this necessary to add?
+      // typescript: {
+      //   tsdk: path.join(
+      //     path.dirname(fileURLToPath(import.meta.url)),
+      //     '../',
+      //     'node_modules',
+      //     'typescript',
+      //     'lib'
+      //   ),
+      // },
+    };
+    const capabilities = {
+      workspace: {
+        // Needed for tests that use didChangeWatchedFiles
+        didChangeWatchedFiles: {
+          // Unsure if these are needed at some point, but if so we'll need to implement addition hooks/commands to support.
+          // dynamicRegistration: true,
+          // relativePatternSupport: true,
+        },
+      },
+    };
+
+    await this.languageServerHandle
+      .initialize(this.rootDir, initializeParams, capabilities)
+      .catch((e) => {
+        console.error(e);
+        throw e;
+      });
 
     return {
       ...this.languageServerHandle,
