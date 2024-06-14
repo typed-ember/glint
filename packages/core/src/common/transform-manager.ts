@@ -377,6 +377,7 @@ export default class TransformManager {
       return { rewrittenDiagnostic: diagnostic };
     }
 
+    // fetch the transformInfo for a particular file....... can we just pass this in?
     let transformInfo = this.getTransformInfo(diagnostic.file?.fileName);
     let rewrittenDiagnostic = rewriteDiagnostic(
       this.ts,

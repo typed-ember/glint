@@ -2,9 +2,13 @@ import { CodeMapping, VirtualCode } from '@volar/language-core';
 import { IScriptSnapshot } from 'typescript';
 import { ScriptSnapshot } from './script-snapshot.js';
 import type ts from 'typescript';
-import { rewriteModule } from '../transform/index.js';
+import { Directive, rewriteModule } from '../transform/index.js';
 import { GlintConfig } from '../index.js';
 export type TS = typeof ts;
+
+interface EmbeddedCodeWithDirectives extends VirtualCode {
+  directives: readonly Directive[];
+}
 
 /**
  * A Volar virtual code that contains some additional metadata for MDX files.
@@ -13,7 +17,7 @@ export class VirtualGtsCode implements VirtualCode {
   /**
    * The virtual files embedded in the GTS file. (such as <template>)
    */
-  embeddedCodes: VirtualCode[] = [];
+  embeddedCodes: EmbeddedCodeWithDirectives[] = [];
 
   /**
    * The id is a unique (within the VirtualCode and its embedded files) id for Volar to identify it. It could be any string.
@@ -75,6 +79,7 @@ export class VirtualGtsCode implements VirtualCode {
           languageId: 'typescript',
           mappings: transformedModule.toVolarMappings(),
           snapshot: new ScriptSnapshot(transformedModule.transformedContents),
+          directives: transformedModule.directives,
         },
       ];
     } else {
@@ -110,6 +115,7 @@ export class VirtualGtsCode implements VirtualCode {
             },
           ],
           snapshot: new ScriptSnapshot(contents),
+          directives: [],
         },
       ];
     }

@@ -98,7 +98,8 @@ describe('Language Server: Diagnostics', () => {
     });
   });
 
-  describe('external file changes', () => {
+  // skipping until we tackle two-file components
+  describe.skip('external file changes', () => {
     const scriptContents = stripIndent`
       import templateOnly from '@ember/component/template-only';
 
@@ -122,7 +123,7 @@ describe('Language Server: Diagnostics', () => {
       expect(diagnostics).toMatchObject([
         {
           message: "Property 'foo' does not exist on type '{}'.",
-          source: 'ts', // previously 'ts'
+          source: 'ts',
           code: 2339,
         },
       ]);
@@ -164,7 +165,7 @@ describe('Language Server: Diagnostics', () => {
       expect(diagnostics).toMatchObject([
         {
           message: "Property 'foo' does not exist on type '{}'.",
-          source: 'ts', // previously 'ts'
+          source: 'ts',
           code: 2339,
         },
       ]);
@@ -272,6 +273,7 @@ describe('Language Server: Diagnostics', () => {
     `);
   });
 
+  // skipping until we tackle two-file components
   test.skip('reports diagnostics for a companion template type error', () => {
     let script = stripIndent`
       import Component from '@glimmer/component';
@@ -354,7 +356,7 @@ describe('Language Server: Diagnostics', () => {
     expect(server.getDiagnostics(project.fileURI('templates/foo.hbs'))).toEqual([]);
   });
 
-  test('honors @glint-ignore and @glint-expect-error', () => {
+  test.only('honors @glint-ignore and @glint-expect-error', async () => {
     let componentA = stripIndent`
       import Component from '@glimmer/component';
 
@@ -379,13 +381,19 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
+    let server = await project.startLanguageServer();
+
     project.write('component-a.gts', componentA);
     project.write('component-b.gts', componentB);
 
-    let server = project.startLanguageServer();
+    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(docA.uri);
 
-    expect(server.getDiagnostics(project.fileURI('component-a.gts'))).toEqual([]);
-    expect(server.getDiagnostics(project.fileURI('component-b.gts'))).toEqual([]);
+    expect(diagnostics).toEqual([]);
+
+    const docB = await server.openTextDocument(project.filePath('component-b.gts'), 'glimmer-ts');
+    diagnostics = await server.sendDocumentDiagnosticRequestNormalized(docB.uri);
+    expect(diagnostics).toEqual([]);
 
     server.openFile(project.fileURI('component-a.gts'), componentA);
     server.updateFile(

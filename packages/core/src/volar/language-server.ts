@@ -137,7 +137,6 @@ connection.onInitialized(() => {
     'gjs',
     'gts',
     'hbs',
-    // 'ts',
   ]);
 });
 

@@ -44,7 +44,7 @@ describe('Smoke test: ETI Environment', () => {
       expect(languages.getDiagnostics(scriptURI)).toMatchObject([
         {
           message: "Type 'number' is not assignable to type 'string'.",
-          source: 'ts', // previously 'ts'
+          source: 'ts',
           code: 2322,
           range: new Range(6, 13, 6, 19),
         },

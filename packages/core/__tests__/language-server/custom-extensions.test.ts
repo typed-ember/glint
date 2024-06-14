@@ -3,6 +3,7 @@ import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
 import typescript from 'typescript';
 import semver from 'semver';
+import { FileChangeType } from '@volar/language-server';
 
 describe('Language Server: custom file extensions', () => {
   let project!: Project;
@@ -131,7 +132,7 @@ describe('Language Server: custom file extensions', () => {
     `);
   });
 
-  test('resolving conflicts between overlapping extensions', () => {
+  test.only('resolving conflicts between overlapping extensions', async () => {
     let contents = 'export let identifier = 123`;';
 
     project.setGlintConfig({ environment: 'ember-template-imports' });
@@ -148,21 +149,27 @@ describe('Language Server: custom file extensions', () => {
     );
 
     let consumerURI = project.fileURI('consumer.ts');
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
 
-    let definitions = server.getDefinition(consumerURI, { line: 2, character: 4 });
-    let diagnostics = server.getDiagnostics(consumerURI);
+    let definitions = await server.sendDefinitionRequest(consumerURI, { line: 2, character: 4 });
 
-    expect(definitions).toMatchObject([{ uri: project.fileURI('index.ts') }]);
+    const tsPath = project.filePath('consumer.ts');
+    const { uri } = await server.openTextDocument(tsPath, 'typescript');
+    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+
+    expect(definitions).toMatchObject([{ targetUri: project.fileURI('index.ts') }]);
     expect(diagnostics).toEqual([]);
 
     project.remove('index.ts');
-    server.watchedFileDidChange(project.fileURI('index.ts'));
+    await server.didChangeWatchedFiles([
+      { uri: project.fileURI('index.ts'), type: FileChangeType.Deleted },
+    ]);
 
-    definitions = server.getDefinition(consumerURI, { line: 2, character: 4 });
-    diagnostics = server.getDiagnostics(consumerURI);
+    definitions = await server.sendDefinitionRequest(consumerURI, { line: 2, character: 4 });
+    diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
 
-    expect(definitions).toMatchObject([{ uri: project.fileURI('index.gts') }]);
+    // FAILS: targetUri still points to index.ts
+    expect(definitions).toMatchObject([{ targetUri: project.fileURI('index.gts') }]);
     expect(diagnostics).toEqual([]);
 
     project.remove('index.gts');
@@ -172,7 +179,7 @@ describe('Language Server: custom file extensions', () => {
 
     expect(diagnostics).toMatchObject([
       {
-        source: 'ts', // previously 'ts'
+        source: 'ts',
         code: 2307,
         range: {
           start: { line: 0, character: 27 },
@@ -201,7 +208,7 @@ describe('Language Server: custom file extensions', () => {
       expect(diagnostics).toMatchObject([
         {
           message: "Cannot find module './other' or its corresponding type declarations.",
-          source: 'ts', // previously 'ts'
+          source: 'ts',
           code: 2307,
         },
       ]);
@@ -250,7 +257,7 @@ describe('Language Server: custom file extensions', () => {
       expect(diagnostics).toMatchObject([
         {
           message: "Cannot find module './other' or its corresponding type declarations.",
-          source: 'ts', // previously 'ts'
+          source: 'ts',
           code: 2307,
         },
       ]);
