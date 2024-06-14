@@ -129,6 +129,15 @@ connection.onInitialize((parameters) => {
 //   return commands.toggleStrong(parameters)
 // })
 
+/**
+ * Invoked when client has sent `initialized` notification. Volar takes this
+ * opportunity to finish initializing, and we tell the client which extensions
+ * it should add file-watchers for (technically file-watchers could eagerly
+ * be set up on the client (e.g. when the extension activates), but since Volar
+ * capabilities use dynamic/deferredregistration, we have the server tell the
+ * client which files to watch via the deferred `registerCapability` message
+ * within `watchFiles()`).
+ */
 connection.onInitialized(() => {
   server.initialized();
 
@@ -140,7 +149,6 @@ connection.onInitialized(() => {
     'hbs',
   ];
 
-  // server.watchFiles(['**/*.{' + extensions.join(',') + '}']);
   server.watchFiles([`**.*.{${extensions.join(',')}}`]);
 });
 
