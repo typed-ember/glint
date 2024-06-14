@@ -168,18 +168,19 @@ describe('Language Server: custom file extensions', () => {
     definitions = await server.sendDefinitionRequest(consumerURI, { line: 2, character: 4 });
     diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
 
-    // FAILS: targetUri still points to index.ts
     expect(definitions).toMatchObject([{ targetUri: project.fileURI('index.gts') }]);
     expect(diagnostics).toEqual([]);
 
     project.remove('index.gts');
-    server.watchedFileWasRemoved(project.fileURI('index.gts'));
+    await server.didChangeWatchedFiles([
+      { uri: project.fileURI('index.gts'), type: FileChangeType.Deleted },
+    ]);
 
-    diagnostics = server.getDiagnostics(consumerURI);
+    diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
 
     expect(diagnostics).toMatchObject([
       {
-        source: 'ts',
+        source: 'glint',
         code: 2307,
         range: {
           start: { line: 0, character: 27 },
