@@ -131,13 +131,17 @@ connection.onInitialize((parameters) => {
 
 connection.onInitialized(() => {
   server.initialized();
-  server.watchFiles([
+
+  const extensions = [
     // 'js',
     // 'ts',
     'gjs',
     'gts',
     'hbs',
-  ]);
+  ];
+
+  // server.watchFiles(['**/*.{' + extensions.join(',') + '}']);
+  server.watchFiles([`**.*.{${extensions.join(',')}}`]);
 });
 
 connection.listen();

@@ -183,7 +183,7 @@ async function addWorkspaceFolder(
       typescript: {
         format: typescriptFormatOptions,
         preferences: typescriptUserPreferences,
-        tsdk: (await getTsdk(context)).tsdk,
+        tsdk: (await getTsdk(context))!.tsdk,
       },
     },
     documentSelector: [{ scheme: 'file', pattern: `${folderPath}/${filePattern}` }],
