@@ -208,7 +208,7 @@ describe('Language Server: custom file extensions', () => {
       const tsPath = project.filePath('index.gts');
       const { uri } = await server.openTextDocument(tsPath, 'glimmer-ts');
       let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
-  
+
       expect(diagnostics).toMatchObject([
         {
           message: "Cannot find module './other' or its corresponding type declarations.",
@@ -223,29 +223,42 @@ describe('Language Server: custom file extensions', () => {
         { uri: project.fileURI('other.gjs'), type: FileChangeType.Created },
       ]);
 
-      diagnostics = await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('index.gts'));
+      diagnostics = await server.sendDocumentDiagnosticRequestNormalized(
+        project.fileURI('index.gts')
+      );
 
       expect(diagnostics).toEqual([]);
     });
 
-    test('changing an imported module', async () => {
+    test.only('changing an imported module', async () => {
       project.write('other.gjs', 'export const foo = 123;');
 
       let server = await project.startLanguageServer();
-      let info = server.getHover(project.fileURI('index.gts'), { line: 0, character: 10 });
-
-      expect(info?.contents).toEqual([
-        { language: 'ts', value: '(alias) const foo: 123\nimport foo' },
-      ]);
+      await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+      let info = await server.sendHoverRequest(project.fileURI('index.gts'), {
+        line: 0,
+        character: 10,
+      });
+      expect(info?.contents).toEqual({
+        kind: 'markdown',
+        value: '```typescript\n(alias) const foo: 123\nimport foo\n```',
+      });
 
       project.write('other.gjs', 'export const foo = "hi";');
-      server.watchedFileDidChange(project.fileURI('other.gjs'));
 
-      info = server.getHover(project.fileURI('index.gts'), { line: 0, character: 10 });
-
-      expect(info?.contents).toEqual([
-        { language: 'ts', value: '(alias) const foo: "hi"\nimport foo' },
+      await server.didChangeWatchedFiles([
+        { uri: project.fileURI('other.gjs'), type: FileChangeType.Changed },
       ]);
+
+      info = await server.sendHoverRequest(project.fileURI('index.gts'), {
+        line: 0,
+        character: 10,
+      });
+
+      expect(info?.contents).toEqual({
+        kind: 'markdown',
+        value: '```typescript\n(alias) const foo: "hi"\nimport foo\n```',
+      });
     });
 
     test('removing an imported module', async () => {
