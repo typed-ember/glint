@@ -230,7 +230,7 @@ describe('Language Server: custom file extensions', () => {
       expect(diagnostics).toEqual([]);
     });
 
-    test.only('changing an imported module', async () => {
+    test('changing an imported module', async () => {
       project.write('other.gjs', 'export const foo = 123;');
 
       let server = await project.startLanguageServer();
@@ -265,19 +265,23 @@ describe('Language Server: custom file extensions', () => {
       project.write('other.gjs', 'export const foo = 123;');
 
       let server = await project.startLanguageServer();
-      let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
+      const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+  
+      let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
       expect(diagnostics).toEqual([]);
 
       project.remove('other.gjs');
-      server.watchedFileWasRemoved(project.fileURI('other.gjs'));
-
-      diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
+      await server.didChangeWatchedFiles([
+        { uri: project.fileURI('other.gjs'), type: FileChangeType.Deleted },
+      ]);
+  
+      diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
 
       expect(diagnostics).toMatchObject([
         {
           message: "Cannot find module './other' or its corresponding type declarations.",
-          source: 'ts',
+          source: 'glint',
           code: 2307,
         },
       ]);
