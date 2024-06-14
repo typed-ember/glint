@@ -16,13 +16,13 @@ describe('Language Server: custom file extensions', () => {
     await project.destroy();
   });
 
-  test('reporting diagnostics', () => {
+  test('reporting diagnostics', async () => {
     let contents = 'let identifier: string = 123;';
 
     project.setGlintConfig({ environment: 'ember-template-imports' });
     project.write('index.gts', contents);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
 
     expect(server.getDiagnostics(project.fileURI('index.gts'))).toMatchInlineSnapshot(`
       [
@@ -75,13 +75,13 @@ describe('Language Server: custom file extensions', () => {
     expect(server.getDiagnostics(project.fileURI('index.gts'))).toEqual([]);
   });
 
-  test('providing hover info', () => {
+  test('providing hover info', async () => {
     let contents = 'let identifier = "hello";';
 
     project.setGlintConfig({ environment: 'ember-template-imports' });
     project.write('index.gts', contents);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let hover = server.getHover(project.fileURI('index.gts'), { line: 0, character: 8 });
 
     expect(hover).toMatchInlineSnapshot(`
@@ -132,7 +132,7 @@ describe('Language Server: custom file extensions', () => {
     `);
   });
 
-  test.only('resolving conflicts between overlapping extensions', async () => {
+  test('resolving conflicts between overlapping extensions', async () => {
     let contents = 'export let identifier = 123`;';
 
     project.setGlintConfig({ environment: 'ember-template-imports' });
@@ -202,8 +202,8 @@ describe('Language Server: custom file extensions', () => {
       );
     });
 
-    test('adding a missing module', () => {
-      let server = project.startLanguageServer();
+    test.only('adding a missing module', async () => {
+      let server = await project.startLanguageServer();
       let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
       expect(diagnostics).toMatchObject([
@@ -222,10 +222,10 @@ describe('Language Server: custom file extensions', () => {
       expect(diagnostics).toEqual([]);
     });
 
-    test('changing an imported module', () => {
+    test('changing an imported module', async () => {
       project.write('other.gjs', 'export const foo = 123;');
 
-      let server = project.startLanguageServer();
+      let server = await project.startLanguageServer();
       let info = server.getHover(project.fileURI('index.gts'), { line: 0, character: 10 });
 
       expect(info?.contents).toEqual([
@@ -242,10 +242,10 @@ describe('Language Server: custom file extensions', () => {
       ]);
     });
 
-    test('removing an imported module', () => {
+    test('removing an imported module', async () => {
       project.write('other.gjs', 'export const foo = 123;');
 
-      let server = project.startLanguageServer();
+      let server = await project.startLanguageServer();
       let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
       expect(diagnostics).toEqual([]);
@@ -280,7 +280,7 @@ describe('Language Server: custom file extensions', () => {
     });
 
     test('is illegal by default', async () => {
-      let server = project.startLanguageServer();
+      let server = await project.startLanguageServer();
 
       expect(server.getDiagnostics(project.fileURI('index.gts'))).toMatchInlineSnapshot(`
         [
@@ -313,7 +313,7 @@ describe('Language Server: custom file extensions', () => {
           config.compilerOptions['allowImportingTsExtensions'] = true;
         });
 
-        let server = project.startLanguageServer();
+        let server = await project.startLanguageServer();
 
         expect(server.getDiagnostics(project.fileURI('index.gts'))).toEqual([]);
       }

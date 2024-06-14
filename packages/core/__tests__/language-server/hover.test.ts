@@ -13,11 +13,11 @@ describe('Language Server: Hover', () => {
     await project.destroy();
   });
 
-  test('querying a standalone template', () => {
+  test('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let info = server.getHover(project.fileURI('index.hbs'), {
       line: 0,
       character: 17,
@@ -32,7 +32,7 @@ describe('Language Server: Hover', () => {
     });
   });
 
-  test('using private properties', () => {
+  test('using private properties', async () => {
     project.write({
       'index.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -48,7 +48,7 @@ describe('Language Server: Hover', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let messageInfo = server.getHover(project.fileURI('index.gts'), {
       line: 7,
       character: 12,
@@ -64,7 +64,7 @@ describe('Language Server: Hover', () => {
     });
   });
 
-  test('using args', () => {
+  test('using args', async () => {
     project.write({
       'index.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -82,7 +82,7 @@ describe('Language Server: Hover', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let strInfo = server.getHover(project.fileURI('index.gts'), {
       line: 9,
       character: 7,
@@ -101,7 +101,7 @@ describe('Language Server: Hover', () => {
     });
   });
 
-  test('curly block params', () => {
+  test('curly block params', async () => {
     project.write({
       'index.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -116,7 +116,7 @@ describe('Language Server: Hover', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let indexInfo = server.getHover(project.fileURI('index.gts'), {
       line: 5,
       character: 14,
@@ -146,7 +146,7 @@ describe('Language Server: Hover', () => {
     });
   });
 
-  test('module details', () => {
+  test('module details', async () => {
     project.write({
       'foo.ts': stripIndent`
         export const foo = 'hi';
@@ -158,7 +158,7 @@ describe('Language Server: Hover', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let info = server.getHover(project.fileURI('index.ts'), {
       line: 0,
       character: 24,
@@ -174,7 +174,7 @@ describe('Language Server: Hover', () => {
   });
 
   describe('JS in a TS project', () => {
-    test('with allowJs: true', () => {
+    test('with allowJs: true', async () => {
       let tsconfig = JSON.parse(project.read('tsconfig.json'));
       tsconfig.glint = { environment: 'ember-loose' };
       tsconfig.compilerOptions.allowJs = true;
@@ -191,7 +191,7 @@ describe('Language Server: Hover', () => {
         `,
       });
 
-      let server = project.startLanguageServer();
+      let server = await project.startLanguageServer();
       let info = server.getHover(project.fileURI('index.hbs'), {
         line: 0,
         character: 10,
@@ -209,7 +209,7 @@ describe('Language Server: Hover', () => {
       });
     });
 
-    test('allowJs: false', () => {
+    test('allowJs: false', async () => {
       let tsconfig = JSON.parse(project.read('tsconfig.json'));
       tsconfig.glint = { environment: 'ember-loose' };
       tsconfig.compilerOptions.allowJs = false;
@@ -226,7 +226,7 @@ describe('Language Server: Hover', () => {
         `,
       });
 
-      let server = project.startLanguageServer();
+      let server = await project.startLanguageServer();
       let info = server.getHover(project.fileURI('index.hbs'), {
         line: 0,
         character: 10,

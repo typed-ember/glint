@@ -13,11 +13,11 @@ describe('Language Server: Renaming Symbols', () => {
     await project.destroy();
   });
 
-  test('querying an standalone template', () => {
+  test('querying an standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let workspaceEdits = server.getEditsForRename(
       project.fileURI('index.hbs'),
       { line: 0, character: 11 },
@@ -46,7 +46,7 @@ describe('Language Server: Renaming Symbols', () => {
     });
   });
 
-  test('preparing rename-able and unrename-able elements', () => {
+  test('preparing rename-able and unrename-able elements', async () => {
     project.write({
       'index.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -66,7 +66,7 @@ describe('Language Server: Renaming Symbols', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let renameSuccessful = server.prepareRename(project.fileURI('index.gts'), {
       line: 10,
       character: 12,
@@ -86,7 +86,7 @@ describe('Language Server: Renaming Symbols', () => {
   });
 
   // TODO: skipped because renaming might not be fully implemented for .gts files
-  test.skip('renaming an arg', () => {
+  test.skip('renaming an arg', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -111,7 +111,7 @@ describe('Language Server: Renaming Symbols', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let expectedWorkspaceEdit = {
       changes: {
         [project.fileURI('greeting.gts')]: [
@@ -170,7 +170,7 @@ describe('Language Server: Renaming Symbols', () => {
     expect(renameDeclaredArg).toEqual(expectedWorkspaceEdit);
   });
 
-  test('renaming a block param', () => {
+  test('renaming a block param', async () => {
     project.write({
       'index.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -185,7 +185,7 @@ describe('Language Server: Renaming Symbols', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let expectedWorkspaceEdit = {
       changes: {
         [project.fileURI('index.gts')]: [
@@ -251,7 +251,7 @@ describe('Language Server: Renaming Symbols', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let expectedWorkspaceEdit = {
       changes: {
         [project.fileURI('greeting.gts')]: [

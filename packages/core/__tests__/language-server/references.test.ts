@@ -13,11 +13,11 @@ describe('Language Server: References', () => {
     await project.destroy();
   });
 
-  test('querying a standalone template', () => {
+  test('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let references = server.getReferences(project.fileURI('index.hbs'), {
       line: 0,
       character: 11,
@@ -70,7 +70,7 @@ describe('Language Server: References', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let expectedReferences = new Set([
       {
         uri: project.fileURI('greeting.ts'),
@@ -145,7 +145,7 @@ describe('Language Server: References', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let expectedReferences = new Set([
       {
         uri: project.fileURI('index.gts'),

@@ -26,7 +26,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
@@ -150,7 +150,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
@@ -278,7 +278,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('emit for attributes and top-level content', () => {
+  test('emit for attributes and top-level content', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
       'index.gts': stripIndent`
@@ -305,7 +305,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
@@ -641,7 +641,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('unresolved globals', () => {
+  test('unresolved globals', async () => {
     project.setGlintConfig({ environment: ['ember-loose'] });
     project.write({
       'index.ts': stripIndent`
@@ -665,7 +665,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
@@ -768,7 +768,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('failed `component` name lookup', () => {
+  test('failed `component` name lookup', async () => {
     project.setGlintConfig({ environment: ['ember-loose'] });
     project.write({
       'index.ts': stripIndent`
@@ -793,7 +793,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
@@ -862,7 +862,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('direct invocation of `{{component}}`', () => {
+  test('direct invocation of `{{component}}`', async () => {
     project.setGlintConfig({ environment: ['ember-loose'] });
     project.write({
       'index.ts': stripIndent`
@@ -896,7 +896,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
@@ -975,7 +975,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('bad `component`/`helper`/`modifier` arg type', () => {
+  test('bad `component`/`helper`/`modifier` arg type', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
       'index.gts': stripIndent`
@@ -996,7 +996,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
     expect(diagnostics).toMatchInlineSnapshot(`
@@ -1074,7 +1074,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('`noPropertyAccessFromIndexSignature` violation', () => {
+  test('`noPropertyAccessFromIndexSignature` violation', async () => {
     project.updateTsconfig((tsconfig) => {
       tsconfig.glint = { environment: ['ember-loose', 'ember-template-imports'] };
       tsconfig.compilerOptions ??= {};
@@ -1093,7 +1093,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
     expect(diagnostics).toMatchInlineSnapshot(`

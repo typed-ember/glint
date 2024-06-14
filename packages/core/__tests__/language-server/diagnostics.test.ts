@@ -36,25 +36,25 @@ describe('Language Server: Diagnostics', () => {
       project.write('my-component.hbs', template);
     });
 
-    test('disabled', () => {
+    test('disabled', async () => {
       project.setGlintConfig({
         environment: 'ember-loose',
         checkStandaloneTemplates: false,
       });
 
-      let server = project.startLanguageServer();
+      let server = await project.startLanguageServer();
       let templateDiagnostics = server.getDiagnostics(project.fileURI('my-component.hbs'));
 
       expect(templateDiagnostics).toEqual([]);
     });
 
-    test('enabled', () => {
+    test('enabled', async () => {
       project.setGlintConfig({
         environment: 'ember-loose',
         checkStandaloneTemplates: true,
       });
 
-      let server = project.startLanguageServer();
+      let server = await project.startLanguageServer();
       let templateDiagnostics = server.getDiagnostics(project.fileURI('my-component.hbs'));
 
       expect(templateDiagnostics).toMatchInlineSnapshot(`
@@ -114,10 +114,10 @@ describe('Language Server: Diagnostics', () => {
       project.setGlintConfig({ environment: 'ember-loose' });
     });
 
-    test('adding a backing module', () => {
+    test('adding a backing module', async () => {
       project.write('component.hbs', '{{@foo}}');
 
-      let server = project.startLanguageServer();
+      let server = await project.startLanguageServer();
       let diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
 
       expect(diagnostics).toMatchObject([
@@ -148,11 +148,11 @@ describe('Language Server: Diagnostics', () => {
       ]);
     });
 
-    test('removing a backing module', () => {
+    test('removing a backing module', async () => {
       project.write('component.hbs', '{{@foo}}');
       project.write('component.ts', scriptContents);
 
-      let server = project.startLanguageServer();
+      let server = await project.startLanguageServer();
       let diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
 
       expect(diagnostics).toEqual([]);
@@ -274,7 +274,7 @@ describe('Language Server: Diagnostics', () => {
   });
 
   // skipping until we tackle two-file components
-  test.skip('reports diagnostics for a companion template type error', () => {
+  test.skip('reports diagnostics for a companion template type error', async () => {
     let script = stripIndent`
       import Component from '@glimmer/component';
 
@@ -296,7 +296,7 @@ describe('Language Server: Diagnostics', () => {
     project.write('controllers/foo.ts', script);
     project.write('templates/foo.hbs', template);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let scriptDiagnostics = server.getDiagnostics(project.fileURI('controllers/foo.ts'));
     let templateDiagnostics = server.getDiagnostics(project.fileURI('templates/foo.hbs'));
 

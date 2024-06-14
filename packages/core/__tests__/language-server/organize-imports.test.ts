@@ -14,7 +14,7 @@ describe('Language Server: Organize Imports', () => {
     await project.destroy();
   });
 
-  test('no imports', () => {
+  test('no imports', async () => {
     project.write({
       'index.ts': stripIndent`
 
@@ -26,7 +26,7 @@ describe('Language Server: Organize Imports', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let formatting = ts.getDefaultFormatCodeSettings();
     let preferences = {};
     let edits = server.organizeImports(project.fileURI('index.ts'), formatting, preferences);
@@ -34,7 +34,7 @@ describe('Language Server: Organize Imports', () => {
     expect(edits).toEqual([]);
   });
 
-  test('ts: handles sorting imports', () => {
+  test('ts: handles sorting imports', async () => {
     project.write({
       'index.ts': stripIndent`
         import './App.css';
@@ -62,7 +62,7 @@ describe('Language Server: Organize Imports', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
 
     let formatting = ts.getDefaultFormatCodeSettings();
     let preferences = {};
@@ -109,7 +109,7 @@ describe('Language Server: Organize Imports', () => {
     ]);
   });
 
-  test('gts: handles sorting imports', () => {
+  test('gts: handles sorting imports', async () => {
     project.setGlintConfig({ environment: 'ember-template-imports' });
     project.write({
       'index.gts': stripIndent`
@@ -136,7 +136,7 @@ describe('Language Server: Organize Imports', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
 
     let formatting = ts.getDefaultFormatCodeSettings();
     let preferences = {};

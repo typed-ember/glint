@@ -14,7 +14,7 @@ describe('Language Server: Symbol Search', () => {
     await project.destroy();
   });
 
-  test('component definition', () => {
+  test('component definition', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -39,7 +39,7 @@ describe('Language Server: Symbol Search', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let expectedSymbols = new Set([
       {
         name: 'Greeting',

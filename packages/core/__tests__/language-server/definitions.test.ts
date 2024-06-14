@@ -13,11 +13,11 @@ describe('Language Server: Definitions', () => {
     await project.destroy();
   });
 
-  test('querying a standalone template', () => {
+  test('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let definitions = server.getDefinition(project.fileURI('index.hbs'), {
       line: 0,
       character: 17,
@@ -34,7 +34,7 @@ describe('Language Server: Definitions', () => {
     ]);
   });
 
-  test('component invocation', () => {
+  test('component invocation', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -54,7 +54,7 @@ describe('Language Server: Definitions', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let definitions = server.getDefinition(project.fileURI('index.gts'), {
       line: 5,
       character: 7,
@@ -71,7 +71,7 @@ describe('Language Server: Definitions', () => {
     ]);
   });
 
-  test('arg passing', () => {
+  test('arg passing', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -96,7 +96,7 @@ describe('Language Server: Definitions', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let definitions = server.getDefinition(project.fileURI('index.gts'), {
       line: 5,
       character: 17,
@@ -114,7 +114,7 @@ describe('Language Server: Definitions', () => {
   });
 
   // TODO: skipped because .gts files might not fully support this yet
-  test.skip('arg use', () => {
+  test.skip('arg use', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -129,7 +129,7 @@ describe('Language Server: Definitions', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let definitions = server.getDefinition(project.fileURI('greeting.gts'), {
       line: 7,
       character: 30,
@@ -146,7 +146,7 @@ describe('Language Server: Definitions', () => {
     ]);
   });
 
-  test('import source', () => {
+  test('import source', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -171,7 +171,7 @@ describe('Language Server: Definitions', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let definitions = server.getDefinition(project.fileURI('index.gts'), {
       line: 1,
       character: 27,

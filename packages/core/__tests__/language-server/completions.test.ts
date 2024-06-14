@@ -14,11 +14,11 @@ describe('Language Server: Completions', () => {
     await project.destroy();
   });
 
-  test('querying a standalone template', () => {
+  test('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<LinkT />');
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.hbs'), {
       line: 0,
       character: 6,
@@ -33,7 +33,7 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('(property) Globals.LinkTo: LinkToComponent');
   });
 
-  test('in unstructured text', () => {
+  test('in unstructured text', async () => {
     let code = stripIndent`
       import Component from '@glimmer/component';
 
@@ -48,7 +48,7 @@ describe('Language Server: Completions', () => {
 
     project.write('index.gts', code);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 4,
       character: 4,
@@ -57,7 +57,7 @@ describe('Language Server: Completions', () => {
     expect(completions).toBeUndefined();
   });
 
-  test('in a companion template with syntax errors', () => {
+  test('in a companion template with syntax errors', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
 
     let code = stripIndent`
@@ -66,7 +66,7 @@ describe('Language Server: Completions', () => {
 
     project.write('index.hbs', code);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.hbs'), {
       line: 0,
       character: 4,
@@ -77,7 +77,7 @@ describe('Language Server: Completions', () => {
     expect(completions).toBeUndefined();
   });
 
-  test('in an embedded template with syntax errors', () => {
+  test('in an embedded template with syntax errors', async () => {
     project.setGlintConfig({ environment: 'ember-template-imports' });
 
     let code = stripIndent`
@@ -86,7 +86,7 @@ describe('Language Server: Completions', () => {
 
     project.write('index.gts', code);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 0,
       character: 31,
@@ -97,7 +97,7 @@ describe('Language Server: Completions', () => {
     expect(completions).toBeUndefined();
   });
 
-  test('passing component args', () => {
+  test('passing component args', async () => {
     let code = stripIndent`
       import Component from '@glimmer/component';
 
@@ -112,7 +112,7 @@ describe('Language Server: Completions', () => {
 
     project.write('index.gts', code);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 4,
       character: 12,
@@ -125,7 +125,7 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual("(property) 'bar-baz'?: number | undefined");
   });
 
-  test('referencing class properties', () => {
+  test('referencing class properties', async () => {
     let code = stripIndent`
       import Component from '@glimmer/component';
 
@@ -140,7 +140,7 @@ describe('Language Server: Completions', () => {
 
     project.write('index.gts', code);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 6,
       character: 13,
@@ -155,7 +155,7 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('(property) MyComponent.message: string');
   });
 
-  test('auto imports', () => {
+  test('auto imports', async () => {
     project.write({
       'other.ts': stripIndent`
         export let foobar = 123;
@@ -172,7 +172,7 @@ describe('Language Server: Completions', () => {
       allowIncompleteCompletions: true,
     };
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(
       project.fileURI('index.ts'),
       {
@@ -204,7 +204,7 @@ describe('Language Server: Completions', () => {
     expect(details?.labelDetails?.description).toEqual('./other');
   });
 
-  test('auto imports with documentation and tags', () => {
+  test('auto imports with documentation and tags', async () => {
     project.write({
       'other.ts': stripIndent`
         /**
@@ -225,7 +225,7 @@ describe('Language Server: Completions', () => {
       allowIncompleteCompletions: true,
     };
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(
       project.fileURI('index.ts'),
       {
@@ -256,7 +256,7 @@ describe('Language Server: Completions', () => {
     });
   });
 
-  test('auto import - import statements - ensure all completions are resolvable', () => {
+  test('auto import - import statements - ensure all completions are resolvable', async () => {
     project.write({
       'other.ts': stripIndent`
         export let foobar = 123;
@@ -273,7 +273,7 @@ describe('Language Server: Completions', () => {
       includeCompletionsWithInsertText: true, // needs to be present for `includeCompletionsForImportStatements` to work
     };
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(
       project.fileURI('index.ts'),
       {
@@ -307,7 +307,7 @@ describe('Language Server: Completions', () => {
 
     project.write('index.gts', code);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 8,
       character: 8,
@@ -337,7 +337,7 @@ describe('Language Server: Completions', () => {
 
     project.write('index.gts', code);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.gts'), {
       line: 5,
       character: 9,
@@ -367,7 +367,7 @@ describe('Language Server: Completions', () => {
 
     project.write('index.ts', code);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let completions = server.getCompletions(project.fileURI('index.ts'), {
       line: 6,
       character: 7,
@@ -382,7 +382,7 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('const greeting: string');
   });
 
-  test('immediately after a change', () => {
+  test('immediately after a change', async () => {
     let code = stripIndent`
       import Component from '@glimmer/component';
 
@@ -397,7 +397,7 @@ describe('Language Server: Completions', () => {
 
     project.write('index.gts', code);
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
 
     server.updateFile(project.fileURI('index.gts'), code.replace('{{}}', '{{l}}'));
 
