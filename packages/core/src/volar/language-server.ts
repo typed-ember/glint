@@ -17,18 +17,17 @@ import type * as vscode from 'vscode-languageserver-protocol';
 
 const connection = createConnection();
 
-// this file basically boots and loads the server as a side effect of requiring this file.
-// - [x] identify glint-main's effect-ful require():
-//   - it is in language-server.ts;
-//   - doesn't directly import language server
-// - [ ] identify in glint main at what point the server is started / connected
 const server = createServer(connection);
 
+/**
+ * Handle the `initialize` request from the client. This is the first request sent by the client to
+ * the server. It includes the set of capabilities supported by the client as well as
+ * other initialization params needed by the server.
+ */
 connection.onInitialize((parameters) => {
   const project = createTypeScriptProject(
     ts,
     undefined,
-    // Return the language plugins required/used by our language server. Language Plugins
     (env, { configFileName }) => {
       const languagePlugins = [];
 
