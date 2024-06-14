@@ -142,8 +142,8 @@ connection.onInitialized(() => {
   server.initialized();
 
   const extensions = [
-    // 'js',
-    // 'ts',
+    'js',
+    'ts',
     'gjs',
     'gts',
     'hbs',
