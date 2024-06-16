@@ -3,7 +3,7 @@ import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
 import typescript from 'typescript';
 import semver from 'semver';
-import { FileChangeType } from '@volar/language-server';
+import { FileChangeType, Position, Range, TextEdit } from '@volar/language-server';
 
 describe('Language Server: custom file extensions', () => {
   let project!: Project;
@@ -64,16 +64,21 @@ describe('Language Server: custom file extensions', () => {
     project.write('index.gts', contents);
 
     let server = await project.startLanguageServer();
-    let hover = server.getHover(project.fileURI('index.gts'), { line: 0, character: 8 });
+
+    await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+    let hover = await server.sendHoverRequest(project.fileURI('index.gts'), {
+      line: 0,
+      character: 8,
+    });
 
     expect(hover).toMatchInlineSnapshot(`
       {
-        "contents": [
-          {
-            "language": "ts",
-            "value": "let identifier: string",
-          },
-        ],
+        "contents": {
+          "kind": "markdown",
+          "value": "\`\`\`typescript
+      let identifier: string
+      \`\`\`",
+        },
         "range": {
           "end": {
             "character": 14,
@@ -87,19 +92,30 @@ describe('Language Server: custom file extensions', () => {
       }
     `);
 
-    project.write('index.gts', contents.replace('"hello"', '123'));
-    server.watchedFileDidChange(project.fileURI('index.gts'));
+    // Create a Range that represents the whole document
+    const wholeDocumentRange = Range.create(
+      Position.create(0, 0), // Start position (beginning of the document)
+      Position.create(Number.MAX_VALUE, Number.MAX_VALUE) // End position (end of the document)
+    );
 
-    hover = server.getHover(project.fileURI('index.gts'), { line: 0, character: 8 });
+    // Create a TextEdit that replaces the entire content of the document
+    const textEdit = TextEdit.replace(wholeDocumentRange, contents.replace('"hello"', '123'));
+
+    server.updateTextDocument(project.fileURI('index.gts'), [textEdit]);
+
+    hover = await server.sendHoverRequest(project.fileURI('index.gts'), {
+      line: 0,
+      character: 8,
+    });
 
     expect(hover).toMatchInlineSnapshot(`
       {
-        "contents": [
-          {
-            "language": "ts",
-            "value": "let identifier: number",
-          },
-        ],
+        "contents": {
+          "kind": "markdown",
+          "value": "\`\`\`typescript
+      let identifier: number
+      \`\`\`",
+        },
         "range": {
           "end": {
             "character": 14,
@@ -112,6 +128,7 @@ describe('Language Server: custom file extensions', () => {
         },
       }
     `);
+
   });
 
   test('resolving conflicts between overlapping extensions', async () => {
