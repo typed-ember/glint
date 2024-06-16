@@ -110,15 +110,16 @@ describe('Language Server: Completions', () => {
     project.write('index.gts', code);
 
     let server = await project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.gts'), {
-      line: 4,
-      character: 12,
-    });
 
-    let labels = completions?.map((completion) => completion.label);
-    expect(new Set(labels)).toEqual(new Set(['foo', 'bar-baz']));
+    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+    let completions = await server.sendCompletionRequest(uri, Position.create(4, 12));
 
-    let details = server.getCompletionDetails(completions!.find((c) => c.label === 'bar-baz')!);
+    let labels = completions!.items.map((completion) => completion.label);
+    expect(new Set(labels)).toEqual(new Set(['foo?', 'bar-baz?']));
+
+    let completion = completions!.items.find((c) => c.label === 'bar-baz?');
+    let details = await server.sendCompletionResolveRequest(completion!);
+
     expect(details.detail).toEqual("(property) 'bar-baz'?: number | undefined");
   });
 
