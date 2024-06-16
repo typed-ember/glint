@@ -339,7 +339,7 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('const greeting: string');
   });
 
-  test.only('immediately after a change', async () => {
+  test('immediately after a change', async () => {
     let code = stripIndent`
       import Component from '@glimmer/component';
 
