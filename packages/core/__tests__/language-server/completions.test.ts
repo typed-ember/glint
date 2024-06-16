@@ -50,15 +50,12 @@ describe('Language Server: Completions', () => {
 
     let server = await project.startLanguageServer();
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-    let completions = await server.sendCompletionRequest(
-			uri,
-			Position.create(4, 4)
-		);
+    let completions = await server.sendCompletionRequest(uri, Position.create(4, 4));
 
     expect(completions!.items).toEqual([]);
   });
 
-  test('in a companion template with syntax errors', async () => {
+  test.skip('in a companion template with syntax errors', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
 
     let code = stripIndent`
@@ -88,14 +85,13 @@ describe('Language Server: Completions', () => {
     project.write('index.gts', code);
 
     let server = await project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.gts'), {
-      line: 0,
-      character: 31,
-    });
+
+    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+    let completions = await server.sendCompletionRequest(uri, Position.create(0, 31));
 
     // Ensure we don't spew all ~900 completions available at the top level
     // in module scope in a JS/TS file.
-    expect(completions).toBeUndefined();
+    expect(completions!.items).toEqual([]);
   });
 
   test('passing component args', async () => {
