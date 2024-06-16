@@ -33,7 +33,7 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('(property) Globals.LinkTo: LinkToComponent');
   });
 
-  test.only('in unstructured text', async () => {
+  test('in unstructured text', async () => {
     let code = stripIndent`
       import Component from '@glimmer/component';
 
