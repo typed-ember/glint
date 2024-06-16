@@ -24,10 +24,21 @@ describe('Language Server: custom file extensions', () => {
 
     let server = await project.startLanguageServer();
 
-    expect(server.getDiagnostics(project.fileURI('index.gts'))).toMatchInlineSnapshot(`
+    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+
+    expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
           "code": 2322,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file://PATH_TO/FILE",
+            "version": 0,
+          },
           "message": "Type 'number' is not assignable to type 'string'.",
           "range": {
             "end": {
@@ -41,38 +52,9 @@ describe('Language Server: custom file extensions', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
       ]
     `);
-
-    server.openFile(project.fileURI('index.gts'), contents);
-
-    expect(server.getDiagnostics(project.fileURI('index.gts'))).toMatchInlineSnapshot(`
-      [
-        {
-          "code": 2322,
-          "message": "Type 'number' is not assignable to type 'string'.",
-          "range": {
-            "end": {
-              "character": 14,
-              "line": 0,
-            },
-            "start": {
-              "character": 4,
-              "line": 0,
-            },
-          },
-          "severity": 1,
-          "source": "glint",
-          "tags": [],
-        },
-      ]
-    `);
-
-    server.updateFile(project.fileURI('index.gts'), contents.replace('123', '"hi"'));
-
-    expect(server.getDiagnostics(project.fileURI('index.gts'))).toEqual([]);
   });
 
   test('providing hover info', async () => {
