@@ -243,28 +243,16 @@ describe('Language Server: Completions', () => {
       `,
     });
 
-    const preferences = {
-      includeCompletionsForModuleExports: true,
-      allowIncompleteCompletions: true,
-      includeCompletionsForImportStatements: true,
-      includeCompletionsWithInsertText: true, // needs to be present for `includeCompletionsForImportStatements` to work
-    };
-
     let server = await project.startLanguageServer();
-    let completions = server.getCompletions(
+    let completions = await server.sendCompletionRequest(
       project.fileURI('index.ts'),
-      {
-        line: 0,
-        character: 10,
-      },
-      {},
-      preferences
+      Position.create(0, 10)
     );
 
-    completions?.forEach((completion) => {
-      let details = server.getCompletionDetails(completion, {}, preferences);
+    for (const completion of completions!.items) {
+      let details = await server.sendCompletionResolveRequest(completion);
       expect(details).toBeTruthy();
-    });
+    }
   });
 
   test('referencing own args', async () => {
