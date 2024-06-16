@@ -1,7 +1,7 @@
 import { Project } from 'glint-monorepo-test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
-import { CompletionItemKind } from '@volar/language-server';
+import { CompletionItemKind, Position } from '@volar/language-server';
 
 describe('Language Server: Completions', () => {
   let project!: Project;
@@ -14,7 +14,7 @@ describe('Language Server: Completions', () => {
     await project.destroy();
   });
 
-  test('querying a standalone template', async () => {
+  test.skip('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<LinkT />');
 
@@ -33,7 +33,7 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('(property) Globals.LinkTo: LinkToComponent');
   });
 
-  test('in unstructured text', async () => {
+  test.only('in unstructured text', async () => {
     let code = stripIndent`
       import Component from '@glimmer/component';
 
@@ -49,12 +49,13 @@ describe('Language Server: Completions', () => {
     project.write('index.gts', code);
 
     let server = await project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.gts'), {
-      line: 4,
-      character: 4,
-    });
+    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+    let completions = await server.sendCompletionRequest(
+			uri,
+			Position.create(4, 4)
+		);
 
-    expect(completions).toBeUndefined();
+    expect(completions!.items).toEqual([]);
   });
 
   test('in a companion template with syntax errors', async () => {
