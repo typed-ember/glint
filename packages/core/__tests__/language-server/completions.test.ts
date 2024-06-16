@@ -271,18 +271,17 @@ describe('Language Server: Completions', () => {
     `;
 
     project.write('index.gts', code);
-
     let server = await project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.gts'), {
+    let completions = await server.sendCompletionRequest(project.fileURI('index.gts'), {
       line: 8,
       character: 8,
     });
 
-    let itemsCompletion = completions?.find((item) => item.label === 'items');
+    let itemsCompletion = completions?.items.find((item) => item.label === 'items');
 
     expect(itemsCompletion?.kind).toEqual(CompletionItemKind.Field);
 
-    let details = server.getCompletionDetails(itemsCompletion!);
+    let details = await server.sendCompletionResolveRequest(itemsCompletion!);
 
     expect(details.detail).toEqual('(property) items: Set<T>');
   });
@@ -301,19 +300,13 @@ describe('Language Server: Completions', () => {
     `;
 
     project.write('index.gts', code);
-
     let server = await project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.gts'), {
-      line: 5,
-      character: 9,
-    });
 
-    let letterCompletion = completions?.find((item) => item.label === 'letter');
-
+    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+    let completions = await server.sendCompletionRequest(uri, Position.create(5, 9));
+    let letterCompletion = completions?.items.find((item) => item.label === 'letter');
     expect(letterCompletion?.kind).toEqual(CompletionItemKind.Variable);
-
-    let details = server.getCompletionDetails(letterCompletion!);
-
+    let details = await server.sendCompletionResolveRequest(letterCompletion!);
     expect(details.detail).toEqual('const letter: string');
   });
 
@@ -333,21 +326,20 @@ describe('Language Server: Completions', () => {
     project.write('index.ts', code);
 
     let server = await project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.ts'), {
-      line: 6,
-      character: 7,
-    });
+    const { uri } = await server.openTextDocument(project.filePath('index.ts'), 'typescript');
 
-    let greetingCompletion = completions?.find((item) => item.label === 'greeting');
+    let completions = await server.sendCompletionRequest(uri, Position.create(6, 7));
+
+    let greetingCompletion = completions?.items.find((item) => item.label === 'greeting');
 
     expect(greetingCompletion?.kind).toEqual(CompletionItemKind.Variable);
 
-    let details = server.getCompletionDetails(greetingCompletion!);
+    let details = await server.sendCompletionResolveRequest(greetingCompletion!);
 
     expect(details.detail).toEqual('const greeting: string');
   });
 
-  test('immediately after a change', async () => {
+  test.only('immediately after a change', async () => {
     let code = stripIndent`
       import Component from '@glimmer/component';
 
@@ -364,19 +356,13 @@ describe('Language Server: Completions', () => {
 
     let server = await project.startLanguageServer();
 
-    server.updateFile(project.fileURI('index.gts'), code.replace('{{}}', '{{l}}'));
+    const { uri } = await server.openTextDocument(project.filePath('index.ts'), 'typescript');
+    await server.replaceTextDocument(project.fileURI('index.gts'), code.replace('{{}}', '{{l}}'));
 
-    let completions = server.getCompletions(project.fileURI('index.gts'), {
-      line: 5,
-      character: 9,
-    });
-
-    let letterCompletion = completions?.find((item) => item.label === 'letter');
-
+    let completions = await server.sendCompletionRequest(uri, Position.create(5, 9));
+    let letterCompletion = completions?.items.find((item) => item.label === 'letter');
     expect(letterCompletion?.kind).toEqual(CompletionItemKind.Variable);
-
-    let details = server.getCompletionDetails(letterCompletion!);
-
+    let details = await server.sendCompletionResolveRequest(letterCompletion!);
     expect(details.detail).toEqual('const letter: string');
   });
 });

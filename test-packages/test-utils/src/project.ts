@@ -9,6 +9,7 @@ import { startLanguageServer, LanguageServerHandle } from '@volar/test-utils';
 import { FullDocumentDiagnosticReport } from '@volar/language-service';
 import { URI } from 'vscode-uri';
 import { Diagnostic } from 'typescript';
+import { Position, Range, TextEdit } from '@volar/language-server';
 
 // type GlintLanguageServer = ProjectAnalysis['languageServer'];
 
@@ -90,11 +91,30 @@ export class Project {
 
     return {
       ...this.languageServerHandle,
+
       sendDocumentDiagnosticRequestNormalized: async (uri: string) => {
         const value = (await languageServerHandle.sendDocumentDiagnosticRequest(
           uri
         )) as FullDocumentDiagnosticReport;
         return this.normalizedDiagnostics(uri, value.items);
+      },
+
+      /**
+       * Helper fn that makes it easier to replace the whole contents of a file,
+       * rather than having to manually construct the Range and TextEdit.
+       */
+      replaceTextDocument: async (uri: string, text: string) => {
+        // await languageServerHandle.replaceTextDocument(uri, text);
+
+        // Create a Range that represents the whole document
+        const wholeDocumentRange = Range.create(
+          Position.create(0, 0),
+          Position.create(Number.MAX_VALUE, Number.MAX_VALUE)
+        );
+
+        const textEdit = TextEdit.replace(wholeDocumentRange, text);
+
+        return await languageServerHandle.updateTextDocument(uri, [textEdit]);
       },
     };
   }

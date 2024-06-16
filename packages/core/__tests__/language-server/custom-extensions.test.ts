@@ -92,16 +92,10 @@ describe('Language Server: custom file extensions', () => {
       }
     `);
 
-    // Create a Range that represents the whole document
-    const wholeDocumentRange = Range.create(
-      Position.create(0, 0), // Start position (beginning of the document)
-      Position.create(Number.MAX_VALUE, Number.MAX_VALUE) // End position (end of the document)
+    await server.replaceTextDocument(
+      project.fileURI('index.gts'),
+      contents.replace('"hello"', '123')
     );
-
-    // Create a TextEdit that replaces the entire content of the document
-    const textEdit = TextEdit.replace(wholeDocumentRange, contents.replace('"hello"', '123'));
-
-    server.updateTextDocument(project.fileURI('index.gts'), [textEdit]);
 
     hover = await server.sendHoverRequest(project.fileURI('index.gts'), {
       line: 0,
@@ -128,7 +122,6 @@ describe('Language Server: custom file extensions', () => {
         },
       }
     `);
-
   });
 
   test('resolving conflicts between overlapping extensions', async () => {
