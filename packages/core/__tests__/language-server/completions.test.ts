@@ -151,7 +151,7 @@ describe('Language Server: Completions', () => {
     expect(details.detail).toEqual('(property) MyComponent.message: string');
   });
 
-  test.only('auto imports', async () => {
+  test('auto imports', async () => {
     project.write({
       'other.ts': stripIndent`
         export let foobar = 123;
@@ -209,30 +209,18 @@ describe('Language Server: Completions', () => {
       `,
     });
 
-    const preferences = {
-      includeCompletionsForModuleExports: true,
-      allowIncompleteCompletions: true,
-    };
-
     let server = await project.startLanguageServer();
-    let completions = server.getCompletions(
-      project.fileURI('index.ts'),
-      {
-        line: 2,
-        character: 11,
-      },
-      {},
-      preferences
-    );
-
-    let importCompletion = completions?.find(
+    const { uri } = await server.openTextDocument(project.filePath('index.ts'), 'typescript');
+    let completions = await server.sendCompletionRequest(uri, Position.create(2, 11));
+    let importCompletion = completions?.items.find(
       (k) => k.kind == CompletionItemKind.Variable && k.label == 'foobar'
     );
+    let details = await server.sendCompletionResolveRequest(importCompletion!);
 
-    let details = server.getCompletionDetails(importCompletion!, {}, preferences);
-
-    expect(details.detail).toEqual('Add import from "./other"\n\nlet foobar: number');
-
+    expect(details.detail).toMatchInlineSnapshot(`
+      "Add import from "./other"
+      let foobar: number"
+    `);
     expect(details.additionalTextEdits?.length).toEqual(1);
     expect(details.additionalTextEdits?.[0].newText).toMatch("import { foobar } from './other';");
     expect(details.additionalTextEdits?.[0].range).toEqual({
