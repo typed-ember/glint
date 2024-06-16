@@ -473,7 +473,7 @@ describe('CLI: watched build mode typechecking', () => {
           expect(error).toMatchInlineSnapshot(`
             "index.gts:15:5 - error TS2554: Expected 0 arguments, but got 1.
 
-            15     <A @foo=\\"bar\\" />
+            15     <A @foo="bar" />
                    ~~~~~~~~~~~~~~~~"
           `);
 
@@ -506,7 +506,7 @@ describe('CLI: watched build mode typechecking', () => {
           expect(error).toMatchInlineSnapshot(`
             "index.gts:3:28 - error TS2554: Expected 0 arguments, but got 1.
 
-            3 const A = <template>Hello! <C @foo=\\"bar\\" /></template>;
+            3 const A = <template>Hello! <C @foo="bar" /></template>;
                                          ~~~~~~~~~~~~~~~~"
           `);
 
@@ -539,7 +539,7 @@ describe('CLI: watched build mode typechecking', () => {
           expect(error).toMatchInlineSnapshot(`
             "index.gts:3:27 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-            3 const C = <template>{{add \\"hello\\" 456}}</template>;
+            3 const C = <template>{{add "hello" 456}}</template>;
                                         ~~~~~~~"
           `);
 
