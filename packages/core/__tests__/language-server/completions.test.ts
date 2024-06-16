@@ -139,16 +139,14 @@ describe('Language Server: Completions', () => {
     project.write('index.gts', code);
 
     let server = await project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.gts'), {
-      line: 6,
-      character: 13,
-    });
+    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+    let completions = await server.sendCompletionRequest(uri, Position.create(6, 13));
 
-    let messageCompletion = completions?.find((item) => item.label === 'message');
+    let messageCompletion = completions?.items.find((item) => item.label === 'message');
 
     expect(messageCompletion?.kind).toEqual(CompletionItemKind.Field);
 
-    let details = server.getCompletionDetails(messageCompletion!);
+    let details = await server.sendCompletionResolveRequest(messageCompletion!);
 
     expect(details.detail).toEqual('(property) MyComponent.message: string');
   });
