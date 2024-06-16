@@ -60,6 +60,9 @@ export function createGtsLanguagePlugin(glintConfig: GlintConfig): LanguagePlugi
         { extension: 'hbs', isMixedContent: true, scriptKind: 7 },
       ],
 
+      // Allow extension-less imports, e.g. `import Foo from './Foo`.
+      // Upstream Volar support for our extension-less use case was added here:
+      // https://github.com/volarjs/volar.js/pull/190
       resolveHiddenExtensions: true,
 
       // This is called when TS requests the file that we'll be typechecking, which in our case
