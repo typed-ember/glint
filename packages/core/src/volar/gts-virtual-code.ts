@@ -50,6 +50,8 @@ export class VirtualGtsCode implements VirtualCode {
       sourceOffsets: [0],
       generatedOffsets: [0],
       lengths: [length],
+
+      // This controls which language service features are enabled within this root virtual code
       data: {
         completion: true,
         format: true,
@@ -104,6 +106,8 @@ export class VirtualGtsCode implements VirtualCode {
               generatedOffsets: [0],
               lengths: [length],
 
+              // This controls which language service features are enabled within this root virtual code.
+              // Since this is just .ts, we want all of them enabled.
               data: {
                 completion: true,
                 format: false,
