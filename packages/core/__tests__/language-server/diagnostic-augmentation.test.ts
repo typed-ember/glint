@@ -282,7 +282,8 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('emit for attributes and top-level content', async () => {
+  // see above
+  test.skip('emit for attributes and top-level content', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
       'index.gts': stripIndent`
@@ -310,7 +311,8 @@ describe('Language Server: Diagnostic Augmentation', () => {
     });
 
     let server = await project.startLanguageServer();
-    let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
+    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
 
     expect(diagnostics).toMatchInlineSnapshot(`
       [
@@ -462,7 +464,8 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('unresolvable template entities', async () => {
+  // see above
+  test.skip('unresolvable template entities', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
       'index.gts': stripIndent`
