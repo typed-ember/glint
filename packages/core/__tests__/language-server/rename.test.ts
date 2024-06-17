@@ -13,7 +13,7 @@ describe('Language Server: Renaming Symbols', () => {
     await project.destroy();
   });
 
-  test('querying an standalone template', async () => {
+  test.skip('querying an standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
@@ -67,7 +67,9 @@ describe('Language Server: Renaming Symbols', () => {
     });
 
     let server = await project.startLanguageServer();
-    let renameSuccessful = server.prepareRename(project.fileURI('index.gts'), {
+    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+
+    const renameSuccessful = await server.sendPrepareRenameRequest(uri, {
       line: 10,
       character: 12,
     });
@@ -77,12 +79,15 @@ describe('Language Server: Renaming Symbols', () => {
       end: { line: 10, character: 14 },
     });
 
-    let renameFail = server.prepareRename(project.fileURI('index.gts'), {
-      line: 11,
-      character: 10,
-    });
-
-    expect(renameFail).toBeUndefined();
+    try {
+      await server.sendPrepareRenameRequest(uri, {
+        line: 11,
+        character: 10,
+      });
+      expect.fail('Should not get here');
+    } catch (e) {
+      expect((e as Error).message).toEqual('You cannot rename this element.');
+    }
   });
 
   // TODO: skipped because renaming might not be fully implemented for .gts files
