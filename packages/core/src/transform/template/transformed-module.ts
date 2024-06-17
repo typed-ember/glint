@@ -240,14 +240,17 @@ export default class TransformedModule {
 
     let recurse = (span: CorrelatedSpan, mapping: MappingTree) => {
       const children = mapping.children;
+      let { originalRange, transformedRange } = mapping;
+      let hbsStart = span.originalStart + originalRange.start;
+      let hbsEnd = span.originalStart + originalRange.end;
+      let tsStart = span.transformedStart + transformedRange.start;
+      let tsEnd = span.transformedStart + transformedRange.end;
+
       if (children.length === 0) {
-        let { originalRange, transformedRange } = mapping;
-        let hbsStart = span.originalStart + originalRange.start;
-        let hbsEnd = span.originalStart + originalRange.end;
-        let tsStart = span.transformedStart + transformedRange.start;
-        let tsEnd = span.transformedStart + transformedRange.end;
+        // leaf node
+
         const length = hbsEnd - hbsStart;
-        // assert(length === tsEnd - tsStart, 'span length mismatch for leaf mapping');
+
         if (length === tsEnd - tsStart) {
           // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
           // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
@@ -269,9 +272,22 @@ export default class TransformedModule {
           // in the mean time we will just produce zero-length boundary markers for Volar.
         }
       } else {
+        // here we want to install zero-length mappings on the boundaries
+
+        // TODO: consider re-enabling these zero-length boundary mappings, but for now
+        // they don't solve the problem of lack of granularity
+        // sourceOffsets.push(hbsStart);
+        // generatedOffsets.push(tsStart);
+        // lengths.push(0);
+
         mapping.children.forEach((child) => {
           recurse(span, child);
         });
+
+        // TODO: see above
+        // sourceOffsets.push(hbsEnd);
+        // generatedOffsets.push(tsEnd);
+        // lengths.push(0);
       }
     };
 
