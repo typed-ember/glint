@@ -91,7 +91,7 @@ describe('Language Server: Renaming Symbols', () => {
   });
 
   // TODO: skipped because renaming might not be fully implemented for .gts files
-  test.only('renaming an arg', async () => {
+  test.skip('renaming an arg', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
