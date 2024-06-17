@@ -217,18 +217,60 @@ export default class TransformedModule {
     assert(false, 'Internal error: offset out of bounds');
   }
 
+  /**
+   * Converts the mappings in this transformed module to the format expected by Volar.
+   * 
+   * The main difference between the two formats is that while the classic Glint transformation
+   * mappings support mapping a differently sized source region to a differently sized target region
+   * (e.g. `{{expectsAtLeastOneArg}}` in an .hbs file to `χ.emitContent(χ.resolveOrReturn(expectsAtLeastOneArg)());`
+   * in a generated TS file, in Volar you can only map regions of the same size.
+   * 
+   * In the case that you need to map regions of different sizes in Volar, you need to also using
+   * zero-length mappings to delineate regions/boundaries that should map to each other, otherwise there will
+   * be cases where TS diagnostics will fail to transform/map back to the original source. Example:
+   * 
+   * - `{{[[ZEROLEN-A]][[expectsAtLeastOneArg]][[ZEROLEN-B]]}}`
+   * - to
+   * - `[[ZEROLEN-A]]χ.emitContent(χ.resolveOrReturn([[expectsAtLeastOneArg]])());[[ZEROLEN-B]]`
+   */
   public toVolarMappings() {
     const sourceOffsets: number[] = [];
     const generatedOffsets: number[] = [];
     const lengths: number[] = [];
 
-    let eachLeafMapping = (mapping: MappingTree, callback: (m: MappingTree) => void) => {
+    let recurse = (span: CorrelatedSpan, mapping: MappingTree) => {
       const children = mapping.children;
       if (children.length === 0) {
-        callback(mapping);
+        let { originalRange, transformedRange } = mapping;
+        let hbsStart = span.originalStart + originalRange.start;
+        let hbsEnd = span.originalStart + originalRange.end;
+        let tsStart = span.transformedStart + transformedRange.start;
+        let tsEnd = span.transformedStart + transformedRange.end;
+        const length = hbsEnd - hbsStart;
+        // assert(length === tsEnd - tsStart, 'span length mismatch for leaf mapping');
+        if (length === tsEnd - tsStart) {
+          // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
+          // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
+          sourceOffsets.push(hbsStart);
+          generatedOffsets.push(tsStart);
+          lengths.push(length);
+        } else {
+          // This isn't common but there are a few cases where we are not currently going as
+          // "deep" as we good into the mapping tree to produce equal-size leaf nodes; here
+          // is one example (using `toDebugString()`)
+          //
+          // | | | Mapping: MustacheStatement
+          // | | |  hbs(686:723): {{yield to="expectsAtLeastOneParam"}}
+          // | | |  ts(1025:1073):χ.yieldToBlock(𝚪, "expectsAtLeastOneParam")()
+
+          // It may make sense to rework the mappings for yields and other cases so that
+          // the leaf nodes are equal-sized identifiers
+          // (e.g. expectsAtLeastOneParam (hbs) -> expectsAtLeastOneParam(ts) ), but
+          // in the mean time we will just produce zero-length boundary markers for Volar.
+        }
       } else {
         mapping.children.forEach((child) => {
-          eachLeafMapping(child, callback);
+          recurse(span, child);
         });
       }
     };
@@ -237,22 +279,7 @@ export default class TransformedModule {
       if (span.mapping) {
         // this span is transformation from embedded <template> to TS.
 
-        eachLeafMapping(span.mapping, (mapping) => {
-          let { originalRange, transformedRange } = mapping;
-          let hbsStart = span.originalStart + originalRange.start;
-          let hbsEnd = span.originalStart + originalRange.end;
-          let tsStart = span.transformedStart + transformedRange.start;
-          let tsEnd = span.transformedStart + transformedRange.end;
-          const length = hbsEnd - hbsStart;
-          // assert(length === tsEnd - tsStart, 'span length mismatch for leaf mapping');
-          if (length === tsEnd - tsStart) {
-            // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
-            // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
-            sourceOffsets.push(hbsStart);
-            generatedOffsets.push(tsStart);
-            lengths.push(length);
-          }
-        });
+        recurse(span, span.mapping);
       } else {
         // untransformed TS code (between <template> tags). Because there's no
         // transformation, we expect these to be the same length (in fact, they
