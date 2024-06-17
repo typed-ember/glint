@@ -17,7 +17,7 @@ It's similar in concept to (and built on) the [`expect-type`][et] library.
 For strict-mode templates, the `expectTypeOf` helper and `to` collection of expectations are
 both directly importable from `@glint/type-test`.
 
-```tsx
+```gts
 import { expectTypeOf, to } from '@glint/type-test';
 
 let letters = ['a', 'b', 'c'];
@@ -35,7 +35,7 @@ let letters = ['a', 'b', 'c'];
 For "classic" loose-mode Ember templates, `@glint/type-test` provides a `typeTest` wrapper that
 will pass `expectTypeOf` and `to` to your template as args:
 
-```tsx
+```ts
 import { typeTest } from '@glint/type-test';
 import { hbs } from 'ember-cli-htmlbars';
 
@@ -52,7 +52,7 @@ typeTest(
 You can also optionally provide an initial `this` value to `typeTest` to make values available
 in your template to either test inference against or to use as a basis for comparing type equality.
 
-```tsx
+```ts
 import { typeTest } from '@glint/type-test';
 import { hbs } from 'ember-cli-htmlbars';
 
@@ -72,7 +72,7 @@ typeTest(
 This library provides a set of expectations to compare the type of a given value to common simple
 types.
 
-```tsx
+```gts
 import { expectTypeOf, to } from '@glint/type-test';
 
 let symbolValue = Symbol('hi');
@@ -95,7 +95,7 @@ let neverValue: never = (null as never);
 
 It also provides expectations that allow you to compare the type of one value to that of another.
 
-```tsx
+```gts
 import { expectTypeOf, to } from '@glint/type-test';
 
 let a: 'a' | 'b' = 'a';
