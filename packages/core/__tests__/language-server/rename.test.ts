@@ -91,7 +91,7 @@ describe('Language Server: Renaming Symbols', () => {
   });
 
   // TODO: skipped because renaming might not be fully implemented for .gts files
-  test.skip('renaming an arg', async () => {
+  test.only('renaming an arg', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -123,15 +123,15 @@ describe('Language Server: Renaming Symbols', () => {
           {
             newText: 'greeting',
             range: {
-              end: { character: 9, line: 3 },
-              start: { character: 2, line: 3 },
+              end: { character: 22, line: 7 },
+              start: { character: 15, line: 7 },
             },
           },
           {
             newText: 'greeting',
             range: {
-              end: { character: 34, line: 7 },
-              start: { character: 27, line: 7 },
+              end: { character: 9, line: 3 },
+              start: { character: 2, line: 3 },
             },
           },
         ],
@@ -148,7 +148,9 @@ describe('Language Server: Renaming Symbols', () => {
     };
 
     // Rename `@message` at the point where we pass it to the component
-    let renamePassedArg = server.getEditsForRename(
+    await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+
+    let renamePassedArg = await server.sendRenameRequest(
       project.fileURI('index.gts'),
       { line: 5, character: 17 },
       'greeting'
@@ -156,8 +158,10 @@ describe('Language Server: Renaming Symbols', () => {
 
     expect(renamePassedArg).toEqual(expectedWorkspaceEdit);
 
+    await server.openTextDocument(project.filePath('greeting.gts'), 'glimmer-ts');
+
     // Rename `@message` where we use it in the template
-    let renameReferencedArg = server.getEditsForRename(
+    let renameReferencedArg = await server.sendRenameRequest(
       project.fileURI('greeting.gts'),
       { line: 7, character: 31 },
       'greeting'
@@ -166,7 +170,8 @@ describe('Language Server: Renaming Symbols', () => {
     expect(renameReferencedArg).toEqual(expectedWorkspaceEdit);
 
     // Rename `@message` where we its type is declared
-    let renameDeclaredArg = server.getEditsForRename(
+    // let renameDeclaredArg = server.getEditsForRename(
+    let renameDeclaredArg = await server.sendRenameRequest(
       project.fileURI('greeting.gts'),
       { line: 3, character: 2 },
       'greeting'
