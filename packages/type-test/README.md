@@ -17,7 +17,7 @@ It's similar in concept to (and built on) the [`expect-type`][et] library.
 For strict-mode templates, the `expectTypeOf` helper and `to` collection of expectations are
 both directly importable from `@glint/type-test`.
 
-```gts
+```glimmer-ts
 import { expectTypeOf, to } from '@glint/type-test';
 
 let letters = ['a', 'b', 'c'];
@@ -72,7 +72,7 @@ typeTest(
 This library provides a set of expectations to compare the type of a given value to common simple
 types.
 
-```gts
+```glimmer-ts
 import { expectTypeOf, to } from '@glint/type-test';
 
 let symbolValue = Symbol('hi');
@@ -95,7 +95,7 @@ let neverValue: never = (null as never);
 
 It also provides expectations that allow you to compare the type of one value to that of another.
 
-```gts
+```glimmer-ts
 import { expectTypeOf, to } from '@glint/type-test';
 
 let a: 'a' | 'b' = 'a';
