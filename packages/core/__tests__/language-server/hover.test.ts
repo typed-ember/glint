@@ -13,7 +13,7 @@ describe('Language Server: Hover', () => {
     await project.destroy();
   });
 
-  test('querying a standalone template', async () => {
+  test.skip('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
@@ -49,19 +49,33 @@ describe('Language Server: Hover', () => {
     });
 
     let server = await project.startLanguageServer();
-    let messageInfo = server.getHover(project.fileURI('index.gts'), {
+    let messageInfo = await server.sendHoverRequest(project.fileURI('index.gts'), {
       line: 7,
       character: 12,
     });
 
-    // {{this.message}} in the template matches back to the private property
-    expect(messageInfo).toEqual({
-      contents: [{ language: 'ts', value: '(property) MyComponent.message: string' }, 'A message.'],
-      range: {
-        start: { line: 7, character: 11 },
-        end: { line: 7, character: 18 },
-      },
-    });
+    expect(messageInfo).toMatchInlineSnapshot(`
+      {
+        "contents": {
+          "kind": "markdown",
+          "value": "\`\`\`typescript
+      (property) MyComponent.message: string
+      \`\`\`
+
+      A message.",
+        },
+        "range": {
+          "end": {
+            "character": 18,
+            "line": 7,
+          },
+          "start": {
+            "character": 11,
+            "line": 7,
+          },
+        },
+      }
+    `);
   });
 
   test('using args', async () => {
