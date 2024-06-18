@@ -519,11 +519,11 @@ describe('Transform: rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(0:44):    <template>\\n  Hello, {{@target}}!\\n</template>
-        |  ts(0:270):    export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(𝚪, χ: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {\\n  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)());\\n  𝚪; χ;\\n})
+        |  ts(0:266):    export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(𝚪, χ: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {\\nχ.emitContent(χ.resolveOrReturn(𝚪.args.target)());\\n𝚪; χ;\\n})
         |
         | | Mapping: Template
         | |  hbs(10:33):   Hello, {{@target}}!
-        | |  ts(205:259):  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)());
+        | |  ts(205:257):  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)());
         | |
         | | | Mapping: TextContent
         | | |  hbs(13:19):   Hello,
@@ -531,21 +531,26 @@ describe('Transform: rewriteModule', () => {
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(20:31):   {{@target}}
-        | | |  ts(205:257):  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)())
+        | | |  ts(205:255):  χ.emitContent(χ.resolveOrReturn(𝚪.args.target)())
         | | |
-        | | | | Mapping: PathExpression
-        | | | |  hbs(22:29):   @target
-        | | | |  ts(239:253):  𝚪.args.target
+        | | | | Mapping: MustacheStatement
+        | | | |  hbs(20:31):   {{@target}}
+        | | | |  ts(219:254):  χ.resolveOrReturn(𝚪.args.target)()
         | | | |
-        | | | | | Mapping: Identifier
-        | | | | |  hbs(23:29):   target
-        | | | | |  ts(247:253):  target
+        | | | | | Mapping: PathExpression
+        | | | | |  hbs(22:29):   @target
+        | | | | |  ts(237:251):  𝚪.args.target
+        | | | | |
+        | | | | | | Mapping: Identifier
+        | | | | | |  hbs(23:29):   target
+        | | | | | |  ts(245:251):  target
+        | | | | | |
         | | | | |
         | | | |
         | | |
         | | | Mapping: TextContent
         | | |  hbs(31:32):   !
-        | | |  ts(259:259):
+        | | |  ts(257:257):
         | | |
         | |
         |"
