@@ -18,7 +18,7 @@ describe('Language Server: Hover', () => {
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
     let server = await project.startLanguageServer();
-    let info = server.getHover(project.fileURI('index.hbs'), {
+    let info = await server.sendHoverRequest(project.fileURI('index.hbs'), {
       line: 0,
       character: 17,
     });
@@ -143,33 +143,59 @@ describe('Language Server: Hover', () => {
     });
 
     let server = await project.startLanguageServer();
-    let indexInfo = server.getHover(project.fileURI('index.gts'), {
+    let indexInfo = await server.sendHoverRequest(project.fileURI('index.gts'), {
       line: 5,
       character: 14,
     });
 
     // {{index}} in the template matches back to the block param
-    expect(indexInfo).toEqual({
-      contents: [{ language: 'ts', value: 'const index: number' }],
-      range: {
-        start: { line: 5, character: 14 },
-        end: { line: 5, character: 19 },
-      },
-    });
+    expect(indexInfo).toMatchInlineSnapshot(`
+      {
+        "contents": {
+          "kind": "markdown",
+          "value": "\`\`\`typescript
+      const index: number
+      \`\`\`",
+        },
+        "range": {
+          "end": {
+            "character": 19,
+            "line": 5,
+          },
+          "start": {
+            "character": 14,
+            "line": 5,
+          },
+        },
+      }
+    `);
 
-    let itemInfo = server.getHover(project.fileURI('index.gts'), {
+    let itemInfo = await server.sendHoverRequest(project.fileURI('index.gts'), {
       line: 5,
       character: 25,
     });
 
     // {{item}} in the template matches back to the block param
-    expect(itemInfo).toEqual({
-      contents: [{ language: 'ts', value: 'const item: string' }],
-      range: {
-        start: { line: 5, character: 25 },
-        end: { line: 5, character: 29 },
-      },
-    });
+    expect(itemInfo).toMatchInlineSnapshot(`
+      {
+        "contents": {
+          "kind": "markdown",
+          "value": "\`\`\`typescript
+      const item: string
+      \`\`\`",
+        },
+        "range": {
+          "end": {
+            "character": 29,
+            "line": 5,
+          },
+          "start": {
+            "character": 25,
+            "line": 5,
+          },
+        },
+      }
+    `);
   });
 
   test('module details', async () => {
@@ -185,7 +211,7 @@ describe('Language Server: Hover', () => {
     });
 
     let server = await project.startLanguageServer();
-    let info = server.getHover(project.fileURI('index.ts'), {
+    let info = await server.sendHoverRequest(project.fileURI('index.ts'), {
       line: 0,
       character: 24,
     });
@@ -218,7 +244,7 @@ describe('Language Server: Hover', () => {
       });
 
       let server = await project.startLanguageServer();
-      let info = server.getHover(project.fileURI('index.hbs'), {
+      let info = await server.sendHoverRequest(project.fileURI('index.hbs'), {
         line: 0,
         character: 10,
       });
@@ -253,7 +279,7 @@ describe('Language Server: Hover', () => {
       });
 
       let server = await project.startLanguageServer();
-      let info = server.getHover(project.fileURI('index.hbs'), {
+      let info = await server.sendHoverRequest(project.fileURI('index.hbs'), {
         line: 0,
         character: 10,
       });
