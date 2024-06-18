@@ -114,10 +114,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  // TODO: there is an issue with diagnostics happening within
-  // the "null zones" of the VirtualCode mapping, awaiting response
-  // from Volar team on how to resolve
-  test.skip('expected argument count', async () => {
+  test('expected argument count', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
       'index.gts': stripIndent`
@@ -157,10 +154,18 @@ describe('Language Server: Diagnostic Augmentation', () => {
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
     let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2554,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file://PATH_TO/FILE",
+            "version": 0,
+          },
           "message": "Expected 2 arguments, but got 1.",
           "range": {
             "end": {
@@ -172,12 +177,37 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 19,
             },
           },
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 44,
+                    "line": 9,
+                  },
+                  "start": {
+                    "character": 35,
+                    "line": 9,
+                  },
+                },
+                "uri": "file://PATH_TO/FILE",
+              },
+              "message": "An argument for 'b' was not provided.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2554,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file://PATH_TO/FILE",
+            "version": 0,
+          },
           "message": "Expected 2 arguments, but got 3.",
           "range": {
             "end": {
@@ -191,27 +221,41 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2554,
-          "message": "Expected 2 arguments, but got 3. Note that named args are passed together as a final argument, so they collectively increase the given arg count by 1.",
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file://PATH_TO/FILE",
+            "version": 0,
+          },
+          "message": "Expected 2 arguments, but got 3.",
           "range": {
             "end": {
-              "character": 41,
+              "character": 39,
               "line": 21,
             },
             "start": {
-              "character": 4,
+              "character": 29,
               "line": 21,
             },
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2555,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file://PATH_TO/FILE",
+            "version": 0,
+          },
           "message": "Expected at least 1 arguments, but got 0.",
           "range": {
             "end": {
@@ -223,12 +267,37 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 22,
             },
           },
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 39,
+                    "line": 13,
+                  },
+                  "start": {
+                    "character": 30,
+                    "line": 13,
+                  },
+                },
+                "uri": "file://PATH_TO/FILE",
+              },
+              "message": "An argument for 'a' was not provided.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2554,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file://PATH_TO/FILE",
+            "version": 0,
+          },
           "message": "Expected 2 arguments, but got 1.",
           "range": {
             "end": {
@@ -242,10 +311,17 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2554,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file://PATH_TO/FILE",
+            "version": 0,
+          },
           "message": "Expected 2 arguments, but got 3.",
           "range": {
             "end": {
@@ -259,10 +335,17 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2555,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file://PATH_TO/FILE",
+            "version": 0,
+          },
           "message": "Expected at least 1 arguments, but got 0.",
           "range": {
             "end": {
@@ -274,9 +357,26 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 26,
             },
           },
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 48,
+                    "line": 115,
+                  },
+                  "start": {
+                    "character": 4,
+                    "line": 115,
+                  },
+                },
+                "uri": "file:///Users/machty/code/glint/packages/template/-private/dsl/emit.d.ts",
+              },
+              "message": "Arguments for the rest parameter 'values' were not provided.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
       ]
     `);
