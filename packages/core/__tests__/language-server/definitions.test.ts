@@ -125,24 +125,51 @@ describe('Language Server: Definitions', () => {
     });
 
     let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
+    let definitions = await server.sendDefinitionRequestNormalized(project.fileURI('index.gts'), {
       line: 5,
       character: 17,
     });
 
-    expect(definitions).toEqual([
-      {
-        uri: project.fileURI('greeting.gts'),
-        range: {
-          start: { line: 3, character: 2 },
-          end: { line: 3, character: 9 },
+    expect(definitions).toMatchInlineSnapshot(`
+      [
+        {
+          "originSelectionRange": {
+            "end": {
+              "character": 22,
+              "line": 5,
+            },
+            "start": {
+              "character": 14,
+              "line": 5,
+            },
+          },
+          "targetRange": {
+            "end": {
+              "character": 18,
+              "line": 3,
+            },
+            "start": {
+              "character": 2,
+              "line": 3,
+            },
+          },
+          "targetSelectionRange": {
+            "end": {
+              "character": 9,
+              "line": 3,
+            },
+            "start": {
+              "character": 2,
+              "line": 3,
+            },
+          },
+          "targetUri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
-      },
-    ]);
+      ]
+    `);
   });
 
-  // TODO: skipped because .gts files might not fully support this yet
-  test.skip('arg use', async () => {
+  test('arg use', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -158,20 +185,48 @@ describe('Language Server: Definitions', () => {
     });
 
     let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('greeting.gts'), {
+    let definitions = await server.sendDefinitionRequestNormalized(project.fileURI('greeting.gts'), {
       line: 7,
-      character: 30,
+      character: 18,
     });
 
-    expect(definitions).toEqual([
-      {
-        uri: project.fileURI('greeting.gts'),
-        range: {
-          start: { line: 3, character: 2 },
-          end: { line: 3, character: 9 },
+    expect(definitions).toMatchInlineSnapshot(`
+      [
+        {
+          "originSelectionRange": {
+            "end": {
+              "character": 22,
+              "line": 7,
+            },
+            "start": {
+              "character": 15,
+              "line": 7,
+            },
+          },
+          "targetRange": {
+            "end": {
+              "character": 18,
+              "line": 3,
+            },
+            "start": {
+              "character": 2,
+              "line": 3,
+            },
+          },
+          "targetSelectionRange": {
+            "end": {
+              "character": 9,
+              "line": 3,
+            },
+            "start": {
+              "character": 2,
+              "line": 3,
+            },
+          },
+          "targetUri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
-      },
-    ]);
+      ]
+    `);
   });
 
   test('import source', async () => {
