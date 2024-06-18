@@ -225,7 +225,11 @@ export function mapTemplateContents(
     newline() {
       offset += 1;
       segmentsStack[0].push('\n');
-      needsIndent = true;
+
+      // This was disabled in Volar-ized glint, as it messes up an otherwise usable
+      // TS diagnostic boundary. It appears to be cosmetic only, and hidden away in the
+      // Intermediate Representation, so I've commented it ou.
+      // needsIndent = true;
     },
     text(value: string) {
       if (needsIndent) {
