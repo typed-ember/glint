@@ -1,5 +1,6 @@
 import MappingTree from './mapping-tree.js';
 import { assert } from '../util.js';
+import { CodeMapping } from '@volar/language-core';
 
 export type Range = { start: number; end: number };
 export type RangeWithMapping = Range & { mapping?: MappingTree };
@@ -233,7 +234,7 @@ export default class TransformedModule {
    * - to
    * - `[[ZEROLEN-A]]χ.emitContent(χ.resolveOrReturn([[expectsAtLeastOneArg]])());[[ZEROLEN-B]]`
    */
-  public toVolarMappings() {
+  public toVolarMappings(): CodeMapping[] {
     const sourceOffsets: number[] = [];
     const generatedOffsets: number[] = [];
     const lengths: number[] = [];
@@ -310,11 +311,6 @@ export default class TransformedModule {
 
     return [
       {
-        // sourceOffsets: [],
-        // generatedOffsets: [],
-        // lengths: [],
-
-        // Hacked hardwired values for now.
         sourceOffsets,
         generatedOffsets,
         lengths,
