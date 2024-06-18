@@ -96,7 +96,16 @@ export class Project {
         const value = (await languageServerHandle.sendDocumentDiagnosticRequest(
           uri
         )) as FullDocumentDiagnosticReport;
-        return this.normalizedDiagnostics(uri, value.items);
+
+        return this.normalizeForSnapshotting(uri, value.items) as Diagnostic[];
+      },
+
+      sendDefinitionRequestNormalized: async (uri: string, position: Position) => {
+        const value = await languageServerHandle.sendDefinitionRequest(uri, position);
+
+        return this.normalizeForSnapshotting(uri, value) as Awaited<
+          ReturnType<typeof languageServerHandle.sendDefinitionRequest>
+        >;
       },
 
       /**
@@ -120,7 +129,7 @@ export class Project {
   }
 
   /**
-   * Processes the diagnostics passed in and converts any absolute URIs to
+   * Processes the language server return object passed in and converts any absolute URIs to
    * local files (which differ between localhost and CI) to static strings
    * so that they can be easily snapshotted in tests using `toMatchInlineSnapshot`.
    *
@@ -128,8 +137,8 @@ export class Project {
    * @param diagnosticItems
    * @returns array of diagnostic
    */
-  normalizedDiagnostics(uri: string, diagnosticItems: any[]): Diagnostic[] {
-    let stringified = JSON.stringify(diagnosticItems);
+  normalizeForSnapshotting(uri: string, object: unknown) {
+    let stringified = JSON.stringify(object);
 
     const volarEmbeddedContentUri = URI.from({
       scheme: 'volar-embedded-content',
@@ -142,7 +151,7 @@ export class Project {
         volarEmbeddedContentUri.toString(),
         `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
       )
-      .replaceAll(uri, `file://PATH_TO/FILE`);
+      .replaceAll(this.fileURI('.'), 'file:///PATH_TO_EPHEMERAL_TEST_PROJECT');
 
     return JSON.parse(normalized);
   }

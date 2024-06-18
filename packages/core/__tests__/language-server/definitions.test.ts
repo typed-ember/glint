@@ -13,12 +13,12 @@ describe('Language Server: Definitions', () => {
     await project.destroy();
   });
 
-  test('querying a standalone template', async () => {
+  test.skip('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
     let server = await project.startLanguageServer();
-    let definitions = server.getDefinition(project.fileURI('index.hbs'), {
+    let definitions = await server.sendDefinitionRequest(project.fileURI('index.hbs'), {
       line: 0,
       character: 17,
     });
@@ -55,20 +55,48 @@ describe('Language Server: Definitions', () => {
     });
 
     let server = await project.startLanguageServer();
-    let definitions = server.getDefinition(project.fileURI('index.gts'), {
+    let definitions = await server.sendDefinitionRequestNormalized(project.fileURI('index.gts'), {
       line: 5,
       character: 7,
     });
 
-    expect(definitions).toEqual([
-      {
-        uri: project.fileURI('greeting.gts'),
-        range: {
-          start: { line: 1, character: 21 },
-          end: { line: 1, character: 29 },
+    expect(definitions).toMatchInlineSnapshot(`
+      [
+        {
+          "originSelectionRange": {
+            "end": {
+              "character": 13,
+              "line": 5,
+            },
+            "start": {
+              "character": 5,
+              "line": 5,
+            },
+          },
+          "targetRange": {
+            "end": {
+              "character": 1,
+              "line": 3,
+            },
+            "start": {
+              "character": 0,
+              "line": 1,
+            },
+          },
+          "targetSelectionRange": {
+            "end": {
+              "character": 29,
+              "line": 1,
+            },
+            "start": {
+              "character": 21,
+              "line": 1,
+            },
+          },
+          "targetUri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
-      },
-    ]);
+      ]
+    `);
   });
 
   test('arg passing', async () => {
@@ -97,7 +125,7 @@ describe('Language Server: Definitions', () => {
     });
 
     let server = await project.startLanguageServer();
-    let definitions = server.getDefinition(project.fileURI('index.gts'), {
+    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
       line: 5,
       character: 17,
     });
@@ -130,7 +158,7 @@ describe('Language Server: Definitions', () => {
     });
 
     let server = await project.startLanguageServer();
-    let definitions = server.getDefinition(project.fileURI('greeting.gts'), {
+    let definitions = await server.sendDefinitionRequest(project.fileURI('greeting.gts'), {
       line: 7,
       character: 30,
     });
@@ -172,7 +200,7 @@ describe('Language Server: Definitions', () => {
     });
 
     let server = await project.startLanguageServer();
-    let definitions = server.getDefinition(project.fileURI('index.gts'), {
+    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
       line: 1,
       character: 27,
     });

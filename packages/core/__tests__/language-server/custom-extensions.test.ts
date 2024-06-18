@@ -36,7 +36,7 @@ describe('Language Server: custom file extensions', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file://PATH_TO/FILE",
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Type 'number' is not assignable to type 'string'.",
