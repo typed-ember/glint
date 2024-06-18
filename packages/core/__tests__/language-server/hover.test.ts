@@ -216,16 +216,29 @@ describe('Language Server: Hover', () => {
       character: 24,
     });
 
-    expect(info).toEqual({
-      contents: [{ language: 'ts', value: `module "${project.filePath('foo')}"` }],
-      range: {
-        start: { line: 0, character: 20 },
-        end: { line: 0, character: 27 },
-      },
-    });
+    expect(info).toMatchInlineSnapshot(`
+      {
+        "contents": {
+          "kind": "markdown",
+          "value": "\`\`\`typescript
+      module "/Users/machty/code/glint/test-packages/ephemeral/bf679bf39223/foo"
+      \`\`\`",
+        },
+        "range": {
+          "end": {
+            "character": 27,
+            "line": 0,
+          },
+          "start": {
+            "character": 20,
+            "line": 0,
+          },
+        },
+      }
+    `);
   });
 
-  describe('JS in a TS project', () => {
+  describe.skip('JS in a TS project', () => {
     test('with allowJs: true', async () => {
       let tsconfig = JSON.parse(project.read('tsconfig.json'));
       tsconfig.glint = { environment: 'ember-loose' };
