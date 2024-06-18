@@ -1150,13 +1150,19 @@ export function templateToTypescript(
       | AST.ElementModifierStatement;
 
     function emitResolve(node: CurlyInvocationNode, resolveType: string): void {
-      emit.text('χ.');
-      emit.text(resolveType);
-      emit.text('(');
-      emitExpression(node.path);
-      emit.text(')(');
-      emitArgs(node.params, node.hash);
-      emit.text(')');
+      // We use forNode here to wrap the emitted resolve expression here so that when
+      // we convert to Volar mappings, we can create a boundary around
+      // e.g. "χ.resolveOrReturn(expectsAtLeastOneArg)()", which is required because
+      // this is where TS might generate a diagnostic error.
+      emit.forNode(node, () => {
+        emit.text('χ.');
+        emit.text(resolveType);
+        emit.text('(');
+        emitExpression(node.path);
+        emit.text(')(');
+        emitArgs(node.params, node.hash);
+        emit.text(')');
+      });
     }
 
     function emitArgs(positional: Array<AST.Expression>, named: AST.Hash): void {
@@ -1171,24 +1177,31 @@ export function templateToTypescript(
 
       // Emit named args
       if (named.pairs.length) {
-        emit.text(positional.length ? ', { ' : '{ ');
-
-        let { start } = rangeForNode(named);
-        for (let [index, pair] of named.pairs.entries()) {
-          start = template.indexOf(pair.key, start);
-          emitHashKey(pair.key, start);
-          emit.text(': ');
-          emitExpression(pair.value);
-
-          if (index === named.pairs.length - 1) {
-            emit.text(' ');
-          }
-
-          start = rangeForNode(pair.value).end;
+        if (positional.length) {
           emit.text(', ');
         }
 
-        emit.text('...χ.NamedArgsMarker }');
+        // TS diagnostic error boundary
+        emit.forNode(named, () => {
+          emit.text('{ ');
+
+          let { start } = rangeForNode(named);
+          for (let [index, pair] of named.pairs.entries()) {
+            start = template.indexOf(pair.key, start);
+            emitHashKey(pair.key, start);
+            emit.text(': ');
+            emitExpression(pair.value);
+
+            if (index === named.pairs.length - 1) {
+              emit.text(' ');
+            }
+
+            start = rangeForNode(pair.value).end;
+            emit.text(', ');
+          }
+
+          emit.text('...χ.NamedArgsMarker }');
+        });
       }
     }
 

@@ -219,16 +219,16 @@ export default class TransformedModule {
 
   /**
    * Converts the mappings in this transformed module to the format expected by Volar.
-   * 
+   *
    * The main difference between the two formats is that while the classic Glint transformation
    * mappings support mapping a differently sized source region to a differently sized target region
    * (e.g. `{{expectsAtLeastOneArg}}` in an .hbs file to `χ.emitContent(χ.resolveOrReturn(expectsAtLeastOneArg)());`
    * in a generated TS file, in Volar you can only map regions of the same size.
-   * 
+   *
    * In the case that you need to map regions of different sizes in Volar, you need to also using
    * zero-length mappings to delineate regions/boundaries that should map to each other, otherwise there will
    * be cases where TS diagnostics will fail to transform/map back to the original source. Example:
-   * 
+   *
    * - `{{[[ZEROLEN-A]][[expectsAtLeastOneArg]][[ZEROLEN-B]]}}`
    * - to
    * - `[[ZEROLEN-A]]χ.emitContent(χ.resolveOrReturn([[expectsAtLeastOneArg]])());[[ZEROLEN-B]]`
@@ -248,46 +248,37 @@ export default class TransformedModule {
 
       if (children.length === 0) {
         // leaf node
-
-        const length = hbsEnd - hbsStart;
-
-        if (length === tsEnd - tsStart) {
+        const hbsLength = hbsEnd - hbsStart;
+        const tsLength = tsEnd - tsStart;
+        if (hbsLength === tsLength) {
           // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
           // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
           sourceOffsets.push(hbsStart);
           generatedOffsets.push(tsStart);
-          lengths.push(length);
+          lengths.push(hbsLength);
         } else {
-          // This isn't common but there are a few cases where we are not currently going as
-          // "deep" as we good into the mapping tree to produce equal-size leaf nodes; here
-          // is one example (using `toDebugString()`)
-          //
-          // | | | Mapping: MustacheStatement
-          // | | |  hbs(686:723): {{yield to="expectsAtLeastOneParam"}}
-          // | | |  ts(1025:1073):χ.yieldToBlock(𝚪, "expectsAtLeastOneParam")()
-
-          // It may make sense to rework the mappings for yields and other cases so that
-          // the leaf nodes are equal-sized identifiers
-          // (e.g. expectsAtLeastOneParam (hbs) -> expectsAtLeastOneParam(ts) ), but
-          // in the mean time we will just produce zero-length boundary markers for Volar.
+          // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
+          if (hbsLength > 0 && tsLength > 0) {
+            sourceOffsets.push(hbsStart);
+            generatedOffsets.push(tsStart);
+            lengths.push(0);
+            sourceOffsets.push(hbsEnd);
+            generatedOffsets.push(tsEnd);
+            lengths.push(0);
+          }
         }
       } else {
-        // here we want to install zero-length mappings on the boundaries
-
-        // TODO: consider re-enabling these zero-length boundary mappings, but for now
-        // they don't solve the problem of lack of granularity
-        // sourceOffsets.push(hbsStart);
-        // generatedOffsets.push(tsStart);
-        // lengths.push(0);
+        sourceOffsets.push(hbsStart);
+        generatedOffsets.push(tsStart);
+        lengths.push(0);
 
         mapping.children.forEach((child) => {
           recurse(span, child);
         });
 
-        // TODO: see above
-        // sourceOffsets.push(hbsEnd);
-        // generatedOffsets.push(tsEnd);
-        // lengths.push(0);
+        sourceOffsets.push(hbsEnd);
+        generatedOffsets.push(tsEnd);
+        lengths.push(0);
       }
     };
 
@@ -300,7 +291,6 @@ export default class TransformedModule {
         // untransformed TS code (between <template> tags). Because there's no
         // transformation, we expect these to be the same length (in fact, they
         // should be the same string entirely)
-
 
         // This assertion seemed valid when parsing .gts files with extracted hbs in <template> tags,
         // but when parsing solo .hbs files in loose mode there were cases where, e.g.,
