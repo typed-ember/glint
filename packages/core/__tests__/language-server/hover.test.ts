@@ -97,22 +97,34 @@ describe('Language Server: Hover', () => {
     });
 
     let server = await project.startLanguageServer();
-    let strInfo = server.getHover(project.fileURI('index.gts'), {
+    let strInfo = await server.sendHoverRequest(project.fileURI('index.gts'), {
       line: 9,
       character: 7,
     });
 
     // {{@str}} in the template matches back to the arg definition
-    expect(strInfo).toEqual({
-      contents: [
-        { language: 'ts', value: '(property) MyComponentArgs.str: string' },
-        'Some string',
-      ],
-      range: {
-        start: { line: 9, character: 7 },
-        end: { line: 9, character: 10 },
-      },
-    });
+    expect(strInfo).toMatchInlineSnapshot(`
+      {
+        "contents": {
+          "kind": "markdown",
+          "value": "\`\`\`typescript
+      (property) MyComponentArgs.str: string
+      \`\`\`
+
+      Some string",
+        },
+        "range": {
+          "end": {
+            "character": 10,
+            "line": 9,
+          },
+          "start": {
+            "character": 7,
+            "line": 9,
+          },
+        },
+      }
+    `);
   });
 
   test('curly block params', async () => {
