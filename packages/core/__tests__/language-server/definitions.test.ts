@@ -262,12 +262,12 @@ describe('Language Server: Definitions', () => {
 
     expect(definitions).toMatchObject([
       {
-        uri: project.fileURI('greeting.gts'),
+        targetUri: project.fileURI('greeting.gts'),
 
         // Versions of TS vary on whether they consider the source to be
         // the entire module or just the first character, so we'll consider
         // the test passing as long as the loose shape is right.
-        range: {
+        targetRange: {
           start: { line: 0, character: 0 },
           end: {},
         },
