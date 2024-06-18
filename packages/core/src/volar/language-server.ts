@@ -39,8 +39,15 @@ connection.onInitialize((parameters) => {
         // so it might not buy us much value any more.
         const configLoader = new ConfigLoader();
         const glintConfig = configLoader.configForFile(configFileName);
-        assert(glintConfig, 'Glint config is missing');
-        languagePlugins.unshift(createGtsLanguagePlugin(glintConfig));
+
+        // TODO: this causes breakage if/when Glint activates for a non-Glint project.
+        // But if we don't assert, then we activate TS and Glint for non TS projects,
+        // which doubles diagnostics... how to disable the LS entirely if no Glint?
+        // assert(glintConfig, 'Glint config is missing');
+
+        if (glintConfig) {
+          languagePlugins.unshift(createGtsLanguagePlugin(glintConfig));
+        }
       }
 
       return languagePlugins;
