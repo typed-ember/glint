@@ -115,37 +115,43 @@ function filterAndAugmentDiagnostics(
     return diagnostics;
   }
 
-  let cachedTransformedModule: TransformedModule | null | undefined = undefined;
-
-  const mappingForDiagnostic = (diagnostic: vscode.Diagnostic): MappingTree | null => {
-    if (typeof cachedTransformedModule === 'undefined') {
-      cachedTransformedModule = null;
+  // Lazily fetch and cache the VirtualCode -- this might be a premature optimization
+  // after the code went through enough changes, so maybe safe to simplify in the future.
+  let cachedVirtualCode: VirtualGtsCode | null | undefined = undefined;
+  const fetchVirtualCode = (): VirtualGtsCode | null => {
+    if (typeof cachedVirtualCode === 'undefined') {
+      cachedVirtualCode = null;
 
       const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
       if (decoded) {
         const script = context.language.scripts.get(decoded[0]);
         const scriptRoot = script?.generated?.root;
         if (scriptRoot instanceof VirtualGtsCode) {
-          const transformedModule = scriptRoot.transformedModule;
-          if (transformedModule) {
-            cachedTransformedModule = transformedModule;
-          }
+          cachedVirtualCode = scriptRoot;
         }
       }
     }
 
-    if (!cachedTransformedModule) {
+    return cachedVirtualCode;
+  }
+
+  const mappingForDiagnostic = (diagnostic: vscode.Diagnostic): MappingTree | null => {
+    const transformedModule = fetchVirtualCode()?.transformedModule;
+
+    if (!transformedModule) {
       return null;
     }
 
     const range = diagnostic.range;
     const start = document.offsetAt(range.start);
     const end = document.offsetAt(range.end);
-    const rangeWithMappingAndSource = cachedTransformedModule.getOriginalRange(start, end);
+    const rangeWithMappingAndSource = transformedModule.getOriginalRange(start, end);
     return rangeWithMappingAndSource.mapping || null;
   };
 
-  return diagnostics.map((diagnostic) => {
+  const allDiagnostics: vscode.Diagnostic[] = [];
+
+  return diagnostics.forEach((diagnostic) => {
     diagnostic = {
       ...diagnostic,
       source: 'glint',
@@ -153,7 +159,7 @@ function filterAndAugmentDiagnostics(
 
     diagnostic = augmentDiagnostic(diagnostic as any, mappingForDiagnostic);
 
-    return diagnostic;
+    allDiagnostics.push(diagnostic);
   });
 }
 
