@@ -13,7 +13,7 @@ export type TS = typeof ts;
 /**
  * Create a [Volar](https://volarjs.dev) language module to support GTS.
  */
-export function createGtsLanguagePlugin(glintConfig: GlintConfig): LanguagePlugin<URI> {
+export function createGtsLanguagePlugin<T extends URI | string>(glintConfig: GlintConfig): LanguagePlugin<T> {
   return {
     /**
      * For files that are not opened in the IDE, the language ID will not be provided
@@ -25,14 +25,14 @@ export function createGtsLanguagePlugin(glintConfig: GlintConfig): LanguagePlugi
      * contexts, in which case this hook is called to determine it for a file based on its
      * extension.
      */
-    getLanguageId(uri) {
-      if (uri.path.endsWith('.gts')) {
+    getLanguageId(fileNameOrUri) {
+      if (String(fileNameOrUri).endsWith('.gts')) {
         return 'glimmer-ts';
       }
-      if (uri.path.endsWith('.gjs')) {
+      if (String(fileNameOrUri).endsWith('.gjs')) {
         return 'glimmer-js';
       }
-      if (uri.path.endsWith('.hbs')) {
+      if (String(fileNameOrUri).endsWith('.hbs')) {
         return 'handlebars';
       }
     },

@@ -115,6 +115,8 @@ if (argv.build) {
   let projects = [cwd];
 
   if (argv.watch) {
+    // build
+
     // performBuildWatch(ts, projects, buildOptions);
     throw new Error("TODO performBuildWatch");
   } else {
@@ -122,13 +124,16 @@ if (argv.build) {
     throw new Error("TODO performBuild");
   }
 } else {
+  // why does typechecking require glint config but not performBuild watch?
+  // not sure...
+
   const glintConfig = loadConfig(argv.project ?? cwd);
   const optionsToExtend = determineOptionsToExtend(argv);
 
   validateTSOrExit(glintConfig.ts);
 
   if (argv.watch) {
-    throw new Error("TODO performBuild");
+    throw new Error("TODO performWatch");
 
     // performWatch(glintConfig, optionsToExtend);
   } else {
