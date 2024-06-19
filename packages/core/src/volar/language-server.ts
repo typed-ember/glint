@@ -176,27 +176,40 @@ function filterAndAugmentDiagnostics(
   }
 
   augmentedDiagnostics.forEach((diagnostic) => {
-    // Diagnostic is probably for transformed TS code.
-    // At this point in Volar we are returning diagnostics for the transformed TS code,
-    // which does not have a representation of ts-expect-error in it.
-    // And so when i try and find the transformedModule, the directives are
-    // going to be the source .gts file.
+    // `diagnostic` is a TS-generated Diagnostic for the transformed TS file (i.e.
+    // the Intermediate Representation of the .gts file where all embedded
+    // templates are converted to TS).
     //
-    // so either:
-    // 1. translate directives into transformed TS code to see if they match the area of effect, or
-    // 2. MAYBE we represent the ts-expect-error in the transformed TS code, and then we can find it.
+    // We need to determine whether the TS diagnostic is within the area of effect
+    // for a `{{! @glint-expect-error }}` or `{{! @glint-ignore }}` directive in the
+    // original untransformed .gts file.
+    //
+    // In order to do that, we need to translate the directive's area of effect
+    // into its mapping .ts equivalent, OR we take the TS diagnostic's range and
+    // find the corresponding directive in the transformedModule.
 
-    // let appliedDirective = transformedModule?.directives.find((directive) => {
-    //   const diagnosticStart = document.offsetAt(diagnostic.range.start);
-    //   return (
-    //     // TODO: when would the filename ever be different? uncomment and fix?
-    //     // directive.source.filename === diagnostic.file.fileName &&
-    //     directive.areaOfEffect.start <= diagnosticStart &&
-    //     directive.areaOfEffect.end > diagnosticStart
-    //   );
-    // });
+    const diagnosticStart = document.offsetAt(diagnostic.range.start);
+    let appliedDirective: Directive | undefined = undefined;
 
-    allDiagnostics.push(diagnostic);
+    if (transformedModule) {
+      let originalGtsDiagnosticStart = transformedModule?.getOriginalOffset(diagnosticStart);
+
+      appliedDirective = transformedModule?.directives.find((directive) => {
+        const diagnosticStart = document.offsetAt(diagnostic.range.start);
+        return (
+          // TODO: when would the filename ever be different? uncomment and fix?
+          // directive.source.filename === diagnostic.file.fileName &&
+          directive.areaOfEffect.start <= originalGtsDiagnosticStart.offset &&
+          directive.areaOfEffect.end > originalGtsDiagnosticStart.offset
+        );
+      });
+    }
+
+    if (appliedDirective) {
+      unusedExpectErrors.delete(appliedDirective);
+    } else {
+      allDiagnostics.push(diagnostic);
+    }
   });
 
   // for (let directive of unusedExpectErrors) {

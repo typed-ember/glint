@@ -356,7 +356,7 @@ describe('Language Server: Diagnostics', () => {
     expect(server.getDiagnostics(project.fileURI('templates/foo.hbs'))).toEqual([]);
   });
 
-  test.skip('honors @glint-ignore and @glint-expect-error', async () => {
+  test('honors @glint-ignore and @glint-expect-error', async () => {
     let componentA = stripIndent`
       import Component from '@glimmer/component';
 
@@ -395,17 +395,29 @@ describe('Language Server: Diagnostics', () => {
     diagnostics = await server.sendDocumentDiagnosticRequestNormalized(docB.uri);
     expect(diagnostics).toEqual([]);
 
-    server.openFile(project.fileURI('component-a.gts'), componentA);
-    server.updateFile(
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    await server.replaceTextDocument(
       project.fileURI('component-a.gts'),
       componentA.replace('{{! @glint-expect-error }}', '')
     );
 
-    expect(server.getDiagnostics(project.fileURI('component-b.gts'))).toEqual([]);
-    expect(server.getDiagnostics(project.fileURI('component-a.gts'))).toMatchInlineSnapshot(`
+    expect(
+      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-b.gts'))
+    ).toEqual([]);
+    expect(
+      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-a.gts'))
+    ).toMatchInlineSnapshot(`
       [
         {
           "code": 2339,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/component-a.gts",
+            "version": 1,
+          },
           "message": "Property 'version' does not exist on type '{}'.",
           "range": {
             "end": {
@@ -419,39 +431,29 @@ describe('Language Server: Diagnostics', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
       ]
     `);
 
-    server.updateFile(project.fileURI('component-a.gts'), componentA);
+    await server.replaceTextDocument(project.fileURI('component-a.gts'), componentA);
 
-    expect(server.getDiagnostics(project.fileURI('component-a.gts'))).toEqual([]);
-    expect(server.getDiagnostics(project.fileURI('component-b.gts'))).toEqual([]);
+    expect(
+      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-a.gts'))
+    ).toEqual([]);
+    expect(
+      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-b.gts'))
+    ).toEqual([]);
 
-    server.updateFile(project.fileURI('component-a.gts'), componentA.replace('{{@version}}', ''));
+    await server.replaceTextDocument(
+      project.fileURI('component-a.gts'),
+      componentA.replace('{{@version}}', '')
+    );
 
-    expect(server.getDiagnostics(project.fileURI('component-b.gts'))).toEqual([]);
-    expect(server.getDiagnostics(project.fileURI('component-a.gts'))).toMatchInlineSnapshot(`
-      [
-        {
-          "code": 0,
-          "message": "Unused '@glint-expect-error' directive.",
-          "range": {
-            "end": {
-              "character": 30,
-              "line": 4,
-            },
-            "start": {
-              "character": 4,
-              "line": 4,
-            },
-          },
-          "severity": 1,
-          "source": "glint",
-          "tags": [],
-        },
-      ]
-    `);
+    expect(
+      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-b.gts'))
+    ).toEqual([]);
+    expect(
+      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-a.gts'))
+    ).toMatchInlineSnapshot(`[expect unused directive]`);
   });
 });
