@@ -16,7 +16,7 @@ import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type * as vscode from 'vscode-languageserver-protocol';
 import { URI } from 'vscode-uri';
 import { VirtualGtsCode } from './gts-virtual-code.js';
-import { augmentDiagnosticVolar } from '../transform/diagnostics/augmentation.js';
+import { augmentDiagnostic } from '../transform/diagnostics/augmentation.js';
 import MappingTree from '../transform/template/mapping-tree.js';
 import { TransformedModule } from '../transform/index.js';
 
@@ -126,7 +126,7 @@ connection.onInitialize((parameters) => {
                   source: 'glint',
                 };
 
-                diagnostic = augmentDiagnosticVolar(diagnostic as any, mappingForDiagnostic);
+                diagnostic = augmentDiagnostic(diagnostic as any, mappingForDiagnostic);
 
                 return diagnostic;
               });

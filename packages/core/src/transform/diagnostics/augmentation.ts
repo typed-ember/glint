@@ -7,14 +7,7 @@ import MappingTree, { MappingSource } from '../template/mapping-tree.js';
  * returns updated message text for that diagnostic with Glint-specific
  * information included, if applicable.
  */
-export function augmentDiagnostic<T extends Diagnostic>(diagnostic: T, mapping: MappingTree): T {
-  return {
-    ...diagnostic,
-    message: rewriteMessageText(diagnostic, () => mapping),
-  };
-}
-
-export function augmentDiagnosticVolar<T extends Diagnostic>(
+export function augmentDiagnostic<T extends Diagnostic>(
   diagnostic: T,
   mappingForDiagnostic: (diagnostic: T) => MappingTree | null
 ): T {
