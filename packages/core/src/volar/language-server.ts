@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import {
+  LanguageServiceContext,
   LanguageServicePlugin,
   LanguageServicePluginInstance,
   createConnection,
@@ -74,69 +75,11 @@ connection.onInitialize((parameters) => {
           create(context): LanguageServicePluginInstance {
             const typeScriptPlugin = plugin.create(context);
 
-            const augmentDiagnostics = (
-              document: TextDocument,
-              diagnostics: vscode.Diagnostic[] | null | undefined
-            ) => {
-              if (!diagnostics) {
-                // This can fail if .gts file fails to parse. Maybe other use cases too?
-                return null;
-              }
-
-              if (diagnostics.length == 0) {
-                return diagnostics;
-              }
-
-              let cachedTransformedModule: TransformedModule | null | undefined = undefined;
-
-              const mappingForDiagnostic = (diagnostic: vscode.Diagnostic): MappingTree | null => {
-                if (typeof cachedTransformedModule === 'undefined') {
-                  cachedTransformedModule = null;
-
-                  const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
-                  if (decoded) {
-                    const script = context.language.scripts.get(decoded[0]);
-                    const scriptRoot = script?.generated?.root;
-                    if (scriptRoot instanceof VirtualGtsCode) {
-                      const transformedModule = scriptRoot.transformedModule;
-                      if (transformedModule) {
-                        cachedTransformedModule = transformedModule;
-                      }
-                    }
-                  }
-                }
-
-                if (!cachedTransformedModule) {
-                  return null;
-                }
-
-                const range = diagnostic.range;
-                const start = document.offsetAt(range.start);
-                const end = document.offsetAt(range.end);
-                const rangeWithMappingAndSource = cachedTransformedModule.getOriginalRange(
-                  start,
-                  end
-                );
-                return rangeWithMappingAndSource.mapping || null;
-              };
-
-              return diagnostics.map((diagnostic) => {
-                diagnostic = {
-                  ...diagnostic,
-                  source: 'glint',
-                };
-
-                diagnostic = augmentDiagnostic(diagnostic as any, mappingForDiagnostic);
-
-                return diagnostic;
-              });
-            };
-
             return {
               ...typeScriptPlugin,
               async provideDiagnostics(document: TextDocument, token: vscode.CancellationToken) {
                 const diagnostics = await typeScriptPlugin.provideDiagnostics!(document, token);
-                return augmentDiagnostics(document, diagnostics);
+                return filterAndAugmentDiagnostics(context, document, diagnostics);
               },
               async provideSemanticDiagnostics(
                 document: TextDocument,
@@ -146,7 +89,7 @@ connection.onInitialize((parameters) => {
                   document,
                   token
                 );
-                return augmentDiagnostics(document, diagnostics);
+                return filterAndAugmentDiagnostics(context, document, diagnostics);
               },
             };
           },
@@ -157,6 +100,62 @@ connection.onInitialize((parameters) => {
     })
   );
 });
+
+function filterAndAugmentDiagnostics(
+  context: LanguageServiceContext,
+  document: TextDocument,
+  diagnostics: vscode.Diagnostic[] | null | undefined
+) {
+  if (!diagnostics) {
+    // This can fail if .gts file fails to parse. Maybe other use cases too?
+    return null;
+  }
+
+  if (diagnostics.length == 0) {
+    return diagnostics;
+  }
+
+  let cachedTransformedModule: TransformedModule | null | undefined = undefined;
+
+  const mappingForDiagnostic = (diagnostic: vscode.Diagnostic): MappingTree | null => {
+    if (typeof cachedTransformedModule === 'undefined') {
+      cachedTransformedModule = null;
+
+      const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
+      if (decoded) {
+        const script = context.language.scripts.get(decoded[0]);
+        const scriptRoot = script?.generated?.root;
+        if (scriptRoot instanceof VirtualGtsCode) {
+          const transformedModule = scriptRoot.transformedModule;
+          if (transformedModule) {
+            cachedTransformedModule = transformedModule;
+          }
+        }
+      }
+    }
+
+    if (!cachedTransformedModule) {
+      return null;
+    }
+
+    const range = diagnostic.range;
+    const start = document.offsetAt(range.start);
+    const end = document.offsetAt(range.end);
+    const rangeWithMappingAndSource = cachedTransformedModule.getOriginalRange(start, end);
+    return rangeWithMappingAndSource.mapping || null;
+  };
+
+  return diagnostics.map((diagnostic) => {
+    diagnostic = {
+      ...diagnostic,
+      source: 'glint',
+    };
+
+    diagnostic = augmentDiagnostic(diagnostic as any, mappingForDiagnostic);
+
+    return diagnostic;
+  });
+}
 
 // connection.onRequest('mdx/toggleDelete', async (parameters) => {
 //   const commands = await getCommands(parameters.uri)
