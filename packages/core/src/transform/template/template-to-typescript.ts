@@ -143,9 +143,9 @@ export function templateToTypescript(
       let kind = match[1];
       let location = rangeForNode(node);
       if (kind === 'ignore') {
-        record.directive(kind, location, rangeForLine(node.loc.end.line + 1));
+        record.directive(kind, location, rangeForLine(node.loc.endPosition.line + 1));
       } else if (kind === 'expect-error') {
-        record.directive(kind, location, rangeForLine(node.loc.end.line + 1));
+        record.directive(kind, location, rangeForLine(node.loc.endPosition.line + 1));
       } else if (kind === 'nocheck') {
         record.directive('ignore', location, { start: 0, end: template.length - 1 });
       } else {
