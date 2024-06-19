@@ -15,6 +15,10 @@ import { Position, Range, TextEdit } from '@volar/language-server';
 
 const require = createRequire(import.meta.url);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
+const pathToTemplatePackage = pathUtils.normalizeFilePath(
+  path.resolve(dirname, '../../../packages/template')
+);
+const fileUriToTemplatePckage = pathUtils.filePathToUri(pathToTemplatePackage);
 const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
@@ -151,7 +155,8 @@ export class Project {
         volarEmbeddedContentUri.toString(),
         `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
       )
-      .replaceAll(this.fileURI('.'), 'file:///PATH_TO_EPHEMERAL_TEST_PROJECT');
+      .replaceAll(this.fileURI('.'), 'file:///PATH_TO_EPHEMERAL_TEST_PROJECT')
+      .replaceAll(fileUriToTemplatePckage, 'file:///PATH_TO_MODULE/@glint/template')
 
     return JSON.parse(normalized);
   }
