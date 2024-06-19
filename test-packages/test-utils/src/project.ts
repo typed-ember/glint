@@ -156,7 +156,7 @@ export class Project {
         `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
       )
       .replaceAll(this.fileURI('.'), 'file:///PATH_TO_EPHEMERAL_TEST_PROJECT')
-      .replaceAll(fileUriToTemplatePckage, 'file:///PATH_TO_MODULE/@glint/template')
+      .replaceAll(fileUriToTemplatePckage, 'file:///PATH_TO_MODULE/@glint/template');
 
     return JSON.parse(normalized);
   }
@@ -285,6 +285,15 @@ export class Project {
   }
 
   public check(options: Options & { flags?: string[] } = {}): ExecaChildProcess {
+    if (!options.flags) {
+      options.flags = [];
+    }
+
+    // Not sure why this is needed, but in some contexts, `--pretty` is disabled
+    // because TS doesn't detect a TTY setup.
+    // https://github.com/microsoft/TypeScript/blob/c38569655bb151ec351c27032fbd3ef43b8856ba/src/compiler/executeCommandLine.ts#L160
+    options.flags = [...options.flags, '--pretty'];
+
     return execaNode(require.resolve('@glint/core/bin/glint'), options.flags, {
       cwd: this.rootDir,
       ...options,

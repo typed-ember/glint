@@ -135,7 +135,7 @@ describe('CLI: single-pass typechecking', () => {
     `);
   });
 
-  test('reports diagnostics for an inline template type error', async () => {
+  test.only('reports diagnostics for an inline template type error', async () => {
     let code = stripIndent`
       import Component from '@glimmer/component';
 
@@ -159,25 +159,21 @@ describe('CLI: single-pass typechecking', () => {
 
     expect(checkResult.exitCode).not.toBe(0);
 
-    // old glint tsc
-    // expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
-    //   "index.gts:12:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
+    expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
+      "index.gts:12:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
 
-    //   12     The current time is {{this.startupTimee}}.
-    //                                     ~~~~~~~~~~~~
+      12     The current time is {{this.startupTimee}}.
+                                        ~~~~~~~~~~~~
 
-    //     index.gts:8:11
-    //       8   private startupTime = new Date().toISOString();
-    //                   ~~~~~~~~~~~
-    //       'startupTime' is declared here.
-    //   "
-    // `);
+        index.gts:8:11
+          8   private startupTime = new Date().toISOString();
+                      ~~~~~~~~~~~
+          'startupTime' is declared here.
 
-    // new volarized glint tsc
-    // TODO: how to bring back verbosity?
-    expect(stripAnsi(checkResult.stdout))
-      .toMatchInlineSnapshot(
-        `"index.gts(12,32): error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?"`);
+
+      Found 1 error in index.gts:12
+      "
+    `);
   });
 
   test.skip('reports diagnostics for a companion template type error', async () => {
