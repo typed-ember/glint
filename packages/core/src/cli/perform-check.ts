@@ -6,6 +6,7 @@ import { sysForCompilerHost } from './utils/sys-for-compiler-host.js';
 
 type TypeScript = typeof TS;
 
+// TODO: convert this to volar runTsc
 export function performCheck(glintConfig: GlintConfig, optionsToExtend: TS.CompilerOptions): void {
   let { ts } = glintConfig;
   let transformManager = new TransformManager(glintConfig);
@@ -13,32 +14,32 @@ export function performCheck(glintConfig: GlintConfig, optionsToExtend: TS.Compi
   let compilerHost = createCompilerHost(ts, parsedConfig.options, transformManager);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
 ``
-  let createProgram = parsedConfig.options.incremental
-    ? ts.createIncrementalProgram
-    : ts.createProgram;
+  // let createProgram = parsedConfig.options.incremental
+  //   ? ts.createIncrementalProgram
+  //   : ts.createProgram;
 
-  let program = createProgram({
-    rootNames: parsedConfig.fileNames,
-    options: parsedConfig.options,
-    host: compilerHost,
-  });
+  // let program = createProgram({
+  //   rootNames: parsedConfig.fileNames,
+  //   options: parsedConfig.options,
+  //   host: compilerHost,
+  // });
 
-  // We run *before* doing emit, so that if we are in an `--incremental` program
-  // TS caches the diagnostics in the `tsbuildinfo` file it generates. This is
-  // quirky, but it's how TS itself works internally, and it's also *sort of*
-  // documented [here][wiki-pr].
-  //
-  // [wiki-pr]: https://github.com/microsoft/TypeScript-wiki/blob/ad7afb1b7049be5ac59ba55dce9a647390ee8481/Using-the-Compiler-API.md#a-minimal-incremental-compiler
-  let baselineDiagnostics = collectDiagnostics(program, transformManager, parsedConfig.options);
-  let emitResult = program.emit();
-  let diagnosticsWithEmit = baselineDiagnostics.concat(emitResult.diagnostics);
+  // // We run *before* doing emit, so that if we are in an `--incremental` program
+  // // TS caches the diagnostics in the `tsbuildinfo` file it generates. This is
+  // // quirky, but it's how TS itself works internally, and it's also *sort of*
+  // // documented [here][wiki-pr].
+  // //
+  // // [wiki-pr]: https://github.com/microsoft/TypeScript-wiki/blob/ad7afb1b7049be5ac59ba55dce9a647390ee8481/Using-the-Compiler-API.md#a-minimal-incremental-compiler
+  // let baselineDiagnostics = collectDiagnostics(program, transformManager, parsedConfig.options);
+  // let emitResult = program.emit();
+  // let diagnosticsWithEmit = baselineDiagnostics.concat(emitResult.diagnostics);
 
-  let fullDiagnostics = transformManager.rewriteDiagnostics(diagnosticsWithEmit);
-  for (let diagnostic of fullDiagnostics) {
-    console.error(formatDiagnostic(diagnostic));
-  }
+  // let fullDiagnostics = transformManager.rewriteDiagnostics(diagnosticsWithEmit);
+  // for (let diagnostic of fullDiagnostics) {
+  //   console.error(formatDiagnostic(diagnostic));
+  // }
 
-  process.exit(fullDiagnostics.length ? 1 : 0);
+  process.exit(0);
 }
 
 function collectDiagnostics(
@@ -46,12 +47,13 @@ function collectDiagnostics(
   transformManager: TransformManager,
   options: TS.CompilerOptions
 ): Array<TS.Diagnostic> {
-  return [
-    ...program.getSyntacticDiagnostics(),
-    ...transformManager.getTransformDiagnostics(),
-    ...program.getSemanticDiagnostics(),
-    ...(options.declaration ? program.getDeclarationDiagnostics() : []),
-  ];
+  // return [
+  //   ...program.getSyntacticDiagnostics(),
+  //   ...transformManager.getTransformDiagnostics(),
+  //   ...program.getSemanticDiagnostics(),
+  //   ...(options.declaration ? program.getDeclarationDiagnostics() : []),
+  // ];
+  return [];
 }
 
 function createCompilerHost(

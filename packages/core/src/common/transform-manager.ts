@@ -2,10 +2,10 @@ import { statSync as fsStatSync, Stats, existsSync } from 'fs';
 import {
   TransformedModule,
   rewriteModule,
-  rewriteDiagnostic,
+  // rewriteDiagnostic,
   Directive,
   Diagnostic,
-  createTransformDiagnostic,
+  // createTransformDiagnostic,
 } from '../transform/index.js';
 import type ts from 'typescript';
 import { GlintConfig } from '../config/index.js';
@@ -57,46 +57,46 @@ export default class TransformManager {
     });
   }
 
-  public rewriteDiagnostics(
-    diagnostics: ReadonlyArray<Diagnostic>,
-    fileName?: string
-  ): ReadonlyArray<ts.Diagnostic> {
-    let unusedExpectErrors = new Set(this.getExpectErrorDirectives(fileName));
-    let allDiagnostics = [];
-    for (let diagnostic of diagnostics) {
-      let { rewrittenDiagnostic, appliedDirective } = this.rewriteDiagnostic(diagnostic);
-      if (rewrittenDiagnostic) {
-        allDiagnostics.push(rewrittenDiagnostic);
-      }
+  // public rewriteDiagnostics(
+  //   diagnostics: ReadonlyArray<Diagnostic>,
+  //   fileName?: string
+  // ): ReadonlyArray<ts.Diagnostic> {
+  //   let unusedExpectErrors = new Set(this.getExpectErrorDirectives(fileName));
+  //   let allDiagnostics = [];
+  //   for (let diagnostic of diagnostics) {
+  //     let { rewrittenDiagnostic, appliedDirective } = this.rewriteDiagnostic(diagnostic);
+  //     if (rewrittenDiagnostic) {
+  //       allDiagnostics.push(rewrittenDiagnostic);
+  //     }
 
-      if (appliedDirective?.kind === 'expect-error') {
-        unusedExpectErrors.delete(appliedDirective);
-      }
-    }
+  //     if (appliedDirective?.kind === 'expect-error') {
+  //       unusedExpectErrors.delete(appliedDirective);
+  //     }
+  //   }
 
-    for (let directive of unusedExpectErrors) {
-      allDiagnostics.push(
-        createTransformDiagnostic(
-          this.ts,
-          directive.source,
-          `Unused '@glint-expect-error' directive.`,
-          directive.location
-        )
-      );
-    }
+  //   for (let directive of unusedExpectErrors) {
+  //     // allDiagnostics.push(
+  //     //   createTransformDiagnostic(
+  //     //     this.ts,
+  //     //     directive.source,
+  //     //     `Unused '@glint-expect-error' directive.`,
+  //     //     directive.location
+  //     //   )
+  //     // );
+  //   }
 
-    // When we have syntax errors we get _too many errors_
-    // if we have an issue with <template> tranformation, we should
-    // make the user fix their syntax before revealing all the other errors.
-    let contentTagErrors = allDiagnostics.filter(
-      (diagnostic) => (diagnostic as Diagnostic).isContentTagError
-    );
-    if (contentTagErrors.length) {
-      return this.ts.sortAndDeduplicateDiagnostics(contentTagErrors);
-    }
+  //   // When we have syntax errors we get _too many errors_
+  //   // if we have an issue with <template> tranformation, we should
+  //   // make the user fix their syntax before revealing all the other errors.
+  //   let contentTagErrors = allDiagnostics.filter(
+  //     (diagnostic) => (diagnostic as Diagnostic).isContentTagError
+  //   );
+  //   if (contentTagErrors.length) {
+  //     return this.ts.sortAndDeduplicateDiagnostics(contentTagErrors);
+  //   }
 
-    return this.ts.sortAndDeduplicateDiagnostics(allDiagnostics);
-  }
+  //   return this.ts.sortAndDeduplicateDiagnostics(allDiagnostics);
+  // }
 
   public getTransformedRange(
     originalFileName: string,
@@ -365,47 +365,47 @@ export default class TransformManager {
     });
   }
 
-  private rewriteDiagnostic(diagnostic: Diagnostic): {
-    rewrittenDiagnostic?: ts.Diagnostic;
-    appliedDirective?: Directive;
-  } {
-    if (!diagnostic.file) return {};
+  // private rewriteDiagnostic(diagnostic: Diagnostic): {
+  //   rewrittenDiagnostic?: ts.Diagnostic;
+  //   appliedDirective?: Directive;
+  // } {
+  //   if (!diagnostic.file) return {};
 
-    // Transform diagnostics are already targeted at the original source and so
-    // don't need to be rewritten.
-    if ('isGlintTransformDiagnostic' in diagnostic && diagnostic.isGlintTransformDiagnostic) {
-      return { rewrittenDiagnostic: diagnostic };
-    }
+  //   // Transform diagnostics are already targeted at the original source and so
+  //   // don't need to be rewritten.
+  //   if ('isGlintTransformDiagnostic' in diagnostic && diagnostic.isGlintTransformDiagnostic) {
+  //     return { rewrittenDiagnostic: diagnostic };
+  //   }
 
-    // fetch the transformInfo for a particular file....... can we just pass this in?
-    let transformInfo = this.getTransformInfo(diagnostic.file?.fileName);
-    let rewrittenDiagnostic = rewriteDiagnostic(
-      this.ts,
-      diagnostic,
-      (fileName) => this.getTransformInfo(fileName)?.transformedModule
-    );
+  //   // fetch the transformInfo for a particular file....... can we just pass this in?
+  //   let transformInfo = this.getTransformInfo(diagnostic.file?.fileName);
+  //   let rewrittenDiagnostic = rewriteDiagnostic(
+  //     this.ts,
+  //     diagnostic,
+  //     (fileName) => this.getTransformInfo(fileName)?.transformedModule
+  //   );
 
-    if (rewrittenDiagnostic.file) {
-      rewrittenDiagnostic.file.fileName = this.documents.getCanonicalDocumentPath(
-        rewrittenDiagnostic.file.fileName
-      );
-    }
+  //   if (rewrittenDiagnostic.file) {
+  //     rewrittenDiagnostic.file.fileName = this.documents.getCanonicalDocumentPath(
+  //       rewrittenDiagnostic.file.fileName
+  //     );
+  //   }
 
-    let appliedDirective = transformInfo.transformedModule?.directives.find(
-      (directive) =>
-        directive.source.filename === rewrittenDiagnostic.file?.fileName &&
-        directive.areaOfEffect.start <= rewrittenDiagnostic.start! &&
-        directive.areaOfEffect.end > rewrittenDiagnostic.start!
-    );
+  //   let appliedDirective = transformInfo.transformedModule?.directives.find(
+  //     (directive) =>
+  //       directive.source.filename === rewrittenDiagnostic.file?.fileName &&
+  //       directive.areaOfEffect.start <= rewrittenDiagnostic.start! &&
+  //       directive.areaOfEffect.end > rewrittenDiagnostic.start!
+  //   );
 
-    // All current directives have the effect of squashing any diagnostics they apply
-    // to, so if we have an applicable directive, we don't return the diagnostic.
-    if (appliedDirective) {
-      return { appliedDirective };
-    } else {
-      return { rewrittenDiagnostic };
-    }
-  }
+  //   // All current directives have the effect of squashing any diagnostics they apply
+  //   // to, so if we have an applicable directive, we don't return the diagnostic.
+  //   if (appliedDirective) {
+  //     return { appliedDirective };
+  //   } else {
+  //     return { rewrittenDiagnostic };
+  //   }
+  // }
 
   private getTransformInfo(filename: string, encoding?: string): TransformInfo {
     let { documents, glintConfig } = this;
@@ -465,15 +465,16 @@ export default class TransformManager {
   }
 
   private buildTransformDiagnostics(transformedModule: TransformedModule): Array<Diagnostic> {
-    return transformedModule.errors.map((error) =>
-      createTransformDiagnostic(
-        this.ts,
-        error.source,
-        error.message,
-        error.location,
-        error.isContentTagError
-      )
-    );
+    return [];
+    // return transformedModule.errors.map((error) =>
+    //   createTransformDiagnostic(
+    //     this.ts,
+    //     error.source,
+    //     error.message,
+    //     error.location,
+    //     error.isContentTagError
+    //   )
+    // );
   }
 }
 

@@ -1,9 +1,9 @@
-import type ts from 'typescript';
+import type * as vscode from 'vscode-languageserver-protocol';
 
-export type Diagnostic = ts.Diagnostic & {
+export type Diagnostic = vscode.Diagnostic & {
   isGlintTransformDiagnostic?: boolean;
   isContentTagError?: boolean;
 };
 
-export { rewriteDiagnostic } from './rewrite-diagnostic.js';
-export { createTransformDiagnostic } from './create-transform-diagnostic.js';
+// export { rewriteDiagnostic } from './rewrite-diagnostic.js';
+// export { createTransformDiagnostic } from './create-transform-diagnostic.js';

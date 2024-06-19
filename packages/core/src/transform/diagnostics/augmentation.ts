@@ -10,41 +10,69 @@ import MappingTree, { MappingSource } from '../template/mapping-tree.js';
 export function augmentDiagnostic<T extends Diagnostic>(diagnostic: T, mapping: MappingTree): T {
   return {
     ...diagnostic,
-    messageText: rewriteMessageText(diagnostic, mapping),
+    message: rewriteMessageText(diagnostic, () => mapping),
   };
 }
 
-type DiagnosticHandler = (
-  diagnostic: Diagnostic,
-  mapping: MappingTree
-) => string | ts.DiagnosticMessageChain | undefined;
+export function augmentDiagnosticVolar<T extends Diagnostic>(
+  diagnostic: T,
+  mappingForDiagnostic: (diagnostic: T) => MappingTree | null
+): T {
+  // TODO: fix any types, remove casting
+  return rewriteMessageText(diagnostic, mappingForDiagnostic as any) as T;
+}
+
+type DiagnosticHandler = (diagnostic: Diagnostic, mapping: MappingTree) => Diagnostic | undefined;
 
 function rewriteMessageText(
   diagnostic: Diagnostic,
-  mapping: MappingTree
-): string | ts.DiagnosticMessageChain {
-  return diagnosticHandlers[diagnostic.code]?.(diagnostic, mapping) ?? diagnostic.messageText;
+  mappingGetter: (diagnostic: Diagnostic) => MappingTree | null
+): Diagnostic {
+  const handler = diagnosticHandlers[diagnostic.code?.toString() ?? ''];
+  if (!handler) {
+    return diagnostic;
+  }
+
+  const mapping = mappingGetter(diagnostic);
+  if (!mapping) {
+    return diagnostic;
+  }
+
+  return handler(diagnostic, mapping) ?? diagnostic;
 }
 
-const diagnosticHandlers: Record<number, DiagnosticHandler | undefined> = {
-  2322: checkAssignabilityError, // TS2322: Type 'X' is not assignable to type 'Y'.
-  2345: checkAssignabilityError, // TS2345: Argument of type 'X' is not assignable to parameter of type 'Y'.
-  2554: noteNamedArgsAffectArity, // TS2554: Expected N arguments, but got M.
-  2555: noteNamedArgsAffectArity, // TS2555: Expected at least N arguments, but got M.
-  2769: checkResolveError, // TS2769: No overload matches this call.
-  4111: checkIndexAccessError, // TS4111: Property 'x' comes from an index signature, so it must be accessed with ['x'].
-  7053: checkImplicitAnyError, // TS7053: Element implicitly has an 'any' type because expression of type '"X"' can't be used to index type 'Y'.
+const diagnosticHandlers: Record<string, DiagnosticHandler | undefined> = {
+  '2322': checkAssignabilityError, // TS2322: Type 'X' is not assignable to type 'Y'.
+  '2345': checkAssignabilityError, // TS2345: Argument of type 'X' is not assignable to parameter of type 'Y'.
+  '2554': noteNamedArgsAffectArity, // TS2554: Expected N arguments, but got M.
+  '2555': noteNamedArgsAffectArity, // TS2555: Expected at least N arguments, but got M.
+  '2769': checkResolveError, // TS2769: No overload matches this call.
+  '4111': checkIndexAccessError, // TS4111: Property 'x' comes from an index signature, so it must be accessed with ['x'].
+  '7053': checkImplicitAnyError, // TS7053: Element implicitly has an 'any' type because expression of type '"X"' can't be used to index type 'Y'.
 };
 
 const bindHelpers = ['component', 'helper', 'modifier'];
 
 function checkAssignabilityError(
-  message: Diagnostic,
+  diagnostic: Diagnostic,
   mapping: MappingTree
-): ts.DiagnosticMessageChain | undefined {
+): Diagnostic | undefined {
   let node = mapping.sourceNode;
   let parentNode = mapping.parent?.sourceNode;
   if (!parentNode) return;
+
+  if (parentNode.type === node.type) {
+    // For Volar, we added a few more artificial nestings / wrappings around Handlebars
+    // AST nodes to provide more hookpoints for TS diagnostics to correctly source-map
+    // back to .gts/.hbs source code. The result of this is that sometimes you have
+    // things like MustacheNodes being "parents" of MustacheNodes, which we try and
+    // detect here.
+    //
+    // This can go away if/when we refactor the `transformModule` code.
+    parentNode = mapping.parent?.parent?.sourceNode;
+
+    if (!parentNode) return;
+  }
 
   if (
     node.type === 'Identifier' &&
@@ -54,7 +82,7 @@ function checkAssignabilityError(
     // If the assignability issue is on an attribute name and it's not an `@arg`
     // or `...attributes`, then it's an HTML attribute type issue.
     return addGlintDetails(
-      message,
+      diagnostic,
       'Only primitive values (see `AttrValue` in `@glint/template`) are assignable as HTML attributes. ' +
         'If you want to set an event listener, consider using the `{{on}}` modifier instead.'
     );
@@ -69,7 +97,7 @@ function checkAssignabilityError(
     // it's an attempted inline {{component 'foo'}} invocation...
     if (node.path.type === 'PathExpression' && node.path.original === 'component') {
       return addGlintDetails(
-        message,
+        diagnostic,
         `The {{component}} helper can't be used to directly invoke a component under Glint. ` +
           `Consider first binding the result to a variable, e.g. ` +
           `'{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as ` +
@@ -79,7 +107,7 @@ function checkAssignabilityError(
 
     // Otherwise, it's a DOM content type issue.
     return addGlintDetails(
-      message,
+      diagnostic,
       'Only primitive values and certain DOM objects (see `ContentValue` in `@glint/template`) are ' +
         'usable as top-level template content.'
     );
@@ -93,18 +121,17 @@ function checkAssignabilityError(
     // may be very straightforward or may be horrendously complex when users start playing games
     // with parametrized types, so we add a hint here.
     let kind = mapping.sourceNode.path.original;
-    return addGlintDetails(
-      message,
-      `Unable to pre-bind the given args to the given ${kind}. This likely indicates a type ` +
-        `mismatch between its signature and the values you're passing.`
-    );
+    return {
+      ...diagnostic,
+      message: `Unable to pre-bind the given args to the given ${kind}. This likely indicates a type mismatch between its signature and the values you're passing.`,
+    };
   }
 }
 
 function noteNamedArgsAffectArity(
   diagnostic: Diagnostic,
   mapping: MappingTree
-): string | ts.DiagnosticMessageChain | undefined {
+): Diagnostic | undefined {
   // In normal template entity invocations, named args (if specified) are effectively
   // passed as the final positional argument. Because of this, the reported "expected
   // N arguments, but got M" message may appear to be off-by-one to the developer.
@@ -126,21 +153,14 @@ function noteNamedArgsAffectArity(
       'Note that named args are passed together as a final argument, so they ' +
       'collectively increase the given arg count by 1.';
 
-    if (typeof diagnostic.messageText === 'string') {
-      return `${diagnostic.messageText} ${note}`;
-    } else {
-      return {
-        ...diagnostic.messageText,
-        messageText: `${diagnostic.messageText.messageText} ${note}`,
-      };
-    }
+    return {
+      ...diagnostic,
+      message: `${diagnostic.message} ${note}`,
+    };
   }
 }
 
-function checkResolveError(
-  diagnostic: Diagnostic,
-  mapping: MappingTree
-): ts.DiagnosticMessageChain | undefined {
+function checkResolveError(diagnostic: Diagnostic, mapping: MappingTree): Diagnostic | undefined {
   // The diagnostic might fall on a lone identifier or a full path; if the former,
   // we need to traverse up through the path to find the true parent.
   let sourceMapping = mapping.sourceNode.type === 'Identifier' ? mapping.parent : mapping;
@@ -187,16 +207,13 @@ function checkResolveError(
 function checkImplicitAnyError(
   diagnostic: Diagnostic,
   mapping: MappingTree
-): ts.DiagnosticMessageChain | undefined {
-  let messageText =
-    typeof diagnostic.messageText === 'string'
-      ? diagnostic.messageText
-      : diagnostic.messageText.messageText;
+): Diagnostic | undefined {
+  let message = diagnostic.message;
 
   // We don't want to bake in assumptions about the exact format of TS error messages,
   // but we can assume that the name of the type we're indexing (`Globals`) will appear
   // in the text in the case we're interested in.
-  if (messageText.includes('Globals')) {
+  if (message.includes('Globals')) {
     let { sourceNode } = mapping;
 
     // This error may appear either on `<Foo />` or `{{foo}}`/`(foo)`
@@ -217,26 +234,25 @@ function checkImplicitAnyError(
   }
 }
 
-function checkIndexAccessError(diagnostic: Diagnostic, mapping: MappingTree): string | undefined {
+function checkIndexAccessError(
+  diagnostic: Diagnostic,
+  mapping: MappingTree
+): Diagnostic | undefined {
   if (mapping.sourceNode.type === 'Identifier') {
-    let messageText =
-      typeof diagnostic.messageText === 'string'
-        ? diagnostic.messageText
-        : diagnostic.messageText.messageText;
+    let message = diagnostic.message;
 
     // "accessed with ['x']" => "accessed with {{get ... 'x'}}"
-    return messageText.replace(/\[(['"])(.*)\1\]/, `{{get ... $1$2$1}}`);
+    return {
+      ...diagnostic,
+      message: message.replace(/\[(['"])(.*)\1\]/, `{{get ... $1$2$1}}`),
+    };
   }
 }
 
-function addGlintDetails(diagnostic: Diagnostic, details: string): ts.DiagnosticMessageChain {
-  let { category, code, messageText } = diagnostic;
-
+function addGlintDetails(diagnostic: Diagnostic, details: string): Diagnostic {
   return {
-    category,
-    code,
-    messageText: details,
-    next: [typeof messageText === 'string' ? { category, code, messageText } : messageText],
+    ...diagnostic,
+    message: `${details}\n${diagnostic.message}`,
   };
 }
 

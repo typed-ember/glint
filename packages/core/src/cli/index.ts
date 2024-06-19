@@ -1,12 +1,12 @@
 import { createRequire } from 'node:module';
 import yargs from 'yargs';
 import { findTypeScript, loadConfig } from '../config/index.js';
-import { performWatch } from './perform-watch.js';
+// import { performWatch } from './perform-watch.js';
 import { performCheck } from './perform-check.js';
 import { determineOptionsToExtend } from './options.js';
-import { performBuild } from './perform-build.js';
+// import { performBuild } from './perform-build.js';
 import type TS from 'typescript';
-import { performBuildWatch } from './perform-build-watch.js';
+// import { performBuildWatch } from './perform-build-watch.js';
 import { validateTSOrExit } from '../common/typescript-compatibility.js';
 
 const require = createRequire(import.meta.url);
@@ -115,9 +115,11 @@ if (argv.build) {
   let projects = [cwd];
 
   if (argv.watch) {
-    performBuildWatch(ts, projects, buildOptions);
+    // performBuildWatch(ts, projects, buildOptions);
+    throw new Error("TODO performBuildWatch");
   } else {
-    performBuild(ts, projects, buildOptions);
+    // performBuild(ts, projects, buildOptions);
+    throw new Error("TODO performBuild");
   }
 } else {
   const glintConfig = loadConfig(argv.project ?? cwd);
@@ -126,8 +128,12 @@ if (argv.build) {
   validateTSOrExit(glintConfig.ts);
 
   if (argv.watch) {
-    performWatch(glintConfig, optionsToExtend);
+    throw new Error("TODO performBuild");
+
+    // performWatch(glintConfig, optionsToExtend);
   } else {
-    performCheck(glintConfig, optionsToExtend);
+    throw new Error("TODO performCheck");
+
+    // performCheck(glintConfig, optionsToExtend);
   }
 }

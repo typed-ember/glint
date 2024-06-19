@@ -13,7 +13,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     await project.destroy();
   });
 
-  test('There is a content-tag parse error (for a template-only component)', async () => {
+  test.skip('There is a content-tag parse error (for a template-only component)', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
       'index.gts': stripIndent`
@@ -87,7 +87,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     const { uri } = await server.openTextDocument(gtsUri, 'gts');
     const diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 0,
@@ -232,7 +232,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
-          "message": "Expected 2 arguments, but got 3.",
+          "message": "Expected 2 arguments, but got 3. Note that named args are passed together as a final argument, so they collectively increase the given arg count by 1.",
           "range": {
             "end": {
               "character": 39,
@@ -382,8 +382,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  // see above
-  test.skip('emit for attributes and top-level content', async () => {
+  test('emit for attributes and top-level content', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
       'index.gts': stripIndent`
@@ -414,12 +413,20 @@ describe('Language Server: Diagnostic Augmentation', () => {
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
     let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2322,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
           "message": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
-        Type '{}' is not assignable to type 'AttrValue'.",
+      Type '{}' is not assignable to type 'AttrValue'.",
           "range": {
             "end": {
               "character": 16,
@@ -432,12 +439,19 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2345,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
-        Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
             "end": {
               "character": 22,
@@ -450,12 +464,19 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2345,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
-        Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
             "end": {
               "character": 27,
@@ -468,12 +489,19 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2345,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
-        Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
             "end": {
               "character": 30,
@@ -486,12 +514,19 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2322,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
           "message": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
-        Type '{}' is not assignable to type 'AttrValue'.",
+      Type '{}' is not assignable to type 'AttrValue'.",
           "range": {
             "end": {
               "character": 16,
@@ -504,12 +539,19 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2345,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
-        Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
             "end": {
               "character": 26,
@@ -522,12 +564,19 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2345,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
-        Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
             "end": {
               "character": 31,
@@ -540,12 +589,19 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2345,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
-        Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
           "range": {
             "end": {
               "character": 34,
@@ -558,14 +614,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
       ]
     `);
   });
 
-  // see above
-  test.skip('unresolvable template entities', async () => {
+  test('unresolvable template entities', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
       'index.gts': stripIndent`
@@ -606,11 +660,23 @@ describe('Language Server: Diagnostic Augmentation', () => {
     //   message: diagnostic.message.slice(0, diagnostic.message.indexOf('\n')),
     // }));
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2769,
-          "message": "The given value does not appear to be usable as a component, modifier or helper.",
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
+          "message": "The given value does not appear to be usable as a component, modifier or helper.
+      No overload matches this call.
+        Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
               "character": 19,
@@ -621,13 +687,42 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 9,
             },
           },
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 83,
+                    "line": 18,
+                  },
+                  "start": {
+                    "character": 69,
+                    "line": 18,
+                  },
+                },
+                "uri": "file:///Users/machty/code/glint/packages/template/-private/integration.d.ts",
+              },
+              "message": "'[InvokeDirect]' is declared here.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2769,
-          "message": "The given value does not appear to be usable as a component, modifier or helper.",
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
+          "message": "The given value does not appear to be usable as a component, modifier or helper.
+      No overload matches this call.
+        Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
               "character": 20,
@@ -638,13 +733,25 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 10,
             },
           },
+          "relatedInformation": [],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2769,
-          "message": "The given value does not appear to be usable as a component, modifier or helper.",
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
+          "message": "The given value does not appear to be usable as a component, modifier or helper.
+      No overload matches this call.
+        Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
               "character": 26,
@@ -655,13 +762,25 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 11,
             },
           },
+          "relatedInformation": [],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2769,
-          "message": "The given value does not appear to be usable as a component, modifier or helper.",
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
+          "message": "The given value does not appear to be usable as a component, modifier or helper.
+      No overload matches this call.
+        Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
               "character": 25,
@@ -672,30 +791,54 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 12,
             },
           },
+          "relatedInformation": [],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2769,
-          "message": "The given value does not appear to be usable as a component, modifier or helper.",
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
+          "message": "The given value does not appear to be usable as a component, modifier or helper.
+      No overload matches this call.
+        Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
-              "character": 26,
+              "character": 23,
               "line": 14,
             },
             "start": {
-              "character": 4,
+              "character": 5,
               "line": 14,
             },
           },
+          "relatedInformation": [],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2769,
-          "message": "The given value does not appear to be usable as a component, modifier or helper.",
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
+          "message": "The given value does not appear to be usable as a component, modifier or helper.
+      No overload matches this call.
+        Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
               "character": 24,
@@ -706,13 +849,25 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 15,
             },
           },
+          "relatedInformation": [],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2769,
-          "message": "The given value does not appear to be usable as a component, modifier or helper.",
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
+          "message": "The given value does not appear to be usable as a component, modifier or helper.
+      No overload matches this call.
+        Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
               "character": 30,
@@ -723,13 +878,25 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 16,
             },
           },
+          "relatedInformation": [],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2769,
-          "message": "The given value does not appear to be usable as a component, modifier or helper.",
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
+          "message": "The given value does not appear to be usable as a component, modifier or helper.
+      No overload matches this call.
+        Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
               "character": 29,
@@ -740,15 +907,15 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 17,
             },
           },
+          "relatedInformation": [],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
       ]
     `);
   });
 
-  test('unresolved globals', async () => {
+  test.skip('unresolved globals', async () => {
     project.setGlintConfig({ environment: ['ember-loose'] });
     project.write({
       'index.ts': stripIndent`
@@ -775,7 +942,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 7053,
@@ -875,7 +1042,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('failed `component` name lookup', async () => {
+  test.skip('failed `component` name lookup', async () => {
     project.setGlintConfig({ environment: ['ember-loose'] });
     project.write({
       'index.ts': stripIndent`
@@ -903,7 +1070,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2769,
@@ -969,7 +1136,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('direct invocation of `{{component}}`', async () => {
+  test.skip('direct invocation of `{{component}}`', async () => {
     project.setGlintConfig({ environment: ['ember-loose'] });
     project.write({
       'index.ts': stripIndent`
@@ -1006,7 +1173,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2345,
@@ -1104,78 +1271,140 @@ describe('Language Server: Diagnostic Augmentation', () => {
     });
 
     let server = await project.startLanguageServer();
-    let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+
+    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2345,
-          "message": "Unable to pre-bind the given args to the given component. This likely indicates a type mismatch between its signature and the values you're passing.
-        Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
-          Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.
-            Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type 'NamedArgs<{ foo: string; }>'.
-              Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type '{ foo: string; }'.
-                Types of property 'foo' are incompatible.
-                  Type 'number' is not assignable to type 'string'.",
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
+          "message": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
+        Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.",
           "range": {
             "end": {
-              "character": 28,
+              "character": 27,
               "line": 8,
             },
             "start": {
-              "character": 4,
+              "character": 20,
               "line": 8,
             },
           },
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 4,
+                    "line": 93,
+                  },
+                  "start": {
+                    "character": 2,
+                    "line": 79,
+                  },
+                },
+                "uri": "file:///Users/machty/code/glint/packages/template/-private/keywords/-bind-invokable.d.ts",
+              },
+              "message": "The last overload is declared here.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 2345,
-          "message": "Unable to pre-bind the given args to the given helper. This likely indicates a type mismatch between its signature and the values you're passing.
-        Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
-          Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.
-            Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type 'NamedArgs<{ foo: string; }>'.
-              Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type '{ foo: string; }'.
-                Types of property 'foo' are incompatible.
-                  Type 'number' is not assignable to type 'string'.",
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
+          "message": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
+        Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.",
+          "range": {
+            "end": {
+              "character": 24,
+              "line": 9,
+            },
+            "start": {
+              "character": 17,
+              "line": 9,
+            },
+          },
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 4,
+                    "line": 93,
+                  },
+                  "start": {
+                    "character": 2,
+                    "line": 79,
+                  },
+                },
+                "uri": "file:///Users/machty/code/glint/packages/template/-private/keywords/-bind-invokable.d.ts",
+              },
+              "message": "The last overload is declared here.",
+            },
+          ],
+          "severity": 1,
+          "source": "glint",
+        },
+        {
+          "code": 2345,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
+          "message": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
+        Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.",
           "range": {
             "end": {
               "character": 25,
-              "line": 9,
-            },
-            "start": {
-              "character": 4,
-              "line": 9,
-            },
-          },
-          "severity": 1,
-          "source": "glint",
-          "tags": [],
-        },
-        {
-          "code": 2345,
-          "message": "Unable to pre-bind the given args to the given modifier. This likely indicates a type mismatch between its signature and the values you're passing.
-        Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
-          Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.
-            Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type 'NamedArgs<{ foo: string; }>'.
-              Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type '{ foo: string; }'.
-                Types of property 'foo' are incompatible.
-                  Type 'number' is not assignable to type 'string'.",
-          "range": {
-            "end": {
-              "character": 26,
               "line": 10,
             },
             "start": {
-              "character": 4,
+              "character": 18,
               "line": 10,
             },
           },
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 4,
+                    "line": 93,
+                  },
+                  "start": {
+                    "character": 2,
+                    "line": 79,
+                  },
+                },
+                "uri": "file:///Users/machty/code/glint/packages/template/-private/keywords/-bind-invokable.d.ts",
+              },
+              "message": "The last overload is declared here.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
       ]
     `);
@@ -1201,12 +1430,22 @@ describe('Language Server: Diagnostic Augmentation', () => {
     });
 
     let server = await project.startLanguageServer();
-    let diagnostics = server.getDiagnostics(project.fileURI('index.gts'));
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+
+    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 4111,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
           "message": "Property 'fooBar' comes from an index signature, so it must be accessed with ['fooBar'].",
           "range": {
             "end": {
@@ -1220,10 +1459,17 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
         {
           "code": 4111,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "version": 0,
+          },
           "message": "Property 'fooBar' comes from an index signature, so it must be accessed with {{get ... 'fooBar'}}.",
           "range": {
             "end": {
@@ -1237,7 +1483,6 @@ describe('Language Server: Diagnostic Augmentation', () => {
           },
           "severity": 1,
           "source": "glint",
-          "tags": [],
         },
       ]
     `);

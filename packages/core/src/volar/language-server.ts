@@ -14,6 +14,11 @@ import { ConfigLoader } from '../config/loader.js';
 import ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type * as vscode from 'vscode-languageserver-protocol';
+import { URI } from 'vscode-uri';
+import { VirtualGtsCode } from './gts-virtual-code.js';
+import { augmentDiagnosticVolar } from '../transform/diagnostics/augmentation.js';
+import MappingTree from '../transform/template/mapping-tree.js';
+import { TransformedModule } from '../transform/index.js';
 
 const connection = createConnection();
 
@@ -25,34 +30,30 @@ const server = createServer(connection);
  * other initialization params needed by the server.
  */
 connection.onInitialize((parameters) => {
-  const project = createTypeScriptProject(
-    ts,
-    undefined,
-    (env, { configFileName }) => {
-      const languagePlugins = [];
+  const project = createTypeScriptProject(ts, undefined, (env, { configFileName }) => {
+    const languagePlugins = [];
 
-      // I don't remember why but there are some contexts where a configFileName is not known,
-      // in which case we cannot fully activate all of the language plugins.
-      if (configFileName) {
-        // TODO: Maybe move ConfigLoader higher up so we can reuse it between calls to  `getLanguagePlugins`? That said,
-        // Volar takes care of a lot of the same group-by-tsconfig caching that ConfigLoader does,
-        // so it might not buy us much value any more.
-        const configLoader = new ConfigLoader();
-        const glintConfig = configLoader.configForFile(configFileName);
+    // I don't remember why but there are some contexts where a configFileName is not known,
+    // in which case we cannot fully activate all of the language plugins.
+    if (configFileName) {
+      // TODO: Maybe move ConfigLoader higher up so we can reuse it between calls to  `getLanguagePlugins`? That said,
+      // Volar takes care of a lot of the same group-by-tsconfig caching that ConfigLoader does,
+      // so it might not buy us much value any more.
+      const configLoader = new ConfigLoader();
+      const glintConfig = configLoader.configForFile(configFileName);
 
-        // TODO: this causes breakage if/when Glint activates for a non-Glint project.
-        // But if we don't assert, then we activate TS and Glint for non TS projects,
-        // which doubles diagnostics... how to disable the LS entirely if no Glint?
-        // assert(glintConfig, 'Glint config is missing');
+      // TODO: this causes breakage if/when Glint activates for a non-Glint project.
+      // But if we don't assert, then we activate TS and Glint for non TS projects,
+      // which doubles diagnostics... how to disable the LS entirely if no Glint?
+      // assert(glintConfig, 'Glint config is missing');
 
-        if (glintConfig) {
-          languagePlugins.unshift(createGtsLanguagePlugin(glintConfig));
-        }
+      if (glintConfig) {
+        languagePlugins.unshift(createGtsLanguagePlugin(glintConfig));
       }
-
-      return languagePlugins;
     }
-  );
+
+    return languagePlugins;
+  });
   return server.initialize(
     parameters,
     project,
@@ -73,19 +74,69 @@ connection.onInitialize((parameters) => {
           create(context): LanguageServicePluginInstance {
             const typeScriptPlugin = plugin.create(context);
 
+            const augmentDiagnostics = (
+              document: TextDocument,
+              diagnostics: vscode.Diagnostic[] | null | undefined
+            ) => {
+              if (!diagnostics) {
+                // This can fail if .gts file fails to parse. Maybe other use cases too?
+                return null;
+              }
+
+              if (diagnostics.length == 0) {
+                return diagnostics;
+              }
+
+              let cachedTransformedModule: TransformedModule | null | undefined = undefined;
+
+              const mappingForDiagnostic = (diagnostic: vscode.Diagnostic): MappingTree | null => {
+                if (typeof cachedTransformedModule === 'undefined') {
+                  cachedTransformedModule = null;
+
+                  const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
+                  if (decoded) {
+                    const script = context.language.scripts.get(decoded[0]);
+                    const scriptRoot = script?.generated?.root;
+                    if (scriptRoot instanceof VirtualGtsCode) {
+                      const transformedModule = scriptRoot.transformedModule;
+                      if (transformedModule) {
+                        cachedTransformedModule = transformedModule;
+                      }
+                    }
+                  }
+                }
+
+                if (!cachedTransformedModule) {
+                  return null;
+                }
+
+                const range = diagnostic.range;
+                const start = document.offsetAt(range.start);
+                const end = document.offsetAt(range.end);
+                const rangeWithMappingAndSource = cachedTransformedModule.getOriginalRange(
+                  start,
+                  end
+                );
+                return rangeWithMappingAndSource.mapping || null;
+              };
+
+              return diagnostics.map((diagnostic) => {
+                diagnostic = {
+                  ...diagnostic,
+                  source: 'glint',
+                };
+
+                diagnostic = augmentDiagnosticVolar(diagnostic as any, mappingForDiagnostic);
+
+                return diagnostic;
+              });
+            };
+
             return {
               ...typeScriptPlugin,
               async provideDiagnostics(document: TextDocument, token: vscode.CancellationToken) {
                 const diagnostics = await typeScriptPlugin.provideDiagnostics!(document, token);
-                if (!diagnostics) {
-                  return null;
-                }
-                return diagnostics.map((diagnostic) => {
-                  return {
-                    ...diagnostic,
-                    source: 'glint',
-                  };
-                });
+                return augmentDiagnostics(document, diagnostics);
               },
               async provideSemanticDiagnostics(
                 document: TextDocument,
@@ -95,15 +146,7 @@ connection.onInitialize((parameters) => {
                   document,
                   token
                 );
-                if (!diagnostics) {
-                  return null;
-                }
-                return diagnostics.map((diagnostic) => {
-                  return {
-                    ...diagnostic,
-                    source: 'glint',
-                  };
-                });
+                return augmentDiagnostics(document, diagnostics);
               },
             };
           },
@@ -147,13 +190,7 @@ connection.onInitialize((parameters) => {
 connection.onInitialized(() => {
   server.initialized();
 
-  const extensions = [
-    'js',
-    'ts',
-    'gjs',
-    'gts',
-    'hbs',
-  ];
+  const extensions = ['js', 'ts', 'gjs', 'gts', 'hbs'];
 
   server.watchFiles([`**.*.{${extensions.join(',')}}`]);
 });

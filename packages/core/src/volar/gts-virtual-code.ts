@@ -26,6 +26,8 @@ export class VirtualGtsCode implements VirtualCode {
 
   mappings: CodeMapping[] = [];
 
+  transformedModule: ReturnType<typeof rewriteModule> | null = null;
+
   constructor(
     private glintConfig: GlintConfig,
     public snapshot: IScriptSnapshot,
@@ -72,6 +74,8 @@ export class VirtualGtsCode implements VirtualCode {
       { script, template },
       this.glintConfig.environment
     );
+
+    this.transformedModule = transformedModule;
 
     if (transformedModule) {
       this.embeddedCodes = [

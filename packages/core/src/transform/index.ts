@@ -2,4 +2,4 @@ export type { Directive, default as TransformedModule } from './template/transfo
 export type { Diagnostic } from './diagnostics/index.js';
 
 export { rewriteModule } from './template/rewrite-module.js';
-export { rewriteDiagnostic, createTransformDiagnostic } from './diagnostics/index.js';
+// export { rewriteDiagnostic, createTransformDiagnostic } from './diagnostics/index.js';
