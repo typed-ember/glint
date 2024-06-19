@@ -57,47 +57,6 @@ export default class TransformManager {
     });
   }
 
-  // public rewriteDiagnostics(
-  //   diagnostics: ReadonlyArray<Diagnostic>,
-  //   fileName?: string
-  // ): ReadonlyArray<ts.Diagnostic> {
-  //   let unusedExpectErrors = new Set(this.getExpectErrorDirectives(fileName));
-  //   let allDiagnostics = [];
-  //   for (let diagnostic of diagnostics) {
-  //     let { rewrittenDiagnostic, appliedDirective } = this.rewriteDiagnostic(diagnostic);
-  //     if (rewrittenDiagnostic) {
-  //       allDiagnostics.push(rewrittenDiagnostic);
-  //     }
-
-  //     if (appliedDirective?.kind === 'expect-error') {
-  //       unusedExpectErrors.delete(appliedDirective);
-  //     }
-  //   }
-
-  //   for (let directive of unusedExpectErrors) {
-  //     // allDiagnostics.push(
-  //     //   createTransformDiagnostic(
-  //     //     this.ts,
-  //     //     directive.source,
-  //     //     `Unused '@glint-expect-error' directive.`,
-  //     //     directive.location
-  //     //   )
-  //     // );
-  //   }
-
-  //   // When we have syntax errors we get _too many errors_
-  //   // if we have an issue with <template> tranformation, we should
-  //   // make the user fix their syntax before revealing all the other errors.
-  //   let contentTagErrors = allDiagnostics.filter(
-  //     (diagnostic) => (diagnostic as Diagnostic).isContentTagError
-  //   );
-  //   if (contentTagErrors.length) {
-  //     return this.ts.sortAndDeduplicateDiagnostics(contentTagErrors);
-  //   }
-
-  //   return this.ts.sortAndDeduplicateDiagnostics(allDiagnostics);
-  // }
-
   public getTransformedRange(
     originalFileName: string,
     originalStart: number,
@@ -349,20 +308,6 @@ export default class TransformManager {
       : originalFileName;
 
     return transformedFileName ? this.getTransformInfo(transformedFileName) : null;
-  }
-
-  private getExpectErrorDirectives(filename?: string): Array<Directive> {
-    let transformInfos = filename
-      ? [this.getTransformInfo(filename)]
-      : [...this.transformCache.values()];
-
-    return transformInfos.flatMap((transformInfo) => {
-      if (!transformInfo.transformedModule) return [];
-
-      return transformInfo.transformedModule.directives.filter(
-        (directive) => directive.kind === 'expect-error'
-      );
-    });
   }
 
   // private rewriteDiagnostic(diagnostic: Diagnostic): {

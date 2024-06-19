@@ -19,7 +19,8 @@ import { URI } from 'vscode-uri';
 import { VirtualGtsCode } from './gts-virtual-code.js';
 import { augmentDiagnostic } from '../transform/diagnostics/augmentation.js';
 import MappingTree from '../transform/template/mapping-tree.js';
-import { TransformedModule } from '../transform/index.js';
+import { Directive, TransformedModule } from '../transform/index.js';
+import { Range } from '../transform/template/transformed-module.js';
 
 const connection = createConnection();
 
@@ -133,7 +134,7 @@ function filterAndAugmentDiagnostics(
     }
 
     return cachedVirtualCode;
-  }
+  };
 
   const mappingForDiagnostic = (diagnostic: vscode.Diagnostic): MappingTree | null => {
     const transformedModule = fetchVirtualCode()?.transformedModule;
@@ -151,16 +152,65 @@ function filterAndAugmentDiagnostics(
 
   const allDiagnostics: vscode.Diagnostic[] = [];
 
-  return diagnostics.forEach((diagnostic) => {
+  const augmentedDiagnostics = diagnostics.map((diagnostic) => {
     diagnostic = {
       ...diagnostic,
       source: 'glint',
     };
 
-    diagnostic = augmentDiagnostic(diagnostic as any, mappingForDiagnostic);
+    return augmentDiagnostic(diagnostic as any, mappingForDiagnostic);
+  });
+
+  if (augmentedDiagnostics.length === 0) {
+    return [];
+  }
+
+  let unusedExpectErrors = new Set<Directive>();
+  const transformedModule = fetchVirtualCode()?.transformedModule;
+  if (transformedModule) {
+    transformedModule.directives.forEach((directive) => {
+      if (directive.kind === 'expect-error') {
+        unusedExpectErrors.add(directive);
+      }
+    });
+  }
+
+  augmentedDiagnostics.forEach((diagnostic) => {
+    // Diagnostic is probably for transformed TS code.
+    // At this point in Volar we are returning diagnostics for the transformed TS code,
+    // which does not have a representation of ts-expect-error in it.
+    // And so when i try and find the transformedModule, the directives are
+    // going to be the source .gts file.
+    //
+    // so either:
+    // 1. translate directives into transformed TS code to see if they match the area of effect, or
+    // 2. MAYBE we represent the ts-expect-error in the transformed TS code, and then we can find it.
+
+    // let appliedDirective = transformedModule?.directives.find((directive) => {
+    //   const diagnosticStart = document.offsetAt(diagnostic.range.start);
+    //   return (
+    //     // TODO: when would the filename ever be different? uncomment and fix?
+    //     // directive.source.filename === diagnostic.file.fileName &&
+    //     directive.areaOfEffect.start <= diagnosticStart &&
+    //     directive.areaOfEffect.end > diagnosticStart
+    //   );
+    // });
 
     allDiagnostics.push(diagnostic);
   });
+
+  // for (let directive of unusedExpectErrors) {
+  //   allDiagnostics.push(
+  //     createTransformDiagnostic(
+  //       ts,
+  //       directive.source,
+  //       `Unused '@glint-expect-error' directive.`,
+  //       directive.location
+  //     )
+  //   );
+  // }
+
+  return allDiagnostics;
 }
 
 // connection.onRequest('mdx/toggleDelete', async (parameters) => {

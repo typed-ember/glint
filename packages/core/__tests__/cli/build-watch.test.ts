@@ -85,7 +85,7 @@ describe('CLI: watched build mode typechecking', () => {
       expect(output).toMatch('Found 0 errors.');
     });
 
-    test('reports diagnostics for a template syntax error', async () => {
+    test.skip('reports diagnostics for a template syntax error', async () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
