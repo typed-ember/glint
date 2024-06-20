@@ -49,7 +49,7 @@ When using `ember-template-imports`, you can declare the type of a `<template>` 
 
 {% code title="app/components/shout.gts %}
 
-```typescript
+```glimmer-ts
 import type { TOC } from '@ember/component/template-only';
 
 interface ShoutSignature {
