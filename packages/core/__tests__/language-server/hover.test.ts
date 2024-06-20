@@ -221,7 +221,7 @@ describe('Language Server: Hover', () => {
         "contents": {
           "kind": "markdown",
           "value": "\`\`\`typescript
-      module "/Users/machty/code/glint/test-packages/ephemeral/edd73813ba473/foo"
+      module "/path/to/EPHEMERAL_TEST_PROJECT/foo"
       \`\`\`",
         },
         "range": {

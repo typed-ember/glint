@@ -18,7 +18,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const pathToTemplatePackage = pathUtils.normalizeFilePath(
   path.resolve(dirname, '../../../packages/template')
 );
-const fileUriToTemplatePckage = pathUtils.filePathToUri(pathToTemplatePackage);
+const fileUriToTemplatePackage = pathUtils.filePathToUri(pathToTemplatePackage);
 const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
@@ -93,24 +93,20 @@ export class Project {
         throw e;
       });
 
+    const wrapForSnapshottability = (serviceMethodName: keyof typeof languageServerHandle) => {
+      return async (uri: string, ...rest: any[]) => {
+        // @ts-expect-error not sure how to type this
+        const value = await languageServerHandle[serviceMethodName](uri, ...rest);
+        return this.normalizeForSnapshotting(uri, value);
+      }
+    }
+
     return {
       ...this.languageServerHandle,
 
-      sendDocumentDiagnosticRequest: async (uri: string) => {
-        const value = (await languageServerHandle.sendDocumentDiagnosticRequest(
-          uri
-        )) as FullDocumentDiagnosticReport;
-
-        return this.normalizeForSnapshotting(uri, value.items) as Diagnostic[];
-      },
-
-      sendDefinitionRequest: async (uri: string, position: Position) => {
-        const value = await languageServerHandle.sendDefinitionRequest(uri, position);
-
-        return this.normalizeForSnapshotting(uri, value) as Awaited<
-          ReturnType<typeof languageServerHandle.sendDefinitionRequest>
-        >;
-      },
+      sendDocumentDiagnosticRequest: wrapForSnapshottability('sendDocumentDiagnosticRequest'),
+      sendDefinitionRequest: wrapForSnapshottability('sendDefinitionRequest'),
+      sendHoverRequest: wrapForSnapshottability('sendHoverRequest'),
 
       /**
        * Helper fn that makes it easier to replace the whole contents of a file,
@@ -155,8 +151,9 @@ export class Project {
         volarEmbeddedContentUri.toString(),
         `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
       )
+      .replaceAll(this.filePath('.'), '/path/to/EPHEMERAL_TEST_PROJECT')
       .replaceAll(this.fileURI('.'), 'file:///PATH_TO_EPHEMERAL_TEST_PROJECT')
-      .replaceAll(fileUriToTemplatePckage, 'file:///PATH_TO_MODULE/@glint/template');
+      .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
 
     return JSON.parse(normalized);
   }
