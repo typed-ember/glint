@@ -454,6 +454,6 @@ describe('Language Server: Diagnostics', () => {
     ).toEqual([]);
     expect(
       await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-a.gts'))
-    ).toMatchInlineSnapshot(`[expect unused directive]`);
+    ).toMatchInlineSnapshot(`[TODO should display unused glint-expect-error directive]`);
   });
 });

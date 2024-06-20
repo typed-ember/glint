@@ -14,13 +14,14 @@ import { assert } from '../transform/util.js';
 import { ConfigLoader } from '../config/loader.js';
 import ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type * as vscode from 'vscode-languageserver-protocol';
+import * as vscode from 'vscode-languageserver-protocol';
 import { URI } from 'vscode-uri';
 import { VirtualGtsCode } from './gts-virtual-code.js';
 import { augmentDiagnostic } from '../transform/diagnostics/augmentation.js';
 import MappingTree from '../transform/template/mapping-tree.js';
 import { Directive, TransformedModule } from '../transform/index.js';
 import { Range } from '../transform/template/transformed-module.js';
+import { offsetToPosition } from '../language-server/util/position.js';
 
 const connection = createConnection();
 
@@ -112,10 +113,6 @@ function filterAndAugmentDiagnostics(
     return null;
   }
 
-  if (diagnostics.length == 0) {
-    return diagnostics;
-  }
-
   // Lazily fetch and cache the VirtualCode -- this might be a premature optimization
   // after the code went through enough changes, so maybe safe to simplify in the future.
   let cachedVirtualCode: VirtualGtsCode | null | undefined = undefined;
@@ -161,10 +158,6 @@ function filterAndAugmentDiagnostics(
     return augmentDiagnostic(diagnostic as any, mappingForDiagnostic);
   });
 
-  if (augmentedDiagnostics.length === 0) {
-    return [];
-  }
-
   let unusedExpectErrors = new Set<Directive>();
   const transformedModule = fetchVirtualCode()?.transformedModule;
   if (transformedModule) {
@@ -195,7 +188,6 @@ function filterAndAugmentDiagnostics(
       let originalGtsDiagnosticStart = transformedModule?.getOriginalOffset(diagnosticStart);
 
       appliedDirective = transformedModule?.directives.find((directive) => {
-        const diagnosticStart = document.offsetAt(diagnostic.range.start);
         return (
           // TODO: when would the filename ever be different? uncomment and fix?
           // directive.source.filename === diagnostic.file.fileName &&
@@ -212,16 +204,71 @@ function filterAndAugmentDiagnostics(
     }
   });
 
-  // for (let directive of unusedExpectErrors) {
-  //   allDiagnostics.push(
-  //     createTransformDiagnostic(
-  //       ts,
-  //       directive.source,
-  //       `Unused '@glint-expect-error' directive.`,
-  //       directive.location
-  //     )
-  //   );
-  // }
+  for (let directive of unusedExpectErrors) {
+
+    // desired methond on transformedModule:
+    // - it accepts a source offset and finds the transformed offset
+    // - in which file? there are multiple embeddedCodes in a .gts file
+    // - root: gts
+    //   - embeddedCodes[0]: ts (IR)
+    //   - embeddedCodes[1, 2, 3]: however many Handlebars templates
+    //
+    // transformedModule.correlatedSpans[1].mapping.children[0].children[1].sourceNode
+    // - {type: 'MustacheCommentStatement', value: ' @glint-expect-error ', loc: SourceSpan}
+    //
+    // this is what we want.
+    //
+    // OK what is our input?
+    // the starting point is directive that is left over.
+    // directive.areaOfEffect.start/end reference to the offset within the .gts file delineating: |{{! @glint-expect-error }}|
+    //
+    // directive.source: {
+    //   contents: <GTS source code with untransformed template>
+    //   filename: "disregard.gts"
+    // }
+    //
+    // determineTransformedOffsetAndSpan(
+    //   originalFileName: string,
+    //   originalOffset: number
+    // )
+    //
+    // transformedModule.determineTransformedOffsetAndSpan(directive.source.filename, directive.location.start)
+    //
+    // this returns a transformedOffset and correlatedSpan with mapping pointing to the template embedded.
+    // 
+
+    allDiagnostics.push(
+      {
+        message: `Unused '@glint-expect-error' directive.`,
+
+        // this range... should be... for the TS file. Currently we're sending
+        // a range for the source .gts. That can't be right.
+        // The info we have is....... we know an unused glint directive exists.
+        // We need to find a range in the IR .ts file.
+        //
+        // 1. need to translate directive.areaOfEffect into the IR .ts file location
+        //    - this is going to be the beginning of line in .gts and end of line in .gts.
+        //    - actually maybe it's not area of effect, but rather the comment node. YES.
+        //  emit.forNode(node, () => {
+        //   emit.text(`// @glint-${kind}`);
+        //   emit.newline();
+        // });
+        //
+        // - can we take the souce and query the CommentNode
+        //   - node: AST.MustacheCommentStatement | AST.CommentStatement
+        // - what/how do we query now?
+        //
+        // 2. need to make sure it fits error boundary
+        range: vscode.Range.create(
+          offsetToPosition(document.getText(), directive.areaOfEffect.start),
+          offsetToPosition(document.getText(), directive.areaOfEffect.end)
+        ),
+        severity: vscode.DiagnosticSeverity.Error,
+        code: 0,
+        source: directive.source.filename, // not sure if this is right
+      }
+    );
+  }
 
   return allDiagnostics;
 }
