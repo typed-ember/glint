@@ -4,13 +4,19 @@
     // Node16 allows top-level `await`, which was also unflagged in Node 14.8
     "module": "Node16",
     "moduleResolution": "Node16",
+    // changing this was necessary for WeakRef to be available (required/referenced in Volar)
+    "lib": ["ESNext", "dom"],
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "esModuleInterop": false,
     "composite": true,
     "declaration": true,
+    "declarationMap": true,
     "sourceMap": true,
-    "types": ["@types/node"]
+    "types": ["@types/node"],
+    
+    // new
+    "allowSyntheticDefaultImports": true,
   }
 }

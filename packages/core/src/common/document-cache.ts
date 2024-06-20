@@ -2,6 +2,16 @@ import * as path from 'node:path';
 import { GlintConfig } from '../config/index.js';
 import { v4 as uuid } from 'uuid';
 
+
+// import { DocumentsAndSourceMaps } from './documents';
+// import type { DocumentsAndSourceMaps } from '@volar/language-server/lib/common/documents.js';
+
+// import type DocumentAndSou
+
+// import { Document } from '@volar/language-server/lib/common/documents.js';
+
+// having trouble how to figure out DocumentsAndSourceMaps type.
+
 export type Document = {
   /** A unique identifier shared by all possible paths that may point to a document. */
   id: string;
@@ -30,12 +40,20 @@ export type Document = {
  *   - the existence of custom extensions that would result in multiple
  *     potential on-disk paths corresponding to a single logical TS module,
  *     where one path must win out.
+ *     TODO: what does this mean? custom extensions like .gts. Potentialy on
+ *     disk paths that refer to single module? .gts is a file with many templates.
+ *
+ * OK so we probably need to use this; how does this compare to Volar's document cache?
+ * Check the stack frame to see where it's used.
  */
 export default class DocumentCache {
   private readonly documents = new Map<string, Document>();
   private readonly ts: typeof import('typescript');
 
+	// documents: DocumentsAndSourceMaps;
+
   public constructor(private glintConfig: GlintConfig) {
+    // where is GlintConfig created?
     this.ts = glintConfig.ts;
   }
 
@@ -141,6 +159,9 @@ export default class DocumentCache {
     this.incrementCompanionVersion(path);
   }
 
+  // called by TransformManager, which has a watcher thing.
+  // called by GlintLanguageServer, which we no longer use.
+  // Can probably remove this?
   public removeDocument(path: string): void {
     for (let candidate of this.getCandidateDocumentPaths(path)) {
       this.documents.delete(candidate);

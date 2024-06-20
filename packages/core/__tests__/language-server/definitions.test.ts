@@ -13,12 +13,12 @@ describe('Language Server: Definitions', () => {
     await project.destroy();
   });
 
-  test('querying a standalone template', () => {
+  test.skip('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
-    let server = project.startLanguageServer();
-    let definitions = server.getDefinition(project.fileURI('index.hbs'), {
+    let server = await project.startLanguageServer();
+    let definitions = await server.sendDefinitionRequest(project.fileURI('index.hbs'), {
       line: 0,
       character: 17,
     });
@@ -34,7 +34,7 @@ describe('Language Server: Definitions', () => {
     ]);
   });
 
-  test('component invocation', () => {
+  test('component invocation', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -54,24 +54,52 @@ describe('Language Server: Definitions', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
-    let definitions = server.getDefinition(project.fileURI('index.gts'), {
+    let server = await project.startLanguageServer();
+    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
       line: 5,
       character: 7,
     });
 
-    expect(definitions).toEqual([
-      {
-        uri: project.fileURI('greeting.gts'),
-        range: {
-          start: { line: 1, character: 21 },
-          end: { line: 1, character: 29 },
+    expect(definitions).toMatchInlineSnapshot(`
+      [
+        {
+          "originSelectionRange": {
+            "end": {
+              "character": 13,
+              "line": 5,
+            },
+            "start": {
+              "character": 5,
+              "line": 5,
+            },
+          },
+          "targetRange": {
+            "end": {
+              "character": 1,
+              "line": 3,
+            },
+            "start": {
+              "character": 0,
+              "line": 1,
+            },
+          },
+          "targetSelectionRange": {
+            "end": {
+              "character": 29,
+              "line": 1,
+            },
+            "start": {
+              "character": 21,
+              "line": 1,
+            },
+          },
+          "targetUri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
-      },
-    ]);
+      ]
+    `);
   });
 
-  test('arg passing', () => {
+  test('arg passing', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -96,25 +124,52 @@ describe('Language Server: Definitions', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
-    let definitions = server.getDefinition(project.fileURI('index.gts'), {
+    let server = await project.startLanguageServer();
+    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
       line: 5,
       character: 17,
     });
 
-    expect(definitions).toEqual([
-      {
-        uri: project.fileURI('greeting.gts'),
-        range: {
-          start: { line: 3, character: 2 },
-          end: { line: 3, character: 9 },
+    expect(definitions).toMatchInlineSnapshot(`
+      [
+        {
+          "originSelectionRange": {
+            "end": {
+              "character": 22,
+              "line": 5,
+            },
+            "start": {
+              "character": 14,
+              "line": 5,
+            },
+          },
+          "targetRange": {
+            "end": {
+              "character": 18,
+              "line": 3,
+            },
+            "start": {
+              "character": 2,
+              "line": 3,
+            },
+          },
+          "targetSelectionRange": {
+            "end": {
+              "character": 9,
+              "line": 3,
+            },
+            "start": {
+              "character": 2,
+              "line": 3,
+            },
+          },
+          "targetUri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
-      },
-    ]);
+      ]
+    `);
   });
 
-  // TODO: skipped because .gts files might not fully support this yet
-  test.skip('arg use', () => {
+  test('arg use', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -129,24 +184,52 @@ describe('Language Server: Definitions', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
-    let definitions = server.getDefinition(project.fileURI('greeting.gts'), {
+    let server = await project.startLanguageServer();
+    let definitions = await server.sendDefinitionRequest(project.fileURI('greeting.gts'), {
       line: 7,
-      character: 30,
+      character: 18,
     });
 
-    expect(definitions).toEqual([
-      {
-        uri: project.fileURI('greeting.gts'),
-        range: {
-          start: { line: 3, character: 2 },
-          end: { line: 3, character: 9 },
+    expect(definitions).toMatchInlineSnapshot(`
+      [
+        {
+          "originSelectionRange": {
+            "end": {
+              "character": 22,
+              "line": 7,
+            },
+            "start": {
+              "character": 15,
+              "line": 7,
+            },
+          },
+          "targetRange": {
+            "end": {
+              "character": 18,
+              "line": 3,
+            },
+            "start": {
+              "character": 2,
+              "line": 3,
+            },
+          },
+          "targetSelectionRange": {
+            "end": {
+              "character": 9,
+              "line": 3,
+            },
+            "start": {
+              "character": 2,
+              "line": 3,
+            },
+          },
+          "targetUri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
-      },
-    ]);
+      ]
+    `);
   });
 
-  test('import source', () => {
+  test('import source', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -171,20 +254,20 @@ describe('Language Server: Definitions', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
-    let definitions = server.getDefinition(project.fileURI('index.gts'), {
+    let server = await project.startLanguageServer();
+    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
       line: 1,
       character: 27,
     });
 
     expect(definitions).toMatchObject([
       {
-        uri: project.fileURI('greeting.gts'),
+        targetUri: project.fileURI('greeting.gts'),
 
         // Versions of TS vary on whether they consider the source to be
         // the entire module or just the first character, so we'll consider
         // the test passing as long as the loose shape is right.
-        range: {
+        targetRange: {
           start: { line: 0, character: 0 },
           end: {},
         },

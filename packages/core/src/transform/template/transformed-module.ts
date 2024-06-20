@@ -1,5 +1,6 @@
 import MappingTree from './mapping-tree.js';
 import { assert } from '../util.js';
+import { CodeMapping } from '@volar/language-core';
 
 export type Range = { start: number; end: number };
 export type RangeWithMapping = Range & { mapping?: MappingTree };
@@ -215,5 +216,114 @@ export default class TransformedModule {
     }
 
     assert(false, 'Internal error: offset out of bounds');
+  }
+
+  /**
+   * Converts the mappings in this transformed module to the format expected by Volar.
+   *
+   * The main difference between the two formats is that while the classic Glint transformation
+   * mappings support mapping a differently sized source region to a differently sized target region
+   * (e.g. `{{expectsAtLeastOneArg}}` in an .hbs file to `χ.emitContent(χ.resolveOrReturn(expectsAtLeastOneArg)());`
+   * in a generated TS file, in Volar you can only map regions of the same size.
+   *
+   * In the case that you need to map regions of different sizes in Volar, you need to also using
+   * zero-length mappings to delineate regions/boundaries that should map to each other, otherwise there will
+   * be cases where TS diagnostics will fail to transform/map back to the original source. Example:
+   *
+   * - `{{[[ZEROLEN-A]][[expectsAtLeastOneArg]][[ZEROLEN-B]]}}`
+   * - to
+   * - `[[ZEROLEN-A]]χ.emitContent(χ.resolveOrReturn([[expectsAtLeastOneArg]])());[[ZEROLEN-B]]`
+   */
+  public toVolarMappings(): CodeMapping[] {
+    const sourceOffsets: number[] = [];
+    const generatedOffsets: number[] = [];
+    const lengths: number[] = [];
+
+    let recurse = (span: CorrelatedSpan, mapping: MappingTree) => {
+      const children = mapping.children;
+      let { originalRange, transformedRange } = mapping;
+      let hbsStart = span.originalStart + originalRange.start;
+      let hbsEnd = span.originalStart + originalRange.end;
+      let tsStart = span.transformedStart + transformedRange.start;
+      let tsEnd = span.transformedStart + transformedRange.end;
+
+      if (children.length === 0) {
+        // leaf node
+        const hbsLength = hbsEnd - hbsStart;
+        const tsLength = tsEnd - tsStart;
+        if (hbsLength === tsLength) {
+          // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
+          // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
+          sourceOffsets.push(hbsStart);
+          generatedOffsets.push(tsStart);
+          lengths.push(hbsLength);
+        } else {
+          // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
+          if (hbsLength > 0 && tsLength > 0) {
+            sourceOffsets.push(hbsStart);
+            generatedOffsets.push(tsStart);
+            lengths.push(0);
+            sourceOffsets.push(hbsEnd);
+            generatedOffsets.push(tsEnd);
+            lengths.push(0);
+          }
+        }
+      } else {
+        sourceOffsets.push(hbsStart);
+        generatedOffsets.push(tsStart);
+        lengths.push(0);
+
+        mapping.children.forEach((child) => {
+          recurse(span, child);
+        });
+
+        sourceOffsets.push(hbsEnd);
+        generatedOffsets.push(tsEnd);
+        lengths.push(0);
+      }
+    };
+
+    this.correlatedSpans.forEach((span) => {
+      if (span.mapping) {
+        // this span is transformation from embedded <template> to TS.
+
+        recurse(span, span.mapping);
+      } else {
+        // untransformed TS code (between <template> tags). Because there's no
+        // transformation, we expect these to be the same length (in fact, they
+        // should be the same string entirely)
+
+        // This assertion seemed valid when parsing .gts files with extracted hbs in <template> tags,
+        // but when parsing solo .hbs files in loose mode there were cases where, e.g.,
+        // originalLength == 0 and transformLength == 1;
+        // assert(
+        //   span.originalLength === span.transformedLength,
+        //   'span length mismatch for untransformed content'
+        // );
+
+        if (span.originalLength === span.transformedLength) {
+          sourceOffsets.push(span.originalStart);
+          generatedOffsets.push(span.transformedStart);
+          lengths.push(span.originalLength);
+        }
+      }
+    });
+
+    return [
+      {
+        sourceOffsets,
+        generatedOffsets,
+        lengths,
+
+        data: {
+          completion: true,
+          format: false,
+          navigation: true,
+          semantic: true,
+          structure: true,
+          verification: true,
+        },
+      },
+    ];
   }
 }

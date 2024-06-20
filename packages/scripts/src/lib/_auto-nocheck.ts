@@ -113,17 +113,19 @@ function findTemplatesWithErrors(
   let info = project.transformManager.findTransformInfoForOriginalFile(filePath);
   if (!info?.transformedModule) return templatesWithErrors;
 
-  let { DiagnosticCategory } = project.glintConfig.ts;
-  let diagnostics = project.languageServer.getDiagnostics(pathToFileURL(filePath).toString());
-  let errors = diagnostics.filter((diagnostic) => diagnostic.severity === DiagnosticCategory.Error);
+  // disabled for now to skip analyzeProject
 
-  for (let error of errors) {
-    let originalStart = glint.pathUtils.positionToOffset(fileContents, error.range.start);
-    let template = info.transformedModule.findTemplateAtOriginalOffset(filePath, originalStart);
-    if (template) {
-      templatesWithErrors.set(template.originalContentStart, template.originalContent);
-    }
-  }
+  // let { DiagnosticCategory } = project.glintConfig.ts;
+  // let diagnostics = project.languageServer.getDiagnostics(pathToFileURL(filePath).toString());
+  // let errors = diagnostics.filter((diagnostic) => diagnostic.severity === DiagnosticCategory.Error);
+
+  // for (let error of errors) {
+  //   let originalStart = glint.pathUtils.positionToOffset(fileContents, error.range.start);
+  //   let template = info.transformedModule.findTemplateAtOriginalOffset(filePath, originalStart);
+  //   if (template) {
+  //     templatesWithErrors.set(template.originalContentStart, template.originalContent);
+  //   }
+  // }
 
   return templatesWithErrors;
 }

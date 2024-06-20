@@ -1,0 +1,294 @@
+{
+  "fileTypes": [],
+  "injectionSelector": "L:text.html.markdown",
+  "patterns": [
+    {
+      "include": "#gts-code-block"
+    },
+    {
+      "include": "#gjs-code-block"
+    },
+    {
+      "name": "meta.js.embeddedTemplateWithoutArgs",
+      "begin": "\\s*(<)(template)\\s*(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.html"
+        },
+        "2": {
+          "name": "entity.name.tag.other.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.html"
+        }
+      },
+      "end": "(</)(template)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.html"
+        },
+        "2": {
+          "name": "entity.name.tag.other.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.html"
+        }
+      },
+      "patterns": [
+        {
+          "include": "text.html.ember-handlebars"
+        }
+      ]
+    },
+    {
+      "name": "meta.js.embeddedTemplateWithArgs",
+      "begin": "(<)(template)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.html"
+        },
+        "2": {
+          "name": "entity.name.tag.other.html"
+        }
+      },
+      "end": "(</)(template)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.html"
+        },
+        "2": {
+          "name": "entity.name.tag.other.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.html"
+        }
+      },
+      "patterns": [
+        {
+          "begin": "(?<=\\<template)",
+          "end": "(?=\\>)",
+          "patterns": [
+            {
+              "include": "text.html.ember-handlebars#tag-like-content"
+            }
+          ]
+        },
+        {
+          "begin": "(>)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.tag.end.js"
+            }
+          },
+          "end": "(?=</template>)",
+          "contentName": "meta.html.embedded.block",
+          "patterns": [
+            {
+              "include": "text.html.ember-handlebars"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "contentName": "meta.embedded.block.html",
+      "begin": "(?x)(\\b(?:\\w+\\.)*(?:hbs|html)\\s*)(`)",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.tagged-template.js"
+        },
+        "2": {
+          "name": "punctuation.definition.string.template.begin.js"
+        }
+      },
+      "end": "(`)",
+      "endCaptures": {
+        "0": {
+          "name": "string.js"
+        },
+        "1": {
+          "name": "punctuation.definition.string.template.end.js"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.ts#template-substitution-element"
+        },
+        {
+          "include": "text.html.ember-handlebars"
+        }
+      ]
+    },
+    {
+      "begin": "((createTemplate|hbs|html))(\\()",
+      "contentName": "meta.embedded.block.html",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.ts"
+        },
+        "2": {
+          "name": "meta.function-call.ts"
+        },
+        "3": {
+          "name": "meta.brace.round.ts"
+        }
+      },
+      "end": "(\\))",
+      "endCaptures": {
+        "1": {
+          "name": "meta.brace.round.ts"
+        }
+      },
+      "patterns": [
+        {
+          "begin": "((`|'|\"))",
+          "beginCaptures": {
+            "1": {
+              "name": "string.template.ts"
+            },
+            "2": {
+              "name": "punctuation.definition.string.template.begin.ts"
+            }
+          },
+          "end": "((`|'|\"))",
+          "endCaptures": {
+            "1": {
+              "name": "string.template.ts"
+            },
+            "2": {
+              "name": "punctuation.definition.string.template.end.ts"
+            }
+          },
+          "patterns": [
+            {
+              "include": "text.html.ember-handlebars"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "begin": "((precompileTemplate)\\s*)(\\()",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.ts"
+        },
+        "2": {
+          "name": "meta.function-call.ts"
+        },
+        "3": {
+          "name": "meta.brace.round.ts"
+        }
+      },
+      "end": "(\\))",
+      "endCaptures": {
+        "1": {
+          "name": "meta.brace.round.ts"
+        }
+      },
+      "patterns": [
+        {
+          "begin": "((`|'|\"))",
+          "contentName": "meta.embedded.block.html",
+          "beginCaptures": {
+            "1": {
+              "name": "string.template.ts"
+            },
+            "2": {
+              "name": "punctuation.definition.string.template.begin.ts"
+            }
+          },
+          "end": "((`|'|\"))",
+          "endCaptures": {
+            "1": {
+              "name": "string.template.ts"
+            },
+            "2": {
+              "name": "punctuation.definition.string.template.end.ts"
+            }
+          },
+          "patterns": [
+            {
+              "include": "text.html.ember-handlebars"
+            }
+          ]
+        },
+        {
+          "include": "source.ts#object-literal"
+        },
+        {
+          "include": "source.ts"
+        }
+      ]
+    }
+  ],
+  "repository": {
+    "gts-code-block": {
+      "name": "markup.fenced_code.block.markdown",
+      "begin": "(^|\\G)(\\s*)(\\`{3,}|~{3,})\\s*(?i:(gts)(\\s+[^`~]*)?$)",
+      "end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$",
+      "beginCaptures": {
+        "3": {
+          "name": "punctuation.definition.markdown"
+        },
+        "4": {
+          "name": "fenced_code.block.language.markdown"
+        },
+        "5": {
+          "name": "fenced_code.block.language.attributes.markdown"
+        }
+      },
+      "endCaptures": {
+        "3": {
+          "name": "punctuation.definition.markdown"
+        }
+      },
+      "patterns": [
+        {
+          "begin": "(^|\\G)(\\s*)(.*)",
+          "while": "(^|\\G)(?!\\s*([`~]{3,})\\s*$)",
+          "contentName": "meta.embedded.block.gts",
+          "patterns": [
+            {
+              "include": "source.gts"
+            }
+          ]
+        }
+      ]
+    },
+    "gjs-code-block": {
+      "name": "markup.fenced_code.block.markdown",
+      "begin": "(^|\\G)(\\s*)(\\`{3,}|~{3,})\\s*(?i:(gjs)(\\s+[^`~]*)?$)",
+      "end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$",
+      "beginCaptures": {
+        "3": {
+          "name": "punctuation.definition.markdown"
+        },
+        "4": {
+          "name": "fenced_code.block.language.markdown"
+        },
+        "5": {
+          "name": "fenced_code.block.language.attributes.markdown"
+        }
+      },
+      "endCaptures": {
+        "3": {
+          "name": "punctuation.definition.markdown"
+        }
+      },
+      "patterns": [
+        {
+          "begin": "(^|\\G)(\\s*)(.*)",
+          "while": "(^|\\G)(?!\\s*([`~]{3,})\\s*$)",
+          "contentName": "meta.embedded.block.gjs",
+          "patterns": [
+            {
+              "include": "source.gjs"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scopeName": "markdown.glimmer.codeblock"
+}

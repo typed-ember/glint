@@ -1,5 +1,6 @@
 *.js
 *.d.ts
+*.d.ts.map
 tsconfig.tsbuildinfo
 
 !registry/**/*.d.ts

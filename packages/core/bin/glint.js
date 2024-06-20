@@ -1,2 +1,4 @@
 #!/usr/bin/env node
-import '../lib/cli/index.js';
+// @ts-check
+import { run } from '../lib/cli/run-volar-tsc.js';
+run();

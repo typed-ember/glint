@@ -614,7 +614,7 @@ describe('CLI: single-pass build mode typechecking', () => {
 
             expect(checkResult.exitCode).toBe(0);
             expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot('""');
+            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`""`);
 
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
@@ -626,7 +626,7 @@ describe('CLI: single-pass build mode typechecking', () => {
 
             expect(checkResult.exitCode).toBe(0);
             expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot('""');
+            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`""`);
 
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
@@ -793,7 +793,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "../b/src/index.gts:2:34 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              2 const Usage = <template>{{double \\"hello\\"}}</template>;
+              2 const Usage = <template>{{double "hello"}}</template>;
                                                  ~~~~~~~
               "
             `);
@@ -811,7 +811,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "src/index.gts:2:34 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              2 const Usage = <template>{{double \\"hello\\"}}</template>;
+              2 const Usage = <template>{{double "hello"}}</template>;
                                                  ~~~~~~~
               "
             `);
@@ -1019,7 +1019,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "../c/src/index.gts:2:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              2 const useDouble = <template>{{double \\"hello\\"}}</template>;
+              2 const useDouble = <template>{{double "hello"}}</template>;
                                                      ~~~~~~~
               "
             `);
@@ -1037,7 +1037,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "../c/src/index.gts:2:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              2 const useDouble = <template>{{double \\"hello\\"}}</template>;
+              2 const useDouble = <template>{{double "hello"}}</template>;
                                                      ~~~~~~~
               "
             `);
@@ -1055,7 +1055,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
               "src/index.gts:2:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
-              2 const useDouble = <template>{{double \\"hello\\"}}</template>;
+              2 const useDouble = <template>{{double "hello"}}</template>;
                                                      ~~~~~~~
               "
             `);

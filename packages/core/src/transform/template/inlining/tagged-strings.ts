@@ -1,4 +1,4 @@
-import type * as ts from 'typescript';
+import type ts from 'typescript';
 import { GlintTagConfig } from '@glint/core/config-types';
 import { GlintEnvironment } from '../../../config/index.js';
 import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from './index.js';

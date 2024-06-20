@@ -26,8 +26,8 @@ export class TextContent {
 }
 
 /**
- * This node represents the root of an embedded template, including any
- * boilerplate like tagged template syntax or `<template>` that designates
+ * This node represents the root of an embedded template, including
+ * the surrounding `<template>...</template>` boilerplate that designates
  * the surrounded contents as a template.
  */
 export class TemplateEmbedding {

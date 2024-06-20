@@ -5,11 +5,20 @@ import { createRequire } from 'node:module';
 import { execaNode, ExecaChildProcess, Options } from 'execa';
 import { type GlintConfigInput } from '@glint/core/config-types';
 import { pathUtils, analyzeProject, ProjectAnalysis } from '@glint/core';
+import { startLanguageServer, LanguageServerHandle } from '@volar/test-utils';
+import { FullDocumentDiagnosticReport } from '@volar/language-service';
+import { URI } from 'vscode-uri';
+import { Diagnostic } from 'typescript';
+import { Position, Range, TextEdit } from '@volar/language-server';
 
-type GlintLanguageServer = ProjectAnalysis['languageServer'];
+// type GlintLanguageServer = ProjectAnalysis['languageServer'];
 
 const require = createRequire(import.meta.url);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
+const pathToTemplatePackage = pathUtils.normalizeFilePath(
+  path.resolve(dirname, '../../../packages/template')
+);
+const fileUriToTemplatePackage = pathUtils.filePathToUri(pathToTemplatePackage);
 const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
@@ -27,9 +36,12 @@ interface TsconfigWithGlint {
 const newWorkingDir = (): string =>
   pathUtils.normalizeFilePath(path.join(ROOT, Math.random().toString(16).slice(2)));
 
+// export type LanguageServerHandle = ReturnType<typeof startLanguageServer>;
+
 export class Project {
   private rootDir: string;
-  private projectAnalysis?: ProjectAnalysis;
+  // private projectAnalysis?: ProjectAnalysis;
+  private languageServerHandle?: LanguageServerHandle;
 
   private constructor(rootDir: string) {
     this.rootDir = rootDir;
@@ -43,14 +55,107 @@ export class Project {
     return pathUtils.filePathToUri(this.filePath(fileName));
   }
 
-  public startLanguageServer(): GlintLanguageServer {
-    if (this.projectAnalysis) {
+  public async startLanguageServer() {
+    if (this.languageServerHandle) {
       throw new Error('Language server is already running');
     }
 
-    this.projectAnalysis = analyzeProject(this.rootDir);
+    const languageServerHandle = startLanguageServer('../core/bin/glint-language-server.js');
+    this.languageServerHandle = languageServerHandle;
 
-    return this.projectAnalysis.languageServer;
+    const initializeParams = {
+      // TODO: is this necessary to add?
+      // typescript: {
+      //   tsdk: path.join(
+      //     path.dirname(fileURLToPath(import.meta.url)),
+      //     '../',
+      //     'node_modules',
+      //     'typescript',
+      //     'lib'
+      //   ),
+      // },
+    };
+    const capabilities = {
+      workspace: {
+        // Needed for tests that use didChangeWatchedFiles
+        didChangeWatchedFiles: {
+          // Unsure if these are needed at some point, but if so we'll need to implement addition hooks/commands to support.
+          // dynamicRegistration: true,
+          // relativePatternSupport: true,
+        },
+      },
+    };
+
+    await this.languageServerHandle
+      .initialize(this.rootDir, initializeParams, capabilities)
+      .catch((e) => {
+        console.error(e);
+        throw e;
+      });
+
+    const wrapForSnapshottability = (serviceMethodName: keyof typeof languageServerHandle) => {
+      return async (uri: string, ...rest: any[]) => {
+        // @ts-expect-error not sure how to type this
+        const value = await languageServerHandle[serviceMethodName](uri, ...rest);
+        return this.normalizeForSnapshotting(uri, value);
+      }
+    }
+
+    return {
+      ...this.languageServerHandle,
+
+      sendDocumentDiagnosticRequest: wrapForSnapshottability('sendDocumentDiagnosticRequest'),
+      sendDefinitionRequest: wrapForSnapshottability('sendDefinitionRequest'),
+      sendHoverRequest: wrapForSnapshottability('sendHoverRequest'),
+
+      /**
+       * Helper fn that makes it easier to replace the whole contents of a file,
+       * rather than having to manually construct the Range and TextEdit.
+       */
+      replaceTextDocument: async (uri: string, text: string) => {
+        // await languageServerHandle.replaceTextDocument(uri, text);
+
+        // Create a Range that represents the whole document
+        const wholeDocumentRange = Range.create(
+          Position.create(0, 0),
+          Position.create(Number.MAX_VALUE, Number.MAX_VALUE)
+        );
+
+        const textEdit = TextEdit.replace(wholeDocumentRange, text);
+
+        return await languageServerHandle.updateTextDocument(uri, [textEdit]);
+      },
+    };
+  }
+
+  /**
+   * Processes the language server return object passed in and converts any absolute URIs to
+   * local files (which differ between localhost and CI) to static strings
+   * so that they can be easily snapshotted in tests using `toMatchInlineSnapshot`.
+   *
+   * @param uri
+   * @param diagnosticItems
+   * @returns array of diagnostic
+   */
+  normalizeForSnapshotting(uri: string, object: unknown) {
+    let stringified = JSON.stringify(object);
+
+    const volarEmbeddedContentUri = URI.from({
+      scheme: 'volar-embedded-content',
+      authority: 'ts',
+      path: '/' + encodeURIComponent(uri),
+    });
+
+    const normalized = stringified
+      .replaceAll(
+        volarEmbeddedContentUri.toString(),
+        `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
+      )
+      .replaceAll(this.filePath('.'), '/path/to/EPHEMERAL_TEST_PROJECT')
+      .replaceAll(this.fileURI('.'), 'file:///PATH_TO_EPHEMERAL_TEST_PROJECT')
+      .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+
+    return JSON.parse(normalized);
   }
 
   /**
@@ -170,11 +275,22 @@ export class Project {
   }
 
   public async destroy(): Promise<void> {
-    this.projectAnalysis?.shutdown();
+    // this.projectAnalysis?.shutdown();
+    this.languageServerHandle?.connection.dispose();
+
     fs.rmSync(this.rootDir, { recursive: true, force: true });
   }
 
   public check(options: Options & { flags?: string[] } = {}): ExecaChildProcess {
+    if (!options.flags) {
+      options.flags = [];
+    }
+
+    // Not sure why this is needed, but in some contexts, `--pretty` is disabled
+    // because TS doesn't detect a TTY setup.
+    // https://github.com/microsoft/TypeScript/blob/c38569655bb151ec351c27032fbd3ef43b8856ba/src/compiler/executeCommandLine.ts#L160
+    options.flags = [...options.flags, '--pretty'];
+
     return execaNode(require.resolve('@glint/core/bin/glint'), options.flags, {
       cwd: this.rootDir,
       ...options,
@@ -182,14 +298,12 @@ export class Project {
   }
 
   public watch(options: Options & { flags?: string[] } = {}): Watch {
-    let watchFlag = ['--watch'];
-    let flags = options.flags ? watchFlag.concat(options.flags) : watchFlag;
+    let flags = ['--watch', ...(options.flags ?? [])];
     return new Watch(this.check({ ...options, flags, reject: false }));
   }
 
   public build(options: Options & { flags?: string[] } = {}, debug = false): ExecaChildProcess {
-    let build = ['--build'];
-    let flags = options.flags ? build.concat(options.flags) : build;
+    let flags = ['--build', '--pretty', ...(options.flags ?? [])];
     return execaNode(require.resolve('@glint/core/bin/glint'), flags, {
       cwd: this.rootDir,
       nodeOptions: debug ? ['--inspect-brk'] : [],
@@ -198,8 +312,7 @@ export class Project {
   }
 
   public buildWatch(options: Options & { flags?: string[] } = {}): Watch {
-    let watchFlag = ['--watch'];
-    let flags = options.flags ? watchFlag.concat(options.flags) : watchFlag;
+    let flags = ['--watch', ...(options.flags ?? [])];
     return new Watch(this.build({ ...options, flags, reject: false }));
   }
 }

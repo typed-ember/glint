@@ -2,12 +2,12 @@ import { statSync as fsStatSync, Stats, existsSync } from 'fs';
 import {
   TransformedModule,
   rewriteModule,
-  rewriteDiagnostic,
+  // rewriteDiagnostic,
   Directive,
   Diagnostic,
-  createTransformDiagnostic,
+  // createTransformDiagnostic,
 } from '../transform/index.js';
-import type * as ts from 'typescript';
+import type ts from 'typescript';
 import { GlintConfig } from '../config/index.js';
 import DocumentCache, { templatePathForSynthesizedModule } from './document-cache.js';
 
@@ -55,47 +55,6 @@ export default class TransformManager {
 
       return [];
     });
-  }
-
-  public rewriteDiagnostics(
-    diagnostics: ReadonlyArray<Diagnostic>,
-    fileName?: string
-  ): ReadonlyArray<ts.Diagnostic> {
-    let unusedExpectErrors = new Set(this.getExpectErrorDirectives(fileName));
-    let allDiagnostics = [];
-    for (let diagnostic of diagnostics) {
-      let { rewrittenDiagnostic, appliedDirective } = this.rewriteDiagnostic(diagnostic);
-      if (rewrittenDiagnostic) {
-        allDiagnostics.push(rewrittenDiagnostic);
-      }
-
-      if (appliedDirective?.kind === 'expect-error') {
-        unusedExpectErrors.delete(appliedDirective);
-      }
-    }
-
-    for (let directive of unusedExpectErrors) {
-      allDiagnostics.push(
-        createTransformDiagnostic(
-          this.ts,
-          directive.source,
-          `Unused '@glint-expect-error' directive.`,
-          directive.location
-        )
-      );
-    }
-
-    // When we have syntax errors we get _too many errors_
-    // if we have an issue with <template> tranformation, we should
-    // make the user fix their syntax before revealing all the other errors.
-    let contentTagErrors = allDiagnostics.filter(
-      (diagnostic) => (diagnostic as Diagnostic).isContentTagError
-    );
-    if (contentTagErrors.length) {
-      return this.ts.sortAndDeduplicateDiagnostics(contentTagErrors);
-    }
-
-    return this.ts.sortAndDeduplicateDiagnostics(allDiagnostics);
   }
 
   public getTransformedRange(
@@ -209,6 +168,8 @@ export default class TransformManager {
     });
   };
 
+  // This is only called when using TransformManagerPool, which is only
+  // used for CLI commands like in `perform-build-watch` and `perform-build`.
   public watchTransformedFile = (
     path: string,
     originalCallback: ts.FileWatcherCallback,
@@ -341,6 +302,7 @@ export default class TransformManager {
 
   /** @internal `TransformInfo` is an unstable internal type */
   public findTransformInfoForOriginalFile(originalFileName: string): TransformInfo | null {
+    // when we're fetching completions for a template, we need to try and find the companion object, i.e. backing TS file.
     let transformedFileName = this.glintConfig.environment.isTemplate(originalFileName)
       ? this.documents.getCompanionDocumentPath(originalFileName)
       : originalFileName;
@@ -348,60 +310,47 @@ export default class TransformManager {
     return transformedFileName ? this.getTransformInfo(transformedFileName) : null;
   }
 
-  private getExpectErrorDirectives(filename?: string): Array<Directive> {
-    let transformInfos = filename
-      ? [this.getTransformInfo(filename)]
-      : [...this.transformCache.values()];
+  // private rewriteDiagnostic(diagnostic: Diagnostic): {
+  //   rewrittenDiagnostic?: ts.Diagnostic;
+  //   appliedDirective?: Directive;
+  // } {
+  //   if (!diagnostic.file) return {};
 
-    return transformInfos.flatMap((transformInfo) => {
-      if (!transformInfo.transformedModule) return [];
+  //   // Transform diagnostics are already targeted at the original source and so
+  //   // don't need to be rewritten.
+  //   if ('isGlintTransformDiagnostic' in diagnostic && diagnostic.isGlintTransformDiagnostic) {
+  //     return { rewrittenDiagnostic: diagnostic };
+  //   }
 
-      return transformInfo.transformedModule.directives.filter(
-        (directive) => directive.kind === 'expect-error'
-      );
-    });
-  }
+  //   // fetch the transformInfo for a particular file....... can we just pass this in?
+  //   let transformInfo = this.getTransformInfo(diagnostic.file?.fileName);
+  //   let rewrittenDiagnostic = rewriteDiagnostic(
+  //     this.ts,
+  //     diagnostic,
+  //     (fileName) => this.getTransformInfo(fileName)?.transformedModule
+  //   );
 
-  private rewriteDiagnostic(diagnostic: Diagnostic): {
-    rewrittenDiagnostic?: ts.Diagnostic;
-    appliedDirective?: Directive;
-  } {
-    if (!diagnostic.file) return {};
+  //   if (rewrittenDiagnostic.file) {
+  //     rewrittenDiagnostic.file.fileName = this.documents.getCanonicalDocumentPath(
+  //       rewrittenDiagnostic.file.fileName
+  //     );
+  //   }
 
-    // Transform diagnostics are already targeted at the original source and so
-    // don't need to be rewritten.
-    if ('isGlintTransformDiagnostic' in diagnostic && diagnostic.isGlintTransformDiagnostic) {
-      return { rewrittenDiagnostic: diagnostic };
-    }
+  //   let appliedDirective = transformInfo.transformedModule?.directives.find(
+  //     (directive) =>
+  //       directive.source.filename === rewrittenDiagnostic.file?.fileName &&
+  //       directive.areaOfEffect.start <= rewrittenDiagnostic.start! &&
+  //       directive.areaOfEffect.end > rewrittenDiagnostic.start!
+  //   );
 
-    let transformInfo = this.getTransformInfo(diagnostic.file?.fileName);
-    let rewrittenDiagnostic = rewriteDiagnostic(
-      this.ts,
-      diagnostic,
-      (fileName) => this.getTransformInfo(fileName)?.transformedModule
-    );
-
-    if (rewrittenDiagnostic.file) {
-      rewrittenDiagnostic.file.fileName = this.documents.getCanonicalDocumentPath(
-        rewrittenDiagnostic.file.fileName
-      );
-    }
-
-    let appliedDirective = transformInfo.transformedModule?.directives.find(
-      (directive) =>
-        directive.source.filename === rewrittenDiagnostic.file?.fileName &&
-        directive.areaOfEffect.start <= rewrittenDiagnostic.start! &&
-        directive.areaOfEffect.end > rewrittenDiagnostic.start!
-    );
-
-    // All current directives have the effect of squashing any diagnostics they apply
-    // to, so if we have an applicable directive, we don't return the diagnostic.
-    if (appliedDirective) {
-      return { appliedDirective };
-    } else {
-      return { rewrittenDiagnostic };
-    }
-  }
+  //   // All current directives have the effect of squashing any diagnostics they apply
+  //   // to, so if we have an applicable directive, we don't return the diagnostic.
+  //   if (appliedDirective) {
+  //     return { appliedDirective };
+  //   } else {
+  //     return { rewrittenDiagnostic };
+  //   }
+  // }
 
   private getTransformInfo(filename: string, encoding?: string): TransformInfo {
     let { documents, glintConfig } = this;
@@ -415,10 +364,11 @@ export default class TransformManager {
 
     let transformedModule: TransformedModule | null = null;
     if (environment.isScript(filename) && glintConfig.includesFile(filename)) {
+      // if file (e.g. foo.ts) is script and glintConfig has registered extensions matching file
       if (documents.documentExists(filename)) {
-        let contents = documents.getDocumentContents(filename, encoding);
-        let templatePath = documents.getCompanionDocumentPath(filename);
-        let canonicalPath = documents.getCanonicalDocumentPath(filename);
+        let contents = documents.getDocumentContents(filename, encoding); // filename is ember-component.ts
+        let templatePath = documents.getCompanionDocumentPath(filename); // templatePath is ember-component.hbs
+        let canonicalPath = documents.getCanonicalDocumentPath(filename); // same as filename (ember-component.ts)
         let mayHaveEmbeds = environment.moduleMayHaveEmbeddedTemplates(canonicalPath, contents);
 
         if (mayHaveEmbeds || templatePath) {
@@ -430,9 +380,10 @@ export default class TransformManager {
               }
             : undefined;
 
-          transformedModule = rewriteModule(this.ts, { script, template }, environment);
+          transformedModule = rewriteModule(this.ts, { script, template }, environment); // rewrite .ts to have embedded .hbs file
         }
       } else {
+        // i don't know... this isn't a real file?
         let templatePath = templatePathForSynthesizedModule(filename);
         if (
           documents.documentExists(templatePath) &&
@@ -448,7 +399,7 @@ export default class TransformManager {
           };
 
           transformedModule = rewriteModule(this.ts, { script, template }, glintConfig.environment);
-        }
+        } // ELSE set breakpoint? when does this happen?
       }
     }
 
@@ -459,15 +410,16 @@ export default class TransformManager {
   }
 
   private buildTransformDiagnostics(transformedModule: TransformedModule): Array<Diagnostic> {
-    return transformedModule.errors.map((error) =>
-      createTransformDiagnostic(
-        this.ts,
-        error.source,
-        error.message,
-        error.location,
-        error.isContentTagError
-      )
-    );
+    return [];
+    // return transformedModule.errors.map((error) =>
+    //   createTransformDiagnostic(
+    //     this.ts,
+    //     error.source,
+    //     error.message,
+    //     error.location,
+    //     error.isContentTagError
+    //   )
+    // );
   }
 }
 

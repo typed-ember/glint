@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import type * as ts from 'typescript';
+import type ts from 'typescript';
 import { GlintEnvironment } from '../../../config/index.js';
 import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from './index.js';
 import { RewriteResult } from '../map-template-contents.js';
@@ -35,6 +35,7 @@ export function calculateCompanionTemplateSpans(
   let useJsDoc = environment.isUntypedScript(script.filename);
   let targetNode = findCompanionTemplateTarget(ts, ast);
   if (targetNode && ts.isClassLike(targetNode)) {
+    // is targetNode an exported default class?
     let rewriteResult = templateToTypescript(template.contents, {
       typesModule,
       specialForms,

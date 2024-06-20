@@ -35,6 +35,26 @@
         "vscode.typescript-language-features",
         "${workspaceFolder}/test-packages"
       ]
+    },
+    {
+      "name": "Debug Extension (Glint Only, No TS, Disable Ember LS)",
+      "type": "extensionHost",
+      "request": "launch",
+      "preLaunchTask": "npm: build",
+      "autoAttachChildProcesses": true,
+      "runtimeExecutable": "${execPath}",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js",
+        "!**/node_modules/**"
+      ],
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+        "--disable-extension",
+        "vscode.typescript-language-features",
+        "--disable-extension",
+        "lifeart.vscode-glimmer-syntax",
+        "${workspaceFolder}/test-packages"
+      ]
     }
   ]
 }

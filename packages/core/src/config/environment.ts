@@ -21,6 +21,10 @@ export const DEFAULT_EXTENSIONS: GlintExtensionsConfig = {
   '.ts': { kind: 'typed-script' },
 };
 
+/**
+ * A GlintEnvironment represents the _merged_ configurations of one or more
+ * glint environments (e.g. ember-loose and ember-template-imports).
+ */
 export class GlintEnvironment {
   private tagConfig: GlintTagsConfig;
   private extensionsConfig: GlintExtensionsConfig;
@@ -33,9 +37,19 @@ export class GlintEnvironment {
 
   public constructor(public readonly names: Array<string>, config: GlintEnvironmentConfig) {
     this.tagConfig = config.tags ?? {};
-    this.extensionsConfig = config.extensions ?? {};
+    // when is this populated? what is config?
+    this.extensionsConfig = config. extensions ?? {};
     this.standaloneTemplateConfig = config.template;
     this.tagImportRegexp = this.buildTagImportRegexp();
+
+    /**
+     * export declare type GlintEnvironmentConfig = {
+    tags?: GlintTagsConfig;
+    template?: GlintTemplateConfig;
+    extensions?: GlintExtensionsConfig;
+      };
+
+     */
 
     this.typedScriptExtensions = this.extensionsOfType('typed-script');
     this.untypedScriptExtensions = this.extensionsOfType('untyped-script');

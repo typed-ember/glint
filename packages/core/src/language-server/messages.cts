@@ -1,4 +1,4 @@
-import { ProtocolRequestType, TextEdit } from 'vscode-languageserver';
+import { ProtocolRequestType, TextEdit } from '@volar/language-server';
 
 export type Request<Name extends string, T> = {
   name: Name;
@@ -10,11 +10,6 @@ export const GetIRRequest = makeRequestType(
   ProtocolRequestType<GetIRParams, GetIRResult | null, void, void, void>
 );
 
-export const SortImportsRequest = makeRequestType(
-  'glint/sortImports',
-  ProtocolRequestType<SortImportsParams, SortImportsResult | null, void, void, void>
-);
-
 export interface GetIRParams {
   uri: string;
 }
@@ -23,12 +18,6 @@ export interface GetIRResult {
   contents: string;
   uri: string;
 }
-
-export interface SortImportsParams {
-  uri: string;
-}
-
-export type SortImportsResult = TextEdit[];
 
 // This utility allows us to encode type information to enforce that we're using
 // a valid request name along with its associated param/response types without

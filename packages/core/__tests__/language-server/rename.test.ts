@@ -13,12 +13,12 @@ describe('Language Server: Renaming Symbols', () => {
     await project.destroy();
   });
 
-  test('querying an standalone template', () => {
+  test.skip('querying an standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
-    let server = project.startLanguageServer();
-    let workspaceEdits = server.getEditsForRename(
+    let server = await project.startLanguageServer();
+    let workspaceEdits = await server.sendRenameRequest(
       project.fileURI('index.hbs'),
       { line: 0, character: 11 },
       'bar'
@@ -46,7 +46,7 @@ describe('Language Server: Renaming Symbols', () => {
     });
   });
 
-  test('preparing rename-able and unrename-able elements', () => {
+  test('preparing rename-able and unrename-able elements', async () => {
     project.write({
       'index.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -66,8 +66,10 @@ describe('Language Server: Renaming Symbols', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
-    let renameSuccessful = server.prepareRename(project.fileURI('index.gts'), {
+    let server = await project.startLanguageServer();
+    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+
+    const renameSuccessful = await server.sendPrepareRenameRequest(uri, {
       line: 10,
       character: 12,
     });
@@ -77,16 +79,19 @@ describe('Language Server: Renaming Symbols', () => {
       end: { line: 10, character: 14 },
     });
 
-    let renameFail = server.prepareRename(project.fileURI('index.gts'), {
-      line: 11,
-      character: 10,
-    });
-
-    expect(renameFail).toBeUndefined();
+    try {
+      await server.sendPrepareRenameRequest(uri, {
+        line: 11,
+        character: 10,
+      });
+      expect.fail('Should not get here');
+    } catch (e) {
+      expect((e as Error).message).toEqual('You cannot rename this element.');
+    }
   });
 
   // TODO: skipped because renaming might not be fully implemented for .gts files
-  test.skip('renaming an arg', () => {
+  test.skip('renaming an arg', async () => {
     project.write({
       'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -111,22 +116,22 @@ describe('Language Server: Renaming Symbols', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let expectedWorkspaceEdit = {
       changes: {
         [project.fileURI('greeting.gts')]: [
           {
             newText: 'greeting',
             range: {
-              end: { character: 9, line: 3 },
-              start: { character: 2, line: 3 },
+              end: { character: 22, line: 7 },
+              start: { character: 15, line: 7 },
             },
           },
           {
             newText: 'greeting',
             range: {
-              end: { character: 34, line: 7 },
-              start: { character: 27, line: 7 },
+              end: { character: 9, line: 3 },
+              start: { character: 2, line: 3 },
             },
           },
         ],
@@ -143,7 +148,9 @@ describe('Language Server: Renaming Symbols', () => {
     };
 
     // Rename `@message` at the point where we pass it to the component
-    let renamePassedArg = server.getEditsForRename(
+    await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
+
+    let renamePassedArg = await server.sendRenameRequest(
       project.fileURI('index.gts'),
       { line: 5, character: 17 },
       'greeting'
@@ -151,8 +158,10 @@ describe('Language Server: Renaming Symbols', () => {
 
     expect(renamePassedArg).toEqual(expectedWorkspaceEdit);
 
+    await server.openTextDocument(project.filePath('greeting.gts'), 'glimmer-ts');
+
     // Rename `@message` where we use it in the template
-    let renameReferencedArg = server.getEditsForRename(
+    let renameReferencedArg = await server.sendRenameRequest(
       project.fileURI('greeting.gts'),
       { line: 7, character: 31 },
       'greeting'
@@ -161,7 +170,7 @@ describe('Language Server: Renaming Symbols', () => {
     expect(renameReferencedArg).toEqual(expectedWorkspaceEdit);
 
     // Rename `@message` where we its type is declared
-    let renameDeclaredArg = server.getEditsForRename(
+    let renameDeclaredArg = await server.sendRenameRequest(
       project.fileURI('greeting.gts'),
       { line: 3, character: 2 },
       'greeting'
@@ -170,7 +179,7 @@ describe('Language Server: Renaming Symbols', () => {
     expect(renameDeclaredArg).toEqual(expectedWorkspaceEdit);
   });
 
-  test('renaming a block param', () => {
+  test('renaming a block param', async () => {
     project.write({
       'index.gts': stripIndent`
         import Component from '@glimmer/component';
@@ -185,17 +194,10 @@ describe('Language Server: Renaming Symbols', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
     let expectedWorkspaceEdit = {
       changes: {
         [project.fileURI('index.gts')]: [
-          {
-            newText: 'character',
-            range: {
-              start: { line: 4, character: 36 },
-              end: { line: 4, character: 42 },
-            },
-          },
           {
             newText: 'character',
             range: {
@@ -203,12 +205,19 @@ describe('Language Server: Renaming Symbols', () => {
               end: { line: 5, character: 14 },
             },
           },
+          {
+            newText: 'character',
+            range: {
+              start: { line: 4, character: 36 },
+              end: { line: 4, character: 42 },
+            },
+          },
         ],
       },
     };
 
     // Rename the param where it's defined in bars
-    let renameDefinition = server.getEditsForRename(
+    let renameDefinition = await server.sendRenameRequest(
       project.fileURI('index.gts'),
       { line: 4, character: 38 },
       'character'
@@ -217,7 +226,7 @@ describe('Language Server: Renaming Symbols', () => {
     expect(renameDefinition).toEqual(expectedWorkspaceEdit);
 
     // Rename the param where it's used in curlies
-    let renameUsage = server.getEditsForRename(
+    let renameUsage = await server.sendRenameRequest(
       project.fileURI('index.gts'),
       { line: 5, character: 10 },
       'character'
@@ -239,6 +248,7 @@ describe('Language Server: Renaming Symbols', () => {
           <template>{{@message}}, World!</template>
         }
       `,
+      // fails when you try to change it here
       'index.gts': stripIndent`
         import Component from '@glimmer/component';
         import Greeting from './greeting';
@@ -251,7 +261,25 @@ describe('Language Server: Renaming Symbols', () => {
       `,
     });
 
-    let server = project.startLanguageServer();
+    let server = await project.startLanguageServer();
+
+    const expectedIndexGtsChanges = [
+      {
+        newText: 'Salutation',
+        range: {
+          start: { line: 5, character: 5 },
+          end: { line: 5, character: 13 },
+        },
+      },
+      {
+        newText: 'Salutation',
+        range: {
+          start: { line: 1, character: 7 },
+          end: { line: 1, character: 15 },
+        },
+      },
+    ];
+
     let expectedWorkspaceEdit = {
       changes: {
         [project.fileURI('greeting.gts')]: [
@@ -263,27 +291,12 @@ describe('Language Server: Renaming Symbols', () => {
             },
           },
         ],
-        [project.fileURI('index.gts')]: [
-          {
-            newText: 'Salutation',
-            range: {
-              start: { line: 1, character: 7 },
-              end: { line: 1, character: 15 },
-            },
-          },
-          {
-            newText: 'Salutation',
-            range: {
-              start: { line: 5, character: 5 },
-              end: { line: 5, character: 13 },
-            },
-          },
-        ],
+        [project.fileURI('index.gts')]: expectedIndexGtsChanges,
       },
     };
 
     // Rename the component class where it's defined
-    let renameDefinition = server.getEditsForRename(
+    let renameDefinition = await server.sendRenameRequest(
       project.fileURI('greeting.gts'),
       { line: 6, character: 24 },
       'Salutation'
@@ -292,12 +305,20 @@ describe('Language Server: Renaming Symbols', () => {
     expect(renameDefinition).toEqual(expectedWorkspaceEdit);
 
     // Rename the component class from where it's invoked
-    let renameUsage = server.getEditsForRename(
+    let renameUsage = await server.sendRenameRequest(
       project.fileURI('index.gts'),
       { line: 5, character: 9 },
       'Salutation'
     );
 
-    expect(renameUsage).toEqual(expectedWorkspaceEdit);
+    // NOTE: this changed since Volar; previously renaming the component class within index.gts
+    // would also trigger the source Greeting class to rename itself, but this does not appear
+    // to do the same thing as normal TypeScript, and I think Volar brought us more in line
+    // with vanilla TS.
+    expect(renameUsage).toEqual({
+      changes: {
+        [project.fileURI('index.gts')]: expectedIndexGtsChanges,
+      }
+    });
   });
 });

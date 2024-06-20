@@ -1,5 +1,4 @@
 export { positionToOffset, offsetToPosition } from './position.js';
-export { scriptElementKindToCompletionItemKind } from './protocol.js';
 
 import { URI } from 'vscode-uri';
 

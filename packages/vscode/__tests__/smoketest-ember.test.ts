@@ -76,7 +76,7 @@ describe('Smoke test: Ember', () => {
       expect(languages.getDiagnostics(templateURI)).toMatchObject([
         {
           message: "Property 'message' does not exist on type 'ColocatedLayoutComponent'.",
-          source: 'glint',
+          source: 'ts',
           code: 2339,
           range: new Range(0, 7, 0, 14),
         },
@@ -101,7 +101,7 @@ describe('Smoke test: Ember', () => {
       expect(languages.getDiagnostics(scriptURI)).toMatchObject([
         {
           message: "Property 'foo' does not exist on type 'MyTestContext'.",
-          source: 'glint',
+          source: 'ts',
           code: 2339,
           range: new Range(17, 13, 17, 16),
         },
