@@ -301,14 +301,12 @@ export class Project {
   }
 
   public watch(options: Options & { flags?: string[] } = {}): Watch {
-    let watchFlag = ['--watch'];
-    let flags = options.flags ? watchFlag.concat(options.flags) : watchFlag;
+    let flags = ['--watch', ...(options.flags ?? [])];
     return new Watch(this.check({ ...options, flags, reject: false }));
   }
 
   public build(options: Options & { flags?: string[] } = {}, debug = false): ExecaChildProcess {
-    let build = ['--build'];
-    let flags = options.flags ? build.concat(options.flags) : build;
+    let flags = ['--build', '--pretty', ...(options.flags ?? [])];
     return execaNode(require.resolve('@glint/core/bin/glint'), flags, {
       cwd: this.rootDir,
       nodeOptions: debug ? ['--inspect-brk'] : [],
@@ -317,8 +315,7 @@ export class Project {
   }
 
   public buildWatch(options: Options & { flags?: string[] } = {}): Watch {
-    let watchFlag = ['--watch'];
-    let flags = options.flags ? watchFlag.concat(options.flags) : watchFlag;
+    let flags = ['--watch', ...(options.flags ?? [])];
     return new Watch(this.build({ ...options, flags, reject: false }));
   }
 }
