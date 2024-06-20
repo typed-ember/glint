@@ -1,0 +1,51 @@
+# For every push to the master branch, this publishes an NPM package to the
+# "unstable" NPM tag.
+
+name: Publish Unstable
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: publish-unstable-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: "NPM Publish"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          # This creates an .npmrc that reads the NODE_AUTH_TOKEN environment variable
+          registry-url: 'https://registry.npmjs.org'
+      - name: Locate Yarn Cache
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+      # - name: Lint
+      #   run: yarn lint
+      - name: Build
+        run: yarn build
+
+
+      - name: set versions
+        run: node ./test-packages/unstable-release/version.js
+
+      - name: npm publish
+        run: node ./test-packages/unstable-release/publish.js
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
