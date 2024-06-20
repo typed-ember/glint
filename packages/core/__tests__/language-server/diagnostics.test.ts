@@ -196,7 +196,7 @@ describe('Language Server: Diagnostics', () => {
     let server = await project.startLanguageServer();
     const gtsUri = project.filePath('index.gts');
     const { uri } = await server.openTextDocument(gtsUri, 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+    const diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(diagnostics).toMatchInlineSnapshot(`
       [
@@ -387,12 +387,12 @@ describe('Language Server: Diagnostics', () => {
     project.write('component-b.gts', componentB);
 
     const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(docA.uri);
+    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
 
     expect(diagnostics).toEqual([]);
 
     const docB = await server.openTextDocument(project.filePath('component-b.gts'), 'glimmer-ts');
-    diagnostics = await server.sendDocumentDiagnosticRequestNormalized(docB.uri);
+    diagnostics = await server.sendDocumentDiagnosticRequest(docB.uri);
     expect(diagnostics).toEqual([]);
 
     await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
@@ -401,12 +401,11 @@ describe('Language Server: Diagnostics', () => {
       componentA.replace('{{! @glint-expect-error }}', '')
     );
 
-    expect(
-      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-b.gts'))
-    ).toEqual([]);
-    expect(
-      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-a.gts'))
-    ).toMatchInlineSnapshot(`
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).toEqual(
+      []
+    );
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
       [
         {
           "code": 2339,
@@ -437,23 +436,23 @@ describe('Language Server: Diagnostics', () => {
 
     await server.replaceTextDocument(project.fileURI('component-a.gts'), componentA);
 
-    expect(
-      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-a.gts'))
-    ).toEqual([]);
-    expect(
-      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-b.gts'))
-    ).toEqual([]);
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).toEqual(
+      []
+    );
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).toEqual(
+      []
+    );
 
     await server.replaceTextDocument(
       project.fileURI('component-a.gts'),
       componentA.replace('{{@version}}', '')
     );
 
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).toEqual(
+      []
+    );
     expect(
-      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-b.gts'))
-    ).toEqual([]);
-    expect(
-      await server.sendDocumentDiagnosticRequestNormalized(project.fileURI('component-a.gts'))
+      await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))
     ).toMatchInlineSnapshot(`[TODO should display unused glint-expect-error directive]`);
   });
 });

@@ -55,7 +55,7 @@ describe('Language Server: Definitions', () => {
     });
 
     let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequestNormalized(project.fileURI('index.gts'), {
+    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
       line: 5,
       character: 7,
     });
@@ -125,7 +125,7 @@ describe('Language Server: Definitions', () => {
     });
 
     let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequestNormalized(project.fileURI('index.gts'), {
+    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
       line: 5,
       character: 17,
     });
@@ -185,7 +185,7 @@ describe('Language Server: Definitions', () => {
     });
 
     let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequestNormalized(project.fileURI('greeting.gts'), {
+    let definitions = await server.sendDefinitionRequest(project.fileURI('greeting.gts'), {
       line: 7,
       character: 18,
     });

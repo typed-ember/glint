@@ -25,7 +25,7 @@ describe('Language Server: custom file extensions', () => {
     let server = await project.startLanguageServer();
 
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+    let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(diagnostics).toMatchInlineSnapshot(`
       [
@@ -147,7 +147,7 @@ describe('Language Server: custom file extensions', () => {
 
     const tsPath = project.filePath('consumer.ts');
     const { uri } = await server.openTextDocument(tsPath, 'typescript');
-    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+    let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(definitions).toMatchObject([{ targetUri: project.fileURI('index.ts') }]);
     expect(diagnostics).toEqual([]);
@@ -158,7 +158,7 @@ describe('Language Server: custom file extensions', () => {
     ]);
 
     definitions = await server.sendDefinitionRequest(consumerURI, { line: 2, character: 4 });
-    diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+    diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(definitions).toMatchObject([{ targetUri: project.fileURI('index.gts') }]);
     expect(diagnostics).toEqual([]);
@@ -168,7 +168,7 @@ describe('Language Server: custom file extensions', () => {
       { uri: project.fileURI('index.gts'), type: FileChangeType.Deleted },
     ]);
 
-    diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+    diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(diagnostics).toMatchObject([
       {
@@ -199,7 +199,7 @@ describe('Language Server: custom file extensions', () => {
 
       const tsPath = project.filePath('index.gts');
       const { uri } = await server.openTextDocument(tsPath, 'glimmer-ts');
-      let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+      let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
       expect(diagnostics).toMatchObject([
         {
@@ -215,9 +215,7 @@ describe('Language Server: custom file extensions', () => {
         { uri: project.fileURI('other.gjs'), type: FileChangeType.Created },
       ]);
 
-      diagnostics = await server.sendDocumentDiagnosticRequestNormalized(
-        project.fileURI('index.gts')
-      );
+      diagnostics = await server.sendDocumentDiagnosticRequest(project.fileURI('index.gts'));
 
       expect(diagnostics).toEqual([]);
     });
@@ -260,7 +258,7 @@ describe('Language Server: custom file extensions', () => {
 
       const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
 
-      let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+      let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
       expect(diagnostics).toEqual([]);
 
       project.remove('other.gjs');
@@ -268,7 +266,7 @@ describe('Language Server: custom file extensions', () => {
         { uri: project.fileURI('other.gjs'), type: FileChangeType.Deleted },
       ]);
 
-      diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+      diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
       expect(diagnostics).toMatchObject([
         {
@@ -299,7 +297,7 @@ describe('Language Server: custom file extensions', () => {
       let server = await project.startLanguageServer();
 
       const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-      let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+      let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
       expect(diagnostics.length).toBeGreaterThan(0);
 
@@ -337,7 +335,7 @@ describe('Language Server: custom file extensions', () => {
         let server = await project.startLanguageServer();
 
         const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-        let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+        let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
         expect(diagnostics).toEqual([]);
       }

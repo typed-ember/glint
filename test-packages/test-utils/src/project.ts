@@ -96,7 +96,7 @@ export class Project {
     return {
       ...this.languageServerHandle,
 
-      sendDocumentDiagnosticRequestNormalized: async (uri: string) => {
+      sendDocumentDiagnosticRequest: async (uri: string) => {
         const value = (await languageServerHandle.sendDocumentDiagnosticRequest(
           uri
         )) as FullDocumentDiagnosticReport;
@@ -104,7 +104,7 @@ export class Project {
         return this.normalizeForSnapshotting(uri, value.items) as Diagnostic[];
       },
 
-      sendDefinitionRequestNormalized: async (uri: string, position: Position) => {
+      sendDefinitionRequest: async (uri: string, position: Position) => {
         const value = await languageServerHandle.sendDefinitionRequest(uri, position);
 
         return this.normalizeForSnapshotting(uri, value) as Awaited<

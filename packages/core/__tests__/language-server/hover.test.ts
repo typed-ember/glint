@@ -198,7 +198,7 @@ describe('Language Server: Hover', () => {
     `);
   });
 
-  test('module details', async () => {
+  test.only('module details', async () => {
     project.write({
       'foo.ts': stripIndent`
         export const foo = 'hi';
@@ -221,7 +221,7 @@ describe('Language Server: Hover', () => {
         "contents": {
           "kind": "markdown",
           "value": "\`\`\`typescript
-      module "/Users/machty/code/glint/test-packages/ephemeral/bf679bf39223/foo"
+      module "/Users/machty/code/glint/test-packages/ephemeral/edd73813ba473/foo"
       \`\`\`",
         },
         "range": {

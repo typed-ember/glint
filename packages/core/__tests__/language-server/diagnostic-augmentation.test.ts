@@ -152,7 +152,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
     let server = await project.startLanguageServer();
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+    let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
@@ -411,7 +411,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
     let server = await project.startLanguageServer();
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+    let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
@@ -649,7 +649,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let server = await project.startLanguageServer();
     const gtsUri = project.filePath('index.gts');
     const { uri } = await server.openTextDocument(gtsUri, 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+    const diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     // TS 5.0 nightlies generate a slightly different format of "here are all the overloads
     // and why they don't work" message, so for the time being we're truncating everything
@@ -1273,7 +1273,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let server = await project.startLanguageServer();
 
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+    let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
@@ -1432,7 +1432,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let server = await project.startLanguageServer();
 
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequestNormalized(uri);
+    let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(diagnostics.reverse()).toMatchInlineSnapshot(`
       [
