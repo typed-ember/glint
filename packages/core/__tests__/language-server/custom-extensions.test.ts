@@ -27,7 +27,7 @@ describe('Language Server: custom file extensions', () => {
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
     let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(diagnostics).toMatchInlineSnapshot(`
+    expect(diagnostics.items).toMatchInlineSnapshot(`
       [
         {
           "code": 2322,
@@ -36,7 +36,7 @@ describe('Language Server: custom file extensions', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Type 'number' is not assignable to type 'string'.",
@@ -149,8 +149,8 @@ describe('Language Server: custom file extensions', () => {
     const { uri } = await server.openTextDocument(tsPath, 'typescript');
     let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(definitions).toMatchObject([{ targetUri: project.fileURI('index.ts') }]);
-    expect(diagnostics).toEqual([]);
+    expect(definitions).toMatchObject([{ targetUri: "file:///path/to/EPHEMERAL_TEST_PROJECT/index.ts" }]);
+    expect(diagnostics.items).toEqual([]);
 
     project.remove('index.ts');
     await server.didChangeWatchedFiles([
@@ -160,8 +160,8 @@ describe('Language Server: custom file extensions', () => {
     definitions = await server.sendDefinitionRequest(consumerURI, { line: 2, character: 4 });
     diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(definitions).toMatchObject([{ targetUri: project.fileURI('index.gts') }]);
-    expect(diagnostics).toEqual([]);
+    expect(definitions).toMatchObject([{ targetUri: "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts" }]);
+    expect(diagnostics.items).toEqual([]);
 
     project.remove('index.gts');
     await server.didChangeWatchedFiles([
@@ -170,7 +170,7 @@ describe('Language Server: custom file extensions', () => {
 
     diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(diagnostics).toMatchObject([
+    expect(diagnostics.items).toMatchObject([
       {
         source: 'glint',
         code: 2307,
@@ -201,7 +201,7 @@ describe('Language Server: custom file extensions', () => {
       const { uri } = await server.openTextDocument(tsPath, 'glimmer-ts');
       let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-      expect(diagnostics).toMatchObject([
+      expect(diagnostics.items).toMatchObject([
         {
           message: "Cannot find module './other' or its corresponding type declarations.",
           source: 'glint',
@@ -217,7 +217,7 @@ describe('Language Server: custom file extensions', () => {
 
       diagnostics = await server.sendDocumentDiagnosticRequest(project.fileURI('index.gts'));
 
-      expect(diagnostics).toEqual([]);
+      expect(diagnostics.items).toEqual([]);
     });
 
     test('changing an imported module', async () => {
@@ -259,7 +259,7 @@ describe('Language Server: custom file extensions', () => {
       const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
 
       let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
-      expect(diagnostics).toEqual([]);
+      expect(diagnostics.items).toEqual([]);
 
       project.remove('other.gjs');
       await server.didChangeWatchedFiles([
@@ -268,7 +268,7 @@ describe('Language Server: custom file extensions', () => {
 
       diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-      expect(diagnostics).toMatchObject([
+      expect(diagnostics.items).toMatchObject([
         {
           message: "Cannot find module './other' or its corresponding type declarations.",
           source: 'glint',
@@ -301,7 +301,7 @@ describe('Language Server: custom file extensions', () => {
 
       expect(diagnostics.length).toBeGreaterThan(0);
 
-      expect(diagnostics).toMatchInlineSnapshot(`
+      expect(diagnostics.items).toMatchInlineSnapshot(`
         [
           {
             "code": 2307,
@@ -337,7 +337,7 @@ describe('Language Server: custom file extensions', () => {
         const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
         let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-        expect(diagnostics).toEqual([]);
+        expect(diagnostics.items).toEqual([]);
       }
     );
   });

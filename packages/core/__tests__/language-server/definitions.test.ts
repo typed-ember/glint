@@ -93,7 +93,7 @@ describe('Language Server: Definitions', () => {
               "line": 1,
             },
           },
-          "targetUri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "targetUri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
       ]
     `);
@@ -163,7 +163,7 @@ describe('Language Server: Definitions', () => {
               "line": 3,
             },
           },
-          "targetUri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "targetUri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
       ]
     `);
@@ -223,7 +223,7 @@ describe('Language Server: Definitions', () => {
               "line": 3,
             },
           },
-          "targetUri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "targetUri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
       ]
     `);
@@ -262,7 +262,7 @@ describe('Language Server: Definitions', () => {
 
     expect(definitions).toMatchObject([
       {
-        targetUri: project.fileURI('greeting.gts'),
+        targetUri: 'file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts',
 
         // Versions of TS vary on whether they consider the source to be
         // the entire module or just the first character, so we'll consider

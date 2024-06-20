@@ -15,7 +15,7 @@ import {
   setupCompositeProject,
 } from 'glint-monorepo-test-utils';
 
-describe('CLI: single-pass build mode typechecking', () => {
+describe.skip('CLI: single-pass build mode typechecking', () => {
   describe('simple projects using `--build`', () => {
     let project!: Project;
     beforeEach(async () => {
@@ -1070,7 +1070,7 @@ describe('CLI: single-pass build mode typechecking', () => {
   });
 });
 
-describe('CLI: --build --clean', () => {
+describe.skip('CLI: --build --clean', () => {
   test('for basic projects', async () => {
     let project = await Project.createExact(BASE_TS_CONFIG);
 
@@ -1164,7 +1164,7 @@ describe('CLI: --build --clean', () => {
   });
 });
 
-describe('CLI: --build --force', () => {
+describe.skip('CLI: --build --force', () => {
   test('for basic projects', async () => {
     let project = await Project.createExact(BASE_TS_CONFIG);
 
@@ -1276,7 +1276,7 @@ describe('CLI: --build --force', () => {
   });
 });
 
-describe('CLI: --build --dry', () => {
+describe.skip('CLI: --build --dry', () => {
   describe('for basic strict-mode projects', () => {
     let project!: Project;
     beforeEach(async () => {

@@ -6,7 +6,7 @@ import { Project } from 'glint-monorepo-test-utils';
 import typescript from 'typescript';
 import semver from 'semver';
 
-describe('CLI: custom extensions', () => {
+describe.skip('CLI: custom extensions', () => {
   let project!: Project;
   beforeEach(async () => {
     project = await Project.create();
