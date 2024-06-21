@@ -16,10 +16,9 @@ import { WorkspaceSymbolRequest, WorkspaceSymbolParams } from '@volar/language-s
 
 const require = createRequire(import.meta.url);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-const pathToTemplatePackage = pathUtils.normalizeFilePath(
-  path.resolve(dirname, '../../../packages/template')
+const fileUriToTemplatePackage = pathUtils.filePathToUri(
+  path.resolve(dirname, '../../../packages/template').replace(':', 'd%3A') // encode windows `d:` colon
 );
-const fileUriToTemplatePackage = pathUtils.filePathToUri(pathToTemplatePackage);
 const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
@@ -160,7 +159,10 @@ export class Project {
         volarEmbeddedContentUri.toString(),
         `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
       )
-      .replaceAll(this.filePath('.'), '/path/to/EPHEMERAL_TEST_PROJECT')
+      .replaceAll(
+        this.filePath('.').replace(':', 'd%3A'), // encode windows `d:` colon
+        '/path/to/EPHEMERAL_TEST_PROJECT'
+      )
       .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
 
     return JSON.parse(normalized);
