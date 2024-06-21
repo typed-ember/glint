@@ -10,18 +10,18 @@ import { IScriptSnapshot, TextChangeRange } from "typescript";
  * @implements {IScriptSnapshot}
  */
 export class ScriptSnapshot implements IScriptSnapshot {
-  constructor(public text: string) {}
+  constructor(public text: string) { }
 
   // Not Implemented
   getChangeRange(_oldSnapshot: IScriptSnapshot): TextChangeRange | undefined {
     return undefined;
   }
 
-  getLength() {
+  getLength(): number {
     return this.text.length;
   }
 
-  getText(start: number, end: number) {
+  getText(start: number, end: number): string {
     return this.text.slice(start, end);
   }
 }

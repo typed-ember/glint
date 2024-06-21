@@ -38,7 +38,7 @@ export class VirtualHandlebarsCode implements VirtualCode {
 
   // This gets called by the constructor and whenever the language server receives a file change event,
   // i.e. the user saved the file.
-  update(snapshot: IScriptSnapshot) {
+  update(snapshot: IScriptSnapshot): void {
     this.snapshot = snapshot;
     const length = snapshot.getLength();
 

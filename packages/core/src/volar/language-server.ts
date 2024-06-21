@@ -107,7 +107,7 @@ function filterAndAugmentDiagnostics(
   context: LanguageServiceContext,
   document: TextDocument,
   diagnostics: vscode.Diagnostic[] | null | undefined
-) {
+): vscode.Diagnostic[] | null {
   if (!diagnostics) {
     // This can fail if .gts file fails to parse. Maybe other use cases too?
     return null;

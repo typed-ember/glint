@@ -56,7 +56,7 @@ export class Project {
     return pathUtils.filePathToUri(this.filePath(fileName));
   }
 
-  public async startLanguageServer() {
+  public async startLanguageServer(): Promise<unknown> {
     if (this.languageServerHandle) {
       throw new Error('Language server is already running');
     }
@@ -146,7 +146,7 @@ export class Project {
    * @param diagnosticItems
    * @returns array of diagnostic
    */
-  normalizeForSnapshotting(uri: string, object: unknown) {
+  normalizeForSnapshotting(uri: string, object: unknown): unknown {
     let stringified = JSON.stringify(object);
 
     const volarEmbeddedContentUri = URI.from({

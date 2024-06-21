@@ -60,7 +60,7 @@ export default class TransformedModule {
     public readonly errors: ReadonlyArray<TransformError>,
     public readonly directives: ReadonlyArray<Directive>,
     private readonly correlatedSpans: Array<CorrelatedSpan>
-  ) {}
+  ) { }
 
   public toDebugString(): string {
     let mappingStrings = this.correlatedSpans.map((span) =>
@@ -165,7 +165,7 @@ export default class TransformedModule {
 
     assert(
       correlatedSpan.mapping?.sourceNode.type === 'TemplateEmbedding' &&
-        templateMapping?.sourceNode.type === 'Template',
+      templateMapping?.sourceNode.type === 'Template',
       'Internal error: unexpected mapping structure.' + ` (${templateMapping?.sourceNode.type})`
     );
 
@@ -239,7 +239,7 @@ export default class TransformedModule {
     const generatedOffsets: number[] = [];
     const lengths: number[] = [];
 
-    let recurse = (span: CorrelatedSpan, mapping: MappingTree) => {
+    let recurse = (span: CorrelatedSpan, mapping: MappingTree): void => {
       const children = mapping.children;
       let { originalRange, transformedRange } = mapping;
       let hbsStart = span.originalStart + originalRange.start;

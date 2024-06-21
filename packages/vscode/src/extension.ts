@@ -15,6 +15,7 @@ import {
 } from 'vscode';
 import * as languageServerProtocol from '@volar/language-server/protocol.js';
 import {
+  LabsInfo,
   activateAutoInsertion,
   activateDocumentDropEdit,
   activateTsVersionStatusItem,
@@ -33,7 +34,7 @@ const clients = new Map<string, LanguageClient>();
 const extensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
 const filePattern = `**/*{${extensions.join(',')}}`;
 
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext): LabsInfo {
   // TODO: Volar: i think this happens as part of dynamic registerCapability, i.e.
   // I think maybe we can remove this from `activate` and wait for it to happen
   // when the server sends the registerCapability questions for all dynamicRegistration=true capabilities.
@@ -196,8 +197,8 @@ function findLanguageServer(workspaceDir: string): string | null {
     // project, though, we leave a message in our channel explaining why we didn't launch.
     outputChannel.appendLine(
       `Unable to resolve @glint/core from ${resolutionDir} — not launching Glint for this directory.\n` +
-        `If Glint is installed in a child directory, you may wish to set the 'glint.libraryPath' option ` +
-        `in your workspace settings for the Glint VS Code extension.`
+      `If Glint is installed in a child directory, you may wish to set the 'glint.libraryPath' option ` +
+      `in your workspace settings for the Glint VS Code extension.`
     );
 
     return null;
