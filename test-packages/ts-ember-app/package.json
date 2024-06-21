@@ -19,6 +19,7 @@
     "lint:js": "eslint . --cache",
     "lint:js:fix": "eslint . --fix",
     "start": "ember serve",
+    "test": "echo 'no standalone tests within this project'",
     "test:typecheck": "glint",
     "test:tsc": "tsc --noEmit"
   },

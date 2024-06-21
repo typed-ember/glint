@@ -10,6 +10,8 @@
     "execa": "^7.1.1"
   },
   "scripts": {
-    "test": "true"
+    "test": "true",
+    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:tsc": "echo 'no standalone tsc within this project'"
   }
 }

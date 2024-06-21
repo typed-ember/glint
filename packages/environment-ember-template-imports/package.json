@@ -17,6 +17,8 @@
   ],
   "scripts": {
     "test": "vitest run",
+    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:tsc": "echo 'no standalone typecheck within this project'",
     "test:watch": "vitest watch",
     "build": "tsc --build",
     "prepack": "yarn build"

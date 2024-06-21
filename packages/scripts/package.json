@@ -20,6 +20,8 @@
   },
   "scripts": {
     "test": "vitest run",
+    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:tsc": "echo 'no standalone typecheck within this project'",
     "build": "tsc --build",
     "prepack": "yarn build"
   },

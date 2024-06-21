@@ -15,7 +15,9 @@
     "lib"
   ],
   "scripts": {
-    "test:typecheck": "glint -p __tests__"
+    "test": "echo 'no standalone tests within this project'",
+    "test:typecheck": "glint -p __tests__",
+    "test:tsc": "echo 'no standalone tsc within this project'"
   },
   "dependencies": {
     "expect-type": "^0.15.0"

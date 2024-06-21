@@ -11,7 +11,9 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "true"
+    "test": "true",
+    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:tsc": "echo 'no standalone tsc within this project'"
   },
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",

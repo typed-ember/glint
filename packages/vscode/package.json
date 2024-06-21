@@ -26,6 +26,8 @@
   "scripts": {
     "pretest": "yarn build",
     "test": "node lib/__tests__/support/launch-from-cli.mjs",
+    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:tsc": "echo 'no standalone tsc within this project'",
     "build": "yarn compile && yarn bundle",
     "compile": "tsc --build",
     "bundle": "esbuild lib/src/extension.js --bundle --outfile=dist/extension.js --platform=node --external:vscode --minify",

@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "echo 'no tests within this project'",
+    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:tsc": "echo 'no standalone tsc within this project'",
     "lint": "eslint . && prettier . --check",
     "lint:fix": "eslint . --fix && prettier . --write"
   },
