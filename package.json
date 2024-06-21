@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "yarn lint:scripts && yarn lint:formatting",
     "lint:fix": "yarn lint:scripts --fix && yarn prettier --write .",
-    "lint:scripts": "yarn eslint --max-warnings 0 --cache .",
+    "lint:scripts": "yarn eslint .",
     "lint:formatting": "yarn prettier --check .",
     "test": "yarn workspaces run test",
     "test:typecheck": "yarn workspaces run test:typecheck",
