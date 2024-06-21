@@ -154,6 +154,9 @@ export class Project {
       path: '/' + encodeURIComponent(uri),
     });
 
+    console.log(`volarEmbeddedContentUri - ${volarEmbeddedContentUri}`);
+    console.log(`this.filePath('.') - ${this.filePath('.')}`);
+
     const normalized = stringified
       .replaceAll(
         volarEmbeddedContentUri.toString(),
