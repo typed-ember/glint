@@ -26,7 +26,7 @@ describe('Language Server: References', () => {
       },
       {
         includeDeclaration: true,
-      }
+      },
     );
 
     expect(references).toEqual([
@@ -116,7 +116,7 @@ describe('Language Server: References', () => {
       },
       {
         includeDeclaration: true,
-      }
+      },
     );
 
     expect(new Set(referencesFromClassDeclaration)).toEqual(expectedReferences);
@@ -129,7 +129,7 @@ describe('Language Server: References', () => {
       },
       {
         includeDeclaration: true,
-      }
+      },
     );
 
     expect(new Set(referencesFromComponentInvocation)).toEqual(expectedReferences);
@@ -196,7 +196,7 @@ describe('Language Server: References', () => {
       },
       {
         includeDeclaration: true,
-      }
+      },
     );
 
     expect(new Set(referencesFromDefinition)).toEqual(expectedReferences);
@@ -209,7 +209,7 @@ describe('Language Server: References', () => {
       },
       {
         includeDeclaration: true,
-      }
+      },
     );
 
     expect(new Set(referencesFromInvocation)).toEqual(expectedReferences);
@@ -222,7 +222,7 @@ describe('Language Server: References', () => {
       },
       {
         includeDeclaration: true,
-      }
+      },
     );
 
     expect(new Set(referencesFromUsage)).toEqual(expectedReferences);

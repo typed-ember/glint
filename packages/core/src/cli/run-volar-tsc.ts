@@ -5,11 +5,11 @@ import { findConfig } from '../config/index.js';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 
-export function run() {
+export function run(): void {
   let runExtensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
   let cwd = process.cwd();
 
-  const main = () =>
+  const main = (): void =>
     runTsc(require.resolve('typescript/lib/tsc'), runExtensions, (ts, options) => {
       const glintConfig = findConfig(cwd);
 

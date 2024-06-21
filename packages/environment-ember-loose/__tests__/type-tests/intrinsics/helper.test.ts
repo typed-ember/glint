@@ -23,7 +23,7 @@ typeTest(
       {{! @glint-expect-error: missing positional arg }}
       {{noopGreet "Hello"}}
     {{/let}}
-  `
+  `,
 );
 
 // Currying a positional arg
@@ -39,7 +39,7 @@ typeTest(
       {{! @glint-expect-error: missing required named arg}}
       {{boundGreet}}
     {{/let}}
-  `
+  `,
 );
 
 // Currying a named arg
@@ -54,7 +54,7 @@ typeTest(
       {{! @glint-expect-error: missing required positional arg}}
       {{boundGreet target="World"}}
     {{/let}}
-  `
+  `,
 );
 
 // Double-currying
@@ -66,7 +66,7 @@ typeTest(
         {{@expectTypeOf posThenNamed @to.equalTypeOf namedThenPos}}
       {{/let}}  
     {{/let}}  
-  `
+  `,
 );
 
 class MakeArrayPositional<T> extends Helper<{
@@ -88,7 +88,7 @@ typeTest(
       {{! @glint-expect-error: missing required arg }}
       {{log (noopMakeArray)}}
     {{/let}}
-  `
+  `,
 );
 
 // Currying positional generic args MUST pre-fix the type parameter,
@@ -100,7 +100,7 @@ typeTest(
     {{#let (helper this.makeArray 123) as |makeNumberArray|}}
       {{@expectTypeOf (makeNumberArray) @to.equalTypeOf (array 123)}}
     {{/let}}
-  `
+  `,
 );
 
 class MakeArrayNamed<T> extends Helper<{
@@ -122,7 +122,7 @@ typeTest(
       {{! @glint-expect-error: missing required arg }}
       {{log (noopMakeArray)}}
     {{/let}}
-  `
+  `,
 );
 
 // Currying named generic args doesn't require pre-specifying the type
@@ -132,7 +132,7 @@ typeTest(
     {{#let (helper this.makeArray value=123) as |makeNumberArray|}}
       {{@expectTypeOf (makeNumberArray) @to.equalTypeOf (array 123)}}
     {{/let}}
-  `
+  `,
 );
 
 // Prebinding args at different locations
@@ -156,5 +156,5 @@ typeTest(
 
     {{! @glint-expect-error: extra arg }}
     {{(helper this.myriad "one" true 3) "four"}}
-  `
+  `,
 );

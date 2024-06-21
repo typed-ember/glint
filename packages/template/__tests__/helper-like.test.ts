@@ -21,7 +21,7 @@ import { NamedArgs } from '../-private/integration';
   info(
     'Tom',
     // @ts-expect-error: missing named arg
-    { ...NamedArgsMarker }
+    { ...NamedArgsMarker },
   );
 
   info('Tom', {
@@ -38,7 +38,7 @@ import { NamedArgs } from '../-private/integration';
     'Tom',
     'Ster',
     // @ts-expect-error: extra positional arg
-    { age: 123, ...NamedArgsMarker }
+    { age: 123, ...NamedArgsMarker },
   );
 
   expectTypeOf(info('Tom', { age: 123, ...NamedArgsMarker })).toEqualTypeOf<string>();
@@ -84,7 +84,7 @@ import { NamedArgs } from '../-private/integration';
     'a',
     'b',
     // @ts-expect-error: extra positional arg
-    'c'
+    'c',
   );
 
   expectTypeOf(or('a', 'b')).toEqualTypeOf<string>();

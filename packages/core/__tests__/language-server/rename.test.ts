@@ -21,7 +21,7 @@ describe('Language Server: Renaming Symbols', () => {
     let workspaceEdits = await server.sendRenameRequest(
       project.fileURI('index.hbs'),
       { line: 0, character: 11 },
-      'bar'
+      'bar',
     );
 
     expect(workspaceEdits).toEqual({
@@ -153,7 +153,7 @@ describe('Language Server: Renaming Symbols', () => {
     let renamePassedArg = await server.sendRenameRequest(
       project.fileURI('index.gts'),
       { line: 5, character: 17 },
-      'greeting'
+      'greeting',
     );
 
     expect(renamePassedArg).toEqual(expectedWorkspaceEdit);
@@ -164,7 +164,7 @@ describe('Language Server: Renaming Symbols', () => {
     let renameReferencedArg = await server.sendRenameRequest(
       project.fileURI('greeting.gts'),
       { line: 7, character: 31 },
-      'greeting'
+      'greeting',
     );
 
     expect(renameReferencedArg).toEqual(expectedWorkspaceEdit);
@@ -173,7 +173,7 @@ describe('Language Server: Renaming Symbols', () => {
     let renameDeclaredArg = await server.sendRenameRequest(
       project.fileURI('greeting.gts'),
       { line: 3, character: 2 },
-      'greeting'
+      'greeting',
     );
 
     expect(renameDeclaredArg).toEqual(expectedWorkspaceEdit);
@@ -220,7 +220,7 @@ describe('Language Server: Renaming Symbols', () => {
     let renameDefinition = await server.sendRenameRequest(
       project.fileURI('index.gts'),
       { line: 4, character: 38 },
-      'character'
+      'character',
     );
 
     expect(renameDefinition).toEqual(expectedWorkspaceEdit);
@@ -229,7 +229,7 @@ describe('Language Server: Renaming Symbols', () => {
     let renameUsage = await server.sendRenameRequest(
       project.fileURI('index.gts'),
       { line: 5, character: 10 },
-      'character'
+      'character',
     );
 
     expect(renameUsage).toEqual(expectedWorkspaceEdit);
@@ -299,7 +299,7 @@ describe('Language Server: Renaming Symbols', () => {
     let renameDefinition = await server.sendRenameRequest(
       project.fileURI('greeting.gts'),
       { line: 6, character: 24 },
-      'Salutation'
+      'Salutation',
     );
 
     expect(renameDefinition).toEqual(expectedWorkspaceEdit);
@@ -308,7 +308,7 @@ describe('Language Server: Renaming Symbols', () => {
     let renameUsage = await server.sendRenameRequest(
       project.fileURI('index.gts'),
       { line: 5, character: 9 },
-      'Salutation'
+      'Salutation',
     );
 
     // NOTE: this changed since Volar; previously renaming the component class within index.gts
@@ -318,7 +318,7 @@ describe('Language Server: Renaming Symbols', () => {
     expect(renameUsage).toEqual({
       changes: {
         [project.fileURI('index.gts')]: expectedIndexGtsChanges,
-      }
+      },
     });
   });
 });

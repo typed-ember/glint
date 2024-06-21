@@ -33,7 +33,7 @@ import { ResolveOrReturn } from './types';
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolve<Args extends unknown[], Instance extends InvokableInstance>(
-  item: (abstract new (...args: Args) => Instance) | null | undefined
+  item: (abstract new (...args: Args) => Instance) | null | undefined,
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 
 /*
@@ -59,8 +59,8 @@ export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
 
 export declare function resolveForBind<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 export declare function resolveForBind<Args extends unknown[], Instance extends InvokableInstance>(
-  item: abstract new (...args: Args) => Instance
+  item: abstract new (...args: Args) => Instance,
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 export declare function resolveForBind<Args extends unknown[], Instance extends InvokableInstance>(
-  item: null | undefined | (abstract new (...args: Args) => Instance)
+  item: null | undefined | (abstract new (...args: Args) => Instance),
 ): null | ((...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>);

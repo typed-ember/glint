@@ -18,7 +18,7 @@ export type GlintEnvironmentConfig = {
 
 export type GlintExtensionPreprocess<T> = (
   source: string,
-  filePath: string
+  filePath: string,
 ) => { contents: string; data?: T };
 
 export type GlintEmitMetadata = {
@@ -38,7 +38,7 @@ export type GlintExtensionTransform<T> = (
     ts: TSLib;
     context: ts.TransformationContext;
     setEmitMetadata: (node: ts.TaggedTemplateExpression, meta: GlintEmitMetadata) => void;
-  }
+  },
 ) => ts.Transformer<ts.Node>;
 
 export type GlintSpecialForm =

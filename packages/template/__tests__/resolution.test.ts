@@ -73,7 +73,7 @@ declare function value<T>(): T;
 {
   type TestSignature = <T>(
     args: { value: T; values: T[] },
-    positional: string
+    positional: string,
   ) => ComponentReturn<{
     foo: [T[], string];
     otherwise: [];

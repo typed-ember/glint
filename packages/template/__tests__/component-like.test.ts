@@ -43,7 +43,7 @@ import TestComponent from './test-component';
   resolve(YieldingComponent)(
     'hi',
     // @ts-expect-error: extra positional arg
-    { values: [], ...NamedArgsMarker }
+    { values: [], ...NamedArgsMarker },
   );
 
   resolve(YieldingComponent)({
@@ -61,7 +61,7 @@ import TestComponent from './test-component';
 
   {
     const component = emitComponent(
-      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker }),
     );
 
     {
@@ -72,7 +72,7 @@ import TestComponent from './test-component';
 
   {
     const component = emitComponent(
-      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker }),
     );
 
     {
@@ -103,14 +103,14 @@ import TestComponent from './test-component';
   resolve(PositionalArgsComponent)(
     'hello',
     // @ts-expect-error: incorrect type for positional arg
-    'ok'
+    'ok',
   );
 
   resolve(PositionalArgsComponent)(
     'a',
     1,
     // @ts-expect-error: extra positional arg
-    true
+    true,
   );
 
   resolve(PositionalArgsComponent)('a');
@@ -152,7 +152,7 @@ import TestComponent from './test-component';
 
   expectTypeOf(resolve(MyComponentReturn)).toEqualTypeOf<
     (
-      args: NamedArgs<{ foo?: string; bar: number }>
+      args: NamedArgs<{ foo?: string; bar: number }>,
     ) => ComponentReturn<{ default: [] }, HTMLCanvasElement>
   >();
 }
@@ -198,7 +198,7 @@ import TestComponent from './test-component';
       Args: { foo?: string };
       Element: HTMLImageElement;
       Blocks: { default: [] };
-    }>
+    }>,
   ).toMatchTypeOf<ComponentLike>();
 
   // Components are contravariant with their named `Args` type

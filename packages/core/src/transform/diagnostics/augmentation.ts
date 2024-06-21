@@ -9,7 +9,7 @@ import MappingTree, { MappingSource } from '../template/mapping-tree.js';
  */
 export function augmentDiagnostic<T extends Diagnostic>(
   diagnostic: T,
-  mappingForDiagnostic: (diagnostic: T) => MappingTree | null
+  mappingForDiagnostic: (diagnostic: T) => MappingTree | null,
 ): T {
   // TODO: fix any types, remove casting
   return rewriteMessageText(diagnostic, mappingForDiagnostic as any) as T;
@@ -19,7 +19,7 @@ type DiagnosticHandler = (diagnostic: Diagnostic, mapping: MappingTree) => Diagn
 
 function rewriteMessageText(
   diagnostic: Diagnostic,
-  mappingGetter: (diagnostic: Diagnostic) => MappingTree | null
+  mappingGetter: (diagnostic: Diagnostic) => MappingTree | null,
 ): Diagnostic {
   const handler = diagnosticHandlers[diagnostic.code?.toString() ?? ''];
   if (!handler) {
@@ -48,7 +48,7 @@ const bindHelpers = ['component', 'helper', 'modifier'];
 
 function checkAssignabilityError(
   diagnostic: Diagnostic,
-  mapping: MappingTree
+  mapping: MappingTree,
 ): Diagnostic | undefined {
   let node = mapping.sourceNode;
   let parentNode = mapping.parent?.sourceNode;
@@ -77,7 +77,7 @@ function checkAssignabilityError(
     return addGlintDetails(
       diagnostic,
       'Only primitive values (see `AttrValue` in `@glint/template`) are assignable as HTML attributes. ' +
-        'If you want to set an event listener, consider using the `{{on}}` modifier instead.'
+        'If you want to set an event listener, consider using the `{{on}}` modifier instead.',
     );
   } else if (
     node.type === 'MustacheStatement' &&
@@ -94,7 +94,7 @@ function checkAssignabilityError(
         `The {{component}} helper can't be used to directly invoke a component under Glint. ` +
           `Consider first binding the result to a variable, e.g. ` +
           `'{{#let (component 'component-name') as |ComponentName|}}' and then invoking it as ` +
-          `'<ComponentName @arg={{value}} />'.`
+          `'<ComponentName @arg={{value}} />'.`,
       );
     }
 
@@ -102,7 +102,7 @@ function checkAssignabilityError(
     return addGlintDetails(
       diagnostic,
       'Only primitive values and certain DOM objects (see `ContentValue` in `@glint/template`) are ' +
-        'usable as top-level template content.'
+        'usable as top-level template content.',
     );
   } else if (
     (mapping?.sourceNode.type === 'SubExpression' ||
@@ -123,7 +123,7 @@ function checkAssignabilityError(
 
 function noteNamedArgsAffectArity(
   diagnostic: Diagnostic,
-  mapping: MappingTree
+  mapping: MappingTree,
 ): Diagnostic | undefined {
   // In normal template entity invocations, named args (if specified) are effectively
   // passed as the final positional argument. Because of this, the reported "expected
@@ -174,14 +174,14 @@ function checkResolveError(diagnostic: Diagnostic, mapping: MappingTree): Diagno
         diagnostic,
         `Unknown ${kind} name '${sourceMapping.sourceNode.value}'. If this isn't a typo, you may be ` +
           `missing a registry entry for this name; see the Template Registry page in the Glint ` +
-          `documentation for more details.`
+          `documentation for more details.`,
       );
     } else {
       return addGlintDetails(
         diagnostic,
         `The type of this expression doesn't appear to be a valid value to pass the {{${kind}}} ` +
           `helper. If possible, you may need to give the expression a narrower type, ` +
-          `for example \`'thing-a' | 'thing-b'\` rather than \`string\`.`
+          `for example \`'thing-a' | 'thing-b'\` rather than \`string\`.`,
       );
     }
   }
@@ -192,14 +192,14 @@ function checkResolveError(diagnostic: Diagnostic, mapping: MappingTree): Diagno
   if (nodeType === 'ElementNode' || nodeType === 'PathExpression' || nodeType === 'Identifier') {
     return addGlintDetails(
       diagnostic,
-      'The given value does not appear to be usable as a component, modifier or helper.'
+      'The given value does not appear to be usable as a component, modifier or helper.',
     );
   }
 }
 
 function checkImplicitAnyError(
   diagnostic: Diagnostic,
-  mapping: MappingTree
+  mapping: MappingTree,
 ): Diagnostic | undefined {
   let message = diagnostic.message;
 
@@ -214,14 +214,14 @@ function checkImplicitAnyError(
       sourceNode.type === 'ElementNode'
         ? sourceNode.tag.split('.')[0]
         : sourceNode.type === 'PathExpression' && sourceNode.head.type === 'VarHead'
-        ? sourceNode.head.name
-        : null;
+          ? sourceNode.head.name
+          : null;
 
     if (globalName) {
       return addGlintDetails(
         diagnostic,
         `Unknown name '${globalName}'. If this isn't a typo, you may be missing a registry entry ` +
-          `for this value; see the Template Registry page in the Glint documentation for more details.`
+          `for this value; see the Template Registry page in the Glint documentation for more details.`,
       );
     }
   }
@@ -229,7 +229,7 @@ function checkImplicitAnyError(
 
 function checkIndexAccessError(
   diagnostic: Diagnostic,
-  mapping: MappingTree
+  mapping: MappingTree,
 ): Diagnostic | undefined {
   if (mapping.sourceNode.type === 'Identifier') {
     let message = diagnostic.message;

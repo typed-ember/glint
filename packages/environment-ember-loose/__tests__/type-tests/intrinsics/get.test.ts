@@ -15,7 +15,7 @@ get(
   {},
   'hi',
   // @ts-expect-error: invalid named arg
-  { hello: 'hi', ...NamedArgsMarker }
+  { hello: 'hi', ...NamedArgsMarker },
 );
 
 interface Foo {

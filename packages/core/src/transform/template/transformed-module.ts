@@ -59,7 +59,7 @@ export default class TransformedModule {
     public readonly transformedContents: string,
     public readonly errors: ReadonlyArray<TransformError>,
     public readonly directives: ReadonlyArray<Directive>,
-    private readonly correlatedSpans: Array<CorrelatedSpan>
+    private readonly correlatedSpans: Array<CorrelatedSpan>,
   ) {}
 
   public toDebugString(): string {
@@ -68,11 +68,11 @@ export default class TransformedModule {
         originalStart: span.originalStart,
         originalSource: span.originalFile.contents.slice(
           span.originalStart,
-          span.originalStart + span.originalLength
+          span.originalStart + span.originalLength,
         ),
         transformedStart: span.transformedStart,
         transformedSource: span.transformedSource,
-      })
+      }),
     );
 
     return `TransformedModule\n\n${mappingStrings.filter(Boolean).join('\n\n')}`;
@@ -89,14 +89,14 @@ export default class TransformedModule {
 
   public getOriginalRange(
     transformedStart: number,
-    transformedEnd: number
+    transformedEnd: number,
   ): RangeWithMappingAndSource {
     let startInfo = this.determineOriginalOffsetAndSpan(transformedStart);
     let endInfo = this.determineOriginalOffsetAndSpan(transformedEnd);
 
     assert(
       startInfo.correlatedSpan.originalFile === endInfo.correlatedSpan.originalFile,
-      'Attempted to transform a range across two different files'
+      'Attempted to transform a range across two different files',
     );
 
     let source = startInfo.correlatedSpan.originalFile;
@@ -123,7 +123,7 @@ export default class TransformedModule {
   public getTransformedRange(
     originalFileName: string,
     originalStart: number,
-    originalEnd: number
+    originalEnd: number,
   ): RangeWithMapping {
     let startInfo = this.determineTransformedOffsetAndSpan(originalFileName, originalStart);
     let endInfo = this.determineTransformedOffsetAndSpan(originalFileName, originalEnd);
@@ -150,11 +150,11 @@ export default class TransformedModule {
 
   public findTemplateAtOriginalOffset(
     originalFileName: string,
-    originalOffset: number
+    originalOffset: number,
   ): { originalContentStart: number; originalContentEnd: number; originalContent: string } | null {
     let { correlatedSpan } = this.determineTransformedOffsetAndSpan(
       originalFileName,
-      originalOffset
+      originalOffset,
     );
 
     if (!correlatedSpan.mapping) {
@@ -166,14 +166,14 @@ export default class TransformedModule {
     assert(
       correlatedSpan.mapping?.sourceNode.type === 'TemplateEmbedding' &&
         templateMapping?.sourceNode.type === 'Template',
-      'Internal error: unexpected mapping structure.' + ` (${templateMapping?.sourceNode.type})`
+      'Internal error: unexpected mapping structure.' + ` (${templateMapping?.sourceNode.type})`,
     );
 
     let originalContentStart = correlatedSpan.originalStart + templateMapping.originalRange.start;
     let originalContentEnd = correlatedSpan.originalStart + templateMapping.originalRange.end;
     let originalContent = correlatedSpan.originalFile.contents.slice(
       originalContentStart,
-      originalContentEnd
+      originalContentEnd,
     );
 
     return { originalContentStart, originalContentEnd, originalContent };
@@ -200,7 +200,7 @@ export default class TransformedModule {
 
   private determineTransformedOffsetAndSpan(
     originalFileName: string,
-    originalOffset: number
+    originalOffset: number,
   ): { transformedOffset: number; correlatedSpan: CorrelatedSpan } {
     for (let span of this.correlatedSpans) {
       if (
@@ -239,7 +239,7 @@ export default class TransformedModule {
     const generatedOffsets: number[] = [];
     const lengths: number[] = [];
 
-    let recurse = (span: CorrelatedSpan, mapping: MappingTree) => {
+    let recurse = (span: CorrelatedSpan, mapping: MappingTree): void => {
       const children = mapping.children;
       let { originalRange, transformedRange } = mapping;
       let hbsStart = span.originalStart + originalRange.start;

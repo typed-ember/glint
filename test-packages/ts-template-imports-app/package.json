@@ -4,7 +4,9 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "test": "glint"
+    "test": "echo 'no standalone test within this project'",
+    "test:typecheck": "glint",
+    "test:tsc": "echo 'no standalone tsc within this project'"
   },
   "volta": {
     "extends": "../../package.json"

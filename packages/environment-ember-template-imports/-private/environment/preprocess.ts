@@ -59,7 +59,7 @@ export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, pat
 
     let templateContentSegment = sourceBuffer.slice(
       startTagOffsetBytes + startTagLengthBytes,
-      endTagOffsetBytes
+      endTagOffsetBytes,
     );
     segments.push(templateContentSegment.toString());
     segments.push(TEMPLATE_END);

@@ -2,7 +2,7 @@
  * @typedef {import('typescript').IScriptSnapshot} IScriptSnapshot
  */
 
-import { IScriptSnapshot, TextChangeRange } from "typescript";
+import { IScriptSnapshot, TextChangeRange } from 'typescript';
 
 /**
  * A TypeScript compatible script snapshot that wraps a string of text.
@@ -17,11 +17,11 @@ export class ScriptSnapshot implements IScriptSnapshot {
     return undefined;
   }
 
-  getLength() {
+  getLength(): number {
     return this.text.length;
   }
 
-  getText(start: number, end: number) {
+  getText(start: number, end: number): string {
     return this.text.slice(start, end);
   }
 }

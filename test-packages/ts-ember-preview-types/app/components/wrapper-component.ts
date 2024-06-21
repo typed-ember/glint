@@ -13,7 +13,7 @@ interface WrapperComponentSignature {
         InnerComponent: WithBoundArgs<typeof EmberComponent, 'required'>;
         MaybeComponent?: ComponentLike<{ Args: { key: string } }>;
         stringValue?: string;
-      }
+      },
     ];
   };
 }

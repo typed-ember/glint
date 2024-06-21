@@ -33,13 +33,13 @@ export type RewriteInput = { script: SourceFile; template?: SourceFile };
 export function rewriteModule(
   ts: TSLib,
   { script, template }: RewriteInput,
-  environment: GlintEnvironment
+  environment: GlintEnvironment,
 ): TransformedModule | null {
   let { errors, directives, partialSpans } = calculateCorrelatedSpans(
     ts,
     script,
     template,
-    environment
+    environment,
   );
 
   if (!partialSpans.length && !errors.length) {
@@ -65,7 +65,7 @@ function calculateCorrelatedSpans(
   ts: TSLib,
   script: SourceFile,
   template: SourceFile | undefined,
-  environment: GlintEnvironment
+  environment: GlintEnvironment,
 ): CorrelatedSpansResult {
   let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
@@ -187,7 +187,7 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
     // We'll want to ignore all of that and only display our parsing error from content-tag.
     preprocessed.contents,
     ts.ScriptTarget.Latest,
-    true // setParentNodes
+    true, // setParentNodes
   );
 
   // Only transform if we don't have a parse error
@@ -255,7 +255,7 @@ function parseError(e: unknown, filename: string): ParseError {
  */
 function calculateTransformedSource(
   originalFile: SourceFile,
-  sparseSpans: Array<CorrelatedSpan>
+  sparseSpans: Array<CorrelatedSpan>,
 ): { contents: string; correlatedSpans: Array<CorrelatedSpan> } {
   let correlatedSpans: Array<CorrelatedSpan> = [];
   let originalOffset = 0;
@@ -307,7 +307,7 @@ function calculateTransformedSource(
  * in full `ReplacedSpan`s.
  */
 function completeCorrelatedSpans(
-  partialSpans: Array<PartialCorrelatedSpan>
+  partialSpans: Array<PartialCorrelatedSpan>,
 ): Array<CorrelatedSpan> {
   let replacedSpans: Array<CorrelatedSpan> = [];
 

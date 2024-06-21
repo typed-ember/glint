@@ -7,7 +7,9 @@
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "types": "-private/index.d.ts",
   "scripts": {
-    "test": "tsc --project __tests__"
+    "test": "echo 'no standalone tests within this project'",
+    "test:typecheck": "tsc --project __tests__",
+    "test:tsc": "echo 'no standalone typecheck within this project'"
   },
   "files": [
     "README.md",

@@ -13,7 +13,7 @@ export function calculateCompanionTemplateSpans(
   ast: ts.SourceFile,
   script: SourceFile,
   template: SourceFile,
-  environment: GlintEnvironment
+  environment: GlintEnvironment,
 ): CorrelatedSpansResult {
   let errors: Array<TransformError> = [];
   let directives: Array<Directive> = [];
@@ -24,7 +24,7 @@ export function calculateCompanionTemplateSpans(
       source: template,
       location: { start: 0, end: template.contents.length },
       message: `No active Glint environment (${environment.names.join(
-        ', '
+        ', ',
       )}) supports standalone template files`,
     });
 
@@ -79,14 +79,14 @@ export function calculateCompanionTemplateSpans(
       insertionPoint: number;
       prefix: string;
       suffix: string;
-    }
+    },
   ): void {
     errors.push(
       ...transformedTemplate.errors.map(({ message, location }) => ({
         message,
         location: location ?? { start: 0, end: template.contents.length },
         source: template,
-      }))
+      })),
     );
 
     if (transformedTemplate.result) {
@@ -96,7 +96,7 @@ export function calculateCompanionTemplateSpans(
           location,
           areaOfEffect,
           source: template,
-        }))
+        })),
       );
 
       partialSpans.push(
@@ -121,14 +121,14 @@ export function calculateCompanionTemplateSpans(
           originalLength: 0,
           insertionPoint: options.insertionPoint,
           transformedSource: options.suffix,
-        }
+        },
       );
     } else {
       let mapping = new MappingTree(
         { start: 0, end: 0 },
         { start: 0, end: template.contents.length },
         [],
-        new ParseError()
+        new ParseError(),
       );
 
       partialSpans.push({
@@ -145,7 +145,7 @@ export function calculateCompanionTemplateSpans(
 
 function findCompanionTemplateTarget(
   ts: TSLib,
-  sourceFile: ts.SourceFile
+  sourceFile: ts.SourceFile,
 ): ts.ClassLikeDeclaration | ts.Expression | null {
   let classes: Record<string, ts.ClassLikeDeclaration> = Object.create(null);
   for (let statement of sourceFile.statements) {

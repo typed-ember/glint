@@ -6,7 +6,7 @@ import { assert } from './assert.js';
 
 /**
  * NOTE: this class ONLY used for CLI commands like in `perform-build-watch` and `perform-build`.
- * 
+ *
  * A lazy cache/lookup map for the parts of `TS.System` which `TransformManager`
  * cares about, such that any given file will be resolved against its closest
  * `GlintConfig`. This provides us three things:
@@ -53,7 +53,7 @@ export default class TransformManagerPool {
     moduleLiterals: readonly TS.StringLiteralLike[],
     containingFile: string,
     redirectedReference: TS.ResolvedProjectReference | undefined,
-    options: TS.CompilerOptions
+    options: TS.CompilerOptions,
   ): readonly TS.ResolvedModuleWithFailedLookupLocations[] => {
     let resolveModuleNameLiterals = this.managerForFile(containingFile)?.resolveModuleNameLiterals;
     if (resolveModuleNameLiterals) {
@@ -61,7 +61,7 @@ export default class TransformManagerPool {
         moduleLiterals,
         containingFile,
         redirectedReference,
-        options
+        options,
       );
     } else {
       return moduleLiterals.map((literal) =>
@@ -71,8 +71,8 @@ export default class TransformManagerPool {
           options,
           this.#rootSys,
           undefined,
-          redirectedReference
-        )
+          redirectedReference,
+        ),
       );
     }
   };
@@ -82,7 +82,7 @@ export default class TransformManagerPool {
     extensions: ReadonlyArray<string>,
     excludes: ReadonlyArray<string> | undefined,
     includes: ReadonlyArray<string>,
-    depth?: number | undefined
+    depth?: number | undefined,
   ): Array<string> => {
     let readDirectory =
       this.managerForDirectory(rootDir)?.readDirectory ?? this.#rootSys.readDirectory;
@@ -93,7 +93,7 @@ export default class TransformManagerPool {
     path: string,
     originalCallback: TS.DirectoryWatcherCallback,
     recursive?: boolean,
-    options?: TS.WatchOptions
+    options?: TS.WatchOptions,
   ): TS.FileWatcher => {
     assert(this.#rootSys.watchDirectory);
     let watchDirectory =
@@ -110,7 +110,7 @@ export default class TransformManagerPool {
     path: string,
     originalCallback: TS.FileWatcherCallback,
     pollingInterval?: number,
-    options?: TS.WatchOptions
+    options?: TS.WatchOptions,
   ): TS.FileWatcher => {
     assert(this.#rootSys.watchFile);
     let watchTransformedFile =

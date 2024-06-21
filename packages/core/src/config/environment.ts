@@ -35,10 +35,13 @@ export class GlintEnvironment {
   public untypedScriptExtensions: ReadonlyArray<string>;
   public templateExtensions: ReadonlyArray<string>;
 
-  public constructor(public readonly names: Array<string>, config: GlintEnvironmentConfig) {
+  public constructor(
+    public readonly names: Array<string>,
+    config: GlintEnvironmentConfig,
+  ) {
     this.tagConfig = config.tags ?? {};
     // when is this populated? what is config?
-    this.extensionsConfig = config. extensions ?? {};
+    this.extensionsConfig = config.extensions ?? {};
     this.standaloneTemplateConfig = config.template;
     this.tagImportRegexp = this.buildTagImportRegexp();
 
@@ -58,7 +61,7 @@ export class GlintEnvironment {
 
   public static load(
     specifier: string | Array<string> | Record<string, unknown>,
-    { rootDir = process.cwd() } = {}
+    { rootDir = process.cwd() } = {},
   ): GlintEnvironment {
     let envs = normalizeEnvironmentSpecifier(specifier);
     let config = loadMergedEnvironmentConfig(envs, rootDir);
@@ -122,7 +125,7 @@ export class GlintEnvironment {
    */
   public getPossibleTemplatePaths(scriptPath: string): Array<PathCandidateWithDeferral> {
     return normalizePathCandidates(
-      this.standaloneTemplateConfig?.getPossibleTemplatePaths(scriptPath) ?? []
+      this.standaloneTemplateConfig?.getPossibleTemplatePaths(scriptPath) ?? [],
     );
   }
 
@@ -132,7 +135,7 @@ export class GlintEnvironment {
    */
   public getPossibleScriptPaths(templatePath: string): Array<PathCandidateWithDeferral> {
     return normalizePathCandidates(
-      this.standaloneTemplateConfig?.getPossibleScriptPaths(templatePath) ?? []
+      this.standaloneTemplateConfig?.getPossibleScriptPaths(templatePath) ?? [],
     );
   }
 
@@ -146,7 +149,7 @@ export class GlintEnvironment {
   public moduleMayHaveEmbeddedTemplates(modulePath: string, moduleContents: string): boolean {
     let config = this.getConfigForExtension(path.extname(modulePath));
     return Boolean(
-      config?.preprocess || config?.transform || this.tagImportRegexp.test(moduleContents)
+      config?.preprocess || config?.transform || this.tagImportRegexp.test(moduleContents),
     );
   }
 
@@ -167,13 +170,13 @@ export class GlintEnvironment {
 
   private extensionsOfType(kind: SourceKind): Array<string> {
     return Object.keys(this.extensionsConfig).filter(
-      (key) => this.extensionsConfig[key].kind === kind
+      (key) => this.extensionsConfig[key].kind === kind,
     );
   }
 }
 
 function normalizeEnvironmentSpecifier(
-  specifier: string | string[] | Record<string, unknown>
+  specifier: string | string[] | Record<string, unknown>,
 ): Record<string, unknown> {
   if (typeof specifier === 'string') {
     return { [specifier]: null };
@@ -186,7 +189,7 @@ function normalizeEnvironmentSpecifier(
 
 function loadMergedEnvironmentConfig(
   envs: Record<string, unknown>,
-  rootDir: string
+  rootDir: string,
 ): GlintEnvironmentConfig {
   let tags: GlintTagsConfig = {};
   let extensions: GlintExtensionsConfig = { ...DEFAULT_EXTENSIONS };
@@ -198,7 +201,7 @@ function loadMergedEnvironmentConfig(
     if (typeof envFunction !== 'function') {
       throw new SilentError(
         `The specified environment '${envName}', which was loaded from ${envPath}, ` +
-          `does not appear to be a Glint environment package.`
+          `does not appear to be a Glint environment package.`,
       );
     }
 
@@ -207,7 +210,7 @@ function loadMergedEnvironmentConfig(
     if (config.template) {
       if (template) {
         throw new SilentError(
-          'Multiple configured Glint environments attempted to define behavior for standalone template files.'
+          'Multiple configured Glint environments attempted to define behavior for standalone template files.',
         );
       }
 
@@ -224,7 +227,7 @@ function loadMergedEnvironmentConfig(
                 importSpecifier +
                 "` in module '" +
                 importSource +
-                "'."
+                "'.",
             );
           }
 
@@ -239,7 +242,7 @@ function loadMergedEnvironmentConfig(
           throw new SilentError(
             'Multiple configured Glint environments attempted to define handling for the ' +
               extension +
-              ' file extension.'
+              ' file extension.',
           );
         }
 
@@ -277,9 +280,9 @@ function locateEnvironment(name: string, basedir: string): string {
 }
 
 function normalizePathCandidates(
-  candidates: Array<PathCandidate>
+  candidates: Array<PathCandidate>,
 ): Array<PathCandidateWithDeferral> {
   return candidates.map((candidate) =>
-    typeof candidate === 'string' ? { path: candidate, deferTo: [] } : candidate
+    typeof candidate === 'string' ? { path: candidate, deferTo: [] } : candidate,
   );
 }

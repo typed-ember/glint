@@ -73,28 +73,28 @@ linkTo({}, 123);
 
 {
   const component = emitComponent(
-    LinkTo({ route: 'index', query: { a: 123 }, ...NamedArgsMarker })
+    LinkTo({ route: 'index', query: { a: 123 }, ...NamedArgsMarker }),
   );
   expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
 }
 
 {
   const component = emitComponent(
-    LinkTo({ route: 'index', models: [123, 'abc'], ...NamedArgsMarker })
+    LinkTo({ route: 'index', models: [123, 'abc'], ...NamedArgsMarker }),
   );
   expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
 }
 
 {
   const component = emitComponent(
-    LinkTo({ route: 'index', 'current-when': 'index', ...NamedArgsMarker })
+    LinkTo({ route: 'index', 'current-when': 'index', ...NamedArgsMarker }),
   );
   expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
 }
 
 {
   const component = emitComponent(
-    LinkTo({ route: 'index', 'current-when': true, ...NamedArgsMarker })
+    LinkTo({ route: 'index', 'current-when': true, ...NamedArgsMarker }),
   );
   expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
 }
@@ -105,8 +105,8 @@ linkTo({}, 123);
   const component = emitComponent(
     LinkTo(
       // @ts-expect-error: missing one of required props
-      { ...NamedArgsMarker }
-    )
+      { ...NamedArgsMarker },
+    ),
   );
   expectTypeOf(component.blockParams.default).toEqualTypeOf<[]>();
 }

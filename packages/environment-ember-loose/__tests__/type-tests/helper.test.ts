@@ -15,7 +15,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
   }
 
   let definition = helper<InfoSignature>(
-    ([name]: [string], { age }: { age: number }) => `${name}: ${age}`
+    ([name]: [string], { age }: { age: number }) => `${name}: ${age}`,
   );
   let info = resolve(definition);
 
@@ -24,7 +24,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
   info(
     // @ts-expect-error: missing named arg
     {},
-    'Tom'
+    'Tom',
   );
 
   info('Tom', {
@@ -41,7 +41,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
     'Tom',
     'Ster',
     // @ts-expect-error: extra positional arg
-    { age: 123, ...NamedArgsMarker }
+    { age: 123, ...NamedArgsMarker },
   );
 
   expectTypeOf(info('Tom', { age: 123, ...NamedArgsMarker })).toEqualTypeOf<string>();
@@ -72,7 +72,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
     'a',
     'b',
     // @ts-expect-error: extra positional arg
-    'c'
+    'c',
   );
 
   expectTypeOf(or('a', 'b')).toEqualTypeOf<string>();
@@ -127,7 +127,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
   repeat(
     123,
     // @ts-expect-error: extra positional arg
-    { word: 'hi', ...NamedArgsMarker }
+    { word: 'hi', ...NamedArgsMarker },
   );
 
   // @ts-expect-error: missing required named arg
@@ -162,14 +162,14 @@ import { NamedArgs } from '@glint/template/-private/integration';
   repeat(
     'hello',
     // @ts-expect-error: unexpected named args
-    { word: 'hi', ...NamedArgsMarker }
+    { word: 'hi', ...NamedArgsMarker },
   );
 
   repeat(
     'hello',
     123,
     // @ts-expect-error: extra positional arg in named args spot
-    'hi'
+    'hi',
   );
 
   expectTypeOf(repeat('hi')).toEqualTypeOf<Array<string>>();
@@ -220,7 +220,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
   expectTypeOf(positionalOnlyGeneric(123, Symbol())).toEqualTypeOf<[number, symbol]>();
 
   let mixedConcrete = resolve(
-    (a: number, b: number, named: { fallback: number }) => named.fallback
+    (a: number, b: number, named: { fallback: number }) => named.fallback,
   );
   expectTypeOf(mixedConcrete).toEqualTypeOf<
     (a: number, b: number, named: { fallback: number }) => number
@@ -228,7 +228,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
   expectTypeOf(mixedConcrete(1, 2, { fallback: 123 })).toBeNumber();
 
   let mixedGenericNamed = resolve(
-    <T>(a: number, b: number, named: { fallback: T }) => a + b || named.fallback
+    <T>(a: number, b: number, named: { fallback: T }) => a + b || named.fallback,
   );
   expectTypeOf(mixedGenericNamed).toEqualTypeOf<
     <T>(a: number, b: number, named: { fallback: T }) => T | number
@@ -237,7 +237,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
   expectTypeOf(mixedGenericNamed(1, 2, { fallback: 3 })).toBeNumber();
 
   let mixedGenericPositional = resolve(
-    <T>(a: T, b: T, named: { fallback: string }): string | T => a || b || named.fallback
+    <T>(a: T, b: T, named: { fallback: string }): string | T => a || b || named.fallback,
   );
   expectTypeOf(mixedGenericPositional).toEqualTypeOf<
     <T>(a: T, b: T, named: { fallback: string }) => T | string
@@ -248,7 +248,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
     'a',
     // @ts-expect-error: inconsistent T
     123,
-    { fallback: 'hi' }
+    { fallback: 'hi' },
   );
 
   let mixedGeneric = resolve(<A, B, C>(a: A, b: B, named: { c: C }): [A, B, C] => [a, b, named.c]);
@@ -302,7 +302,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
   expectTypeOf(namedArgsType).toEqualTypeOf<(pos: string, named: NamedType) => void>();
 
   let narrowsFirstArg = resolve(
-    <K extends string>(arg: unknown, key: K): arg is Record<K, number> => !!key
+    <K extends string>(arg: unknown, key: K): arg is Record<K, number> => !!key,
   );
   expectTypeOf(narrowsFirstArg).toEqualTypeOf<
     <K extends string>(arg: unknown, key: K) => arg is Record<K, number>

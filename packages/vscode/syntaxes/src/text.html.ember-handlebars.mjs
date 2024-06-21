@@ -176,7 +176,7 @@ export default {
         },
       ],
     },
-    'boolean': {
+    boolean: {
       match: 'true|false|undefined|null',
       captures: {
         0: {
@@ -191,7 +191,7 @@ export default {
       },
       patterns: [],
     },
-    'digit': {
+    digit: {
       match: '\\d*(\\.)?\\d+',
       captures: {
         0: {
@@ -206,7 +206,7 @@ export default {
       },
       patterns: [],
     },
-    'param': {
+    param: {
       match: '(@|this.)([a-zA-Z0-9_.-]+)',
       captures: {
         0: {
@@ -234,7 +234,7 @@ export default {
       },
       patterns: [],
     },
-    'attention': {
+    attention: {
       name: 'storage.type.class.${1:/downcase}',
       match: '@?(TODO|FIXME|CHANGED|XXX|IDEA|HACK|NOTE|REVIEW|NB|BUG|QUESTION|TEMP)\\b',
       patterns: [],
@@ -629,12 +629,12 @@ export default {
       },
       patterns: [],
     },
-    'variable': {
+    variable: {
       name: 'support.function',
       match: '\\b([a-zA-Z0-9-_]+)\\b',
       patterns: [],
     },
-    'style': {
+    style: {
       begin: '(^[ \\t]+)?(?=<(?i:style)\\b(?!-))',
       beginCaptures: {
         1: {
@@ -713,7 +713,7 @@ export default {
         },
       ],
     },
-    'script': {
+    script: {
       begin: '(^[ \\t]+)?(?=<(?i:script)\\b(?!-))',
       beginCaptures: {
         1: {
@@ -1061,7 +1061,7 @@ export default {
         },
       },
     },
-    'entities': {
+    entities: {
       patterns: [
         {
           name: 'constant.character.entity.html.ember-handlebars',

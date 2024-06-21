@@ -12,7 +12,7 @@ describe('Config: loadConfig', () => {
     fs.mkdirSync(testDir);
     fs.writeFileSync(
       `${testDir}/local-env.js`,
-      `module.exports = () => ({ tags: { test: {} } });\n`
+      `module.exports = () => ({ tags: { test: {} } });\n`,
     );
   });
 
@@ -33,7 +33,7 @@ describe('Config: loadConfig', () => {
           environment: 'kaboom',
           checkStandaloneTemplates: false,
         },
-      })
+      }),
     );
     fs.writeFileSync(
       `${testDir}/deeply/tsconfig.json`,
@@ -42,7 +42,7 @@ describe('Config: loadConfig', () => {
         glint: {
           environment: '../local-env',
         },
-      })
+      }),
     );
 
     let config = loadConfig(`${testDir}/deeply/nested/directory`);

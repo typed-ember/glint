@@ -170,7 +170,7 @@ describe('Language Server: Completions', () => {
     });
 
     let importCompletion = completions?.items.find(
-      (k) => k.kind == CompletionItemKind.Variable && k.label == 'foobar'
+      (k) => k.kind == CompletionItemKind.Variable && k.label == 'foobar',
     );
 
     let details = await server.sendCompletionResolveRequest(importCompletion!);
@@ -213,7 +213,7 @@ describe('Language Server: Completions', () => {
     const { uri } = await server.openTextDocument(project.filePath('index.ts'), 'typescript');
     let completions = await server.sendCompletionRequest(uri, Position.create(2, 11));
     let importCompletion = completions?.items.find(
-      (k) => k.kind == CompletionItemKind.Variable && k.label == 'foobar'
+      (k) => k.kind == CompletionItemKind.Variable && k.label == 'foobar',
     );
     let details = await server.sendCompletionResolveRequest(importCompletion!);
 
@@ -246,7 +246,7 @@ describe('Language Server: Completions', () => {
     let server = await project.startLanguageServer();
     let completions = await server.sendCompletionRequest(
       project.fileURI('index.ts'),
-      Position.create(0, 10)
+      Position.create(0, 10),
     );
 
     for (const completion of completions!.items) {

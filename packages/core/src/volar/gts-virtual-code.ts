@@ -31,14 +31,14 @@ export class VirtualGtsCode implements VirtualCode {
   constructor(
     private glintConfig: GlintConfig,
     public snapshot: IScriptSnapshot,
-    public languageId: 'glimmer-ts' | 'glimmer-js'
+    public languageId: 'glimmer-ts' | 'glimmer-js',
   ) {
     this.update(snapshot);
   }
 
   // This gets called by the constructor and whenever the language server receives a file change event,
   // i.e. the user saved the file.
-  update(snapshot: IScriptSnapshot) {
+  update(snapshot: IScriptSnapshot): void {
     this.snapshot = snapshot;
     const length = snapshot.getLength();
 
@@ -72,7 +72,7 @@ export class VirtualGtsCode implements VirtualCode {
     const transformedModule = rewriteModule(
       this.glintConfig.ts,
       { script, template },
-      this.glintConfig.environment
+      this.glintConfig.environment,
     );
 
     this.transformedModule = transformedModule;

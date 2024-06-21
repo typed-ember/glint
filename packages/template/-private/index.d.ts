@@ -128,19 +128,17 @@ export type ModifierLike<S = unknown> = Invokable<
  * consumers would still be obligated to provide a `@message`
  * arg when invoking the yielded component.
  */
-export type WithBoundArgs<
-  T extends Invokable<AnyFunction>,
-  BoundArgs extends NamedArgNames<T>
-> = T extends Invokable<(...args: [...positional: infer P, named: infer N]) => infer R>
-  ? Invokable<
-      (
-        ...args: [
-          ...positional: P,
-          ...named: MaybeNamed<PrebindArgs<UnwrapNamedArgs<NonNullable<N>>, BoundArgs>>
-        ]
-      ) => R
-    >
-  : never;
+export type WithBoundArgs<T extends Invokable<AnyFunction>, BoundArgs extends NamedArgNames<T>> =
+  T extends Invokable<(...args: [...positional: infer P, named: infer N]) => infer R>
+    ? Invokable<
+        (
+          ...args: [
+            ...positional: P,
+            ...named: MaybeNamed<PrebindArgs<UnwrapNamedArgs<NonNullable<N>>, BoundArgs>>,
+          ]
+        ) => R
+      >
+    : never;
 
 /**
  * Similar to `WithBoundArgs`, this utility type provides a shorthand
@@ -173,13 +171,14 @@ export type WithBoundArgs<
  */
 export type WithBoundPositionals<
   T extends Invokable<AnyFunction> | AnyFunction,
-  Count extends number
-> = T extends Invokable<(el: infer El, ...args: infer A) => ModifierReturn>
-  ? Invokable<(el: El, ...args: SliceFrom<A, Count>) => ModifierReturn>
-  : T extends Invokable<(...args: infer A) => infer R>
-  ? Invokable<(...args: SliceFrom<A, Count>) => R>
-  : T extends (...args: infer A) => infer R
-  ? Invokable<(...args: SliceFrom<A, Count>) => R>
-  : never;
+  Count extends number,
+> =
+  T extends Invokable<(el: infer El, ...args: infer A) => ModifierReturn>
+    ? Invokable<(el: El, ...args: SliceFrom<A, Count>) => ModifierReturn>
+    : T extends Invokable<(...args: infer A) => infer R>
+      ? Invokable<(...args: SliceFrom<A, Count>) => R>
+      : T extends (...args: infer A) => infer R
+        ? Invokable<(...args: SliceFrom<A, Count>) => R>
+        : never;
 
 export {};

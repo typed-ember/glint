@@ -20,7 +20,7 @@ import type { ComponentLike } from '@glint/template';
 
   resolve(NoArgsComponent)(
     // @ts-expect-error: extra positional arg
-    'oops'
+    'oops',
   );
 
   {
@@ -75,10 +75,10 @@ import type { ComponentLike } from '@glint/template';
         // the array element and the yielded value are the same.
         yieldToBlock(
           𝚪,
-          'default'
+          'default',
         )(
           // @ts-expect-error: only a `T` is a valid yield
-          123
+          123,
         );
 
         if (𝚪.args.values.length) {
@@ -113,7 +113,7 @@ import type { ComponentLike } from '@glint/template';
 
   {
     const component = emitComponent(
-      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker }),
     );
 
     {
@@ -124,7 +124,7 @@ import type { ComponentLike } from '@glint/template';
 
   {
     const component = emitComponent(
-      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker }),
     );
 
     {
@@ -159,14 +159,14 @@ import type { ComponentLike } from '@glint/template';
 
   resolve(PositionalArgsComponent)(
     // @ts-expect-error: incorrect type for positional arg
-    123
+    123,
   );
 
   resolve(PositionalArgsComponent)(
     'a',
     1,
     // @ts-expect-error: extra positional arg
-    true
+    true,
   );
 
   resolve(PositionalArgsComponent)('a');

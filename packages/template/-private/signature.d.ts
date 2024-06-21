@@ -10,7 +10,7 @@ import { NamedArgs, UnwrapNamedArgs } from './integration';
  */
 export type InvokableArgs<Args> = [
   ...positional: Constrain<Get<Args, 'Positional'>, Array<unknown>, []>,
-  ...named: MaybeNamed<NamedArgs<Get<Args, 'Named'>>>
+  ...named: MaybeNamed<NamedArgs<Get<Args, 'Named'>>>,
 ];
 
 /** Given a signature `S`, get back the normalized `Args` type. */
@@ -72,12 +72,12 @@ export type TupleOfSize<Len extends number, Acc extends unknown[] = []> = Acc['l
 export type SliceTo<T extends unknown[], Index extends number> = T['length'] extends Index
   ? T
   : T extends [...infer Rest, any?]
-  ? SliceTo<Rest, Index>
-  : [];
+    ? SliceTo<Rest, Index>
+    : [];
 
 export type SliceFrom<T extends unknown[], Index extends number> = T extends [
   ...TupleOfSize<Index>,
-  ...infer Rest
+  ...infer Rest,
 ]
   ? Rest
   : [];

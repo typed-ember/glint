@@ -21,5 +21,5 @@ const withKeyword = resolve({} as WithKeyword);
 withKeyword(
   'hello',
   // @ts-expect-error: Rejects multiple values
-  'goodbye'
+  'goodbye',
 );

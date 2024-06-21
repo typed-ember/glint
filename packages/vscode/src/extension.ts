@@ -15,6 +15,7 @@ import {
 } from 'vscode';
 import * as languageServerProtocol from '@volar/language-server/protocol.js';
 import {
+  LabsInfo,
   activateAutoInsertion,
   activateDocumentDropEdit,
   activateTsVersionStatusItem,
@@ -33,7 +34,7 @@ const clients = new Map<string, LanguageClient>();
 const extensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
 const filePattern = `**/*{${extensions.join(',')}}`;
 
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext): LabsInfo {
   // TODO: Volar: i think this happens as part of dynamic registerCapability, i.e.
   // I think maybe we can remove this from `activate` and wait for it to happen
   // when the server sends the registerCapability questions for all dynamicRegistration=true capabilities.
@@ -42,14 +43,14 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(fileWatcher, createConfigWatcher());
   context.subscriptions.push(
     commands.registerCommand('glint.restart-language-server', restartClients),
-    commands.registerTextEditorCommand('glint.show-debug-ir', showDebugIR)
+    commands.registerTextEditorCommand('glint.show-debug-ir', showDebugIR),
   );
 
   // TODO: how to each multiple workspace reloads with VolarLabs?
   const volarLabs = createLabsInfo(languageServerProtocol);
 
   workspace.workspaceFolders?.forEach((folder) =>
-    addWorkspaceFolder(context, folder, fileWatcher, volarLabs)
+    addWorkspaceFolder(context, folder, fileWatcher, volarLabs),
   );
   workspace.onDidChangeWorkspaceFolders(({ added, removed }) => {
     added.forEach((folder) => addWorkspaceFolder(context, folder, fileWatcher));
@@ -108,7 +109,7 @@ async function showDebugIR(editor: TextEditor): Promise<void> {
 
 async function reloadAllWorkspaces(
   context: ExtensionContext,
-  fileWatcher: FileSystemWatcher
+  fileWatcher: FileSystemWatcher,
 ): Promise<void> {
   let folders = workspace.workspaceFolders ?? [];
 
@@ -116,7 +117,7 @@ async function reloadAllWorkspaces(
     folders.map(async (folder) => {
       await removeWorkspaceFolder(folder);
       await addWorkspaceFolder(context, folder, fileWatcher);
-    })
+    }),
   );
 }
 
@@ -124,7 +125,7 @@ async function addWorkspaceFolder(
   context: ExtensionContext,
   workspaceFolder: WorkspaceFolder,
   watcher: FileSystemWatcher,
-  volarLabs?: ReturnType<typeof createLabsInfo>
+  volarLabs?: ReturnType<typeof createLabsInfo>,
 ): Promise<void> {
   let folderPath = workspaceFolder.uri.fsPath;
   if (clients.has(folderPath)) return;
@@ -137,12 +138,12 @@ async function addWorkspaceFolder(
   const typescriptFormatOptions = getOptions(workspace.getConfiguration('typescript'), 'format');
   const typescriptUserPreferences = getOptions(
     workspace.getConfiguration('typescript'),
-    'preferences'
+    'preferences',
   );
   const javascriptFormatOptions = getOptions(workspace.getConfiguration('javascript'), 'format');
   const javascriptUserPreferences = getOptions(
     workspace.getConfiguration('javascript'),
-    'preferences'
+    'preferences',
   );
 
   let client = new LanguageClient('glint', 'Glint', serverOptions, {
@@ -197,7 +198,7 @@ function findLanguageServer(workspaceDir: string): string | null {
     outputChannel.appendLine(
       `Unable to resolve @glint/core from ${resolutionDir} — not launching Glint for this directory.\n` +
         `If Glint is installed in a child directory, you may wish to set the 'glint.libraryPath' option ` +
-        `in your workspace settings for the Glint VS Code extension.`
+        `in your workspace settings for the Glint VS Code extension.`,
     );
 
     return null;

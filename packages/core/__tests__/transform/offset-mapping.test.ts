@@ -51,8 +51,8 @@ describe.skip('Transform: Source-to-source offset mapping', () => {
         backing === 'class'
           ? 'export default class MyComponent {}'
           : backing === 'opaque'
-          ? 'export default templateOnly();'
-          : '',
+            ? 'export default templateOnly();'
+            : '',
     };
 
     let template = {
@@ -83,7 +83,7 @@ describe.skip('Transform: Source-to-source offset mapping', () => {
   function expectTokenMapping(
     rewrittenTestModule: RewrittenTestModule,
     originalToken: string,
-    { transformedToken = originalToken, occurrence = 0 } = {}
+    { transformedToken = originalToken, occurrence = 0 } = {},
   ): void {
     let originalSource = rewrittenTestModule.source.contents;
     let transformedContents = rewrittenTestModule.transformedModule.transformedContents;
@@ -99,14 +99,14 @@ describe.skip('Transform: Source-to-source offset mapping', () => {
       {
         start: transformedOffset,
         end: transformedOffset + transformedToken.length,
-      }
+      },
     );
   }
 
   function expectRangeMapping(
     rewrittenTestModule: RewrittenTestModule,
     originalRange: Range,
-    transformedRange: Range
+    transformedRange: Range,
   ): void {
     let { transformedModule, source } = rewrittenTestModule;
     expect(transformedModule.getOriginalOffset(transformedRange.start)).toEqual({
@@ -114,13 +114,13 @@ describe.skip('Transform: Source-to-source offset mapping', () => {
       source,
     });
     expect(transformedModule.getTransformedOffset(source.filename, originalRange.start)).toEqual(
-      transformedRange.start
+      transformedRange.start,
     );
 
     let calculatedTransformedRange = transformedModule.getTransformedRange(
       source.filename,
       originalRange.start,
-      originalRange.end
+      originalRange.end,
     );
 
     expect(calculatedTransformedRange.start).toEqual(transformedRange.start);
@@ -128,7 +128,7 @@ describe.skip('Transform: Source-to-source offset mapping', () => {
 
     let calculatedOriginalRange = transformedModule.getOriginalRange(
       transformedRange.start,
-      transformedRange.end
+      transformedRange.end,
     );
 
     expect(calculatedOriginalRange.source).toBe(rewrittenTestModule.source);
@@ -388,11 +388,11 @@ describe.skip('Transform: Source-to-source offset mapping', () => {
           transformedModule.transformedContents.indexOf('args.a') + 'args.'.length;
 
         expect(transformedModule.getOriginalOffset(passedArgTransformedOffset).offset).toBe(
-          passedArgSourceOffset
+          passedArgSourceOffset,
         );
 
         expect(transformedModule.getTransformedOffset(source.filename, passedArgSourceOffset)).toBe(
-          passedArgTransformedOffset
+          passedArgTransformedOffset,
         );
 
         let argNameSourceOffset = source.contents.indexOf('@a=') + '@'.length;
@@ -400,11 +400,11 @@ describe.skip('Transform: Source-to-source offset mapping', () => {
           transformedModule.transformedContents.indexOf(', a:') + ', '.length;
 
         expect(transformedModule.getOriginalOffset(argNameTransformedOffset).offset).toBe(
-          argNameSourceOffset
+          argNameSourceOffset,
         );
 
         expect(transformedModule.getTransformedOffset(source.filename, argNameSourceOffset)).toBe(
-          argNameTransformedOffset
+          argNameTransformedOffset,
         );
       });
 
@@ -416,11 +416,11 @@ describe.skip('Transform: Source-to-source offset mapping', () => {
         let doubleATransformedOffset = transformedModule.transformedContents.indexOf('aa:');
 
         expect(transformedModule.getOriginalOffset(doubleATransformedOffset).offset).toBe(
-          doubleASourceOFfset
+          doubleASourceOFfset,
         );
 
         expect(transformedModule.getTransformedOffset(source.filename, doubleASourceOFfset)).toBe(
-          doubleATransformedOffset
+          doubleATransformedOffset,
         );
 
         let singleASourceOffset = source.contents.indexOf(' a=') + ' '.length;
@@ -428,11 +428,11 @@ describe.skip('Transform: Source-to-source offset mapping', () => {
           transformedModule.transformedContents.indexOf(' a:') + ' '.length;
 
         expect(transformedModule.getOriginalOffset(singleATransformedOFfset).offset).toBe(
-          singleASourceOffset
+          singleASourceOffset,
         );
 
         expect(transformedModule.getTransformedOffset(source.filename, singleASourceOffset)).toBe(
-          singleATransformedOFfset
+          singleATransformedOFfset,
         );
       });
     });

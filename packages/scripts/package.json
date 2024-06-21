@@ -20,12 +20,14 @@
   },
   "scripts": {
     "test": "vitest run",
+    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:tsc": "echo 'no standalone typecheck within this project'",
     "build": "tsc --build",
     "prepack": "yarn build"
   },
   "dependencies": {
-    "golden-fleece": "^1.0.9",
     "glob": "^7.2.0",
+    "golden-fleece": "^1.0.9",
     "js-yaml": "^4.1.0",
     "ora": "^6.1.2",
     "true-myth": "^6.1.0",

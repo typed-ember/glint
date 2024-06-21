@@ -46,7 +46,9 @@ function mergeGlimmerSourceGrammars(grammar, injectionSelector) {
     ...copiedEmberHandlebarPatterns,
   ];
 
-  const tagLikeContent = embeddedTemplateWithArgs.patterns.find((pattern) => pattern.begin === '(?<=\\<template)');
+  const tagLikeContent = embeddedTemplateWithArgs.patterns.find(
+    (pattern) => pattern.begin === '(?<=\\<template)',
+  );
   tagLikeContent.patterns = [
     {
       include: '#tag-like-content',

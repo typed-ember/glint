@@ -26,6 +26,8 @@
   "scripts": {
     "pretest": "yarn build",
     "test": "node lib/__tests__/support/launch-from-cli.mjs",
+    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:tsc": "echo 'no standalone tsc within this project'",
     "build": "yarn compile && yarn bundle",
     "compile": "tsc --build",
     "bundle": "esbuild lib/src/extension.js --bundle --outfile=dist/extension.js --platform=node --external:vscode --minify",
@@ -40,7 +42,6 @@
     "workspaceContains:**/tsconfig.json",
     "workspaceContains:**/jsconfig.json"
   ],
-  
   "contributes": {
     "languages": [
       {
@@ -238,8 +239,8 @@
     "@vscode/vsce": "^2.22.0",
     "esbuild": "^0.15.16",
     "expect": "^29.5.0",
-    "mocha": "^10.2.0",
-    "glob": "^10.2.4"
+    "glob": "^10.2.4",
+    "mocha": "^10.2.0"
   },
   "volta": {
     "extends": "../../package.json"

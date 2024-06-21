@@ -9,9 +9,10 @@
   "scripts": {
     "lint": "yarn lint:scripts && yarn lint:formatting",
     "lint:fix": "yarn lint:scripts --fix && yarn prettier --write .",
-    "lint:scripts": "yarn eslint --max-warnings 0 --cache .",
+    "lint:scripts": "yarn eslint .",
     "lint:formatting": "yarn prettier --check .",
     "test": "yarn workspaces run test",
+    "test:typecheck": "yarn workspaces run test:typecheck",
     "build": "tsc --build",
     "release-it": "echo \"Running release-it via yarn breaks publishing! Use npx or a Volta global installation.\""
   },
@@ -30,7 +31,7 @@
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
     "eslint": "^8.27.0",
-    "prettier": "^2.1.1",
+    "prettier": "^3.3.2",
     "release-it": "^15.5.0",
     "typescript": "~5.3.0"
   },

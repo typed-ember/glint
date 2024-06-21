@@ -121,7 +121,7 @@ describe('Smoke test: Ember', () => {
       let positions = (await commands.executeCommand(
         'vscode.executeDefinitionProvider',
         templateURI,
-        new Position(0, 11)
+        new Position(0, 11),
       )) as Array<Location>;
 
       expect(positions.length).toBe(1);
@@ -140,7 +140,7 @@ describe('Smoke test: Ember', () => {
       let positions = (await commands.executeCommand(
         'vscode.executeDefinitionProvider',
         templateURI,
-        new Position(0, 11)
+        new Position(0, 11),
       )) as Array<Location>;
 
       expect(positions.length).toBe(1);
@@ -159,7 +159,7 @@ describe('Smoke test: Ember', () => {
       let positions = (await commands.executeCommand(
         'vscode.executeDefinitionProvider',
         templateURI,
-        new Position(0, 11)
+        new Position(0, 11),
       )) as Array<Location>;
 
       expect(positions.length).toBe(1);
@@ -180,7 +180,7 @@ describe('Smoke test: Ember', () => {
       let positions = (await commands.executeCommand(
         'vscode.executeDefinitionProvider',
         templateURI,
-        new Position(0, 12)
+        new Position(0, 12),
       )) as Array<Location>;
 
       expect(positions.length).toBe(1);
@@ -199,7 +199,7 @@ describe('Smoke test: Ember', () => {
       let positions = (await commands.executeCommand(
         'vscode.executeDefinitionProvider',
         templateURI,
-        new Position(0, 12)
+        new Position(0, 12),
       )) as Array<Location>;
 
       expect(positions.length).toBe(1);
@@ -218,7 +218,7 @@ describe('Smoke test: Ember', () => {
       let positions = (await commands.executeCommand(
         'vscode.executeDefinitionProvider',
         templateURI,
-        new Position(0, 12)
+        new Position(0, 12),
       )) as Array<Location>;
 
       expect(positions.length).toBe(1);
@@ -237,7 +237,7 @@ describe('Smoke test: Ember', () => {
       let positions = (await commands.executeCommand(
         'vscode.executeDefinitionProvider',
         templateURI,
-        new Position(0, 12)
+        new Position(0, 12),
       )) as Array<Location>;
 
       expect(positions.length).toBe(1);
@@ -271,7 +271,7 @@ describe('Smoke test: Ember', () => {
       const fixes = await commands.executeCommand<CodeAction[]>(
         'vscode.executeCodeActionProvider',
         templateURI,
-        new Range(new Position(2, 8), new Position(2, 8))
+        new Range(new Position(2, 8), new Position(2, 8)),
       );
 
       expect(fixes.length).toBe(3);

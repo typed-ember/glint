@@ -20,11 +20,11 @@ import {
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 // Items whose instance type can be invoked
 export declare function resolve<Args extends unknown[], Instance extends InvokableInstance>(
-  item: (abstract new (...args: Args) => Instance) | null | undefined
+  item: (abstract new (...args: Args) => Instance) | null | undefined,
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 // Plain functions
 export declare function resolve<T extends ((...params: any) => any) | null | undefined>(
-  item: T
+  item: T,
 ): NonNullable<T>;
 
 export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
@@ -38,8 +38,8 @@ import { TemplateOnlyComponent } from '@ember/component/template-only';
 
 export declare function templateExpression<
   Signature extends AnyFunction = () => ComponentReturn<{}>,
-  Context extends AnyContext = TemplateContext<void, {}, {}, void>
+  Context extends AnyContext = TemplateContext<void, {}, {}, void>,
 >(
-  f: (𝚪: Context, χ: never) => void
+  f: (𝚪: Context, χ: never) => void,
 ): TemplateOnlyComponent<never> &
   (abstract new () => InvokableInstance<Signature> & HasContext<Context>);

@@ -29,7 +29,7 @@ import type Owner from '@ember/owner';
     override modify(
       element: HTMLImageElement,
       [input]: NeatModifierSignature['Args']['Positional'],
-      { multiplier }: NeatModifierSignature['Args']['Named']
+      { multiplier }: NeatModifierSignature['Args']['Named'],
     ): void {
       // expectTypeOf(element).toEqualTypeOf<HTMLImageElement>();
       this.multiplier = multiplier ?? 1000;
@@ -47,13 +47,13 @@ import type Owner from '@ember/owner';
 
   expectTypeOf(neat(img, 'hello')).toEqualTypeOf<ModifierReturn>();
   expectTypeOf(
-    neat(img, 'hello', { multiplier: 3, ...NamedArgsMarker })
+    neat(img, 'hello', { multiplier: 3, ...NamedArgsMarker }),
   ).toEqualTypeOf<ModifierReturn>();
 
   neat(
     // @ts-expect-error: invalid element type
     new HTMLDivElement(),
-    'hello'
+    'hello',
   );
 
   // @ts-expect-error: missing required positional arg
@@ -63,7 +63,7 @@ import type Owner from '@ember/owner';
     img,
     'hello',
     // @ts-expect-error: extra positional arg
-    'goodbye'
+    'goodbye',
   );
 
   neat(img, 'message', {
@@ -83,12 +83,15 @@ import type Owner from '@ember/owner';
 {
   let definition = modifier(
     (element: HTMLAudioElement, [input]: [string], { multiplier }: { multiplier?: number }) => {
-      let interval = window.setInterval(() => {
-        alert('this is a typesafe modifier!');
-      }, input.length * (multiplier ?? 1000));
+      let interval = window.setInterval(
+        () => {
+          alert('this is a typesafe modifier!');
+        },
+        input.length * (multiplier ?? 1000),
+      );
 
       return () => window.clearInterval(interval);
-    }
+    },
   );
 
   let audio = new HTMLAudioElement();
@@ -96,13 +99,13 @@ import type Owner from '@ember/owner';
 
   expectTypeOf(neat(audio, 'hello')).toEqualTypeOf<ModifierReturn>();
   expectTypeOf(
-    neat(audio, 'hello', { multiplier: 3, ...NamedArgsMarker })
+    neat(audio, 'hello', { multiplier: 3, ...NamedArgsMarker }),
   ).toEqualTypeOf<ModifierReturn>();
 
   neat(
     // @ts-expect-error: invalid element type
     new HTMLDivElement(),
-    'hello'
+    'hello',
   );
 
   // @ts-expect-error: missing required positional arg
@@ -112,7 +115,7 @@ import type Owner from '@ember/owner';
     audio,
     'hello',
     // @ts-expect-error: extra positional arg
-    'goodbye'
+    'goodbye',
   );
 
   neat(audio, 'message', {

@@ -12,7 +12,7 @@ describe('Config: loadConfig', () => {
     fs.mkdirSync(testDir);
     fs.writeFileSync(
       `${testDir}/local-env.js`,
-      `module.exports = () => ({ tags: { test: {} } });\n`
+      `module.exports = () => ({ tags: { test: {} } });\n`,
     );
   });
 
@@ -35,12 +35,12 @@ describe('Config: loadConfig', () => {
 
     fs.writeFileSync(
       `${testDir}/tsconfig.json`,
-      JSON.stringify({ glint: { environment: './local-env.js' } })
+      JSON.stringify({ glint: { environment: './local-env.js' } }),
     );
 
     fs.writeFileSync(
       `${testDir}/packages/a/tsconfig.json`,
-      JSON.stringify({ glint: { environment: '../../local-env.js' } })
+      JSON.stringify({ glint: { environment: '../../local-env.js' } }),
     );
 
     let loader = new ConfigLoader();
@@ -56,7 +56,7 @@ describe('Config: loadConfig', () => {
       `${testDir}/tsconfig.json`,
       JSON.stringify({
         glint: { environment: './local-env.js' },
-      })
+      }),
     );
 
     let loader = new ConfigLoader();
@@ -70,12 +70,12 @@ describe('Config: loadConfig', () => {
     test('fully inherited config', () => {
       fs.writeFileSync(
         `${testDir}/tsconfig.base.json`,
-        JSON.stringify({ glint: { environment: `./local-env` } })
+        JSON.stringify({ glint: { environment: `./local-env` } }),
       );
 
       fs.writeFileSync(
         `${testDir}/tsconfig.json`,
-        JSON.stringify({ extends: './tsconfig.base.json' })
+        JSON.stringify({ extends: './tsconfig.base.json' }),
       );
 
       let config = new ConfigLoader().configForFile(`${testDir}/src/foo.glint.ts`);
@@ -88,7 +88,7 @@ describe('Config: loadConfig', () => {
       fs.writeFileSync(`${testDir}/tsconfig.base.json`, JSON.stringify({}));
       fs.writeFileSync(
         `${testDir}/tsconfig.json`,
-        JSON.stringify({ extends: './tsconfig.base.json', glint: { environment: './local-env' } })
+        JSON.stringify({ extends: './tsconfig.base.json', glint: { environment: './local-env' } }),
       );
 
       let config = new ConfigLoader().configForFile(`${testDir}/src/foo.glint.ts`);
@@ -100,23 +100,23 @@ describe('Config: loadConfig', () => {
     test('illegal inheritance', () => {
       fs.writeFileSync(
         `${testDir}/tsconfig.base.json`,
-        JSON.stringify({ glint: { environment: `./local-env`, transform: {} } })
+        JSON.stringify({ glint: { environment: `./local-env`, transform: {} } }),
       );
 
       fs.writeFileSync(
         `${testDir}/tsconfig.json`,
-        JSON.stringify({ extends: './tsconfig.base.json' })
+        JSON.stringify({ extends: './tsconfig.base.json' }),
       );
 
       expect(() => new ConfigLoader().configForFile(`${testDir}/foo.ts`)).toThrow(
-        'Glint `transform` options may not be specified in extended config.'
+        'Glint `transform` options may not be specified in extended config.',
       );
     });
 
     test('merging config', () => {
       fs.writeFileSync(
         `${testDir}/tsconfig.base.json`,
-        JSON.stringify({ glint: { environment: './local-env' } })
+        JSON.stringify({ glint: { environment: './local-env' } }),
       );
 
       fs.writeFileSync(
@@ -124,7 +124,7 @@ describe('Config: loadConfig', () => {
         JSON.stringify({
           extends: './tsconfig.base.json',
           glint: { checkStandaloneTemplates: false },
-        })
+        }),
       );
 
       let config = new ConfigLoader().configForFile(`${testDir}/src/foo.glint.ts`);

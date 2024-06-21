@@ -48,7 +48,7 @@ describe.skip('CLI: custom extensions', () => {
     let stripped = stripAnsi(output);
     let error = stripped.slice(
       stripped.indexOf('index.gts'),
-      stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+      stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
     );
 
     expect(output).toMatch('Found 1 error.');
@@ -68,7 +68,7 @@ describe.skip('CLI: custom extensions', () => {
         stripIndent`
           import { foo } from "./other";
           console.log(foo - 1);
-        `
+        `,
       );
     });
 
@@ -78,7 +78,7 @@ describe.skip('CLI: custom extensions', () => {
 
       expect(output).toMatch('Found 1 error.');
       expect(output).toMatch(
-        "Cannot find module './other' or its corresponding type declarations."
+        "Cannot find module './other' or its corresponding type declarations.",
       );
 
       project.write('other.gjs', 'export const foo = 123;');
@@ -117,7 +117,7 @@ describe.skip('CLI: custom extensions', () => {
 
       expect(output).toMatch('Found 1 error.');
       expect(output).toMatch(
-        "Cannot find module './other' or its corresponding type declarations."
+        "Cannot find module './other' or its corresponding type declarations.",
       );
 
       await watch.terminate();
@@ -163,7 +163,7 @@ describe.skip('CLI: custom extensions', () => {
 
         expect(result.exitCode).toBe(0);
         expect(result.stderr).toBe('');
-      }
+      },
     );
   });
 });

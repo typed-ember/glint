@@ -55,7 +55,7 @@ export default class MappingTree {
     public transformedRange: Range,
     public originalRange: Range,
     public children: Array<MappingTree> = [],
-    public sourceNode: MappingSource
+    public sourceNode: MappingSource,
   ) {
     children.forEach((child) => (child.parent = this));
   }
@@ -120,15 +120,15 @@ export default class MappingTree {
     lines.push(
       `${indent}${` hbs(${hbsStart}:${hbsEnd}):`.padEnd(15)}${this.getSourceRange(
         originalSource,
-        originalRange
-      )}`
+        originalRange,
+      )}`,
     );
 
     lines.push(
       `${indent}${` ts(${tsStart}:${tsEnd}):`.padEnd(15)}${this.getSourceRange(
         transformedSource,
-        transformedRange
-      )}`
+        transformedRange,
+      )}`,
     );
 
     lines.push(indent);

@@ -10,7 +10,7 @@ describe('Transform: rewriteTemplate', () => {
   // the body, to keep snapshots brief and focused.
   function templateBody(
     template: string,
-    options: Omit<TemplateToTypescriptOptions, 'typesModule'> = {}
+    options: Omit<TemplateToTypescriptOptions, 'typesModule'> = {},
   ): string {
     let { result, errors } = templateToTypescript(template, {
       typesModule: '@glint/template',
@@ -40,7 +40,7 @@ describe('Transform: rewriteTemplate', () => {
     test('given a backing value', () => {
       expect(
         templateToTypescript('', { backingValue: 'someValue', typesModule: '@glint/template' })
-          .result?.code
+          .result?.code,
       ).toMatchInlineSnapshot(`
         "({} as typeof import("@glint/template")).templateForBackingValue(someValue, function(𝚪, χ: typeof import("@glint/template")) {
         𝚪; χ;
@@ -285,7 +285,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testIf: 'if' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"(𝚪.args.foo) ? ("ok") : (undefined);"`
+          `"(𝚪.args.foo) ? ("ok") : (undefined);"`,
         );
       });
 
@@ -294,7 +294,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testIf: 'if' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"(𝚪.args.foo) ? ("ok") : ("nope");"`
+          `"(𝚪.args.foo) ? ("ok") : ("nope");"`,
         );
       });
     });
@@ -305,7 +305,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testUnless: 'if-not' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"!(𝚪.args.foo) ? ("ok") : (undefined);"`
+          `"!(𝚪.args.foo) ? ("ok") : (undefined);"`,
         );
       });
 
@@ -314,7 +314,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testUnless: 'if-not' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"!(𝚪.args.foo) ? ("ok") : ("nope");"`
+          `"!(𝚪.args.foo) ? ("ok") : ("nope");"`,
         );
       });
     });
@@ -463,7 +463,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testYield: 'yield' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"χ.yieldToBlock(𝚪, "default")(123, 𝚪.this.message);"`
+          `"χ.yieldToBlock(𝚪, "default")(123, 𝚪.this.message);"`,
         );
       });
 
@@ -475,7 +475,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testYield: 'yield' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"χ.yieldToBlock(𝚪, "body")(123);"`
+          `"χ.yieldToBlock(𝚪, "body")(123);"`,
         );
       });
 
@@ -487,7 +487,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testYield: 'yield' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"χ.yieldToBlock(𝚪, "else")(123);"`
+          `"χ.yieldToBlock(𝚪, "else")(123);"`,
         );
       });
 
@@ -499,7 +499,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testYield: 'yield' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"χ.yieldToBlock(𝚪, "else")(123);"`
+          `"χ.yieldToBlock(𝚪, "else")(123);"`,
         );
       });
     });
@@ -513,7 +513,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testArray: 'array-literal' } as const;
 
         expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(
-          '"(χ.noop(testArray), []);"'
+          '"(χ.noop(testArray), []);"',
         );
       });
 
@@ -525,7 +525,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testArray: 'array-literal' } as const;
 
         expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(
-          `"(χ.noop(testArray), [1, true, "free"]);"`
+          `"(χ.noop(testArray), [1, true, "free"]);"`,
         );
       });
 
@@ -537,7 +537,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testArray: 'array-literal' } as const;
 
         expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(
-          `"χ.emitContent(χ.resolve(log)((χ.noop(testArray), [1, true, "free"])));"`
+          `"χ.emitContent(χ.resolve(log)((χ.noop(testArray), [1, true, "free"])));"`,
         );
       });
     });
@@ -551,7 +551,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testHash: 'object-literal' } as const;
 
         expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(
-          '"(χ.noop(testHash), {});"'
+          '"(χ.noop(testHash), {});"',
         );
       });
 
@@ -681,7 +681,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{message}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"χ.emitContent(χ.resolveOrReturn(χ.Globals["message"])());"`
+            `"χ.emitContent(χ.resolveOrReturn(χ.Globals["message"])());"`,
           );
         });
 
@@ -689,7 +689,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{message}}';
 
           expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
-            '"χ.emitContent(χ.resolveOrReturn(message)());"'
+            '"χ.emitContent(χ.resolveOrReturn(message)());"',
           );
         });
 
@@ -697,7 +697,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{obj.foo.bar}}';
 
           expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
-            '"χ.emitContent(χ.resolveOrReturn(obj?.foo?.bar)());"'
+            '"χ.emitContent(χ.resolveOrReturn(obj?.foo?.bar)());"',
           );
         });
 
@@ -705,7 +705,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{obj.foo-bar.baz}}';
 
           expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
-            `"χ.emitContent(χ.resolveOrReturn(obj?.["foo-bar"]?.baz)());"`
+            `"χ.emitContent(χ.resolveOrReturn(obj?.["foo-bar"]?.baz)());"`,
           );
         });
 
@@ -713,7 +713,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"χ.emitContent(χ.resolveOrReturn(𝚪.this)());"'
+            '"χ.emitContent(χ.resolveOrReturn(𝚪.this)());"',
           );
         });
 
@@ -721,7 +721,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this.foo.bar}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"χ.emitContent(χ.resolveOrReturn(𝚪.this.foo?.bar)());"'
+            '"χ.emitContent(χ.resolveOrReturn(𝚪.this.foo?.bar)());"',
           );
         });
 
@@ -729,7 +729,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this.foo-bar}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"χ.emitContent(χ.resolveOrReturn(𝚪.this["foo-bar"])());"`
+            `"χ.emitContent(χ.resolveOrReturn(𝚪.this["foo-bar"])());"`,
           );
         });
 
@@ -737,7 +737,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{@foo}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());"'
+            '"χ.emitContent(χ.resolveOrReturn(𝚪.args.foo)());"',
           );
         });
 
@@ -745,7 +745,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{@foo-bar}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"χ.emitContent(χ.resolveOrReturn(𝚪.args["foo-bar"])());"`
+            `"χ.emitContent(χ.resolveOrReturn(𝚪.args["foo-bar"])());"`,
           );
         });
 
@@ -779,7 +779,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{@input}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"χ.emitContent(χ.resolveOrReturn(𝚪.args.input)());"'
+            '"χ.emitContent(χ.resolveOrReturn(𝚪.args.input)());"',
           );
         });
 
@@ -866,7 +866,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{(@foo)}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"χ.emitContent(χ.resolveOrReturn(χ.resolve(𝚪.args.foo)())());"'
+            '"χ.emitContent(χ.resolveOrReturn(χ.resolve(𝚪.args.foo)())());"',
           );
         });
       });
@@ -903,7 +903,7 @@ describe('Transform: rewriteTemplate', () => {
         let template = '{{doSomething "hello" 123}}';
 
         expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
-          `"χ.emitContent(χ.resolve(doSomething)("hello", 123));"`
+          `"χ.emitContent(χ.resolve(doSomething)("hello", 123));"`,
         );
       });
 
@@ -911,7 +911,7 @@ describe('Transform: rewriteTemplate', () => {
         let template = '{{doSomething a=123 b="ok"}}';
 
         expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
-          `"χ.emitContent(χ.resolve(doSomething)({ a: 123, b: "ok" , ...χ.NamedArgsMarker }));"`
+          `"χ.emitContent(χ.resolve(doSomething)({ a: 123, b: "ok" , ...χ.NamedArgsMarker }));"`,
         );
       });
 
@@ -919,7 +919,7 @@ describe('Transform: rewriteTemplate', () => {
         let template = '{{doSomething "one" true 3 four=4}}';
 
         expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
-          `"χ.emitContent(χ.resolve(doSomething)("one", true, 3, { four: 4 , ...χ.NamedArgsMarker }));"`
+          `"χ.emitContent(χ.resolve(doSomething)("one", true, 3, { four: 4 , ...χ.NamedArgsMarker }));"`,
         );
       });
     });
@@ -1531,7 +1531,7 @@ describe('Transform: rewriteTemplate', () => {
             hello!
           {{/testIf}}
         `,
-        { typesModule: '@glint/template', specialForms: { testIf: 'if' } }
+        { typesModule: '@glint/template', specialForms: { testIf: 'if' } },
       );
 
       expect(errors).toEqual([
@@ -1556,7 +1556,7 @@ describe('Transform: rewriteTemplate', () => {
           </Component>
           Footer content
         `,
-        { typesModule: '@glint/template' }
+        { typesModule: '@glint/template' },
       );
 
       expect(errors).toEqual([
@@ -1580,7 +1580,7 @@ describe('Transform: rewriteTemplate', () => {
             {{foo-bar}}
           </Component>
         `,
-        { typesModule: '@glint/template' }
+        { typesModule: '@glint/template' },
       );
 
       expect(errors).toEqual([

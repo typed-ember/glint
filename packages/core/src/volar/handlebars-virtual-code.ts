@@ -32,13 +32,16 @@ export class VirtualHandlebarsCode implements VirtualCode {
 
   languageId = 'handlebars';
 
-  constructor(private glintConfig: GlintConfig, public snapshot: IScriptSnapshot) {
+  constructor(
+    private glintConfig: GlintConfig,
+    public snapshot: IScriptSnapshot,
+  ) {
     this.update(snapshot);
   }
 
   // This gets called by the constructor and whenever the language server receives a file change event,
   // i.e. the user saved the file.
-  update(snapshot: IScriptSnapshot) {
+  update(snapshot: IScriptSnapshot): void {
     this.snapshot = snapshot;
     const length = snapshot.getLength();
 
@@ -72,7 +75,7 @@ export class VirtualHandlebarsCode implements VirtualCode {
     const transformedModule = rewriteModule(
       this.glintConfig.ts,
       { script, template },
-      this.glintConfig.environment
+      this.glintConfig.environment,
     );
 
     if (transformedModule) {

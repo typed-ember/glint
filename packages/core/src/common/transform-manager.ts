@@ -28,12 +28,12 @@ export default class TransformManager {
 
   constructor(
     private glintConfig: GlintConfig,
-    private documents: DocumentCache = new DocumentCache(glintConfig)
+    private documents: DocumentCache = new DocumentCache(glintConfig),
   ) {
     this.ts = glintConfig.ts;
     this.moduleResolutionCache = this.ts.createModuleResolutionCache(
       this.ts.sys.getCurrentDirectory(),
-      (name) => name
+      (name) => name,
     );
     this.moduleResolutionHost = {
       ...this.ts.sys,
@@ -60,7 +60,7 @@ export default class TransformManager {
   public getTransformedRange(
     originalFileName: string,
     originalStart: number,
-    originalEnd: number
+    originalEnd: number,
   ): {
     transformedFileName: string;
     transformedStart: number;
@@ -80,7 +80,7 @@ export default class TransformManager {
     let transformedRange = transformedModule.getTransformedRange(
       originalFileName,
       originalStart,
-      originalEnd
+      originalEnd,
     );
 
     return {
@@ -94,7 +94,7 @@ export default class TransformManager {
   public getOriginalRange(
     transformedFileName: string,
     transformedStart: number,
-    transformedEnd: number
+    transformedEnd: number,
   ): {
     originalFileName: string;
     originalStart: number;
@@ -113,7 +113,7 @@ export default class TransformManager {
 
     let original = transformInfo.transformedModule.getOriginalRange(
       transformedStart,
-      transformedEnd
+      transformedEnd,
     );
 
     return {
@@ -126,7 +126,7 @@ export default class TransformManager {
 
   public getTransformedOffset(
     originalFileName: string,
-    originalOffset: number
+    originalOffset: number,
   ): { transformedFileName: string; transformedOffset: number } {
     let transformInfo = this.findTransformInfoForOriginalFile(originalFileName);
     if (!transformInfo?.transformedModule) {
@@ -136,7 +136,7 @@ export default class TransformManager {
     let { transformedFileName, transformedModule } = transformInfo;
     let transformedOffset = transformedModule.getTransformedOffset(
       originalFileName,
-      originalOffset
+      originalOffset,
     );
 
     return { transformedFileName, transformedOffset };
@@ -146,7 +146,7 @@ export default class TransformManager {
     moduleLiterals: readonly ts.StringLiteralLike[],
     containingFile: string,
     redirectedReference: ts.ResolvedProjectReference | undefined,
-    options: ts.CompilerOptions
+    options: ts.CompilerOptions,
   ): readonly ts.ResolvedModuleWithFailedLookupLocations[] => {
     return moduleLiterals.map((literal) => {
       // If import paths are allowed to include TS extensions (`.ts`, `.tsx`, etc), then we want to
@@ -163,7 +163,7 @@ export default class TransformManager {
         options,
         this.moduleResolutionHost,
         this.moduleResolutionCache,
-        redirectedReference
+        redirectedReference,
       );
     });
   };
@@ -174,7 +174,7 @@ export default class TransformManager {
     path: string,
     originalCallback: ts.FileWatcherCallback,
     pollingInterval?: number,
-    options?: ts.WatchOptions
+    options?: ts.WatchOptions,
   ): ts.FileWatcher => {
     const { watchFile } = this.ts.sys;
     if (!watchFile) {
@@ -204,7 +204,7 @@ export default class TransformManager {
     ];
 
     let allWatchers = allPaths.map((candidate) =>
-      watchFile(candidate, callback, pollingInterval, options)
+      watchFile(candidate, callback, pollingInterval, options),
     );
 
     return {
@@ -218,7 +218,7 @@ export default class TransformManager {
     path: string,
     originalCallback: ts.DirectoryWatcherCallback,
     recursive?: boolean,
-    options?: ts.WatchOptions
+    options?: ts.WatchOptions,
   ): ts.FileWatcher => {
     if (!this.ts.sys.watchDirectory) {
       throw new Error('Internal error: TS `watchDirectory` unavailable');
@@ -238,7 +238,7 @@ export default class TransformManager {
     extensions: ReadonlyArray<string>,
     excludes: ReadonlyArray<string> | undefined,
     includes: ReadonlyArray<string>,
-    depth?: number | undefined
+    depth?: number | undefined,
   ): Array<string> => {
     let env = this.glintConfig.environment;
     let allExtensions = [...new Set([...extensions, ...env.getConfiguredFileExtensions()])];

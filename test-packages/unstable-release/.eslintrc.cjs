@@ -2,23 +2,28 @@
 
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    ecmaFeatures: {
-      legacyDecorators: true,
-    },
-  },
-  extends: ['eslint:recommended', 'plugin:prettier/recommended'],
-  env: {
-    browser: false,
-    node: true,
-  },
   overrides: [
-    // node files
+    // ESM files
     {
-      files: ['./.eslintrc.cjs'],
+      files: ['*.js'],
+      parser: '@babel/eslint-parser',
+      parserOptions: {
+        ecmaVersion: 2018,
+        sourceType: 'module',
+        requireConfigFile: false,
+        babelOptions: {
+          presets: ['@babel/preset-env'],
+        },
+      },
+      extends: ['eslint:recommended', 'plugin:prettier/recommended'],
+      env: {
+        browser: false,
+        node: true,
+      },
+    },
+    // CJS files
+    {
+      files: ['**/*.cjs'],
       parserOptions: {
         sourceType: 'script',
       },
@@ -26,8 +31,8 @@ module.exports = {
         browser: false,
         node: true,
       },
-      plugins: ['node'],
-      extends: ['plugin:node/recommended'],
+      plugins: ['n'],
+      extends: ['eslint:recommended', 'plugin:n/recommended'],
     },
   ],
 };
