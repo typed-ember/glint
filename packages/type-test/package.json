@@ -15,7 +15,7 @@
     "lib"
   ],
   "scripts": {
-    "test": "glint -p __tests__"
+    "test:typecheck": "glint -p __tests__"
   },
   "dependencies": {
     "expect-type": "^0.15.0"

@@ -7,7 +7,7 @@
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "types": "-private/index.d.ts",
   "scripts": {
-    "test": "tsc --project __tests__"
+    "test:typecheck": "tsc --project __tests__"
   },
   "files": [
     "README.md",

@@ -4,7 +4,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "test": "glint"
+    "test:typecheck": "glint"
   },
   "volta": {
     "extends": "../../package.json"
