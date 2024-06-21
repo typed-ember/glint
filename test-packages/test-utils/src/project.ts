@@ -154,21 +154,27 @@ export class Project {
       path: '/' + encodeURIComponent(uri),
     });
 
-    console.log(`volarEmbeddedContentUri - ${volarEmbeddedContentUri}`);
-    console.log(`this.filePath('.') - ${this.filePath('.')}`);
+    return {
+      volarEmbeddedContentUri,
+      filePathDot: this.filePath('.'),
+      fileUriToTemplatePackage,
+    };
 
-    const normalized = stringified
-      .replaceAll(
-        volarEmbeddedContentUri.toString(),
-        `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
-      )
-      .replaceAll(
-        this.filePath('.').replace(':', 'd%3A'), // encode windows `d:` colon
-        '/path/to/EPHEMERAL_TEST_PROJECT'
-      )
-      .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+    // console.log(`volarEmbeddedContentUri - ${volarEmbeddedContentUri}`);
+    // console.log(`this.filePath('.') - ${this.filePath('.')}`);
 
-    return JSON.parse(normalized);
+    // const normalized = stringified
+    //   .replaceAll(
+    //     volarEmbeddedContentUri.toString(),
+    //     `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
+    //   )
+    //   .replaceAll(
+    //     this.filePath('.').replace(':', 'd%3A'), // encode windows `d:` colon
+    //     '/path/to/EPHEMERAL_TEST_PROJECT'
+    //   )
+    //   .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+
+    // return JSON.parse(normalized);
   }
 
   /**
