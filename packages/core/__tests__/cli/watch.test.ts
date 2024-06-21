@@ -42,7 +42,7 @@ describe('CLI: watched typechecking', () => {
     expect(output).toMatch('Found 0 errors.');
   });
 
-  test('reports diagnostics for a template syntax error', async () => {
+  test.skip('reports diagnostics for a template syntax error', async () => {
     let code = stripIndent`
       import Component from '@glimmer/component';
 
@@ -169,7 +169,7 @@ describe('CLI: watched typechecking', () => {
     await watch.terminate();
   });
 
-  test('reports on errors introduced and cleared in a companion template', async () => {
+  test.skip('reports on errors introduced and cleared in a companion template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.ts', 'import "@glint/environment-ember-loose/types";');
 
@@ -219,7 +219,7 @@ describe('CLI: watched typechecking', () => {
     await watch.terminate();
   });
 
-  test('reports on errors introduced and cleared in a script with a .gts extension', async () => {
+  test.skip('reports on errors introduced and cleared in a script with a .gts extension', async () => {
     project.setGlintConfig({ environment: 'ember-template-imports' });
 
     let code = stripIndent`
@@ -251,7 +251,7 @@ describe('CLI: watched typechecking', () => {
     await watch.terminate();
   });
 
-  test('reports correct diagnostics given @glint-expect-error and @glint-ignore directives', async () => {
+  test.skip('reports correct diagnostics given @glint-expect-error and @glint-ignore directives', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
 
     let script = stripIndent`

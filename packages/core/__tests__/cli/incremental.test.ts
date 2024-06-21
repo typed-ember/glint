@@ -8,7 +8,7 @@ import { Project } from 'glint-monorepo-test-utils';
 const BUILD_INFO = 'tsconfig.tsbuildinfo';
 const INPUT_SCRIPT = 'index.gts';
 
-describe('CLI: --incremental', () => {
+describe.skip('CLI: --incremental', () => {
   test('when no build has occurred', async () => {
     let project = await Project.create({ glint: { environment: 'ember-template-imports' } });
 

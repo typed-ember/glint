@@ -87,7 +87,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     const { uri } = await server.openTextDocument(gtsUri, 'gts');
     const diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
+    expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 0,
@@ -154,7 +154,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
     let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
+    expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2554,
@@ -163,7 +163,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Expected 2 arguments, but got 1.",
@@ -190,7 +190,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
                     "line": 9,
                   },
                 },
-                "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
               },
               "message": "An argument for 'b' was not provided.",
             },
@@ -205,7 +205,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Expected 2 arguments, but got 3.",
@@ -229,7 +229,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Expected 2 arguments, but got 3. Note that named args are passed together as a final argument, so they collectively increase the given arg count by 1.",
@@ -253,7 +253,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Expected at least 1 arguments, but got 0.",
@@ -280,7 +280,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
                     "line": 13,
                   },
                 },
-                "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
               },
               "message": "An argument for 'a' was not provided.",
             },
@@ -295,7 +295,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Expected 2 arguments, but got 1.",
@@ -319,7 +319,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Expected 2 arguments, but got 3.",
@@ -343,7 +343,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Expected at least 1 arguments, but got 0.",
@@ -413,7 +413,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
     let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
+    expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2322,
@@ -422,7 +422,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
@@ -447,7 +447,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
@@ -472,7 +472,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
@@ -497,7 +497,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
@@ -522,7 +522,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
@@ -547,7 +547,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
@@ -572,7 +572,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
@@ -597,7 +597,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
@@ -660,7 +660,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     //   message: diagnostic.message.slice(0, diagnostic.message.indexOf('\n')),
     // }));
 
-    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
+    expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2769,
@@ -669,7 +669,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "The given value does not appear to be usable as a component, modifier or helper.
@@ -715,7 +715,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "The given value does not appear to be usable as a component, modifier or helper.
@@ -744,7 +744,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "The given value does not appear to be usable as a component, modifier or helper.
@@ -773,7 +773,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "The given value does not appear to be usable as a component, modifier or helper.
@@ -802,7 +802,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "The given value does not appear to be usable as a component, modifier or helper.
@@ -831,7 +831,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "The given value does not appear to be usable as a component, modifier or helper.
@@ -860,7 +860,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "The given value does not appear to be usable as a component, modifier or helper.
@@ -889,7 +889,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "The given value does not appear to be usable as a component, modifier or helper.
@@ -942,7 +942,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
 
-    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
+    expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 7053,
@@ -1070,7 +1070,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
 
-    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
+    expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2769,
@@ -1173,7 +1173,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     let server = await project.startLanguageServer();
     let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
 
-    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
+    expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2345,
@@ -1275,7 +1275,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
     let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
+    expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 2345,
@@ -1284,7 +1284,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
@@ -1327,7 +1327,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
@@ -1370,7 +1370,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
@@ -1434,7 +1434,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
     let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(diagnostics.reverse()).toMatchInlineSnapshot(`
+    expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
       [
         {
           "code": 4111,
@@ -1443,7 +1443,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Property 'fooBar' comes from an index signature, so it must be accessed with ['fooBar'].",
@@ -1467,7 +1467,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 0,
-            "uri": "file:///PATH_TO_EPHEMERAL_TEST_PROJECT/index.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
           "message": "Property 'fooBar' comes from an index signature, so it must be accessed with {{get ... 'fooBar'}}.",

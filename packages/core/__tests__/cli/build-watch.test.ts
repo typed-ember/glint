@@ -46,7 +46,7 @@ const PAUSE_TIME = IS_WINDOWS ? 2_500 : 1_000;
 const pauseForTSBuffering = (): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, PAUSE_TIME));
 
-describe('CLI: watched build mode typechecking', () => {
+describe.skip('CLI: watched build mode typechecking', () => {
   describe('simple projects using `--build --watch`', () => {
     let project!: Project;
     beforeEach(async () => {

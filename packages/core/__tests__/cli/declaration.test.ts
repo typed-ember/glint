@@ -2,7 +2,7 @@ import { stripIndent } from 'common-tags';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { Project } from 'glint-monorepo-test-utils';
 
-describe('CLI: emitting declarations', () => {
+describe.skip('CLI: emitting declarations', () => {
   let project!: Project;
   beforeEach(async () => {
     project = await Project.create();

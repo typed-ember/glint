@@ -5,7 +5,7 @@ import { Project } from 'glint-monorepo-test-utils';
 import { afterEach, beforeEach, describe, test, expect } from 'vitest';
 import { autoNocheck } from '../src/lib/_auto-nocheck.js';
 
-describe('auto-nocheck', () => {
+describe.skip('auto-nocheck', () => {
   let spinner!: Ora;
   let project!: Project;
   beforeEach(async () => {

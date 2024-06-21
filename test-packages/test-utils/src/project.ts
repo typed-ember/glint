@@ -10,6 +10,7 @@ import { FullDocumentDiagnosticReport } from '@volar/language-service';
 import { URI } from 'vscode-uri';
 import { Diagnostic } from 'typescript';
 import { Position, Range, TextEdit } from '@volar/language-server';
+import { WorkspaceSymbolRequest, WorkspaceSymbolParams } from '@volar/language-server/node.js';
 
 // type GlintLanguageServer = ProjectAnalysis['languageServer'];
 
@@ -83,6 +84,7 @@ export class Project {
           // dynamicRegistration: true,
           // relativePatternSupport: true,
         },
+        symbols: {},
       },
     };
 
@@ -98,8 +100,8 @@ export class Project {
         // @ts-expect-error not sure how to type this
         const value = await languageServerHandle[serviceMethodName](uri, ...rest);
         return this.normalizeForSnapshotting(uri, value);
-      }
-    }
+      };
+    };
 
     return {
       ...this.languageServerHandle,
@@ -107,6 +109,13 @@ export class Project {
       sendDocumentDiagnosticRequest: wrapForSnapshottability('sendDocumentDiagnosticRequest'),
       sendDefinitionRequest: wrapForSnapshottability('sendDefinitionRequest'),
       sendHoverRequest: wrapForSnapshottability('sendHoverRequest'),
+
+      // Volar test-utils doesn't provide this, would be nice to upstream this.
+      sendWorkspaceSymbolRequest: async (query: string) => {
+        return languageServerHandle.connection.sendRequest(WorkspaceSymbolRequest.type, {
+          query,
+        } satisfies WorkspaceSymbolParams);
+      },
 
       /**
        * Helper fn that makes it easier to replace the whole contents of a file,
@@ -152,7 +161,6 @@ export class Project {
         `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
       )
       .replaceAll(this.filePath('.'), '/path/to/EPHEMERAL_TEST_PROJECT')
-      .replaceAll(this.fileURI('.'), 'file:///PATH_TO_EPHEMERAL_TEST_PROJECT')
       .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
 
     return JSON.parse(normalized);

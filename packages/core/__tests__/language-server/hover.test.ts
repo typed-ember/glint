@@ -198,7 +198,7 @@ describe('Language Server: Hover', () => {
     `);
   });
 
-  test.only('module details', async () => {
+  test('module details', async () => {
     project.write({
       'foo.ts': stripIndent`
         export const foo = 'hi';

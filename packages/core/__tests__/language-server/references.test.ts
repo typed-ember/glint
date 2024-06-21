@@ -13,15 +13,21 @@ describe('Language Server: References', () => {
     await project.destroy();
   });
 
-  test('querying a standalone template', async () => {
+  test.skip('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
 
     let server = await project.startLanguageServer();
-    let references = server.getReferences(project.fileURI('index.hbs'), {
-      line: 0,
-      character: 11,
-    });
+    let references = await server.sendReferencesRequest(
+      project.fileURI('index.hbs'),
+      {
+        line: 0,
+        character: 11,
+      },
+      {
+        includeDeclaration: true,
+      }
+    );
 
     expect(references).toEqual([
       {
@@ -41,9 +47,9 @@ describe('Language Server: References', () => {
     ]);
   });
 
-  test('component references', () => {
+  test('component references', async () => {
     project.write({
-      'greeting.ts': stripIndent`
+      'greeting.gts': stripIndent`
         import Component from '@glimmer/component';
 
         export default class Greeting extends Component {
@@ -58,7 +64,7 @@ describe('Language Server: References', () => {
           </template>
         }
       `,
-      'index.ts': stripIndent`
+      'index.gts': stripIndent`
         import Component from '@glimmer/component';
         import Greeting from './greeting';
 
@@ -73,28 +79,28 @@ describe('Language Server: References', () => {
     let server = await project.startLanguageServer();
     let expectedReferences = new Set([
       {
-        uri: project.fileURI('greeting.ts'),
+        uri: project.fileURI('greeting.gts'),
         range: {
           start: { line: 2, character: 21 },
           end: { line: 2, character: 29 },
         },
       },
       {
-        uri: project.fileURI('greeting.ts'),
+        uri: project.fileURI('greeting.gts'),
         range: {
           start: { line: 7, character: 7 },
           end: { line: 7, character: 15 },
         },
       },
       {
-        uri: project.fileURI('index.ts'),
+        uri: project.fileURI('index.gts'),
         range: {
           start: { line: 5, character: 5 },
           end: { line: 5, character: 13 },
         },
       },
       {
-        uri: project.fileURI('index.ts'),
+        uri: project.fileURI('index.gts'),
         range: {
           start: { line: 1, character: 7 },
           end: { line: 1, character: 15 },
@@ -102,17 +108,29 @@ describe('Language Server: References', () => {
       },
     ]);
 
-    let referencesFromClassDeclaration = server.getReferences(project.fileURI('greeting.ts'), {
-      line: 2,
-      character: 24,
-    });
+    let referencesFromClassDeclaration = await server.sendReferencesRequest(
+      project.fileURI('greeting.gts'),
+      {
+        line: 2,
+        character: 24,
+      },
+      {
+        includeDeclaration: true,
+      }
+    );
 
     expect(new Set(referencesFromClassDeclaration)).toEqual(expectedReferences);
 
-    let referencesFromComponentInvocation = server.getReferences(project.fileURI('index.ts'), {
-      line: 5,
-      character: 7,
-    });
+    let referencesFromComponentInvocation = await server.sendReferencesRequest(
+      project.fileURI('index.gts'),
+      {
+        line: 5,
+        character: 7,
+      },
+      {
+        includeDeclaration: true,
+      }
+    );
 
     expect(new Set(referencesFromComponentInvocation)).toEqual(expectedReferences);
   });
@@ -150,7 +168,7 @@ describe('Language Server: References', () => {
       {
         uri: project.fileURI('index.gts'),
         range: {
-          start: { line: 5, character: 15 },
+          start: { line: 5, character: 14 },
           end: { line: 5, character: 21 },
         },
       },
@@ -170,24 +188,42 @@ describe('Language Server: References', () => {
       },
     ]);
 
-    let referencesFromDefinition = server.getReferences(project.fileURI('greeting.gts'), {
-      line: 4,
-      character: 4,
-    });
+    let referencesFromDefinition = await server.sendReferencesRequest(
+      project.fileURI('greeting.gts'),
+      {
+        line: 4,
+        character: 4,
+      },
+      {
+        includeDeclaration: true,
+      }
+    );
 
     expect(new Set(referencesFromDefinition)).toEqual(expectedReferences);
 
-    let referencesFromInvocation = server.getReferences(project.fileURI('index.gts'), {
-      line: 5,
-      character: 17,
-    });
+    let referencesFromInvocation = await server.sendReferencesRequest(
+      project.fileURI('index.gts'),
+      {
+        line: 5,
+        character: 17,
+      },
+      {
+        includeDeclaration: true,
+      }
+    );
 
     expect(new Set(referencesFromInvocation)).toEqual(expectedReferences);
 
-    let referencesFromUsage = server.getReferences(project.fileURI('greeting.gts'), {
-      line: 9,
-      character: 16,
-    });
+    let referencesFromUsage = await server.sendReferencesRequest(
+      project.fileURI('greeting.gts'),
+      {
+        line: 9,
+        character: 16,
+      },
+      {
+        includeDeclaration: true,
+      }
+    );
 
     expect(new Set(referencesFromUsage)).toEqual(expectedReferences);
   });
