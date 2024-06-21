@@ -17,11 +17,11 @@ export { Globals };
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 // Items whose instance type can be invoked
 export declare function resolve<Args extends unknown[], Instance extends InvokableInstance>(
-  item: (abstract new (...args: Args) => Instance) | null | undefined
+  item: (abstract new (...args: Args) => Instance) | null | undefined,
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 // Plain functions
 export declare function resolve<T extends ((...params: any) => any) | null | undefined>(
-  item: T
+  item: T,
 ): NonNullable<T>;
 
 export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
@@ -30,32 +30,32 @@ export declare const resolveOrReturn: ResolveOrReturn<typeof resolve>;
 export declare function resolveForBind<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
 // Items whose instance type can be invoked
 export declare function resolveForBind<Args extends unknown[], Instance extends InvokableInstance>(
-  item: abstract new (...args: Args) => Instance
+  item: abstract new (...args: Args) => Instance,
 ): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
 export declare function resolveForBind<Args extends unknown[], Instance extends InvokableInstance>(
-  item: (abstract new (...args: Args) => Instance) | null | undefined
+  item: (abstract new (...args: Args) => Instance) | null | undefined,
 ): ((...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>) | null;
 // Plain functions
 export declare function resolveForBind<T extends ((...params: any) => any) | null | undefined>(
-  item: T
+  item: T,
 ): T;
 export declare function resolveForBind<T extends ((...params: any) => any) | null | undefined>(
-  item: T | null | undefined
+  item: T | null | undefined,
 ): NonNullable<T> | null;
 // String lookups
 export declare function resolveForBind<T extends keyof Globals>(
-  item: T
+  item: T,
 ): Globals[T] extends Invokable<infer F>
   ? F
   : Globals[T] extends DirectInvokable<infer F>
-  ? F
-  : Globals[T];
+    ? F
+    : Globals[T];
 export declare function resolveForBind<T extends keyof Globals>(
-  item: T | null | undefined
+  item: T | null | undefined,
 ):
   | (Globals[T] extends Invokable<infer F>
       ? F
       : Globals[T] extends DirectInvokable<infer F>
-      ? F
-      : Globals[T])
+        ? F
+        : Globals[T])
   | null;

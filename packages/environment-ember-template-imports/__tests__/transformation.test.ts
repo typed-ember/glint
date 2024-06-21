@@ -122,7 +122,7 @@ describe('Environment: ETI', () => {
               },
             },
           ],
-        ])
+        ]),
       );
     });
 
@@ -184,7 +184,7 @@ describe('Environment: ETI', () => {
               },
             },
           ],
-        ])
+        ]),
       );
     });
   });

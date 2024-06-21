@@ -2,7 +2,6 @@ import * as path from 'node:path';
 import { GlintConfig } from '../config/index.js';
 import { v4 as uuid } from 'uuid';
 
-
 // import { DocumentsAndSourceMaps } from './documents';
 // import type { DocumentsAndSourceMaps } from '@volar/language-server/lib/common/documents.js';
 
@@ -50,7 +49,7 @@ export default class DocumentCache {
   private readonly documents = new Map<string, Document>();
   private readonly ts: typeof import('typescript');
 
-	// documents: DocumentsAndSourceMaps;
+  // documents: DocumentsAndSourceMaps;
 
   public constructor(private glintConfig: GlintConfig) {
     // where is GlintConfig created?
@@ -72,7 +71,7 @@ export default class DocumentCache {
     }
 
     return this.getCandidateDocumentPaths(path).some((candidate) =>
-      this.ts.sys.fileExists(candidate)
+      this.ts.sys.fileExists(candidate),
     );
   }
 
@@ -108,7 +107,7 @@ export default class DocumentCache {
     let document = this.getDocument(path);
     if (document.stale) {
       let onDiskPath = this.getCandidateDocumentPaths(path).find((path) =>
-        this.ts.sys.fileExists(path)
+        this.ts.sys.fileExists(path),
       );
 
       document.stale = false;

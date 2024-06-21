@@ -94,7 +94,7 @@ describe('Language Server: custom file extensions', () => {
 
     await server.replaceTextDocument(
       project.fileURI('index.gts'),
-      contents.replace('"hello"', '123')
+      contents.replace('"hello"', '123'),
     );
 
     hover = await server.sendHoverRequest(project.fileURI('index.gts'), {
@@ -137,7 +137,7 @@ describe('Language Server: custom file extensions', () => {
         import { identifier } from './index';
 
         identifier;
-      `
+      `,
     );
 
     let consumerURI = project.fileURI('consumer.ts');
@@ -149,7 +149,9 @@ describe('Language Server: custom file extensions', () => {
     const { uri } = await server.openTextDocument(tsPath, 'typescript');
     let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(definitions).toMatchObject([{ targetUri: "file:///path/to/EPHEMERAL_TEST_PROJECT/index.ts" }]);
+    expect(definitions).toMatchObject([
+      { targetUri: 'file:///path/to/EPHEMERAL_TEST_PROJECT/index.ts' },
+    ]);
     expect(diagnostics.items).toEqual([]);
 
     project.remove('index.ts');
@@ -160,7 +162,9 @@ describe('Language Server: custom file extensions', () => {
     definitions = await server.sendDefinitionRequest(consumerURI, { line: 2, character: 4 });
     diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(definitions).toMatchObject([{ targetUri: "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts" }]);
+    expect(definitions).toMatchObject([
+      { targetUri: 'file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts' },
+    ]);
     expect(diagnostics.items).toEqual([]);
 
     project.remove('index.gts');
@@ -190,7 +194,7 @@ describe('Language Server: custom file extensions', () => {
         stripIndent`
           import { foo } from "./other";
           console.log(foo);
-        `
+        `,
       );
     });
 
@@ -338,7 +342,7 @@ describe('Language Server: custom file extensions', () => {
         let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
         expect(diagnostics.items).toEqual([]);
-      }
+      },
     );
   });
 });

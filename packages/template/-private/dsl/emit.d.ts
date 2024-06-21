@@ -45,7 +45,7 @@ export declare function emitContent(value: ContentValue): void;
  *     });
  */
 export declare function emitElement<Name extends string>(
-  name: Name
+  name: Name,
 ): { element: ElementForTagName<Name> };
 
 /*
@@ -65,7 +65,7 @@ export declare function emitElement<Name extends string>(
  *     });
  */
 export declare function emitComponent<T extends ComponentReturn<any, any>>(
-  component: T
+  component: T,
 ): {
   element: T extends ComponentReturn<any, infer El> ? El : any;
   blockParams: T extends ComponentReturn<infer Yields, any> ? Required<Yields> : any;
@@ -80,7 +80,7 @@ export declare function emitComponent<T extends ComponentReturn<any, any>>(
  */
 export declare function templateExpression<
   Signature extends AnyFunction = () => ComponentReturn<{}>,
-  Context extends AnyContext = TemplateContext<void, {}, {}, void>
+  Context extends AnyContext = TemplateContext<void, {}, {}, void>,
 >(f: (𝚪: Context, χ: never) => void): new () => InvokableInstance<Signature> & HasContext<Context>;
 
 /*
@@ -98,7 +98,7 @@ export declare function templateExpression<
  */
 export declare function templateForBackingValue<Args extends unknown[], Context extends AnyContext>(
   backingValue: abstract new (...args: Args) => HasContext<Context>,
-  body: (𝚪: Context, χ: never) => void
+  body: (𝚪: Context, χ: never) => void,
 ): abstract new () => unknown;
 
 /*
@@ -112,7 +112,7 @@ export declare function templateForBackingValue<Args extends unknown[], Context 
  */
 export declare function yieldToBlock<Context extends AnyContext, K extends keyof Context['blocks']>(
   𝚪: Context,
-  to: K
+  to: K,
 ): (...values: NonNullable<Context['blocks'][K]>) => void;
 
 /*
@@ -124,7 +124,7 @@ export declare function yieldToBlock<Context extends AnyContext, K extends keyof
  */
 export declare function applySplattributes<
   SourceElement extends Element,
-  TargetElement extends SourceElement
+  TargetElement extends SourceElement,
 >(source: SourceElement, target: TargetElement): void;
 
 /*

@@ -17,7 +17,7 @@ const REGEXES = {
 };
 
 export default function emberLooseEnvironment(
-  options: Record<string, unknown>
+  options: Record<string, unknown>,
 ): GlintEnvironmentConfig {
   let typesModule = '@glint/environment-ember-loose/-private/dsl';
   let additionalSpecialForms =
@@ -60,7 +60,7 @@ export default function emberLooseEnvironment(
           candidates.push(
             templatePath.replace(REGEXES.POD_TEMPLATE, '/component.ts'),
             templatePath.replace(REGEXES.POD_TEMPLATE, '/controller.ts'),
-            templatePath.replace(REGEXES.POD_TEMPLATE, '/route.ts')
+            templatePath.replace(REGEXES.POD_TEMPLATE, '/route.ts'),
           );
         } else if (templatePath.includes('/templates/components/')) {
           // Classic component
@@ -69,7 +69,7 @@ export default function emberLooseEnvironment(
           // Classic controller/route
           candidates.push(
             colocatedTsScriptPath.replace('/templates/', '/controllers/'),
-            colocatedTsScriptPath.replace('/templates/', '/routes/')
+            colocatedTsScriptPath.replace('/templates/', '/routes/'),
           );
         }
 

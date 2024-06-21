@@ -13,7 +13,7 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 
   resolve(NoArgsComponent)(
     // @ts-expect-error: extra positional arg
-    'oops'
+    'oops',
   );
 
   {
@@ -51,7 +51,7 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 
   resolve(YieldingComponent)(
     // @ts-expect-error: missing required arg
-    { ...NamedArgsMarker }
+    { ...NamedArgsMarker },
   );
 
   resolve(YieldingComponent)({
@@ -69,7 +69,7 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 
   {
     const component = emitComponent(
-      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker }),
     );
     const [value] = component.blockParams.default;
     expectTypeOf(value).toEqualTypeOf<number>();
@@ -77,7 +77,7 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 
   {
     const component = emitComponent(
-      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+      resolve(YieldingComponent)({ values: [1, 2, 3], ...NamedArgsMarker }),
     );
 
     {

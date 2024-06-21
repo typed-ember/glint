@@ -31,7 +31,7 @@ export class VirtualGtsCode implements VirtualCode {
   constructor(
     private glintConfig: GlintConfig,
     public snapshot: IScriptSnapshot,
-    public languageId: 'glimmer-ts' | 'glimmer-js'
+    public languageId: 'glimmer-ts' | 'glimmer-js',
   ) {
     this.update(snapshot);
   }
@@ -72,7 +72,7 @@ export class VirtualGtsCode implements VirtualCode {
     const transformedModule = rewriteModule(
       this.glintConfig.ts,
       { script, template },
-      this.glintConfig.environment
+      this.glintConfig.environment,
     );
 
     this.transformedModule = transformedModule;

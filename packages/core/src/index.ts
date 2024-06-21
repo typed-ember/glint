@@ -24,15 +24,15 @@ export const pathUtils = utils;
  *
  * See the `auto-glint-nocheck` implementation in `@glint/scripts` for a
  * sample use of this API.
- * 
+ *
  * So this "analyzes" your project so that we might put nochecks on there...
  * is this the same as using glint cli for typechecking?
- * 
+ *
  * Consumers:
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  *
  * @internal
  */

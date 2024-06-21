@@ -1,6 +1,7 @@
 export default {
   fileTypes: ['js', 'ts'],
-  injectionSelector: 'L:source.js -comment -(string -meta.embedded), L:source.ts -comment -(string -meta.embedded)',
+  injectionSelector:
+    'L:source.js -comment -(string -meta.embedded), L:source.ts -comment -(string -meta.embedded)',
   injections: {
     'L:source': {
       patterns: [

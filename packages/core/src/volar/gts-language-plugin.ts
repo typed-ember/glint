@@ -13,13 +13,15 @@ export type TS = typeof ts;
 /**
  * Create a [Volar](https://volarjs.dev) language module to support GTS.
  */
-export function createGtsLanguagePlugin<T extends URI | string>(glintConfig: GlintConfig): LanguagePlugin<T> {
+export function createGtsLanguagePlugin<T extends URI | string>(
+  glintConfig: GlintConfig,
+): LanguagePlugin<T> {
   return {
     /**
      * For files that are not opened in the IDE, the language ID will not be provided
      * to the language server, so a hook is needed to parse the language ID of files
      * that are known extension but not opened in the IDE.
-     * 
+     *
      * In other words, clients like VSCode and other editors are in charge of determining
      * the language ID and passing it in, but the language ID isn't available in other
      * contexts, in which case this hook is called to determine it for a file based on its

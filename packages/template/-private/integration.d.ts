@@ -69,12 +69,11 @@ export interface NamedArgsMarker {
   [NamedArgs]: true;
 }
 
-export type NamedArgNames<T extends Invokable<AnyFunction>> = T extends Invokable<
-  (...args: infer A) => any
->
-  ? A extends [...positional: infer _, named?: infer N]
-    ? Exclude<keyof NonNullable<N>, typeof NamedArgs>
-    : never
-  : never;
+export type NamedArgNames<T extends Invokable<AnyFunction>> =
+  T extends Invokable<(...args: infer A) => any>
+    ? A extends [...positional: infer _, named?: infer N]
+      ? Exclude<keyof NonNullable<N>, typeof NamedArgs>
+      : never
+    : never;
 
 export type UnwrapNamedArgs<T> = T extends NamedArgs<infer U> ? U : T;

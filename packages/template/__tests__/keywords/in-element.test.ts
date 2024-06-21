@@ -21,7 +21,7 @@ inElementKeyword();
 
 inElementKeyword(
   // @ts-expect-error: rejects invocation with `null`
-  null
+  null,
 );
 
 inElementKeyword(element, {

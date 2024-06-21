@@ -118,10 +118,10 @@ if (argv.build) {
     // build
 
     // performBuildWatch(ts, projects, buildOptions);
-    throw new Error("TODO performBuildWatch");
+    throw new Error('TODO performBuildWatch');
   } else {
     // performBuild(ts, projects, buildOptions);
-    throw new Error("TODO performBuild");
+    throw new Error('TODO performBuild');
   }
 } else {
   // why does typechecking require glint config but not performBuild watch?
@@ -133,11 +133,11 @@ if (argv.build) {
   validateTSOrExit(glintConfig.ts);
 
   if (argv.watch) {
-    throw new Error("TODO performWatch");
+    throw new Error('TODO performWatch');
 
     // performWatch(glintConfig, optionsToExtend);
   } else {
-    throw new Error("TODO performCheck");
+    throw new Error('TODO performCheck');
 
     // performCheck(glintConfig, optionsToExtend);
   }

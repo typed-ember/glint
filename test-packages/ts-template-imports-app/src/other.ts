@@ -1,3 +1,1 @@
-export class Other {
-
-}
+export class Other {}

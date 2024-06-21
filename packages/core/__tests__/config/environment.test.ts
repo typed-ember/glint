@@ -14,7 +14,7 @@ describe('Config: Environments', () => {
       });
 
       expect(
-        env.moduleMayHaveEmbeddedTemplates('foo.ts', 'import foo from "my-cool-environment"\n')
+        env.moduleMayHaveEmbeddedTemplates('foo.ts', 'import foo from "my-cool-environment"\n'),
       ).toBe(true);
     });
 
@@ -28,7 +28,7 @@ describe('Config: Environments', () => {
       });
 
       expect(env.moduleMayHaveEmbeddedTemplates('foo.ts', 'import foo from "another-env"\n')).toBe(
-        true
+        true,
       );
     });
 
@@ -40,7 +40,7 @@ describe('Config: Environments', () => {
       });
 
       expect(
-        env.moduleMayHaveEmbeddedTemplates('foo.ts', 'import { hbs } from "another-env"\n')
+        env.moduleMayHaveEmbeddedTemplates('foo.ts', 'import { hbs } from "another-env"\n'),
       ).toBe(false);
     });
   });
@@ -152,7 +152,7 @@ describe('Config: Environments', () => {
           exports: {
             './glint-environment-definition': './env.js',
           },
-        })
+        }),
       );
 
       let env = GlintEnvironment.load('test-env', { rootDir: testDir });
@@ -166,7 +166,7 @@ describe('Config: Environments', () => {
       fs.mkdirSync(envDir, { recursive: true });
       fs.writeFileSync(
         `${envDir}/third-party-env.js`,
-        'module.exports = () => ({ tags: { hi: {} } });'
+        'module.exports = () => ({ tags: { hi: {} } });',
       );
       fs.writeFileSync(
         `${envDir}/package.json`,
@@ -175,7 +175,7 @@ describe('Config: Environments', () => {
           exports: {
             './glint-environment-definition': './third-party-env.js',
           },
-        })
+        }),
       );
 
       let env = GlintEnvironment.load('some-other-environment', { rootDir: testDir });
@@ -189,7 +189,7 @@ describe('Config: Environments', () => {
       fs.mkdirSync(envDir, { recursive: true });
       fs.writeFileSync(
         `${envDir}/my-internal-env.js`,
-        'module.exports = () => ({ tags: { internal: {} } });'
+        'module.exports = () => ({ tags: { internal: {} } });',
       );
 
       let env = GlintEnvironment.load('./lib/my-internal-env.js', { rootDir: testDir });
@@ -210,7 +210,7 @@ describe('Config: Environments', () => {
           exports: {
             './glint-environment-definition': './env.js',
           },
-        })
+        }),
       );
 
       return name;
@@ -220,7 +220,7 @@ describe('Config: Environments', () => {
       test('loading compatible environments', () => {
         let envA = createEnvironment('() => ({ tags: { "foo-bar": { hbs: {} } } })');
         let envB = createEnvironment(
-          '() => ({ tags: { "foo-bar": { tpl: {} }, "baz": { hbs: {} } }, template: { typesModule: "foo" } })'
+          '() => ({ tags: { "foo-bar": { tpl: {} }, "baz": { hbs: {} } }, template: { typesModule: "foo" } })',
         );
 
         let env = GlintEnvironment.load([envA, envB], { rootDir: testDir });
@@ -237,7 +237,7 @@ describe('Config: Environments', () => {
         let envB = createEnvironment('() => ({ template: { typesModule: "bar" } })');
 
         expect(() => GlintEnvironment.load([envA, envB], { rootDir: testDir })).toThrow(
-          'Multiple configured Glint environments attempted to define behavior for standalone template files'
+          'Multiple configured Glint environments attempted to define behavior for standalone template files',
         );
       });
 
@@ -246,7 +246,7 @@ describe('Config: Environments', () => {
         let envB = createEnvironment('() => ({ tags: { foo: { hbs: {} } } })');
 
         expect(() => GlintEnvironment.load([envA, envB], { rootDir: testDir })).toThrow(
-          "Multiple configured Glint environments attempted to define behavior for the tag `hbs` in module 'foo'"
+          "Multiple configured Glint environments attempted to define behavior for the tag `hbs` in module 'foo'",
         );
       });
     });

@@ -6,7 +6,6 @@
 //
 // original code:
 
-
 // import { TextDocuments, createConnection } from 'vscode-languageserver/node.js';
 // import { TextDocument } from 'vscode-languageserver-textdocument';
 // import { bindLanguageServerPool } from './binding.js';

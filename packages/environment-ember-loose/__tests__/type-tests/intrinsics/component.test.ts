@@ -13,7 +13,7 @@ typeTest(
       {{! @glint-expect-error: wrong arg type}}
       <BoundInput @value={{array 1 2 3}} />
     {{/let}}
-  `
+  `,
 );
 
 // String-based lookups of special builtins
@@ -23,7 +23,7 @@ typeTest(
     {{#let (component 'link-to' route="widgets") as |Link|}}
       <Link @models={{array 123}} />
     {{/let}}
-  `
+  `,
 );
 
 declare const formModifier: ModifierLike<{
@@ -50,7 +50,7 @@ typeTest(
         {{@expectTypeOf value @to.beString}}
       </NoopCurriedStringComponent>
     {{/let}}
-  `
+  `,
 );
 
 // Nullable in, nullable out
@@ -62,7 +62,7 @@ typeTest(
 
       {{@expectTypeOf null @to.beAssignableToTypeOf NoopCurriedStringComponent}}
     {{/let}}
-  `
+  `,
 );
 
 // Currying a named arg makes it optional but still override-able
@@ -83,7 +83,7 @@ typeTest(
         {{@expectTypeOf value @to.beString}}
       </BoundStringComponent>
     {{/let}}
-  `
+  `,
 );
 
 class ParametricComponent<T> extends Component<{
@@ -118,7 +118,7 @@ typeTest(
         {{@expectTypeOf index @to.beNumber}}
       </NoopCurriedParametricComponent>
     {{/let}}
-  `
+  `,
 );
 
 // Binding a required arg makes it optional
@@ -143,7 +143,7 @@ typeTest(
         {{@expectTypeOf index @to.beNumber}}
       </RequiredValueCurriedParametricComponent>
     {{/let}}
-  `
+  `,
 );
 
 // Binding an optional arg still leaves the required one(s)
@@ -172,5 +172,5 @@ typeTest(
         {{@expectTypeOf index @to.beNumber}}
       </OptionalValueCurriedParametricComponent>
     {{/let}}
-  `
+  `,
 );

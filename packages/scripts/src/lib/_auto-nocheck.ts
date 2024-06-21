@@ -11,7 +11,7 @@ const globSync = globPkg.sync;
 
 export async function autoNocheck(
   args: Array<string>,
-  { cwd = process.cwd(), spinner = ora() } = {}
+  { cwd = process.cwd(), spinner = ora() } = {},
 ): Promise<void> {
   let glint = await loadGlintCore(cwd);
   let { globs, explanation } = parseArgs(args);
@@ -29,7 +29,7 @@ export async function autoNocheck(
     if (templatesWithErrors.size) {
       fileUpdates.set(
         filePath,
-        insertNocheckComments(filePath, fileContents, explanation, templatesWithErrors)
+        insertNocheckComments(filePath, fileContents, explanation, templatesWithErrors),
       );
     }
   }
@@ -58,7 +58,7 @@ function parseArgs(args: Array<string>): { globs: Array<string>; explanation: st
           type: 'string',
           default: 'not typesafe yet',
           describe: 'The explanation to be included in @glint-nocheck comments',
-        })
+        }),
     )
     .wrap(100)
     .strict()
@@ -88,7 +88,7 @@ async function loadGlintCore(cwd: string): Promise<GlintCore> {
     throw new Error(
       'This script requires a recent version of @glint/core to run. ' +
         'Consider upgrading to the latest version of Glint or using ' +
-        'an older version of @glint/scripts.'
+        'an older version of @glint/scripts.',
     );
   }
 
@@ -107,7 +107,7 @@ function findTemplatesWithErrors(
   glint: GlintCore,
   filePath: string,
   fileContents: string,
-  project: ProjectAnalysis
+  project: ProjectAnalysis,
 ): Map<number, string> {
   let templatesWithErrors = new Map<number, string>();
   let info = project.transformManager.findTransformInfoForOriginalFile(filePath);
@@ -137,7 +137,7 @@ function insertNocheckComments(
   filePath: string,
   fileContents: string,
   explanation: string,
-  templatesWithErrors: Map<number, string>
+  templatesWithErrors: Map<number, string>,
 ): string {
   let chunks = [];
   let progress = 0;

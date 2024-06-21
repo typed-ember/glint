@@ -71,7 +71,7 @@ function loadConfigInput(ts: TypeScript, entryPath: string): GlintConfigInput | 
 
     assert(
       currentPath === entryPath || !currentGlintConfig.transform,
-      'Glint `transform` options may not be specified in extended config.'
+      'Glint `transform` options may not be specified in extended config.',
     );
 
     fullGlintConfig = { ...currentGlintConfig, ...fullGlintConfig };
@@ -104,13 +104,13 @@ function validateConfigInput(input: Record<string, unknown>): GlintConfigInput |
       : typeof input['environment'] === 'string' ||
           (typeof input['environment'] === 'object' && input['environment']),
     'Glint config must specify an `environment` that is a string, array of strings, or an object ' +
-      'mapping environment names to their config.'
+      'mapping environment names to their config.',
   );
 
   assert(
     input['checkStandaloneTemplates'] === undefined ||
       typeof input['checkStandaloneTemplates'] === 'boolean',
-    'If defined, `checkStandaloneTemplates` must be a boolean'
+    'If defined, `checkStandaloneTemplates` must be a boolean',
   );
 
   return input as GlintConfigInput;

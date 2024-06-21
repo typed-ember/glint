@@ -85,11 +85,11 @@ connection.onInitialize((parameters) => {
               },
               async provideSemanticDiagnostics(
                 document: TextDocument,
-                token: vscode.CancellationToken
+                token: vscode.CancellationToken,
               ) {
                 const diagnostics = await typeScriptPlugin.provideSemanticDiagnostics!(
                   document,
-                  token
+                  token,
                 );
                 return filterAndAugmentDiagnostics(context, document, diagnostics);
               },
@@ -99,14 +99,14 @@ connection.onInitialize((parameters) => {
       } else {
         return plugin;
       }
-    })
+    }),
   );
 });
 
 function filterAndAugmentDiagnostics(
   context: LanguageServiceContext,
   document: TextDocument,
-  diagnostics: vscode.Diagnostic[] | null | undefined
+  diagnostics: vscode.Diagnostic[] | null | undefined,
 ): vscode.Diagnostic[] | null {
   if (!diagnostics) {
     // This can fail if .gts file fails to parse. Maybe other use cases too?
@@ -205,7 +205,6 @@ function filterAndAugmentDiagnostics(
   });
 
   for (let directive of unusedExpectErrors) {
-
     // desired methond on transformedModule:
     // - it accepts a source offset and finds the transformed offset
     // - in which file? there are multiple embeddedCodes in a .gts file
@@ -235,39 +234,37 @@ function filterAndAugmentDiagnostics(
     // transformedModule.determineTransformedOffsetAndSpan(directive.source.filename, directive.location.start)
     //
     // this returns a transformedOffset and correlatedSpan with mapping pointing to the template embedded.
-    // 
+    //
 
-    allDiagnostics.push(
-      {
-        message: `Unused '@glint-expect-error' directive.`,
+    allDiagnostics.push({
+      message: `Unused '@glint-expect-error' directive.`,
 
-        // this range... should be... for the TS file. Currently we're sending
-        // a range for the source .gts. That can't be right.
-        // The info we have is....... we know an unused glint directive exists.
-        // We need to find a range in the IR .ts file.
-        //
-        // 1. need to translate directive.areaOfEffect into the IR .ts file location
-        //    - this is going to be the beginning of line in .gts and end of line in .gts.
-        //    - actually maybe it's not area of effect, but rather the comment node. YES.
-        //  emit.forNode(node, () => {
-        //   emit.text(`// @glint-${kind}`);
-        //   emit.newline();
-        // });
-        //
-        // - can we take the souce and query the CommentNode
-        //   - node: AST.MustacheCommentStatement | AST.CommentStatement
-        // - what/how do we query now?
-        //
-        // 2. need to make sure it fits error boundary
-        range: vscode.Range.create(
-          offsetToPosition(document.getText(), directive.areaOfEffect.start),
-          offsetToPosition(document.getText(), directive.areaOfEffect.end)
-        ),
-        severity: vscode.DiagnosticSeverity.Error,
-        code: 0,
-        source: directive.source.filename, // not sure if this is right
-      }
-    );
+      // this range... should be... for the TS file. Currently we're sending
+      // a range for the source .gts. That can't be right.
+      // The info we have is....... we know an unused glint directive exists.
+      // We need to find a range in the IR .ts file.
+      //
+      // 1. need to translate directive.areaOfEffect into the IR .ts file location
+      //    - this is going to be the beginning of line in .gts and end of line in .gts.
+      //    - actually maybe it's not area of effect, but rather the comment node. YES.
+      //  emit.forNode(node, () => {
+      //   emit.text(`// @glint-${kind}`);
+      //   emit.newline();
+      // });
+      //
+      // - can we take the souce and query the CommentNode
+      //   - node: AST.MustacheCommentStatement | AST.CommentStatement
+      // - what/how do we query now?
+      //
+      // 2. need to make sure it fits error boundary
+      range: vscode.Range.create(
+        offsetToPosition(document.getText(), directive.areaOfEffect.start),
+        offsetToPosition(document.getText(), directive.areaOfEffect.end),
+      ),
+      severity: vscode.DiagnosticSeverity.Error,
+      code: 0,
+      source: directive.source.filename, // not sure if this is right
+    });
   }
 
   return allDiagnostics;

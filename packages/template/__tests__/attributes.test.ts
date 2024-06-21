@@ -102,7 +102,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   applySplattributes(
     new HTMLFormElement(),
     // @ts-expect-error: Trying to pass splattributes specialized for another element
-    element
+    element,
   );
 }
 
@@ -111,7 +111,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   applySplattributes(
     new HTMLFormElement(),
     // @ts-expect-error: Trying to pass splattributes specialized for another element
-    component.element
+    component.element,
   );
 }
 
@@ -120,7 +120,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   applySplattributes(
     new HTMLUnknownElement(),
     // @ts-expect-error: Trying to apply splattributes to a component with no root element
-    component.element
+    component.element,
   );
 }
 
@@ -129,7 +129,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   applySplattributes(
     new HTMLAnchorElement(),
     // @ts-expect-error: Trying to apply splattributes for an HTML <a> to an SVG <a>
-    component.element
+    component.element,
   );
 }
 
@@ -139,8 +139,8 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   applyModifier(
     resolve(imageModifier)(
       // @ts-expect-error: `imageModifier` expects an `HTMLImageElement`
-      div.element
-    )
+      div.element,
+    ),
   );
 }
 
@@ -149,8 +149,8 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   applyModifier(
     resolve(imageModifier)(
       // @ts-expect-error: `imageModifier` expects an `HTMLImageElement`
-      component.element
-    )
+      component.element,
+    ),
   );
 }
 
@@ -159,8 +159,8 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   applyModifier(
     resolve(imageModifier)(
       // @ts-expect-error: Trying to apply a modifier to a component with no root element
-      component.element
-    )
+      component.element,
+    ),
   );
 }
 
@@ -169,8 +169,8 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   applyModifier(
     resolve(anchorModifier)(
       // @ts-expect-error: Can't apply modifier for HTML <a> to SVG <a>
-      component.element
-    )
+      component.element,
+    ),
   );
 }
 
@@ -179,7 +179,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   applyAttributes(
     // @ts-expect-error: Trying to apply attributes to a component with no root element
     component.element,
-    { foo: 'bar' }
+    { foo: 'bar' },
   );
 }
 

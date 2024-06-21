@@ -29,7 +29,7 @@ typeTest(
       {{! @glint-expect-error: extra positional arg }}
       <canvas {{noopRender (array) "hello" origin=(hash x=0 y=0)}}></canvas>
     {{/let}}
-  `
+  `,
 );
 
 // Pre-bound positional arg
@@ -48,7 +48,7 @@ typeTest(
       {{! @glint-expect-error: extra positional arg }}
       <canvas {{boundRender "hello" origin=(hash x=0 y=0)}}></canvas>
     {{/let}}
-  `
+  `,
 );
 
 // Pre-bound named arg
@@ -68,7 +68,7 @@ typeTest(
       {{! @glint-expect-error: extra positional arg }}
       <canvas {{boundRender (array) "hello"}}></canvas>
     {{/let}}
-  `
+  `,
 );
 
 // Prebinding args at different locations
@@ -91,5 +91,5 @@ typeTest(
 
     {{! @glint-expect-error: extra arg }}
     <div {{(modifier this.myriad "one" true 3) "four"}}></div>
-  `
+  `,
 );

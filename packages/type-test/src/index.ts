@@ -49,12 +49,12 @@ type TypeTestTemplate<T> = abstract new () => HasContext<{
 type ExpectTypeOf = DirectInvokable<{
   <T, E extends UnaryExpectationKind>(
     actual: T,
-    expectation: UnaryExpectation<E>
+    expectation: UnaryExpectation<E>,
   ): UnaryExpectations<T>[E] extends [false, infer M] ? UnmetExpectation<M, T> : void;
   <T, E extends BinaryExpectationKind, U>(
     actual: T,
     expectation: BinaryExpectation<E>,
-    expected: U
+    expected: U,
   ): BinaryExpectations<T, U>[E] extends [false, infer M] ? UnmetExpectation<M, [T, U]> : void;
 }>;
 

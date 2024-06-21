@@ -56,7 +56,7 @@ export async function setupCompositeProject(): Promise<CompositeProject> {
     {
       private: true,
       workspaces: ['./main', './a', './b', './c'],
-    }
+    },
   );
 
   root.write(SHARED_TSCONFIG, JSON.stringify(BASE_TS_CONFIG, null, 2));
@@ -80,7 +80,7 @@ export async function setupCompositeProject(): Promise<CompositeProject> {
         '@glint-test/b': 'link:../b',
       },
     },
-    root.filePath('main')
+    root.filePath('main'),
   );
 
   let a = await Project.createExact(
@@ -99,7 +99,7 @@ export async function setupCompositeProject(): Promise<CompositeProject> {
         '@glint-test/c': 'link:../c',
       },
     },
-    root.filePath('a')
+    root.filePath('a'),
   );
 
   let b = await Project.createExact(
@@ -114,7 +114,7 @@ export async function setupCompositeProject(): Promise<CompositeProject> {
       version: '1.0.0',
       types: `./${INDEX_D_TS}`,
     },
-    root.filePath('b')
+    root.filePath('b'),
   );
 
   let c = await Project.createExact(
@@ -129,7 +129,7 @@ export async function setupCompositeProject(): Promise<CompositeProject> {
       version: '1.0.0',
       types: `./${INDEX_D_TS}`,
     },
-    root.filePath('c')
+    root.filePath('c'),
   );
 
   main.mkdir('node_modules/@glint-test');

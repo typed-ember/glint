@@ -16,7 +16,7 @@ export function calculateTaggedTemplateSpans(
   node: ts.TaggedTemplateExpression,
   meta: GlintEmitMetadata | undefined,
   script: SourceFile,
-  environment: GlintEnvironment
+  environment: GlintEnvironment,
 ): CorrelatedSpansResult {
   let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
@@ -32,7 +32,7 @@ export function calculateTaggedTemplateSpans(
   if (info) {
     assert(
       ts.isNoSubstitutionTemplateLiteral(node.template),
-      'No interpolated values in template strings'
+      'No interpolated values in template strings',
     );
 
     let { typesModule, globals } = info.tagConfig;
@@ -123,7 +123,7 @@ function addOffset(location: Range, offset: number): Range {
 
 function collectSpecialForms(
   importedBindings: ImportedBindings,
-  config: GlintSpecialFormConfig
+  config: GlintSpecialFormConfig,
 ): Record<string, GlintSpecialForm> {
   let specialForms: Record<string, GlintSpecialForm> = { ...config.globals };
   if (config.imports) {
@@ -140,7 +140,7 @@ function collectSpecialForms(
 function resolveTagInfo(
   importedBindings: ImportedBindings,
   tag: ts.Identifier,
-  environment: GlintEnvironment
+  environment: GlintEnvironment,
 ): { importedBinding: ImportedBinding; tagConfig: GlintTagConfig } | undefined {
   let importedBinding = importedBindings[tag.text];
   if (!importedBinding) {

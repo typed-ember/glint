@@ -18,7 +18,7 @@ export class GlintConfig {
   public constructor(
     ts: typeof import('typescript'),
     configPath: string,
-    config: GlintConfigInput
+    config: GlintConfigInput,
   ) {
     Object.defineProperty(this, 'ts', { value: ts });
     this.configPath = normalizePath(configPath);

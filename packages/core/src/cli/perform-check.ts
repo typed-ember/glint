@@ -13,7 +13,7 @@ export function performCheck(glintConfig: GlintConfig, optionsToExtend: TS.Compi
   let parsedConfig = loadTsconfig(ts, transformManager, glintConfig.configPath, optionsToExtend);
   let compilerHost = createCompilerHost(ts, parsedConfig.options, transformManager);
   let formatDiagnostic = buildDiagnosticFormatter(ts);
-``
+  ``;
   // let createProgram = parsedConfig.options.incremental
   //   ? ts.createIncrementalProgram
   //   : ts.createProgram;
@@ -45,7 +45,7 @@ export function performCheck(glintConfig: GlintConfig, optionsToExtend: TS.Compi
 function collectDiagnostics(
   program: TS.Program | TS.EmitAndSemanticDiagnosticsBuilderProgram,
   transformManager: TransformManager,
-  options: TS.CompilerOptions
+  options: TS.CompilerOptions,
 ): Array<TS.Diagnostic> {
   // return [
   //   ...program.getSyntacticDiagnostics(),
@@ -59,7 +59,7 @@ function collectDiagnostics(
 function createCompilerHost(
   ts: TypeScript,
   options: TS.CompilerOptions,
-  transformManager: TransformManager
+  transformManager: TransformManager,
 ): TS.CompilerHost {
   let host = options.incremental
     ? ts.createIncrementalCompilerHost(options, sysForCompilerHost(ts, transformManager))
@@ -78,7 +78,7 @@ function loadTsconfig(
   ts: TypeScript,
   transformManager: TransformManager,
   configPath: string | undefined,
-  optionsToExtend: TS.CompilerOptions
+  optionsToExtend: TS.CompilerOptions,
 ): TS.ParsedCommandLine {
   if (!configPath) {
     return {

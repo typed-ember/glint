@@ -17,7 +17,7 @@ import { WorkspaceSymbolRequest, WorkspaceSymbolParams } from '@volar/language-s
 const require = createRequire(import.meta.url);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const pathToTemplatePackage = pathUtils.normalizeFilePath(
-  path.resolve(dirname, '../../../packages/template')
+  path.resolve(dirname, '../../../packages/template'),
 );
 const fileUriToTemplatePackage = pathUtils.filePathToUri(pathToTemplatePackage);
 const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
@@ -127,7 +127,7 @@ export class Project {
         // Create a Range that represents the whole document
         const wholeDocumentRange = Range.create(
           Position.create(0, 0),
-          Position.create(Number.MAX_VALUE, Number.MAX_VALUE)
+          Position.create(Number.MAX_VALUE, Number.MAX_VALUE),
         );
 
         const textEdit = TextEdit.replace(wholeDocumentRange, text);
@@ -158,7 +158,7 @@ export class Project {
     const normalized = stringified
       .replaceAll(
         volarEmbeddedContentUri.toString(),
-        `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
+        `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`,
       )
       .replaceAll(this.filePath('.'), '/path/to/EPHEMERAL_TEST_PROJECT')
       .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
@@ -175,7 +175,7 @@ export class Project {
    */
   public static async create(
     config: TsconfigWithGlint = {},
-    rootDir = newWorkingDir()
+    rootDir = newWorkingDir(),
   ): Promise<Project> {
     if (!rootDir.includes(ROOT)) {
       throw new Error('Cannot create projects outside of `ROOT` dir');
@@ -204,7 +204,7 @@ export class Project {
     fs.writeFileSync(path.join(project.rootDir, 'package.json'), '{}');
     fs.writeFileSync(
       path.join(project.rootDir, 'tsconfig.json'),
-      JSON.stringify(tsconfig, null, 2)
+      JSON.stringify(tsconfig, null, 2),
     );
 
     return project;
@@ -218,7 +218,7 @@ export class Project {
   public static async createExact(
     tsconfig: TsconfigWithGlint,
     packageJson: Record<string, unknown> = {},
-    rootDir = newWorkingDir()
+    rootDir = newWorkingDir(),
   ): Promise<Project> {
     if (!rootDir.includes(ROOT)) {
       throw new Error('Cannot create projects outside of `ROOT` dir');
@@ -349,9 +349,9 @@ class Watch {
         reject(
           new Error(
             `Timed out waiting to see ${JSON.stringify(target)}. Instead saw: ${JSON.stringify(
-              output
-            )}`
-          )
+              output,
+            )}`,
+          ),
         );
       }, timeout);
 

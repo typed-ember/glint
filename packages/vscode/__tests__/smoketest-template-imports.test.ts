@@ -84,7 +84,7 @@ describe('Smoke test: ETI Environment', () => {
         const fixes = await commands.executeCommand<CodeAction[]>(
           'vscode.executeCodeActionProvider',
           scriptURI,
-          new Range(new Position(10, 9), new Position(10, 9))
+          new Range(new Position(10, 9), new Position(10, 9)),
         );
 
         expect(fixes.length).toBe(3);
@@ -97,7 +97,7 @@ describe('Smoke test: ETI Environment', () => {
         await waitUntil(
           () =>
             scriptEditor.document.getText().includes('undocumentedProperty: any') &&
-            languages.getDiagnostics(scriptURI).length === 0
+            languages.getDiagnostics(scriptURI).length === 0,
         );
       });
     });
@@ -122,7 +122,7 @@ describe('Smoke test: ETI Environment', () => {
         const fixes = await commands.executeCommand<CodeAction[]>(
           'vscode.executeCodeActionProvider',
           scriptURI,
-          new Range(new Position(10, 12), new Position(10, 12))
+          new Range(new Position(10, 12), new Position(10, 12)),
         );
 
         expect(fixes.length).toBe(3);
@@ -135,7 +135,7 @@ describe('Smoke test: ETI Environment', () => {
         await waitUntil(
           () =>
             scriptEditor.document.getText().includes('localProp: any') &&
-            languages.getDiagnostics(scriptURI).length
+            languages.getDiagnostics(scriptURI).length,
         );
       });
     });

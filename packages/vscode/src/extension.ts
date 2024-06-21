@@ -43,14 +43,14 @@ export function activate(context: ExtensionContext): LabsInfo {
   context.subscriptions.push(fileWatcher, createConfigWatcher());
   context.subscriptions.push(
     commands.registerCommand('glint.restart-language-server', restartClients),
-    commands.registerTextEditorCommand('glint.show-debug-ir', showDebugIR)
+    commands.registerTextEditorCommand('glint.show-debug-ir', showDebugIR),
   );
 
   // TODO: how to each multiple workspace reloads with VolarLabs?
   const volarLabs = createLabsInfo(languageServerProtocol);
 
   workspace.workspaceFolders?.forEach((folder) =>
-    addWorkspaceFolder(context, folder, fileWatcher, volarLabs)
+    addWorkspaceFolder(context, folder, fileWatcher, volarLabs),
   );
   workspace.onDidChangeWorkspaceFolders(({ added, removed }) => {
     added.forEach((folder) => addWorkspaceFolder(context, folder, fileWatcher));
@@ -109,7 +109,7 @@ async function showDebugIR(editor: TextEditor): Promise<void> {
 
 async function reloadAllWorkspaces(
   context: ExtensionContext,
-  fileWatcher: FileSystemWatcher
+  fileWatcher: FileSystemWatcher,
 ): Promise<void> {
   let folders = workspace.workspaceFolders ?? [];
 
@@ -117,7 +117,7 @@ async function reloadAllWorkspaces(
     folders.map(async (folder) => {
       await removeWorkspaceFolder(folder);
       await addWorkspaceFolder(context, folder, fileWatcher);
-    })
+    }),
   );
 }
 
@@ -125,7 +125,7 @@ async function addWorkspaceFolder(
   context: ExtensionContext,
   workspaceFolder: WorkspaceFolder,
   watcher: FileSystemWatcher,
-  volarLabs?: ReturnType<typeof createLabsInfo>
+  volarLabs?: ReturnType<typeof createLabsInfo>,
 ): Promise<void> {
   let folderPath = workspaceFolder.uri.fsPath;
   if (clients.has(folderPath)) return;
@@ -138,12 +138,12 @@ async function addWorkspaceFolder(
   const typescriptFormatOptions = getOptions(workspace.getConfiguration('typescript'), 'format');
   const typescriptUserPreferences = getOptions(
     workspace.getConfiguration('typescript'),
-    'preferences'
+    'preferences',
   );
   const javascriptFormatOptions = getOptions(workspace.getConfiguration('javascript'), 'format');
   const javascriptUserPreferences = getOptions(
     workspace.getConfiguration('javascript'),
-    'preferences'
+    'preferences',
   );
 
   let client = new LanguageClient('glint', 'Glint', serverOptions, {
@@ -197,8 +197,8 @@ function findLanguageServer(workspaceDir: string): string | null {
     // project, though, we leave a message in our channel explaining why we didn't launch.
     outputChannel.appendLine(
       `Unable to resolve @glint/core from ${resolutionDir} — not launching Glint for this directory.\n` +
-      `If Glint is installed in a child directory, you may wish to set the 'glint.libraryPath' option ` +
-      `in your workspace settings for the Glint VS Code extension.`
+        `If Glint is installed in a child directory, you may wish to set the 'glint.libraryPath' option ` +
+        `in your workspace settings for the Glint VS Code extension.`,
     );
 
     return null;

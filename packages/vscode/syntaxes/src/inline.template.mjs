@@ -1,6 +1,7 @@
 export default {
   fileTypes: ['gjs', 'gts'],
-  injectionSelector: 'L:source.gjs -comment -(string -meta.embedded), L:source.gts -comment -(string -meta.embedded)',
+  injectionSelector:
+    'L:source.gjs -comment -(string -meta.embedded), L:source.gts -comment -(string -meta.embedded)',
   patterns: [
     {
       name: 'meta.js.embeddedTemplateWithoutArgs',

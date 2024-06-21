@@ -113,8 +113,8 @@ declare const arrayOrNull: string[] | null;
   const component = emitComponent(
     each(
       // @ts-expect-error: number is not a valid iterable
-      123
-    )
+      123,
+    ),
   );
 
   expectTypeOf(component.blockParams.default).toEqualTypeOf<[any, number]>();

@@ -245,7 +245,7 @@ describe('CLI: single-pass typechecking', () => {
       'my-component.gts',
       stripIndent`
         export let x: string = 123;
-      `
+      `,
     );
 
     let checkResult = await project.check({ reject: false });

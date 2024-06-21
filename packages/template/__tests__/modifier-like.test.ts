@@ -19,7 +19,7 @@ import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/templa
 
   expectTypeOf(neat(el, 'hello')).toEqualTypeOf<ModifierReturn>();
   expectTypeOf(
-    neat(el, 'hello', { multiplier: 3, ...NamedArgsMarker })
+    neat(el, 'hello', { multiplier: 3, ...NamedArgsMarker }),
   ).toEqualTypeOf<ModifierReturn>();
 
   // @ts-expect-error: missing required positional arg
@@ -29,7 +29,7 @@ import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/templa
     el,
     'hello',
     // @ts-expect-error: extra positional arg
-    'goodbye'
+    'goodbye',
   );
 
   neat(el, 'message', {
@@ -65,19 +65,19 @@ import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/templa
         | [
             element: HTMLAudioElement,
             full: string,
-            named?: NamedArgs<Partial<{ foo: string; bar: string }>>
+            named?: NamedArgs<Partial<{ foo: string; bar: string }>>,
           ]
         | [
             element: HTMLAudioElement,
             first: string,
             last: string,
-            named: NamedArgs<{ force: boolean }>
+            named: NamedArgs<{ force: boolean }>,
           ]
         | [
             element: HTMLAudioElement,
             first: string,
             last: string,
-            named?: NamedArgs<Partial<{ foo: string; bar: string }>>
+            named?: NamedArgs<Partial<{ foo: string; bar: string }>>,
           ]
     ) => ModifierReturn
   >();
@@ -97,7 +97,7 @@ import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/templa
   let el = new HTMLCanvasElement();
 
   expectTypeOf(
-    onDestroy(el, (value) => value.charAt(0), { value: 'hello', ...NamedArgsMarker })
+    onDestroy(el, (value) => value.charAt(0), { value: 'hello', ...NamedArgsMarker }),
   ).toEqualTypeOf<ModifierReturn>();
 
   // @ts-expect-error: missing required positional arg
@@ -108,7 +108,7 @@ import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/templa
     'hello',
     'goodbye',
     // @ts-expect-error: extra positional arg
-    { value: 'hi', ...NamedArgsMarker }
+    { value: 'hi', ...NamedArgsMarker },
   );
 
   onDestroy(el, (value: string) => value.length, {
@@ -130,7 +130,7 @@ import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/templa
   expectTypeOf(resolve(NeatModifier)).toEqualTypeOf<
     (
       el: HTMLImageElement,
-      args: NamedArgs<{ multiplier?: number; input: string }>
+      args: NamedArgs<{ multiplier?: number; input: string }>,
     ) => ModifierReturn
   >();
 }

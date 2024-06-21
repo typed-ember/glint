@@ -70,7 +70,7 @@ describe('CLI: watched typechecking', () => {
     let stripped = stripAnsi(output);
     let error = stripped.slice(
       stripped.indexOf('index.gts'),
-      stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+      stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
     );
 
     expect(output).toMatch('Found 1 error.');
@@ -113,7 +113,7 @@ describe('CLI: watched typechecking', () => {
     let stripped = stripAnsi(output);
     let error = stripped.slice(
       stripped.indexOf('index.gts'),
-      stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+      stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
     );
 
     expect(output).toMatch('Found 1 error.');

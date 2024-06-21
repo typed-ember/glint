@@ -55,7 +55,7 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
       yieldToBlock(
         𝚪,
         // @ts-expect-error: bad block
-        'bad'
+        'bad',
       )(isReady, 𝚪.args.value);
 
       // @ts-expect-error: missing params
@@ -64,7 +64,7 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
       yieldToBlock(𝚪, 'body')(
         isReady,
         // @ts-expect-error: wrong param type
-        Symbol()
+        Symbol(),
       );
     });
   }

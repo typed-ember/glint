@@ -32,7 +32,10 @@ export class VirtualHandlebarsCode implements VirtualCode {
 
   languageId = 'handlebars';
 
-  constructor(private glintConfig: GlintConfig, public snapshot: IScriptSnapshot) {
+  constructor(
+    private glintConfig: GlintConfig,
+    public snapshot: IScriptSnapshot,
+  ) {
     this.update(snapshot);
   }
 
@@ -72,7 +75,7 @@ export class VirtualHandlebarsCode implements VirtualCode {
     const transformedModule = rewriteModule(
       this.glintConfig.ts,
       { script, template },
-      this.glintConfig.environment
+      this.glintConfig.environment,
     );
 
     if (transformedModule) {

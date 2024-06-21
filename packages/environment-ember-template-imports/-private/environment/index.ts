@@ -3,7 +3,7 @@ import { preprocess } from './preprocess';
 import { transform } from './transform';
 
 export default function emberTemplateImportsEnvironment(
-  options: Record<string, unknown>
+  options: Record<string, unknown>,
 ): GlintEnvironmentConfig {
   let additionalSpecialForms =
     typeof options['additionalSpecialForms'] === 'object'

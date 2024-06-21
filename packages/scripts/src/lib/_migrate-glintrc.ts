@@ -13,7 +13,7 @@ const EnvironmentList = z.array(z.string());
 const EnvironmentMap = z.record(
   z.object({
     additionalGlobals: z.optional(z.array(z.string())),
-  })
+  }),
 );
 type EnvironmentMap = z.infer<typeof EnvironmentMap>;
 
@@ -49,14 +49,14 @@ type GlintTsconfig = {
 function loadFile(path: string): Promise<Result<string, string>> {
   return readFile(path, { encoding: 'utf-8' }).then(
     (v) => ok(v),
-    (e) => err(`Could not load file at ${path}: ${JSON.stringify(e)}`)
+    (e) => err(`Could not load file at ${path}: ${JSON.stringify(e)}`),
   );
 }
 
 function loadOrCreateTsconfig(configPath: string): Promise<string> {
   return readFile(configPath, { encoding: 'utf-8' }).catch((e) => {
     console.info(
-      `Could not load tsconfig.json at ${configPath}: ${e}; attempting to create a new one`
+      `Could not load tsconfig.json at ${configPath}: ${e}; attempting to create a new one`,
     );
     return '{}';
   });
@@ -65,7 +65,7 @@ function loadOrCreateTsconfig(configPath: string): Promise<string> {
 function saveFile(path: string, data: string): Promise<Result<Unit, string>> {
   return writeFile(path, data).then(
     () => ok(),
-    (e) => err(`Could not write file at ${path}: ${JSON.stringify(e)}`)
+    (e) => err(`Could not write file at ${path}: ${JSON.stringify(e)}`),
   );
 }
 
@@ -91,7 +91,7 @@ function parseGlintRcFile(contents: string): Result<GlintRc, string> {
     },
     () => {
       return GlintRc.parse(yamlData);
-    }
+    },
   );
 }
 
@@ -107,7 +107,7 @@ function prepForPatching(contents: unknown): Result<unknown, string> {
 
   return tryOrElse(
     (e) => `Could not patch data:\n\t${e instanceof Error ? e.message : JSON.stringify(e)}`,
-    () => evaluate(contents)
+    () => evaluate(contents),
   );
 }
 
@@ -165,19 +165,19 @@ function patchTsconfig(contents: unknown, rc: GlintRc): Result<string, string> {
     .andThen((transformed) =>
       tryOrElse(
         (e) => `Could not patch data:\n\t${JSON.stringify(e)}`,
-        () => patch(contents, transformed)
-      )
+        () => patch(contents, transformed),
+      ),
     );
 }
 
 function settledToResult<T>(
-  settledResults: Array<PromiseSettledResult<Result<T, unknown>>>
+  settledResults: Array<PromiseSettledResult<Result<T, unknown>>>,
 ): Array<Result<T, string>>;
 function settledToResult<T>(
-  settledResults: Array<PromiseSettledResult<T>>
+  settledResults: Array<PromiseSettledResult<T>>,
 ): Array<Result<T, string>>;
 function settledToResult<T>(
-  settledResults: Array<PromiseSettledResult<T | Result<T, unknown>>>
+  settledResults: Array<PromiseSettledResult<T | Result<T, unknown>>>,
 ): Array<Result<T, string>> {
   return settledResults.map((result) => {
     if (result.status === 'fulfilled') {
@@ -200,7 +200,7 @@ type SplitResults<T, E> = {
 };
 
 function toSplitResults<T>(
-  settledResults: Array<PromiseSettledResult<Result<T, unknown>>>
+  settledResults: Array<PromiseSettledResult<Result<T, unknown>>>,
 ): SplitResults<T, string> {
   return splitResults(settledToResult(settledResults));
 
@@ -214,7 +214,7 @@ function toSplitResults<T>(
       {
         successes: [] as T[],
         failures: [] as E[],
-      }
+      },
     );
   }
 }
@@ -295,7 +295,7 @@ export async function migrate(pathArgs: string[]): Promise<SplitResults<string, 
         .andThen(parseGlintRcFile)
         .map((config) => ({ path: p, config }))
         .mapErr((err) => `${normalizePathString(p)}: ${err}`);
-    })
+    }),
   ).then(toSplitResults);
 
   let patched = await Promise.allSettled(
@@ -306,7 +306,7 @@ export async function migrate(pathArgs: string[]): Promise<SplitResults<string, 
       return patchTsconfig(contents, rc)
         .map((patched) => ({ rcPath, tsconfigPath, patched }))
         .mapErr((err) => `${normalizePathString(rcPath)}: ${err}`);
-    })
+    }),
   ).then(toSplitResults);
 
   let write = await Promise.allSettled(
@@ -315,9 +315,9 @@ export async function migrate(pathArgs: string[]): Promise<SplitResults<string, 
       let normalizedTsconfig = normalizePathString(tsconfigPath);
       let normalizedRc = normalizePathString(rcPath);
       return writeResult.map(
-        () => `Updated ${normalizedTsconfig} with contents of ${normalizedRc}`
+        () => `Updated ${normalizedTsconfig} with contents of ${normalizedRc}`,
       );
-    })
+    }),
   ).then(toSplitResults);
 
   return {

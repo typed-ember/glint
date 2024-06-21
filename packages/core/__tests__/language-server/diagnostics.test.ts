@@ -349,7 +349,7 @@ describe('Language Server: Diagnostics', () => {
     server.openFile(project.fileURI('templates/foo.hbs'), template);
     server.updateFile(
       project.fileURI('templates/foo.hbs'),
-      template.replace('startupTimee', 'startupTime')
+      template.replace('startupTimee', 'startupTime'),
     );
 
     expect(server.getDiagnostics(project.fileURI('controllers/foo.ts'))).toEqual([]);
@@ -398,11 +398,11 @@ describe('Language Server: Diagnostics', () => {
     await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
     await server.replaceTextDocument(
       project.fileURI('component-a.gts'),
-      componentA.replace('{{! @glint-expect-error }}', '')
+      componentA.replace('{{! @glint-expect-error }}', ''),
     );
 
     expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).toEqual(
-      []
+      [],
     );
     expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
       .toMatchInlineSnapshot(`
@@ -437,22 +437,22 @@ describe('Language Server: Diagnostics', () => {
     await server.replaceTextDocument(project.fileURI('component-a.gts'), componentA);
 
     expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).toEqual(
-      []
+      [],
     );
     expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).toEqual(
-      []
+      [],
     );
 
     await server.replaceTextDocument(
       project.fileURI('component-a.gts'),
-      componentA.replace('{{@version}}', '')
+      componentA.replace('{{@version}}', ''),
     );
 
     expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).toEqual(
-      []
+      [],
     );
     expect(
-      await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))
+      await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')),
     ).toMatchInlineSnapshot(`[TODO should display unused glint-expect-error directive]`);
   });
 });

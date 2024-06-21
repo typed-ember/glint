@@ -21,7 +21,7 @@ emitComponent(resolve(NoopCurriedStringComponent)({ value: 'hello', ...NamedArgs
 
 resolve(NoopCurriedStringComponent)(
   // @ts-expect-error: Invoking the curried component but forgetting `value`
-  { ...NamedArgsMarker }
+  { ...NamedArgsMarker },
 );
 
 resolve(NoopCurriedStringComponent)({
@@ -33,7 +33,7 @@ resolve(NoopCurriedStringComponent)({
 // Invoking the noop-curried component with a valid block
 {
   const component = emitComponent(
-    resolve(NoopCurriedStringComponent)({ value: 'hello', ...NamedArgsMarker })
+    resolve(NoopCurriedStringComponent)({ value: 'hello', ...NamedArgsMarker }),
   );
 
   {
@@ -45,7 +45,7 @@ resolve(NoopCurriedStringComponent)({
 // Invoking the noop-curried component with an invalid block
 {
   const component = emitComponent(
-    resolve(NoopCurriedStringComponent)({ value: 'hello', ...NamedArgsMarker })
+    resolve(NoopCurriedStringComponent)({ value: 'hello', ...NamedArgsMarker }),
   );
 
   {
@@ -65,13 +65,13 @@ emitComponent(
     // @ts-expect-error: Invoking the curred-with-value component with an invalid value
     value: 123,
     ...NamedArgsMarker,
-  })
+  }),
 );
 
 componentKeyword(
   resolveForBind(StringComponent),
   // @ts-expect-error: Attempting to curry an arg with the wrong type
-  { value: 123, ...NamedArgsMarker }
+  { value: 123, ...NamedArgsMarker },
 );
 
 class ParametricComponent<T> extends TestComponent<{
@@ -90,7 +90,7 @@ const RequiredValueCurriedParametricComponent = componentKeyword(
   {
     values: ['hello'],
     ...NamedArgsMarker,
-  }
+  },
 );
 
 const OptionalValueCurriedParametricComponent = componentKeyword(
@@ -98,13 +98,13 @@ const OptionalValueCurriedParametricComponent = componentKeyword(
   {
     optional: 'hi',
     ...NamedArgsMarker,
-  }
+  },
 );
 
 // Invoking the noop-curried component with number values
 {
   const component = emitComponent(
-    resolve(NoopCurriedParametricComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+    resolve(NoopCurriedParametricComponent)({ values: [1, 2, 3], ...NamedArgsMarker }),
   );
 
   {
@@ -116,7 +116,7 @@ const OptionalValueCurriedParametricComponent = componentKeyword(
 // Invoking the noop-curried component with string values
 {
   const component = emitComponent(
-    resolve(NoopCurriedParametricComponent)({ values: ['hello'], ...NamedArgsMarker })
+    resolve(NoopCurriedParametricComponent)({ values: ['hello'], ...NamedArgsMarker }),
   );
 
   {
@@ -128,8 +128,8 @@ const OptionalValueCurriedParametricComponent = componentKeyword(
 emitComponent(
   resolve(NoopCurriedParametricComponent)(
     // @ts-expect-error: missing required arg `values`
-    { ...NamedArgsMarker }
-  )
+    { ...NamedArgsMarker },
+  ),
 );
 
 emitComponent(
@@ -137,7 +137,7 @@ emitComponent(
     // @ts-expect-error: wrong type for `values`
     values: 'hello',
     ...NamedArgsMarker,
-  })
+  }),
 );
 
 emitComponent(
@@ -146,14 +146,14 @@ emitComponent(
     // @ts-expect-error: extra arg
     extra: 'uh oh',
     ...NamedArgsMarker,
-  })
+  }),
 );
 
 // Invoking the curred component with no additional args
 {
   /** hello {@link RequiredValueCurriedParametricComponent} */
   const component = emitComponent(
-    resolve(RequiredValueCurriedParametricComponent)({ ...NamedArgsMarker })
+    resolve(RequiredValueCurriedParametricComponent)({ ...NamedArgsMarker }),
   );
 
   {
@@ -165,7 +165,7 @@ emitComponent(
 // Invoking the curred component and overriding the given arg
 {
   const component = emitComponent(
-    resolve(RequiredValueCurriedParametricComponent)({ values: ['ok'], ...NamedArgsMarker })
+    resolve(RequiredValueCurriedParametricComponent)({ values: ['ok'], ...NamedArgsMarker }),
   );
 
   {
@@ -179,7 +179,7 @@ emitComponent(
     // @ts-expect-error: wrong type for arg override
     values: [1, 2, 3],
     ...NamedArgsMarker,
-  })
+  }),
 );
 
 emitComponent(
@@ -187,13 +187,13 @@ emitComponent(
     // @ts-expect-error: extra arg
     extra: 'bad',
     ...NamedArgsMarker,
-  })
+  }),
 );
 
 // Invoking the curried component, supplying missing required args
 {
   const component = emitComponent(
-    resolve(OptionalValueCurriedParametricComponent)({ values: [1, 2, 3], ...NamedArgsMarker })
+    resolve(OptionalValueCurriedParametricComponent)({ values: [1, 2, 3], ...NamedArgsMarker }),
   );
 
   {
@@ -205,8 +205,8 @@ emitComponent(
 emitComponent(
   resolve(OptionalValueCurriedParametricComponent)(
     // @ts-expect-error: missing required arg `values`
-    { ...NamedArgsMarker }
-  )
+    { ...NamedArgsMarker },
+  ),
 );
 
 // {{component (component BoundParametricComponent values=(array "hello")) optional="hi"}}
@@ -215,7 +215,7 @@ const DoubleCurriedComponent = componentKeyword(
   {
     optional: 'hi',
     ...NamedArgsMarker,
-  }
+  },
 );
 
 // Invoking the component with no args
@@ -236,7 +236,7 @@ emitComponent(
     // @ts-expect-error: invalid arg override
     values: [1, 2, 3],
     ...NamedArgsMarker,
-  })
+  }),
 );
 
 emitComponent(
@@ -244,5 +244,5 @@ emitComponent(
     // @ts-expect-error: unexpected args
     foo: 'bar',
     ...NamedArgsMarker,
-  })
+  }),
 );

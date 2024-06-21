@@ -4,7 +4,7 @@ import TransformManagerPool from './transform-manager-pool.js';
 
 export function sysForCompilerHost(
   ts: typeof TS,
-  transformManagerOrPool: TransformManager | TransformManagerPool
+  transformManagerOrPool: TransformManager | TransformManagerPool,
 ): TS.System {
   return {
     ...ts.sys,

@@ -1307,7 +1307,7 @@ describe.skip('CLI: --build --dry', () => {
       let buildResult = await project.build({ flags: ['--dry'] });
       expect(buildResult.exitCode).toBe(0);
       expect(stripAnsi(buildResult.stdout)).toMatch(
-        `A non-dry build would build project '${project.filePath('tsconfig.json')}'`
+        `A non-dry build would build project '${project.filePath('tsconfig.json')}'`,
       );
       expect(buildResult.stderr).toEqual('');
     });
@@ -1321,7 +1321,7 @@ describe.skip('CLI: --build --dry', () => {
         let buildResult = await project.build({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
-          `Project '${project.filePath('tsconfig.json')}' is up to date`
+          `Project '${project.filePath('tsconfig.json')}' is up to date`,
         );
         expect(buildResult.stderr).toEqual('');
       });
@@ -1350,7 +1350,7 @@ describe.skip('CLI: --build --dry', () => {
         let buildResult = await project.build({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
-          `A non-dry build would build project '${project.filePath('tsconfig.json')}'`
+          `A non-dry build would build project '${project.filePath('tsconfig.json')}'`,
         );
         expect(buildResult.stderr).toEqual('');
       });
@@ -1391,7 +1391,7 @@ describe.skip('CLI: --build --dry', () => {
       let buildResult = await project.build({ flags: ['--dry'] });
       expect(buildResult.exitCode).toBe(0);
       expect(stripAnsi(buildResult.stdout)).toMatch(
-        `A non-dry build would build project '${project.filePath('tsconfig.json')}'`
+        `A non-dry build would build project '${project.filePath('tsconfig.json')}'`,
       );
       expect(buildResult.stderr).toEqual('');
     });
@@ -1405,7 +1405,7 @@ describe.skip('CLI: --build --dry', () => {
         let buildResult = await project.build({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
-          `Project '${project.filePath('tsconfig.json')}' is up to date`
+          `Project '${project.filePath('tsconfig.json')}' is up to date`,
         );
         expect(buildResult.stderr).toEqual('');
       });
@@ -1429,7 +1429,7 @@ describe.skip('CLI: --build --dry', () => {
         let buildResult = await project.build({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
-          `A non-dry build would build project '${project.filePath('tsconfig.json')}'`
+          `A non-dry build would build project '${project.filePath('tsconfig.json')}'`,
         );
         expect(buildResult.stderr).toEqual('');
       });
@@ -1445,7 +1445,7 @@ describe.skip('CLI: --build --dry', () => {
         let buildResult = await project.build({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
-          `A non-dry build would build project '${project.filePath('tsconfig.json')}'`
+          `A non-dry build would build project '${project.filePath('tsconfig.json')}'`,
         );
         expect(buildResult.stderr).toEqual('');
       }, 2_000_000);
@@ -1502,16 +1502,16 @@ describe.skip('CLI: --build --dry', () => {
       let buildResult = await projects.root.build({ flags: ['--dry'] });
       expect(buildResult.exitCode).toBe(0);
       expect(stripAnsi(buildResult.stdout)).toMatch(
-        `A non-dry build would build project '${projects.main.filePath('tsconfig.json')}'`
+        `A non-dry build would build project '${projects.main.filePath('tsconfig.json')}'`,
       );
       expect(stripAnsi(buildResult.stdout)).toMatch(
-        `A non-dry build would build project '${projects.children.a.filePath('tsconfig.json')}'`
+        `A non-dry build would build project '${projects.children.a.filePath('tsconfig.json')}'`,
       );
       expect(stripAnsi(buildResult.stdout)).toMatch(
-        `A non-dry build would build project '${projects.children.b.filePath('tsconfig.json')}'`
+        `A non-dry build would build project '${projects.children.b.filePath('tsconfig.json')}'`,
       );
       expect(stripAnsi(buildResult.stdout)).toMatch(
-        `A non-dry build would build project '${projects.children.c.filePath('tsconfig.json')}'`
+        `A non-dry build would build project '${projects.children.c.filePath('tsconfig.json')}'`,
       );
       expect(buildResult.stderr).toEqual('');
     });
@@ -1525,16 +1525,16 @@ describe.skip('CLI: --build --dry', () => {
         let buildResult = await projects.root.build({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
-          `Project '${projects.main.filePath('tsconfig.json')}' is up to date`
+          `Project '${projects.main.filePath('tsconfig.json')}' is up to date`,
         );
         expect(stripAnsi(buildResult.stdout)).toMatch(
-          `Project '${projects.children.a.filePath('tsconfig.json')}' is up to date`
+          `Project '${projects.children.a.filePath('tsconfig.json')}' is up to date`,
         );
         expect(stripAnsi(buildResult.stdout)).toMatch(
-          `Project '${projects.children.b.filePath('tsconfig.json')}' is up to date`
+          `Project '${projects.children.b.filePath('tsconfig.json')}' is up to date`,
         );
         expect(stripAnsi(buildResult.stdout)).toMatch(
-          `Project '${projects.children.c.filePath('tsconfig.json')}' is up to date`
+          `Project '${projects.children.c.filePath('tsconfig.json')}' is up to date`,
         );
         expect(buildResult.stderr).toEqual('');
       });
@@ -1564,16 +1564,16 @@ describe.skip('CLI: --build --dry', () => {
           let buildResult = await projects.root.build({ flags: ['--dry'] });
           expect(buildResult.exitCode).toBe(0);
           expect(stripAnsi(buildResult.stdout)).toMatch(
-            `A non-dry build would build project '${projects.main.filePath('tsconfig.json')}'`
+            `A non-dry build would build project '${projects.main.filePath('tsconfig.json')}'`,
           );
           expect(stripAnsi(buildResult.stdout)).toMatch(
-            `Project '${projects.children.a.filePath('tsconfig.json')}' is up to date`
+            `Project '${projects.children.a.filePath('tsconfig.json')}' is up to date`,
           );
           expect(stripAnsi(buildResult.stdout)).toMatch(
-            `Project '${projects.children.b.filePath('tsconfig.json')}' is up to date`
+            `Project '${projects.children.b.filePath('tsconfig.json')}' is up to date`,
           );
           expect(stripAnsi(buildResult.stdout)).toMatch(
-            `Project '${projects.children.c.filePath('tsconfig.json')}' is up to date`
+            `Project '${projects.children.c.filePath('tsconfig.json')}' is up to date`,
           );
           expect(buildResult.stderr).toEqual('');
         });
@@ -1589,16 +1589,16 @@ describe.skip('CLI: --build --dry', () => {
           let buildResult = await projects.root.build({ flags: ['--dry'] });
           expect(buildResult.exitCode).toBe(0);
           expect(stripAnsi(buildResult.stdout)).toMatch(
-            `A non-dry build would build project '${projects.main.filePath('tsconfig.json')}'`
+            `A non-dry build would build project '${projects.main.filePath('tsconfig.json')}'`,
           );
           expect(stripAnsi(buildResult.stdout)).toMatch(
-            `A non-dry build would build project '${projects.children.a.filePath('tsconfig.json')}'`
+            `A non-dry build would build project '${projects.children.a.filePath('tsconfig.json')}'`,
           );
           expect(stripAnsi(buildResult.stdout)).toMatch(
-            `Project '${projects.children.b.filePath('tsconfig.json')}' is up to date`
+            `Project '${projects.children.b.filePath('tsconfig.json')}' is up to date`,
           );
           expect(stripAnsi(buildResult.stdout)).toMatch(
-            `Project '${projects.children.c.filePath('tsconfig.json')}' is up to date`
+            `Project '${projects.children.c.filePath('tsconfig.json')}' is up to date`,
           );
           expect(buildResult.stderr).toEqual('');
         });

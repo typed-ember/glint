@@ -115,7 +115,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
       let stripped = stripAnsi(output);
       let error = stripped.slice(
         stripped.indexOf('index.gts'),
-        stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+        stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
       );
 
       expect(output).toMatch('Found 1 error.');
@@ -154,7 +154,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
       let stripped = stripAnsi(output);
       let error = stripped.slice(
         stripped.indexOf('index.gts'),
-        stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+        stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
       );
 
       expect(output).toMatch('Found 1 error.');
@@ -349,14 +349,14 @@ describe.skip('CLI: watched build mode typechecking', () => {
 
           projects.main.write(
             INPUT_SFC,
-            mainCode.replace('{{this.startupTime}}', '{{this.startupTime}')
+            mainCode.replace('{{this.startupTime}}', '{{this.startupTime}'),
           );
 
           output = await watch.awaitOutput('Parse error');
           let stripped = stripAnsi(output);
           let error = stripped.slice(
             stripped.indexOf('index.gts'),
-            stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+            stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
           );
           expect(error).toMatchInlineSnapshot(`
             "index.gts:14:32 - error TS0: Parse error on line 3:
@@ -392,7 +392,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
           let stripped = stripAnsi(output);
           let error = stripped.slice(
             stripped.indexOf('index.gts'),
-            stripped.lastIndexOf(`;${os.EOL}`) + 1
+            stripped.lastIndexOf(`;${os.EOL}`) + 1,
           );
           expect(error).toMatchInlineSnapshot(`
             "index.gts:3:28 - error TS0: Unclosed element \`C\`: 
@@ -430,7 +430,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
           let stripped = stripAnsi(output);
           let error = stripped.slice(
             stripped.indexOf('index.gts'),
-            stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+            stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
           );
           expect(error).toMatchInlineSnapshot(`
             "index.gts:3:31 - error TS0: Parse error on line 1:
@@ -468,7 +468,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
           let stripped = stripAnsi(output);
           let error = stripped.slice(
             stripped.indexOf('index.gts'),
-            stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+            stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
           );
           expect(error).toMatchInlineSnapshot(`
             "index.gts:15:5 - error TS2554: Expected 0 arguments, but got 1.
@@ -501,7 +501,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
           let stripped = stripAnsi(output);
           let error = stripped.slice(
             stripped.indexOf('index.gts'),
-            stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+            stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
           );
           expect(error).toMatchInlineSnapshot(`
             "index.gts:3:28 - error TS2554: Expected 0 arguments, but got 1.
@@ -534,7 +534,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
           let stripped = stripAnsi(output);
           let error = stripped.slice(
             stripped.indexOf('index.gts'),
-            stripped.lastIndexOf(`~~~${os.EOL}`) + 3
+            stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
           );
           expect(error).toMatchInlineSnapshot(`
             "index.gts:3:27 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.

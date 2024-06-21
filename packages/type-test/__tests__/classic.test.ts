@@ -35,5 +35,5 @@ typeTest(
     {{@expectTypeOf this.hello @to.beAssignableToTypeOf this.string}}
     {{! @glint-expect-error: string is not assignable to 'hello' }}
     {{@expectTypeOf this.string @to.beAssignableToTypeOf this.hello}}
-  `
+  `,
 );

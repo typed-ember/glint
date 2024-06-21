@@ -129,7 +129,7 @@ export type MapTemplateContentsOptions = {
 export function mapTemplateContents(
   template: string,
   { embeddingSyntax }: MapTemplateContentsOptions,
-  callback: (ast: AST.Template | null, mapper: Mapper) => void
+  callback: (ast: AST.Template | null, mapper: Mapper) => void,
 ): RewriteResult {
   let ast: AST.Template | null = null;
   let errors: Array<{ message: string; location: Range | undefined }> = [];
@@ -177,7 +177,7 @@ export function mapTemplateContents(
     hbsRange: Range,
     source: MappingSource,
     allowEmpty: boolean,
-    callback: () => void
+    callback: () => void,
   ): void => {
     let start = offset;
     let mappings: MappingTree[] = [];
@@ -277,7 +277,7 @@ export function mapTemplateContents(
       end: embeddingSyntax.prefix.length + template.length + embeddingSyntax.suffix.length,
     },
     mappingsStack[0],
-    new TemplateEmbedding()
+    new TemplateEmbedding(),
   );
 
   return { errors, result: { code, directives, mapping } };

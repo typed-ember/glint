@@ -9,7 +9,7 @@ export function unreachable(value: never, message = 'unreachable code'): never {
 
 export function assert(
   test: unknown,
-  message: string | (() => string) = 'Internal error'
+  message: string | (() => string) = 'Internal error',
 ): asserts test {
   if (test == null || test === false) {
     throw new Error(typeof message === 'string' ? message : message());

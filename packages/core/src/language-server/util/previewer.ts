@@ -23,7 +23,7 @@ function replaceLinks(text: string): string {
             default:
               return `[${text ? text.trim() : link}](${link})`;
           }
-        }
+        },
       )
   );
 }
@@ -106,6 +106,6 @@ export function getTagDocumentation(tag: ts.JSDocTagInfo): string | undefined {
 
 export function plain(parts: ts.SymbolDisplayPart[] | string): string {
   return processInlineTags(
-    typeof parts === 'string' ? parts : parts.map((part) => part.text).join('')
+    typeof parts === 'string' ? parts : parts.map((part) => part.text).join(''),
   );
 }

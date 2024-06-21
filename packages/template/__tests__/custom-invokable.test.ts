@@ -39,7 +39,7 @@ declare const caseOf: abstract new <T extends SumType<never>>() => InstanceType<
               else: [];
             };
           }>
-        >
+        >,
       ];
     };
   }>

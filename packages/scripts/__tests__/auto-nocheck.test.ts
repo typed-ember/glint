@@ -46,7 +46,7 @@ describe.skip('auto-nocheck', () => {
 
     expect(project.read('app/components/good.hbs')).toEqual(files['app/components/good.hbs']);
     expect(project.read('app/components/bad.hbs')).toEqual(
-      `{{! @glint-nocheck: not typesafe yet }}\n${files['app/components/bad.hbs']}`
+      `{{! @glint-nocheck: not typesafe yet }}\n${files['app/components/bad.hbs']}`,
     );
   });
 
@@ -89,7 +89,7 @@ describe.skip('auto-nocheck', () => {
     await autoNocheck(['tests/**/*.ts'], { spinner, cwd: project.filePath('.') });
 
     expect(project.read('tests/integration/good-test.ts')).toEqual(
-      files['tests/integration/good-test.ts']
+      files['tests/integration/good-test.ts'],
     );
 
     let badTest = files['tests/integration/bad-test.ts'];
@@ -97,8 +97,8 @@ describe.skip('auto-nocheck', () => {
     expect(project.read('tests/integration/bad-test.ts')).toEqual(
       `${badTest.slice(
         0,
-        badTestInsertionIndex
-      )}{{! @glint-nocheck: not typesafe yet }}\n    ${badTest.slice(badTestInsertionIndex)}`
+        badTestInsertionIndex,
+      )}{{! @glint-nocheck: not typesafe yet }}\n    ${badTest.slice(badTestInsertionIndex)}`,
     );
 
     let oneLinerTest = files['tests/integration/one-liner-test.ts'];
@@ -106,8 +106,8 @@ describe.skip('auto-nocheck', () => {
     expect(project.read('tests/integration/one-liner-test.ts')).toEqual(
       `${oneLinerTest.slice(
         0,
-        oneLinerTestInsertionIndex
-      )}{{! @glint-nocheck }}${oneLinerTest.slice(oneLinerTestInsertionIndex)}`
+        oneLinerTestInsertionIndex,
+      )}{{! @glint-nocheck }}${oneLinerTest.slice(oneLinerTestInsertionIndex)}`,
     );
   });
 
@@ -154,16 +154,16 @@ describe.skip('auto-nocheck', () => {
     let badInsertionIndex = bad.indexOf('Hello,');
     expect(project.read('app/components/bad.gts')).toEqual(
       `${bad.slice(0, badInsertionIndex)}{{! @glint-nocheck: not typesafe yet }}\n    ${bad.slice(
-        badInsertionIndex
-      )}`
+        badInsertionIndex,
+      )}`,
     );
 
     let oneLiner = files['app/components/one-liner.gts'];
     let oneLinerInsertionIndex = oneLiner.indexOf('Hello,');
     expect(project.read('app/components/one-liner.gts')).toEqual(
       `${oneLiner.slice(0, oneLinerInsertionIndex)}{{! @glint-nocheck }}${oneLiner.slice(
-        oneLinerInsertionIndex
-      )}`
+        oneLinerInsertionIndex,
+      )}`,
     );
   });
 
@@ -186,7 +186,7 @@ describe.skip('auto-nocheck', () => {
     });
 
     expect(project.read('app/components/bad.hbs')).toEqual(
-      `{{! @glint-nocheck: old and crufty }}\n${files['app/components/bad.hbs']}`
+      `{{! @glint-nocheck: old and crufty }}\n${files['app/components/bad.hbs']}`,
     );
   });
 });
