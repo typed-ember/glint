@@ -17,7 +17,7 @@ import { WorkspaceSymbolRequest, WorkspaceSymbolParams } from '@volar/language-s
 const require = createRequire(import.meta.url);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const fileUriToTemplatePackage = pathUtils.filePathToUri(
-  path.resolve(dirname, '../../../packages/template').replace(':', 'd%3A') // encode windows `d:` colon
+  path.resolve(dirname, '../../../packages/template').replace(':', '%3A') // encode windows `d:` colon
 );
 const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
 
@@ -154,27 +154,55 @@ export class Project {
       path: '/' + encodeURIComponent(uri),
     });
 
-    return {
-      volarEmbeddedContentUri,
-      filePathDot: this.filePath('.'),
-      fileUriToTemplatePackage,
-    };
+    // return {
+    //   volarEmbeddedContentUri,
+    //   filePathDot: this.filePath('.'),
+    //   fileUriToTemplatePackage,
+    // };
 
-    // console.log(`volarEmbeddedContentUri - ${volarEmbeddedContentUri}`);
-    // console.log(`this.filePath('.') - ${this.filePath('.')}`);
+    // These are the values that are actually present
+    //
+    // +   "filePathDot": "d:/a/glint/glint/test-packages/ephemeral/88019651a2704",
+    // +   "fileUriToTemplatePackage": "file:///Dd%253A/a/glint/glint/packages/template",
+    // +   "volarEmbeddedContentUri": {
+    // +     "$mid": 1,
+    // +     "authority": "ts",
+    // +     "path": "/file%3A%2F%2F%2Fd%253A%2Fa%2Fglint%2Fglint%2Ftest-packages%2Fephemeral%2F88019651a2704%2Findex.ts",
+    // +     "scheme": "volar-embedded-content",
+    //     },
 
-    // const normalized = stringified
-    //   .replaceAll(
-    //     volarEmbeddedContentUri.toString(),
-    //     `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
-    //   )
-    //   .replaceAll(
-    //     this.filePath('.').replace(':', 'd%3A'), // encode windows `d:` colon
-    //     '/path/to/EPHEMERAL_TEST_PROJECT'
-    //   )
-    //   .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+    // Find failing examples and paste them here:
 
-    // return JSON.parse(normalized);
+    // - "targetUri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
+    // + "targetUri": "file:///d%3A/a/glint/glint/test-packages/ephemeral/3d6bfd2f4be02/greeting.gts",
+
+    // and THEN we figure out what sort of replace() is necessary
+
+    // ok so how to we transform
+    // - "file:///d%3A/a/glint/glint/test-packages/ephemeral/3d6bfd2f4be02/greeting.gts"
+    // into
+    // -  "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts"
+
+    // actually this is this.filePath('.'):
+    // - "d:/a/glint/glint/test-packages/ephemeral/88019651a2704"
+    // which we need to convert into
+    // - "d%3A/a/glint/glint/test-packages/ephemeral/3d6bfd2f4be02"
+    // - 'd%3A/a/glint/glint/test-packages/ephemeral/88019651a2704'
+    
+    // "d:/a/glint/glint/test-packages/ephemeral/88019651a2704".replace(':', 'd%3A')
+
+    const normalized = stringified
+      .replaceAll(
+        volarEmbeddedContentUri.toString(),
+        `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
+      )
+      .replaceAll(
+        this.filePath('.').replace(':', '%3A'), // encode windows `d:` colon
+        '/path/to/EPHEMERAL_TEST_PROJECT'
+      )
+      .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+
+    return JSON.parse(normalized);
   }
 
   /**
