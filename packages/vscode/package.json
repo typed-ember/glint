@@ -40,7 +40,6 @@
     "workspaceContains:**/tsconfig.json",
     "workspaceContains:**/jsconfig.json"
   ],
-  
   "contributes": {
     "languages": [
       {
@@ -238,8 +237,8 @@
     "@vscode/vsce": "^2.22.0",
     "esbuild": "^0.15.16",
     "expect": "^29.5.0",
-    "mocha": "^10.2.0",
-    "glob": "^10.2.4"
+    "glob": "^10.2.4",
+    "mocha": "^10.2.0"
   },
   "volta": {
     "extends": "../../package.json"
