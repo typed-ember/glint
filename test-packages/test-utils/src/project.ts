@@ -149,21 +149,23 @@ export class Project {
   normalizeForSnapshotting(uri: string, object: unknown) {
     let stringified = JSON.stringify(object);
 
-    const volarEmbeddedContentUri = URI.from({
-      scheme: 'volar-embedded-content',
-      authority: 'ts',
-      path: '/' + encodeURIComponent(uri),
-    });
+    return stringified;
 
-    const normalized = stringified
-      .replaceAll(
-        volarEmbeddedContentUri.toString(),
-        `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
-      )
-      .replaceAll(this.filePath('.'), '/path/to/EPHEMERAL_TEST_PROJECT')
-      .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+    // const volarEmbeddedContentUri = URI.from({
+    //   scheme: 'volar-embedded-content',
+    //   authority: 'ts',
+    //   path: '/' + encodeURIComponent(uri),
+    // });
 
-    return JSON.parse(normalized);
+    // const normalized = stringified
+    //   .replaceAll(
+    //     volarEmbeddedContentUri.toString(),
+    //     `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`
+    //   )
+    //   .replaceAll(this.filePath('.'), '/path/to/EPHEMERAL_TEST_PROJECT')
+    //   .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+
+    // return JSON.parse(normalized);
   }
 
   /**
