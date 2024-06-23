@@ -160,7 +160,8 @@ export class Project {
         volarEmbeddedContentUri.toString(),
         `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`,
       )
-      .replaceAll(this.filePath('.'), '/path/to/EPHEMERAL_TEST_PROJECT')
+      .replaceAll(`"${this.filePath('.')}`, '"/path/to/EPHEMERAL_TEST_PROJECT')
+      .replaceAll(`"${this.fileURI('.')}`, '"file:///path/to/EPHEMERAL_TEST_PROJECT')
       .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
 
     return JSON.parse(normalized);
