@@ -155,15 +155,24 @@ export class Project {
       path: '/' + encodeURIComponent(uri),
     });
 
-    const normalized = stringified
-      .replaceAll(
-        volarEmbeddedContentUri.toString(),
-        `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`,
-      )
-      .replaceAll(this.filePath('.'), '/path/to/EPHEMERAL_TEST_PROJECT')
-      .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+    return {
+      volarEmbeddedContentUri,
+      filePathDot: this.filePath('.'),
+      fileUriToTemplatePackage,
+      pathToTemplatePackage,
+      ROOT,
+      dirname,
+    };
 
-    return JSON.parse(normalized);
+    // const normalized = stringified
+    //   .replaceAll(
+    //     volarEmbeddedContentUri.toString(),
+    //     `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`,
+    //   )
+    //   .replaceAll(this.filePath('.'), '/path/to/EPHEMERAL_TEST_PROJECT')
+    //   .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+
+    // return JSON.parse(normalized);
   }
 
   /**
