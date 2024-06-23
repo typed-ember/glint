@@ -20,7 +20,9 @@ const pathToTemplatePackage = pathUtils.normalizeFilePath(
   path.resolve(dirname, '../../../packages/template'),
 );
 const fileUriToTemplatePackage = pathUtils.filePathToUri(pathToTemplatePackage);
-const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
+const EPHEMERAL_ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
+const GLINT_ROOT_PATH = pathUtils.normalizeFilePath(path.resolve(dirname, '../../..'));
+const GLINT_ROOT_URI = pathUtils.filePathToUri(GLINT_ROOT_PATH);
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
 // definition for our purposes here in tests.
@@ -35,7 +37,7 @@ interface TsconfigWithGlint {
 }
 
 const newWorkingDir = (): string =>
-  pathUtils.normalizeFilePath(path.join(ROOT, Math.random().toString(16).slice(2)));
+  pathUtils.normalizeFilePath(path.join(EPHEMERAL_ROOT, Math.random().toString(16).slice(2)));
 
 // export type LanguageServerHandle = ReturnType<typeof startLanguageServer>;
 
@@ -155,24 +157,34 @@ export class Project {
       path: '/' + encodeURIComponent(uri),
     });
 
-    return {
-      volarEmbeddedContentUri,
-      filePathDot: this.filePath('.'),
-      fileUriToTemplatePackage,
-      pathToTemplatePackage,
-      ROOT,
-      dirname,
-    };
+    // return {
+    //   volarEmbeddedContentUri,
+    //   filePathDot: this.filePath('.'),
+    //   fileUriToTemplatePackage,
+    //   pathToTemplatePackage,
+    //   ROOT,
+    //   dirname,
+    // };
 
-    // const normalized = stringified
-    //   .replaceAll(
-    //     volarEmbeddedContentUri.toString(),
-    //     `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`,
-    //   )
-    //   .replaceAll(this.filePath('.'), '/path/to/EPHEMERAL_TEST_PROJECT')
-    //   .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+    // GLINT_ROOT_PATH;
+    // GLINT_ROOT_URI;
 
-    // return JSON.parse(normalized);
+
+    // /path/to/glint/EPHEMERAL_TEST_PROJECT
+    // /path/to/glint/EPHEMERAL_TEST_PROJECT
+
+    // OK the tricky part here is that we have this ephemeral bit that we need to sort out
+
+
+    const normalized = stringified
+      .replaceAll(
+        volarEmbeddedContentUri.toString(),
+        `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`,
+      )
+      .replaceAll(`"${this.filePath('.')}`, '"/path/to/EPHEMERAL_TEST_PROJECT')
+      .replaceAll(`"${this.fileURI('.')}`, '"file:///path/to/EPHEMERAL_TEST_PROJECT')
+      .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+    return JSON.parse(normalized);
   }
 
   /**
@@ -186,7 +198,7 @@ export class Project {
     config: TsconfigWithGlint = {},
     rootDir = newWorkingDir(),
   ): Promise<Project> {
-    if (!rootDir.includes(ROOT)) {
+    if (!rootDir.includes(EPHEMERAL_ROOT)) {
       throw new Error('Cannot create projects outside of `ROOT` dir');
     }
 
@@ -229,7 +241,7 @@ export class Project {
     packageJson: Record<string, unknown> = {},
     rootDir = newWorkingDir(),
   ): Promise<Project> {
-    if (!rootDir.includes(ROOT)) {
+    if (!rootDir.includes(EPHEMERAL_ROOT)) {
       throw new Error('Cannot create projects outside of `ROOT` dir');
     }
 
