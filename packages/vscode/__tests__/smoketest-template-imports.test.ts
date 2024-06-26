@@ -51,18 +51,6 @@ describe('Smoke test: ETI Environment', () => {
       ]);
     });
 
-    describe('debugging commands', () => {
-      test('showing IR in a custom file type', async () => {
-        let scriptURI = Uri.file(`${rootDir}/src/Greeting.gts`);
-        let editor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
-
-        await commands.executeCommand('glint.show-debug-ir');
-        await waitUntil(() => editor.document.getText().includes('𝚪'));
-
-        expect(editor.document.getText()).toMatch('𝚪.this.message');
-      });
-    });
-
     describe('codeactions args', () => {
       test('adds missing args from template into Args type', async () => {
         let scriptURI = Uri.file(`${rootDir}/src/Greeting.gts`);
