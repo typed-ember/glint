@@ -51,8 +51,6 @@ Finally, ensure you've added the following statement somewhere in your project's
 import '@glint/environment-ember-loose';
 ```
 
-You may also choose to disable TypeScript's "unused symbol" warnings in your editor, since Glint will flag any symbols that are actually unused, while `tsserver` won't understand any symbol usage that only occurs in templates.
-
 {% hint style="info" %}
 
 When typechecking with vanilla `tsc` or your editor's `tsserver` integration, adding this side-effect `import` statement ensures that TypeScript is aware of the Glint-specific types provided by the environment package. Without this line, you may find that vanilla TypeScript produces spurious errors.
