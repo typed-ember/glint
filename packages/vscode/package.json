@@ -178,11 +178,6 @@
       {
         "title": "Glint: Restart Glint Server",
         "command": "glint.restart-language-server"
-      },
-      {
-        "title": "Glint: Show IR for Debugging",
-        "command": "glint.show-debug-ir",
-        "enablement": "config.glint.debug == true"
       }
     ],
     "menus": {
@@ -201,11 +196,6 @@
             "markdownDescription": "The path, relative to your workspace folder root, from which to resolve `@glint/core`. Defaults to `'.'`.",
             "order": 1,
             "type": "string"
-          },
-          "glint.debug": {
-            "description": "Enable debugging commands for Glint.",
-            "type": "boolean",
-            "default": false
           },
           "glint.trace.server": {
             "description": "Traces communication between VS Code and the Glint language server.",

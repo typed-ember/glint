@@ -24,7 +24,6 @@ import {
 } from '@volar/vscode';
 
 import { Disposable, LanguageClient, ServerOptions } from '@volar/vscode/node.js';
-import type { Request, GetIRRequest } from '@glint/core/lsp-messages';
 
 ///////////////////////////////////////////////////////////////////////////////
 // Setup and extension lifecycle
@@ -43,7 +42,6 @@ export function activate(context: ExtensionContext): LabsInfo {
   context.subscriptions.push(fileWatcher, createConfigWatcher());
   context.subscriptions.push(
     commands.registerCommand('glint.restart-language-server', restartClients),
-    commands.registerTextEditorCommand('glint.show-debug-ir', showDebugIR),
   );
 
   // TODO: how to each multiple workspace reloads with VolarLabs?
@@ -76,32 +74,6 @@ export async function deactivate(): Promise<void> {
 async function restartClients(): Promise<void> {
   outputChannel.appendLine(`Restarting Glint language server...`);
   await Promise.all([...clients.values()].map((client) => client.restart()));
-}
-
-async function showDebugIR(editor: TextEditor): Promise<void> {
-  let workspaceFolder = workspace.getWorkspaceFolder(editor.document.uri);
-  if (!workspaceFolder) {
-    return;
-  }
-
-  let sourceURI = editor.document.uri;
-  let client = clients.get(workspaceFolder.uri.fsPath);
-  let request = requestKey<typeof GetIRRequest>('glint/getIR');
-  let response = await client?.sendRequest(request, { uri: sourceURI.toString() });
-
-  // Just don't support this command for older @glint/core versions
-  if (!response || typeof response === 'string') return;
-
-  let { contents, uri } = response;
-  let targetEditor = await window.showTextDocument(Uri.parse(uri));
-  let { document } = targetEditor;
-
-  let start = document.positionAt(0);
-  let end = document.positionAt(document.getText().length);
-
-  await targetEditor.edit((edit) => {
-    edit.replace(new Range(start, end), contents);
-  });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -214,13 +186,6 @@ function createConfigWatcher(): Disposable {
   configWatcher.onDidDelete(restartClients);
 
   return configWatcher;
-}
-
-// This allows us to just use a bare string key for performing a request while maintaining
-// type information for the request _without_ forcing us to import runtime code from
-// `@glint/core` into the extension.
-function requestKey<R extends Request<string, unknown>>(name: R['name']): R['type'] {
-  return name as unknown as R['type'];
 }
 
 // Loads the TypeScript and JavaScript formating options from the workspace and subsets them to

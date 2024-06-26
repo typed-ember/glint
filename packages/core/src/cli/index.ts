@@ -65,26 +65,12 @@ const argv = yargs(process.argv.slice(2))
       'Save .tsbuildinfo files to allow for incremental compilation of projects. Same as the TS `--incremental` flag.',
     type: 'boolean',
   })
-  .option('debug-intermediate-representation', {
-    boolean: false,
-    description: `When true, writes out a Glint's internal intermediate representation of each file within a GLINT_DEBUG subdirectory of the current working directory. This is intended for debugging Glint itself.`,
-  })
   .version(pkg.version)
   .wrap(100)
   .strict()
   .parseSync();
 
 let cwd = process.cwd();
-
-if (argv['debug-intermediate-representation']) {
-  const fs = require('fs');
-  const path = require('path');
-  (globalThis as any).GLINT_DEBUG_IR = function (filename: string, content: string) {
-    let target = path.join('GLINT_DEBUG', path.relative(cwd, filename));
-    fs.mkdirSync(path.dirname(target), { recursive: true });
-    fs.writeFileSync(target, content);
-  };
-}
 
 if (argv.build) {
   // Type signature here so we get a useful error as close to the source of the
