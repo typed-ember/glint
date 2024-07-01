@@ -306,12 +306,15 @@ export class Project {
     });
   }
 
-  public watch(options: Options & { flags?: string[] } = {}): Watch {
+  public checkWatch(options: Options & { flags?: string[] } = {}): Watch {
     let flags = ['--watch', ...(options.flags ?? [])];
     return new Watch(this.check({ ...options, flags, reject: false }));
   }
 
-  public build(options: Options & { flags?: string[] } = {}, debug = false): ExecaChildProcess {
+  public buildDeclaration(
+    options: Options & { flags?: string[] } = {},
+    debug = false,
+  ): ExecaChildProcess {
     let flags = ['--build', '--emitDeclarationOnly', '--pretty', ...(options.flags ?? [])];
     return execaNode(require.resolve('@glint/core/bin/glint'), flags, {
       cwd: this.rootDir,
@@ -320,9 +323,9 @@ export class Project {
     });
   }
 
-  public buildWatch(options: Options & { flags?: string[] } = {}): Watch {
+  public buildDeclarationWatch(options: Options & { flags?: string[] } = {}): Watch {
     let flags = ['--watch', ...(options.flags ?? [])];
-    return new Watch(this.build({ ...options, flags, reject: false }));
+    return new Watch(this.buildDeclaration({ ...options, flags, reject: false }));
   }
 }
 

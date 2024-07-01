@@ -47,13 +47,13 @@ describe('CLI: single-pass build mode typechecking', () => {
 
       project.write(INPUT_SFC, code);
 
-      let checkResult = await project.build({ reject: false });
+      let checkResult = await project.buildDeclaration({ reject: false });
 
       expect(checkResult.exitCode).toBe(0);
       expect(checkResult.stdout).toEqual('');
       expect(checkResult.stderr).toEqual('');
 
-      // This tests that the `--emitDeclarationOnly` flag within project.build is working.
+      // This tests that the `--emitDeclarationOnly` flag within project.buildDeclaration is working.
       expect(existsSync(project.filePath('dist/index.gts.js'))).toBe(false);
     });
 
@@ -79,7 +79,7 @@ describe('CLI: single-pass build mode typechecking', () => {
 
       project.write(INPUT_SFC, code);
 
-      let checkResult = await project.build({ reject: false });
+      let checkResult = await project.buildDeclaration({ reject: false });
 
       expect(checkResult.exitCode).toBe(1);
       expect(checkResult.stdout).toEqual('');
@@ -122,7 +122,7 @@ describe('CLI: single-pass build mode typechecking', () => {
 
       project.write(INPUT_SFC, code);
 
-      let checkResult = await project.build({ reject: false });
+      let checkResult = await project.buildDeclaration({ reject: false });
 
       expect(checkResult.exitCode).toBe(1);
       expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
@@ -1099,11 +1099,11 @@ describe.skip('CLI: --build --clean', () => {
 
     project.write(INPUT_SFC, code);
 
-    let buildResult = await project.build();
+    let buildResult = await project.buildDeclaration();
     expect(buildResult.exitCode).toBe(0);
     expect(existsSync(project.filePath(INDEX_D_TS))).toBe(true);
 
-    let buildCleanResult = await project.build({ flags: ['--clean'] });
+    let buildCleanResult = await project.buildDeclaration({ flags: ['--clean'] });
     expect(buildCleanResult.exitCode).toBe(0);
     expect(existsSync(project.filePath(INDEX_D_TS))).toBe(false);
   });
@@ -1193,13 +1193,13 @@ describe.skip('CLI: --build --force', () => {
 
     project.write(INPUT_SFC, code);
 
-    let buildResult = await project.build();
+    let buildResult = await project.buildDeclaration();
     expect(buildResult.exitCode).toBe(0);
     let indexDTs = project.filePath(INDEX_D_TS);
     expect(existsSync(indexDTs)).toBe(true);
     let firstStat = statSync(indexDTs);
 
-    let buildCleanResult = await project.build({ flags: ['--force'] });
+    let buildCleanResult = await project.buildDeclaration({ flags: ['--force'] });
     expect(buildCleanResult.exitCode).toBe(0);
     let exists = existsSync(indexDTs);
     expect(exists).toBe(true);
@@ -1309,7 +1309,7 @@ describe.skip('CLI: --build --dry', () => {
     });
 
     test('when no build has occurred', async () => {
-      let buildResult = await project.build({ flags: ['--dry'] });
+      let buildResult = await project.buildDeclaration({ flags: ['--dry'] });
       expect(buildResult.exitCode).toBe(0);
       expect(stripAnsi(buildResult.stdout)).toMatch(
         `A non-dry build would build project '${project.filePath('tsconfig.json')}'`,
@@ -1319,11 +1319,11 @@ describe.skip('CLI: --build --dry', () => {
 
     describe('when the project has been built', () => {
       beforeEach(async () => {
-        await project.build();
+        await project.buildDeclaration();
       });
 
       test('when there are no changes', async () => {
-        let buildResult = await project.build({ flags: ['--dry'] });
+        let buildResult = await project.buildDeclaration({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
           `Project '${project.filePath('tsconfig.json')}' is up to date`,
@@ -1352,7 +1352,7 @@ describe.skip('CLI: --build --dry', () => {
 
         project.write(INPUT_SFC, code);
 
-        let buildResult = await project.build({ flags: ['--dry'] });
+        let buildResult = await project.buildDeclaration({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
           `A non-dry build would build project '${project.filePath('tsconfig.json')}'`,
@@ -1393,7 +1393,7 @@ describe.skip('CLI: --build --dry', () => {
     });
 
     test('when no build has occurred', async () => {
-      let buildResult = await project.build({ flags: ['--dry'] });
+      let buildResult = await project.buildDeclaration({ flags: ['--dry'] });
       expect(buildResult.exitCode).toBe(0);
       expect(stripAnsi(buildResult.stdout)).toMatch(
         `A non-dry build would build project '${project.filePath('tsconfig.json')}'`,
@@ -1403,11 +1403,11 @@ describe.skip('CLI: --build --dry', () => {
 
     describe('when the project has been built', () => {
       beforeEach(async () => {
-        await project.build();
+        await project.buildDeclaration();
       });
 
       test('when there are no changes', async () => {
-        let buildResult = await project.build({ flags: ['--dry'] });
+        let buildResult = await project.buildDeclaration({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
           `Project '${project.filePath('tsconfig.json')}' is up to date`,
@@ -1431,7 +1431,7 @@ describe.skip('CLI: --build --dry', () => {
         `;
         project.write(INPUT_SCRIPT, backingClass);
 
-        let buildResult = await project.build({ flags: ['--dry'] });
+        let buildResult = await project.buildDeclaration({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
           `A non-dry build would build project '${project.filePath('tsconfig.json')}'`,
@@ -1447,7 +1447,7 @@ describe.skip('CLI: --build --dry', () => {
 
         project.write(INPUT_TEMPLATE, template);
 
-        let buildResult = await project.build({ flags: ['--dry'] });
+        let buildResult = await project.buildDeclaration({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
           `A non-dry build would build project '${project.filePath('tsconfig.json')}'`,

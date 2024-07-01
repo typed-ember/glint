@@ -34,7 +34,7 @@ describe('CLI: watched typechecking', () => {
 
     project.write('index.gts', code);
 
-    let watch = project.watch({ reject: true });
+    let watch = project.checkWatch({ reject: true });
     let output = await watch.awaitOutput('Watching for file changes.');
 
     await watch.terminate();
@@ -62,7 +62,7 @@ describe('CLI: watched typechecking', () => {
 
     project.write('index.gts', code);
 
-    let watch = project.watch();
+    let watch = project.checkWatch();
     let output = await watch.awaitOutput('Watching for file changes.');
 
     await watch.terminate();
@@ -105,7 +105,7 @@ describe('CLI: watched typechecking', () => {
 
     project.write('index.gts', code);
 
-    let watch = project.watch();
+    let watch = project.checkWatch();
     let output = await watch.awaitOutput('Watching for file changes.');
 
     await watch.terminate();
@@ -149,7 +149,7 @@ describe('CLI: watched typechecking', () => {
 
     project.write('index.gts', code);
 
-    let watch = project.watch({ reject: true });
+    let watch = project.checkWatch({ reject: true });
 
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
@@ -191,7 +191,7 @@ describe('CLI: watched typechecking', () => {
 
     project.write('my-component.ts', script);
 
-    let watch = project.watch({ reject: true });
+    let watch = project.checkWatch({ reject: true });
 
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
@@ -234,7 +234,7 @@ describe('CLI: watched typechecking', () => {
 
     project.write('index.gts', code);
 
-    let watch = project.watch({ reject: true });
+    let watch = project.checkWatch({ reject: true });
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
@@ -273,7 +273,7 @@ describe('CLI: watched typechecking', () => {
     project.write('my-component.ts', script);
     project.write('my-component.hbs', template);
 
-    let watch = project.watch();
+    let watch = project.checkWatch();
 
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
@@ -311,7 +311,7 @@ describe('CLI: watched typechecking', () => {
 
     project.write('index.gts', code);
 
-    let watch = project.watch({ flags: ['--preserveWatchOutput'], reject: true });
+    let watch = project.checkWatch({ flags: ['--preserveWatchOutput'], reject: true });
 
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
