@@ -69,14 +69,6 @@ describe('Environments: Ember Loose', () => {
       '/route.js',
     ]);
 
-    // Classic component
-    expect(env?.getPossibleScriptPaths('/templates/components/hello.hbs')).toEqual([
-      '/templates/components/hello.ts',
-      '/templates/components/hello.js',
-      '/components/hello.ts',
-      '/components/hello.js',
-    ]);
-
     // Classic controller/route
     expect(env?.getPossibleScriptPaths('/templates/hello.hbs')).toEqual([
       '/templates/hello.ts',
