@@ -298,7 +298,7 @@ export class Project {
     // Not sure why this is needed, but in some contexts, `--pretty` is disabled
     // because TS doesn't detect a TTY setup.
     // https://github.com/microsoft/TypeScript/blob/c38569655bb151ec351c27032fbd3ef43b8856ba/src/compiler/executeCommandLine.ts#L160
-    options.flags = [...options.flags, '--pretty'];
+    options.flags = [...options.flags, '--noEmit', '--pretty'];
 
     return execaNode(require.resolve('@glint/core/bin/glint'), options.flags, {
       cwd: this.rootDir,
@@ -312,7 +312,7 @@ export class Project {
   }
 
   public build(options: Options & { flags?: string[] } = {}, debug = false): ExecaChildProcess {
-    let flags = ['--build', '--pretty', ...(options.flags ?? [])];
+    let flags = ['--build', '--emitDeclarationOnly', '--pretty', ...(options.flags ?? [])];
     return execaNode(require.resolve('@glint/core/bin/glint'), flags, {
       cwd: this.rootDir,
       nodeOptions: debug ? ['--inspect-brk'] : [],

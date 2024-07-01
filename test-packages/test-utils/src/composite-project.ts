@@ -21,9 +21,13 @@ export const BASE_TS_CONFIG = {
     allowJs: true,
     checkJs: false,
     declaration: true,
-    emitDeclarationOnly: true,
+
+    // commented out for Volar; Volar-ized `tsc` variants (e.g. `vue-tsc` as well as `glint`)
+    // behave more closely to `tsc`, and it is expected for `noEmit` to be explicitly
+    // specified in CLI args.
+    // noEmit: false,
+
     incremental: true,
-    noEmit: false,
     noEmitOnError: true,
     outDir: OUT_DIR,
   },
