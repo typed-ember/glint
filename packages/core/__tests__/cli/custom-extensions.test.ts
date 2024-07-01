@@ -40,7 +40,7 @@ describe.skip('CLI: custom extensions', () => {
     project.setGlintConfig({ environment: 'ember-template-imports' });
     project.write('index.gts', code);
 
-    let watch = project.watch();
+    let watch = project.checkWatch();
     let output = await watch.awaitOutput('Watching for file changes.');
 
     await watch.terminate();
@@ -73,7 +73,7 @@ describe.skip('CLI: custom extensions', () => {
     });
 
     test('adding a missing module', async () => {
-      let watch = project.watch();
+      let watch = project.checkWatch();
       let output = await watch.awaitOutput('Watching for file changes.');
 
       expect(output).toMatch('Found 1 error.');
@@ -90,7 +90,7 @@ describe.skip('CLI: custom extensions', () => {
     test('changing an imported module', async () => {
       project.write('other.gjs', 'export const foo = 123;');
 
-      let watch = project.watch();
+      let watch = project.checkWatch();
       let output = await watch.awaitOutput('Watching for file changes.');
 
       expect(output).toMatch('Found 0 errors.');
@@ -107,7 +107,7 @@ describe.skip('CLI: custom extensions', () => {
     test('removing an imported module', async () => {
       project.write('other.gjs', 'export const foo = 123;');
 
-      let watch = project.watch();
+      let watch = project.checkWatch();
       let output = await watch.awaitOutput('Watching for file changes.');
 
       expect(output).toMatch('Found 0 errors.');

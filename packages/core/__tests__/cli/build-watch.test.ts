@@ -78,7 +78,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
 
       project.write(INPUT_SFC, code);
 
-      let watch = project.buildWatch({ reject: true });
+      let watch = project.buildDeclarationWatch({ reject: true });
       let output = await watch.awaitOutput('Watching for file changes.');
       await watch.terminate();
 
@@ -107,7 +107,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
 
       project.write(INPUT_SFC, code);
 
-      let watch = project.buildWatch({ reject: false });
+      let watch = project.buildDeclarationWatch({ reject: false });
       let output = await watch.awaitOutput('Watching for file changes.');
 
       await watch.terminate();
@@ -146,7 +146,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
 
       project.write(INPUT_SFC, code);
 
-      let watch = project.buildWatch();
+      let watch = project.buildDeclarationWatch();
       let output = await watch.awaitOutput('Watching for file changes.');
 
       await watch.terminate();
@@ -187,7 +187,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
 
       project.write(INPUT_SFC, code);
 
-      let watch = project.buildWatch({ reject: true });
+      let watch = project.buildDeclarationWatch({ reject: true });
 
       let output = await watch.awaitOutput('Watching for file changes.');
       expect(output).toMatch('Found 0 errors.');
@@ -230,7 +230,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
 
       project.write(INPUT_SFC, code);
 
-      let watch = project.buildWatch({ reject: true });
+      let watch = project.buildDeclarationWatch({ reject: true });
 
       let output = await watch.awaitOutput('Watching for file changes.');
       expect(output).toMatch('Found 0 errors.');
@@ -329,7 +329,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
     });
 
     test('passes when all projects are valid', async () => {
-      let watch = projects.root.buildWatch({ reject: true });
+      let watch = projects.root.buildDeclarationWatch({ reject: true });
 
       let output = await watch.awaitOutput('Watching for file changes.');
       expect(output).toMatch('Found 0 errors.');
@@ -340,7 +340,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
     describe('reports on errors introduced and cleared during the watch', () => {
       describe('for template syntax errors', () => {
         test('in the root', async () => {
-          let watch = projects.root.buildWatch({ reject: true });
+          let watch = projects.root.buildDeclarationWatch({ reject: true });
 
           let output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');
@@ -379,7 +379,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
         });
 
         test('in a project with references referenced directly by the root', async () => {
-          let watch = projects.root.buildWatch({ reject: true });
+          let watch = projects.root.buildDeclarationWatch({ reject: true });
 
           let output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');
@@ -417,7 +417,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
         });
 
         test('in a project transitively referenced by the root', async () => {
-          let watch = projects.root.buildWatch({ reject: true });
+          let watch = projects.root.buildDeclarationWatch({ reject: true });
 
           let output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');
@@ -455,7 +455,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
 
       describe('for template type errors', () => {
         test('in the root', async () => {
-          let watch = projects.root.buildWatch({ reject: true });
+          let watch = projects.root.buildDeclarationWatch({ reject: true });
 
           let output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');
@@ -488,7 +488,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
         });
 
         test('in a project with references referenced directly by the root', async () => {
-          let watch = projects.root.buildWatch({ reject: true });
+          let watch = projects.root.buildDeclarationWatch({ reject: true });
 
           let output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');
@@ -521,7 +521,7 @@ describe.skip('CLI: watched build mode typechecking', () => {
         });
 
         test('in a project transitively referenced by the root', async () => {
-          let watch = projects.root.buildWatch({ reject: true });
+          let watch = projects.root.buildDeclarationWatch({ reject: true });
 
           let output = await watch.awaitOutput('Watching for file changes.');
           expect(output).toMatch('Found 0 errors.');
