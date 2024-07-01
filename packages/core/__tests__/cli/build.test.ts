@@ -15,7 +15,7 @@ import {
   setupCompositeProject,
 } from 'glint-monorepo-test-utils';
 
-describe.skip('CLI: single-pass build mode typechecking', () => {
+describe('CLI: single-pass build mode typechecking', () => {
   describe('simple projects using `--build`', () => {
     let project!: Project;
     beforeEach(async () => {
@@ -52,9 +52,12 @@ describe.skip('CLI: single-pass build mode typechecking', () => {
       expect(checkResult.exitCode).toBe(0);
       expect(checkResult.stdout).toEqual('');
       expect(checkResult.stderr).toEqual('');
+
+      // This tests that the `--emitDeclarationOnly` flag within project.build is working.
+      expect(existsSync(project.filePath('dist/index.gts.js'))).toBe(false);
     });
 
-    test('rejects a basic project with a template syntax error', async () => {
+    test.skip('rejects a basic project with a template syntax error', async () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
@@ -122,18 +125,20 @@ describe.skip('CLI: single-pass build mode typechecking', () => {
       let checkResult = await project.build({ reject: false });
 
       expect(checkResult.exitCode).toBe(1);
-      expect(checkResult.stdout).toEqual('');
-      expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+      expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
         "src/index.gts:16:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
         16     The current time is {{truncate this.startupTime 12}}.
                                               ~~~~~~~~~~~~~~~~
+
+
+        Found 1 error.
         "
       `);
     });
   });
 
-  describe('composite projects', () => {
+  describe.skip('composite projects', () => {
     // The basic structure here is designed to give minimal coverage over all
     // interesting combinations of project invalidation:
     //
