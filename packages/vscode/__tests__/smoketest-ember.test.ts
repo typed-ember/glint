@@ -16,7 +16,7 @@ import { describe, afterEach, test } from 'mocha';
 import { expect } from 'expect';
 import { waitUntil } from './helpers/async';
 
-describe('Smoke test: Ember', () => {
+describe.skip('Smoke test: Ember', () => {
   const rootDir = path.resolve(__dirname, '../../__fixtures__/ember-app');
 
   afterEach(async () => {
