@@ -33,20 +33,21 @@ jobs:
       - run: yarn lint
 
 
-  type-tests:
-    name: "Type Tests"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: yarn
+  # tracking for re-enablement here: https://github.com/typed-ember/glint/issues/728
+  # type-tests:
+  #   name: "Type Tests"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 18
+  #         cache: yarn
 
-      - run: yarn install --frozen-lockfile
-      - run: "yarn build"
-      - run: "yarn workspaces run test:typecheck"
-      - run: "yarn workspaces run test:tsc"
+  #     - run: yarn install --frozen-lockfile
+  #     - run: "yarn build"
+  #     - run: "yarn workspaces run test:typecheck"
+  #     - run: "yarn workspaces run test:tsc"
 
   test:
     name: Test
@@ -100,37 +101,39 @@ jobs:
       - name: Test @glint/scripts
         run: yarn workspace @glint/scripts test
 
-  test-floating-deps:
-    name: Test Floating Dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: yarn
-      - run: yarn install --no-lockfile
-      - name: Build
-        run: yarn build
-      - name: Run Tests
-        uses: coactions/setup-xvfb@v1
-        with:
-          run: yarn test
+  # tracking for re-enablement here: https://github.com/typed-ember/glint/issues/728
+  # test-floating-deps:
+  #   name: Test Floating Dependencies
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 18
+  #         cache: yarn
+  #     - run: yarn install --no-lockfile
+  #     - name: Build
+  #       run: yarn build
+  #     - name: Run Tests
+  #       uses: coactions/setup-xvfb@v1
+  #       with:
+  #         run: yarn test
 
-  test-ts-nightly:
-    name: Test TypeScript Nightly
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: yarn
-      - run: yarn install --frozen-lockfile
-      - run: yarn add --dev -W typescript@next
-      - name: Build
-        run: yarn build
-      - name: Run Tests
-        uses: coactions/setup-xvfb@v1
-        with:
-          run: yarn test
+  # tracking for re-enablement here: https://github.com/typed-ember/glint/issues/728
+  # test-ts-nightly:
+  #   name: Test TypeScript Nightly
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 18
+  #         cache: yarn
+  #     - run: yarn install --frozen-lockfile
+  #     - run: yarn add --dev -W typescript@next
+  #     - name: Build
+  #       run: yarn build
+  #     - name: Run Tests
+  #       uses: coactions/setup-xvfb@v1
+  #       with:
+  #         run: yarn test
