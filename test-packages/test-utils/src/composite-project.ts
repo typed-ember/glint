@@ -73,7 +73,7 @@ export async function setupCompositeProject(): Promise<CompositeProject> {
 
   /**
    * Project Structure:
-   * 
+   *
    *         ---> a
    *       /
    * - main
@@ -81,7 +81,7 @@ export async function setupCompositeProject(): Promise<CompositeProject> {
    *         ---> b ---> c
    *
    * Flattened:
-   * 
+   *
    * - main
    *   - reference/dependency a
    *   - reference/dependency b
