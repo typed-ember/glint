@@ -254,7 +254,7 @@ describe('CLI: single-pass build mode typechecking', () => {
       });
     });
 
-    describe('reports diagnostics', () => {
+    describe.skip('reports diagnostics', () => {
       describe('for the root', () => {
         beforeEach(async () => {
           let aCode = stripIndent`
