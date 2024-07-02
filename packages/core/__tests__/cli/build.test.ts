@@ -138,7 +138,7 @@ describe('CLI: single-pass build mode typechecking', () => {
     });
   });
 
-  describe.skip('composite projects', () => {
+  describe('composite projects', () => {
     // The basic structure here is designed to give minimal coverage over all
     // interesting combinations of project invalidation:
     //
@@ -218,11 +218,11 @@ describe('CLI: single-pass build mode typechecking', () => {
       });
 
       test('passes a valid composite project', async () => {
-        let checkResult = await projects.main.build({ reject: false });
+        let result = await projects.main.buildDeclaration({ reject: false });
 
-        expect(checkResult.exitCode).toBe(0);
-        expect(checkResult.stdout).toEqual('');
-        // expect(checkResult.stderr).toEqual('');
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toEqual('');
+        expect(result.stderr).toEqual('');
 
         expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
         expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
@@ -230,11 +230,11 @@ describe('CLI: single-pass build mode typechecking', () => {
       });
 
       test('passes a valid composite subproject with a reference', async () => {
-        let checkResult = await projects.children.a.build({ reject: false });
+        let result = await projects.children.a.buildDeclaration({ reject: false });
 
-        expect(checkResult.exitCode).toBe(0);
-        expect(checkResult.stdout).toEqual('');
-        expect(checkResult.stderr).toEqual('');
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toEqual('');
+        expect(result.stderr).toEqual('');
 
         expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
         expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
@@ -242,11 +242,11 @@ describe('CLI: single-pass build mode typechecking', () => {
       });
 
       test('passes a valid composite subproject with no references', async () => {
-        let checkResult = await projects.children.b.build({ reject: false });
+        let result = await projects.children.b.buildDeclaration({ reject: false });
 
-        expect(checkResult.exitCode).toBe(0);
-        expect(checkResult.stdout).toEqual('');
-        expect(checkResult.stderr).toEqual('');
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toEqual('');
+        expect(result.stderr).toEqual('');
 
         expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(false);
         expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
@@ -303,7 +303,7 @@ describe('CLI: single-pass build mode typechecking', () => {
 
           projects.main.write(INPUT_SFC, rootCode);
 
-          let checkResult = await projects.main.build({ reject: false });
+          let checkResult = await projects.main.buildDeclaration({ reject: false });
           expect(checkResult.exitCode).toBe(2);
           expect(checkResult.stdout).toEqual('');
           expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
@@ -342,7 +342,7 @@ describe('CLI: single-pass build mode typechecking', () => {
 
           projects.main.write(INPUT_SFC, rootCode);
 
-          let checkResult = await projects.main.build({ reject: false });
+          let checkResult = await projects.main.buildDeclaration({ reject: false });
           expect(checkResult.exitCode).toBe(2);
           expect(checkResult.stdout).toEqual('');
           expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
@@ -390,7 +390,7 @@ describe('CLI: single-pass build mode typechecking', () => {
 
           projects.main.write(INPUT_SFC, rootCode);
 
-          let checkResult = await projects.main.build({ reject: false });
+          let checkResult = await projects.main.buildDeclaration({ reject: false });
           expect(checkResult.exitCode).toBe(2);
           expect(checkResult.stdout).toEqual('');
           expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
@@ -456,7 +456,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the main project', async () => {
-            let checkResult = await projects.main.build({ reject: false });
+            let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -474,7 +474,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the subproject', async () => {
-            let checkResult = await projects.children.a.build({ reject: false });
+            let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -505,7 +505,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the main project', async () => {
-            let checkResult = await projects.main.build({ reject: false });
+            let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -526,7 +526,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the subproject', async () => {
-            let checkResult = await projects.children.a.build({ reject: false });
+            let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -561,7 +561,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the main project', async () => {
-            let checkResult = await projects.main.build({ reject: false });
+            let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -579,7 +579,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the subproject', async () => {
-            let checkResult = await projects.children.a.build({ reject: false });
+            let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -615,7 +615,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the main project', async () => {
-            let checkResult = await projects.main.build({ reject: false });
+            let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(0);
             expect(checkResult.stdout).toEqual('');
@@ -627,7 +627,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the subproject', async () => {
-            let checkResult = await projects.children.a.build({ reject: false });
+            let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(0);
             expect(checkResult.stdout).toEqual('');
@@ -688,7 +688,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the main project', async () => {
-            let checkResult = await projects.main.build({ reject: false });
+            let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -706,7 +706,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the subproject', async () => {
-            let checkResult = await projects.children.b.build({ reject: false });
+            let checkResult = await projects.children.b.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
@@ -736,7 +736,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the main project', async () => {
-            let checkResult = await projects.main.build({ reject: false });
+            let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -757,7 +757,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the subproject', async () => {
-            let checkResult = await projects.children.b.build({ reject: false });
+            let checkResult = await projects.children.b.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
@@ -791,7 +791,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the main project', async () => {
-            let checkResult = await projects.main.build({ reject: false });
+            let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -809,7 +809,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('build from the subproject', async () => {
-            let checkResult = await projects.children.b.build({ reject: false });
+            let checkResult = await projects.children.b.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
@@ -875,7 +875,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('built from the main project', async () => {
-            let checkResult = await projects.main.build({ reject: false });
+            let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -893,7 +893,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('built from the intermediate project', async () => {
-            let checkResult = await projects.children.a.build({ reject: false });
+            let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
@@ -911,7 +911,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('built from the transitively referenced project', async () => {
-            let checkResult = await projects.children.c.build({ reject: false });
+            let checkResult = await projects.children.c.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
@@ -941,7 +941,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('built from the main project', async () => {
-            let checkResult = await projects.main.build({ reject: false });
+            let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -962,7 +962,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('built from the intermediate project', async () => {
-            let checkResult = await projects.children.a.build({ reject: false });
+            let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
@@ -983,7 +983,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('built from the transitively referenced project', async () => {
-            let checkResult = await projects.children.c.build({ reject: false });
+            let checkResult = await projects.children.c.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
@@ -1017,7 +1017,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('built from the main project', async () => {
-            let checkResult = await projects.main.build({ reject: false });
+            let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
             expect(checkResult.stdout).toEqual('');
@@ -1035,7 +1035,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('built from the intermediate project', async () => {
-            let checkResult = await projects.children.a.build({ reject: false });
+            let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
@@ -1053,7 +1053,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
 
           test('built from the transitively referenced project', async () => {
-            let checkResult = await projects.children.c.build({ reject: false });
+            let checkResult = await projects.children.c.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
             expect(checkResult.stdout).toEqual('');
@@ -1151,7 +1151,7 @@ describe.skip('CLI: --build --clean', () => {
     projects.children.b.write(INPUT_SFC, bCode);
     projects.children.c.write(INPUT_SFC, cCode);
 
-    let buildResult = await projects.main.build();
+    let buildResult = await projects.main.buildDeclaration();
     expect(buildResult.exitCode).toBe(0);
     expect(buildResult.stdout).toEqual('');
     expect(buildResult.stderr).toEqual('');
@@ -1159,7 +1159,7 @@ describe.skip('CLI: --build --clean', () => {
     expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
     expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
 
-    let buildCleanResult = await projects.main.build({ flags: ['--clean'] });
+    let buildCleanResult = await projects.main.buildDeclaration({ flags: ['--clean'] });
     expect(buildCleanResult.exitCode).toBe(0);
     expect(buildCleanResult.stdout).toEqual('');
     expect(buildCleanResult.stderr).toEqual('');
@@ -1251,7 +1251,7 @@ describe.skip('CLI: --build --force', () => {
     projects.children.b.write(INPUT_SFC, bCode);
     projects.children.c.write(INPUT_SFC, cCode);
 
-    let buildResult = await projects.main.build();
+    let buildResult = await projects.main.buildDeclaration();
     expect(buildResult.exitCode).toBe(0);
     expect(buildResult.stdout).toEqual('');
     expect(buildResult.stderr).toEqual('');
@@ -1260,7 +1260,7 @@ describe.skip('CLI: --build --force', () => {
     let firstBStat = statSync(projects.children.b.filePath(INDEX_D_TS));
     let firstCStat = statSync(projects.children.c.filePath(INDEX_D_TS));
 
-    let buildCleanResult = await projects.main.build({ flags: ['--force'] });
+    let buildCleanResult = await projects.main.buildDeclaration({ flags: ['--force'] });
     expect(buildCleanResult.exitCode).toBe(0);
     expect(buildCleanResult.stdout).toEqual('');
     expect(buildCleanResult.stderr).toEqual('');
@@ -1504,7 +1504,7 @@ describe.skip('CLI: --build --dry', () => {
     });
 
     test('when no build has occurred', async () => {
-      let buildResult = await projects.root.build({ flags: ['--dry'] });
+      let buildResult = await projects.root.buildDeclaration({ flags: ['--dry'] });
       expect(buildResult.exitCode).toBe(0);
       expect(stripAnsi(buildResult.stdout)).toMatch(
         `A non-dry build would build project '${projects.main.filePath('tsconfig.json')}'`,
@@ -1523,11 +1523,11 @@ describe.skip('CLI: --build --dry', () => {
 
     describe('when the project has been built', () => {
       beforeEach(async () => {
-        await projects.root.build();
+        await projects.root.buildDeclaration();
       });
 
       test('and there are no changes', async () => {
-        let buildResult = await projects.root.build({ flags: ['--dry'] });
+        let buildResult = await projects.root.buildDeclaration({ flags: ['--dry'] });
         expect(buildResult.exitCode).toBe(0);
         expect(stripAnsi(buildResult.stdout)).toMatch(
           `Project '${projects.main.filePath('tsconfig.json')}' is up to date`,
@@ -1566,7 +1566,7 @@ describe.skip('CLI: --build --dry', () => {
           `;
           projects.main.write(INPUT_SFC, rootCode);
 
-          let buildResult = await projects.root.build({ flags: ['--dry'] });
+          let buildResult = await projects.root.buildDeclaration({ flags: ['--dry'] });
           expect(buildResult.exitCode).toBe(0);
           expect(stripAnsi(buildResult.stdout)).toMatch(
             `A non-dry build would build project '${projects.main.filePath('tsconfig.json')}'`,
@@ -1591,7 +1591,7 @@ describe.skip('CLI: --build --dry', () => {
           `;
           projects.children.a.write(INPUT_SFC, aCode);
 
-          let buildResult = await projects.root.build({ flags: ['--dry'] });
+          let buildResult = await projects.root.buildDeclaration({ flags: ['--dry'] });
           expect(buildResult.exitCode).toBe(0);
           expect(stripAnsi(buildResult.stdout)).toMatch(
             `A non-dry build would build project '${projects.main.filePath('tsconfig.json')}'`,
