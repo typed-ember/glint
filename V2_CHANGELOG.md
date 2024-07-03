@@ -11,3 +11,6 @@
     - to build  `.d.ts` declaration files for your .gts/.ts files
       - before: `glint --build`
       - after: `glint --declaration --emitDeclarationOnly`
+- BREAKING CHANGE: `basename.gts.d.ts` files emitted instead of `basename.d.ts`
+  - See discussion: https://github.com/typed-ember/glint/issues/628
+  - Previously a `basename.gts` would emit a corresponding `basename.d.ts` file. For v2 glint, `basename.gts.d.ts` is emitted.
