@@ -1337,7 +1337,7 @@ describe('CLI: --build --dry', () => {
       expect(buildResult.stderr).toEqual('');
     });
 
-    describe.skip('when the project has been built', () => {
+    describe('when the project has been built', () => {
       beforeEach(async () => {
         await project.buildDeclaration();
       });
