@@ -296,53 +296,18 @@ describe('Language Server: custom file extensions', () => {
       });
     });
 
-    // not sure why this fails in volar, not sure if it's important to get passing again
-    test.skip('is illegal by default', async () => {
+    test('works with `allowImportingTsExtensions: true`', async () => {
+      project.updateTsconfig((config) => {
+        config.compilerOptions ??= {};
+        config.compilerOptions['allowImportingTsExtensions'] = true;
+      });
+
       let server = await project.startLanguageServer();
 
       const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-      let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
+      let diagnostics = await server.sendDocumentDiagnosticRequest(uri) as any;
 
-      expect(diagnostics.length).toBeGreaterThan(0);
-
-      expect(diagnostics.items).toMatchInlineSnapshot(`
-        [
-          {
-            "code": 2307,
-            "message": "Cannot find module './Greeting.gts' or its corresponding type declarations.",
-            "range": {
-              "end": {
-                "character": 37,
-                "line": 0,
-              },
-              "start": {
-                "character": 21,
-                "line": 0,
-              },
-            },
-            "severity": 1,
-            "source": "glint",
-            "tags": [],
-          },
-        ]
-      `);
+      expect(diagnostics.items).toEqual([]);
     });
-
-    test.runIf(semver.gte(typescript.version, '5.0.0'))(
-      'works with `allowImportingTsExtensions: true`',
-      async () => {
-        project.updateTsconfig((config) => {
-          config.compilerOptions ??= {};
-          config.compilerOptions['allowImportingTsExtensions'] = true;
-        });
-
-        let server = await project.startLanguageServer();
-
-        const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-        let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
-
-        expect(diagnostics.items).toEqual([]);
-      },
-    );
   });
 });
