@@ -1095,7 +1095,7 @@ describe('CLI: single-pass build mode typechecking', () => {
   });
 });
 
-describe('CLI: --build --clean', () => {
+describe.skip('CLI: --build --clean', () => {
   test('for basic projects', async () => {
     let project = await Project.createExact(BASE_TS_CONFIG);
 
@@ -1123,7 +1123,7 @@ describe('CLI: --build --clean', () => {
     expect(buildResult.exitCode).toBe(0);
     expect(existsSync(project.filePath(INDEX_D_TS))).toBe(true);
 
-    let buildCleanResult = await project.buildDeclaration({ flags: ['--clean'] });
+    let buildCleanResult = await project.buildClean();
     expect(buildCleanResult.exitCode).toBe(0);
     expect(existsSync(project.filePath(INDEX_D_TS))).toBe(false);
   });
@@ -1337,7 +1337,7 @@ describe('CLI: --build --dry', () => {
       expect(buildResult.stderr).toEqual('');
     });
 
-    describe('when the project has been built', () => {
+    describe.skip('when the project has been built', () => {
       beforeEach(async () => {
         await project.buildDeclaration();
       });

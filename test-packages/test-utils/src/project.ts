@@ -323,6 +323,12 @@ export class Project {
     });
   }
 
+  public buildClean( ): ExecaChildProcess {
+    return execaNode(require.resolve('@glint/core/bin/glint'), ['--build', '--clean'], {
+      cwd: this.rootDir,
+    });
+  }
+
   public buildDeclarationWatch(options: Options & { flags?: string[] } = {}): Watch {
     let flags = ['--watch', ...(options.flags ?? [])];
     return new Watch(this.buildDeclaration({ ...options, flags, reject: false }));
