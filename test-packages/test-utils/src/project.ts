@@ -323,7 +323,7 @@ export class Project {
     });
   }
 
-  public buildClean( ): ExecaChildProcess {
+  public buildClean(): ExecaChildProcess {
     return execaNode(require.resolve('@glint/core/bin/glint'), ['--build', '--clean'], {
       cwd: this.rootDir,
     });

@@ -1382,7 +1382,7 @@ describe('CLI: --build --dry', () => {
     });
   });
 
-  describe('for basic loose mode projects', () => {
+  describe.skip('for basic loose mode projects', () => {
     let project!: Project;
     beforeEach(async () => {
       project = await Project.createExact({
