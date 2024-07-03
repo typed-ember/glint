@@ -117,6 +117,7 @@ connection.onInitialize((parameters) => {
         return plugin;
       }
     }),
+    { pullModelDiagnostics: true },
   );
 });
 
