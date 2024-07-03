@@ -51,13 +51,12 @@ describe('CLI: single-pass build mode typechecking', () => {
 
       expect(checkResult.exitCode).toBe(0);
       expect(checkResult.stdout).toEqual('');
-      expect(checkResult.stderr).toEqual('');
 
       // This tests that the `--emitDeclarationOnly` flag within project.buildDeclaration is working.
       expect(existsSync(project.filePath('dist/index.gts.js'))).toBe(false);
     });
 
-    test.skip('rejects a basic project with a template syntax error', async () => {
+    test('rejects a basic project with a template syntax error', async () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
@@ -82,8 +81,7 @@ describe('CLI: single-pass build mode typechecking', () => {
       let checkResult = await project.buildDeclaration({ reject: false });
 
       expect(checkResult.exitCode).toBe(1);
-      expect(checkResult.stdout).toEqual('');
-      expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+      expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
         "src/index.gts:14:5 - error TS0: Unclosed element \`p\`: 
 
         |
@@ -254,7 +252,7 @@ describe('CLI: single-pass build mode typechecking', () => {
       });
     });
 
-    describe.skip('reports diagnostics', () => {
+    describe('reports diagnostics', () => {
       describe('for the root', () => {
         beforeEach(async () => {
           let aCode = stripIndent`
@@ -305,12 +303,14 @@ describe('CLI: single-pass build mode typechecking', () => {
 
           let checkResult = await projects.main.buildDeclaration({ reject: false });
           expect(checkResult.exitCode).toBe(2);
-          expect(checkResult.stdout).toEqual('');
-          expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+          expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
             "src/index.gts:5:5 - error TS2322: Type 'number' is not assignable to type 'string'.
 
             5 let x: string = 123;
                   ~
+
+
+            Found 1 error.
             "
           `);
 
@@ -344,8 +344,7 @@ describe('CLI: single-pass build mode typechecking', () => {
 
           let checkResult = await projects.main.buildDeclaration({ reject: false });
           expect(checkResult.exitCode).toBe(2);
-          expect(checkResult.stdout).toEqual('');
-          expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+          expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
             "src/index.gts:15:5 - error TS0: Unclosed element \`p\`: 
 
             |
@@ -392,12 +391,14 @@ describe('CLI: single-pass build mode typechecking', () => {
 
           let checkResult = await projects.main.buildDeclaration({ reject: false });
           expect(checkResult.exitCode).toBe(2);
-          expect(checkResult.stdout).toEqual('');
-          expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+          expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
             "src/index.gts:17:14 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
             17     {{double A}}
                             ~
+
+
+            Found 1 error.
             "
           `);
 
@@ -459,12 +460,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../a/src/index.gts:2:15 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
 
               2 const A = 2 * C;
                               ~
+
+
+              Found 1 error.
               "
             `);
 
@@ -477,12 +480,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "src/index.gts:2:15 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
 
               2 const A = 2 * C;
                               ~
+
+
+              Found 1 error.
               "
             `);
 
@@ -508,8 +513,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../a/src/index.gts:3:23 - error TS0: Parse error on line 1:
               {{C}
               ---^
@@ -529,8 +533,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "src/index.gts:3:23 - error TS0: Parse error on line 1:
               {{C}
               ---^
@@ -564,12 +567,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../a/src/index.gts:4:30 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
               4 const A = <template>{{double C}}</template>;
                                              ~
+
+
+              Found 1 error.
               "
             `);
 
@@ -582,12 +587,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "src/index.gts:4:30 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
               4 const A = <template>{{double C}}</template>;
                                              ~
+
+
+              Found 1 error.
               "
             `);
 
@@ -618,8 +625,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(0);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`""`);
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`""`);
 
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(true);
@@ -630,8 +636,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(0);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`""`);
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`""`);
 
             expect(existsSync(projects.children.a.filePath(INDEX_D_TS))).toBe(true);
             expect(existsSync(projects.children.b.filePath(INDEX_D_TS))).toBe(false);
@@ -691,12 +696,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../b/src/index.gts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
 
               1 const B: number = 'ahoy';
                       ~
+
+
+              Found 1 error.
               "
             `);
 
@@ -709,12 +716,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.b.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "src/index.gts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
 
               1 const B: number = 'ahoy';
                       ~
+
+
+              Found 1 error.
               "
             `);
 
@@ -739,8 +748,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../b/src/index.gts:1:27 - error TS0: Parse error on line 1:
               {{123}
               -----^
@@ -760,8 +768,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.b.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "src/index.gts:1:27 - error TS0: Parse error on line 1:
               {{123}
               -----^
@@ -794,12 +801,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../b/src/index.gts:2:34 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
               2 const Usage = <template>{{double "hello"}}</template>;
                                                  ~~~~~~~
+
+
+              Found 1 error.
               "
             `);
 
@@ -812,12 +821,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.b.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "src/index.gts:2:34 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
               2 const Usage = <template>{{double "hello"}}</template>;
                                                  ~~~~~~~
+
+
+              Found 1 error.
               "
             `);
 
@@ -878,12 +889,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../c/src/index.gts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
 
               1 const C: number = 'world';
                       ~
+
+
+              Found 1 error.
               "
             `);
 
@@ -896,12 +909,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../c/src/index.gts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
 
               1 const C: number = 'world';
                       ~
+
+
+              Found 1 error.
               "
             `);
 
@@ -914,12 +929,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.c.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "src/index.gts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.
 
               1 const C: number = 'world';
                       ~
+
+
+              Found 1 error.
               "
             `);
 
@@ -944,8 +961,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../c/src/index.gts:1:25 - error TS0: Parse error on line 1:
               {{123}
               -----^
@@ -965,8 +981,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../c/src/index.gts:1:25 - error TS0: Parse error on line 1:
               {{123}
               -----^
@@ -986,8 +1001,7 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.c.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "src/index.gts:1:25 - error TS0: Parse error on line 1:
               {{123}
               -----^
@@ -1020,12 +1034,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.main.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(2);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../c/src/index.gts:2:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
               2 const useDouble = <template>{{double "hello"}}</template>;
                                                      ~~~~~~~
+
+
+              Found 1 error.
               "
             `);
 
@@ -1038,12 +1054,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.a.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "../c/src/index.gts:2:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
               2 const useDouble = <template>{{double "hello"}}</template>;
                                                      ~~~~~~~
+
+
+              Found 1 error.
               "
             `);
 
@@ -1056,12 +1074,14 @@ describe('CLI: single-pass build mode typechecking', () => {
             let checkResult = await projects.children.c.buildDeclaration({ reject: false });
 
             expect(checkResult.exitCode).toBe(1);
-            expect(checkResult.stdout).toEqual('');
-            expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+            expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
               "src/index.gts:2:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
               2 const useDouble = <template>{{double "hello"}}</template>;
                                                      ~~~~~~~
+
+
+              Found 1 error.
               "
             `);
 
@@ -1075,7 +1095,7 @@ describe('CLI: single-pass build mode typechecking', () => {
   });
 });
 
-describe.skip('CLI: --build --clean', () => {
+describe('CLI: --build --clean', () => {
   test('for basic projects', async () => {
     let project = await Project.createExact(BASE_TS_CONFIG);
 
@@ -1169,7 +1189,7 @@ describe.skip('CLI: --build --clean', () => {
   });
 });
 
-describe.skip('CLI: --build --force', () => {
+describe('CLI: --build --force', () => {
   test('for basic projects', async () => {
     let project = await Project.createExact(BASE_TS_CONFIG);
 
@@ -1281,7 +1301,7 @@ describe.skip('CLI: --build --force', () => {
   });
 });
 
-describe.skip('CLI: --build --dry', () => {
+describe('CLI: --build --dry', () => {
   describe('for basic strict-mode projects', () => {
     let project!: Project;
     beforeEach(async () => {
