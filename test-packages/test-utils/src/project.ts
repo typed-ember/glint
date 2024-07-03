@@ -56,7 +56,8 @@ export class Project {
     return pathUtils.filePathToUri(this.filePath(fileName));
   }
 
-  public async startLanguageServer(): Promise<unknown> {
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  public async startLanguageServer() {
     if (this.languageServerHandle) {
       throw new Error('Language server is already running');
     }
