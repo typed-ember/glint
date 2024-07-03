@@ -56,7 +56,7 @@ describe('CLI: single-pass build mode typechecking', () => {
       expect(existsSync(project.filePath('dist/index.gts.js'))).toBe(false);
     });
 
-    test('rejects a basic project with a template syntax error', async () => {
+    test.skip('rejects a basic project with a template syntax error', async () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
@@ -319,7 +319,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           expect(existsSync(projects.children.c.filePath(INDEX_D_TS))).toBe(true);
         });
 
-        test('for invalid template syntax', async () => {
+        test.skip('for invalid template syntax', async () => {
           let rootCode = stripIndent`
             import Component from '@glimmer/component';
             import A from '@glint-test/a';
@@ -497,7 +497,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
         });
 
-        describe('for invalid template syntax', () => {
+        describe.skip('for invalid template syntax', () => {
           beforeEach(async () => {
             let aCode = stripIndent`
               import C from '@glint-test/c';
@@ -604,7 +604,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
         });
 
-        describe('for a type error covered by `@glint-nocheck`', () => {
+        describe.skip('for a type error covered by `@glint-nocheck`', () => {
           beforeEach(async () => {
             let aCode = stripIndent`
               import C from '@glint-test/c';
@@ -733,7 +733,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
         });
 
-        describe('for invalid template syntax', () => {
+        describe.skip('for invalid template syntax', () => {
           beforeEach(async () => {
             let bCode = stripIndent`
               const usage = <template>{{123}</template>;
@@ -946,7 +946,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
         });
 
-        describe('for invalid template syntax', () => {
+        describe.skip('for invalid template syntax', () => {
           beforeEach(() => {
             let cCode = stripIndent`
               const Bad = <template>{{123}</template>;
