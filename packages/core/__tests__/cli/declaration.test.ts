@@ -1,11 +1,11 @@
 import { stripIndent } from 'common-tags';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
-import { Project } from 'glint-monorepo-test-utils';
+import { Project, BASE_TS_CONFIG } from 'glint-monorepo-test-utils';
 
-describe.skip('CLI: emitting declarations', () => {
+describe('CLI: emitting declarations', () => {
   let project!: Project;
   beforeEach(async () => {
-    project = await Project.create();
+    project = await Project.create(BASE_TS_CONFIG);
   });
 
   afterEach(async () => {
@@ -32,11 +32,11 @@ describe.skip('CLI: emitting declarations', () => {
 
     project.write('index.gts', code);
 
-    let emitResult = await project.check({ flags: ['--declaration'] });
+    let emitResult = await project.buildDeclaration();
 
     expect(emitResult.exitCode).toBe(0);
 
-    expect(project.read('index.d.ts')).toMatchInlineSnapshot(`
+    expect(project.read('dist/index.gts.d.ts')).toMatchInlineSnapshot(`
       "import Component from '@glimmer/component';
       export interface ApplicationArgs {
           version: string;
@@ -50,7 +50,7 @@ describe.skip('CLI: emitting declarations', () => {
     `);
   });
 
-  test('emit for a valid project with standalone template files', async () => {
+  test.skip('emit for a valid project with standalone template files', async () => {
     let classComponentScript = stripIndent`
       import Component from '@glimmer/component';
 
