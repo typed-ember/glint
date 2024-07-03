@@ -305,7 +305,7 @@ describe('Language Server: custom file extensions', () => {
       let server = await project.startLanguageServer();
 
       const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-      let diagnostics = await server.sendDocumentDiagnosticRequest(uri) as any;
+      let diagnostics = (await server.sendDocumentDiagnosticRequest(uri)) as any;
 
       expect(diagnostics.items).toEqual([]);
     });
