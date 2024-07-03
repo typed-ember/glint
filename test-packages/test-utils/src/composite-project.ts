@@ -9,7 +9,11 @@ export const INPUT_SCRIPT = path.join(INPUT_DIR, 'index.ts');
 export const INPUT_TEMPLATE = path.join(INPUT_DIR, 'index.hbs');
 
 export const OUT_DIR = 'dist';
-export const INDEX_D_TS = path.join(OUT_DIR, 'index.d.ts');
+
+// Changed for Volar from `index.d.ts`. Changing to `index.gts.d.ts` brings
+// this more closely in line with Vue and others' solutions for `.d.ts` files
+// on custom extensions, but we need to see how wide the breaking changes are.
+export const INDEX_D_TS = path.join(OUT_DIR, 'index.gts.d.ts');
 
 export const BASE_TS_CONFIG = {
   compilerOptions: {
@@ -67,6 +71,27 @@ export async function setupCompositeProject(): Promise<CompositeProject> {
   root.mkdir('local-types');
   root.write('local-types/index.d.ts', 'import "@glint/environment-ember-template-imports";');
 
+  /**
+   * Project Structure:
+   *
+   *         ---> a
+   *       /
+   * - main
+   *       \
+   *         ---> b ---> c
+   *
+   * Flattened:
+   *
+   * - main
+   *   - reference/dependency a
+   *   - reference/dependency b
+   * - a
+   *   - reference/dependency c
+   * - b
+   *   - no references
+   * - c
+   *   - no references
+   */
   let main = await Project.createExact(
     {
       extends: `../${SHARED_TSCONFIG}`,
