@@ -15,7 +15,7 @@ export function run(): void {
 
     // Uncomment this to produce `basename.d.ts` files instead of `basename.gts.d.ts`
     // extensionsToRemove: ['.gts', '.gjs'],
-  }
+  };
 
   const main = (): void =>
     runTsc(require.resolve('typescript/lib/tsc'), options, (ts, options) => {
