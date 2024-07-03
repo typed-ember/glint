@@ -1,4 +1,4 @@
-# Glint [![CI](https://github.com/typed-ember/glint/workflows/CI/badge.svg)](https://github.com/typed-ember/glint/actions?query=workflow%3ACI)
+# Glint [![CI](https://github.com/typed-ember/glint/actions/workflows/ci.yml/badge.svg)](https://github.com/typed-ember/glint/actions?query=workflow%3ACI)
 
 TypeScript-powered tooling for Glimmer templates.
 
