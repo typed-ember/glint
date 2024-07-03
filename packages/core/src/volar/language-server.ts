@@ -33,7 +33,8 @@ const server = createServer(connection);
  * other initialization params needed by the server.
  */
 connection.onInitialize((parameters) => {
-  const project = createTypeScriptProject(ts, undefined, (env, { configFileName }) => {
+  const project = createTypeScriptProject(ts, undefined, (projectContext) => {
+    const configFileName = projectContext.configFileName;
     const languagePlugins = [];
 
     // I don't remember why but there are some contexts where a configFileName is not known,
@@ -55,7 +56,23 @@ connection.onInitialize((parameters) => {
       }
     }
 
-    return languagePlugins;
+    return {
+      languagePlugins,
+      setup(language) {
+        /**
+         * declare module '@volar/language-service' {
+            export interface ProjectContext {
+              vue?: {
+                compilerOptions: VueCompilerOptions;
+              };
+            }
+          }
+         */
+        // language.vue = {
+        //   compilerOptions: vueCompilerOptions,
+        // };
+      },
+    };
   });
   return server.initialize(
     parameters,
