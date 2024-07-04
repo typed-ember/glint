@@ -235,28 +235,35 @@ export default class TransformedModule {
    * - `[[ZEROLEN-A]]χ.emitContent(χ.resolveOrReturn([[expectsAtLeastOneArg]])());[[ZEROLEN-B]]`
    */
   public toVolarMappings(): CodeMapping[] {
-    type Mapping = {
-      sourceOffset: number;
-      generatedOffset: number;
-      length: number;
-    };
+    const sourceOffsets: number[] = [];
+    const generatedOffsets: number[] = [];
+    const lengths: number[] = [];
 
-    const resultMappings: Mapping[] = [];
+    const push = (sourceOffset: number, generatedOffset: number, length: number): void => {
+      if (sourceOffsets.length > 0) {
+        // TODO: these assertions are firing for certain files/transformations, which means
+        // we're emitting unsorted mappings, which means volar has to fall back to an inefficient
+        // source mapping algorithm rather than using binary search:
+        // https://github.com/volarjs/volar.js/blob/3798f27684f5c671f06bf7a19e32bc489e652e14/packages/source-map/lib/translateOffset.ts#L18
+        //
+        // The fix for this is probably somewhere in the `template-to-typescript.ts` file, but I
+        // don't have a sense for how complicated that'll be.
 
-    const push = (mapping: Mapping): void => {
-      if (resultMappings.length > 0) {
-        const lastMapping = resultMappings[resultMappings.length - 1];
-        if (mapping.sourceOffset < lastMapping.sourceOffset) {
-          throw new Error('source offsets must be sorted in ascending order');
-        }
+        // assert(
+        //   sourceOffset >= sourceOffsets[sourceOffsets.length - 1],
+        //   'Source offsets should be monotonically increasing',
+        // );
 
-        if (mapping.generatedOffset < lastMapping.generatedOffset) {
-          throw new Error('generated offsets must be sorted in ascending order');
-        }
+        // assert(
+        //   generatedOffset >= generatedOffsets[generatedOffsets.length - 1],
+        //   'Generated offsets should be monotonically increasing',
+        // );
       }
 
-      resultMappings.push(mapping);
-    }
+      sourceOffsets.push(sourceOffset);
+      generatedOffsets.push(generatedOffset);
+      lengths.push(length);
+    };
 
     let recurse = (span: CorrelatedSpan, mapping: MappingTree): void => {
       const children = mapping.children;
@@ -277,59 +284,22 @@ export default class TransformedModule {
           // generatedOffsets.push(tsStart);
           // lengths.push(hbsLength);
 
-          push({
-            sourceOffset: hbsStart,
-            generatedOffset: tsStart,
-            length: hbsLength,
-          });
+          push(hbsStart, tsStart, hbsLength);
         } else {
           // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
           if (hbsLength > 0 && tsLength > 0) {
-            // sourceOffsets.push(hbsStart);
-            // generatedOffsets.push(tsStart);
-            // lengths.push(0);
-
-            push({
-              sourceOffset: hbsStart,
-              generatedOffset: tsStart,
-              length: 0,
-            });
-
-            // sourceOffsets.push(hbsEnd);
-            // generatedOffsets.push(tsEnd);
-            // lengths.push(0);
-
-            push({
-              sourceOffset: hbsEnd,
-              generatedOffset: tsEnd,
-              length: 0,
-            });
+            push(hbsStart, tsStart, 0);
+            push(hbsEnd, tsEnd, 0);
           }
         }
       } else {
-        // sourceOffsets.push(hbsStart);
-        // generatedOffsets.push(tsStart);
-        // lengths.push(0);
-
-        push({
-          sourceOffset: hbsStart,
-          generatedOffset: tsStart,
-          length: 0,
-        });
+        push(hbsStart, tsStart, 0);
 
         mapping.children.forEach((child) => {
           recurse(span, child);
         });
 
-        // sourceOffsets.push(hbsEnd);
-        // generatedOffsets.push(tsEnd);
-        // lengths.push(0);
-
-        push({
-          sourceOffset: hbsEnd,
-          generatedOffset: tsEnd,
-          length: 0,
-        });
+        push(hbsEnd, tsEnd, 0);
       }
     };
 
@@ -352,49 +322,10 @@ export default class TransformedModule {
         // );
 
         if (span.originalLength === span.transformedLength) {
-          // sourceOffsets.push(span.originalStart);
-          // generatedOffsets.push(span.transformedStart);
-          // lengths.push(span.originalLength);
-
-          push({
-            sourceOffset: span.originalStart,
-            generatedOffset: span.transformedStart,
-            length: span.originalLength,
-          });
+          push(span.originalStart, span.transformedStart, span.originalLength);
         }
       }
     });
-
-    resultMappings.sort((a, b) => {
-      let sourceComparison = a.sourceOffset - b.sourceOffset;
-      if (sourceComparison !== 0) {
-        return sourceComparison;
-      }
-      
-      return a.generatedOffset - b.generatedOffset;
-    });
-
-    const sourceOffsets: number[] = [];
-    const generatedOffsets: number[] = [];
-    const lengths: number[] = [];
-
-    // unsortedMapping.forEach((mapping) => {
-    //   sourceOffsets.push(mapping.sourceOffset);
-    //   generatedOffsets.push(mapping.generatedOffset);
-    //   lengths.push(mapping.length);
-    // });
-
-    // we have a constraint here that sourceOffets AND generatedOffsets need to be monotonically increasing.
-
-    const isSourceOffsetsSorted = sourceOffsets.every((value, index) => index === 0 || sourceOffsets[index - 1] <= value);
-    if (!isSourceOffsetsSorted) {
-        throw new Error('source offsets must be sorted in ascending order');
-    }
-
-    const isGeneratedOffsetsSorted = generatedOffsets.every((value, index) => index === 0 || generatedOffsets[index - 1] <= value);
-    if (!isGeneratedOffsetsSorted) {
-        throw new Error('generated offsets must be sorted in ascending order');
-    }
 
     return [
       {
