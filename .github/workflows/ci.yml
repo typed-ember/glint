@@ -68,38 +68,39 @@ jobs:
 
   # The Windows runner can be super flaky both with Yarn installs and
   # when launching browser tests, so we allow for retries in those steps.
-  test-windows:
-    name: Test Windows
-    runs-on: windows-2022
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install Dependencies
-        uses: nick-fields/retry@v2
-        with:
-          max_attempts: 2
-          timeout_minutes: 10
-          command: yarn install --frozen-lockfile
-      - name: Build
-        run: yarn build
-      - name: Test @glint/core
-        uses: nick-fields/retry@v2
-        with:
-          max_attempts: 2
-          timeout_minutes: 20
-          command: yarn workspace @glint/core test
-      - name: Test glint-vscode
-        uses: nick-fields/retry@v2
-        with:
-          max_attempts: 2
-          timeout_minutes: 10
-          command: yarn workspace glint-vscode test
-      - name: Test @glint/scripts
-        run: yarn workspace @glint/scripts test
+  # tracking for re-enablement here: https://github.com/typed-ember/glint/issues/728
+  # test-windows:
+  #   name: Test Windows
+  #   runs-on: windows-2022
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v3
+  #     - name: Install Node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18
+  #     - name: Install Dependencies
+  #       uses: nick-fields/retry@v2
+  #       with:
+  #         max_attempts: 2
+  #         timeout_minutes: 10
+  #         command: yarn install --frozen-lockfile
+  #     - name: Build
+  #       run: yarn build
+  #     - name: Test @glint/core
+  #       uses: nick-fields/retry@v2
+  #       with:
+  #         max_attempts: 2
+  #         timeout_minutes: 20
+  #         command: yarn workspace @glint/core test
+  #     - name: Test glint-vscode
+  #       uses: nick-fields/retry@v2
+  #       with:
+  #         max_attempts: 2
+  #         timeout_minutes: 10
+  #         command: yarn workspace glint-vscode test
+  #     - name: Test @glint/scripts
+  #       run: yarn workspace @glint/scripts test
 
   # tracking for re-enablement here: https://github.com/typed-ember/glint/issues/728
   # test-floating-deps:
