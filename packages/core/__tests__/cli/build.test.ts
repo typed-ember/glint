@@ -1095,6 +1095,7 @@ describe('CLI: single-pass build mode typechecking', () => {
   });
 });
 
+// This can't be fixed with an upsteam (Volar or `tsc`) fix. See `run-volar-tsc.rs` for more info.
 describe.skip('CLI: --build --clean', () => {
   test('for basic projects', async () => {
     let project = await Project.createExact(BASE_TS_CONFIG);
@@ -1121,11 +1122,13 @@ describe.skip('CLI: --build --clean', () => {
 
     let buildResult = await project.buildDeclaration();
     expect(buildResult.exitCode).toBe(0);
-    expect(existsSync(project.filePath(INDEX_D_TS))).toBe(true);
+    expect(existsSync(project.filePath('dist/index.d.ts'))).toBe(true);
+    // expect(existsSync(project.filePath(INDEX_D_TS))).toBe(true);
 
     let buildCleanResult = await project.buildClean();
     expect(buildCleanResult.exitCode).toBe(0);
-    expect(existsSync(project.filePath(INDEX_D_TS))).toBe(false);
+    expect(existsSync(project.filePath('dist/index.d.ts'))).toBe(false);
+    // expect(existsSync(project.filePath(INDEX_D_TS))).toBe(false);
   });
 
   test('for composite projects', async () => {
