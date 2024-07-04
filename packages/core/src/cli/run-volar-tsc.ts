@@ -6,11 +6,23 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 
 export function run(): void {
-  let runExtensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
   let cwd = process.cwd();
 
+  const options = {
+    extraSupportedExtensions: ['.gjs', '.gts', '.hbs'],
+
+    extraExtensionsToRemove: [],
+
+    // With the above configuration, `{basename}.gts` will produce `{basename}.gts.d.ts`.
+    // If we would prefer `{basename}.d.ts`, we could use the following configuration instead:
+    //
+    // extraExtensionsToRemove: ['.gts', '.gjs'],
+    //
+    // See discussion here: https://github.com/typed-ember/glint/issues/628
+  };
+
   const main = (): void =>
-    runTsc(require.resolve('typescript/lib/tsc'), runExtensions, (ts, options) => {
+    runTsc(require.resolve('typescript/lib/tsc'), options, (ts, options) => {
       const glintConfig = findConfig(cwd);
 
       // NOTE: this code used to assert in the failure of finding Glint config; I'm

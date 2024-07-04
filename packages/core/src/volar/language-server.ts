@@ -33,7 +33,8 @@ const server = createServer(connection);
  * other initialization params needed by the server.
  */
 connection.onInitialize((parameters) => {
-  const project = createTypeScriptProject(ts, undefined, (env, { configFileName }) => {
+  const project = createTypeScriptProject(ts, undefined, (projectContext) => {
+    const configFileName = projectContext.configFileName;
     const languagePlugins = [];
 
     // I don't remember why but there are some contexts where a configFileName is not known,
@@ -55,7 +56,13 @@ connection.onInitialize((parameters) => {
       }
     }
 
-    return languagePlugins;
+    return {
+      languagePlugins,
+      setup(_language) {
+        // Vue tooling takes this opportunity to stash compilerOptions on `language.vue`;
+        // do we need to be doing something here?
+      },
+    };
   });
   return server.initialize(
     parameters,
@@ -100,6 +107,7 @@ connection.onInitialize((parameters) => {
         return plugin;
       }
     }),
+    { pullModelDiagnostics: true },
   );
 });
 

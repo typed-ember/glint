@@ -1095,7 +1095,7 @@ describe('CLI: single-pass build mode typechecking', () => {
   });
 });
 
-describe.skip('CLI: --build --clean', () => {
+describe('CLI: --build --clean', () => {
   test('for basic projects', async () => {
     let project = await Project.createExact(BASE_TS_CONFIG);
 
@@ -1121,11 +1121,11 @@ describe.skip('CLI: --build --clean', () => {
 
     let buildResult = await project.buildDeclaration();
     expect(buildResult.exitCode).toBe(0);
-    expect(existsSync(project.filePath(INDEX_D_TS))).toBe(true);
+    expect(existsSync(project.filePath('dist/index.gts.d.ts'))).toBe(true);
 
     let buildCleanResult = await project.buildClean();
     expect(buildCleanResult.exitCode).toBe(0);
-    expect(existsSync(project.filePath(INDEX_D_TS))).toBe(false);
+    expect(existsSync(project.filePath('dist/index.gts.d.ts'))).toBe(false);
   });
 
   test('for composite projects', async () => {

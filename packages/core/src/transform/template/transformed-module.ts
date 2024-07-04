@@ -239,6 +239,30 @@ export default class TransformedModule {
     const generatedOffsets: number[] = [];
     const lengths: number[] = [];
 
+    const push = (sourceOffset: number, generatedOffset: number, length: number): void => {
+      if (sourceOffsets.length > 0) {
+        // TODO: these assertions are firing for certain files/transformations, which means
+        // we're emitting unsorted mappings, which means volar has to fall back to an inefficient
+        // source mapping algorithm rather than using binary search:
+        // https://github.com/volarjs/volar.js/blob/3798f27684f5c671f06bf7a19e32bc489e652e14/packages/source-map/lib/translateOffset.ts#L18
+        //
+        // The fix for this is probably somewhere in the `template-to-typescript.ts` file, but I
+        // don't have a sense for how complicated that'll be.
+        // assert(
+        //   sourceOffset >= sourceOffsets[sourceOffsets.length - 1],
+        //   'Source offsets should be monotonically increasing',
+        // );
+        // assert(
+        //   generatedOffset >= generatedOffsets[generatedOffsets.length - 1],
+        //   'Generated offsets should be monotonically increasing',
+        // );
+      }
+
+      sourceOffsets.push(sourceOffset);
+      generatedOffsets.push(generatedOffset);
+      lengths.push(length);
+    };
+
     let recurse = (span: CorrelatedSpan, mapping: MappingTree): void => {
       const children = mapping.children;
       let { originalRange, transformedRange } = mapping;
@@ -254,32 +278,22 @@ export default class TransformedModule {
         if (hbsLength === tsLength) {
           // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
           // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
-          sourceOffsets.push(hbsStart);
-          generatedOffsets.push(tsStart);
-          lengths.push(hbsLength);
+          push(hbsStart, tsStart, hbsLength);
         } else {
           // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
           if (hbsLength > 0 && tsLength > 0) {
-            sourceOffsets.push(hbsStart);
-            generatedOffsets.push(tsStart);
-            lengths.push(0);
-            sourceOffsets.push(hbsEnd);
-            generatedOffsets.push(tsEnd);
-            lengths.push(0);
+            push(hbsStart, tsStart, 0);
+            push(hbsEnd, tsEnd, 0);
           }
         }
       } else {
-        sourceOffsets.push(hbsStart);
-        generatedOffsets.push(tsStart);
-        lengths.push(0);
+        push(hbsStart, tsStart, 0);
 
         mapping.children.forEach((child) => {
           recurse(span, child);
         });
 
-        sourceOffsets.push(hbsEnd);
-        generatedOffsets.push(tsEnd);
-        lengths.push(0);
+        push(hbsEnd, tsEnd, 0);
       }
     };
 
@@ -302,9 +316,7 @@ export default class TransformedModule {
         // );
 
         if (span.originalLength === span.transformedLength) {
-          sourceOffsets.push(span.originalStart);
-          generatedOffsets.push(span.transformedStart);
-          lengths.push(span.originalLength);
+          push(span.originalStart, span.transformedStart, span.originalLength);
         }
       }
     });
@@ -322,7 +334,8 @@ export default class TransformedModule {
           semantic: true,
           structure: true,
           verification: true,
-        },
+          transformedContents: this.transformedContents, // TODO REMOVE
+        } as any,
       },
     ];
   }
