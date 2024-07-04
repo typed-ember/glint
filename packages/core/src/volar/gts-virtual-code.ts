@@ -78,12 +78,13 @@ export class VirtualGtsCode implements VirtualCode {
     this.transformedModule = transformedModule;
 
     if (transformedModule) {
+      const mappings = transformedModule.toVolarMappings();
       this.embeddedCodes = [
         {
           embeddedCodes: [],
           id: 'ts',
           languageId: 'typescript',
-          mappings: transformedModule.toVolarMappings(),
+          mappings,
           snapshot: new ScriptSnapshot(transformedModule.transformedContents),
           directives: transformedModule.directives,
         },

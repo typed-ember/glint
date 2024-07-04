@@ -235,9 +235,28 @@ export default class TransformedModule {
    * - `[[ZEROLEN-A]]χ.emitContent(χ.resolveOrReturn([[expectsAtLeastOneArg]])());[[ZEROLEN-B]]`
    */
   public toVolarMappings(): CodeMapping[] {
-    const sourceOffsets: number[] = [];
-    const generatedOffsets: number[] = [];
-    const lengths: number[] = [];
+    type Mapping = {
+      sourceOffset: number;
+      generatedOffset: number;
+      length: number;
+    };
+
+    const resultMappings: Mapping[] = [];
+
+    const push = (mapping: Mapping): void => {
+      if (resultMappings.length > 0) {
+        const lastMapping = resultMappings[resultMappings.length - 1];
+        if (mapping.sourceOffset < lastMapping.sourceOffset) {
+          throw new Error('source offsets must be sorted in ascending order');
+        }
+
+        if (mapping.generatedOffset < lastMapping.generatedOffset) {
+          throw new Error('generated offsets must be sorted in ascending order');
+        }
+      }
+
+      resultMappings.push(mapping);
+    }
 
     let recurse = (span: CorrelatedSpan, mapping: MappingTree): void => {
       const children = mapping.children;
@@ -254,32 +273,63 @@ export default class TransformedModule {
         if (hbsLength === tsLength) {
           // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
           // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
-          sourceOffsets.push(hbsStart);
-          generatedOffsets.push(tsStart);
-          lengths.push(hbsLength);
+          // sourceOffsets.push(hbsStart);
+          // generatedOffsets.push(tsStart);
+          // lengths.push(hbsLength);
+
+          push({
+            sourceOffset: hbsStart,
+            generatedOffset: tsStart,
+            length: hbsLength,
+          });
         } else {
           // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
           if (hbsLength > 0 && tsLength > 0) {
-            sourceOffsets.push(hbsStart);
-            generatedOffsets.push(tsStart);
-            lengths.push(0);
-            sourceOffsets.push(hbsEnd);
-            generatedOffsets.push(tsEnd);
-            lengths.push(0);
+            // sourceOffsets.push(hbsStart);
+            // generatedOffsets.push(tsStart);
+            // lengths.push(0);
+
+            push({
+              sourceOffset: hbsStart,
+              generatedOffset: tsStart,
+              length: 0,
+            });
+
+            // sourceOffsets.push(hbsEnd);
+            // generatedOffsets.push(tsEnd);
+            // lengths.push(0);
+
+            push({
+              sourceOffset: hbsEnd,
+              generatedOffset: tsEnd,
+              length: 0,
+            });
           }
         }
       } else {
-        sourceOffsets.push(hbsStart);
-        generatedOffsets.push(tsStart);
-        lengths.push(0);
+        // sourceOffsets.push(hbsStart);
+        // generatedOffsets.push(tsStart);
+        // lengths.push(0);
+
+        push({
+          sourceOffset: hbsStart,
+          generatedOffset: tsStart,
+          length: 0,
+        });
 
         mapping.children.forEach((child) => {
           recurse(span, child);
         });
 
-        sourceOffsets.push(hbsEnd);
-        generatedOffsets.push(tsEnd);
-        lengths.push(0);
+        // sourceOffsets.push(hbsEnd);
+        // generatedOffsets.push(tsEnd);
+        // lengths.push(0);
+
+        push({
+          sourceOffset: hbsEnd,
+          generatedOffset: tsEnd,
+          length: 0,
+        });
       }
     };
 
@@ -302,12 +352,49 @@ export default class TransformedModule {
         // );
 
         if (span.originalLength === span.transformedLength) {
-          sourceOffsets.push(span.originalStart);
-          generatedOffsets.push(span.transformedStart);
-          lengths.push(span.originalLength);
+          // sourceOffsets.push(span.originalStart);
+          // generatedOffsets.push(span.transformedStart);
+          // lengths.push(span.originalLength);
+
+          push({
+            sourceOffset: span.originalStart,
+            generatedOffset: span.transformedStart,
+            length: span.originalLength,
+          });
         }
       }
     });
+
+    resultMappings.sort((a, b) => {
+      let sourceComparison = a.sourceOffset - b.sourceOffset;
+      if (sourceComparison !== 0) {
+        return sourceComparison;
+      }
+      
+      return a.generatedOffset - b.generatedOffset;
+    });
+
+    const sourceOffsets: number[] = [];
+    const generatedOffsets: number[] = [];
+    const lengths: number[] = [];
+
+    // unsortedMapping.forEach((mapping) => {
+    //   sourceOffsets.push(mapping.sourceOffset);
+    //   generatedOffsets.push(mapping.generatedOffset);
+    //   lengths.push(mapping.length);
+    // });
+
+    // we have a constraint here that sourceOffets AND generatedOffsets need to be monotonically increasing.
+
+    const isSourceOffsetsSorted = sourceOffsets.every((value, index) => index === 0 || sourceOffsets[index - 1] <= value);
+    if (!isSourceOffsetsSorted) {
+        throw new Error('source offsets must be sorted in ascending order');
+    }
+
+    const isGeneratedOffsetsSorted = generatedOffsets.every((value, index) => index === 0 || generatedOffsets[index - 1] <= value);
+    if (!isGeneratedOffsetsSorted) {
+        throw new Error('generated offsets must be sorted in ascending order');
+    }
 
     return [
       {
@@ -322,7 +409,8 @@ export default class TransformedModule {
           semantic: true,
           structure: true,
           verification: true,
-        },
+          transformedContents: this.transformedContents, // TODO REMOVE
+        } as any,
       },
     ];
   }
