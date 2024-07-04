@@ -58,19 +58,9 @@ connection.onInitialize((parameters) => {
 
     return {
       languagePlugins,
-      setup(language) {
-        /**
-         * declare module '@volar/language-service' {
-            export interface ProjectContext {
-              vue?: {
-                compilerOptions: VueCompilerOptions;
-              };
-            }
-          }
-         */
-        // language.vue = {
-        //   compilerOptions: vueCompilerOptions,
-        // };
+      setup(_language) {
+        // Vue tooling takes this opportunity to stash compilerOptions on `language.vue`;
+        // do we need to be doing something here?
       },
     };
   });

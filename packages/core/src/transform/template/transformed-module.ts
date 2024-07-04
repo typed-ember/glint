@@ -248,12 +248,10 @@ export default class TransformedModule {
         //
         // The fix for this is probably somewhere in the `template-to-typescript.ts` file, but I
         // don't have a sense for how complicated that'll be.
-
         // assert(
         //   sourceOffset >= sourceOffsets[sourceOffsets.length - 1],
         //   'Source offsets should be monotonically increasing',
         // );
-
         // assert(
         //   generatedOffset >= generatedOffsets[generatedOffsets.length - 1],
         //   'Generated offsets should be monotonically increasing',
@@ -280,10 +278,6 @@ export default class TransformedModule {
         if (hbsLength === tsLength) {
           // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
           // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
-          // sourceOffsets.push(hbsStart);
-          // generatedOffsets.push(tsStart);
-          // lengths.push(hbsLength);
-
           push(hbsStart, tsStart, hbsLength);
         } else {
           // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
