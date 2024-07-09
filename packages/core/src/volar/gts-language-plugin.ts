@@ -43,8 +43,8 @@ export function createGtsLanguagePlugin<T extends URI | string>(
       if (
         languageId === 'typescript' &&
         !scriptId.endsWith('.d.ts') &&
-        scriptId.indexOf('/node_modules/') < 0 &&
-        scriptId.indexOf('components/') >= 0 // match anything in the components directory
+        scriptId.indexOf('/node_modules/') < 0
+        // scriptId.indexOf('components/') >= 0 // match anything in the components directory
       ) {
         // let virtualCode = ngTcbBlocks.get(scriptId);
         // if (!virtualCode) {

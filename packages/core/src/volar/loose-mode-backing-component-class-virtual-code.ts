@@ -42,12 +42,6 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
     this.snapshot = snapshot;
     const length = snapshot.getLength();
 
-    // Define a single mapping for the root virtual code (the .gts file).
-    // The original MDX docs describe the root virtual code mappings are as:
-    //
-    // > The code mappings of the MDX file. There is always only one mapping.
-    //
-    // I guess it's some "identity" mapping that describes the whole file? I don't know.
     this.mappings[0] = {
       sourceOffsets: [0],
       generatedOffsets: [0],
@@ -77,56 +71,56 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
 
     this.transformedModule = transformedModule;
 
-    if (transformedModule) {
-      const mappings = transformedModule.toVolarMappings();
-      this.embeddedCodes = [
-        {
-          embeddedCodes: [],
-          id: 'ts',
-          languageId: 'typescript',
-          mappings,
-          snapshot: new ScriptSnapshot(transformedModule.transformedContents),
-          directives: transformedModule.directives,
-        },
-      ];
-    } else {
-      // Null transformed module means there's no embedded HBS templates,
-      // so just return a full "no-op" mapping from source to transformed.
-      this.embeddedCodes = [
-        {
-          embeddedCodes: [],
-          id: 'ts',
-          languageId: 'typescript',
-          mappings: [
-            // The Volar mapping that maps all TS syntax of the MDX file to the virtual TS file.
-            // So I think in the case of a Single-File-Component (1 <template> tag surrounded by TS),
-            // You'll end up with 2 entries in sourceOffets, representing before the <template> and after the </template>.
-            {
-              // sourceOffsets: [],
-              // generatedOffsets: [],
-              // lengths: [],
+    // if (transformedModule) {
+    //   const mappings = transformedModule.toVolarMappings();
+    //   this.embeddedCodes = [
+    //     {
+    //       embeddedCodes: [],
+    //       id: 'ts',
+    //       languageId: 'typescript',
+    //       mappings,
+    //       snapshot: new ScriptSnapshot(transformedModule.transformedContents),
+    //       directives: transformedModule.directives,
+    //     },
+    //   ];
+    // } else {
+    //   // Null transformed module means there's no embedded HBS templates,
+    //   // so just return a full "no-op" mapping from source to transformed.
+    //   this.embeddedCodes = [
+    //     {
+    //       embeddedCodes: [],
+    //       id: 'ts',
+    //       languageId: 'typescript',
+    //       mappings: [
+    //         // The Volar mapping that maps all TS syntax of the MDX file to the virtual TS file.
+    //         // So I think in the case of a Single-File-Component (1 <template> tag surrounded by TS),
+    //         // You'll end up with 2 entries in sourceOffets, representing before the <template> and after the </template>.
+    //         {
+    //           // sourceOffsets: [],
+    //           // generatedOffsets: [],
+    //           // lengths: [],
 
-              // Hacked hardwired values for now.
-              sourceOffsets: [0],
-              generatedOffsets: [0],
-              lengths: [length],
+    //           // Hacked hardwired values for now.
+    //           sourceOffsets: [0],
+    //           generatedOffsets: [0],
+    //           lengths: [length],
 
-              // This controls which language service features are enabled within this root virtual code.
-              // Since this is just .ts, we want all of them enabled.
-              data: {
-                completion: true,
-                format: false,
-                navigation: true,
-                semantic: true,
-                structure: true,
-                verification: true,
-              },
-            },
-          ],
-          snapshot: new ScriptSnapshot(contents),
-          directives: [],
-        },
-      ];
-    }
+    //           // This controls which language service features are enabled within this root virtual code.
+    //           // Since this is just .ts, we want all of them enabled.
+    //           data: {
+    //             completion: true,
+    //             format: false,
+    //             navigation: true,
+    //             semantic: true,
+    //             structure: true,
+    //             verification: true,
+    //           },
+    //         },
+    //       ],
+    //       snapshot: new ScriptSnapshot(contents),
+    //       directives: [],
+    //     },
+    //   ];
+    // }
   }
 }
