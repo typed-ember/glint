@@ -11,7 +11,8 @@ interface EmbeddedCodeWithDirectives extends VirtualCode {
 }
 
 /**
- * A Volar virtual code that contains some additional metadata for MDX files.
+ * A Volar VirtualCode representing .gts/.gjs files, which includes 0+ embedded
+ * Handlebars templates within <template> tags.
  */
 export class VirtualGtsCode implements VirtualCode {
   /**

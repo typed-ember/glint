@@ -1,13 +1,9 @@
-// import remarkMdx from 'remark-mdx'
-// import remarkParse from 'remark-parse'
-// import {unified} from 'unified'
 import { LanguagePlugin } from '@volar/language-core';
 import { VirtualGtsCode } from './gts-virtual-code.js';
 import type ts from 'typescript';
-import { GlintConfig, loadConfig } from '../index.js';
-import { assert } from '../transform/util.js';
-import { VirtualHandlebarsCode } from './handlebars-virtual-code.js';
+import { GlintConfig } from '../index.js';
 import { URI } from 'vscode-uri';
+import { LooseModeBackingComponentClassVirtualCode } from './loose-mode-backing-component-class-virtual-code.js';
 export type TS = typeof ts;
 
 /**
@@ -41,9 +37,24 @@ export function createGtsLanguagePlugin<T extends URI | string>(
     },
 
     createVirtualCode(uri, languageId, snapshot) {
-      // TODO: won't we need to point the TS component code to the same thing?
-      if (languageId === 'handlebars') {
-        return new VirtualHandlebarsCode(glintConfig, snapshot);
+      const scriptId = String(uri);
+
+      // See: https://github.com/JetBrains/intellij-plugins/blob/11a9149e20f4d4ba2c1600da9f2b81ff88bd7c97/Angular/src/angular-service/src/index.ts#L31
+      if (
+        languageId === 'typescript' &&
+        !scriptId.endsWith('.d.ts') &&
+        scriptId.indexOf('/node_modules/') < 0 &&
+        scriptId.indexOf('components/') >= 0 // match anything in the components directory
+      ) {
+        // let virtualCode = ngTcbBlocks.get(scriptId);
+        // if (!virtualCode) {
+        //   virtualCode = new AngularVirtualCode(scriptId, ctx, ts.sys.useCaseSensitiveFileNames);
+        //   ngTcbBlocks.set(scriptId, virtualCode);
+        // }
+        // return virtualCode.sourceFileUpdated(snapshot);
+
+        // Need a new VirtualCode LooseModeBackingComponentClassVirtualCode
+        return new LooseModeBackingComponentClassVirtualCode(glintConfig, snapshot);
       }
 
       if (languageId === 'glimmer-ts' || languageId === 'glimmer-js') {
@@ -51,9 +62,19 @@ export function createGtsLanguagePlugin<T extends URI | string>(
       }
     },
 
-    updateVirtualCode(uri, virtualCode, snapshot) {
-      (virtualCode as VirtualGtsCode).update(snapshot);
-      return virtualCode;
+    // This is the default implementation; should be able to comment out
+    // updateVirtualCode(uri, virtualCode, snapshot) {
+    //   (virtualCode as VirtualGtsCode | LooseModeBackingComponentClassVirtualCode).update(snapshot);
+    //   return virtualCode;
+    // },
+
+    isAssociatedFileOnly(_scriptId: string | URI, languageId: string): boolean {
+      // `ember-loose` only
+      //
+      // Because we declare handlebars files to be associated with "root" .ts files, we
+      // need to mark them here as "associated file only" so that TS doesn't attempt
+      // to type-check them directly, but rather indirectly via the .ts file.
+      return languageId === 'handlebars';
     },
 
     typescript: {
