@@ -915,7 +915,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test.skip('unresolved globals', async () => {
+  test.only('unresolved globals', async () => {
     project.setGlintConfig({ environment: ['ember-loose'] });
     project.write({
       'index.ts': stripIndent`
@@ -940,7 +940,8 @@ describe('Language Server: Diagnostic Augmentation', () => {
     });
 
     let server = await project.startLanguageServer();
-    let diagnostics = server.getDiagnostics(project.fileURI('index.hbs'));
+    const { uri } = await server.openTextDocument(project.filePath('index.hbs'), 'handlebars');
+    let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
     expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
       [

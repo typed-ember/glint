@@ -26,12 +26,13 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
   transformedModule: ReturnType<typeof rewriteModule> | null = null;
 
   get languageId(): string {
-    return "typescript"
+    return 'typescript';
   }
 
   constructor(
     private glintConfig: GlintConfig,
-    public snapshot: IScriptSnapshot
+    public snapshot: IScriptSnapshot,
+    public fileUri: string,
   ) {
     this.update(snapshot);
   }
@@ -59,6 +60,11 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
     };
 
     const contents = snapshot.getText(0, length);
+
+    const templatePathCandidates = this.glintConfig.environment.getPossibleTemplatePaths(this.fileUri);
+
+    // templatePathCandidates.forEach((templatePath) => {
+    // });
 
     let script = { filename: 'disregard.gts', contents };
     let template = undefined;

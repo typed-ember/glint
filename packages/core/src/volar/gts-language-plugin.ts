@@ -36,6 +36,7 @@ export function createGtsLanguagePlugin<T extends URI | string>(
       }
     },
 
+    // When does this get called?
     createVirtualCode(uri, languageId, snapshot) {
       const scriptId = String(uri);
 
@@ -44,17 +45,10 @@ export function createGtsLanguagePlugin<T extends URI | string>(
         languageId === 'typescript' &&
         !scriptId.endsWith('.d.ts') &&
         scriptId.indexOf('/node_modules/') < 0
-        // scriptId.indexOf('components/') >= 0 // match anything in the components directory
       ) {
-        // let virtualCode = ngTcbBlocks.get(scriptId);
-        // if (!virtualCode) {
-        //   virtualCode = new AngularVirtualCode(scriptId, ctx, ts.sys.useCaseSensitiveFileNames);
-        //   ngTcbBlocks.set(scriptId, virtualCode);
-        // }
-        // return virtualCode.sourceFileUpdated(snapshot);
-
-        // Need a new VirtualCode LooseModeBackingComponentClassVirtualCode
-        return new LooseModeBackingComponentClassVirtualCode(glintConfig, snapshot);
+        // NOTE: scriptId might not be a path when we convert this plugin:
+        // https://github.com/withastro/language-tools/blob/eb7215cc0ab3a8f614455528cd71b81ea994cf68/packages/ts-plugin/src/language.ts#L19
+        return new LooseModeBackingComponentClassVirtualCode(glintConfig, snapshot, scriptId);
       }
 
       if (languageId === 'glimmer-ts' || languageId === 'glimmer-js') {
@@ -81,7 +75,7 @@ export function createGtsLanguagePlugin<T extends URI | string>(
       extraFileExtensions: [
         { extension: 'gts', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
         { extension: 'gjs', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
-        { extension: 'hbs', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
+        { extension: 'hbs', isMixedContent: true, scriptKind: 5 satisfies ts.ScriptKind.External },
       ],
 
       // Allow extension-less imports, e.g. `import Foo from './Foo`.
