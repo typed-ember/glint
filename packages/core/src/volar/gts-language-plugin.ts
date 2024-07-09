@@ -9,6 +9,8 @@ export type TS = typeof ts;
 /**
  * Create a [Volar](https://volarjs.dev) language module to support .gts/.gjs files
  * (the `ember-template-imports` environment)
+ * 
+ * TODO: this should probably be renamed to something more general than Gts because it handles .ts+.handlebars loose mode as well
  */
 export function createGtsLanguagePlugin<T extends URI | string>(
   glintConfig: GlintConfig,
@@ -37,7 +39,7 @@ export function createGtsLanguagePlugin<T extends URI | string>(
     },
 
     // When does this get called?
-    createVirtualCode(uri, languageId, snapshot) {
+    createVirtualCode(uri, languageId, snapshot, codegenContext) {
       const scriptId = String(uri);
 
       // See: https://github.com/JetBrains/intellij-plugins/blob/11a9149e20f4d4ba2c1600da9f2b81ff88bd7c97/Angular/src/angular-service/src/index.ts#L31
@@ -48,7 +50,12 @@ export function createGtsLanguagePlugin<T extends URI | string>(
       ) {
         // NOTE: scriptId might not be a path when we convert this plugin:
         // https://github.com/withastro/language-tools/blob/eb7215cc0ab3a8f614455528cd71b81ea994cf68/packages/ts-plugin/src/language.ts#L19
-        return new LooseModeBackingComponentClassVirtualCode(glintConfig, snapshot, scriptId);
+        return new LooseModeBackingComponentClassVirtualCode(
+          glintConfig,
+          snapshot,
+          scriptId,
+          codegenContext,
+        );
       }
 
       if (languageId === 'glimmer-ts' || languageId === 'glimmer-js') {
@@ -75,7 +82,7 @@ export function createGtsLanguagePlugin<T extends URI | string>(
       extraFileExtensions: [
         { extension: 'gts', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
         { extension: 'gjs', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
-        { extension: 'hbs', isMixedContent: true, scriptKind: 5 satisfies ts.ScriptKind.External },
+        { extension: 'hbs', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
       ],
 
       // Allow extension-less imports, e.g. `import Foo from './Foo`.
@@ -108,6 +115,12 @@ export function createGtsLanguagePlugin<T extends URI | string>(
             };
           case 'handlebars':
             // TODO: companion file might be .js? Not sure if this is right
+            return {
+              code: transformedCode,
+              extension: '.ts',
+              scriptKind: 3 satisfies ts.ScriptKind.TS,
+            };
+          case 'typescript': // loose mode backing .ts
             return {
               code: transformedCode,
               extension: '.ts',
