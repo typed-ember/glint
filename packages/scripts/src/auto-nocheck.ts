@@ -3,7 +3,7 @@
 // import { autoNocheck } from './lib/_auto-nocheck.js';
 
 try {
-  throw new Error("Not yet implemented since Volar");
+  throw new Error('Not yet implemented since Volar');
   // await autoNocheck(process.argv.slice(2));
   process.exit(0);
 } catch (error: any) {
