@@ -11,7 +11,8 @@ import { URI } from 'vscode-uri';
 export type TS = typeof ts;
 
 /**
- * Create a [Volar](https://volarjs.dev) language module to support GTS.
+ * Create a [Volar](https://volarjs.dev) language module to support .gts/.gjs files
+ * (the `ember-template-imports` environment)
  */
 export function createGtsLanguagePlugin<T extends URI | string>(
   glintConfig: GlintConfig,
@@ -57,9 +58,9 @@ export function createGtsLanguagePlugin<T extends URI | string>(
 
     typescript: {
       extraFileExtensions: [
-        { extension: 'gts', isMixedContent: true, scriptKind: 7 },
-        { extension: 'gjs', isMixedContent: true, scriptKind: 7 },
-        { extension: 'hbs', isMixedContent: true, scriptKind: 7 },
+        { extension: 'gts', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
+        { extension: 'gjs', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
+        { extension: 'hbs', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
       ],
 
       // Allow extension-less imports, e.g. `import Foo from './Foo`.
@@ -82,21 +83,20 @@ export function createGtsLanguagePlugin<T extends URI | string>(
             return {
               code: transformedCode,
               extension: '.ts',
-              scriptKind: 3, // TS
+              scriptKind: 3 satisfies ts.ScriptKind.TS,
             };
           case 'glimmer-js':
             return {
-              // The first embeddedCode is always the TS Intermediate Representation code
               code: transformedCode,
               extension: '.js',
-              scriptKind: 1, // JS
+              scriptKind: 1 satisfies ts.ScriptKind.JS,
             };
           case 'handlebars':
             // TODO: companion file might be .js? Not sure if this is right
             return {
               code: transformedCode,
               extension: '.ts',
-              scriptKind: 3, // TS
+              scriptKind: 3 satisfies ts.ScriptKind.TS,
             };
           default:
             throw new Error(`getScript: Unexpected languageId: ${rootVirtualCode.languageId}`);

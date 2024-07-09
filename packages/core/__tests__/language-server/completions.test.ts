@@ -14,21 +14,19 @@ describe('Language Server: Completions', () => {
     await project.destroy();
   });
 
-  test.skip('querying a standalone template', async () => {
+  test('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<LinkT />');
 
     let server = await project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.hbs'), {
-      line: 0,
-      character: 6,
-    });
+    const { uri } = await server.openTextDocument(project.filePath('index.hbs'), 'handlebars');
+    let completions = await server.sendCompletionRequest(uri, Position.create(0, 6));
 
-    let completion = completions?.find((item) => item.label === 'LinkTo');
+    let completion = completions?.items.find((item) => item.label === 'LinkTo');
 
     expect(completion?.kind).toEqual(CompletionItemKind.Field);
 
-    let details = server.getCompletionDetails(completion!);
+    let details = await server.sendCompletionResolveRequest(completion!);
 
     expect(details.detail).toEqual('(property) Globals.LinkTo: LinkToComponent');
   });
@@ -65,10 +63,8 @@ describe('Language Server: Completions', () => {
     project.write('index.hbs', code);
 
     let server = await project.startLanguageServer();
-    let completions = server.getCompletions(project.fileURI('index.hbs'), {
-      line: 0,
-      character: 4,
-    });
+    const { uri } = await server.openTextDocument(project.filePath('index.hbs'), 'handlebars');
+    let completions = await server.sendCompletionRequest(uri, Position.create(0, 4));
 
     // Ensure we don't spew all ~900 completions available at the top level
     // in module scope in a JS/TS file.

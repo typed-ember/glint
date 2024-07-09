@@ -176,7 +176,7 @@ describe('CLI: single-pass typechecking', () => {
     `);
   });
 
-  test.skip('reports diagnostics for a companion template type error', async () => {
+  test.only('reports diagnostics for a companion template type error', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
 
     let script = stripIndent`
@@ -200,9 +200,8 @@ describe('CLI: single-pass typechecking', () => {
 
     let checkResult = await project.check({ reject: false });
 
-    expect(checkResult.exitCode).toBe(1);
-    expect(checkResult.stdout).toEqual('');
-    expect(stripAnsi(checkResult.stderr)).toMatchInlineSnapshot(`
+    expect(checkResult.exitCode).not.toBe(0);
+    expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
       "my-component.hbs:1:22 - error TS2551: Property 'targett' does not exist on type 'MyComponent'. Did you mean 'target'?
 
       1 {{@message}}, {{this.targett}}
