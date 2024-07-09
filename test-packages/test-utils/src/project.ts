@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { execaNode, ExecaChildProcess, Options } from 'execa';
 import { type GlintConfigInput } from '@glint/core/config-types';
-import { pathUtils, analyzeProject, ProjectAnalysis } from '@glint/core';
+import { pathUtils } from '@glint/core';
 import { startLanguageServer, LanguageServerHandle } from '@volar/test-utils';
 import { FullDocumentDiagnosticReport } from '@volar/language-service';
 import { URI } from 'vscode-uri';
