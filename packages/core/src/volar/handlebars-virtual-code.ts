@@ -70,7 +70,7 @@ export class VirtualHandlebarsCode implements VirtualCode {
     // Here we are assembling the args to pass into rewriteModule, which wants both the .ts script
     // and the template file. For .gts template is undefined but here we need to pass in the contents.
     // Let's see how rewriteModule attempts to transform this shit.
-    let script = { filename: 'disregard.ts', contents: 'export {}; let a = 123;' };
+    let script = { filename: 'disregard.ts', contents: 'export default class MyComponent {}' };
     let template = {
       filename: 'disregard.hbs',
       contents,

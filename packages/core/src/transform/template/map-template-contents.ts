@@ -121,7 +121,8 @@ export type MapTemplateContentsOptions = {
 };
 
 /**
- * Given the text of an embedded template, invokes the given callback
+ * Given the text of a handlebars template (either standalone .hbs file, or the contents
+ * of an embedded `<template>...</template>` within a .gts file), invokes the given callback
  * with a set of tools to emit mapped contents corresponding to
  * that template, tracking the text emitted in order to provide
  * a mapping of ranges in the input to ranges in the output.

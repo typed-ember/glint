@@ -49,6 +49,8 @@ export function calculateCompanionTemplateSpans(
       suffix: '}\n',
     });
   } else {
+    // TODO: when does this get called?
+    throw new Error("ALEX not class like");
     let backingValue: string | undefined;
     if (targetNode) {
       let moduleName = path.basename(script.filename, path.extname(script.filename));
@@ -143,6 +145,9 @@ export function calculateCompanionTemplateSpans(
   }
 }
 
+/**
+ * Find and return the TS AST node which can serve as a proper insertion point
+ */
 function findCompanionTemplateTarget(
   ts: TSLib,
   sourceFile: ts.SourceFile,
@@ -155,6 +160,7 @@ function findCompanionTemplateTarget(
         mods?.some((mod) => mod.kind === ts.SyntaxKind.DefaultKeyword) &&
         mods.some((mod) => mod.kind === ts.SyntaxKind.ExportKeyword)
       ) {
+        // We've found a `export default class` statement; return it.
         return statement;
       }
 
@@ -164,6 +170,8 @@ function findCompanionTemplateTarget(
     }
   }
 
+  // We didn't find a default export, but maybe there is a named export that
+  // matches one of the class statements we found above.
   for (let statement of sourceFile.statements) {
     if (ts.isExportAssignment(statement) && !statement.isExportEquals) {
       if (ts.isIdentifier(statement.expression) && statement.expression.text in classes) {
