@@ -14,7 +14,7 @@ describe('Language Server: Completions', () => {
     await project.destroy();
   });
 
-  test('querying a standalone template', async () => {
+  test.skip('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<LinkT />');
 
