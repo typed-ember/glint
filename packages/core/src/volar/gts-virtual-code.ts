@@ -99,14 +99,7 @@ export class VirtualGtsCode implements VirtualCode {
           id: 'ts',
           languageId: 'typescript',
           mappings: [
-            // The Volar mapping that maps all TS syntax of the MDX file to the virtual TS file.
-            // So I think in the case of a Single-File-Component (1 <template> tag surrounded by TS),
-            // You'll end up with 2 entries in sourceOffets, representing before the <template> and after the </template>.
             {
-              // sourceOffsets: [],
-              // generatedOffsets: [],
-              // lengths: [],
-
               // Hacked hardwired values for now.
               sourceOffsets: [0],
               generatedOffsets: [0],

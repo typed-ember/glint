@@ -83,7 +83,6 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
 
     if (!hbsSourceScript) {
       // TODO: this probably shouldn't be an error; just trying to fail fast for tests for now
-      // TODO: why does this sometimes fail to find the source script? Race condition, where .ts loads before .hbs?
       let msg = `Could not find a source script for ${templatePathCandidate.path}`;
       // throw new Error(msg);
       return;
@@ -138,14 +137,7 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
           id: 'ts',
           languageId: 'typescript',
           mappings: [
-            // The Volar mapping that maps all TS syntax of the MDX file to the virtual TS file.
-            // So I think in the case of a Single-File-Component (1 <template> tag surrounded by TS),
-            // You'll end up with 2 entries in sourceOffets, representing before the <template> and after the </template>.
             {
-              // sourceOffsets: [],
-              // generatedOffsets: [],
-              // lengths: [],
-
               // Hacked hardwired values for now.
               sourceOffsets: [0],
               generatedOffsets: [0],

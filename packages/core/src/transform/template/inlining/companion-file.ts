@@ -49,8 +49,6 @@ export function calculateCompanionTemplateSpans(
       suffix: '}\n',
     });
   } else {
-    // TODO: when does this get called?
-    // throw new Error("ALEX not class like");
     let backingValue: string | undefined;
     if (targetNode) {
       let moduleName = path.basename(script.filename, path.extname(script.filename));
