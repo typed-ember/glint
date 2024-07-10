@@ -54,7 +54,7 @@ export function rewriteModule(
 
 /**
  * Locates any embedded templates in the given AST and returns a corresponding
- * `PartialReplacedSpan` for each, as well as any errors encountered. These
+ * `PartialCorrelatedSpan` for each, as well as any errors encountered. These
  * spans are then used in `rewriteModule` above to calculate the full set of
  * source-to-source location information as well as the final transformed source
  * string.
@@ -308,27 +308,27 @@ function calculateTransformedSource(
 /**
  * Given an array of `PartialCorrelatedSpan`s for a file, calculates
  * their `transformedLength` and `transformedStart` values, resulting
- * in full `ReplacedSpan`s.
+ * in full `CorrelatedSpan`s.
  */
 function completeCorrelatedSpans(
   partialSpans: Array<PartialCorrelatedSpan>,
 ): Array<CorrelatedSpan> {
-  let replacedSpans: Array<CorrelatedSpan> = [];
+  let correlatedSpans: Array<CorrelatedSpan> = [];
 
   for (let i = 0; i < partialSpans.length; i++) {
     let current = partialSpans[i];
     let transformedLength = current.transformedSource.length;
     let transformedStart = current.insertionPoint;
     if (i > 0) {
-      let previous = replacedSpans[i - 1];
+      let previous = correlatedSpans[i - 1];
       transformedStart =
         previous.transformedStart +
         previous.transformedSource.length +
         (current.insertionPoint - previous.insertionPoint - previous.originalLength);
     }
 
-    replacedSpans.push({ ...current, transformedStart, transformedLength });
+    correlatedSpans.push({ ...current, transformedStart, transformedLength });
   }
 
-  return replacedSpans;
+  return correlatedSpans;
 }

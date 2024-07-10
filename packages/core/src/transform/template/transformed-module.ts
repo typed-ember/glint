@@ -5,6 +5,7 @@ import { CodeMapping } from '@volar/language-core';
 export type Range = { start: number; end: number };
 export type RangeWithMapping = Range & { mapping?: MappingTree };
 export type RangeWithMappingAndSource = RangeWithMapping & { source: SourceFile };
+
 export type CorrelatedSpan = {
   /** Where this span of content originated */
   originalFile: SourceFile;
@@ -20,7 +21,7 @@ export type CorrelatedSpan = {
   transformedStart: number;
   /** The length of this span in the transformed output */
   transformedLength: number;
-  /** A mapping of offsets within this span between its original and transformed versions */
+  /** (Glimmer/Handlebars spans only:) A mapping of offsets within this span between its original and transformed versions */
   mapping?: MappingTree;
 };
 
@@ -50,6 +51,8 @@ export type SourceFile = {
  * both the original and transformed source text of the module, as
  * well any errors encountered during transformation.
  *
+ * It is used heavily for bidirectional source mapping between the original TS/HBS code
+ * and the singular transformed TS output (aka the Intermediate Representation).
  * It can be queried with an offset or range in either the
  * original or transformed source to determine the corresponding
  * offset or range in the other.
@@ -299,11 +302,12 @@ export default class TransformedModule {
 
     this.correlatedSpans.forEach((span) => {
       if (span.mapping) {
-        // this span is transformation from embedded <template> to TS.
-
+        // this span is transformation from HBS to TS (either the replaced contents
+        // within `<template>` tags in a .gts file, or the inserted and transformed
+        // contents of a companion .hbs file in loose mode)
         recurse(span, span.mapping);
       } else {
-        // untransformed TS code (between <template> tags). Because there's no
+        // this span is untransformed TS content. Because there's no
         // transformation, we expect these to be the same length (in fact, they
         // should be the same string entirely)
 
