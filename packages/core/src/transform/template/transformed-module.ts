@@ -1,9 +1,9 @@
-import MappingTree from './mapping-tree.js';
+import GlimmerASTMappingTree from './glimmer-ast-mapping-tree.js';
 import { assert } from '../util.js';
 import { CodeMapping } from '@volar/language-core';
 
 export type Range = { start: number; end: number };
-export type RangeWithMapping = Range & { mapping?: MappingTree };
+export type RangeWithMapping = Range & { mapping?: GlimmerASTMappingTree };
 export type RangeWithMappingAndSource = RangeWithMapping & { source: SourceFile };
 
 export type CorrelatedSpan = {
@@ -22,7 +22,7 @@ export type CorrelatedSpan = {
   /** The length of this span in the transformed output */
   transformedLength: number;
   /** (Glimmer/Handlebars spans only:) A mapping of offsets within this span between its original and transformed versions */
-  mapping?: MappingTree;
+  glimmerAstMapping?: GlimmerASTMappingTree;
 };
 
 export type DirectiveKind = 'ignore' | 'expect-error';
@@ -67,7 +67,7 @@ export default class TransformedModule {
 
   public toDebugString(): string {
     let mappingStrings = this.correlatedSpans.map((span) =>
-      span.mapping?.toDebugString({
+      span.glimmerAstMapping?.toDebugString({
         originalStart: span.originalStart,
         originalSource: span.originalFile.contents.slice(
           span.originalStart,
@@ -108,7 +108,7 @@ export default class TransformedModule {
 
     if (startInfo.correlatedSpan === endInfo.correlatedSpan) {
       let { correlatedSpan } = startInfo;
-      let mapping = correlatedSpan.mapping?.narrowestMappingForTransformedRange({
+      let mapping = correlatedSpan.glimmerAstMapping?.narrowestMappingForTransformedRange({
         start: start - correlatedSpan.originalStart,
         end: end - correlatedSpan.originalStart,
       });
@@ -136,7 +136,7 @@ export default class TransformedModule {
 
     if (startInfo.correlatedSpan && startInfo.correlatedSpan === endInfo.correlatedSpan) {
       let { correlatedSpan } = startInfo;
-      let mapping = correlatedSpan.mapping?.narrowestMappingForOriginalRange({
+      let mapping = correlatedSpan.glimmerAstMapping?.narrowestMappingForOriginalRange({
         start: start - correlatedSpan.transformedStart,
         end: end - correlatedSpan.transformedStart,
       });
@@ -160,14 +160,14 @@ export default class TransformedModule {
       originalOffset,
     );
 
-    if (!correlatedSpan.mapping) {
+    if (!correlatedSpan.glimmerAstMapping) {
       return null;
     }
 
-    let templateMapping = correlatedSpan.mapping?.children[0];
+    let templateMapping = correlatedSpan.glimmerAstMapping?.children[0];
 
     assert(
-      correlatedSpan.mapping?.sourceNode.type === 'TemplateEmbedding' &&
+      correlatedSpan.glimmerAstMapping?.sourceNode.type === 'TemplateEmbedding' &&
         templateMapping?.sourceNode.type === 'Template',
       'Internal error: unexpected mapping structure.' + ` (${templateMapping?.sourceNode.type})`,
     );
@@ -266,7 +266,7 @@ export default class TransformedModule {
       lengths.push(length);
     };
 
-    let recurse = (span: CorrelatedSpan, mapping: MappingTree): void => {
+    let recurse = (span: CorrelatedSpan, mapping: GlimmerASTMappingTree): void => {
       const children = mapping.children;
       let { originalRange, transformedRange } = mapping;
       let hbsStart = span.originalStart + originalRange.start;
@@ -301,11 +301,11 @@ export default class TransformedModule {
     };
 
     this.correlatedSpans.forEach((span) => {
-      if (span.mapping) {
+      if (span.glimmerAstMapping) {
         // this span is transformation from HBS to TS (either the replaced contents
         // within `<template>` tags in a .gts file, or the inserted and transformed
         // contents of a companion .hbs file in loose mode)
-        recurse(span, span.mapping);
+        recurse(span, span.glimmerAstMapping);
       } else {
         // this span is untransformed TS content. Because there's no
         // transformation, we expect these to be the same length (in fact, they

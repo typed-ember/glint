@@ -1,6 +1,6 @@
 import type ts from 'typescript';
 import { Diagnostic } from './index.js';
-import MappingTree, { MappingSource } from '../template/mapping-tree.js';
+import GlimmerASTMappingTree, { MappingSource } from '../template/glimmer-ast-mapping-tree.js';
 
 /**
  * Given a diagnostic and a mapping tree node corresponding to its location,
@@ -9,17 +9,20 @@ import MappingTree, { MappingSource } from '../template/mapping-tree.js';
  */
 export function augmentDiagnostic<T extends Diagnostic>(
   diagnostic: T,
-  mappingForDiagnostic: (diagnostic: T) => MappingTree | null,
+  mappingForDiagnostic: (diagnostic: T) => GlimmerASTMappingTree | null,
 ): T {
   // TODO: fix any types, remove casting
   return rewriteMessageText(diagnostic, mappingForDiagnostic as any) as T;
 }
 
-type DiagnosticHandler = (diagnostic: Diagnostic, mapping: MappingTree) => Diagnostic | undefined;
+type DiagnosticHandler = (
+  diagnostic: Diagnostic,
+  mapping: GlimmerASTMappingTree,
+) => Diagnostic | undefined;
 
 function rewriteMessageText(
   diagnostic: Diagnostic,
-  mappingGetter: (diagnostic: Diagnostic) => MappingTree | null,
+  mappingGetter: (diagnostic: Diagnostic) => GlimmerASTMappingTree | null,
 ): Diagnostic {
   const handler = diagnosticHandlers[diagnostic.code?.toString() ?? ''];
   if (!handler) {
@@ -48,7 +51,7 @@ const bindHelpers = ['component', 'helper', 'modifier'];
 
 function checkAssignabilityError(
   diagnostic: Diagnostic,
-  mapping: MappingTree,
+  mapping: GlimmerASTMappingTree,
 ): Diagnostic | undefined {
   let node = mapping.sourceNode;
   let parentNode = mapping.parent?.sourceNode;
@@ -123,7 +126,7 @@ function checkAssignabilityError(
 
 function noteNamedArgsAffectArity(
   diagnostic: Diagnostic,
-  mapping: MappingTree,
+  mapping: GlimmerASTMappingTree,
 ): Diagnostic | undefined {
   // In normal template entity invocations, named args (if specified) are effectively
   // passed as the final positional argument. Because of this, the reported "expected
@@ -153,7 +156,10 @@ function noteNamedArgsAffectArity(
   }
 }
 
-function checkResolveError(diagnostic: Diagnostic, mapping: MappingTree): Diagnostic | undefined {
+function checkResolveError(
+  diagnostic: Diagnostic,
+  mapping: GlimmerASTMappingTree,
+): Diagnostic | undefined {
   // The diagnostic might fall on a lone identifier or a full path; if the former,
   // we need to traverse up through the path to find the true parent.
   let sourceMapping = mapping.sourceNode.type === 'Identifier' ? mapping.parent : mapping;
@@ -199,7 +205,7 @@ function checkResolveError(diagnostic: Diagnostic, mapping: MappingTree): Diagno
 
 function checkImplicitAnyError(
   diagnostic: Diagnostic,
-  mapping: MappingTree,
+  mapping: GlimmerASTMappingTree,
 ): Diagnostic | undefined {
   let message = diagnostic.message;
 
@@ -229,7 +235,7 @@ function checkImplicitAnyError(
 
 function checkIndexAccessError(
   diagnostic: Diagnostic,
-  mapping: MappingTree,
+  mapping: GlimmerASTMappingTree,
 ): Diagnostic | undefined {
   if (mapping.sourceNode.type === 'Identifier') {
     let message = diagnostic.message;
@@ -252,10 +258,10 @@ function addGlintDetails(diagnostic: Diagnostic, details: string): Diagnostic {
 // Find the nearest mapping node at or above the given one whose `source` AST node
 // matches one of the given types.
 function findAncestor<K extends MappingSource['type']>(
-  mapping: MappingTree,
+  mapping: GlimmerASTMappingTree,
   ...types: Array<K>
 ): Extract<MappingSource, { type: K }> | null {
-  let current: MappingTree | null = mapping;
+  let current: GlimmerASTMappingTree | null = mapping;
   do {
     if (types.includes(current.sourceNode.type as K)) {
       return current.sourceNode as Extract<MappingSource, { type: K }>;

@@ -18,7 +18,7 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { URI } from 'vscode-uri';
 import { VirtualGtsCode } from './gts-virtual-code.js';
 import { augmentDiagnostic } from '../transform/diagnostics/augmentation.js';
-import MappingTree from '../transform/template/mapping-tree.js';
+import GlimmerASTMappingTree from '../transform/template/glimmer-ast-mapping-tree.js';
 import { Directive, TransformedModule } from '../transform/index.js';
 import { Range } from '../transform/template/transformed-module.js';
 import { offsetToPosition } from '../language-server/util/position.js';
@@ -141,7 +141,7 @@ function filterAndAugmentDiagnostics(
     return cachedVirtualCode;
   };
 
-  const mappingForDiagnostic = (diagnostic: vscode.Diagnostic): MappingTree | null => {
+  const mappingForDiagnostic = (diagnostic: vscode.Diagnostic): GlimmerASTMappingTree | null => {
     const transformedModule = fetchVirtualCode()?.transformedModule;
 
     if (!transformedModule) {

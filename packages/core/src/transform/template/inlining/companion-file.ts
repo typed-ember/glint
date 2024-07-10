@@ -3,7 +3,7 @@ import type ts from 'typescript';
 import { GlintEnvironment } from '../../../config/index.js';
 import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from './index.js';
 import { RewriteResult } from '../map-template-contents.js';
-import MappingTree, { ParseError } from '../mapping-tree.js';
+import GlimmerASTMappingTree, { ParseError } from '../glimmer-ast-mapping-tree.js';
 import { templateToTypescript } from '../template-to-typescript.js';
 import { Directive, SourceFile, TransformError } from '../transformed-module.js';
 import { TSLib } from '../../util.js';
@@ -115,7 +115,7 @@ export function calculateCompanionTemplateSpans(
           originalLength: template.contents.length,
           insertionPoint: options.insertionPoint,
           transformedSource: transformedTemplate.result.code,
-          mapping: transformedTemplate.result.mapping,
+          glimmerAstMapping: transformedTemplate.result.mapping,
         },
         {
           originalFile: template,
@@ -126,7 +126,7 @@ export function calculateCompanionTemplateSpans(
         },
       );
     } else {
-      let mapping = new MappingTree(
+      let mapping = new GlimmerASTMappingTree(
         { start: 0, end: 0 },
         { start: 0, end: template.contents.length },
         [],
@@ -139,7 +139,7 @@ export function calculateCompanionTemplateSpans(
         originalLength: template.contents.length,
         insertionPoint: options.insertionPoint,
         transformedSource: '',
-        mapping,
+        glimmerAstMapping: mapping,
       });
     }
   }
