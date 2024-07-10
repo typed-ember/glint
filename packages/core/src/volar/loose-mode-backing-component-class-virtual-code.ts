@@ -91,7 +91,7 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
 
     const hbsLength = hbsSourceScript.snapshot.getLength();
     const hbsContent = hbsSourceScript.snapshot.getText(0, hbsLength);
-    const sourceTsFileName = String(this.fileId)
+    const sourceTsFileName = String(this.fileId);
 
     const transformedModule = rewriteModule(
       this.glintConfig.ts,
