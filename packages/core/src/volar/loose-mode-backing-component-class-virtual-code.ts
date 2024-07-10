@@ -78,9 +78,8 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
     const associatedScriptFileId =
       typeof this.fileId == 'string'
         ? templatePathCandidate.path
-        : this.fileId.with({ path: templatePathCandidate.path });
-    const hbsSourceScript =
-      this.codegenContext.getAssociatedScript(associatedScriptFileId)?.snapshot;
+        : URI.parse(templatePathCandidate.path);
+    const hbsSourceScript = this.codegenContext.getAssociatedScript(associatedScriptFileId);
 
     if (!hbsSourceScript) {
       // TODO: this probably shouldn't be an error; just trying to fail fast for tests for now
@@ -90,8 +89,8 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
       return;
     }
 
-    const hbsLength = hbsSourceScript.getLength();
-    const hbsContent = hbsSourceScript.getText(0, hbsLength);
+    const hbsLength = hbsSourceScript.snapshot.getLength();
+    const hbsContent = hbsSourceScript.snapshot.getText(0, hbsLength);
 
     const transformedModule = rewriteModule(
       this.glintConfig.ts,
@@ -117,12 +116,18 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
           embeddedCodes: [],
           id: 'ts',
           languageId: 'typescript',
-          mappings,
+
+          // Mappings from the backing component class file to the transformed module.
+          mappings: [],
           snapshot: new ScriptSnapshot(transformedModule.transformedContents),
           directives: transformedModule.directives,
+
+          // Mappings from the .hbs template file to the transformed module.
+          associatedScriptMappings: new Map([[hbsSourceScript.id, mappings]]),
         },
       ];
     } else {
+      // TODO: when would we get here? I guess Handlebars script might have a parse error?
       // Null transformed module means there's no embedded HBS templates,
       // so just return a full "no-op" mapping from source to transformed.
       this.embeddedCodes = [
