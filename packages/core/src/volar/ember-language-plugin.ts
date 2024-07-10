@@ -7,12 +7,12 @@ import { LooseModeBackingComponentClassVirtualCode } from './loose-mode-backing-
 export type TS = typeof ts;
 
 /**
- * Create a [Volar](https://volarjs.dev) language module to support .gts/.gjs files
- * (the `ember-template-imports` environment)
- * 
- * TODO: this should probably be renamed to something more general than Gts because it handles .ts+.handlebars loose mode as well
+ * Create a [Volar](https://volarjs.dev) language plugin to support
+ *
+ * - .gts/.gjs files (the `ember-template-imports` environment)
+ * - .ts + .hbs files (the `ember-loose` environment)
  */
-export function createGtsLanguagePlugin<T extends URI | string>(
+export function createEmberLanguagePlugin<T extends URI | string>(
   glintConfig: GlintConfig,
 ): LanguagePlugin<T> {
   return {

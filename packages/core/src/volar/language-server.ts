@@ -9,7 +9,7 @@ import {
   createTypeScriptProject,
 } from '@volar/language-server/node.js';
 import { create as createTypeScriptServicePlugins } from 'volar-service-typescript';
-import { createGtsLanguagePlugin } from './gts-language-plugin.js';
+import { createEmberLanguagePlugin } from './ember-language-plugin.js';
 import { assert } from '../transform/util.js';
 import { ConfigLoader } from '../config/loader.js';
 import ts from 'typescript';
@@ -52,7 +52,7 @@ connection.onInitialize((parameters) => {
       // assert(glintConfig, 'Glint config is missing');
 
       if (glintConfig) {
-        languagePlugins.unshift(createGtsLanguagePlugin(glintConfig));
+        languagePlugins.unshift(createEmberLanguagePlugin(glintConfig));
       }
     }
 

@@ -1,5 +1,5 @@
 import { runTsc } from '@volar/typescript/lib/quickstart/runTsc.js';
-import { createGtsLanguagePlugin } from '../volar/gts-language-plugin.js';
+import { createEmberLanguagePlugin } from '../volar/ember-language-plugin.js';
 import { findConfig } from '../config/index.js';
 
 import { createRequire } from 'node:module';
@@ -29,7 +29,7 @@ export function run(): void {
       // not sure whether it's better to be lenient, but we were getting test failures
       // on environment-ember-loose's `yarn run test`.
       if (glintConfig) {
-        const gtsLanguagePlugin = createGtsLanguagePlugin(glintConfig);
+        const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig);
         return [gtsLanguagePlugin];
       } else {
         return [];
