@@ -147,6 +147,10 @@ export function calculateCompanionTemplateSpans(
 
 /**
  * Find and return the TS AST node which can serve as a proper insertion point
+ * for the transformed template code, which is:
+ *
+ * - The default export class declaration
+ * - a named export that matches a class declaration
  */
 function findCompanionTemplateTarget(
   ts: TSLib,
