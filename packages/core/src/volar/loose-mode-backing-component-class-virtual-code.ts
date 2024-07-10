@@ -91,12 +91,13 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
 
     const hbsLength = hbsSourceScript.snapshot.getLength();
     const hbsContent = hbsSourceScript.snapshot.getText(0, hbsLength);
+    const sourceTsFileName = String(this.fileId)
 
     const transformedModule = rewriteModule(
       this.glintConfig.ts,
       {
         script: {
-          filename: 'disregard.ts', // not sure why this is disregard but template file is not?
+          filename: sourceTsFileName,
           contents,
         },
         template: {
@@ -110,7 +111,8 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
     this.transformedModule = transformedModule;
 
     if (transformedModule) {
-      const mappings = transformedModule.toVolarMappings();
+      const volarTsMappings = transformedModule.toVolarMappings(sourceTsFileName);
+      const volarHbsMappings = transformedModule.toVolarMappings(templatePathCandidate.path);
       this.embeddedCodes = [
         {
           embeddedCodes: [],
@@ -118,12 +120,12 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
           languageId: 'typescript',
 
           // Mappings from the backing component class file to the transformed module.
-          mappings: [],
+          mappings: volarTsMappings,
           snapshot: new ScriptSnapshot(transformedModule.transformedContents),
           directives: transformedModule.directives,
 
           // Mappings from the .hbs template file to the transformed module.
-          associatedScriptMappings: new Map([[hbsSourceScript.id, mappings]]),
+          associatedScriptMappings: new Map([[hbsSourceScript.id, volarHbsMappings]]),
         },
       ];
     } else {

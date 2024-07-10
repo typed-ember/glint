@@ -237,7 +237,7 @@ export default class TransformedModule {
    * - to
    * - `[[ZEROLEN-A]]χ.emitContent(χ.resolveOrReturn([[expectsAtLeastOneArg]])());[[ZEROLEN-B]]`
    */
-  public toVolarMappings(): CodeMapping[] {
+  public toVolarMappings(filenameFilter?: string): CodeMapping[] {
     const sourceOffsets: number[] = [];
     const generatedOffsets: number[] = [];
     const lengths: number[] = [];
@@ -301,6 +301,10 @@ export default class TransformedModule {
     };
 
     this.correlatedSpans.forEach((span) => {
+      if (filenameFilter && span.originalFile.filename !== filenameFilter) {
+        return;
+      }
+
       if (span.glimmerAstMapping) {
         // this span is transformation from HBS to TS (either the replaced contents
         // within `<template>` tags in a .gts file, or the inserted and transformed
