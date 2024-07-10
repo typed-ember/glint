@@ -5,6 +5,7 @@ import type ts from 'typescript';
 import { Directive, rewriteModule } from '../transform/index.js';
 import { GlintConfig } from '../index.js';
 import { CodegenContext, SourceScript } from '@volar/language-core/lib/types.js';
+import { URI } from 'vscode-uri';
 export type TS = typeof ts;
 
 interface EmbeddedCodeWithDirectives extends VirtualCode {
@@ -17,7 +18,6 @@ interface EmbeddedCodeWithDirectives extends VirtualCode {
  * components are only supported when using `ember-loose` environment.
  */
 export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
-
   embeddedCodes: EmbeddedCodeWithDirectives[] = [];
 
   /**
@@ -36,7 +36,7 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
   constructor(
     private glintConfig: GlintConfig,
     public snapshot: IScriptSnapshot,
-    public fileUri: string,
+    public fileId: URI | string,
     public codegenContext: CodegenContext,
   ) {
     this.update(snapshot);
@@ -67,22 +67,27 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
     const contents = snapshot.getText(0, length);
 
     const templatePathCandidate = this.glintConfig.environment.getPossibleTemplatePaths(
-      this.fileUri,
+      String(this.fileId),
     )[0];
 
     if (!templatePathCandidate) {
       // TODO: this probably shouldn't be an error; just trying to fail fast for tests for now
-      throw new Error(`Could not find a template file candidate for ${this.fileUri}`);
+      throw new Error(`Could not find a template file candidate for ${this.fileId}`);
     }
 
-    const hbsSourceScript = this.codegenContext.getAssociatedScript(
-      templatePathCandidate.path,
-    )?.snapshot;
+    const associatedScriptFileId =
+      typeof this.fileId == 'string'
+        ? templatePathCandidate.path
+        : this.fileId.with({ path: templatePathCandidate.path });
+    const hbsSourceScript =
+      this.codegenContext.getAssociatedScript(associatedScriptFileId)?.snapshot;
 
     if (!hbsSourceScript) {
       // TODO: this probably shouldn't be an error; just trying to fail fast for tests for now
       // TODO: why does this sometimes fail to find the source script? Race condition, where .ts loads before .hbs?
-      throw new Error(`Could not find a source script for ${templatePathCandidate.path}`);
+      let msg = `Could not find a source script for ${templatePathCandidate.path}`;
+      // throw new Error(msg);
+      return;
     }
 
     const hbsLength = hbsSourceScript.getLength();

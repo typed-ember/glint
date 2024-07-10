@@ -39,14 +39,14 @@ export function createGtsLanguagePlugin<T extends URI | string>(
     },
 
     // When does this get called?
-    createVirtualCode(uri, languageId, snapshot, codegenContext) {
-      const scriptId = String(uri);
+    createVirtualCode(scriptId: URI | string, languageId, snapshot, codegenContext) {
+      const scriptIdStr = String(scriptId);
 
       // See: https://github.com/JetBrains/intellij-plugins/blob/11a9149e20f4d4ba2c1600da9f2b81ff88bd7c97/Angular/src/angular-service/src/index.ts#L31
       if (
         languageId === 'typescript' &&
-        !scriptId.endsWith('.d.ts') &&
-        scriptId.indexOf('/node_modules/') < 0
+        !scriptIdStr.endsWith('.d.ts') &&
+        scriptIdStr.indexOf('/node_modules/') < 0
       ) {
         // NOTE: scriptId might not be a path when we convert this plugin:
         // https://github.com/withastro/language-tools/blob/eb7215cc0ab3a8f614455528cd71b81ea994cf68/packages/ts-plugin/src/language.ts#L19
