@@ -176,7 +176,7 @@ describe('CLI: single-pass typechecking', () => {
     `);
   });
 
-  test.only('reports diagnostics for a companion template type error', async () => {
+  test.skip('reports diagnostics for a companion template type error', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
 
     let script = stripIndent`

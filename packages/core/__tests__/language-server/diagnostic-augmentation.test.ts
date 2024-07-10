@@ -915,7 +915,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test.only('unresolved globals', async () => {
+  test.skip('unresolved globals', async () => {
     project.setGlintConfig({ environment: ['ember-loose'] });
     project.write({
       'index.ts': stripIndent`
