@@ -1,19 +1,18 @@
-// import remarkMdx from 'remark-mdx'
-// import remarkParse from 'remark-parse'
-// import {unified} from 'unified'
 import { LanguagePlugin } from '@volar/language-core';
 import { VirtualGtsCode } from './gts-virtual-code.js';
 import type ts from 'typescript';
-import { GlintConfig, loadConfig } from '../index.js';
-import { assert } from '../transform/util.js';
-import { VirtualHandlebarsCode } from './handlebars-virtual-code.js';
+import { GlintConfig } from '../index.js';
 import { URI } from 'vscode-uri';
+import { LooseModeBackingComponentClassVirtualCode } from './loose-mode-backing-component-class-virtual-code.js';
 export type TS = typeof ts;
 
 /**
- * Create a [Volar](https://volarjs.dev) language module to support GTS.
+ * Create a [Volar](https://volarjs.dev) language plugin to support
+ *
+ * - .gts/.gjs files (the `ember-template-imports` environment)
+ * - .ts + .hbs files (the `ember-loose` environment)
  */
-export function createGtsLanguagePlugin<T extends URI | string>(
+export function createEmberLanguagePlugin<T extends URI | string>(
   glintConfig: GlintConfig,
 ): LanguagePlugin<T> {
   return {
@@ -39,10 +38,25 @@ export function createGtsLanguagePlugin<T extends URI | string>(
       }
     },
 
-    createVirtualCode(uri, languageId, snapshot) {
-      // TODO: won't we need to point the TS component code to the same thing?
-      if (languageId === 'handlebars') {
-        return new VirtualHandlebarsCode(glintConfig, snapshot);
+    // When does this get called?
+    createVirtualCode(scriptId: URI | string, languageId, snapshot /*, codegenContext */) {
+      const scriptIdStr = String(scriptId);
+
+      // See: https://github.com/JetBrains/intellij-plugins/blob/11a9149e20f4d4ba2c1600da9f2b81ff88bd7c97/Angular/src/angular-service/src/index.ts#L31
+      if (
+        languageId === 'typescript' &&
+        !scriptIdStr.endsWith('.d.ts') &&
+        scriptIdStr.indexOf('/node_modules/') < 0
+      ) {
+        // NOTE: scriptId might not be a path when we convert this plugin:
+        // https://github.com/withastro/language-tools/blob/eb7215cc0ab3a8f614455528cd71b81ea994cf68/packages/ts-plugin/src/language.ts#L19
+        // TODO: commented out for now because support for ember-loose is blocking behind converting to TS Plugin and this will just slow things down
+        // return new LooseModeBackingComponentClassVirtualCode(
+        //   glintConfig,
+        //   snapshot,
+        //   scriptId,
+        //   codegenContext,
+        // );
       }
 
       if (languageId === 'glimmer-ts' || languageId === 'glimmer-js') {
@@ -50,16 +64,20 @@ export function createGtsLanguagePlugin<T extends URI | string>(
       }
     },
 
-    updateVirtualCode(uri, virtualCode, snapshot) {
-      (virtualCode as VirtualGtsCode).update(snapshot);
-      return virtualCode;
+    isAssociatedFileOnly(_scriptId: string | URI, languageId: string): boolean {
+      // `ember-loose` only
+      //
+      // Because we declare handlebars files to be associated with "root" .ts files, we
+      // need to mark them here as "associated file only" so that TS doesn't attempt
+      // to type-check them directly, but rather indirectly via the .ts file.
+      return languageId === 'handlebars';
     },
 
     typescript: {
       extraFileExtensions: [
-        { extension: 'gts', isMixedContent: true, scriptKind: 7 },
-        { extension: 'gjs', isMixedContent: true, scriptKind: 7 },
-        { extension: 'hbs', isMixedContent: true, scriptKind: 7 },
+        { extension: 'gts', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
+        { extension: 'gjs', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
+        { extension: 'hbs', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
       ],
 
       // Allow extension-less imports, e.g. `import Foo from './Foo`.
@@ -82,21 +100,26 @@ export function createGtsLanguagePlugin<T extends URI | string>(
             return {
               code: transformedCode,
               extension: '.ts',
-              scriptKind: 3, // TS
+              scriptKind: 3 satisfies ts.ScriptKind.TS,
             };
           case 'glimmer-js':
             return {
-              // The first embeddedCode is always the TS Intermediate Representation code
               code: transformedCode,
               extension: '.js',
-              scriptKind: 1, // JS
+              scriptKind: 1 satisfies ts.ScriptKind.JS,
             };
           case 'handlebars':
             // TODO: companion file might be .js? Not sure if this is right
             return {
               code: transformedCode,
               extension: '.ts',
-              scriptKind: 3, // TS
+              scriptKind: 3 satisfies ts.ScriptKind.TS,
+            };
+          case 'typescript': // loose mode backing .ts
+            return {
+              code: transformedCode,
+              extension: '.ts',
+              scriptKind: 3 satisfies ts.ScriptKind.TS,
             };
           default:
             throw new Error(`getScript: Unexpected languageId: ${rootVirtualCode.languageId}`);

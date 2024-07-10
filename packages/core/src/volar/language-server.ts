@@ -9,7 +9,7 @@ import {
   createTypeScriptProject,
 } from '@volar/language-server/node.js';
 import { create as createTypeScriptServicePlugins } from 'volar-service-typescript';
-import { createGtsLanguagePlugin } from './gts-language-plugin.js';
+import { createEmberLanguagePlugin } from './ember-language-plugin.js';
 import { assert } from '../transform/util.js';
 import { ConfigLoader } from '../config/loader.js';
 import ts from 'typescript';
@@ -18,7 +18,7 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { URI } from 'vscode-uri';
 import { VirtualGtsCode } from './gts-virtual-code.js';
 import { augmentDiagnostic } from '../transform/diagnostics/augmentation.js';
-import MappingTree from '../transform/template/mapping-tree.js';
+import GlimmerASTMappingTree from '../transform/template/glimmer-ast-mapping-tree.js';
 import { Directive, TransformedModule } from '../transform/index.js';
 import { Range } from '../transform/template/transformed-module.js';
 import { offsetToPosition } from '../language-server/util/position.js';
@@ -52,7 +52,7 @@ connection.onInitialize((parameters) => {
       // assert(glintConfig, 'Glint config is missing');
 
       if (glintConfig) {
-        languagePlugins.unshift(createGtsLanguagePlugin(glintConfig));
+        languagePlugins.unshift(createEmberLanguagePlugin(glintConfig));
       }
     }
 
@@ -141,7 +141,7 @@ function filterAndAugmentDiagnostics(
     return cachedVirtualCode;
   };
 
-  const mappingForDiagnostic = (diagnostic: vscode.Diagnostic): MappingTree | null => {
+  const mappingForDiagnostic = (diagnostic: vscode.Diagnostic): GlimmerASTMappingTree | null => {
     const transformedModule = fetchVirtualCode()?.transformedModule;
 
     if (!transformedModule) {

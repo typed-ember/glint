@@ -1,5 +1,8 @@
 import { AST, preprocess } from '@glimmer/syntax';
-import MappingTree, { MappingSource, TemplateEmbedding } from './mapping-tree.js';
+import GlimmerASTMappingTree, {
+  MappingSource,
+  TemplateEmbedding,
+} from './glimmer-ast-mapping-tree.js';
 import { Directive, DirectiveKind, Range } from './transformed-module.js';
 import { assert } from '../util.js';
 
@@ -101,7 +104,7 @@ export type RewriteResult = {
   result?: {
     code: string;
     directives: Array<LocalDirective>;
-    mapping: MappingTree;
+    mapping: GlimmerASTMappingTree;
   };
 };
 
@@ -121,7 +124,8 @@ export type MapTemplateContentsOptions = {
 };
 
 /**
- * Given the text of an embedded template, invokes the given callback
+ * Given the text of a handlebars template (either standalone .hbs file, or the contents
+ * of an embedded `<template>...</template>` within a .gts file), invokes the given callback
  * with a set of tools to emit mapped contents corresponding to
  * that template, tracking the text emitted in order to provide
  * a mapping of ranges in the input to ranges in the output.
@@ -162,7 +166,7 @@ export function mapTemplateContents(
   });
 
   let segmentsStack: string[][] = [[]];
-  let mappingsStack: MappingTree[][] = [[]];
+  let mappingsStack: GlimmerASTMappingTree[][] = [[]];
   let indent = '';
   let offset = 0;
   let needsIndent = false;
@@ -180,7 +184,7 @@ export function mapTemplateContents(
     callback: () => void,
   ): void => {
     let start = offset;
-    let mappings: MappingTree[] = [];
+    let mappings: GlimmerASTMappingTree[] = [];
     let segments: string[] = [];
 
     segmentsStack.unshift(segments);
@@ -201,7 +205,7 @@ export function mapTemplateContents(
       let end = offset;
       let tsRange = { start, end };
 
-      mappingsStack[0].push(new MappingTree(tsRange, hbsRange, mappings, source));
+      mappingsStack[0].push(new GlimmerASTMappingTree(tsRange, hbsRange, mappings, source));
       segmentsStack[0].push(...segments);
     }
   };
@@ -270,7 +274,7 @@ export function mapTemplateContents(
   assert(segmentsStack.length === 1);
 
   let code = segmentsStack[0].join('');
-  let mapping = new MappingTree(
+  let mapping = new GlimmerASTMappingTree(
     { start: 0, end: code.length },
     {
       start: 0,

@@ -106,7 +106,7 @@ export function calculateTaggedTemplateSpans(
         originalLength: templateLocation.end - templateLocation.start,
         insertionPoint: templateLocation.start,
         transformedSource: transformedTemplate.result.code,
-        mapping: transformedTemplate.result.mapping,
+        glimmerAstMapping: transformedTemplate.result.mapping,
       });
     }
   }

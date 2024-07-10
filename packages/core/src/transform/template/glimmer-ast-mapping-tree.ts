@@ -48,13 +48,13 @@ export class TemplateEmbedding {
  * level of granularity as TS itself uses when reporting on the transformed
  * output.
  */
-export default class MappingTree {
-  public parent: MappingTree | null = null;
+export default class GlimmerASTMappingTree {
+  public parent: GlimmerASTMappingTree | null = null;
 
   public constructor(
     public transformedRange: Range,
     public originalRange: Range,
-    public children: Array<MappingTree> = [],
+    public children: Array<GlimmerASTMappingTree> = [],
     public sourceNode: MappingSource,
   ) {
     children.forEach((child) => (child.parent = this));
@@ -65,7 +65,7 @@ export default class MappingTree {
    * that contains the given range, or `null` if that range doesn't fall within
    * this mapping tree.
    */
-  public narrowestMappingForTransformedRange(range: Range): MappingTree | null {
+  public narrowestMappingForTransformedRange(range: Range): GlimmerASTMappingTree | null {
     if (range.start < this.transformedRange.start || range.end > this.transformedRange.end) {
       return null;
     }
@@ -85,7 +85,7 @@ export default class MappingTree {
    * that contains the given range, or `null` if that range doesn't fall within
    * this mapping tree.
    */
-  public narrowestMappingForOriginalRange(range: Range): MappingTree | null {
+  public narrowestMappingForOriginalRange(range: Range): GlimmerASTMappingTree | null {
     if (range.start < this.originalRange.start || range.end > this.originalRange.end) {
       return null;
     }

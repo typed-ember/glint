@@ -3,7 +3,7 @@ import type ts from 'typescript';
 import { GlintEnvironment } from '../../../config/index.js';
 import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from './index.js';
 import { RewriteResult } from '../map-template-contents.js';
-import MappingTree, { ParseError } from '../mapping-tree.js';
+import GlimmerASTMappingTree, { ParseError } from '../glimmer-ast-mapping-tree.js';
 import { templateToTypescript } from '../template-to-typescript.js';
 import { Directive, SourceFile, TransformError } from '../transformed-module.js';
 import { TSLib } from '../../util.js';
@@ -113,7 +113,7 @@ export function calculateCompanionTemplateSpans(
           originalLength: template.contents.length,
           insertionPoint: options.insertionPoint,
           transformedSource: transformedTemplate.result.code,
-          mapping: transformedTemplate.result.mapping,
+          glimmerAstMapping: transformedTemplate.result.mapping,
         },
         {
           originalFile: template,
@@ -124,7 +124,7 @@ export function calculateCompanionTemplateSpans(
         },
       );
     } else {
-      let mapping = new MappingTree(
+      let mapping = new GlimmerASTMappingTree(
         { start: 0, end: 0 },
         { start: 0, end: template.contents.length },
         [],
@@ -137,12 +137,19 @@ export function calculateCompanionTemplateSpans(
         originalLength: template.contents.length,
         insertionPoint: options.insertionPoint,
         transformedSource: '',
-        mapping,
+        glimmerAstMapping: mapping,
       });
     }
   }
 }
 
+/**
+ * Find and return the TS AST node which can serve as a proper insertion point
+ * for the transformed template code, which is:
+ *
+ * - The default export class declaration
+ * - a named export that matches a class declaration
+ */
 function findCompanionTemplateTarget(
   ts: TSLib,
   sourceFile: ts.SourceFile,
@@ -155,6 +162,7 @@ function findCompanionTemplateTarget(
         mods?.some((mod) => mod.kind === ts.SyntaxKind.DefaultKeyword) &&
         mods.some((mod) => mod.kind === ts.SyntaxKind.ExportKeyword)
       ) {
+        // We've found a `export default class` statement; return it.
         return statement;
       }
 
@@ -164,6 +172,8 @@ function findCompanionTemplateTarget(
     }
   }
 
+  // We didn't find a default export, but maybe there is a named export that
+  // matches one of the class statements we found above.
   for (let statement of sourceFile.statements) {
     if (ts.isExportAssignment(statement) && !statement.isExportEquals) {
       if (ts.isIdentifier(statement.expression) && statement.expression.text in classes) {
