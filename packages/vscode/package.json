@@ -206,6 +206,19 @@
               "messages",
               "verbose"
             ]
+          },
+          "glint.server.typescriptMode": {
+            "type": "string",
+            "default": "languageServer",
+            "enum": [
+              "languageServer",
+              "typescriptPlugin"
+            ],
+            "enumDescriptions": [
+              "(Old) use Glint Language Server for typechecking",
+              "(New) Use TypeScript server plugin for typechecking"
+            ],
+            "description": "Glint 2 shifts typechecking to a TypeScript server plugin. This setting allows you to opt into the new behavior."
           }
         }
       }
