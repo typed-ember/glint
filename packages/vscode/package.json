@@ -162,6 +162,10 @@
       {
         "name": "typescript-hbs-plugin",
         "enableForWorkspaceTypeScriptVersions": true
+      },
+      {
+        "name": "@glint/typescript-plugin",
+        "enableForWorkspaceTypeScriptVersions": true
       }
     ],
     "jsonValidation": [

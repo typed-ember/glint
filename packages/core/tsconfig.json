@@ -4,5 +4,5 @@
     "rootDir": "src",
     "outDir": "lib"
   },
-  "include": ["src", "types", "../typescript-plugin/src/typescript-server-plugin.ts"]
+  "include": ["src", "types"]
 }
