@@ -1,0 +1,29 @@
+{
+  "name": "@glint/typescript-plugin",
+  "version": "1.4.0",
+  "type": "module",
+  "repository": "typed-ember/glint",
+  "description": "TypeScript Server Plugin for Glint",
+  "license": "MIT",
+  "authors": [
+    "Alex Matchneer (https://github.com/machty)"
+  ],
+  "files": [
+    "README.md",
+    "lib"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:tsc": "echo 'no standalone typecheck within this project'",
+    "build": "tsc --build",
+    "prepack": "yarn build"
+  },
+  "dependencies": {
+    "@glint/core": "^1.4.0",
+    "@volar/typescript": "2.4.0-alpha.14"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

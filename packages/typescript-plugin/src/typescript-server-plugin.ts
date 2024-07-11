@@ -1,6 +1,6 @@
 import { createLanguageServicePlugin } from '@volar/typescript/lib/quickstart/createLanguageServicePlugin.js';
-import { findConfig } from '../config/index.js';
-import { createEmberLanguagePlugin } from './ember-language-plugin.js';
+import { findConfig } from '../../core/src/config/index.js';
+import { createEmberLanguagePlugin } from '../../core/src/volar/ember-language-plugin.js';
 
 const plugin = createLanguageServicePlugin((ts, info) => {
   const cwd = info.languageServiceHost.getCurrentDirectory();

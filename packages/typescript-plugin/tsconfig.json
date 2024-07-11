@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.compileroptions.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "lib"
+    "outDir": "bin"
   },
-  "include": ["src", "types", "../typescript-plugin/src/typescript-server-plugin.ts"]
+  "include": ["src"],
+  "references": [{ "path": "../core" }]
 }

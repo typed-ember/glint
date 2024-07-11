@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["../src", "**/*.ts"],
+  "include": ["../src", "**/*.ts", "../../typescript-plugin/src/typescript-server-plugin.ts"],
   "compilerOptions": {
     "rootDir": ".."
   }
