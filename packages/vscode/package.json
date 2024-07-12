@@ -30,8 +30,8 @@
     "test:tsc": "echo 'no standalone tsc within this project'",
     "build": "yarn compile && yarn bundle",
     "compile": "tsc --build",
-    "bundle": "esbuild lib/src/extension.js --bundle --outfile=dist/extension.js --platform=node --external:vscode --minify",
-    "vscode:prepublish": "yarn build",
+    "bundle": "node ./scripts/build.mjs",
+    "bundle:watch": "node ./scripts/build.mjs -- --watch",
     "extension:package": "vsce package --no-dependencies",
     "extension:publish": "vsce publish --no-dependencies"
   },
@@ -184,14 +184,6 @@
         "command": "glint.restart-language-server"
       }
     ],
-    "menus": {
-      "commandPalette": [
-        {
-          "command": "glint.sort-imports",
-          "when": "editorLangId =~ /javascript|typescript|glimmer-js|glimmer-ts/"
-        }
-      ]
-    },
     "configuration": [
       {
         "title": "Glint",

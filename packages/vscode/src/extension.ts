@@ -34,6 +34,7 @@ const extensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
 const filePattern = `**/*{${extensions.join(',')}}`;
 
 export function activate(context: ExtensionContext): LabsInfo {
+  throw new Error('ALEX Not implemented');
   // TODO: Volar: i think this happens as part of dynamic registerCapability, i.e.
   // I think maybe we can remove this from `activate` and wait for it to happen
   // when the server sends the registerCapability questions for all dynamicRegistration=true capabilities.
