@@ -28,6 +28,10 @@ const fileExtensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
 const filePattern = `**/*{${fileExtensions.join(',')}}`;
 
 export function activate(context: ExtensionContext): LabsInfo {
+  // We need to activate the default VSCode TypeScript extension so that our
+  // TS Plugin kicks in. We do this because the TS extension is (obviously) not
+  // configured to activate for, say, .gts files:
+  // https://github.com/microsoft/vscode/blob/878af07/extensions/typescript-language-features/package.json#L62..L75
   extensions.getExtension('vscode.typescript-language-features')?.activate()
 
   // TODO: Volar: i think this happens as part of dynamic registerCapability, i.e.
