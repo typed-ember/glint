@@ -13,11 +13,6 @@ await build({
   bundle: true,
   entryPoints: {
     'dist/extension': require.resolve('../lib/src/extension.js'),
-    // 'out/extension': require.resolve('../src/extension.js'),
-    // 'out/language-server': require.resolve('@mdx-js/language-server'),
-    // 'node_modules/@mdx-js/typescript-plugin': require.resolve(
-    //   '../../typescript-plugin/index.cjs'
-    // )
   },
   external: ['vscode'],
   logLevel: 'info',
@@ -27,17 +22,4 @@ await build({
   sourcemap: debug,
   target: 'node16',
   watch: watch,
-  plugins: [
-    {
-      name: 'alias',
-      setup({ onResolve, resolve }) {
-        onResolve({ filter: /^(jsonc-parser)$/ }, ({ path, ...options }) =>
-          resolve(require.resolve(path).replace(/\/umd\//, '/esm/'), options),
-        );
-        onResolve({ filter: /\/umd\// }, ({ path, ...options }) =>
-          resolve(path.replace(/\/umd\//, '/esm/'), options),
-        );
-      },
-    },
-  ],
 });
