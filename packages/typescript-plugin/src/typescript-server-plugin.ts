@@ -1,26 +1,34 @@
-import { createLanguageServicePlugin } from '@volar/typescript/lib/quickstart/createLanguageServicePlugin.js';
-import { findConfig } from '../../core/src/config/index.js';
-import { createEmberLanguagePlugin } from '../../core/src/volar/ember-language-plugin.js';
+import type ts from 'typescript';
 
-const plugin = createLanguageServicePlugin((ts, info) => {
-  const cwd = info.languageServiceHost.getCurrentDirectory();
-  const glintConfig = findConfig(cwd);
+// Top level "imports" need to be CJS requires because TS Plugins must be CJS;
+// we dynamically import() the ESM modules we need below within the async fn.
+const {
+  createAsyncLanguageServicePlugin,
+} = require('@volar/typescript/lib/quickstart/createAsyncLanguageServicePlugin.js');
 
-  // NOTE: this code used to assert in the failure of finding Glint config; I'm
-  // not sure whether it's better to be lenient, but we were getting test failures
-  // on environment-ember-loose's `yarn run test`.
-  if (glintConfig) {
-    const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig);
-    return {
-      languagePlugins: [gtsLanguagePlugin],
-    };
-  } else {
-    return {
-      languagePlugins: [],
-    };
-  }
-});
+const plugin = createAsyncLanguageServicePlugin(
+  ['.ts', '.js', '.gts', '.gjs', '.hbs'],
+  7 satisfies ts.ScriptKind.Deferred,
+  async (_ts: any, info: any) => {
+    const { findConfig, createEmberLanguagePlugin } = await import('@glint/core');
 
-// @ts-expect-error TypeScript Plugin needs to be exported with `export =`
-// eslint-disable-next-line no-restricted-syntax
+    const cwd = info.languageServiceHost.getCurrentDirectory();
+    const glintConfig = findConfig(cwd);
+
+    // NOTE: this code used to assert in the failure of finding Glint config; I'm
+    // not sure whether it's better to be lenient, but we were getting test failures
+    // on environment-ember-loose's `yarn run test`.
+    if (glintConfig) {
+      const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig);
+      return {
+        languagePlugins: [gtsLanguagePlugin],
+      };
+    } else {
+      return {
+        languagePlugins: [],
+      };
+    }
+  },
+);
+
 export = plugin;

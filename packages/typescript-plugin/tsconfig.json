@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.compileroptions.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "lib"
+    "outDir": "lib",
+
+    // ts server plugins need to be cjs
+    "module": "CommonJS",
+    "moduleResolution": "node"
   },
   "include": ["src"],
   "references": [{ "path": "../core" }]

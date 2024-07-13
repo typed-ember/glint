@@ -1,10 +1,11 @@
 {
   "name": "@glint/typescript-plugin",
   "version": "1.4.0",
-  "type": "module",
+  "type": "commonjs",
   "repository": "typed-ember/glint",
   "description": "TypeScript Server Plugin for Glint",
   "license": "MIT",
+  "main": "lib/typescript-server-plugin.js",
   "authors": [
     "Alex Matchneer (https://github.com/machty)"
   ],

@@ -8,6 +8,9 @@
     "test:typecheck": "glint",
     "test:tsc": "echo 'no standalone tsc within this project'"
   },
+  "devDependencies": {
+    "@glint/typescript-plugin": "*"
+  },
   "volta": {
     "extends": "../../package.json"
   }
