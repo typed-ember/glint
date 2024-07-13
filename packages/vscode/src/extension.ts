@@ -4,21 +4,15 @@ import {
   ExtensionContext,
   WorkspaceFolder,
   FileSystemWatcher,
-  TextEditor,
-  Range,
-  Uri,
   window,
+  extensions,
   commands,
   workspace,
   WorkspaceConfiguration,
-  WorkspaceEdit,
 } from 'vscode';
 import * as languageServerProtocol from '@volar/language-server/protocol.js';
 import {
   LabsInfo,
-  activateAutoInsertion,
-  activateDocumentDropEdit,
-  activateTsVersionStatusItem,
   createLabsInfo,
   getTsdk,
 } from '@volar/vscode';
@@ -30,11 +24,12 @@ import { Disposable, LanguageClient, ServerOptions } from '@volar/vscode/node.js
 
 const outputChannel = window.createOutputChannel('Glint Language Server');
 const clients = new Map<string, LanguageClient>();
-const extensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
-const filePattern = `**/*{${extensions.join(',')}}`;
+const fileExtensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
+const filePattern = `**/*{${fileExtensions.join(',')}}`;
 
 export function activate(context: ExtensionContext): LabsInfo {
-  throw new Error('ALEX Not implemented');
+  extensions.getExtension('vscode.typescript-language-features')?.activate()
+
   // TODO: Volar: i think this happens as part of dynamic registerCapability, i.e.
   // I think maybe we can remove this from `activate` and wait for it to happen
   // when the server sends the registerCapability questions for all dynamicRegistration=true capabilities.
