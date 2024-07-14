@@ -1,7 +1,8 @@
 import type ts from 'typescript';
 
-// Top level "imports" need to be CJS requires because TS Plugins must be CJS;
-// we dynamically import() the ESM modules we need below within the async fn.
+// Top level "imports" need to be CJS `require`s because TS Plugins must be CJS;
+// we dynamically import() the ESM modules we need below within the async fn
+// to cross the gap between CJS and ESM.
 const {
   createAsyncLanguageServicePlugin,
 } = require('@volar/typescript/lib/quickstart/createAsyncLanguageServicePlugin.js');
