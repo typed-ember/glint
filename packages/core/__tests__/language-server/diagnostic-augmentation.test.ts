@@ -166,48 +166,6 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
             "version": 0,
           },
-          "message": "Expected 2 arguments, but got 1.",
-          "range": {
-            "end": {
-              "character": 28,
-              "line": 19,
-            },
-            "start": {
-              "character": 4,
-              "line": 19,
-            },
-          },
-          "relatedInformation": [
-            {
-              "location": {
-                "range": {
-                  "end": {
-                    "character": 44,
-                    "line": 9,
-                  },
-                  "start": {
-                    "character": 35,
-                    "line": 9,
-                  },
-                },
-                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-              },
-              "message": "An argument for 'b' was not provided.",
-            },
-          ],
-          "severity": 1,
-          "source": "glint",
-        },
-        {
-          "code": 2554,
-          "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 0,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-            "version": 0,
-          },
           "message": "Expected 2 arguments, but got 3.",
           "range": {
             "end": {
@@ -247,72 +205,6 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "source": "glint",
         },
         {
-          "code": 2555,
-          "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 0,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-            "version": 0,
-          },
-          "message": "Expected at least 1 arguments, but got 0.",
-          "range": {
-            "end": {
-              "character": 28,
-              "line": 22,
-            },
-            "start": {
-              "character": 4,
-              "line": 22,
-            },
-          },
-          "relatedInformation": [
-            {
-              "location": {
-                "range": {
-                  "end": {
-                    "character": 39,
-                    "line": 13,
-                  },
-                  "start": {
-                    "character": 30,
-                    "line": 13,
-                  },
-                },
-                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-              },
-              "message": "An argument for 'a' was not provided.",
-            },
-          ],
-          "severity": 1,
-          "source": "glint",
-        },
-        {
-          "code": 2554,
-          "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 0,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-            "version": 0,
-          },
-          "message": "Expected 2 arguments, but got 1.",
-          "range": {
-            "end": {
-              "character": 41,
-              "line": 24,
-            },
-            "start": {
-              "character": 4,
-              "line": 24,
-            },
-          },
-          "severity": 1,
-          "source": "glint",
-        },
-        {
           "code": 2554,
           "data": {
             "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
@@ -333,48 +225,6 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 25,
             },
           },
-          "severity": 1,
-          "source": "glint",
-        },
-        {
-          "code": 2555,
-          "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 0,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-            "version": 0,
-          },
-          "message": "Expected at least 1 arguments, but got 0.",
-          "range": {
-            "end": {
-              "character": 41,
-              "line": 26,
-            },
-            "start": {
-              "character": 4,
-              "line": 26,
-            },
-          },
-          "relatedInformation": [
-            {
-              "location": {
-                "range": {
-                  "end": {
-                    "character": 48,
-                    "line": 115,
-                  },
-                  "start": {
-                    "character": 4,
-                    "line": 115,
-                  },
-                },
-                "uri": "file:///PATH_TO_MODULE/@glint/template/-private/dsl/emit.d.ts",
-              },
-              "message": "Arguments for the rest parameter 'values' were not provided.",
-            },
-          ],
           "severity": 1,
           "source": "glint",
         },
@@ -675,7 +525,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
       No overload matches this call.
         Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
-        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any[]) => any', gave the following error.
         Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
@@ -721,7 +571,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
       No overload matches this call.
         Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
-        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any[]) => any', gave the following error.
         Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
@@ -750,7 +600,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
       No overload matches this call.
         Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
-        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any[]) => any', gave the following error.
         Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
@@ -779,7 +629,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
       No overload matches this call.
         Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
-        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any[]) => any', gave the following error.
         Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
@@ -808,7 +658,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
       No overload matches this call.
         Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
-        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any[]) => any', gave the following error.
         Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
@@ -837,7 +687,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
       No overload matches this call.
         Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
-        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any[]) => any', gave the following error.
         Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
@@ -866,7 +716,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
       No overload matches this call.
         Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
-        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any[]) => any', gave the following error.
         Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
@@ -895,7 +745,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The given value does not appear to be usable as a component, modifier or helper.
       No overload matches this call.
         Overload 1 of 3, '(item: DirectInvokable): AnyFunction', gave the following error.
-        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any) => any', gave the following error.
+        Overload 2 of 3, '(item: (abstract new (...args: unknown[]) => InvokableInstance) | null | undefined): (...args: any[]) => any', gave the following error.
         Overload 3 of 3, '(item: ((...params: any) => any) | null | undefined): (...params: any) => any', gave the following error.",
           "range": {
             "end": {
