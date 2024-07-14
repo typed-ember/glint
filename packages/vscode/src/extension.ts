@@ -11,11 +11,7 @@ import {
   WorkspaceConfiguration,
 } from 'vscode';
 import * as languageServerProtocol from '@volar/language-server/protocol.js';
-import {
-  LabsInfo,
-  createLabsInfo,
-  getTsdk,
-} from '@volar/vscode';
+import { LabsInfo, createLabsInfo, getTsdk } from '@volar/vscode';
 
 import { Disposable, LanguageClient, ServerOptions } from '@volar/vscode/node.js';
 
@@ -32,7 +28,7 @@ export function activate(context: ExtensionContext): LabsInfo {
   // TS Plugin kicks in. We do this because the TS extension is (obviously) not
   // configured to activate for, say, .gts files:
   // https://github.com/microsoft/vscode/blob/878af07/extensions/typescript-language-features/package.json#L62..L75
-  extensions.getExtension('vscode.typescript-language-features')?.activate()
+  extensions.getExtension('vscode.typescript-language-features')?.activate();
 
   // TODO: Volar: i think this happens as part of dynamic registerCapability, i.e.
   // I think maybe we can remove this from `activate` and wait for it to happen
