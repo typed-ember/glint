@@ -158,12 +158,6 @@
         }
       }
     ],
-    "typescriptServerPlugins": [
-      {
-        "name": "typescript-hbs-plugin",
-        "enableForWorkspaceTypeScriptVersions": true
-      }
-    ],
     "jsonValidation": [
       {
         "fileMatch": "jsconfig*.json",

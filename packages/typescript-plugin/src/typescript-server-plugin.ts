@@ -16,9 +16,6 @@ const plugin = createAsyncLanguageServicePlugin(
     const cwd = info.languageServiceHost.getCurrentDirectory();
     const glintConfig = findConfig(cwd);
 
-    // NOTE: this code used to assert in the failure of finding Glint config; I'm
-    // not sure whether it's better to be lenient, but we were getting test failures
-    // on environment-ember-loose's `yarn run test`.
     if (glintConfig) {
       const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig);
       return {
