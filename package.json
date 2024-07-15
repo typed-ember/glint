@@ -5,13 +5,12 @@
   "workspaces": {
     "packages": [
       "packages/*",
-      "test-packages/*",
-      "ts-plugin-test-package"
+      "test-packages/*"
     ],
-    "nohoist:explanation": "",
+    "nohoist:explanation": "TS Plugins need 1. workspace Typescript unhoisted within `node_modules` and 2. TS plugins dependencies must also be unhoisted in node_modules",
     "nohoist": [
-      "ts-plugin-test-package/@glint/typescript-plugin",
-      "ts-plugin-test-package/typescript"
+      "test-packages/ts-plugin-test-package/@glint/typescript-plugin",
+      "test-packages/ts-plugin-test-package/typescript"
     ]
   },
   "scripts": {
