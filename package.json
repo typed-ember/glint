@@ -5,12 +5,11 @@
   "workspaces": {
     "packages": [
       "packages/*",
-      "test-packages/*",
-      "ts-plugin-test-package"
+      "test-packages/*"
     ],
     "nohoist": [
-      "**/ts-plugin-test-package/typescript",
-      "**/ts-plugin-test-package/@glint/typescript-plugin"
+      "ts-plugin-test-app/typescript",
+      "ts-plugin-test-app/@glint/typescript-plugin"
     ]
   },
   "scripts": {

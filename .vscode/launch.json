@@ -75,7 +75,7 @@
         "lifeart.vscode-glimmer-syntax",
         "--disable-extension",
         "unifiedjs.vscode-mdx",
-        "${workspaceFolder}/ts-plugin-test-package"
+        "${workspaceFolder}/test-packages/ts-plugin-test-app"
       ]
     },
     {
