@@ -8,8 +8,11 @@ const {
 } = require('@volar/typescript/lib/quickstart/createAsyncLanguageServicePlugin.js');
 
 const plugin = createAsyncLanguageServicePlugin(
-  ['.ts', '.js', '.gts', '.gjs', '.hbs'],
-  7 satisfies ts.ScriptKind.Deferred,
+  ['.gts', '.gjs', '.hbs'],
+  (fileName: string) => {
+    // TODO some discussion of what goes here
+    return 7 satisfies ts.ScriptKind.Deferred;
+  },
   async (_ts: any, info: any) => {
     const glintCore = await import('@glint/core');
     const { findConfig, createEmberLanguagePlugin } = glintCore;
