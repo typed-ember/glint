@@ -1,0 +1,15 @@
+{
+  "name": "ts-plugin-test-package",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "typescript": ">=5.4.0",
+    "@glint/typescript-plugin": "link:../packages/typescript-plugin"
+  }
+}

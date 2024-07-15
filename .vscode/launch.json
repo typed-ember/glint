@@ -77,6 +77,18 @@
         "typed-ember.glint-vscode",
         "${workspaceFolder}/test-packages"
       ]
+    },
+    {
+      "name": "Attach to TS Server",
+      "type": "node",
+      "request": "attach",
+      "protocol": "inspector",
+      "port": 5667,
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/**/*.js",
+        "!**/node_modules/**"
+      ],
     }
   ]
 }

@@ -11,7 +11,8 @@ const plugin = createAsyncLanguageServicePlugin(
   ['.ts', '.js', '.gts', '.gjs', '.hbs'],
   7 satisfies ts.ScriptKind.Deferred,
   async (_ts: any, info: any) => {
-    const { findConfig, createEmberLanguagePlugin } = await import('@glint/core');
+    const glintCore = await import('@glint/core');
+    const { findConfig, createEmberLanguagePlugin } = glintCore;
 
     const cwd = info.languageServiceHost.getCurrentDirectory();
     const glintConfig = findConfig(cwd);
