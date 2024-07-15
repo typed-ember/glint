@@ -52,7 +52,11 @@ connection.onInitialize((parameters) => {
       // assert(glintConfig, 'Glint config is missing');
 
       if (glintConfig) {
-        languagePlugins.unshift(createEmberLanguagePlugin(glintConfig));
+        if (!glintConfig.enableTsPlugin) {
+          // When TS Plugin is enabled, we want the TS Plugin to perform all type-checking/diagnostics/etc,
+          // rather than the Language Server.
+          languagePlugins.unshift(createEmberLanguagePlugin(glintConfig));
+        }
       }
     }
 

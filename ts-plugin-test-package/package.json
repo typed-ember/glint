@@ -10,6 +10,6 @@
   "description": "",
   "devDependencies": {
     "typescript": ">=5.4.0",
-    "@glint/typescript-plugin": "link:../packages/typescript-plugin"
+    "@glint/typescript-plugin": "*"
   }
 }

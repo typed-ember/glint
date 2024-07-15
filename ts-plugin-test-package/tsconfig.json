@@ -6,6 +6,7 @@
   },
   "include": ["src", "types"],
   "glint": {
+    "enableTsPlugin": true,
     "environment": {
       "ember-loose": {},
       "ember-template-imports": {

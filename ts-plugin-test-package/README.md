@@ -1,4 +1,8 @@
-A convenient test folders for trying out the TS Plugin. This folder is intended to be more isolated from the other packages in the glint repo and is intentionally not included as a yarn workspace because:
+## ts-plugin-test-package
+
+- A convenient test folders for trying out the TS Plugin
+- intentionally not included as a yarn workspace
+  - because yarn hoists dependencies to root and we need the ts plugin to be in this folder's `node_modules`
 
 - VSCode needs `typescript` to not be hoisted out of the this directory's `node_modules`
 - TS Plugin might also have similar constraints, not sure

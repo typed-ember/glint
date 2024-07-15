@@ -2,10 +2,18 @@
   "name": "glint",
   "repository": "https://github.com/typed-ember/glint",
   "private": true,
-  "workspaces": [
-    "packages/*",
-    "test-packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "test-packages/*",
+      "ts-plugin-test-package"
+    ],
+    "nohoist:explanation": "",
+    "nohoist": [
+      "ts-plugin-test-package/@glint/typescript-plugin",
+      "ts-plugin-test-package/typescript"
+    ]
+  },
   "scripts": {
     "lint": "yarn lint:scripts && yarn lint:formatting",
     "lint:fix": "yarn lint:scripts --fix && yarn prettier --write .",

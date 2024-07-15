@@ -24,7 +24,7 @@ const plugin = createAsyncLanguageServicePlugin(
     const cwd = info.languageServiceHost.getCurrentDirectory();
     const glintConfig = findConfig(cwd);
 
-    if (glintConfig) {
+    if (glintConfig && glintConfig.enableTsPlugin) {
       const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig);
       return {
         languagePlugins: [gtsLanguagePlugin],

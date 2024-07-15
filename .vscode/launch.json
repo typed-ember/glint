@@ -57,10 +57,12 @@
       ]
     },
     {
-      "name": "Debug Extension (TS Plugin Only, no Glint)",
+      // For this to work, make sure you're runninc `tsc --build --watch` at the root, AND
+      // `yarn bundle:watch` from within vscode directory.
+      "name": "Debug Extension (TS Plugin Only)",
       "type": "extensionHost",
       "request": "launch",
-      "preLaunchTask": "npm: build",
+      // "preLaunchTask": "npm: build",
       "autoAttachChildProcesses": true,
       "runtimeExecutable": "${execPath}",
       "outFiles": [
@@ -69,13 +71,11 @@
       ],
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-        // "--disable-extension",
-        // "vscode.typescript-language-features",
         "--disable-extension",
         "lifeart.vscode-glimmer-syntax",
         "--disable-extension",
-        "typed-ember.glint-vscode",
-        "${workspaceFolder}/test-packages"
+        "unifiedjs.vscode-mdx",
+        "${workspaceFolder}/ts-plugin-test-package"
       ]
     },
     {
