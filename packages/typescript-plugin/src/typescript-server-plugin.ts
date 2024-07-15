@@ -10,8 +10,12 @@ const {
 const plugin = createAsyncLanguageServicePlugin(
   ['.gts', '.gjs', '.hbs'],
   (fileName: string) => {
-    // TODO some discussion of what goes here
-    return 7 satisfies ts.ScriptKind.Deferred;
+    if (fileName.endsWith('.gts')) {
+      return 3 satisfies ts.ScriptKind.TS;
+    } else if (fileName.endsWith('.gjs')) {
+      return 1 satisfies ts.ScriptKind.JS;
+    }
+    return 3 satisfies ts.ScriptKind.TS;
   },
   async (_ts: any, info: any) => {
     const glintCore = await import('@glint/core');
