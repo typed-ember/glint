@@ -8,7 +8,7 @@ To test this out:
 5. Navigate to `test.ts`; this will fully activate the vanilla VSCode TS language tooling, which has the side-effect of loading our Ember TS Plugin.
 6. You may need to run the command `TypeScript: Select TypeScript Version` and set it to the workspace. You might need to do this every time you re-start the debug process.
 7. Open `glimmer.gts` and see if you can get diagnostics/tooling working (doesn't work yet)
-8. To see the tsserver log, _navigate back to `test.ts` and run command `TypeScript: Open TS Server Log`.
+8. To see the tsserver log, _navigate back to `test.ts`_ and run command `TypeScript: Open TS Server Log`.
 
 With this debug setup, the following happens:
 
