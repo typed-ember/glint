@@ -5,6 +5,8 @@ To test this out:
 1. Run root tsc `yarn run tsc --build --watch`
 2. Within `packages/vscode`: `yarn bundle:watch`
 3. In VSCode's Run and Debug, run the "Debug Extension (TS Plugin Only)"
+4. You may need to open `test.ts` to fully activate the TS Plugin. After that you can navigate to `glimmer.gts` to test out diagnostics/completions for the `.gts` format.
+5. To see the tsserver log, _navigate back to `test.ts` and run command `TypeScript: Open TS Server Log`.
 
 This causes the following:
 
