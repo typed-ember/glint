@@ -38,10 +38,10 @@ export declare function emitContent(value: ContentValue): void;
  *
  * Would produce code like:
  *
- *     emitElement('div', (𝛄) => {
- *       applySplattributes(𝚪.element, 𝛄.element);
- *       applyAttributes(𝛄.element, { class: 'hello' });
- *       applyModifier(𝛄.element, resolve(on)({}, 'click', this.clicked));
+ *     emitElement('div', (__glintY__) => {
+ *       applySplattributes(__glintRef__.element, __glintY__.element);
+ *       applyAttributes(__glintY__.element, { class: 'hello' });
+ *       applyModifier(__glintY__.element, resolve(on)({}, 'click', this.clicked));
  *     });
  */
 export declare function emitElement<Name extends string>(
@@ -60,8 +60,8 @@ export declare function emitElement<Name extends string>(
  * This form of invocation is the only one in a template that may have
  * blocks bound to it. The final line above would produce code like:
  *
- *     emitComponent(resolve(Value)({ foo: bar })), (𝛄) => {
- *       applyModifier(𝛄.element, resolve(baz)({}));
+ *     emitComponent(resolve(Value)({ foo: bar })), (__glintY__) => {
+ *       applyModifier(__glintY__.element, resolve(baz)({}));
  *     });
  */
 export declare function emitComponent<T extends ComponentReturn<any, any>>(
@@ -81,7 +81,9 @@ export declare function emitComponent<T extends ComponentReturn<any, any>>(
 export declare function templateExpression<
   Signature extends AnyFunction = () => ComponentReturn<{}>,
   Context extends AnyContext = TemplateContext<void, {}, {}, void>,
->(f: (𝚪: Context, χ: never) => void): new () => InvokableInstance<Signature> & HasContext<Context>;
+>(
+  f: (__glintRef__: Context, __glintDSL__: never) => void,
+): new () => InvokableInstance<Signature> & HasContext<Context>;
 
 /*
  * Wraps a template body that's backed by a known value (typically a class), either
@@ -98,7 +100,7 @@ export declare function templateExpression<
  */
 export declare function templateForBackingValue<Args extends unknown[], Context extends AnyContext>(
   backingValue: abstract new (...args: Args) => HasContext<Context>,
-  body: (𝚪: Context, χ: never) => void,
+  body: (__glintRef__: Context, __glintDSL__: never) => void,
 ): abstract new () => unknown;
 
 /*
@@ -108,10 +110,10 @@ export declare function templateForBackingValue<Args extends unknown[], Context 
  *
  * Is equivalent to:
  *
- *     yieldToBlock(𝚪, 'name')(foo, bar);
+ *     yieldToBlock(__glintRef__, 'name')(foo, bar);
  */
 export declare function yieldToBlock<Context extends AnyContext, K extends keyof Context['blocks']>(
-  𝚪: Context,
+  __glintRef__: Context,
   to: K,
 ): (...values: NonNullable<Context['blocks'][K]>) => void;
 

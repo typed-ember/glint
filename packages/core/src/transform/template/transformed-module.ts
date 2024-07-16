@@ -226,7 +226,7 @@ export default class TransformedModule {
    *
    * The main difference between the two formats is that while the classic Glint transformation
    * mappings support mapping a differently sized source region to a differently sized target region
-   * (e.g. `{{expectsAtLeastOneArg}}` in an .hbs file to `χ.emitContent(χ.resolveOrReturn(expectsAtLeastOneArg)());`
+   * (e.g. `{{expectsAtLeastOneArg}}` in an .hbs file to `__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(expectsAtLeastOneArg)());`
    * in a generated TS file, in Volar you can only map regions of the same size.
    *
    * In the case that you need to map regions of different sizes in Volar, you need to also using
@@ -235,7 +235,7 @@ export default class TransformedModule {
    *
    * - `{{[[ZEROLEN-A]][[expectsAtLeastOneArg]][[ZEROLEN-B]]}}`
    * - to
-   * - `[[ZEROLEN-A]]χ.emitContent(χ.resolveOrReturn([[expectsAtLeastOneArg]])());[[ZEROLEN-B]]`
+   * - `[[ZEROLEN-A]]__glintDSL__.emitContent(__glintDSL__.resolveOrReturn([[expectsAtLeastOneArg]])());[[ZEROLEN-B]]`
    */
   public toVolarMappings(filenameFilter?: string): CodeMapping[] {
     const sourceOffsets: number[] = [];

@@ -27,11 +27,11 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
 
   emitComponent(resolve(NoArgsComponent)());
 
-  templateForBackingValue(NoArgsComponent, function (𝚪) {
-    expectTypeOf(𝚪.this).toBeNull();
-    expectTypeOf(𝚪.args).toEqualTypeOf<{}>();
-    expectTypeOf(𝚪.element).toBeUnknown();
-    expectTypeOf(𝚪.blocks).toEqualTypeOf<{}>();
+  templateForBackingValue(NoArgsComponent, function (__glintRef__) {
+    expectTypeOf(__glintRef__.this).toBeNull();
+    expectTypeOf(__glintRef__.args).toEqualTypeOf<{}>();
+    expectTypeOf(__glintRef__.element).toBeUnknown();
+    expectTypeOf(__glintRef__.blocks).toEqualTypeOf<{}>();
   });
 }
 
@@ -91,11 +91,11 @@ import { ComponentLike, WithBoundArgs } from '@glint/template';
     }
   }
 
-  templateForBackingValue(YieldingComponent, function (𝚪) {
-    expectTypeOf(𝚪.this).toBeNull();
-    expectTypeOf(𝚪.args).toEqualTypeOf<YieldingComponentSignature['Args']>();
-    expectTypeOf(𝚪.element).toEqualTypeOf<YieldingComponentSignature['Element']>();
-    expectTypeOf(𝚪.blocks).toEqualTypeOf<YieldingComponentSignature['Blocks']>();
+  templateForBackingValue(YieldingComponent, function (__glintRef__) {
+    expectTypeOf(__glintRef__.this).toBeNull();
+    expectTypeOf(__glintRef__.args).toEqualTypeOf<YieldingComponentSignature['Args']>();
+    expectTypeOf(__glintRef__.element).toEqualTypeOf<YieldingComponentSignature['Element']>();
+    expectTypeOf(__glintRef__.blocks).toEqualTypeOf<YieldingComponentSignature['Blocks']>();
   });
 }
 

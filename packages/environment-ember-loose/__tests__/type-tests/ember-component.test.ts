@@ -12,8 +12,8 @@ import type { ComponentLike } from '@glint/template';
 {
   class NoArgsComponent extends Component {
     static {
-      templateForBackingValue(this, function (𝚪) {
-        𝚪;
+      templateForBackingValue(this, function (__glintRef__) {
+        __glintRef__;
       });
     }
   }
@@ -40,10 +40,10 @@ import type { ComponentLike } from '@glint/template';
     private foo = 'hello';
 
     static {
-      templateForBackingValue(this, function* (𝚪) {
-        expectTypeOf(𝚪.this.foo).toEqualTypeOf<string>();
-        expectTypeOf(𝚪.this).toEqualTypeOf<StatefulComponent>();
-        expectTypeOf(𝚪.args).toEqualTypeOf<{}>();
+      templateForBackingValue(this, function* (__glintRef__) {
+        expectTypeOf(__glintRef__.this.foo).toEqualTypeOf<string>();
+        expectTypeOf(__glintRef__.this).toEqualTypeOf<StatefulComponent>();
+        expectTypeOf(__glintRef__.args).toEqualTypeOf<{}>();
       });
     }
   }
@@ -67,24 +67,24 @@ import type { ComponentLike } from '@glint/template';
   interface YieldingComponent<T> extends YieldingComponentArgs<T> {}
   class YieldingComponent<T> extends Component<YieldingComponentSignature<T>> {
     static {
-      templateForBackingValue(this, function* (𝚪) {
+      templateForBackingValue(this, function* (__glintRef__) {
         // We can't directly assert on the type of e.g. `@values` here, as we don't
         // have a name for it in scope: the type `T` is present on the class instance,
         // but not in a `static` block. However, the yields below confirm that the
         // `@values` arg, since the only information we have about that type is that
         // the array element and the yielded value are the same.
         yieldToBlock(
-          𝚪,
+          __glintRef__,
           'default',
         )(
           // @ts-expect-error: only a `T` is a valid yield
           123,
         );
 
-        if (𝚪.args.values.length) {
-          yieldToBlock(𝚪, 'default')(𝚪.args.values[0]);
+        if (__glintRef__.args.values.length) {
+          yieldToBlock(__glintRef__, 'default')(__glintRef__.args.values[0]);
         } else {
-          yieldToBlock(𝚪, 'else')();
+          yieldToBlock(__glintRef__, 'else')();
         }
       });
     }

@@ -40,28 +40,30 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
    * ```
    */
   static {
-    templateForBackingValue(this, function (𝚪) {
-      const component = emitComponent(resolve(globals.let)(𝚪.this.state.ready));
+    templateForBackingValue(this, function (__glintRef__) {
+      const component = emitComponent(resolve(globals.let)(__glintRef__.this.state.ready));
       const [isReady] = component.blockParams.default;
 
       {
-        const 𝛄 = emitElement('div');
-        expectTypeOf(𝛄).toEqualTypeOf<{ element: HTMLDivElement }>();
-        applyModifier(resolve(globals.on)(𝛄.element, 'click', 𝚪.this.wrapperClicked));
+        const __glintY__ = emitElement('div');
+        expectTypeOf(__glintY__).toEqualTypeOf<{ element: HTMLDivElement }>();
+        applyModifier(
+          resolve(globals.on)(__glintY__.element, 'click', __glintRef__.this.wrapperClicked),
+        );
       }
 
-      yieldToBlock(𝚪, 'body')(isReady, 𝚪.args.value);
+      yieldToBlock(__glintRef__, 'body')(isReady, __glintRef__.args.value);
 
       yieldToBlock(
-        𝚪,
+        __glintRef__,
         // @ts-expect-error: bad block
         'bad',
-      )(isReady, 𝚪.args.value);
+      )(isReady, __glintRef__.args.value);
 
       // @ts-expect-error: missing params
-      yieldToBlock(𝚪, 'body')();
+      yieldToBlock(__glintRef__, 'body')();
 
-      yieldToBlock(𝚪, 'body')(
+      yieldToBlock(__glintRef__, 'body')(
         isReady,
         // @ts-expect-error: wrong param type
         Symbol(),

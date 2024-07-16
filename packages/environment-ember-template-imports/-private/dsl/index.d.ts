@@ -40,6 +40,6 @@ export declare function templateExpression<
   Signature extends AnyFunction = () => ComponentReturn<{}>,
   Context extends AnyContext = TemplateContext<void, {}, {}, void>,
 >(
-  f: (𝚪: Context, χ: never) => void,
+  f: (__glintRef__: Context, __glintDSL__: never) => void,
 ): TemplateOnlyComponent<never> &
   (abstract new () => InvokableInstance<Signature> & HasContext<Context>);
