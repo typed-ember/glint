@@ -75,6 +75,8 @@
         "lifeart.vscode-glimmer-syntax",
         "--disable-extension",
         "unifiedjs.vscode-mdx",
+        "--disable-extension",
+        "Vue.volar",
         "${workspaceFolder}/test-packages/ts-plugin-test-app"
       ]
     },
