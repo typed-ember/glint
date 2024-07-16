@@ -90,15 +90,15 @@ export function templateToTypescript(
       }
 
       if (backingValue) {
-        emit.text(`.templateForBackingValue(${backingValue}, function(𝚪`);
+        emit.text(`.templateForBackingValue(${backingValue}, function(__glintRef__`);
       } else {
-        emit.text(`.templateExpression(function(𝚪`);
+        emit.text(`.templateExpression(function(__glintRef__`);
       }
 
       if (useJsDoc) {
-        emit.text(`, /** @type {typeof import("${typesModule}")} */ χ) {`);
+        emit.text(`, /** @type {typeof import("${typesModule}")} */ __glintDSL__) {`);
       } else {
-        emit.text(`, χ: typeof import("${typesModule}")) {`);
+        emit.text(`, __glintDSL__: typeof import("${typesModule}")) {`);
       }
 
       emit.newline();
@@ -115,7 +115,7 @@ export function templateToTypescript(
 
       // Ensure the context and lib variables are always consumed to prevent
       // an unused variable warning
-      emit.text('𝚪; χ;');
+      emit.text('__glintRef__; __glintDSL__;');
       emit.newline();
 
       emit.dedent();
@@ -174,7 +174,7 @@ export function templateToTypescript(
       position: InvokePosition,
     ): void {
       if (formInfo.requiresConsumption) {
-        emit.text('(χ.noop(');
+        emit.text('(__glintDSL__.noop(');
         emitExpression(node.path);
         emit.text('), ');
       }
@@ -249,7 +249,7 @@ export function templateToTypescript(
         );
 
         if (position === 'top-level') {
-          emit.text('χ.emitContent(');
+          emit.text('__glintDSL__.emitContent(');
         }
 
         // Treat the first argument to a bind-invokable expression (`{{component}}`,
@@ -260,9 +260,9 @@ export function templateToTypescript(
         // invokable is the source of record for its own type and we don't want inference
         // from the `resolveForBind` call to be affected by other (potentially incorrect)
         // parameter types.
-        emit.text('χ.resolve(');
+        emit.text('__glintDSL__.resolve(');
         emitExpression(node.path);
-        emit.text(')((() => χ.resolveForBind(');
+        emit.text(')((() => __glintDSL__.resolveForBind(');
         emitExpression(node.params[0]);
         emit.text('))(), ');
         emitArgs(node.params.slice(1), node.hash);
@@ -528,7 +528,7 @@ export function templateToTypescript(
 
     function emitIdentifierReference(name: string, hbsOffset: number): void {
       if (treatAsGlobal(name)) {
-        emit.text('χ.Globals["');
+        emit.text('__glintDSL__.Globals["');
         emit.identifier(JSON.stringify(name).slice(1, -1), hbsOffset, name.length);
         emit.text('"]');
       } else {
@@ -592,7 +592,7 @@ export function templateToTypescript(
         emit.newline();
         emit.indent();
 
-        emit.text('const 𝛄 = χ.emitComponent(χ.resolve(');
+        emit.text('const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(');
         emitPathContents(path, start, kind);
         emit.text(')(');
 
@@ -625,7 +625,7 @@ export function templateToTypescript(
             emit.text(', ');
           }
 
-          emit.text('...χ.NamedArgsMarker }');
+          emit.text('...__glintDSL__.NamedArgsMarker }');
         }
 
         emit.text('));');
@@ -756,7 +756,7 @@ export function templateToTypescript(
         emit.newline();
         emit.indent();
 
-        emit.text('const 𝛄 = χ.emitElement(');
+        emit.text('const __glintY__ = __glintDSL__.emitElement(');
         emit.text(JSON.stringify(node.tag));
         emit.text(');');
         emit.newline();
@@ -777,7 +777,7 @@ export function templateToTypescript(
       let nonArgAttributes = node.attributes.filter((attr) => !attr.name.startsWith('@'));
       if (!nonArgAttributes.length && !node.modifiers.length) {
         // Avoid unused-symbol diagnostics
-        emit.text('𝛄;');
+        emit.text('__glintY__;');
         emit.newline();
       } else {
         emitSplattributes(node);
@@ -793,7 +793,7 @@ export function templateToTypescript(
 
       if (!attributes.length) return;
 
-      emit.text('χ.applyAttributes(𝛄.element, {');
+      emit.text('__glintDSL__.applyAttributes(__glintY__.element, {');
       emit.newline();
       emit.indent();
 
@@ -834,7 +834,7 @@ export function templateToTypescript(
       );
 
       emit.forNode(splattributes, () => {
-        emit.text('χ.applySplattributes(𝚪.element, 𝛄.element);');
+        emit.text('__glintDSL__.applySplattributes(__glintRef__.element, __glintY__.element);');
       });
 
       emit.newline();
@@ -843,9 +843,9 @@ export function templateToTypescript(
     function emitModifiers(node: AST.ElementNode): void {
       for (let modifier of node.modifiers) {
         emit.forNode(modifier, () => {
-          emit.text('χ.applyModifier(χ.resolve(');
+          emit.text('__glintDSL__.applyModifier(__glintDSL__.resolve(');
           emitExpression(modifier.path);
-          emit.text(')(𝛄.element, ');
+          emit.text(')(__glintY__.element, ');
           emitArgs(modifier.params, modifier.hash);
           emit.text('));');
           emit.newline();
@@ -879,7 +879,7 @@ export function templateToTypescript(
         if (!hasParams && position === 'arg' && !isGlobal(node.path)) {
           emitExpression(node.path);
         } else if (position === 'top-level') {
-          emit.text('χ.emitContent(');
+          emit.text('__glintDSL__.emitContent(');
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
           emit.text(')');
         } else {
@@ -922,7 +922,7 @@ export function templateToTypescript(
           to = 'else';
         }
 
-        emit.text('χ.yieldToBlock(𝚪, ');
+        emit.text('__glintDSL__.yieldToBlock(__glintRef__, ');
         emit.text(JSON.stringify(to));
         emit.text(')(');
 
@@ -1048,7 +1048,7 @@ export function templateToTypescript(
         emit.newline();
         emit.indent();
 
-        emit.text('const 𝛄 = χ.emitComponent(');
+        emit.text('const __glintY__ = __glintDSL__.emitComponent(');
         emitResolve(node, 'resolve');
         emit.text(');');
         emit.newline();
@@ -1113,7 +1113,7 @@ export function templateToTypescript(
         emit.identifier(makeJSSafe(param), start, param.length);
       }
 
-      emit.text('] = 𝛄.blockParams');
+      emit.text('] = __glintY__.blockParams');
       emitPropertyAccesss(name, { offset: nameOffset, synthetic: true });
       emit.text(';');
       emit.newline();
@@ -1150,10 +1150,10 @@ export function templateToTypescript(
     function emitResolve(node: CurlyInvocationNode, resolveType: string): void {
       // We use forNode here to wrap the emitted resolve expression here so that when
       // we convert to Volar mappings, we can create a boundary around
-      // e.g. "χ.resolveOrReturn(expectsAtLeastOneArg)()", which is required because
+      // e.g. "__glintDSL__.resolveOrReturn(expectsAtLeastOneArg)()", which is required because
       // this is where TS might generate a diagnostic error.
       emit.forNode(node, () => {
-        emit.text('χ.');
+        emit.text('__glintDSL__.');
         emit.text(resolveType);
         emit.text('(');
         emitExpression(node.path);
@@ -1198,7 +1198,7 @@ export function templateToTypescript(
             emit.text(', ');
           }
 
-          emit.text('...χ.NamedArgsMarker }');
+          emit.text('...__glintDSL__.NamedArgsMarker }');
         });
       }
     }
@@ -1219,11 +1219,11 @@ export function templateToTypescript(
     function emitPathContents(parts: string[], start: number, kind: PathKind): void {
       if (kind === 'this') {
         let thisStart = template.indexOf('this', start);
-        emit.text('𝚪.');
+        emit.text('__glintRef__.');
         emit.identifier('this', thisStart);
         start = template.indexOf('.', thisStart) + 1;
       } else if (kind === 'arg') {
-        emit.text('𝚪.args');
+        emit.text('__glintRef__.args');
         start = template.indexOf('@', start) + 1;
       }
 

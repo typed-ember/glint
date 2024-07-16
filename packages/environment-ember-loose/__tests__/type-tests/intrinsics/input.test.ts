@@ -26,8 +26,8 @@ Input({ type: 'string', value: 'hello', ...NamedArgsMarker });
 
 // Ensure we can apply <input>-specific attributes
 {
-  const 𝛄 = emitComponent(Input());
-  applySplattributes(new HTMLInputElement(), 𝛄.element);
+  const __glintY__ = emitComponent(Input());
+  applySplattributes(new HTMLInputElement(), __glintY__.element);
 }
 
 // @ts-expect-error: `checked` only works with `@type=checkbox`

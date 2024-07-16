@@ -65,13 +65,13 @@ Glint transforms template code into TypeScript code so that it can be type-check
 ```ts
 static {
 ({} as typeof import("@glint/environment-ember-loose/-private/dsl")
-       .templateForBackingValue(this, function(𝚪, χ: typeof import("@glint/environment-ember-loose/-private/dsl")) {
+       .templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-loose/-private/dsl")) {
   {
-    const 𝛄 = χ.emitComponent(χ.resolve(χ.Globals["FooComponent"])
-      ({ desc: "notchHeight _ footer", ...χ.NamedArgsMarker }));
-    𝛄;
+    const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["FooComponent"])
+      ({ desc: "notchHeight _ footer", ...__glintDSL__.NamedArgsMarker }));
+    __glintY__;
     {
-      const [] = 𝛄.blockParams["default"];
+      const [] = __glintY__.blockParams["default"];
       {
   // ...
 ```

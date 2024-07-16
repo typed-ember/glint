@@ -20,8 +20,8 @@ Textarea({ value: null, ...NamedArgsMarker });
 
 // Ensure we can apply <textarea>-specific attributes
 {
-  const 𝛄 = emitComponent(Textarea());
-  applySplattributes(new HTMLTextAreaElement(), 𝛄.element);
+  const __glintY__ = emitComponent(Textarea());
+  applySplattributes(new HTMLTextAreaElement(), __glintY__.element);
 }
 
 // Event handlers

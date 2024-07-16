@@ -28,15 +28,15 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
    * ```
    */
   static {
-    templateForBackingValue(this, function (𝚪) {
-      expectTypeOf(𝚪.element).toEqualTypeOf<HTMLImageElement>();
+    templateForBackingValue(this, function (__glintRef__) {
+      expectTypeOf(__glintRef__.element).toEqualTypeOf<HTMLImageElement>();
 
       {
         const ctx = emitElement('img');
         expectTypeOf(ctx.element).toEqualTypeOf<HTMLImageElement>();
 
         applyModifier(resolve(imageModifier)(ctx.element));
-        applySplattributes(𝚪.element, ctx.element);
+        applySplattributes(__glintRef__.element, ctx.element);
       }
     });
   }

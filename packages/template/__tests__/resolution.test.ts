@@ -37,13 +37,13 @@ declare function value<T>(): T;
      * ```
      */
     static {
-      templateForBackingValue(this, function (𝚪) {
+      templateForBackingValue(this, function (__glintRef__) {
         {
-          const component = emitComponent(resolve(globals.let)(𝚪.this.state.ready));
+          const component = emitComponent(resolve(globals.let)(__glintRef__.this.state.ready));
 
           {
             const [isReady] = component.blockParams.default;
-            yieldToBlock(𝚪, 'body')(isReady, 𝚪.args.value);
+            yieldToBlock(__glintRef__, 'body')(isReady, __glintRef__.args.value);
           }
         }
       });

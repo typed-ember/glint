@@ -69,7 +69,7 @@ describe.skip('Transform: Source-to-source offset mapping', () => {
   }
 
   function findOccurrence(haystack: string, needle: string, occurrence: number): number {
-    let offset = haystack.indexOf('function(𝚪');
+    let offset = haystack.indexOf('function(__glintRef__');
     for (let i = 0; i < occurrence + 1; i++) {
       offset = haystack.indexOf(needle, offset + 1);
 
