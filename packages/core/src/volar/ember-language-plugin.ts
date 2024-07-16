@@ -39,24 +39,24 @@ export function createEmberLanguagePlugin<T extends URI | string>(
     },
 
     // When does this get called?
-    createVirtualCode(scriptId: URI | string, languageId, snapshot /*, codegenContext */) {
+    createVirtualCode(scriptId: URI | string, languageId, snapshot, codegenContext) {
       const scriptIdStr = String(scriptId);
 
       // See: https://github.com/JetBrains/intellij-plugins/blob/11a9149e20f4d4ba2c1600da9f2b81ff88bd7c97/Angular/src/angular-service/src/index.ts#L31
       if (
+        glintConfig.enableTsPlugin &&
         languageId === 'typescript' &&
         !scriptIdStr.endsWith('.d.ts') &&
         scriptIdStr.indexOf('/node_modules/') < 0
       ) {
         // NOTE: scriptId might not be a path when we convert this plugin:
         // https://github.com/withastro/language-tools/blob/eb7215cc0ab3a8f614455528cd71b81ea994cf68/packages/ts-plugin/src/language.ts#L19
-        // TODO: commented out for now because support for ember-loose is blocking behind converting to TS Plugin and this will just slow things down
-        // return new LooseModeBackingComponentClassVirtualCode(
-        //   glintConfig,
-        //   snapshot,
-        //   scriptId,
-        //   codegenContext,
-        // );
+        return new LooseModeBackingComponentClassVirtualCode(
+          glintConfig,
+          snapshot,
+          scriptId,
+          codegenContext,
+        );
       }
 
       if (languageId === 'glimmer-ts' || languageId === 'glimmer-js') {
