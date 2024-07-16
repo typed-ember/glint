@@ -24,7 +24,7 @@ export class GlintConfig {
     this.rootDir = path.dirname(configPath);
     this.environment = GlintEnvironment.load(config.environment, { rootDir: this.rootDir });
     this.checkStandaloneTemplates = config.checkStandaloneTemplates ?? true;
-    this.enableTsPlugin = config.enableTsPlugin ?? true;
+    this.enableTsPlugin = config.enableTsPlugin ?? false;
   }
 }
 

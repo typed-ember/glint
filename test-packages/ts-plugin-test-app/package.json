@@ -9,7 +9,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "typescript": ">=5.4.0",
+    "typescript": "*",
     "@glint/typescript-plugin": "*"
   }
 }
