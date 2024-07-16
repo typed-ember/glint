@@ -1,6 +1,28 @@
-{{! TODO: this isn't working yet }}
-{{foo}}
+<div ...attributes id={{unique-id}}>
+  {{this.required}}
+  {{this.optional}}
+  {{this.hasDefault}}
 
-<div>
-  {{this.bar}}
+  {{@required}}
+  {{@optional}}
+  {{@hasDefault}}
+
+  {{!--
+    This pair of checks needs to work in this app, which uses DT types, and the
+    preview/stable types app which does *not*.
+  --}}
+  {{get this "required"}}
+
+  {{! @glint-expect-error: non-existent property }}
+  {{get this "unrelated"}}
 </div>
+
+{{#if this.showFunctionHelpers}}
+  {{! @glint-expect-error: missing arg }}
+  {{this.isLongString}}
+
+  {{! @glint-expect-error: wrong arg type }}
+  {{this.isLongString 123}}
+
+  {{this.isLongString 'hi'}}
+{{/if}}
