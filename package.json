@@ -2,10 +2,17 @@
   "name": "glint",
   "repository": "https://github.com/typed-ember/glint",
   "private": true,
-  "workspaces": [
-    "packages/*",
-    "test-packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "test-packages/*"
+    ],
+    "nohoist:comment": "When running extension host in test-packages/ts-plugin-test-app, we need 1. to be able to use workspace TypeScript, and 2. to use a TS Plugin specified as an npm dependency, both which require typescript and the plugin to be present within the same folder's `node_modules` directory.",
+    "nohoist": [
+      "ts-plugin-test-app/typescript",
+      "ts-plugin-test-app/@glint/typescript-plugin"
+    ]
+  },
   "scripts": {
     "lint": "yarn lint:scripts && yarn lint:formatting",
     "lint:fix": "yarn lint:scripts --fix && yarn prettier --write .",

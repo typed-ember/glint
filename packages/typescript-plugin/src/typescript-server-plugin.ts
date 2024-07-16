@@ -8,15 +8,23 @@ const {
 } = require('@volar/typescript/lib/quickstart/createAsyncLanguageServicePlugin.js');
 
 const plugin = createAsyncLanguageServicePlugin(
-  ['.ts', '.js', '.gts', '.gjs', '.hbs'],
-  7 satisfies ts.ScriptKind.Deferred,
+  ['.gts', '.gjs', '.hbs'],
+  (fileName: string) => {
+    if (fileName.endsWith('.gts')) {
+      return 3 satisfies ts.ScriptKind.TS;
+    } else if (fileName.endsWith('.gjs')) {
+      return 1 satisfies ts.ScriptKind.JS;
+    }
+    return 3 satisfies ts.ScriptKind.TS;
+  },
   async (_ts: any, info: any) => {
-    const { findConfig, createEmberLanguagePlugin } = await import('@glint/core');
+    const glintCore = await import('@glint/core');
+    const { findConfig, createEmberLanguagePlugin } = glintCore;
 
     const cwd = info.languageServiceHost.getCurrentDirectory();
     const glintConfig = findConfig(cwd);
 
-    if (glintConfig) {
+    if (glintConfig && glintConfig.enableTsPlugin) {
       const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig);
       return {
         languagePlugins: [gtsLanguagePlugin],
