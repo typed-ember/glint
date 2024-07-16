@@ -158,6 +158,16 @@
         }
       }
     ],
+    "typescriptServerPlugins": [
+      {
+        "name": "@glint/typescript-plugin",
+        "enableForWorkspaceTypeScriptVersions": true,
+        "languages": [
+          "glimmer-ts",
+          "glimmer-js"
+        ]
+      }
+    ],
     "jsonValidation": [
       {
         "fileMatch": "jsconfig*.json",
