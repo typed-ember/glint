@@ -44,7 +44,7 @@ export function createEmberLanguagePlugin<T extends URI | string>(
 
       // See: https://github.com/JetBrains/intellij-plugins/blob/11a9149e20f4d4ba2c1600da9f2b81ff88bd7c97/Angular/src/angular-service/src/index.ts#L31
       if (
-        glintConfig.enableTsPlugin &&
+        glintConfig.enableTsPlugin &&  // Loose mode not supported for classic "takeover" mode, only TS Plugin
         languageId === 'typescript' &&
         !scriptIdStr.endsWith('.d.ts') &&
         scriptIdStr.indexOf('/node_modules/') < 0
@@ -64,12 +64,15 @@ export function createEmberLanguagePlugin<T extends URI | string>(
       }
     },
 
+    //
+    // This hook is only called in TS Plugin mode (not classic "takeover" mode), because Volar's
+    // support for two-file components only exists for TS Plugin.
+    //
+    // Because we declare handlebars files to be associated with "root" .ts files, we
+    // need to mark them here as "associated file only" so that TS doesn't attempt
+    // to type-check them directly, but rather indirectly via the .ts file.
+    //
     isAssociatedFileOnly(_scriptId: string | URI, languageId: string): boolean {
-      // `ember-loose` only
-      //
-      // Because we declare handlebars files to be associated with "root" .ts files, we
-      // need to mark them here as "associated file only" so that TS doesn't attempt
-      // to type-check them directly, but rather indirectly via the .ts file.
       return languageId === 'handlebars';
     },
 
