@@ -162,6 +162,7 @@
       {
         "name": "@glint/typescript-plugin",
         "enableForWorkspaceTypeScriptVersions": true,
+        "configNamespace": "typescript",
         "languages": [
           "glimmer-ts",
           "glimmer-js"
