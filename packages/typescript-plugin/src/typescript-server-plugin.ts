@@ -10,7 +10,9 @@ const {
 const plugin = createAsyncLanguageServicePlugin(
   ['.gts', '.gjs', '.hbs'],
   (fileName: string) => {
-    if (fileName.endsWith('.gts')) {
+    if (fileName.endsWith('.hbs')) {
+      return 3 satisfies ts.ScriptKind.TS;
+    } else if (fileName.endsWith('.gts')) {
       return 3 satisfies ts.ScriptKind.TS;
     } else if (fileName.endsWith('.gjs')) {
       return 1 satisfies ts.ScriptKind.JS;
