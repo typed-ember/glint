@@ -1,6 +1,18 @@
-# Changes since v2 (Volar-ized Glint)
+# Glint V2 (Alpha)
 
-## `glint` CLI binary
+Glint V2 is a major refactor of Glint V1 to run atop the [Volar.js language tooling framework], which powers the language tooling for Vue and many others.
+
+## Supported Features
+
+At the time of writing, the only component formats supported by Glint 2 are **.gts/.gjs components**; classic two-file (.ts/.js file + .hbs) components are not yet supported (neither class Ember components or nor Glimmer components), but support for these "classic" components is coming soon.
+
+TODO: link to roadmap here.
+
+[Volar.js language tooling framework]: https://volarjs.dev/
+
+## Changelog
+
+### `glint` CLI binary
 
 - BREAKING CHANGE: closer unification with vanilla `tsc`
   - `glint` is now a much more thin wrapper around `tsc` and requires a number of changes to the arguments passed to it to accomplish typical tasks
