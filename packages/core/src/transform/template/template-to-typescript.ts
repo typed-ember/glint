@@ -595,39 +595,43 @@ export function templateToTypescript(
         emit.indent();
 
         emit.text('const 𝛄 = χ.emitComponent(χ.resolve(');
-        emitPathContents(path, start, kind);
+        emit.forNode(node.nameNode, () => {
+          emitPathContents(path, start, kind);
+        });
         emit.text(')(');
 
         let dataAttrs = node.attributes.filter(({ name }) => name.startsWith('@'));
         if (dataAttrs.length) {
           emit.text('{ ');
 
-          for (let attr of dataAttrs) {
-            emit.forNode(attr, () => {
-              start = template.indexOf(attr.name, start + 1);
-              emitHashKey(attr.name.slice(1), start + 1);
-              emit.text(': ');
+          emit.forNode(node.startTag, () => {
+            for (let attr of dataAttrs) {
+              emit.forNode(attr, () => {
+                start = template.indexOf(attr.name, start + 1);
+                emitHashKey(attr.name.slice(1), start + 1);
+                emit.text(': ');
 
-              switch (attr.value.type) {
-                case 'TextNode':
-                  emit.text(JSON.stringify(attr.value.chars));
-                  break;
-                case 'ConcatStatement':
-                  emitConcatStatement(attr.value);
-                  break;
-                case 'MustacheStatement':
-                  emitMustacheStatement(attr.value, 'arg');
-                  break;
-                default:
-                  unreachable(attr.value);
-              }
-            });
+                switch (attr.value.type) {
+                  case 'TextNode':
+                    emit.text(JSON.stringify(attr.value.chars));
+                    break;
+                  case 'ConcatStatement':
+                    emitConcatStatement(attr.value);
+                    break;
+                  case 'MustacheStatement':
+                    emitMustacheStatement(attr.value, 'arg');
+                    break;
+                  default:
+                    unreachable(attr.value);
+                }
+              });
 
-            start = rangeForNode(attr.value).end;
-            emit.text(', ');
-          }
+              start = rangeForNode(attr.value).end;
+              emit.text(', ');
+            }
 
-          emit.text('...χ.NamedArgsMarker }');
+            emit.text('...χ.NamedArgsMarker }');
+          });
         }
 
         emit.text('));');
@@ -759,7 +763,9 @@ export function templateToTypescript(
         emit.indent();
 
         emit.text('const 𝛄 = χ.emitElement(');
-        emit.text(JSON.stringify(node.tag));
+        emit.forNode(node.nameNode, () => {
+          emit.text(JSON.stringify(node.tag));
+        });
         emit.text(');');
         emit.newline();
 
@@ -793,35 +799,39 @@ export function templateToTypescript(
         (attr) => !attr.name.startsWith('@') && attr.name !== SPLATTRIBUTES
       );
 
-      if (!attributes.length) return;
-
       emit.text('χ.applyAttributes(𝛄.element, {');
-      emit.newline();
-      emit.indent();
+      emit.forNode(node.startTag, () => {
+        emit.newline();
+        emit.indent();
 
-      let start = template.indexOf(node.tag, rangeForNode(node).start) + node.tag.length;
+        let start = template.indexOf(node.tag, rangeForNode(node).start) + node.tag.length;
 
-      for (let attr of attributes) {
-        emit.forNode(attr, () => {
-          start = template.indexOf(attr.name, start + 1);
+        for (let attr of attributes) {
+          emit.forNode(attr, () => {
+            start = template.indexOf(attr.name, start + 1);
 
-          emitHashKey(attr.name, start);
-          emit.text(': ');
+            emitHashKey(attr.name, start);
+            emit.text(': ');
 
-          if (attr.value.type === 'MustacheStatement') {
-            emitMustacheStatement(attr.value, 'attr');
-          } else if (attr.value.type === 'ConcatStatement') {
-            emitConcatStatement(attr.value);
-          } else {
-            emit.text(JSON.stringify(attr.value.chars));
-          }
+            if (attr.value.type === 'MustacheStatement') {
+              emitMustacheStatement(attr.value, 'attr');
+            } else if (attr.value.type === 'ConcatStatement') {
+              emitConcatStatement(attr.value);
+            } else {
+              emit.text(JSON.stringify(attr.value.chars));
+            }
 
-          emit.text(',');
+            emit.text(',');
+            emit.newline();
+          });
+        }
+        // in case there are no attributes, this would allow completions to trigger
+        if (attributes.length === 0) {
+          emit.text(' ');
           emit.newline();
-        });
-      }
-
-      emit.dedent();
+        }
+        emit.dedent();
+      });
       emit.text('});');
       emit.newline();
     }

@@ -1,4 +1,5 @@
-import { SafeString } from '@glimmer/runtime';
+// @ts-expect-error cannot import, but we only need the type...
+import type { SafeString } from '@glimmer/runtime';
 import { htmlSafe } from '@ember/template';
 import { emitContent } from '../-private/dsl';
 
