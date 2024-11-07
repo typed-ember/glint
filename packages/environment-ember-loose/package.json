@@ -27,7 +27,7 @@
     "registry/**/*.{js,d.ts}"
   ],
   "peerDependencies": {
-    "@glimmer/component": "^1.1.2",
+    "@glimmer/component": ">=1.1.2",
     "@glint/template": "^1.5.1",
     "@types/ember__array": "^4.0.2",
     "@types/ember__component": "^4.0.10",
