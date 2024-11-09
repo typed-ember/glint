@@ -49,6 +49,7 @@
     "uuid": "^8.3.2",
     "volar-service-typescript": "volar-2.4",
     "vscode-languageserver-textdocument": "^1.0.5",
+    "vscode-languageserver-protocol": "^3.17.5",
     "vscode-uri": "^3.0.8",
     "yargs": "^17.5.1"
   },
