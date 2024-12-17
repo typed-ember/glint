@@ -1,11 +1,12 @@
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
+import * as fs from 'node:fs';
 import SilentError from 'silent-error';
 import { GlintConfig } from './config.js';
 import { GlintConfigInput } from '@glint/core/config-types';
 import type TS from 'typescript';
 
-const require = createRequire(import.meta.url);
+export const require = createRequire(import.meta.url);
 
 type TypeScript = typeof TS;
 
@@ -75,8 +76,15 @@ function loadConfigInput(ts: TypeScript, entryPath: string): GlintConfigInput | 
     );
 
     fullGlintConfig = { ...currentGlintConfig, ...fullGlintConfig };
-    currentPath =
-      currentContents.extends && path.resolve(path.dirname(currentPath), currentContents.extends);
+
+    if (currentContents.extends) {
+      currentPath = path.resolve(path.dirname(currentPath), currentContents.extends);
+      if (!fs.existsSync(currentPath)) {
+        currentPath = require.resolve(currentContents.extends);
+      }
+    } else {
+      currentPath = undefined;
+    }
   }
 
   return validateConfigInput(fullGlintConfig);
