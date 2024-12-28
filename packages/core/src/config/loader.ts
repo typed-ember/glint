@@ -6,6 +6,11 @@ import { GlintConfig } from './config.js';
 import { GlintConfigInput } from '@glint/core/config-types';
 import type * as TS from 'typescript';
 
+/**
+ * @private
+ *
+ * Only exported for testing purposes. Do not import.
+ */
 export const require = createRequire(import.meta.url);
 
 type TypeScript = typeof TS;
