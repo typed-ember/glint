@@ -70,7 +70,7 @@ describe('Config: loadConfig', () => {
       JSON.stringify({
         name: '@package1',
         version: '1.0.0',
-      })
+      }),
     );
     fs.writeFileSync(
       `${nodeModulePackageDir}/tsconfig.json`,
@@ -79,7 +79,7 @@ describe('Config: loadConfig', () => {
           environment: 'kaboom',
           checkStandaloneTemplates: false,
         },
-      })
+      }),
     );
     fs.writeFileSync(
       `${directory}/tsconfig.json`,
@@ -88,7 +88,7 @@ describe('Config: loadConfig', () => {
         glint: {
           environment: '../local-env',
         },
-      })
+      }),
     );
 
     let config = loadConfig(`${directory}`);
