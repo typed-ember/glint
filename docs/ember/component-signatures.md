@@ -75,9 +75,7 @@ import Component from '@glimmer/component';
 export interface SimpleHelloSignature {
   // We have a `<div>` as our root element
   Element: HTMLDivElement;
-  // We accept no arguments
-  Args: Record<string, never>;
-  // We do not accept block form, so don't specify it in the signature
+  // We accept no arguments or block form, so don't specify them in the signature
 }
 
 export default class SimpleHello extends Component<SimpleHelloSignature> {}
