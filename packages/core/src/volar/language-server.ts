@@ -94,16 +94,6 @@ connection.onInitialize((parameters) => {
                 const diagnostics = await typeScriptPlugin.provideDiagnostics!(document, token);
                 return filterAndAugmentDiagnostics(context, document, diagnostics);
               },
-              async provideSemanticDiagnostics(
-                document: TextDocument,
-                token: vscode.CancellationToken,
-              ) {
-                const diagnostics = await typeScriptPlugin.provideSemanticDiagnostics!(
-                  document,
-                  token,
-                );
-                return filterAndAugmentDiagnostics(context, document, diagnostics);
-              },
             };
           },
         };
@@ -111,7 +101,6 @@ connection.onInitialize((parameters) => {
         return plugin;
       }
     }),
-    { pullModelDiagnostics: true },
   );
 });
 
@@ -316,7 +305,8 @@ connection.onInitialized(() => {
 
   const extensions = ['js', 'ts', 'gjs', 'gts', 'hbs'];
 
-  server.watchFiles([`**.*.{${extensions.join(',')}}`]);
+  // TODO: figure out how to reinstate (and what this does exactly)
+  // server.watchFiles([`**.*.{${extensions.join(',')}}`]);
 });
 
 connection.listen();

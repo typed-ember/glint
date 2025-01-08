@@ -73,10 +73,13 @@ export class Project {
       //     '../',
       //     'node_modules',
       //     'typescript',
-      //     'lib'
+      //     'lib',
       //   ),
       // },
     };
+
+    // We need to construct a capabilities object that mirrors how VScode + similar editors
+    // will initialize the Language Server.
     const capabilities = {
       workspace: {
         // Needed for tests that use didChangeWatchedFiles
@@ -87,6 +90,13 @@ export class Project {
         },
         symbols: {},
       },
+
+      // This enables pull model diagnostics.
+      // TODO is this needed? or provided by the plugin?
+      // diagnosticProvider: {
+      //   interFileDependencies: true,
+      //   workspaceDiagnostics: false,
+      // },
     };
 
     await this.languageServerHandle
