@@ -85,7 +85,11 @@ function loadConfigInput(ts: TypeScript, entryPath: string): GlintConfigInput | 
     if (currentContents.extends) {
       currentPath = path.resolve(path.dirname(currentPath), currentContents.extends);
       if (!fs.existsSync(currentPath)) {
-        currentPath = require.resolve(currentContents.extends);
+        try {
+          currentPath = require.resolve(currentContents.extends);
+        } catch {
+          // suppress the exception thrown by require.resolve for those scenarios where the file does not exist
+        }
       }
     } else {
       currentPath = undefined;
