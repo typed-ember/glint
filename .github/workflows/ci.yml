@@ -59,6 +59,11 @@ jobs:
           node-version: 18
           cache: yarn
       - run: yarn install --frozen-lockfile
+
+      # Remove this once this Volar PR/issue is resolved/published:
+      # https://github.com/volarjs/volar.js/pull/259
+      - name: "Fix Volar MapIterator"
+        run: sed -i 's/MapIterator/IterableIterator/g' node_modules/@volar/language-core/lib/utils.d.ts
       - name: Build
         run: yarn build
       - name: Run Tests
