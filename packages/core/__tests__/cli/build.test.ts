@@ -1664,7 +1664,7 @@ describe('CLI: --build --dry', () => {
           let buildResult = await projects.root.buildDeclaration({ flags: ['--dry'] });
           expect(buildResult.exitCode).toBe(0);
           expect(stripAnsi(buildResult.stdout)).toMatch(
-            `A non-dry build would build project '${projects.main.filePath('tsconfig.json')}'`,
+            ` A non-dry build would update timestamps for output of project '${projects.main.filePath('tsconfig.json')}'`,
           );
           expect(stripAnsi(buildResult.stdout)).toMatch(
             `A non-dry build would build project '${projects.children.a.filePath('tsconfig.json')}'`,
