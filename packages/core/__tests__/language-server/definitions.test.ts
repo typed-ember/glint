@@ -63,17 +63,7 @@ describe('Language Server: Definitions', () => {
     expect(definitions).toMatchInlineSnapshot(`
       [
         {
-          "originSelectionRange": {
-            "end": {
-              "character": 13,
-              "line": 5,
-            },
-            "start": {
-              "character": 5,
-              "line": 5,
-            },
-          },
-          "targetRange": {
+          "range": {
             "end": {
               "character": 1,
               "line": 3,
@@ -83,17 +73,7 @@ describe('Language Server: Definitions', () => {
               "line": 1,
             },
           },
-          "targetSelectionRange": {
-            "end": {
-              "character": 29,
-              "line": 1,
-            },
-            "start": {
-              "character": 21,
-              "line": 1,
-            },
-          },
-          "targetUri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
       ]
     `);
@@ -133,17 +113,7 @@ describe('Language Server: Definitions', () => {
     expect(definitions).toMatchInlineSnapshot(`
       [
         {
-          "originSelectionRange": {
-            "end": {
-              "character": 22,
-              "line": 5,
-            },
-            "start": {
-              "character": 14,
-              "line": 5,
-            },
-          },
-          "targetRange": {
+          "range": {
             "end": {
               "character": 18,
               "line": 3,
@@ -153,17 +123,7 @@ describe('Language Server: Definitions', () => {
               "line": 3,
             },
           },
-          "targetSelectionRange": {
-            "end": {
-              "character": 9,
-              "line": 3,
-            },
-            "start": {
-              "character": 2,
-              "line": 3,
-            },
-          },
-          "targetUri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
       ]
     `);
@@ -193,17 +153,7 @@ describe('Language Server: Definitions', () => {
     expect(definitions).toMatchInlineSnapshot(`
       [
         {
-          "originSelectionRange": {
-            "end": {
-              "character": 22,
-              "line": 7,
-            },
-            "start": {
-              "character": 15,
-              "line": 7,
-            },
-          },
-          "targetRange": {
+          "range": {
             "end": {
               "character": 18,
               "line": 3,
@@ -213,17 +163,7 @@ describe('Language Server: Definitions', () => {
               "line": 3,
             },
           },
-          "targetSelectionRange": {
-            "end": {
-              "character": 9,
-              "line": 3,
-            },
-            "start": {
-              "character": 2,
-              "line": 3,
-            },
-          },
-          "targetUri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
       ]
     `);
@@ -260,18 +200,22 @@ describe('Language Server: Definitions', () => {
       character: 27,
     });
 
-    expect(definitions).toMatchObject([
-      {
-        targetUri: 'file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts',
-
-        // Versions of TS vary on whether they consider the source to be
-        // the entire module or just the first character, so we'll consider
-        // the test passing as long as the loose shape is right.
-        targetRange: {
-          start: { line: 0, character: 0 },
-          end: {},
+    expect(definitions).toMatchInlineSnapshot(`
+      [
+        {
+          "range": {
+            "end": {
+              "character": 0,
+              "line": 0,
+            },
+            "start": {
+              "character": 0,
+              "line": 0,
+            },
+          },
+          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
         },
-      },
-    ]);
+      ]
+    `);
   });
 });
