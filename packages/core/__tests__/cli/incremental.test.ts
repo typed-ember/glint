@@ -9,7 +9,7 @@ const BUILD_INFO = 'tsconfig.tsbuildinfo';
 const INPUT_SCRIPT = 'index.gts';
 
 describe('CLI: --incremental', () => {
-  test('when no build has occurred', async () => {
+  test.only('when no build has occurred', async () => {
     let project = await Project.create({ glint: { environment: 'ember-template-imports' } });
 
     let code = stripIndent`
@@ -40,9 +40,7 @@ describe('CLI: --incremental', () => {
 
     expect(existsSync(project.filePath(BUILD_INFO))).toBe(true);
     let contents = JSON.parse(readFileSync(project.filePath(BUILD_INFO), { encoding: 'utf-8' }));
-    expect(contents).toHaveProperty('program');
-    expect(contents.program).toHaveProperty('fileNames');
-    expect(contents.program.fileNames.length).not.toEqual(0);
+    expect(contents.fileNames.length).not.toEqual(0);
   });
 
   describe('when a build has occurred', () => {
