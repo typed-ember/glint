@@ -90,13 +90,6 @@ export class Project {
         },
         symbols: {},
       },
-
-      // This enables pull model diagnostics.
-      // TODO is this needed? or provided by the plugin?
-      // diagnosticProvider: {
-      //   interFileDependencies: true,
-      //   workspaceDiagnostics: false,
-      // },
     };
 
     await this.languageServerHandle
