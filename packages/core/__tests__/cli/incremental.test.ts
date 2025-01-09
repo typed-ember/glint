@@ -9,7 +9,7 @@ const BUILD_INFO = 'tsconfig.tsbuildinfo';
 const INPUT_SCRIPT = 'index.gts';
 
 describe('CLI: --incremental', () => {
-  test.only('when no build has occurred', async () => {
+  test('when no build has occurred', async () => {
     let project = await Project.create({ glint: { environment: 'ember-template-imports' } });
 
     let code = stripIndent`
