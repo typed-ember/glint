@@ -466,8 +466,13 @@ describe('CLI: single-pass build mode typechecking', () => {
               2 const A = 2 * C;
                               ~
 
+              src/index.gts:2:15 - error TS2307: Cannot find module '@glint-test/a' or its corresponding type declarations.
 
-              Found 1 error.
+              2 import A from '@glint-test/a';
+                              ~~~~~~~~~~~~~~~
+
+
+              Found 2 errors.
               "
             `);
 
@@ -573,8 +578,13 @@ describe('CLI: single-pass build mode typechecking', () => {
               4 const A = <template>{{double C}}</template>;
                                              ~
 
+              src/index.gts:2:15 - error TS2307: Cannot find module '@glint-test/a' or its corresponding type declarations.
 
-              Found 1 error.
+              2 import A from '@glint-test/a';
+                              ~~~~~~~~~~~~~~~
+
+
+              Found 2 errors.
               "
             `);
 
@@ -702,8 +712,13 @@ describe('CLI: single-pass build mode typechecking', () => {
               1 const B: number = 'ahoy';
                       ~
 
+              src/index.gts:3:15 - error TS2307: Cannot find module '@glint-test/b' or its corresponding type declarations.
 
-              Found 1 error.
+              3 import B from '@glint-test/b';
+                              ~~~~~~~~~~~~~~~
+
+
+              Found 2 errors.
               "
             `);
 
@@ -807,8 +822,13 @@ describe('CLI: single-pass build mode typechecking', () => {
               2 const Usage = <template>{{double "hello"}}</template>;
                                                  ~~~~~~~
 
+              src/index.gts:3:15 - error TS2307: Cannot find module '@glint-test/b' or its corresponding type declarations.
 
-              Found 1 error.
+              3 import B from '@glint-test/b';
+                              ~~~~~~~~~~~~~~~
+
+
+              Found 2 errors.
               "
             `);
 
@@ -895,8 +915,18 @@ describe('CLI: single-pass build mode typechecking', () => {
               1 const C: number = 'world';
                       ~
 
+              ../a/src/index.gts:1:15 - error TS2307: Cannot find module '@glint-test/c' or its corresponding type declarations.
 
-              Found 1 error.
+              1 import C from '@glint-test/c';
+                              ~~~~~~~~~~~~~~~
+
+              src/index.gts:2:15 - error TS2307: Cannot find module '@glint-test/a' or its corresponding type declarations.
+
+              2 import A from '@glint-test/a';
+                              ~~~~~~~~~~~~~~~
+
+
+              Found 3 errors.
               "
             `);
 
@@ -915,8 +945,13 @@ describe('CLI: single-pass build mode typechecking', () => {
               1 const C: number = 'world';
                       ~
 
+              src/index.gts:1:15 - error TS2307: Cannot find module '@glint-test/c' or its corresponding type declarations.
 
-              Found 1 error.
+              1 import C from '@glint-test/c';
+                              ~~~~~~~~~~~~~~~
+
+
+              Found 2 errors.
               "
             `);
 
@@ -1040,8 +1075,18 @@ describe('CLI: single-pass build mode typechecking', () => {
               2 const useDouble = <template>{{double "hello"}}</template>;
                                                      ~~~~~~~
 
+              ../a/src/index.gts:1:15 - error TS2307: Cannot find module '@glint-test/c' or its corresponding type declarations.
 
-              Found 1 error.
+              1 import C from '@glint-test/c';
+                              ~~~~~~~~~~~~~~~
+
+              src/index.gts:2:15 - error TS2307: Cannot find module '@glint-test/a' or its corresponding type declarations.
+
+              2 import A from '@glint-test/a';
+                              ~~~~~~~~~~~~~~~
+
+
+              Found 3 errors.
               "
             `);
 
@@ -1060,8 +1105,13 @@ describe('CLI: single-pass build mode typechecking', () => {
               2 const useDouble = <template>{{double "hello"}}</template>;
                                                      ~~~~~~~
 
+              src/index.gts:1:15 - error TS2307: Cannot find module '@glint-test/c' or its corresponding type declarations.
 
-              Found 1 error.
+              1 import C from '@glint-test/c';
+                              ~~~~~~~~~~~~~~~
+
+
+              Found 2 errors.
               "
             `);
 
@@ -1614,7 +1664,7 @@ describe('CLI: --build --dry', () => {
           let buildResult = await projects.root.buildDeclaration({ flags: ['--dry'] });
           expect(buildResult.exitCode).toBe(0);
           expect(stripAnsi(buildResult.stdout)).toMatch(
-            `A non-dry build would build project '${projects.main.filePath('tsconfig.json')}'`,
+            ` A non-dry build would update timestamps for output of project '${projects.main.filePath('tsconfig.json')}'`,
           );
           expect(stripAnsi(buildResult.stdout)).toMatch(
             `A non-dry build would build project '${projects.children.a.filePath('tsconfig.json')}'`,

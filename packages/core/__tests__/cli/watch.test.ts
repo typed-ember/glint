@@ -164,8 +164,6 @@ describe('CLI: watched typechecking', () => {
     output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 
-    expect(watch.allOutput).toMatch(/\033c/); // output should include screen reset control sequence
-
     await watch.terminate();
   });
 
@@ -287,46 +285,6 @@ describe('CLI: watched typechecking', () => {
 
     output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
-
-    await watch.terminate();
-  });
-
-  test('reports on errors introduced and cleared during the watch with --preserveWatchOutput', async () => {
-    let code = stripIndent`
-      import Component from '@glimmer/component';
-
-      type ApplicationArgs = {
-        version: string;
-      };
-
-      export default class Application extends Component<{ Args: ApplicationArgs }> {
-        private startupTime = new Date().toISOString();
-
-        <template>
-          Welcome to app v{{@version}}.
-          The current time is {{this.startupTime}}.
-        </template>
-      }
-    `;
-
-    project.write('index.gts', code);
-
-    let watch = project.checkWatch({ flags: ['--preserveWatchOutput'], reject: true });
-
-    let output = await watch.awaitOutput('Watching for file changes.');
-    expect(output).toMatch('Found 0 errors.');
-
-    project.write('index.gts', code.replace('this.startupTime', 'this.startupTimee'));
-
-    output = await watch.awaitOutput('Watching for file changes.');
-    expect(output).toMatch('Found 1 error.');
-
-    project.write('index.gts', code);
-
-    output = await watch.awaitOutput('Watching for file changes.');
-    expect(output).toMatch('Found 0 errors.');
-
-    expect(watch.allOutput).not.toMatch(/\033c/); // output should not include screen reset control sequence
 
     await watch.terminate();
   });

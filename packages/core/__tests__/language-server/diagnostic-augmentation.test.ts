@@ -583,7 +583,24 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 10,
             },
           },
-          "relatedInformation": [],
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 83,
+                    "line": 18,
+                  },
+                  "start": {
+                    "character": 69,
+                    "line": 18,
+                  },
+                },
+                "uri": "file:///PATH_TO_MODULE/@glint/template/-private/integration.d.ts",
+              },
+              "message": "'[InvokeDirect]' is declared here.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
         },
@@ -612,7 +629,24 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 11,
             },
           },
-          "relatedInformation": [],
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 83,
+                    "line": 18,
+                  },
+                  "start": {
+                    "character": 69,
+                    "line": 18,
+                  },
+                },
+                "uri": "file:///PATH_TO_MODULE/@glint/template/-private/integration.d.ts",
+              },
+              "message": "'[InvokeDirect]' is declared here.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
         },
@@ -641,7 +675,24 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 12,
             },
           },
-          "relatedInformation": [],
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 83,
+                    "line": 18,
+                  },
+                  "start": {
+                    "character": 69,
+                    "line": 18,
+                  },
+                },
+                "uri": "file:///PATH_TO_MODULE/@glint/template/-private/integration.d.ts",
+              },
+              "message": "'[InvokeDirect]' is declared here.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
         },
@@ -670,7 +721,24 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 14,
             },
           },
-          "relatedInformation": [],
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 83,
+                    "line": 18,
+                  },
+                  "start": {
+                    "character": 69,
+                    "line": 18,
+                  },
+                },
+                "uri": "file:///PATH_TO_MODULE/@glint/template/-private/integration.d.ts",
+              },
+              "message": "'[InvokeDirect]' is declared here.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
         },
@@ -699,7 +767,24 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 15,
             },
           },
-          "relatedInformation": [],
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 83,
+                    "line": 18,
+                  },
+                  "start": {
+                    "character": 69,
+                    "line": 18,
+                  },
+                },
+                "uri": "file:///PATH_TO_MODULE/@glint/template/-private/integration.d.ts",
+              },
+              "message": "'[InvokeDirect]' is declared here.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
         },
@@ -728,7 +813,24 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 16,
             },
           },
-          "relatedInformation": [],
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 83,
+                    "line": 18,
+                  },
+                  "start": {
+                    "character": 69,
+                    "line": 18,
+                  },
+                },
+                "uri": "file:///PATH_TO_MODULE/@glint/template/-private/integration.d.ts",
+              },
+              "message": "'[InvokeDirect]' is declared here.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
         },
@@ -757,7 +859,24 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "line": 17,
             },
           },
-          "relatedInformation": [],
+          "relatedInformation": [
+            {
+              "location": {
+                "range": {
+                  "end": {
+                    "character": 83,
+                    "line": 18,
+                  },
+                  "start": {
+                    "character": 69,
+                    "line": 18,
+                  },
+                },
+                "uri": "file:///PATH_TO_MODULE/@glint/template/-private/integration.d.ts",
+              },
+              "message": "'[InvokeDirect]' is declared here.",
+            },
+          ],
           "severity": 1,
           "source": "glint",
         },

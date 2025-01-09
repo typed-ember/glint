@@ -22,10 +22,12 @@ import GlimmerASTMappingTree from '../transform/template/glimmer-ast-mapping-tre
 import { Directive, TransformedModule } from '../transform/index.js';
 import { Range } from '../transform/template/transformed-module.js';
 import { offsetToPosition } from '../language-server/util/position.js';
+import { Disposable } from '@volar/language-service';
 
 const connection = createConnection();
-
 const server = createServer(connection);
+
+const EXTENSIONS = ['js', 'ts', 'gjs', 'gts', 'hbs'];
 
 /**
  * Handle the `initialize` request from the client. This is the first request sent by the client to
@@ -33,9 +35,16 @@ const server = createServer(connection);
  * other initialization params needed by the server.
  */
 connection.onInitialize((parameters) => {
-  const project = createTypeScriptProject(ts, undefined, (projectContext) => {
+  // Not sure how tsLocalized is used.
+  const tsLocalized = undefined;
+  const watchingExtensions = new Set<string>();
+  let fileWatcher: Promise<Disposable> | undefined;
+
+  const project = createTypeScriptProject(ts, tsLocalized, (projectContext) => {
     const configFileName = projectContext.configFileName;
     const languagePlugins = [];
+
+    updateFileWatcher();
 
     // I don't remember why but there are some contexts where a configFileName is not known,
     // in which case we cannot fully activate all of the language plugins.
@@ -94,16 +103,6 @@ connection.onInitialize((parameters) => {
                 const diagnostics = await typeScriptPlugin.provideDiagnostics!(document, token);
                 return filterAndAugmentDiagnostics(context, document, diagnostics);
               },
-              async provideSemanticDiagnostics(
-                document: TextDocument,
-                token: vscode.CancellationToken,
-              ) {
-                const diagnostics = await typeScriptPlugin.provideSemanticDiagnostics!(
-                  document,
-                  token,
-                );
-                return filterAndAugmentDiagnostics(context, document, diagnostics);
-              },
             };
           },
         };
@@ -111,8 +110,20 @@ connection.onInitialize((parameters) => {
         return plugin;
       }
     }),
-    { pullModelDiagnostics: true },
   );
+
+  function updateFileWatcher(): void {
+    const newExtensions = EXTENSIONS.filter((ext) => !watchingExtensions.has(ext));
+    if (newExtensions.length) {
+      for (const ext of newExtensions) {
+        watchingExtensions.add(ext);
+      }
+      fileWatcher?.then((dispose) => dispose.dispose());
+      fileWatcher = server.fileWatcher.watchFiles([
+        '**/*.{' + [...watchingExtensions].join(',') + '}',
+      ]);
+    }
+  }
 });
 
 function filterAndAugmentDiagnostics(
@@ -282,41 +293,11 @@ function filterAndAugmentDiagnostics(
   return allDiagnostics;
 }
 
-// connection.onRequest('mdx/toggleDelete', async (parameters) => {
-//   const commands = await getCommands(parameters.uri)
-//   return commands.toggleDelete(parameters)
-// })
-
-// connection.onRequest('mdx/toggleEmphasis', async (parameters) => {
-//   const commands = await getCommands(parameters.uri)
-//   return commands.toggleEmphasis(parameters)
-// })
-
-// connection.onRequest('mdx/toggleInlineCode', async (parameters) => {
-//   const commands = await getCommands(parameters.uri)
-//   return commands.toggleInlineCode(parameters)
-// })
-
-// connection.onRequest('mdx/toggleStrong', async (parameters) => {
-//   const commands = await getCommands(parameters.uri)
-//   return commands.toggleStrong(parameters)
-// })
-
 /**
- * Invoked when client has sent `initialized` notification. Volar takes this
- * opportunity to finish initializing, and we tell the client which extensions
- * it should add file-watchers for (technically file-watchers could eagerly
- * be set up on the client (e.g. when the extension activates), but since Volar
- * capabilities use dynamic/deferredregistration, we have the server tell the
- * client which files to watch via the deferred `registerCapability` message
- * within `watchFiles()`).
+ * Invoked when client has sent `initialized` notification.
  */
 connection.onInitialized(() => {
   server.initialized();
-
-  const extensions = ['js', 'ts', 'gjs', 'gts', 'hbs'];
-
-  server.watchFiles([`**.*.{${extensions.join(',')}}`]);
 });
 
 connection.listen();

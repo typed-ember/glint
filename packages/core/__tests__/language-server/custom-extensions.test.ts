@@ -149,9 +149,24 @@ describe('Language Server: custom file extensions', () => {
     const { uri } = await server.openTextDocument(tsPath, 'typescript');
     let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(definitions).toMatchObject([
-      { targetUri: 'file:///path/to/EPHEMERAL_TEST_PROJECT/index.ts' },
-    ]);
+    expect(definitions).toMatchInlineSnapshot(`
+      [
+        {
+          "range": {
+            "end": {
+              "character": 29,
+              "line": 0,
+            },
+            "start": {
+              "character": 0,
+              "line": 0,
+            },
+          },
+          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.ts",
+        },
+      ]
+    `);
+
     expect(diagnostics.items).toEqual([]);
 
     project.remove('index.ts');
@@ -162,9 +177,23 @@ describe('Language Server: custom file extensions', () => {
     definitions = await server.sendDefinitionRequest(consumerURI, { line: 2, character: 4 });
     diagnostics = await server.sendDocumentDiagnosticRequest(uri);
 
-    expect(definitions).toMatchObject([
-      { targetUri: 'file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts' },
-    ]);
+    expect(definitions).toMatchInlineSnapshot(`
+      [
+        {
+          "range": {
+            "end": {
+              "character": 29,
+              "line": 0,
+            },
+            "start": {
+              "character": 0,
+              "line": 0,
+            },
+          },
+          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
+        },
+      ]
+    `);
     expect(diagnostics.items).toEqual([]);
 
     project.remove('index.gts');
