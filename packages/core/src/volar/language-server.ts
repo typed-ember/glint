@@ -25,8 +25,9 @@ import { offsetToPosition } from '../language-server/util/position.js';
 import { Disposable } from '@volar/language-service';
 
 const connection = createConnection();
-
 const server = createServer(connection);
+
+const EXTENSIONS = ['js', 'ts', 'gjs', 'gts', 'hbs'];
 
 /**
  * Handle the `initialize` request from the client. This is the first request sent by the client to
@@ -36,8 +37,8 @@ const server = createServer(connection);
 connection.onInitialize((parameters) => {
   // Not sure how tsLocalized is used.
   const tsLocalized = undefined;
-	const watchingExtensions = new Set<string>();
-	let fileWatcher: Promise<Disposable> | undefined;
+  const watchingExtensions = new Set<string>();
+  let fileWatcher: Promise<Disposable> | undefined;
 
   const project = createTypeScriptProject(ts, tsLocalized, (projectContext) => {
     const configFileName = projectContext.configFileName;
@@ -111,9 +112,8 @@ connection.onInitialize((parameters) => {
     }),
   );
 
-  function updateFileWatcher() {
-    const extensions = ['js', 'ts', 'gjs', 'gts', 'hbs'];
-    const newExtensions = extensions.filter((ext) => !watchingExtensions.has(ext));
+  function updateFileWatcher(): void {
+    const newExtensions = EXTENSIONS.filter((ext) => !watchingExtensions.has(ext));
     if (newExtensions.length) {
       for (const ext of newExtensions) {
         watchingExtensions.add(ext);
