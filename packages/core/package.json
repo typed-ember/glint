@@ -31,7 +31,7 @@
     "prepack": "yarn build"
   },
   "peerDependencies": {
-    "typescript": ">=5.4.0"
+    "typescript": ">=5.6.0"
   },
   "dependencies": {
     "@glimmer/syntax": "^0.84.3",
