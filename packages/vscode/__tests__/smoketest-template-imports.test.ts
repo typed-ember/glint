@@ -14,7 +14,7 @@ import { describe, afterEach, test } from 'mocha';
 import { expect } from 'expect';
 import { waitUntil } from './helpers/async';
 
-describe.skip('Smoke test: ETI Environment', () => {
+describe('Smoke test: ETI Environment', () => {
   const rootDir = path.resolve(__dirname, '../../__fixtures__/template-imports-app');
 
   afterEach(async () => {
@@ -44,7 +44,7 @@ describe.skip('Smoke test: ETI Environment', () => {
       expect(languages.getDiagnostics(scriptURI)).toMatchObject([
         {
           message: "Type 'number' is not assignable to type 'string'.",
-          source: 'ts',
+          source: 'glint',
           code: 2322,
           range: new Range(6, 13, 6, 19),
         },
@@ -75,12 +75,14 @@ describe.skip('Smoke test: ETI Environment', () => {
           new Range(new Position(10, 9), new Position(10, 9)),
         );
 
-        expect(fixes.length).toBe(3);
+        expect(fixes.length).toBe(4);
 
-        expect(fixes[1].title).toBe(`Declare property 'undocumentedProperty'`);
+        const fix = fixes.find((fix) => fix.title === 'Declare property \'undocumentedProperty\'');
+
+        expect(fix).toBeDefined();
 
         // apply the missing arg fix
-        await workspace.applyEdit(fixes![1].edit!);
+        await workspace.applyEdit(fix!.edit!);
 
         await waitUntil(
           () =>
