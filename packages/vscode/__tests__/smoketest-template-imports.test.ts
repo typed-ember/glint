@@ -77,7 +77,7 @@ describe('Smoke test: ETI Environment', () => {
 
         expect(fixes.length).toBe(4);
 
-        const fix = fixes.find((fix) => fix.title === 'Declare property \'undocumentedProperty\'');
+        const fix = fixes.find((fix) => fix.title === "Declare property 'undocumentedProperty'");
 
         expect(fix).toBeDefined();
 
@@ -121,7 +121,7 @@ describe('Smoke test: ETI Environment', () => {
 
         expect(fixes.length).toBe(4);
 
-        const fix = fixes.find((fix) => fix.title === 'Declare property \'localProp\'');
+        const fix = fixes.find((fix) => fix.title === "Declare property 'localProp'");
 
         expect(fix).toBeDefined();
 
