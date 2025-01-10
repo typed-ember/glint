@@ -115,12 +115,14 @@ describe('Smoke test: ETI Environment', () => {
           new Range(new Position(10, 12), new Position(10, 12)),
         );
 
-        expect(fixes.length).toBe(3);
+        expect(fixes.length).toBe(4);
 
-        expect(fixes[1].title).toBe(`Declare property 'localProp'`);
+        const fix = fixes.find((fix) => fix.title === 'Declare property \'localProp\'');
+
+        expect(fix).toBeDefined();
 
         // select ignore
-        await workspace.applyEdit(fixes![0].edit!);
+        await workspace.applyEdit(fix!.edit!);
 
         await waitUntil(
           () =>
