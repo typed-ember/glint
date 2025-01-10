@@ -92,10 +92,6 @@ describe('Smoke test: ETI Environment', () => {
       });
     });
 
-    test('ensure ci is running', async () => {
-      throw new Error('wat');
-    });
-
     describe('codeactions locals', () => {
       test('add local props to a class', async () => {
         let scriptURI = Uri.file(`${rootDir}/src/Greeting.gts`);
