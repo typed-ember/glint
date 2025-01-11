@@ -13,8 +13,8 @@ compatible with the DOM element(s) they're ultimately attached to. If no `Elemen
 to set any HTML attributes or modifiers when invoking your component.
 
 The `Blocks` field specifies the names of any blocks the component yields to, as well as the type of any parameter(s)
-those blocks will receive. If no `Blocks` key is specified, it will be a type error to invoke your component in block
-form.
+those blocks will receive. If your component does not support block invocation, omit the `Blocks` field altogether 
+to generate type errors when invoked in block form.
 
 Note that the `inverse` block is an alias for `else`. These should be defined in `Blocks` as `else`, though
 `{{yield to="inverse"}}` will continue to work.
@@ -63,6 +63,30 @@ export default class SuperTable<T> extends Component<SuperTableSignature<T>> {}
     {{/each}}
   </tbody>
 </table>
+```
+
+{% endcode %}
+
+{% code title="app/components/simple-hello.ts" %}
+
+```typescript
+import Component from '@glimmer/component';
+
+export interface SimpleHelloSignature {
+  // We have a `<div>` as our root element
+  Element: HTMLDivElement;
+  // We accept no arguments or block form, so don't specify them in the signature
+}
+
+export default class SimpleHello extends Component<SimpleHelloSignature> {}
+```
+
+{% endcode %}
+
+{% code title="app/components/simple-hello.hbs" %}
+
+```handlebars
+<div>Hello World!</div>
 ```
 
 {% endcode %}
