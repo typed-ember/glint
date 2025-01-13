@@ -41,6 +41,7 @@ try {
       // Load the app fixtures
       `${packageRoot}/__fixtures__/ember-app`,
       `${packageRoot}/__fixtures__/template-imports-app`,
+      `${packageRoot}/__fixtures__/template-imports-app-ts-plugin`,
     ],
   });
 } catch (error) {
