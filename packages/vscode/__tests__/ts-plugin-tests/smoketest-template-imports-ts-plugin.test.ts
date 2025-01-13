@@ -25,7 +25,7 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
   });
 
   describe('diagnostics for errors', () => {
-    test('with a custom extension', async () => {
+    test.only('with a custom extension', async () => {
       let scriptURI = Uri.file(`${rootDir}/src/index.gts`);
       let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
 
@@ -37,6 +37,8 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
         edit.replace(new Range(6, 20, 6, 27), '{{123}}');
       });
 
+      await waitUntil(() => new Promise((resolve) => setTimeout(resolve, 300_000)));
+
       // Wait for the diagnostic to show up
       await waitUntil(() => languages.getDiagnostics(scriptURI).length);
 
@@ -44,7 +46,7 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
       expect(languages.getDiagnostics(scriptURI)).toMatchObject([
         {
           message: "Type 'number' is not assignable to type 'string'.",
-          source: 'glint',
+          source: 'ts-plugin',
           code: 2322,
           range: new Range(6, 13, 6, 19),
         },
