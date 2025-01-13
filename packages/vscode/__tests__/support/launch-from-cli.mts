@@ -2,10 +2,21 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { runTests } from '@vscode/test-electron';
+import * as fs from 'node:fs';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(dirname, '../../..');
-const emptyTempDir = path.join(os.tmpdir(), `user-data-${Math.random()}`);
+const emptyExtensionsDir = path.join(os.tmpdir(), `extensions-${Math.random()}`);
+const emptyUserDataDir = path.join(os.tmpdir(), `user-data-${Math.random()}`);
+
+const settingsDir = path.join(emptyUserDataDir, 'User');
+fs.mkdirSync(settingsDir, { recursive: true });
+
+const userPreferences = {
+  // "typescript.tsserver.log": "verbose",
+};
+
+fs.writeFileSync(path.join(settingsDir, 'settings.json'), JSON.stringify(userPreferences, null, 2));
 
 const testType = process.argv[2];
 
@@ -34,11 +45,12 @@ try {
       'vscode.typescript-language-features',
       // Point at an empty directory so no third-party extensions load
       '--extensions-dir',
-      emptyTempDir,
+      emptyExtensionsDir,
       // Point at an empty directory so we don't have to contend with any local user preferences
       '--user-data-dir',
-      emptyTempDir,
-      // Load the app fixtures
+      emptyUserDataDir,
+      // Load the app fixtures. Note that it's ok to load fixtures that aren't used for the
+      // particular test type.
       `${packageRoot}/__fixtures__/ember-app`,
       `${packageRoot}/__fixtures__/template-imports-app`,
       `${packageRoot}/__fixtures__/template-imports-app-ts-plugin`,
