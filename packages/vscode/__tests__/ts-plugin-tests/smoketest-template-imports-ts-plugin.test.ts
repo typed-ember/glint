@@ -25,19 +25,22 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
   });
 
   describe('diagnostics for errors', () => {
-    test.only('with a custom extension', async () => {
+    test('with a custom extension', async () => {
       let scriptURI = Uri.file(`${rootDir}/src/index.gts`);
       let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
 
       // Ensure we have a clean bill of health
       expect(languages.getDiagnostics(scriptURI)).toEqual([]);
 
+      await hackishlyWaitForTypescriptPluginToActivate();
+
       // Replace a string with a number
       await scriptEditor.edit((edit) => {
-        edit.replace(new Range(6, 20, 6, 27), '{{123}}');
-      });
+        edit.replace(new Range(10, 20, 10, 27), '{{123}}');
 
-      await waitUntil(() => new Promise((resolve) => setTimeout(resolve, 300_000)));
+        // Original range, in case we revert some of the TS-Plugin-specific
+        // edit.replace(new Range(6, 20, 6, 27), '{{123}}');
+      });
 
       // Wait for the diagnostic to show up
       await waitUntil(() => languages.getDiagnostics(scriptURI).length);
@@ -48,7 +51,8 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
           message: "Type 'number' is not assignable to type 'string'.",
           source: 'ts-plugin',
           code: 2322,
-          range: new Range(6, 13, 6, 19),
+          // range: new Range(6, 13, 6, 19),
+          range: new Range(10, 13, 10, 19),
         },
       ]);
     });
@@ -135,3 +139,15 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
     });
   });
 });
+
+/**
+ * We shouldn't have to use this function for many reasons:
+ *
+ * 1. Using timers to avoid a race condition is brittle
+ * 2. More importantly: this only solves the problem of "make sure the TS Plugin is activated
+ *    before we edit the file" when what we REALLY want is diagnostics to kick in without
+ *    editing.
+ */
+function hackishlyWaitForTypescriptPluginToActivate() {
+  return new Promise((resolve) => setTimeout(resolve, 1000));
+}
