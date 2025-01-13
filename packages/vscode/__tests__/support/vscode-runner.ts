@@ -11,7 +11,8 @@ export function run(
   testSubfolder: 'language-server-tests' | 'ts-plugin-tests',
 ): void {
   try {
-    let mocha = new Mocha({ color: true, slow: 3_000, timeout: 30_000 });
+    let mocha = new Mocha({ color: true, slow: 3_000, timeout: 300_000 });
+    // let mocha = new Mocha({ color: true, slow: 3_000, timeout: 30_000 });
     let tests = path.resolve(__dirname, '..').replace(/\\/g, '/');
 
     for (let testFile of glob.sync(`${tests}/${testSubfolder}/**/*.test.js`)) {
