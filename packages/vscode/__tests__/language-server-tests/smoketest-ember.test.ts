@@ -14,10 +14,10 @@ import {
 import * as path from 'path';
 import { describe, afterEach, test } from 'mocha';
 import { expect } from 'expect';
-import { waitUntil } from './helpers/async';
+import { waitUntil } from '../helpers/async';
 
 describe.skip('Smoke test: Ember', () => {
-  const rootDir = path.resolve(__dirname, '../../__fixtures__/ember-app');
+  const rootDir = path.resolve(__dirname, '../../../__fixtures__/ember-app');
 
   afterEach(async () => {
     while (window.activeTextEditor) {

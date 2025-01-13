@@ -7,10 +7,25 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(dirname, '../../..');
 const emptyTempDir = path.join(os.tmpdir(), `user-data-${Math.random()}`);
 
+const testType = process.argv[2];
+
+let testRunner: string;
+switch (testType) {
+  case 'language-server':
+    testRunner = 'vscode-runner-language-server.js';
+    break;
+  case 'ts-plugin':
+    testRunner = 'vscode-runner-ts-plugin.js';
+    break;
+  default:
+    console.error('Test type must be either "language-server" or "ts-plugin"');
+    process.exit(1);
+}
+
 try {
   await runTests({
     extensionDevelopmentPath: packageRoot,
-    extensionTestsPath: path.resolve(dirname, 'vscode-runner.js'),
+    extensionTestsPath: path.resolve(dirname, testRunner),
     launchArgs: [
       // Don't show the "hey do you trust this folder?" prompt
       '--disable-workspace-trust',

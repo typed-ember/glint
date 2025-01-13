@@ -12,10 +12,12 @@ import {
 import * as path from 'path';
 import { describe, afterEach, test } from 'mocha';
 import { expect } from 'expect';
-import { waitUntil } from './helpers/async';
+import { waitUntil } from '../helpers/async';
 
-describe('Smoke test: ETI Environment', () => {
-  const rootDir = path.resolve(__dirname, '../../__fixtures__/template-imports-app');
+throw new Error('TS-PLUGIN TESTS DISABLED, WHO IS CALLING ME?');
+
+describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
+  const rootDir = path.resolve(__dirname, '../../../__fixtures__/template-imports-app-ts-plugin');
 
   afterEach(async () => {
     while (window.activeTextEditor) {
