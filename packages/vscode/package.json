@@ -25,8 +25,7 @@
   ],
   "scripts": {
     "pretest": "yarn build",
-    "test": "yarn test-language-server",
-    "test_RESTORE_ME": "yarn test-language-server && yarn test-ts-plugin",
+    "test": "yarn test-language-server && yarn test-ts-plugin",
     "test-language-server": "node lib/__tests__/support/launch-from-cli.mjs language-server",
     "test-ts-plugin": "node lib/__tests__/support/launch-from-cli.mjs ts-plugin",
     "test:typecheck": "echo 'no standalone typecheck within this project'",

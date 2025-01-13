@@ -13,6 +13,9 @@ const settingsDir = path.join(emptyUserDataDir, 'User');
 fs.mkdirSync(settingsDir, { recursive: true });
 
 const userPreferences = {
+  // When testing TS Plugin, it can be useful to look at tsserver logs within
+  // the test runner VSCode instance. To do this, uncomment the following line,
+  // and then check the logs for TypeScript
   // "typescript.tsserver.log": "verbose",
 };
 
@@ -20,13 +23,20 @@ fs.writeFileSync(path.join(settingsDir, 'settings.json'), JSON.stringify(userPre
 
 const testType = process.argv[2];
 
+let disableExtensionArgs: string[] = [];
+
 let testRunner: string;
 switch (testType) {
   case 'language-server':
     testRunner = 'vscode-runner-language-server.js';
+
+    // Disable vanilla TS for full "takeover" mode.
+    disableExtensionArgs = ['--disable-extension', 'vscode.typescript-language-features'];
     break;
   case 'ts-plugin':
     testRunner = 'vscode-runner-ts-plugin.js';
+
+    // Note: here, we WANT vanilla TS to be enabled since we're testing the TS Plugin.
     break;
   default:
     console.error('Test type must be either "language-server" or "ts-plugin"');
@@ -40,9 +50,7 @@ try {
     launchArgs: [
       // Don't show the "hey do you trust this folder?" prompt
       '--disable-workspace-trust',
-      // Explicitly turn off the built-in TS extension
-      '--disable-extension',
-      'vscode.typescript-language-features',
+      ...disableExtensionArgs,
       // Point at an empty directory so no third-party extensions load
       '--extensions-dir',
       emptyExtensionsDir,
