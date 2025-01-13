@@ -1,0 +1,13 @@
+{
+  "extends": "../../../../tsconfig.compileroptions.json",
+  "glint": {
+    "environment": ["ember-loose", "ember-template-imports"],
+    "enableTsPlugin": true
+  },
+  "compilerOptions": {
+    "baseUrl": ".",
+
+    // TODO: work out the interplay between this and typescriptServerPlugins in extension's package.json
+    "plugins": [{ "name": "@glint/typescript-plugin" }]
+  }
+}
