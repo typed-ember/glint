@@ -149,6 +149,6 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
  *    before we edit the file" when what we REALLY want is diagnostics to kick in without
  *    editing.
  */
-function hackishlyWaitForTypescriptPluginToActivate() {
+function hackishlyWaitForTypescriptPluginToActivate(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 5000));
 }
