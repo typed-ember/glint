@@ -1,154 +1,221 @@
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
-import {
-  ExtensionContext,
-  WorkspaceFolder,
-  FileSystemWatcher,
-  window,
-  extensions,
-  commands,
-  workspace,
-  WorkspaceConfiguration,
-} from 'vscode';
+import * as lsp from '@volar/vscode/node';
+import * as vscode from 'vscode';
 import * as languageServerProtocol from '@volar/language-server/protocol.js';
 import { LabsInfo, createLabsInfo, getTsdk } from '@volar/vscode';
+import { config } from './config';
 
 import { Disposable, LanguageClient, ServerOptions } from '@volar/vscode/node.js';
+import {
+  defineExtension,
+  executeCommand,
+  extensionContext,
+  onDeactivate,
+  useWorkspaceFolders,
+  watchEffect,
+} from 'reactive-vscode';
+import {
+  activate as activateLanguageClient,
+  deactivate as deactivateLanguageClient,
+} from './language-client';
 
-///////////////////////////////////////////////////////////////////////////////
-// Setup and extension lifecycle
-
-const outputChannel = window.createOutputChannel('Glint Language Server');
-const clients = new Map<string, LanguageClient>();
-const fileExtensions = ['.js', '.ts', '.gjs', '.gts', '.hbs'];
-const filePattern = `**/*{${fileExtensions.join(',')}}`;
-
-export function activate(context: ExtensionContext): LabsInfo {
-  // We need to activate the default VSCode TypeScript extension so that our
-  // TS Plugin kicks in. We do this because the TS extension is (obviously) not
-  // configured to activate for, say, .gts files:
-  // https://github.com/microsoft/vscode/blob/878af07/extensions/typescript-language-features/package.json#L62..L75
-  extensions.getExtension('vscode.typescript-language-features')?.activate();
-
-  // TODO: Volar: i think this happens as part of dynamic registerCapability, i.e.
-  // I think maybe we can remove this from `activate` and wait for it to happen
-  // when the server sends the registerCapability questions for all dynamicRegistration=true capabilities.
-  let fileWatcher = workspace.createFileSystemWatcher(filePattern);
-
-  context.subscriptions.push(fileWatcher, createConfigWatcher());
-  context.subscriptions.push(
-    commands.registerCommand('glint.restart-language-server', restartClients),
-  );
-
-  // TODO: how to each multiple workspace reloads with VolarLabs?
+export const { activate, deactivate } = defineExtension(async () => {
   const volarLabs = createLabsInfo(languageServerProtocol);
 
-  workspace.workspaceFolders?.forEach((folder) =>
-    addWorkspaceFolder(context, folder, fileWatcher, volarLabs),
-  );
-  workspace.onDidChangeWorkspaceFolders(({ added, removed }) => {
-    added.forEach((folder) => addWorkspaceFolder(context, folder, fileWatcher));
-    removed.forEach((folder) => removeWorkspaceFolder(folder));
+  const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features');
+
+  if (tsExtension) {
+    // We need to activate the default VSCode TypeScript extension so that our
+    // TS Plugin kicks in. We do this because the TS extension is (obviously) not
+    // configured to activate for, say, .gts files:
+    // https://github.com/microsoft/vscode/blob/878af07/extensions/typescript-language-features/package.json#L62..L75
+
+    await tsExtension.activate();
+  } else {
+    // TODO: we may decide to commit fully to TS Plugin mode, in which case it might be nice
+    // to have the message displayed below to guide the user.
+    // NOTE: Vue language tooling will continue to display this message even when willfully
+    // setting hybrid mode to false (i.e. using old LS approach). If we want to continue to support
+    // LS mode then we should leave this message commented out.
+    // vscode.window
+    //   .showWarningMessage(
+    //     'Takeover mode is no longer needed since v2. Please enable the "TypeScript and JavaScript Language Features" extension.',
+    //     'Show Extension',
+    //   )
+    //   .then((selected) => {
+    //     if (selected) {
+    //       executeCommand('workbench.extensions.search', '@builtin typescript-language-features');
+    //     }
+    //   });
+  }
+
+  const context = extensionContext.value!;
+
+  const workspaceFolders = useWorkspaceFolders();
+
+  watchEffect(() => {
+    workspaceFolders.value?.forEach((workspaceFolder) => {
+      activateLanguageClient(
+        context,
+        (id, name, documentSelector, initOptions, port, outputChannel) => {
+          class _LanguageClient extends lsp.LanguageClient {
+            override fillInitializeParams(params: lsp.InitializeParams) {
+              // fix https://github.com/vuejs/language-tools/issues/1959
+              params.locale = vscode.env.language;
+            }
+          }
+
+          // vscode.workspace.workspaceFolders
+
+          // Here we load the server module;
+          // - Vue includes the server in the extension bundle
+          // - Glint does not; expects it to come from workspace folder
+          // let serverModule = vscode.Uri.joinPath(context.extensionUri, 'server.js');
+
+          let folderPath = workspaceFolder.uri.fsPath;
+          if (clients.has(folderPath)) return;
+
+          let serverPath = findLanguageServer(folderPath);
+          if (!serverPath) return;
+
+          const runOptions: lsp.ForkOptions = {};
+          // if (config.server.maxOldSpaceSize) {
+          //   runOptions.execArgv ??= [];
+          //   runOptions.execArgv.push('--max-old-space-size=' + config.server.maxOldSpaceSize);
+          // }
+          const debugOptions: lsp.ForkOptions = {
+            execArgv: ['--nolazy', '--inspect=' + port],
+          };
+          const serverOptions: lsp.ServerOptions = {
+            run: {
+              module: serverPath,
+              transport: lsp.TransportKind.ipc,
+              options: runOptions,
+            },
+            debug: {
+              module: serverPath,
+              transport: lsp.TransportKind.ipc,
+              options: debugOptions,
+            },
+          };
+          const clientOptions: lsp.LanguageClientOptions = {
+            // middleware,
+            documentSelector: documentSelector,
+            initializationOptions: initOptions,
+            markdown: {
+              isTrusted: true,
+              supportHtml: true,
+            },
+            outputChannel,
+          };
+          const client = new _LanguageClient(id, name, serverOptions, clientOptions);
+          client.start();
+
+          volarLabs.addLanguageClient(client);
+
+          updateProviders(client);
+        },
+      );
+
+      onDeactivate(() => {
+        deactivateLanguageClient();
+      });
+    });
   });
 
-  workspace.onDidChangeConfiguration((changeEvent) => {
-    if (changeEvent.affectsConfiguration('glint.libraryPath')) {
-      reloadAllWorkspaces(context, fileWatcher);
-    }
-  });
+  // workspaceFolders.value.forEach((workspaceFolder) =>
 
   return volarLabs.extensionExports;
+});
+
+function updateProviders(client: lsp.LanguageClient) {
+  const initializeFeatures = (client as any).initializeFeatures;
+
+  (client as any).initializeFeatures = (...args: any) => {
+    const capabilities = (client as any)._capabilities as lsp.ServerCapabilities;
+
+    // NOTE: these are legacy config for Language Server and hence the VSCode options
+    // for Vanilla TS; TS Plugin won't use these options but will rather the same
+    // Vanilla TS options.
+    //
+    // if (!config.codeActions.enabled) {
+    //   capabilities.codeActionProvider = undefined;
+    // }
+    // if (!config.codeLens.enabled) {
+    //   capabilities.codeLensProvider = undefined;
+    // }
+    // if (
+    //   !config.updateImportsOnFileMove.enabled &&
+    //   capabilities.workspace?.fileOperations?.willRename
+    // ) {
+    //   capabilities.workspace.fileOperations.willRename = undefined;
+    // }
+
+    return initializeFeatures.call(client, ...args);
+  };
 }
 
-export async function deactivate(): Promise<void> {
-  await Promise.all([...clients.values()].map((client) => client.stop()));
-}
+// async function addWorkspaceFolder(
+//   context: ExtensionContext,
+//   workspaceFolder: WorkspaceFolder,
+//   watcher: FileSystemWatcher,
+//   volarLabs?: ReturnType<typeof createLabsInfo>,
+// ): Promise<void> {
+//   let folderPath = workspaceFolder.uri.fsPath;
+//   if (clients.has(folderPath)) return;
 
-///////////////////////////////////////////////////////////////////////////////
-// Commands
+//   let serverPath = findLanguageServer(folderPath);
+//   if (!serverPath) return;
 
-async function restartClients(): Promise<void> {
-  outputChannel.appendLine(`Restarting Glint language server...`);
-  await Promise.all([...clients.values()].map((client) => client.restart()));
-}
+//   let serverOptions: ServerOptions = { module: serverPath };
 
-///////////////////////////////////////////////////////////////////////////////
-// Workspace folder management
+//   const typescriptFormatOptions = getOptions(workspace.getConfiguration('typescript'), 'format');
+//   const typescriptUserPreferences = getOptions(
+//     workspace.getConfiguration('typescript'),
+//     'preferences',
+//   );
+//   const javascriptFormatOptions = getOptions(workspace.getConfiguration('javascript'), 'format');
+//   const javascriptUserPreferences = getOptions(
+//     workspace.getConfiguration('javascript'),
+//     'preferences',
+//   );
 
-async function reloadAllWorkspaces(
-  context: ExtensionContext,
-  fileWatcher: FileSystemWatcher,
-): Promise<void> {
-  let folders = workspace.workspaceFolders ?? [];
+//   let client = new LanguageClient('glint', 'Glint', serverOptions, {
+//     workspaceFolder,
+//     outputChannel,
+//     initializationOptions: {
+//       javascript: {
+//         format: javascriptFormatOptions,
+//         preferences: javascriptUserPreferences,
+//       },
+//       typescript: {
+//         format: typescriptFormatOptions,
+//         preferences: typescriptUserPreferences,
+//         tsdk: (await getTsdk(context))!.tsdk,
+//       },
+//     },
+//     documentSelector: [{ scheme: 'file', pattern: `${folderPath}/${filePattern}` }],
+//     synchronize: { fileEvents: watcher },
+//   });
 
-  await Promise.all(
-    folders.map(async (folder) => {
-      await removeWorkspaceFolder(folder);
-      await addWorkspaceFolder(context, folder, fileWatcher);
-    }),
-  );
-}
+//   if (volarLabs) {
+//     volarLabs.addLanguageClient(client);
+//   }
 
-async function addWorkspaceFolder(
-  context: ExtensionContext,
-  workspaceFolder: WorkspaceFolder,
-  watcher: FileSystemWatcher,
-  volarLabs?: ReturnType<typeof createLabsInfo>,
-): Promise<void> {
-  let folderPath = workspaceFolder.uri.fsPath;
-  if (clients.has(folderPath)) return;
+//   clients.set(folderPath, client);
 
-  let serverPath = findLanguageServer(folderPath);
-  if (!serverPath) return;
+//   await client.start();
+// }
 
-  let serverOptions: ServerOptions = { module: serverPath };
-
-  const typescriptFormatOptions = getOptions(workspace.getConfiguration('typescript'), 'format');
-  const typescriptUserPreferences = getOptions(
-    workspace.getConfiguration('typescript'),
-    'preferences',
-  );
-  const javascriptFormatOptions = getOptions(workspace.getConfiguration('javascript'), 'format');
-  const javascriptUserPreferences = getOptions(
-    workspace.getConfiguration('javascript'),
-    'preferences',
-  );
-
-  let client = new LanguageClient('glint', 'Glint', serverOptions, {
-    workspaceFolder,
-    outputChannel,
-    initializationOptions: {
-      javascript: {
-        format: javascriptFormatOptions,
-        preferences: javascriptUserPreferences,
-      },
-      typescript: {
-        format: typescriptFormatOptions,
-        preferences: typescriptUserPreferences,
-        tsdk: (await getTsdk(context))!.tsdk,
-      },
-    },
-    documentSelector: [{ scheme: 'file', pattern: `${folderPath}/${filePattern}` }],
-    synchronize: { fileEvents: watcher },
-  });
-
-  if (volarLabs) {
-    volarLabs.addLanguageClient(client);
-  }
-
-  clients.set(folderPath, client);
-
-  await client.start();
-}
-
-async function removeWorkspaceFolder(workspaceFolder: WorkspaceFolder): Promise<void> {
-  let folderPath = workspaceFolder.uri.fsPath;
-  let client = clients.get(folderPath);
-  if (client) {
-    clients.delete(folderPath);
-    await client.stop();
-  }
-}
+// async function removeWorkspaceFolder(workspaceFolder: WorkspaceFolder): Promise<void> {
+//   let folderPath = workspaceFolder.uri.fsPath;
+//   let client = clients.get(folderPath);
+//   if (client) {
+//     clients.delete(folderPath);
+//     await client.stop();
+//   }
+// }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utilities

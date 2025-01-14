@@ -4,3 +4,5 @@ node_modules
 lib/
 dist/
 tsconfig.tsbuildinfo
+
+generated-meta.ts

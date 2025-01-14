@@ -2684,6 +2684,11 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.24.tgz#58601079e11784d20f82d0585865bb42305c4df3"
   integrity sha512-2LuNTFBIO0m7kKIQvvPHN6UE63VjpmL9rnEEaOOaiSPbZK+zUOYIzBAWcED+3XYzhYsd/0mD57VdxAEqqV52CQ==
 
+"@reactive-vscode/reactivity@0.2.7-beta.1":
+  version "0.2.7-beta.1"
+  resolved "https://registry.yarnpkg.com/@reactive-vscode/reactivity/-/reactivity-0.2.7-beta.1.tgz#a387bf07a420a1b592e4e87353a3159cb6d7994f"
+  integrity sha512-ma7DOAFSXhB7h2HLiDrus4as5So1rS3u4zNHKoKCRRh4cBxxnQDFZUUQNafsssM15ggxtf8km5IXyW81ZCWnsg==
+
 "@release-it-plugins/lerna-changelog@^5.0.0":
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/@release-it-plugins/lerna-changelog/-/lerna-changelog-5.0.0.tgz#cbbbc47fd40ef212f2d7c0e24867d3fcea4cd232"
@@ -12242,6 +12247,13 @@ react-is@^18.0.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.2.0.tgz#199431eeaaa2e09f86427efbb4f1473edb47609b"
   integrity sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==
 
+reactive-vscode@0.2.7-beta.1:
+  version "0.2.7-beta.1"
+  resolved "https://registry.yarnpkg.com/reactive-vscode/-/reactive-vscode-0.2.7-beta.1.tgz#6d92f14e9d28892391095c295864bb91db56603b"
+  integrity sha512-7D9sFMA4S6owUNdiuiuiJLOzAuy3y4ZgcNW3bj58n1hME0U8repz3hhYep6VCLbAf89F+TF/bB7u+WNGHndLGg==
+  dependencies:
+    "@reactive-vscode/reactivity" "0.2.7-beta.1"
+
 read-pkg@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/read-pkg/-/read-pkg-3.0.0.tgz#9cbc686978fee65d16c00e2b19c237fcf6e38389"
@@ -12873,6 +12885,11 @@ schema-utils@^4.0.0:
     ajv "^8.9.0"
     ajv-formats "^2.1.1"
     ajv-keywords "^5.1.0"
+
+scule@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/scule/-/scule-1.3.0.tgz#6efbd22fd0bb801bdcc585c89266a7d2daa8fbd3"
+  integrity sha512-6FtHJEvt+pVMIB9IBY+IcCJ6Z5f1iQnytgyfKMhDKgmzYG+TeH/wx1y3l27rshSbLiSanrR9ffZDrEsmjlQF2g==
 
 semver-diff@^4.0.0:
   version "4.0.0"
@@ -14521,6 +14538,15 @@ volar-service-typescript@volar-2.4:
     vscode-nls "^5.2.0"
     vscode-uri "^3.0.8"
 
+vscode-ext-gen@^0.5.0:
+  version "0.5.5"
+  resolved "https://registry.yarnpkg.com/vscode-ext-gen/-/vscode-ext-gen-0.5.5.tgz#e4f5bb0b237c839c31170da41b6d117afa7dd53e"
+  integrity sha512-wTwcPvGF9xZ0fN7sPgdUPESH+Aw20Tk1vvgbYnKzWT4sFOqRP54qcpxjPUMdDoDGfiVIoXW87TNxn0yKXq3djw==
+  dependencies:
+    cac "^6.7.14"
+    scule "^1.3.0"
+    yargs "^17.7.2"
+
 vscode-jsonrpc@8.2.0:
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-8.2.0.tgz#f43dfa35fb51e763d17cd94dcca0c9458f35abf9"
@@ -14955,7 +14981,7 @@ yargs@16.2.0, yargs@^16.0.0:
     y18n "^5.0.5"
     yargs-parser "^20.2.2"
 
-yargs@^17.1.0, yargs@^17.5.1:
+yargs@^17.1.0, yargs@^17.5.1, yargs@^17.7.2:
   version "17.7.2"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.7.2.tgz#991df39aca675a192b816e1e0363f9d75d2aa269"
   integrity sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==
