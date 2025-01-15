@@ -12,13 +12,12 @@ import {
   executeCommand,
   extensionContext,
   onDeactivate,
+import { workspace } from 'vscode';
   useWorkspaceFolders,
   watchEffect,
+  watch,
 } from 'reactive-vscode';
-import {
-  activate as activateLanguageClient,
-  deactivate as deactivateLanguageClient,
-} from './language-client';
+import { activateLanguageClientForWorkspace } from './language-client';
 
 export const { activate, deactivate } = defineExtension(async () => {
   const volarLabs = createLabsInfo(languageServerProtocol);
@@ -52,77 +51,102 @@ export const { activate, deactivate } = defineExtension(async () => {
 
   const context = extensionContext.value!;
 
-  const workspaceFolders = useWorkspaceFolders();
+  const clients = new Map<string, lsp.LanguageClient>();
 
-  watchEffect(() => {
-    workspaceFolders.value?.forEach((workspaceFolder) => {
-      activateLanguageClient(
-        context,
-        (id, name, documentSelector, initOptions, port, outputChannel) => {
-          class _LanguageClient extends lsp.LanguageClient {
-            override fillInitializeParams(params: lsp.InitializeParams) {
-              // fix https://github.com/vuejs/language-tools/issues/1959
-              params.locale = vscode.env.language;
+  watch(
+    useWorkspaceFolders(),
+    (newWorkspaceFolders, oldWorkspaceFolders) => {
+      // TODO: diff the old and new, only activate new and only deactivate old
+
+      const removedFolders =
+        oldWorkspaceFolders?.filter(
+          (oldFolder) =>
+            !newWorkspaceFolders?.some(
+              (newFolder) => newFolder.uri.fsPath === oldFolder.uri.fsPath,
+            ),
+        ) ?? [];
+      const addedFolders =
+        newWorkspaceFolders?.filter(
+          (newFolder) =>
+            !oldWorkspaceFolders?.some(
+              (oldFolder) => oldFolder.uri.fsPath === newFolder.uri.fsPath,
+            ),
+        ) ?? [];
+
+      addedFolders.forEach((workspaceFolder) => {
+        const teardownClient = activateLanguageClientForWorkspace(
+          context,
+          (id, name, documentSelector, initOptions, port, outputChannel) => {
+            class _LanguageClient extends lsp.LanguageClient {
+              override fillInitializeParams(params: lsp.InitializeParams) {
+                // fix https://github.com/vuejs/language-tools/issues/1959
+                params.locale = vscode.env.language;
+              }
             }
-          }
 
-          // vscode.workspace.workspaceFolders
+            // vscode.workspace.workspaceFolders
 
-          // Here we load the server module;
-          // - Vue includes the server in the extension bundle
-          // - Glint does not; expects it to come from workspace folder
-          // let serverModule = vscode.Uri.joinPath(context.extensionUri, 'server.js');
+            // Here we load the server module;
+            // - Vue includes the server in the extension bundle
+            // - Glint does not; expects it to come from workspace folder
+            // let serverModule = vscode.Uri.joinPath(context.extensionUri, 'server.js');
 
-          let folderPath = workspaceFolder.uri.fsPath;
-          if (clients.has(folderPath)) return;
+            let folderPath = workspaceFolder.uri.fsPath;
+            if (clients.has(folderPath)) return null;
 
-          let serverPath = findLanguageServer(folderPath);
-          if (!serverPath) return;
+            let serverPath = findLanguageServer(folderPath);
+            if (!serverPath) return null;
 
-          const runOptions: lsp.ForkOptions = {};
-          // if (config.server.maxOldSpaceSize) {
-          //   runOptions.execArgv ??= [];
-          //   runOptions.execArgv.push('--max-old-space-size=' + config.server.maxOldSpaceSize);
-          // }
-          const debugOptions: lsp.ForkOptions = {
-            execArgv: ['--nolazy', '--inspect=' + port],
-          };
-          const serverOptions: lsp.ServerOptions = {
-            run: {
-              module: serverPath,
-              transport: lsp.TransportKind.ipc,
-              options: runOptions,
-            },
-            debug: {
-              module: serverPath,
-              transport: lsp.TransportKind.ipc,
-              options: debugOptions,
-            },
-          };
-          const clientOptions: lsp.LanguageClientOptions = {
-            // middleware,
-            documentSelector: documentSelector,
-            initializationOptions: initOptions,
-            markdown: {
-              isTrusted: true,
-              supportHtml: true,
-            },
-            outputChannel,
-          };
-          const client = new _LanguageClient(id, name, serverOptions, clientOptions);
-          client.start();
+            const runOptions: lsp.ForkOptions = {};
+            // if (config.server.maxOldSpaceSize) {
+            //   runOptions.execArgv ??= [];
+            //   runOptions.execArgv.push('--max-old-space-size=' + config.server.maxOldSpaceSize);
+            // }
+            const debugOptions: lsp.ForkOptions = {
+              execArgv: ['--nolazy', '--inspect=' + port],
+            };
+            const serverOptions: lsp.ServerOptions = {
+              run: {
+                module: serverPath,
+                transport: lsp.TransportKind.ipc,
+                options: runOptions,
+              },
+              debug: {
+                module: serverPath,
+                transport: lsp.TransportKind.ipc,
+                options: debugOptions,
+              },
+            };
+            const clientOptions: lsp.LanguageClientOptions = {
+              // middleware,
+              documentSelector: documentSelector,
+              initializationOptions: initOptions,
+              markdown: {
+                isTrusted: true,
+                supportHtml: true,
+              },
+              outputChannel,
+            };
+            const client = new _LanguageClient(id, name, serverOptions, clientOptions);
+            client.start();
 
-          volarLabs.addLanguageClient(client);
+            volarLabs.addLanguageClient(client);
 
-          updateProviders(client);
-        },
-      );
+            updateProviders(client);
 
-      onDeactivate(() => {
-        deactivateLanguageClient();
+            return client;
+          },
+        );
+
+        onDeactivate(() => {
+          teardownClient();
+        });
       });
-    });
-  });
+    },
+    {
+      immediate: true, // causes above callback to be run immediately (i.e. not lazily)
+    },
+  );
 
   // workspaceFolders.value.forEach((workspaceFolder) =>
 
@@ -221,6 +245,14 @@ function updateProviders(client: lsp.LanguageClient) {
 // Utilities
 
 function findLanguageServer(workspaceDir: string): string | null {
+  // TODO: reinstate reloading on configuration change:
+  // workspace.onDidChangeConfiguration((changeEvent) => {
+  //   if (changeEvent.affectsConfiguration('glint.libraryPath')) {
+  //     reloadAllWorkspaces(context, fileWatcher);
+  //   }
+  // });
+
+
   let userLibraryPath = workspace.getConfiguration().get('glint.libraryPath', '.');
   let resolutionDir = path.resolve(workspaceDir, userLibraryPath);
   let require = createRequire(path.join(resolutionDir, 'package.json'));

@@ -20,6 +20,7 @@ import {
   useHybridModeStatusItem,
   useHybridModeTips,
 } from './hybrid-mode';
+import { NullLiteral } from 'typescript';
 // import { useInsidersStatusItem } from './insiders';
 
 let client: lsp.BaseLanguageClient;
@@ -33,12 +34,20 @@ type CreateLanguageClient = (
   initOptions: GlintInitializationOptions,
   port: number,
   outputChannel: vscode.OutputChannel,
-) => lsp.BaseLanguageClient;
+) => lsp.BaseLanguageClient | null;
 
 // What is this activating?
-export function activate(context: vscode.ExtensionContext, createLc: CreateLanguageClient) {
+//
+// this will get passed a workspace. Then we watch that workspace for LC activation.
+export function activateLanguageClientForWorkspace(
+  context: vscode.ExtensionContext,
+  createLanguageClient: CreateLanguageClient,
+) {
+  // for each
   const activeTextEditor = useActiveTextEditor();
   const visibleTextEditors = useVisibleTextEditors();
+
+  let clientPromise: Promise<lsp.BaseLanguageClient | null> | null = null;
 
   useHybridModeTips();
 
@@ -50,28 +59,43 @@ export function activate(context: vscode.ExtensionContext, createLc: CreateLangu
           config.server.includeLanguages.includes(editor.document.languageId),
         )
       ) {
-        activateLc(context, createLc);
-        nextTick(() => {
-          stop();
-        });
+        if (!clientPromise) {
+          clientPromise = activateLanguageClient(context, createLanguageClient);
+
+          // disable this watcher so that we don't keep activation language client
+          nextTick(() => {
+            stop();
+          });
+        }
       }
     },
     {
       immediate: true, // causes above callback to be run immediately (i.e. not lazily)
     },
   );
+
+  return () => {
+    // Stop the watcher.
+    stop();
+
+    // Tear down the client if it exists.
+    if (clientPromise) {
+      clientPromise.then((client) => client?.stop());
+      clientPromise = null;
+    }
+  };
 }
 
-export function deactivate() {
-  return client?.stop();
-}
-
-async function activateLc(context: vscode.ExtensionContext, createLc: CreateLanguageClient) {
+async function activateLanguageClient(
+  context: vscode.ExtensionContext,
+  createLanguageClient: CreateLanguageClient,
+): Promise<lsp.BaseLanguageClient | null> {
   useVscodeContext('vue.activated', true);
   const outputChannel = useOutputChannel('Glint Language Server');
   const selectors = config.server.includeLanguages;
 
-  client = createLc(
+  // This might return null if there is no...
+  const client = createLanguageClient(
     'glint',
     'Glint',
     selectors,
@@ -79,6 +103,10 @@ async function activateLc(context: vscode.ExtensionContext, createLc: CreateLang
     6009,
     outputChannel,
   );
+
+  if (!client) {
+    return null;
+  }
 
   watch([enabledHybridMode, enabledTypeScriptPlugin], (newValues, oldValues) => {
     if (newValues[0] !== oldValues[0]) {
@@ -105,13 +133,13 @@ async function activateLc(context: vscode.ExtensionContext, createLc: CreateLang
     config.server,
     () => {
       if (!enabledHybridMode.value) {
-        executeCommand('vue.action.restartServer', false);
+        executeCommand('glint.restart-language-server', false);
       }
     },
     { deep: true },
   );
 
-  useCommand('vue.action.restartServer', async (restartTsServer: boolean = true) => {
+  useCommand('glint.restart-language-server', async (restartTsServer: boolean = true) => {
     if (restartTsServer) {
       await executeCommand('typescript.restartTsServer');
     }
@@ -147,6 +175,8 @@ async function activateLc(context: vscode.ExtensionContext, createLc: CreateLang
       executeCommand('workbench.action.reloadWindow');
     }
   }
+
+  return client;
 }
 
 async function getInitializationOptions(
