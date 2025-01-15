@@ -12,12 +12,12 @@ import {
   executeCommand,
   extensionContext,
   onDeactivate,
-import { workspace } from 'vscode';
   useWorkspaceFolders,
   watchEffect,
   watch,
 } from 'reactive-vscode';
-import { activateLanguageClientForWorkspace } from './language-client';
+
+import { watchWorkspaceFolderForLanguageClientActivation } from './language-client';
 
 export const { activate, deactivate } = defineExtension(async () => {
   const volarLabs = createLabsInfo(languageServerProtocol);
@@ -74,7 +74,7 @@ export const { activate, deactivate } = defineExtension(async () => {
         ) ?? [];
 
       addedFolders.forEach((workspaceFolder) => {
-        const teardownClient = activateLanguageClientForWorkspace(
+        const teardownClient = watchWorkspaceFolderForLanguageClientActivation(
           context,
           (id, name, documentSelector, initOptions, port, outputChannel) => {
             class _LanguageClient extends lsp.LanguageClient {
@@ -94,7 +94,7 @@ export const { activate, deactivate } = defineExtension(async () => {
             let folderPath = workspaceFolder.uri.fsPath;
             if (clients.has(folderPath)) return null;
 
-            let serverPath = findLanguageServer(folderPath);
+            let serverPath = findLanguageServer(folderPath, outputChannel);
             if (!serverPath) return null;
 
             const runOptions: lsp.ForkOptions = {};
@@ -244,16 +244,8 @@ function updateProviders(client: lsp.LanguageClient) {
 ///////////////////////////////////////////////////////////////////////////////
 // Utilities
 
-function findLanguageServer(workspaceDir: string): string | null {
-  // TODO: reinstate reloading on configuration change:
-  // workspace.onDidChangeConfiguration((changeEvent) => {
-  //   if (changeEvent.affectsConfiguration('glint.libraryPath')) {
-  //     reloadAllWorkspaces(context, fileWatcher);
-  //   }
-  // });
-
-
-  let userLibraryPath = workspace.getConfiguration().get('glint.libraryPath', '.');
+function findLanguageServer(workspaceDir: string, outputChannel: vscode.OutputChannel): string | null {
+  let userLibraryPath = vscode.workspace.getConfiguration().get('glint.libraryPath', '.');
   let resolutionDir = path.resolve(workspaceDir, userLibraryPath);
   let require = createRequire(path.join(resolutionDir, 'package.json'));
   try {
@@ -273,23 +265,14 @@ function findLanguageServer(workspaceDir: string): string | null {
 }
 
 // Automatically restart running servers when config files in the workspace change
-function createConfigWatcher(): Disposable {
-  let configWatcher = workspace.createFileSystemWatcher('**/{ts,js}config*.json');
+// TODO: reinstate this or see whether Vue / reactive-vscode already does this
 
-  configWatcher.onDidCreate(restartClients);
-  configWatcher.onDidChange(restartClients);
-  configWatcher.onDidDelete(restartClients);
+// function createConfigWatcher(): Disposable {
+//   let configWatcher = workspace.createFileSystemWatcher('**/{ts,js}config*.json');
 
-  return configWatcher;
-}
+//   configWatcher.onDidCreate(restartClients);
+//   configWatcher.onDidChange(restartClients);
+//   configWatcher.onDidDelete(restartClients);
 
-// Loads the TypeScript and JavaScript formating options from the workspace and subsets them to
-// pass to the language server.
-function getOptions(config: WorkspaceConfiguration, key: string): object {
-  const formatOptions = config.get<object>(key);
-  if (formatOptions) {
-    return formatOptions;
-  }
-
-  return {};
-}
+//   return configWatcher;
+// }

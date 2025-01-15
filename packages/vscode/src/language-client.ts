@@ -36,10 +36,14 @@ type CreateLanguageClient = (
   outputChannel: vscode.OutputChannel,
 ) => lsp.BaseLanguageClient | null;
 
-// What is this activating?
-//
-// this will get passed a workspace. Then we watch that workspace for LC activation.
-export function activateLanguageClientForWorkspace(
+/**
+ * A workspace consists of 1+ open folders. This function will watch one of
+ * those folders to see if file has been opened with a known language ID
+ * (e.g. 'glimmer-ts', 'handlebars', 'vue', etc.). When that happens we
+ * invoke the `createLanguageClient` function to create a language server
+ * client.
+ */
+export function watchWorkspaceFolderForLanguageClientActivation(
   context: vscode.ExtensionContext,
   createLanguageClient: CreateLanguageClient,
 ) {
@@ -129,6 +133,9 @@ async function activateLanguageClient(
     },
   );
 
+  // NOTE: this will fire when `glint.libraryPath` is changed, among others
+  // (leaving this note here so I don't re-implement the `affectsConfiguration` logic we used
+  // to have when changing this config value)
   watch(
     config.server,
     () => {
