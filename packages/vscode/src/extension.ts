@@ -53,11 +53,19 @@ export const { activate, deactivate } = defineExtension(async () => {
 
   const clients = new Map<string, lsp.LanguageClient>();
 
-  watch(
-    useWorkspaceFolders(),
-    (newWorkspaceFolders, oldWorkspaceFolders) => {
-      // TODO: diff the old and new, only activate new and only deactivate old
+  const reactiveWorkspaceFolders = useWorkspaceFolders();
 
+  let oldWorkspaceFolders: readonly vscode.WorkspaceFolder[] | undefined;
+
+  // NOTE: I tried to use the `watch` callback API to provide the old and new values
+  // for workspace folders but for some reason they kept coming in as undefined
+  // so I'm tracking new and old values menually.
+  watch(
+    reactiveWorkspaceFolders,
+    () => {
+      const newWorkspaceFolders = reactiveWorkspaceFolders.value;
+
+      // TODO: handle removed folders.
       const removedFolders =
         oldWorkspaceFolders?.filter(
           (oldFolder) =>
@@ -72,6 +80,8 @@ export const { activate, deactivate } = defineExtension(async () => {
               (oldFolder) => oldFolder.uri.fsPath === newFolder.uri.fsPath,
             ),
         ) ?? [];
+
+      oldWorkspaceFolders = newWorkspaceFolders;
 
       addedFolders.forEach((workspaceFolder) => {
         const teardownClient = watchWorkspaceFolderForLanguageClientActivation(
@@ -244,7 +254,10 @@ function updateProviders(client: lsp.LanguageClient) {
 ///////////////////////////////////////////////////////////////////////////////
 // Utilities
 
-function findLanguageServer(workspaceDir: string, outputChannel: vscode.OutputChannel): string | null {
+function findLanguageServer(
+  workspaceDir: string,
+  outputChannel: vscode.OutputChannel,
+): string | null {
   let userLibraryPath = vscode.workspace.getConfiguration().get('glint.libraryPath', '.');
   let resolutionDir = path.resolve(workspaceDir, userLibraryPath);
   let require = createRequire(path.join(resolutionDir, 'package.json'));
