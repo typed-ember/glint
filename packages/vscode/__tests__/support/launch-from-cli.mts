@@ -1,11 +1,9 @@
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { fileURLToPath } from 'node:url';
 import { runTests } from '@vscode/test-electron';
 import * as fs from 'node:fs';
 
-const dirname = path.dirname(fileURLToPath(import.meta.url));
-const packageRoot = path.resolve(dirname, '../../..');
+const packageRoot = path.resolve(process.cwd());
 const emptyExtensionsDir = path.join(os.tmpdir(), `extensions-${Math.random()}`);
 const emptyUserDataDir = path.join(os.tmpdir(), `user-data-${Math.random()}`);
 
@@ -28,13 +26,13 @@ let disableExtensionArgs: string[] = [];
 let testRunner: string;
 switch (testType) {
   case 'language-server':
-    testRunner = 'vscode-runner-language-server.js';
+    testRunner = 'lib/__tests__/support/vscode-runner-language-server.js';
 
     // Disable vanilla TS for full "takeover" mode.
     disableExtensionArgs = ['--disable-extension', 'vscode.typescript-language-features'];
     break;
   case 'ts-plugin':
-    testRunner = 'vscode-runner-ts-plugin.js';
+    testRunner = 'lib/__tests__/support/vscode-runner-ts-plugin.js';
 
     // Note: here, we WANT vanilla TS to be enabled since we're testing the TS Plugin.
     break;
@@ -44,9 +42,9 @@ switch (testType) {
 }
 
 try {
-  await runTests({
+  runTests({
     extensionDevelopmentPath: packageRoot,
-    extensionTestsPath: path.resolve(dirname, testRunner),
+    extensionTestsPath: path.resolve(process.cwd(), testRunner),
     launchArgs: [
       // Don't show the "hey do you trust this folder?" prompt
       '--disable-workspace-trust',

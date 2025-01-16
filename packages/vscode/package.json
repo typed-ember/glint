@@ -35,7 +35,9 @@
     "bundle": "node ./scripts/build.mjs",
     "bundle:watch": "node ./scripts/build.mjs -- --watch",
     "extension:package": "vsce package --no-dependencies",
-    "extension:publish": "vsce publish --no-dependencies"
+    "extension:publish": "vsce publish --no-dependencies",
+    "postinstall": "vscode-ext-gen --scope glint",
+    "prebuild": "vscode-ext-gen --scope glint"
   },
   "engines": {
     "vscode": "^1.68.1"
@@ -188,6 +190,7 @@
     ],
     "configuration": [
       {
+        "type": "object",
         "title": "Glint",
         "properties": {
           "glint.libraryPath": {
@@ -205,18 +208,44 @@
               "verbose"
             ]
           },
-          "glint.server.typescriptMode": {
-            "type": "string",
-            "default": "languageServer",
+          "glint.server.hybridMode": {
+            "type": [
+              "boolean",
+              "string"
+            ],
+            "default": "auto",
             "enum": [
-              "languageServer",
-              "typescriptPlugin"
+              "auto",
+              "typeScriptPluginOnly",
+              true,
+              false
             ],
             "enumDescriptions": [
-              "(Old) use Glint Language Server for typechecking",
-              "(New) Use TypeScript server plugin for typechecking"
+              "Automatically detect and enable TypeScript Plugin/Hybrid Mode in a safe environment.",
+              "Only enable Glint TypeScript Plugin but disable the Glint language server.",
+              "Enable TypeScript Plugin/Hybrid Mode.",
+              "Disable TypeScript Plugin/Hybrid Mode."
             ],
-            "description": "Glint 2 shifts typechecking to a TypeScript server plugin. This setting allows you to opt into the new behavior."
+            "description": "Hybrid mode means that Glint will use a TypeScript server plugin for typechecking and use the Glint language server for other features. This is the recommended mode."
+          },
+          "glint.server.compatibleExtensions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "description": "Set compatible extensions to skip automatic detection of Hybrid Mode."
+          },
+          "glint.server.includeLanguages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [
+              "glimmer-js",
+              "glimmer-ts",
+              "handlebars"
+            ]
           }
         }
       }
@@ -241,7 +270,9 @@
     "esbuild": "^0.15.16",
     "expect": "^29.5.0",
     "glob": "^10.2.4",
-    "mocha": "^10.2.0"
+    "mocha": "^10.2.0",
+    "reactive-vscode": "0.2.7-beta.1",
+    "vscode-ext-gen": "^0.5.0"
   },
   "volta": {
     "extends": "../../package.json"
