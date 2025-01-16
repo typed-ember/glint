@@ -170,6 +170,6 @@ function getTsVersion(libPath: string): string | undefined {
 
     return desc.version as string;
   } catch {
-		// Ignore
-	}
+    // Ignore
+  }
 }

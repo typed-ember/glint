@@ -85,7 +85,7 @@ export const { activate, deactivate } = defineExtension(async () => {
           workspaceFolder,
           (id, name, documentSelector, initOptions, port, outputChannel) => {
             class _LanguageClient extends lsp.LanguageClient {
-              override fillInitializeParams(params: lsp.InitializeParams): lsp.InitializeParams {
+              override fillInitializeParams(params: lsp.InitializeParams): void {
                 // fix https://github.com/vuejs/language-tools/issues/1959
                 params.locale = vscode.env.language;
               }

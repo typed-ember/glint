@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "lib",
     "module": "CommonJS",
-		"moduleResolution": "Node"
+    "moduleResolution": "Node"
   },
   "include": ["src", "__tests__"],
   "references": [{ "path": "../core" }]
