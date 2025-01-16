@@ -3,17 +3,13 @@ import * as path from 'node:path';
 import * as lsp from '@volar/vscode/node';
 import * as vscode from 'vscode';
 import * as languageServerProtocol from '@volar/language-server/protocol.js';
-import { LabsInfo, createLabsInfo, getTsdk } from '@volar/vscode';
-import { config } from './config';
+import { createLabsInfo } from '@volar/vscode';
 
-import { Disposable, LanguageClient, ServerOptions } from '@volar/vscode/node.js';
 import {
   defineExtension,
-  executeCommand,
   extensionContext,
   onDeactivate,
   useWorkspaceFolders,
-  watchEffect,
   watch,
 } from 'reactive-vscode';
 
@@ -89,18 +85,11 @@ export const { activate, deactivate } = defineExtension(async () => {
           workspaceFolder,
           (id, name, documentSelector, initOptions, port, outputChannel) => {
             class _LanguageClient extends lsp.LanguageClient {
-              override fillInitializeParams(params: lsp.InitializeParams) {
+              override fillInitializeParams(params: lsp.InitializeParams): lsp.InitializeParams {
                 // fix https://github.com/vuejs/language-tools/issues/1959
                 params.locale = vscode.env.language;
               }
             }
-
-            // vscode.workspace.workspaceFolders
-
-            // Here we load the server module;
-            // - Vue includes the server in the extension bundle
-            // - Glint does not; expects it to come from workspace folder
-            // let serverModule = vscode.Uri.joinPath(context.extensionUri, 'server.js');
 
             let folderPath = workspaceFolder.uri.fsPath;
             if (clients.has(folderPath)) return null;
@@ -109,10 +98,12 @@ export const { activate, deactivate } = defineExtension(async () => {
             if (!serverPath) return null;
 
             const runOptions: lsp.ForkOptions = {};
+
             // if (config.server.maxOldSpaceSize) {
             //   runOptions.execArgv ??= [];
             //   runOptions.execArgv.push('--max-old-space-size=' + config.server.maxOldSpaceSize);
             // }
+
             const debugOptions: lsp.ForkOptions = {
               execArgv: ['--nolazy', '--inspect=' + port],
             };
@@ -165,7 +156,7 @@ export const { activate, deactivate } = defineExtension(async () => {
   return volarLabs.extensionExports;
 });
 
-function updateProviders(client: lsp.LanguageClient) {
+function updateProviders(client: lsp.LanguageClient): void {
   const initializeFeatures = (client as any).initializeFeatures;
 
   (client as any).initializeFeatures = (...args: any) => {
@@ -192,70 +183,6 @@ function updateProviders(client: lsp.LanguageClient) {
   };
 }
 
-// async function addWorkspaceFolder(
-//   context: ExtensionContext,
-//   workspaceFolder: WorkspaceFolder,
-//   watcher: FileSystemWatcher,
-//   volarLabs?: ReturnType<typeof createLabsInfo>,
-// ): Promise<void> {
-//   let folderPath = workspaceFolder.uri.fsPath;
-//   if (clients.has(folderPath)) return;
-
-//   let serverPath = findLanguageServer(folderPath);
-//   if (!serverPath) return;
-
-//   let serverOptions: ServerOptions = { module: serverPath };
-
-//   const typescriptFormatOptions = getOptions(workspace.getConfiguration('typescript'), 'format');
-//   const typescriptUserPreferences = getOptions(
-//     workspace.getConfiguration('typescript'),
-//     'preferences',
-//   );
-//   const javascriptFormatOptions = getOptions(workspace.getConfiguration('javascript'), 'format');
-//   const javascriptUserPreferences = getOptions(
-//     workspace.getConfiguration('javascript'),
-//     'preferences',
-//   );
-
-//   let client = new LanguageClient('glint', 'Glint', serverOptions, {
-//     workspaceFolder,
-//     outputChannel,
-//     initializationOptions: {
-//       javascript: {
-//         format: javascriptFormatOptions,
-//         preferences: javascriptUserPreferences,
-//       },
-//       typescript: {
-//         format: typescriptFormatOptions,
-//         preferences: typescriptUserPreferences,
-//         tsdk: (await getTsdk(context))!.tsdk,
-//       },
-//     },
-//     documentSelector: [{ scheme: 'file', pattern: `${folderPath}/${filePattern}` }],
-//     synchronize: { fileEvents: watcher },
-//   });
-
-//   if (volarLabs) {
-//     volarLabs.addLanguageClient(client);
-//   }
-
-//   clients.set(folderPath, client);
-
-//   await client.start();
-// }
-
-// async function removeWorkspaceFolder(workspaceFolder: WorkspaceFolder): Promise<void> {
-//   let folderPath = workspaceFolder.uri.fsPath;
-//   let client = clients.get(folderPath);
-//   if (client) {
-//     clients.delete(folderPath);
-//     await client.stop();
-//   }
-// }
-
-///////////////////////////////////////////////////////////////////////////////
-// Utilities
-
 function findLanguageServer(
   workspaceDir: string,
   outputChannel: vscode.OutputChannel,
@@ -278,16 +205,3 @@ function findLanguageServer(
     return null;
   }
 }
-
-// Automatically restart running servers when config files in the workspace change
-// TODO: reinstate this or see whether Vue / reactive-vscode already does this
-
-// function createConfigWatcher(): Disposable {
-//   let configWatcher = workspace.createFileSystemWatcher('**/{ts,js}config*.json');
-
-//   configWatcher.onDidCreate(restartClients);
-//   configWatcher.onDidChange(restartClients);
-//   configWatcher.onDidDelete(restartClients);
-
-//   return configWatcher;
-// }

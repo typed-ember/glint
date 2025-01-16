@@ -47,7 +47,7 @@ export function watchWorkspaceFolderForLanguageClientActivation(
   context: vscode.ExtensionContext,
   workspaceFolder: vscode.WorkspaceFolder,
   createLanguageClient: CreateLanguageClient,
-) {
+): () => void {
   // for each
   const activeTextEditor = useActiveTextEditor();
   const visibleTextEditors = useVisibleTextEditors();
@@ -158,7 +158,7 @@ async function activateLanguageClient(
       { deep: true },
     );
 
-    useCommand('glint.restart-language-server', async (restartTsServer: boolean = true) => {
+    useCommand('glint.restart-language-server', async (restartTsServer = true) => {
       if (restartTsServer) {
         await executeCommand('typescript.restartTsServer');
       }
@@ -196,7 +196,7 @@ async function activateLanguageClient(
 
   hasInitialized = true;
 
-  async function requestReloadVscode(msg: string) {
+  async function requestReloadVscode(msg: string): Promise<void> {
     const reload = await vscode.window.showInformationMessage(msg, 'Reload Window');
     if (reload) {
       executeCommand('workbench.action.reloadWindow');
