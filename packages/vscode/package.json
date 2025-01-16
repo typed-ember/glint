@@ -37,7 +37,7 @@
     "extension:package": "vsce package --no-dependencies",
     "extension:publish": "vsce publish --no-dependencies",
     "postinstall": "vscode-ext-gen --scope glint",
-    "prebuild": "yarn postinstall && yarn build"
+    "prebuild": "vscode-ext-gen --scope glint"
   },
   "engines": {
     "vscode": "^1.68.1"

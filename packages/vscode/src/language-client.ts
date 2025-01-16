@@ -39,7 +39,7 @@ type CreateLanguageClient = (
 /**
  * A workspace consists of 1+ open folders. This function will watch one of
  * those folders to see if file has been opened with a known language ID
- * (e.g. 'glimmer-ts', 'handlebars', 'vue', etc.). When that happens we
+ * (e.g. 'glimmer-ts', 'handlebars', etc.). When that happens we
  * invoke the `createLanguageClient` function to create a language server
  * client.
  */
@@ -90,11 +90,16 @@ export function watchWorkspaceFolderForLanguageClientActivation(
   };
 }
 
+let hasInitialized = false;
+
 async function activateLanguageClient(
   context: vscode.ExtensionContext,
   createLanguageClient: CreateLanguageClient,
 ): Promise<lsp.BaseLanguageClient | null> {
-  useVscodeContext('vue.activated', true);
+  // This is not used now but can be used to conditionally reveal commands that should
+  // only be visible when glint has been activated.
+  useVscodeContext('glint.activated', true);
+
   const outputChannel = useOutputChannel('Glint Language Server');
   const selectors = config.server.includeLanguages;
 
@@ -112,69 +117,78 @@ async function activateLanguageClient(
     return null;
   }
 
-  watch([enabledHybridMode, enabledTypeScriptPlugin], (newValues, oldValues) => {
-    if (newValues[0] !== oldValues[0]) {
-      requestReloadVscode(
-        `Please reload VSCode to ${newValues[0] ? 'enable' : 'disable'} Hybrid Mode.`,
-      );
-    } else if (newValues[1] !== oldValues[1]) {
-      requestReloadVscode(
-        `Please reload VSCode to ${newValues[1] ? 'enable' : 'disable'} Vue TypeScript Plugin.`,
-      );
-    }
-  });
-
-  watch(
-    () => config.server.includeLanguages,
-    () => {
-      if (enabledHybridMode.value) {
-        requestReloadVscode('Please reload VSCode to apply the new language settings.');
+  if (!hasInitialized) {
+    watch([enabledHybridMode, enabledTypeScriptPlugin], (newValues, oldValues) => {
+      if (newValues[0] !== oldValues[0]) {
+        requestReloadVscode(
+          `Please reload VSCode to ${newValues[0] ? 'enable' : 'disable'} Hybrid Mode.`,
+        );
+      } else if (newValues[1] !== oldValues[1]) {
+        requestReloadVscode(
+          `Please reload VSCode to ${newValues[1] ? 'enable' : 'disable'} Glint TypeScript Plugin.`,
+        );
       }
-    },
-  );
+    });
 
-  // NOTE: this will fire when `glint.libraryPath` is changed, among others
-  // (leaving this note here so I don't re-implement the `affectsConfiguration` logic we used
-  // to have when changing this config value)
-  watch(
-    config.server,
-    () => {
-      if (!enabledHybridMode.value) {
-        executeCommand('glint.restart-language-server', false);
-      }
-    },
-    { deep: true },
-  );
-
-  useCommand('glint.restart-language-server', async (restartTsServer: boolean = true) => {
-    if (restartTsServer) {
-      await executeCommand('typescript.restartTsServer');
-    }
-    await client.stop();
-    outputChannel.clear();
-    client.clientOptions.initializationOptions = await getInitializationOptions(
-      context,
-      enabledHybridMode.value,
+    watch(
+      () => config.server.includeLanguages,
+      () => {
+        if (enabledHybridMode.value) {
+          requestReloadVscode('Please reload VSCode to apply the new language settings.');
+        }
+      },
     );
-    await client.start();
-  });
 
-  // activateDoctor(client);
-  // activateNameCasing(client, selectors);
-  // activateSplitEditors(client);
+    // NOTE: this will fire when `glint.libraryPath` is changed, among others
+    // (leaving this note here so I don't re-implement the `affectsConfiguration` logic we used
+    // to have when changing this config value)
+    watch(
+      () => config.server,
+      () => {
+        if (!enabledHybridMode.value) {
+          executeCommand('glint.restart-language-server', false);
+        }
+      },
+      { deep: true },
+    );
 
-  lsp.activateAutoInsertion(selectors, client);
-  lsp.activateDocumentDropEdit(selectors, client);
-  lsp.activateWriteVirtualFiles('vue.action.writeVirtualFiles', client);
+    useCommand('glint.restart-language-server', async (restartTsServer: boolean = true) => {
+      if (restartTsServer) {
+        await executeCommand('typescript.restartTsServer');
+      }
+      await client.stop();
+      outputChannel.clear();
+      client.clientOptions.initializationOptions = await getInitializationOptions(
+        context,
+        enabledHybridMode.value,
+      );
+      await client.start();
+    });
 
-  if (!enabledHybridMode.value) {
-    lsp.activateTsConfigStatusItem(selectors, 'vue.tsconfig', client);
-    lsp.activateTsVersionStatusItem(selectors, 'vue.tsversion', context, (text) => 'TS ' + text);
-    lsp.activateFindFileReferences('vue.findAllFileReferences', client);
+    // activateDoctor(client);
+    // activateNameCasing(client, selectors);
+    // activateSplitEditors(client);
+
+    lsp.activateAutoInsertion(selectors, client);
+    lsp.activateDocumentDropEdit(selectors, client);
+    lsp.activateWriteVirtualFiles('glint.action.writeVirtualFiles', client);
+
+    if (!enabledHybridMode.value) {
+      lsp.activateTsConfigStatusItem(selectors, 'glint.tsconfig', client);
+      lsp.activateTsVersionStatusItem(
+        selectors,
+        'glint.tsversion',
+        context,
+        (text) => 'TS ' + text,
+      );
+      lsp.activateFindFileReferences('glint.findAllFileReferences', client);
+    }
+
+    useHybridModeStatusItem();
+    // useInsidersStatusItem(context);
   }
 
-  useHybridModeStatusItem();
-  // useInsidersStatusItem(context);
+  hasInitialized = true;
 
   async function requestReloadVscode(msg: string) {
     const reload = await vscode.window.showInformationMessage(msg, 'Reload Window');
@@ -192,6 +206,6 @@ async function getInitializationOptions(
 ): Promise<GlintInitializationOptions> {
   return {
     typescript: { tsdk: (await lsp.getTsdk(context))!.tsdk },
-    vue: { hybridMode },
+    glint: { hybridMode },
   };
 }
