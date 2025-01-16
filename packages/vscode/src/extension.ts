@@ -86,6 +86,7 @@ export const { activate, deactivate } = defineExtension(async () => {
       addedFolders.forEach((workspaceFolder) => {
         const teardownClient = watchWorkspaceFolderForLanguageClientActivation(
           context,
+          workspaceFolder,
           (id, name, documentSelector, initOptions, port, outputChannel) => {
             class _LanguageClient extends lsp.LanguageClient {
               override fillInitializeParams(params: lsp.InitializeParams) {
@@ -127,6 +128,7 @@ export const { activate, deactivate } = defineExtension(async () => {
                 options: debugOptions,
               },
             };
+
             const clientOptions: lsp.LanguageClientOptions = {
               // middleware,
               documentSelector: documentSelector,

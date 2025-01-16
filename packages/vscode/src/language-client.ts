@@ -45,6 +45,7 @@ type CreateLanguageClient = (
  */
 export function watchWorkspaceFolderForLanguageClientActivation(
   context: vscode.ExtensionContext,
+  workspaceFolder: vscode.WorkspaceFolder,
   createLanguageClient: CreateLanguageClient,
 ) {
   // for each
@@ -64,7 +65,7 @@ export function watchWorkspaceFolderForLanguageClientActivation(
         )
       ) {
         if (!clientPromise) {
-          clientPromise = activateLanguageClient(context, createLanguageClient);
+          clientPromise = activateLanguageClient(context, createLanguageClient, workspaceFolder);
 
           // disable this watcher so that we don't keep activation language client
           nextTick(() => {
@@ -95,19 +96,24 @@ let hasInitialized = false;
 async function activateLanguageClient(
   context: vscode.ExtensionContext,
   createLanguageClient: CreateLanguageClient,
+  workspaceFolder: vscode.WorkspaceFolder,
 ): Promise<lsp.BaseLanguageClient | null> {
   // This is not used now but can be used to conditionally reveal commands that should
   // only be visible when glint has been activated.
   useVscodeContext('glint.activated', true);
 
   const outputChannel = useOutputChannel('Glint Language Server');
-  const selectors = config.server.includeLanguages;
+  const documentSelectors = config.server.includeLanguages.map((language) => ({
+    language,
+    scheme: 'file',
+    pattern: `${workspaceFolder.uri.fsPath}/**/*`,
+  }));
 
   // This might return null if there is no...
   const client = createLanguageClient(
     'glint',
     'Glint',
-    selectors,
+    documentSelectors,
     await getInitializationOptions(context, enabledHybridMode.value),
     6009,
     outputChannel,
@@ -169,14 +175,14 @@ async function activateLanguageClient(
     // activateNameCasing(client, selectors);
     // activateSplitEditors(client);
 
-    lsp.activateAutoInsertion(selectors, client);
-    lsp.activateDocumentDropEdit(selectors, client);
+    lsp.activateAutoInsertion(documentSelectors, client);
+    lsp.activateDocumentDropEdit(documentSelectors, client);
     lsp.activateWriteVirtualFiles('glint.action.writeVirtualFiles', client);
 
     if (!enabledHybridMode.value) {
-      lsp.activateTsConfigStatusItem(selectors, 'glint.tsconfig', client);
+      lsp.activateTsConfigStatusItem(documentSelectors, 'glint.tsconfig', client);
       lsp.activateTsVersionStatusItem(
-        selectors,
+        documentSelectors,
         'glint.tsversion',
         context,
         (text) => 'TS ' + text,
