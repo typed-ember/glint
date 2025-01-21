@@ -77,6 +77,18 @@
         "unifiedjs.vscode-mdx",
         "--disable-extension",
         "Vue.volar",
+
+        // some of these extensions interfere with the TS plugin, or at least
+        // VSCode's activation of TS for .gts files. TODO: possible to replace
+        // this with something that disables all extensions except specific ones?
+        "--disable-extension",
+        "dbaeumer.vscode-eslint",
+        "--disable-extension",
+        "bradlc.vscode-tailwindcss",
+        "--disable-extension",
+        "EmberTooling.vscode-ember",
+        "--disable-extension",
+        "YoavBls.pretty-ts-errors",
         "${workspaceFolder}/test-packages/ts-plugin-test-app"
       ]
     },
