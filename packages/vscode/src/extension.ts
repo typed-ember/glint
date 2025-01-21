@@ -1,9 +1,12 @@
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import * as lsp from '@volar/vscode/node';
+import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 import * as languageServerProtocol from '@volar/language-server/protocol.js';
 import { createLabsInfo } from '@volar/vscode';
+import { enabledHybridMode, enabledTypeScriptPlugin } from './hybrid-mode';
+import { config } from './config';
 
 import {
   defineExtension,
@@ -204,4 +207,78 @@ function findLanguageServer(
 
     return null;
   }
+}
+
+try {
+  // The code below contains hacks lifted from the Vue extension to monkeypatch
+  // portions of official VSCode TS extension to add some missing features that make the tooling
+  // more seamless.
+  //
+  // https://github.com/vuejs/language-tools/blob/master/extensions/vscode/src/nodeClientMain.ts#L135-L195
+  //
+  // It is important for us (for the time being) to manually follow along with changes made to the
+  // Vue extension within the above file. Ideally Volar should extract this logic into a shared library.
+  const typeScriptServerPluginName = '@glint/typescript-plugin';
+
+  const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features')!;
+  const readFileSync = fs.readFileSync;
+  const extensionJsPath = require.resolve('./dist/extension.js', {
+    paths: [tsExtension.extensionPath],
+  });
+
+  const languageIdsQuoted = config.server.includeLanguages.map((lang) => `'${lang}'`).join(',');
+
+  // @ts-expect-error
+  fs.readFileSync = (...args) => {
+    if (args[0] === extensionJsPath) {
+      // @ts-expect-error
+      let text = readFileSync(...args) as string;
+
+      if (!enabledTypeScriptPlugin.value) {
+        // Make it possible to disable the TS server plugin if it's disabled by VSCode configuration.
+        // Default VSCode/TS doesn't make it possible to control this via configuration due to the
+        // fact that the TS plugin is declared in the extension's package.json's `typescriptServerPlugins`
+        text = text.replace(
+          'for(const e of n.contributes.typescriptServerPlugins',
+          (s) => s + `.filter(p=>p.name!=='${typeScriptServerPluginName}')`,
+        );
+      } else if (enabledHybridMode.value) {
+        // patch readPlugins
+        text = text.replace(
+          'languages:Array.isArray(e.languages)',
+          [
+            'languages:',
+            `e.name==='${typeScriptServerPluginName}'?[${languageIdsQuoted}]`,
+            ':Array.isArray(e.languages)',
+          ].join(''),
+        );
+
+        // VSCode < 1.87.0
+        text = text.replace(
+          't.$u=[t.$r,t.$s,t.$p,t.$q]',
+          (s) => s + `.concat(${languageIdsQuoted})`,
+        ); // patch jsTsLanguageModes
+        text = text.replace(
+          '.languages.match([t.$p,t.$q,t.$r,t.$s]',
+          (s) => s + `.concat(${languageIdsQuoted})`,
+        ); // patch isSupportedLanguageMode
+
+        // VSCode >= 1.87.0
+        text = text.replace(
+          't.jsTsLanguageModes=[t.javascript,t.javascriptreact,t.typescript,t.typescriptreact]',
+          (s) => s + `.concat(${languageIdsQuoted})`,
+        ); // patch jsTsLanguageModes
+        text = text.replace(
+          '.languages.match([t.typescript,t.typescriptreact,t.javascript,t.javascriptreact]',
+          (s) => s + `.concat(${languageIdsQuoted})`,
+        ); // patch isSupportedLanguageMode
+
+        return text;
+      }
+    }
+    // @ts-expect-error
+    return readFileSync(...args);
+  };
+} catch {
+  // ignore
 }
