@@ -218,6 +218,11 @@ try {
   //
   // It is important for us (for the time being) to manually follow along with changes made to the
   // Vue extension within the above file. Ideally Volar should extract this logic into a shared library.
+  //
+  // Specifically these hacks seem to make interop between between real .ts files and .gts files
+  // work in regards to features like Go to Source Definition, File References, etc.
+  //
+  // https://github.com/search?q=repo%3Amicrosoft%2Fvscode%20isSupportedLanguageMode&type=code
   const typeScriptServerPluginName = '@glint/typescript-plugin';
 
   const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features')!;
