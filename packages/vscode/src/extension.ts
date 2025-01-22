@@ -233,10 +233,10 @@ try {
 
   const languageIdsQuoted = config.server.includeLanguages.map((lang) => `'${lang}'`).join(',');
 
-  // @ts-expect-error
+  // @ts-expect-error – not easy to type
   fs.readFileSync = (...args) => {
     if (args[0] === extensionJsPath) {
-      // @ts-expect-error
+      // @ts-expect-error – not easy to type
       let text = readFileSync(...args) as string;
 
       if (!enabledTypeScriptPlugin.value) {
@@ -281,7 +281,7 @@ try {
         return text;
       }
     }
-    // @ts-expect-error
+    // @ts-expect-error – not easy to type
     return readFileSync(...args);
   };
 } catch {
