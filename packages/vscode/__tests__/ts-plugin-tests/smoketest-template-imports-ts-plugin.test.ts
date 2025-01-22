@@ -8,6 +8,7 @@ import {
   Position,
   CodeAction,
   workspace,
+  TextEditor,
 } from 'vscode';
 import * as path from 'path';
 import { describe, afterEach, test } from 'mocha';
@@ -26,14 +27,11 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
 
   describe('diagnostics for errors', () => {
     // TODO: fix remaining tests and remove this `.only`
-    test.only('with a custom extension', async () => {
+    test('with a custom extension', async () => {
       let scriptURI = Uri.file(`${rootDir}/src/index.gts`);
       let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
 
-      // Ensure we have a clean bill of health
-      expect(languages.getDiagnostics(scriptURI)).toEqual([]);
-
-      await hackishlyWaitForTypescriptPluginToActivate();
+      await hackishlyWaitForTypescriptPluginToActivate(scriptEditor, scriptURI);
 
       // Replace a string with a number
       await scriptEditor.edit((edit) => {
@@ -65,8 +63,7 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
         // Open the script and the template
         let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
 
-        // Ensure neither has any diagnostic messages
-        expect(languages.getDiagnostics(scriptURI)).toEqual([]);
+        await hackishlyWaitForTypescriptPluginToActivate(scriptEditor, scriptURI);
 
         // Comment out a property in the script that's referenced in the template
         await scriptEditor.edit((edit) => {
@@ -82,7 +79,7 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
           new Range(new Position(10, 9), new Position(10, 9)),
         );
 
-        expect(fixes.length).toBe(4);
+        expect(fixes.length).toBe(5);
 
         const fix = fixes.find((fix) => fix.title === "Declare property 'undocumentedProperty'");
 
@@ -106,8 +103,7 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
         // Open the script and the template
         let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
 
-        // Ensure neither has any diagnostic messages
-        expect(languages.getDiagnostics(scriptURI)).toEqual([]);
+        await hackishlyWaitForTypescriptPluginToActivate(scriptEditor, scriptURI);
 
         await scriptEditor.edit((edit) => {
           edit.insert(new Position(10, 4), '{{this.localProp}} ');
@@ -122,7 +118,7 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
           new Range(new Position(10, 12), new Position(10, 12)),
         );
 
-        expect(fixes.length).toBe(4);
+        expect(fixes.length).toBe(5);
 
         const fix = fixes.find((fix) => fix.title === "Declare property 'localProp'");
 
@@ -142,13 +138,54 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
 });
 
 /**
- * We shouldn't have to use this function for many reasons:
+ * It takes a little while for the TS Plugin to fully activate, and unfortunately
+ * VSCode won't automatically re-trigger/re-calculate diagnostics for a file after
+ * a TS Plugin kicks in, so we need some way to know that the TS Plugin is activated
+ * before we edit the file.
  *
- * 1. Using timers to avoid a race condition is brittle
- * 2. More importantly: this only solves the problem of "make sure the TS Plugin is activated
- *    before we edit the file" when what we REALLY want is diagnostics to kick in without
- *    editing.
+ * To accomplish this, this function inserts invalid TS into the .gts file and waits
+ * for diagnostics to show up.
  */
-function hackishlyWaitForTypescriptPluginToActivate(): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, 5000));
+async function hackishlyWaitForTypescriptPluginToActivate(
+  scriptEditor: TextEditor,
+  scriptURI: Uri,
+): Promise<void> {
+  let invalidAssignment = 'let s: string = 123;';
+  await scriptEditor.edit((edit) => {
+    edit.insert(new Position(0, 0), invalidAssignment);
+  });
+
+  let numSpacesAdded = 0;
+  const startTime = Date.now();
+  while (true) {
+    await scriptEditor.edit((edit) => {
+      edit.insert(new Position(0, 0), ' ');
+    });
+    numSpacesAdded++;
+
+    if (languages.getDiagnostics(scriptURI).length) {
+      break;
+    }
+
+    if (Date.now() - startTime > 5000) {
+      throw new Error(
+        'Timed out waiting for TS Plugin to activate (i.e. waiting for diagnostics to show up)',
+      );
+    }
+
+    // We'd love to wait for a smaller increment than 1000 but the editor
+    // debounces before triggering diagnostics so we need a large enough time.
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  // Remove our invalid assignment
+  await scriptEditor.edit((edit) => {
+    edit.replace(new Range(0, 0, 0, invalidAssignment.length + numSpacesAdded), '');
+  });
+
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  if (languages.getDiagnostics(scriptURI).length) {
+    throw new Error('Diagnostics still showing up after removing invalid assignment');
+  }
 }

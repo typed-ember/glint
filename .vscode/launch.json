@@ -15,6 +15,7 @@
       ],
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+        "--disable-extensions", // uncomment to activate your local extensions
         "${workspaceFolder}/test-packages"
       ]
     },
@@ -36,26 +37,25 @@
         "${workspaceFolder}/test-packages"
       ]
     },
-    {
-      "name": "Debug Extension (Glint Only, No TS, Disable Ember LS)",
-      "type": "extensionHost",
-      "request": "launch",
-      "preLaunchTask": "npm: build",
-      "autoAttachChildProcesses": true,
-      "runtimeExecutable": "${execPath}",
-      "outFiles": [
-        "${workspaceFolder}/**/*.js",
-        "!**/node_modules/**"
-      ],
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-        "--disable-extension",
-        "vscode.typescript-language-features",
-        "--disable-extension",
-        "lifeart.vscode-glimmer-syntax",
-        "${workspaceFolder}/test-packages"
-      ]
-    },
+    // {
+    //   "name": "Debug Extension (Glint Only, No TS, Disable Ember LS)",
+    //   "type": "extensionHost",
+    //   "request": "launch",
+    //   "preLaunchTask": "npm: build",
+    //   "autoAttachChildProcesses": true,
+    //   "runtimeExecutable": "${execPath}",
+    //   "outFiles": [
+    //     "${workspaceFolder}/**/*.js",
+    //     "!**/node_modules/**"
+    //   ],
+    //   "args": [
+    //     "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+    //     "--disable-extensions", // uncomment to activate your local extensions
+    //     "--disable-extension",
+    //     "vscode.typescript-language-features",
+    //     "${workspaceFolder}/test-packages"
+    //   ]
+    // },
     {
       // For this to work, make sure you're runninc `tsc --build --watch` at the root, AND
       // `yarn bundle:watch` from within vscode directory.
@@ -71,24 +71,7 @@
       ],
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-        "--disable-extension",
-        "lifeart.vscode-glimmer-syntax",
-        "--disable-extension",
-        "unifiedjs.vscode-mdx",
-        "--disable-extension",
-        "Vue.volar",
-
-        // some of these extensions interfere with the TS plugin, or at least
-        // VSCode's activation of TS for .gts files. TODO: possible to replace
-        // this with something that disables all extensions except specific ones?
-        "--disable-extension",
-        "dbaeumer.vscode-eslint",
-        "--disable-extension",
-        "bradlc.vscode-tailwindcss",
-        "--disable-extension",
-        "EmberTooling.vscode-ember",
-        "--disable-extension",
-        "YoavBls.pretty-ts-errors",
+        "--disable-extensions", // uncomment to activate your local extensions
         "${workspaceFolder}/test-packages/ts-plugin-test-app"
       ]
     },
@@ -96,7 +79,6 @@
       "name": "Attach to TS Server",
       "type": "node",
       "request": "attach",
-      "protocol": "inspector",
       "port": 5667,
       "sourceMaps": true,
       "outFiles": [
