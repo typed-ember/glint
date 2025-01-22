@@ -26,7 +26,6 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
   });
 
   describe('diagnostics for errors', () => {
-    // TODO: fix remaining tests and remove this `.only`
     test('with a custom extension', async () => {
       let scriptURI = Uri.file(`${rootDir}/src/index.gts`);
       let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
