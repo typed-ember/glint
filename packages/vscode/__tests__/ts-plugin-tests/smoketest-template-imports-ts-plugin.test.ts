@@ -157,6 +157,8 @@ async function hackishlyWaitForTypescriptPluginToActivate(
 
   let numSpacesAdded = 0;
   const startTime = Date.now();
+
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     await scriptEditor.edit((edit) => {
       edit.insert(new Position(0, 0), ' ');
