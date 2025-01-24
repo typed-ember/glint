@@ -1,6 +1,6 @@
 {
   "name": "@glint/scripts",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "type": "module",
   "repository": "typed-ember/glint",
   "description": "Scripts for working with Glint",
