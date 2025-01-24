@@ -145,6 +145,10 @@ function checkResolveError(
   // we need to traverse up through the path to find the true parent.
   let sourceMapping = mapping.sourceNode.type === 'Identifier' ? mapping.parent : mapping;
   let parentNode = sourceMapping?.parent?.sourceNode;
+  if (sourceMapping?.sourceNode.type === 'ElementNameNode') {
+    sourceMapping = sourceMapping.parent;
+    parentNode = sourceMapping?.parent?.sourceNode;
+  }
 
   // If this error is on the first param to a {{component}} or other bind invocation, this means
   // we either have a non-component value or a string that's missing from the registry.
@@ -176,7 +180,12 @@ function checkResolveError(
   // Otherwise if this is on a top level invocation, we're trying to use a template-unaware
   // value in a template-specific way.
   let nodeType = sourceMapping?.sourceNode.type;
-  if (nodeType === 'ElementNode' || nodeType === 'PathExpression' || nodeType === 'Identifier') {
+  if (
+    nodeType === 'ElementNode' ||
+    nodeType === 'PathExpression' ||
+    nodeType === 'Identifier' ||
+    nodeType === 'ElementNameNode'
+  ) {
     return addGlintDetails(
       diagnostic,
       'The given value does not appear to be usable as a component, modifier or helper.'
@@ -201,8 +210,8 @@ function checkImplicitAnyError(
 
     // This error may appear either on `<Foo />` or `{{foo}}`/`(foo)`
     let globalName =
-      sourceNode.type === 'ElementNode'
-        ? sourceNode.tag.split('.')[0]
+      sourceNode.type === 'ElementNameNode'
+        ? sourceNode.value.split('.')[0]
         : sourceNode.type === 'PathExpression' && sourceNode.head.type === 'VarHead'
         ? sourceNode.head.name
         : null;

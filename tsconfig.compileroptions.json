@@ -3,6 +3,7 @@
     "target": "ES2020",
     // Node16 allows top-level `await`, which was also unflagged in Node 14.8
     "module": "Node16",
+    "skipLibCheck": true,
     "moduleResolution": "Node16",
     "strict": true,
     "noImplicitOverride": true,

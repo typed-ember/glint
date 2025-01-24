@@ -568,11 +568,11 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "message": "The given value does not appear to be usable as a component, modifier or helper.",
           "range": {
             "end": {
-              "character": 26,
+              "character": 23,
               "line": 14,
             },
             "start": {
-              "character": 4,
+              "character": 5,
               "line": 14,
             },
           },
@@ -671,11 +671,11 @@ describe('Language Server: Diagnostic Augmentation', () => {
           Property 'Foo' does not exist on type 'Globals'.",
           "range": {
             "end": {
-              "character": 7,
+              "character": 4,
               "line": 1,
             },
             "start": {
-              "character": 0,
+              "character": 1,
               "line": 1,
             },
           },
@@ -690,11 +690,11 @@ describe('Language Server: Diagnostic Augmentation', () => {
           Property 'foo' does not exist on type 'Globals'.",
           "range": {
             "end": {
-              "character": 10,
+              "character": 7,
               "line": 2,
             },
             "start": {
-              "character": 0,
+              "character": 1,
               "line": 2,
             },
           },

@@ -933,6 +933,9 @@ describe('Transform: rewriteTemplate', () => {
       expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
           const 𝛄 = χ.emitElement(\\"div\\");
+          χ.applyAttributes(𝛄.element, {
+             
+          });
           χ.applyModifier(χ.resolve(modifier)(𝛄.element, { foo: \\"bar\\" , ...χ.NamedArgsMarker }));
         }"
       `);
@@ -944,6 +947,9 @@ describe('Transform: rewriteTemplate', () => {
       expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
           const 𝛄 = χ.emitComponent(χ.resolve(MyComponent)());
+          χ.applyAttributes(𝛄.element, {
+             
+          });
           χ.applyModifier(χ.resolve(modifier)(𝛄.element, { foo: \\"bar\\" , ...χ.NamedArgsMarker }));
         }"
       `);
@@ -1085,6 +1091,9 @@ describe('Transform: rewriteTemplate', () => {
         "{
           const 𝛄 = χ.emitElement(\\"div\\");
           χ.applySplattributes(𝚪.element, 𝛄.element);
+          χ.applyAttributes(𝛄.element, {
+             
+          });
         }"
       `);
     });
@@ -1129,6 +1138,9 @@ describe('Transform: rewriteTemplate', () => {
         "{
           const 𝛄 = χ.emitComponent(χ.resolve(Foo)());
           χ.applySplattributes(𝚪.element, 𝛄.element);
+          χ.applyAttributes(𝛄.element, {
+             
+          });
         }"
       `);
     });
