@@ -47,9 +47,10 @@
       }
       
       info.innerHTML = infoText;
+      updateDisplay();
     }
 
-    input.addEventListener('input', () => {
+    function updateDisplay() {
       let offset = 0;
       const lines = input.value.split('\n');
       lines[lines.length - 1] = lines[lines.length - 1] + '\u0000';
@@ -61,7 +62,9 @@
                             char === '\n' ? '↵' :
                             char === '\u0000' ? '␀' :
                             char;
-          const result = `<div style="display: inline-block; font-family: monospace; border: 1px solid #ccc; margin: 1px; padding: 2px;">
+          const isAtCursor = currentOffset === input.selectionStart;
+          const isSelected = currentOffset >= input.selectionStart && currentOffset < input.selectionEnd;
+          const result = `<div style="display: inline-block; font-family: monospace; border: 1px solid #ccc; margin: 1px; padding: 2px; ${isAtCursor ? 'background-color: #b0b0ff;' : ''} ${isSelected ? 'background-color: #b0b0ff;' : ''}">
             <div style="font-size: 16px;">${displayChar}</div>
             <div style="font-size: 10px; color: #666;">
               ${lineNum}<br>
@@ -74,9 +77,9 @@
         offset += line.length + 1; // +1 for newline
         return result;
       }).join('');
-      updateInfo();
-    });
+    }
 
+    input.addEventListener('input', updateInfo);
     input.addEventListener('click', updateInfo);
     input.addEventListener('keyup', updateInfo);
     input.addEventListener('select', updateInfo);
