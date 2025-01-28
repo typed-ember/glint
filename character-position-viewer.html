@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <textarea id="input" style="width: 140ch; height: 400px;"></textarea>
+  <div>
+    <button id="de-indent">de-indent</button>
+  </div>
+  <div id="output"></div>
+
+  <script>
+    const input = document.getElementById('input');
+    const output = document.getElementById('output');
+    input.addEventListener('input', () => {
+      let offset = 0;
+      const lines = input.value.split('\n');
+      output.innerHTML = lines.map((line, lineNum) => {
+        const result = line.split('').map((char, charNum) => {
+          const currentOffset = offset + charNum;
+          const displayChar = char === ' ' ? '␣' : 
+                            char === '\n' ? '↵' :
+                            char;
+          const result = `<div style="display: inline-block; font-family: monospace; border: 1px solid #ccc; margin: 1px; padding: 2px;">
+            <div style="font-size: 16px;">${displayChar}</div>
+            <div style="font-size: 10px; color: #666;">
+              L${lineNum}<br>
+              C${charNum}<br>
+              O${currentOffset}
+            </div>
+          </div>`;
+          return result;
+        }).join('') + '<br>';
+        offset += line.length + 1; // +1 for newline
+        return result;
+      }).join('');
+    });
+
+    document.getElementById('de-indent').addEventListener('click', () => {
+      const lines = input.value.split('\n');
+      if (lines.length === 0) return;
+
+      // Find number of leading spaces in first line
+      const firstLine = lines[0];
+      let leadingSpaces = 0;
+      for (let i = 0; i < firstLine.length; i++) {
+        if (firstLine[i] === ' ') {
+          leadingSpaces++;
+        } else {
+          break;
+        }
+      }
+
+      if (leadingSpaces === 0) return;
+
+      // De-indent all lines by that amount, but don't remove non-spaces
+      const deindented = lines.map(line => {
+        let spacesToRemove = leadingSpaces;
+        let i = 0;
+        // Only remove up to leadingSpaces number of spaces from start
+        while (spacesToRemove > 0 && i < line.length && line[i] === ' ') {
+          i++;
+          spacesToRemove--;
+        }
+        return line.slice(i);
+      });
+
+      input.value = deindented.join('\n');
+      // Trigger input event to update display
+      input.dispatchEvent(new Event('input'));
+    });
+  </script>
+</body>
+</html>
