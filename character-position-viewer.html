@@ -19,7 +19,7 @@
       let offset = 0;
       const lines = input.value.split('\n');
       output.innerHTML = lines.map((line, lineNum) => {
-        const result = line.split('').map((char, charNum) => {
+        const result = (lineNum === lines.length - 1 ? line : line + '\n').split('').map((char, charNum) => {
           const currentOffset = offset + charNum;
           const displayChar = char === ' ' ? '␣' : 
                             char === '\n' ? '↵' :
@@ -27,9 +27,9 @@
           const result = `<div style="display: inline-block; font-family: monospace; border: 1px solid #ccc; margin: 1px; padding: 2px;">
             <div style="font-size: 16px;">${displayChar}</div>
             <div style="font-size: 10px; color: #666;">
-              L${lineNum}<br>
-              C${charNum}<br>
-              O${currentOffset}
+              ${lineNum}<br>
+              ${charNum}<br>
+              ${currentOffset}
             </div>
           </div>`;
           return result;
