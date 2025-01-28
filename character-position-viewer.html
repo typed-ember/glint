@@ -10,11 +10,45 @@
   <div>
     <button id="de-indent">de-indent</button>
   </div>
+  <div id="info"></div>
   <div id="output"></div>
 
   <script>
     const input = document.getElementById('input');
     const output = document.getElementById('output');
+    const info = document.getElementById('info');
+
+    function getPositionInfo(text, offset) {
+      const lines = text.split('\n');
+      let currentOffset = 0;
+      for (let lineNum = 0; lineNum < lines.length; lineNum++) {
+        const line = lines[lineNum];
+        if (offset >= currentOffset && offset <= currentOffset + line.length) {
+          const charNum = offset - currentOffset;
+          return { lineNum, charNum, offset };
+        }
+        currentOffset += line.length + 1; // +1 for newline
+      }
+      return null;
+    }
+
+    function updateInfo() {
+      const text = input.value;
+      const selectionStart = input.selectionStart;
+      const selectionEnd = input.selectionEnd;
+      const startPos = getPositionInfo(text, selectionStart);
+      
+      let infoText = `Cursor - Line: ${startPos.lineNum}, Character: ${startPos.charNum}, Offset: ${startPos.offset}`;
+      
+      if (selectionStart !== selectionEnd) {
+        const endPos = getPositionInfo(text, selectionEnd);
+        infoText += `<br>Selection - From (${startPos.lineNum}:${startPos.charNum}, offset ${startPos.offset}) to (${endPos.lineNum}:${endPos.charNum}, offset ${endPos.offset})`;
+        infoText += `<br>Selected length: ${selectionEnd - selectionStart}`;
+      }
+      
+      info.innerHTML = infoText;
+    }
+
     input.addEventListener('input', () => {
       let offset = 0;
       const lines = input.value.split('\n');
@@ -37,7 +71,12 @@
         offset += line.length + 1; // +1 for newline
         return result;
       }).join('');
+      updateInfo();
     });
+
+    input.addEventListener('click', updateInfo);
+    input.addEventListener('keyup', updateInfo);
+    input.addEventListener('select', updateInfo);
 
     document.getElementById('de-indent').addEventListener('click', () => {
       const lines = input.value.split('\n');
