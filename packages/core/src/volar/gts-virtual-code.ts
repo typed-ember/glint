@@ -56,6 +56,10 @@ interface EmbeddedCodeWithDirectives extends VirtualCode {
  * - Even when there are multiple <template> tags, we only generate 1 embedded TS code representing
  *   the TS code for all of the entire .gts file.
  *
+ * - The Root VirtualCode we provide is simple the untransformed .gts file itself. This is a Volar
+ *   convention and also allows for the possible of writing language service plugins that operate
+ *   directly on .gts (i.e. `glimmer-ts`) files directly (rather than on an embedded code).
+ *
  * In summary, `embeddedCodes` is a more general/abstract concept of ANY kind of language that
  * is embedded or generated from the root virtual code file for the purposes of performing
  * language service processing for the particular file type of the embedded code.
@@ -89,25 +93,26 @@ export class VirtualGtsCode implements VirtualCode {
     this.snapshot = snapshot;
     const length = snapshot.getLength();
 
-    // Define a single mapping for the root virtual code (the .gts file).
-    // The original MDX docs describe the root virtual code mappings are as:
-    //
-    // > The code mappings of the MDX file. There is always only one mapping.
-    //
-    // I guess it's some "identity" mapping that describes the whole file? I don't know.
+    // The root virtual code is always the untransformed .gts file itself. (See docs/explanation
+    // at top of file for more details.) Therefore we declare a mapping that maps the entire
+    // contents of the source .gts to the identical "generated" .gts file (which is literally
+    // the same contents).
     this.mappings[0] = {
       sourceOffsets: [0],
       generatedOffsets: [0],
       lengths: [length],
 
-      // This controls which language service features are enabled within this root virtual code
+      // This controls which language service features are enabled within this root virtual code.
+      // For the root virtual code, we disable all of them to disable any kind of processing
+      // Volar might try to do on them (e.g. try and send non-valid-TS .gts files to the TS server).
+      // (It will be the transformed embedded code that we send to TS for processing)
       data: {
-        completion: true,
-        format: true,
-        navigation: true,
-        semantic: true,
-        structure: true,
-        verification: true,
+        completion: false,
+        format: false,
+        navigation: false,
+        semantic: false,
+        structure: false,
+        verification: false,
       },
     };
 

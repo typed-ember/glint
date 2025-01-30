@@ -89,6 +89,9 @@ export class Project {
           // relativePatternSupport: true,
         },
         symbols: {},
+
+        // Enable pull-based diagnostics.
+        diagnostics: {},
       },
     };
 
@@ -110,7 +113,9 @@ export class Project {
     return {
       ...this.languageServerHandle,
 
-      sendDocumentDiagnosticRequest: wrapForSnapshottability('sendDocumentDiagnosticRequest'),
+      sendDocumentDiagnosticRequest: wrapForSnapshottability('sendDocumentDiagnosticRequest') as (
+        uri: string,
+      ) => Promise<FullDocumentDiagnosticReport>,
       sendDefinitionRequest: wrapForSnapshottability('sendDefinitionRequest'),
       sendHoverRequest: wrapForSnapshottability('sendHoverRequest'),
 
