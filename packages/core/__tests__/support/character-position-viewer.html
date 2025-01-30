@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!--
+    This is a tool that makes it easier to see the line number, column number, and offset (from start of file)
+    in a blob of text. This is useful for debugging tests and double checking logic that involves precise
+    character positions (common in Language Tooling).
+
+    Usage: copy and paste the file contents into the textarea, optionally click de-indent (if pasting
+    from an indented test file). This will generate an equivalent grid of text where each cell has
+    the positional data.
+    
+    As you move the cursor around the textarea or select text, the UI
+    will update, showing the current cursor position and the selected text's position as well
+    as highlighting the text in the output grid.
+  -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
