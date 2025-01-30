@@ -15,10 +15,10 @@ interface EmbeddedCodeWithDirectives extends VirtualCode {
  * Handlebars templates within <template> tags.
  *
  * ## Virtual Code Overview (and how we use it)
- * 
+ *
  * VirtualCodes are one of the most core/central primitives provided by Volar.
  * They are:
- * 
+ *
  * - Used both in (classic) Language Server mode and in newer TS Plugin mode
  * - Responsible for parsing and transforming source code of a particular language (e.g. GTS)
  *   into embedded codes (e.g. a valid type-checkable TS file wherein all `<template>` tags
