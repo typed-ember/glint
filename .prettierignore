@@ -20,6 +20,8 @@ dist/
 !/packages/environment*/-private/dsl/**/*.d.ts
 !/packages/environment*/-private/intrinsics/**/*.d.ts
 
+packages/core/__tests__/support/character-position-viewer.html
+
 /packages/vscode/src/generated-meta.ts
 
 # Markdown files: the formatting Prettier uses by default *does. not. match.*

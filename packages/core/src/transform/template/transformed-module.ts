@@ -1,6 +1,6 @@
 import GlimmerASTMappingTree from './glimmer-ast-mapping-tree.js';
 import { assert } from '../util.js';
-import { CodeMapping } from '@volar/language-core';
+import { CodeInformation, CodeMapping } from '@volar/language-core';
 
 export type Range = { start: number; end: number };
 export type RangeWithMapping = Range & { mapping?: GlimmerASTMappingTree };
@@ -329,6 +329,11 @@ export default class TransformedModule {
       }
     });
 
+    // TODO: in order to fix/address Issue https://github.com/typed-ember/glint/issues/769,
+    // we will need to split up this array into multiple CodeMappings, each with a different
+    // CodeInformation object. Specifically, everything but `verification` should be false or
+    // omitted for any mappings that represent regions of generated code that don't exist in the source.
+    // Otherwise there is risk of code completions and other things happening in the wrong place.
     return [
       {
         sourceOffsets,
@@ -342,8 +347,7 @@ export default class TransformedModule {
           semantic: true,
           structure: true,
           verification: true,
-          transformedContents: this.transformedContents, // TODO REMOVE
-        } as any,
+        } satisfies CodeInformation,
       },
     ];
   }
