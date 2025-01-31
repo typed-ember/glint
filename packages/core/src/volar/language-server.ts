@@ -231,8 +231,8 @@ function filterAndAugmentDiagnostics(
     for (let directive of unusedExpectErrors) {
       const transformedStartOffset = transformedModule.getTransformedOffset(directive.source.filename, directive.location.start);
 
-      // Hacky, but `// @glint-expect-error` is the TS transformed representation of `{{!@glint-expect-error}}`,
-      // and its length is 22 characters, and we can use that number to calculate the end position in the transformed file.
+      // Hacky, but `// @glint-expect-error\n` is the TS transformed representation of `{{!@glint-expect-error}}`,
+      // and its length is 23 characters, and we can use that number to calculate the end position in the transformed file.
       //
       // It would be less hacky if we could use:
       //
@@ -240,10 +240,7 @@ function filterAndAugmentDiagnostics(
       //
       // But for unknown reasons (perhaps related to how Volar wants us to use 0-length boundary mappings
       // to map unequally-sized regions to each other?), this ends up returning the same value as `directive.location.start`.
-      //
-      // So we just calculate it out
-      const endOffset = directive.location.start + 22;
-      const transformedEndOffset = transformedModule.getTransformedOffset(directive.source.filename, endOffset);
+      const transformedEndOffset = transformedStartOffset + 23;
 
       allDiagnostics.push({
         message: `Unused '@glint-expect-error' directive.`,
@@ -269,13 +266,3 @@ connection.onInitialized(() => {
 });
 
 connection.listen();
-
-/**
- * @param {string} uri
- * @returns {Promise<Commands>}
- */
-// async function getCommands(uri) {
-//   const project = await server.projects.getProject(uri)
-//   const service = project.getLanguageService()
-//   return service.context.inject('mdxCommands')
-// }
