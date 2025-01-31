@@ -451,9 +451,42 @@ describe('Language Server: Diagnostics', () => {
       (await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).items,
     ).toEqual([]);
 
-    // TODO: uncomment and fix
-    // expect(
-    //   await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')),
-    // ).toMatchInlineSnapshot(`[TODO should display unused glint-expect-error directive]`);
+    expect(
+      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items.length,
+    ).toEqual(1);
+
+    // TODO: the ranges are not quite right.
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "code": 0,
+              "data": {
+                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+                "isFormat": false,
+                "original": {},
+                "pluginIndex": 0,
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+                "version": 3,
+              },
+              "message": "Unused '@glint-expect-error' directive.",
+              "range": {
+                "end": {
+                  "character": 12,
+                  "line": 3,
+                },
+                "start": {
+                  "character": 12,
+                  "line": 3,
+                },
+              },
+              "severity": 1,
+              "source": "disregard.gts",
+            },
+          ],
+          "kind": "full",
+        }
+      `);
   });
 });
