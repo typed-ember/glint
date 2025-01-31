@@ -1,4 +1,4 @@
-import { CodeMapping, VirtualCode } from '@volar/language-core';
+import { CodeInformation, CodeMapping, VirtualCode } from '@volar/language-core';
 import { IScriptSnapshot } from 'typescript';
 import { ScriptSnapshot } from './script-snapshot.js';
 import type ts from 'typescript';
@@ -98,22 +98,34 @@ export class VirtualGtsCode implements VirtualCode {
     // contents of the source .gts to the identical "generated" .gts file (which is literally
     // the same contents).
     this.mappings[0] = {
+      // Map the entire length of the file from source to "generated"
       sourceOffsets: [0],
       generatedOffsets: [0],
       lengths: [length],
 
-      // This controls which language service features are enabled within this root virtual code.
-      // For the root virtual code, we disable all of them to disable any kind of processing
-      // Volar might try to do on them (e.g. try and send non-valid-TS .gts files to the TS server).
-      // (It will be the transformed embedded code that we send to TS for processing)
+      // The `CodeInformation` specifies the capabilities / language feature enablements for the span
+      // of code covered by the mapping. Because this mapping covers the whole file, we are
+      // essentially controlling which language features are enabled for the entire .gts file,
+      // which ultimately determines whether Volar will pass the contents of this file to
+      // any number of the various language feature plugins supported by Volar.
+      //
+      // Note that we actually disable `verification` here (which controls whether this file
+      // will be passed to TS for type-checking) because .gts files are not valid TS (unless
+      // they happen to have no embedded <template> tags). The TS type-checking will occur
+      // on the embedded TS-transformed code that we generate below.
       data: {
-        completion: false,
-        format: false,
-        navigation: false,
-        semantic: false,
-        structure: false,
+        // I have not personally vetted whether these should be disabled; we should revisit
+        // what specifically we actually need.
+        completion: true,
+        format: true,
+        navigation: true,
+        semantic: true,
+        structure: true,
+
+        // See notes above; we disable verification (which disables TS type-checking) because
+        // .gts files are not valid TS (unless they happen to have no embedded <template> tags).
         verification: false,
-      },
+      } satisfies CodeInformation,
     };
 
     const contents = snapshot.getText(0, length);
@@ -130,6 +142,8 @@ export class VirtualGtsCode implements VirtualCode {
     this.transformedModule = transformedModule;
 
     if (transformedModule) {
+      // .gts file has embedded templates, so lets generate a new embedded code
+      // that contains the transformed TS code.
       const mappings = transformedModule.toVolarMappings();
       this.embeddedCodes = [
         {
@@ -144,6 +158,14 @@ export class VirtualGtsCode implements VirtualCode {
     } else {
       // Null transformed module means there's no embedded HBS templates,
       // so just return a full "no-op" mapping from source to transformed.
+      //
+      // Note that this does mean that both the root virtual code and this embedded
+      // code we generate have the same contents, but we will configure the
+      // CodeInformation below differently than we do above to enable type-checking
+      // on the embedded code. While this might seem a bit wasteful/confusing to have
+      // root and embedded code essentially point to the same document, it keeps the
+      // structure clean, simple, and consistent, rather than, say, changing the structure
+      // of our VirtualCode only in the case of .gts files without embedded templates.
       this.embeddedCodes = [
         {
           embeddedCodes: [],
@@ -156,16 +178,16 @@ export class VirtualGtsCode implements VirtualCode {
               generatedOffsets: [0],
               lengths: [length],
 
-              // This controls which language service features are enabled within this root virtual code.
-              // Since this is just .ts, we want all of them enabled.
               data: {
                 completion: true,
                 format: false,
                 navigation: true,
                 semantic: true,
                 structure: true,
+
+                // Unlike the root virtual code, we enable verification (which enables TS type-checking).
                 verification: true,
-              },
+              } satisfies CodeInformation,
             },
           ],
           snapshot: new ScriptSnapshot(contents),
