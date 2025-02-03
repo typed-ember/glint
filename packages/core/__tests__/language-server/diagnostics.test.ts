@@ -451,9 +451,51 @@ describe('Language Server: Diagnostics', () => {
       (await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).items,
     ).toEqual([]);
 
-    // TODO: uncomment and fix
-    // expect(
-    //   await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')),
-    // ).toMatchInlineSnapshot(`[TODO should display unused glint-expect-error directive]`);
+    expect(
+      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items.length,
+    ).toEqual(1);
+
+    // TODO: the start range for this is not quite right; specifically the start range seems
+    // seems to go all the way to the end of the opening `<template>` tag, e.g.
+    // `<template>[HERE]`. This causes excess red suiggles, and this goes away if there
+    // are any other HTML elements preceding the glint-expect-error directive. I'm not
+    // sure the root cause of this, but it may go away if/when we refactor a few things about
+    // Volar's mapping logic.
+    //
+    // Tracking this issue here:
+    //
+    // https://github.com/typed-ember/glint/issues/796
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "code": 0,
+              "data": {
+                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+                "isFormat": false,
+                "original": {},
+                "pluginIndex": 0,
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+                "version": 3,
+              },
+              "message": "Unused '@glint-expect-error' directive.",
+              "range": {
+                "end": {
+                  "character": 30,
+                  "line": 4,
+                },
+                "start": {
+                  "character": 12,
+                  "line": 3,
+                },
+              },
+              "severity": 1,
+              "source": "disregard.gts",
+            },
+          ],
+          "kind": "full",
+        }
+      `);
   });
 });

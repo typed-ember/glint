@@ -227,67 +227,35 @@ function filterAndAugmentDiagnostics(
     }
   });
 
-  for (let directive of unusedExpectErrors) {
-    // desired methond on transformedModule:
-    // - it accepts a source offset and finds the transformed offset
-    // - in which file? there are multiple embeddedCodes in a .gts file
-    // - root: gts
-    //   - embeddedCodes[0]: ts (IR)
-    //   - embeddedCodes[1, 2, 3]: however many Handlebars templates
-    //
-    // transformedModule.correlatedSpans[1].mapping.children[0].children[1].sourceNode
-    // - {type: 'MustacheCommentStatement', value: ' @glint-expect-error ', loc: SourceSpan}
-    //
-    // this is what we want.
-    //
-    // OK what is our input?
-    // the starting point is directive that is left over.
-    // directive.areaOfEffect.start/end reference to the offset within the .gts file delineating: |{{! @glint-expect-error }}|
-    //
-    // directive.source: {
-    //   contents: <GTS source code with untransformed template>
-    //   filename: "disregard.gts"
-    // }
-    //
-    // determineTransformedOffsetAndSpan(
-    //   originalFileName: string,
-    //   originalOffset: number
-    // )
-    //
-    // transformedModule.determineTransformedOffsetAndSpan(directive.source.filename, directive.location.start)
-    //
-    // this returns a transformedOffset and correlatedSpan with mapping pointing to the template embedded.
-    //
+  if (transformedModule) {
+    for (let directive of unusedExpectErrors) {
+      const transformedStartOffset = transformedModule.getTransformedOffset(
+        directive.source.filename,
+        directive.location.start,
+      );
 
-    allDiagnostics.push({
-      message: `Unused '@glint-expect-error' directive.`,
+      // Hacky, but `// @glint-expect-error\n` is the TS transformed representation of `{{!@glint-expect-error}}`,
+      // and its length is 23 characters, and we can use that number to calculate the end position in the transformed file.
+      //
+      // It would be less hacky if we could use:
+      //
+      //   transformedModule.getTransformedOffset(directive.source.filename, directive.location.end)
+      //
+      // But for unknown reasons (perhaps related to how Volar wants us to use 0-length boundary mappings
+      // to map unequally-sized regions to each other?), this ends up returning the same value as `directive.location.start`.
+      const transformedEndOffset = transformedStartOffset + 23;
 
-      // this range... should be... for the TS file. Currently we're sending
-      // a range for the source .gts. That can't be right.
-      // The info we have is....... we know an unused glint directive exists.
-      // We need to find a range in the IR .ts file.
-      //
-      // 1. need to translate directive.areaOfEffect into the IR .ts file location
-      //    - this is going to be the beginning of line in .gts and end of line in .gts.
-      //    - actually maybe it's not area of effect, but rather the comment node. YES.
-      //  emit.forNode(node, () => {
-      //   emit.text(`// @glint-${kind}`);
-      //   emit.newline();
-      // });
-      //
-      // - can we take the souce and query the CommentNode
-      //   - node: AST.MustacheCommentStatement | AST.CommentStatement
-      // - what/how do we query now?
-      //
-      // 2. need to make sure it fits error boundary
-      range: vscode.Range.create(
-        offsetToPosition(document.getText(), directive.areaOfEffect.start),
-        offsetToPosition(document.getText(), directive.areaOfEffect.end),
-      ),
-      severity: vscode.DiagnosticSeverity.Error,
-      code: 0,
-      source: directive.source.filename, // not sure if this is right
-    });
+      allDiagnostics.push({
+        message: `Unused '@glint-expect-error' directive.`,
+        range: vscode.Range.create(
+          offsetToPosition(transformedModule.transformedContents, transformedStartOffset),
+          offsetToPosition(transformedModule.transformedContents, transformedEndOffset),
+        ),
+        severity: vscode.DiagnosticSeverity.Error,
+        code: 0,
+        source: directive.source.filename, // not sure if this is right
+      });
+    }
   }
 
   return allDiagnostics;
@@ -301,13 +269,3 @@ connection.onInitialized(() => {
 });
 
 connection.listen();
-
-/**
- * @param {string} uri
- * @returns {Promise<Commands>}
- */
-// async function getCommands(uri) {
-//   const project = await server.projects.getProject(uri)
-//   const service = project.getLanguageService()
-//   return service.context.inject('mdxCommands')
-// }

@@ -229,7 +229,7 @@ export default class TransformedModule {
    * (e.g. `{{expectsAtLeastOneArg}}` in an .hbs file to `__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(expectsAtLeastOneArg)());`
    * in a generated TS file, in Volar you can only map regions of the same size.
    *
-   * In the case that you need to map regions of different sizes in Volar, you need to also using
+   * In the case that you need to map regions of different sizes in Volar, you need to use
    * zero-length mappings to delineate regions/boundaries that should map to each other, otherwise there will
    * be cases where TS diagnostics will fail to transform/map back to the original source. Example:
    *
