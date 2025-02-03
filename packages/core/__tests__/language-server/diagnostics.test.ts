@@ -355,7 +355,7 @@ describe('Language Server: Diagnostics', () => {
     expect(server.getDiagnostics(project.fileURI('templates/foo.hbs'))).toEqual([]);
   });
 
-  test.only('honors @glint-ignore and @glint-expect-error', async () => {
+  test('honors @glint-ignore and @glint-expect-error', async () => {
     let componentA = stripIndent`
       import Component from '@glimmer/component';
 
