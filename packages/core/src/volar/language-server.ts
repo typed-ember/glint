@@ -229,7 +229,10 @@ function filterAndAugmentDiagnostics(
 
   if (transformedModule) {
     for (let directive of unusedExpectErrors) {
-      const transformedStartOffset = transformedModule.getTransformedOffset(directive.source.filename, directive.location.start);
+      const transformedStartOffset = transformedModule.getTransformedOffset(
+        directive.source.filename,
+        directive.location.start,
+      );
 
       // Hacky, but `// @glint-expect-error\n` is the TS transformed representation of `{{!@glint-expect-error}}`,
       // and its length is 23 characters, and we can use that number to calculate the end position in the transformed file.
