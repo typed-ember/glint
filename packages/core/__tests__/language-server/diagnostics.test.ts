@@ -355,7 +355,7 @@ describe('Language Server: Diagnostics', () => {
     expect(server.getDiagnostics(project.fileURI('templates/foo.hbs'))).toEqual([]);
   });
 
-  test('honors @glint-ignore and @glint-expect-error', async () => {
+  test.only('honors @glint-ignore and @glint-expect-error', async () => {
     let componentA = stripIndent`
       import Component from '@glimmer/component';
 
@@ -455,7 +455,16 @@ describe('Language Server: Diagnostics', () => {
       (await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items.length,
     ).toEqual(1);
 
-    // TODO: the ranges are not quite right.
+    // TODO: the start range for this is not quite right; specifically the start range seems
+    // seems to go all the way to the end of the opening `<template>` tag, e.g.
+    // `<template>[HERE]`. This causes excess red suiggles, and this goes away if there
+    // are any other HTML elements preceding the glint-expect-error directive. I'm not
+    // sure the root cause of this, but it may go away if/when we refactor a few things about
+    // Volar's mapping logic.
+    //
+    // Tracking this issue here:
+    //
+    // https://github.com/typed-ember/glint/issues/796
     expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
       .toMatchInlineSnapshot(`
         {
@@ -473,8 +482,8 @@ describe('Language Server: Diagnostics', () => {
               "message": "Unused '@glint-expect-error' directive.",
               "range": {
                 "end": {
-                  "character": 12,
-                  "line": 3,
+                  "character": 30,
+                  "line": 4,
                 },
                 "start": {
                   "character": 12,
