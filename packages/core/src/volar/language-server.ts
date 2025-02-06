@@ -9,7 +9,7 @@ import { createEmberLanguagePlugin } from './ember-language-plugin.js';
 import { ConfigLoader } from '../config/loader.js';
 import ts from 'typescript';
 import { Disposable } from '@volar/language-service';
-import { createLanguageServicePlugins } from './typescript-language-service-plugin.js';
+import { createTypescriptLanguageServicePlugin } from './typescript-language-service-plugin.js';
 
 const connection = createConnection();
 const server = createServer(connection);
@@ -65,7 +65,7 @@ connection.onInitialize((parameters) => {
     };
   });
 
-  const languageServicePlugins = createLanguageServicePlugins(ts);
+  const languageServicePlugins = createTypescriptLanguageServicePlugin(ts);
 
   return server.initialize(parameters, project, languageServicePlugins);
 

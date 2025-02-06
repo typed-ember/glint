@@ -19,7 +19,7 @@ import { VirtualGtsCode } from './gts-virtual-code.js';
 // (TS + Handlebars) combined into one, but we can use the TS language service because the only
 // scripts we pass to the TS service for type-checking is transformed Intermediate Representation (IR)
 // TypeScript code with all <template> tags converted to type-checkable TS.
-export function createLanguageServicePlugins(ts: typeof import('typescript')) {
+export function createTypescriptLanguageServicePlugin(ts: typeof import('typescript')) {
   return createTypeScriptServices(ts).map<LanguageServicePlugin>((plugin) => {
     if (plugin.name === 'typescript-semantic') {
       // Extend the default TS service with Glint-specific customizations.
