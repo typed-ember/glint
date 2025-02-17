@@ -242,6 +242,14 @@ export default class TransformedModule {
     const generatedOffsets: number[] = [];
     const lengths: number[] = [];
 
+    // If this is going to work with CodeInformation then we need this to accept a CodeFeatures object with
+    // the proxy approach that Vue uses.
+    //
+    // Can this be done?
+    // - For this to work then
+    //   - there must not be any overlapping nesting, e.g. a region of mapping from outer to inner wheere the outer is larger, inner overlaps and is smaller
+    //     - e.g. I think we have this for `{{#each foos as |foo|}} {{foo}} {{/each}}`
+    //     - but i think we handled this with leaf-checking?
     const push = (sourceOffset: number, generatedOffset: number, length: number): void => {
       if (sourceOffsets.length > 0) {
         // TODO: these assertions are firing for certain files/transformations, which means
@@ -334,12 +342,34 @@ export default class TransformedModule {
     // CodeInformation object. Specifically, everything but `verification` should be false or
     // omitted for any mappings that represent regions of generated code that don't exist in the source.
     // Otherwise there is risk of code completions and other things happening in the wrong place.
-    return [
-      {
-        sourceOffsets,
-        generatedOffsets,
-        lengths,
+    // return [
+    //   {
+    //     sourceOffsets,
+    //     generatedOffsets,
+    //     lengths,
 
+    //     data: {
+    //   completion: true,
+    //   format: false,
+    //   navigation: true,
+    //   semantic: true,
+    //   structure: true,
+    //   verification: true,
+    // } satisfies CodeInformation,
+    //   },
+    // ];
+
+    const codeMappings: CodeMapping[] = [];
+
+    for (let i = 0; i < sourceOffsets.length; i++) {
+      const sourceOffset = sourceOffsets[i];
+      const generatedOffset = generatedOffsets[i];
+      const length = lengths[i];
+
+      codeMappings.push({
+        sourceOffsets: [sourceOffset],
+        generatedOffsets: [generatedOffset],
+        lengths: [length],
         data: {
           completion: true,
           format: false,
@@ -348,7 +378,9 @@ export default class TransformedModule {
           structure: true,
           verification: true,
         } satisfies CodeInformation,
-      },
-    ];
+      });
+    }
+
+    return codeMappings;
   }
 }
