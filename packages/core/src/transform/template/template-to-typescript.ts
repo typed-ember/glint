@@ -135,25 +135,59 @@ export function templateToTypescript(
 
     function emitComment(node: AST.MustacheCommentStatement | AST.CommentStatement): void {
       let text = node.value.trim();
-      let match = /^@glint-([a-z-]+)/i.exec(text);
+      const directiveRegex = /^@glint-([a-z-]+)/i;
+      let match = directiveRegex.exec(text);
       if (!match) {
         return emit.nothing(node);
       }
 
+      emitDirective(match, node);
+    }
+
+    function emitDirective(
+      match: RegExpExecArray,
+      node: AST.CommentStatement | AST.MustacheCommentStatement,
+    ) {
       let kind = match[1];
       let location = rangeForNode(node);
       if (kind === 'ignore' || kind === 'expect-error') {
+        // Push to the directives array on the record
         record.directive(kind, location, rangeForLine(node.loc.endPosition.line + 1));
       } else if (kind === 'nocheck') {
+        // Push to the directives array on the record
         record.directive('ignore', location, { start: 0, end: template.length - 1 });
       } else {
+        // Push an error on the record
         record.error(`Unknown directive @glint-${kind}`, location);
       }
 
-      emit.forNode(node, () => {
-        emit.text(`// @glint-${kind}`);
-        emit.newline();
-      });
+      emit.text(`// glint: BEGIN area of effect for directive: @glint-${kind}`);
+      emit.newline();
+
+      emit.text(`(glintDSL.readProp('theProp'))`);
+      emit.newline();
+
+      emit.text(
+        `// @ts-expect-error - placeholder ts-expect-error directive (this will be filtered out if diagnostics detected for directive's area of effect)`,
+      );
+      emit.newline();
+
+      emit.text(';');
+      emit.newline();
+
+      emit.text(`// glint: END area of effect for directive: @glint-${kind}`);
+      emit.newline();
+
+      // emit.forNode(node, () => {
+      //   emit.text(`// @glint-${kind} (OLD)`);
+      //   emit.newline();
+      // });
+    }
+
+    function emitTopLevelMustacheStatement(node: AST.MustacheStatement): void {
+      emitMustacheStatement(node, 'top-level');
+      emit.text(';');
+      emit.newline();
     }
 
     // Captures the context in which a given invocation (i.e. a mustache or
@@ -161,12 +195,6 @@ export function templateToTypescript(
     // valid in certain positions, and whether a param-less mustache implicitly
     // evaluates a helper or returns it also depends on the location it's in.
     type InvokePosition = 'top-level' | 'attr' | 'arg' | 'concat' | 'sexpr';
-
-    function emitTopLevelMustacheStatement(node: AST.MustacheStatement): void {
-      emitMustacheStatement(node, 'top-level');
-      emit.text(';');
-      emit.newline();
-    }
 
     function emitSpecialFormExpression(
       formInfo: SpecialFormInfo,
