@@ -88,8 +88,6 @@ function filterAndAugmentDiagnostics(
     return rangeWithMappingAndSource.mapping || null;
   };
 
-  const allDiagnostics: vscode.Diagnostic[] = [];
-
   const augmentedDiagnostics = diagnostics.map((diagnostic) => {
     diagnostic = {
       ...diagnostic,
@@ -99,81 +97,5 @@ function filterAndAugmentDiagnostics(
     return augmentDiagnostic(diagnostic as any, mappingForDiagnostic);
   });
 
-  let unusedExpectErrors = new Set<Directive>();
-  const transformedModule = fetchVirtualCode()?.transformedModule;
-  if (transformedModule) {
-    transformedModule.directives.forEach((directive) => {
-      if (directive.kind === 'expect-error') {
-        unusedExpectErrors.add(directive);
-      }
-    });
-  }
-
-  augmentedDiagnostics.forEach((diagnostic) => {
-    // `diagnostic` is a TS-generated Diagnostic for the transformed TS file (i.e.
-    // the Intermediate Representation of the .gts file where all embedded
-    // templates are converted to TS).
-    //
-    // We need to determine whether the TS diagnostic is within the area of effect
-    // for a `{{! @glint-expect-error }}` or `{{! @glint-ignore }}` directive in the
-    // original untransformed .gts file.
-    //
-    // In order to do that, we need to translate the directive's area of effect
-    // into its mapping .ts equivalent, OR we take the TS diagnostic's range and
-    // find the corresponding directive in the transformedModule.
-    const diagnosticStart = document.offsetAt(diagnostic.range.start);
-    let appliedDirective: Directive | undefined = undefined;
-
-    if (transformedModule) {
-      let originalGtsDiagnosticStart = transformedModule?.getOriginalOffset(diagnosticStart);
-
-      appliedDirective = transformedModule?.directives.find((directive) => {
-        return (
-          // TODO: when would the filename ever be different? uncomment and fix?
-          // directive.source.filename === diagnostic.file.fileName &&
-          directive.areaOfEffect.start <= originalGtsDiagnosticStart.offset &&
-          directive.areaOfEffect.end > originalGtsDiagnosticStart.offset
-        );
-      });
-    }
-
-    if (appliedDirective) {
-      unusedExpectErrors.delete(appliedDirective);
-    } else {
-      allDiagnostics.push(diagnostic);
-    }
-  });
-
-  if (transformedModule) {
-    for (let directive of unusedExpectErrors) {
-      const transformedStartOffset = transformedModule.getTransformedOffset(
-        directive.source.filename,
-        directive.location.start,
-      );
-
-      // Hacky, but `// @glint-expect-error\n` is the TS transformed representation of `{{!@glint-expect-error}}`,
-      // and its length is 23 characters, and we can use that number to calculate the end position in the transformed file.
-      //
-      // It would be less hacky if we could use:
-      //
-      //   transformedModule.getTransformedOffset(directive.source.filename, directive.location.end)
-      //
-      // But for unknown reasons (perhaps related to how Volar wants us to use 0-length boundary mappings
-      // to map unequally-sized regions to each other?), this ends up returning the same value as `directive.location.start`.
-      const transformedEndOffset = transformedStartOffset + 23;
-
-      allDiagnostics.push({
-        message: `Unused '@glint-expect-error' directive.`,
-        range: vscode.Range.create(
-          offsetToPosition(transformedModule.transformedContents, transformedStartOffset),
-          offsetToPosition(transformedModule.transformedContents, transformedEndOffset),
-        ),
-        severity: vscode.DiagnosticSeverity.Error,
-        code: 0,
-        source: directive.source.filename, // not sure if this is right
-      });
-    }
-  }
-
-  return allDiagnostics;
+  return augmentedDiagnostics;
 }
