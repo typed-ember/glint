@@ -7,9 +7,7 @@ import { create as createTypeScriptServices } from 'volar-service-typescript';
 import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
-import { offsetToPosition } from '../language-server/util/position.js';
 import { augmentDiagnostic } from '../transform/diagnostics/augmentation.js';
-import { Directive } from '../transform/index.js';
 import GlimmerASTMappingTree from '../transform/template/glimmer-ast-mapping-tree.js';
 import { VirtualGtsCode } from './gts-virtual-code.js';
 

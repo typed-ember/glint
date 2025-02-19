@@ -160,40 +160,6 @@ export function templateToTypescript(
         // Push an error on the record
         mapper.error(`Unknown directive @glint-${kind}`, location);
       }
-
-      mapper.text(`// glint: BEGIN area of effect for directive: @glint-${kind}`);
-      mapper.newline();
-
-      // in order for this to work we need to wrap the next "node".
-      // OK so for view how does this work...
-      // I think this is where we need to start deferring all of this "ending"/terminating
-      // code to all of the other nodes that might terminate it.
-      //
-      // e.g. a "terminating" node in Vue is:
-      // - the end of interpolation e.g. {{foo}} that triggers the comment: `// @vue-expect-error end of INTERPOLATION`
-      // - the end of a <div> or node or whatever that triggers `@vue-expect-error end of element children start`
-      //   - child-less tags like img produce the same "end of element children start" comment
-      // - probably other things that we should be on the lookout for;
-      //   - TODO: check all the places this fires in Vue
-      //     - in Vue these points all happen at: resetDirectiveComments
-      mapper.text(`(glintDSL.readProp('theProp'))`);
-      mapper.newline();
-
-      mapper.text(
-        `// @ts-expect-error - placeholder ts-expect-error directive (this will be filtered out if diagnostics detected for directive's area of effect)`,
-      );
-      mapper.newline();
-
-      mapper.text(';');
-      mapper.newline();
-
-      mapper.text(`// glint: END area of effect for directive: @glint-${kind}`);
-      mapper.newline();
-
-      // mapper.forNode(node, () => {
-      //   mapper.text(`// @glint-${kind} (OLD)`);
-      //   mapper.newline();
-      // });
     }
 
     function emitTopLevelMustacheStatement(node: AST.MustacheStatement): void {
@@ -923,8 +889,7 @@ export function templateToTypescript(
           mapper.text('__glintDSL__.emitContent(');
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
           mapper.text(')');
-          // mapper.clearDirectiveComments();
-          // this is where we wants to call clearDirectiveComments
+          mapper.terminateDirectiveAreaOfEffect(node);
         } else {
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
         }
