@@ -238,9 +238,7 @@ export default class TransformedModule {
    * - `[[ZEROLEN-A]]__glintDSL__.emitContent(__glintDSL__.resolveOrReturn([[expectsAtLeastOneArg]])());[[ZEROLEN-B]]`
    */
   public toVolarMappings(filenameFilter?: string): CodeMapping[] {
-    const sourceOffsets: number[] = [];
-    const generatedOffsets: number[] = [];
-    const lengths: number[] = [];
+    const codeMappings: CodeMapping[] = [];
 
     // If this is going to work with CodeInformation then we need this to accept a CodeFeatures object with
     // the proxy approach that Vue uses.
@@ -250,28 +248,36 @@ export default class TransformedModule {
     //   - there must not be any overlapping nesting, e.g. a region of mapping from outer to inner wheere the outer is larger, inner overlaps and is smaller
     //     - e.g. I think we have this for `{{#each foos as |foo|}} {{foo}} {{/each}}`
     //     - but i think we handled this with leaf-checking?
-    const push = (sourceOffset: number, generatedOffset: number, length: number): void => {
-      if (sourceOffsets.length > 0) {
-        // TODO: these assertions are firing for certain files/transformations, which means
-        // we're emitting unsorted mappings, which means volar has to fall back to an inefficient
-        // source mapping algorithm rather than using binary search:
-        // https://github.com/volarjs/volar.js/blob/3798f27684f5c671f06bf7a19e32bc489e652e14/packages/source-map/lib/translateOffset.ts#L18
-        //
-        // The fix for this is probably somewhere in the `template-to-typescript.ts` file, but I
-        // don't have a sense for how complicated that'll be.
-        // assert(
-        //   sourceOffset >= sourceOffsets[sourceOffsets.length - 1],
-        //   'Source offsets should be monotonically increasing',
-        // );
-        // assert(
-        //   generatedOffset >= generatedOffsets[generatedOffsets.length - 1],
-        //   'Generated offsets should be monotonically increasing',
-        // );
-      }
+    const push = (
+      sourceOffset: number,
+      generatedOffset: number,
+      length: number,
+      codeInformation: CodeInformation | undefined,
+    ): void => {
+      // if (sourceOffsets.length > 0) {
+      // TODO: these assertions are firing for certain files/transformations, which means
+      // we're emitting unsorted mappings, which means volar has to fall back to an inefficient
+      // source mapping algorithm rather than using binary search:
+      // https://github.com/volarjs/volar.js/blob/3798f27684f5c671f06bf7a19e32bc489e652e14/packages/source-map/lib/translateOffset.ts#L18
+      //
+      // The fix for this is probably somewhere in the `template-to-typescript.ts` file, but I
+      // don't have a sense for how complicated that'll be.
+      // assert(
+      //   sourceOffset >= sourceOffsets[sourceOffsets.length - 1],
+      //   'Source offsets should be monotonically increasing',
+      // );
+      // assert(
+      //   generatedOffset >= generatedOffsets[generatedOffsets.length - 1],
+      //   'Generated offsets should be monotonically increasing',
+      // );
+      // }
 
-      sourceOffsets.push(sourceOffset);
-      generatedOffsets.push(generatedOffset);
-      lengths.push(length);
+      codeMappings.push({
+        sourceOffsets: [sourceOffset],
+        generatedOffsets: [generatedOffset],
+        lengths: [length],
+        data: codeInformation || {},
+      });
     };
 
     let recurse = (span: CorrelatedSpan, mapping: GlimmerASTMappingTree): void => {
@@ -289,22 +295,22 @@ export default class TransformedModule {
         if (hbsLength === tsLength) {
           // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
           // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
-          push(hbsStart, tsStart, hbsLength);
+          push(hbsStart, tsStart, hbsLength, mapping.codeInformation);
         } else {
           // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
           if (hbsLength > 0 && tsLength > 0) {
-            push(hbsStart, tsStart, 0);
-            push(hbsEnd, tsEnd, 0);
+            push(hbsStart, tsStart, 0, mapping.codeInformation);
+            push(hbsEnd, tsEnd, 0, mapping.codeInformation);
           }
         }
       } else {
-        push(hbsStart, tsStart, 0);
+        push(hbsStart, tsStart, 0, mapping.codeInformation);
 
         mapping.children.forEach((child) => {
           recurse(span, child);
         });
 
-        push(hbsEnd, tsEnd, 0);
+        push(hbsEnd, tsEnd, 0, mapping.codeInformation);
       }
     };
 
@@ -332,7 +338,7 @@ export default class TransformedModule {
         // );
 
         if (span.originalLength === span.transformedLength) {
-          push(span.originalStart, span.transformedStart, span.originalLength);
+          push(span.originalStart, span.transformedStart, span.originalLength, undefined);
         }
       }
     });
@@ -358,28 +364,6 @@ export default class TransformedModule {
     // } satisfies CodeInformation,
     //   },
     // ];
-
-    const codeMappings: CodeMapping[] = [];
-
-    for (let i = 0; i < sourceOffsets.length; i++) {
-      const sourceOffset = sourceOffsets[i];
-      const generatedOffset = generatedOffsets[i];
-      const length = lengths[i];
-
-      codeMappings.push({
-        sourceOffsets: [sourceOffset],
-        generatedOffsets: [generatedOffset],
-        lengths: [length],
-        data: {
-          completion: true,
-          format: false,
-          navigation: true,
-          semantic: true,
-          structure: true,
-          verification: true,
-        } satisfies CodeInformation,
-      });
-    }
 
     return codeMappings;
   }

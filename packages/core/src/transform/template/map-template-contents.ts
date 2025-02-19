@@ -5,6 +5,8 @@ import GlimmerASTMappingTree, {
 } from './glimmer-ast-mapping-tree.js';
 import { Directive, DirectiveKind, Range } from './transformed-module.js';
 import { assert } from '../util.js';
+import { CodeInformation } from '@volar/language-server/node.js';
+import { codeFeatures } from './code-features.js';
 
 /**
  * @glimmer/syntax parses identifiers as strings. Aside from meaning
@@ -39,6 +41,8 @@ export type Mapper = {
      * node and affecting the given range of text.
      */
     directive: (type: DirectiveKind, location: Range, areaOfEffect: Range) => void;
+
+    // directiveTerminatingExpression: (location: Range) => void;
 
     /**
      * Records an error at the given location.
@@ -83,6 +87,8 @@ export type Mapper = {
      * corresponding to the given AST node in the original source.
      */
     forNode(node: AST.Node, callback: () => void): void;
+
+    resetDirectiveComments(): void;
   };
 };
 
@@ -169,8 +175,14 @@ export function mapTemplateContents(
   let mappingsStack: GlimmerASTMappingTree[][] = [[]];
   let indent = '';
   let offset = 0;
-  let needsIndent = false;
   let directives: Array<LocalDirective> = [];
+
+  let expectErrorToken:
+    | {
+        numErrors: number;
+        node: AST.MustacheCommentStatement;
+      }
+    | undefined;
 
   // Associates all content emitted during the given callback with the
   // given range in the template source and corresponding AST node.
@@ -210,16 +222,63 @@ export function mapTemplateContents(
     }
   };
 
-  let record = {
+  /**
+   * This function is used by the codeFeaturesProxy about to conditionally enhance/augment
+   * the `CodeInformation` object that we pass along with each mapping.
+   *
+   * In particular we use it in our implementation of `glint-expect-error` directives, wherein,
+   * depending on whether an error diagnostic was reported by TS in a span of code, we need to
+   * conditionally filter out the "unused ts-expect-error" placeholder diagnostic that we emit.
+   */
+  function resolveCodeFeatures(features: CodeInformation) {
+    if (features.verification) {
+      // if (ignoredError) {
+      // 	// We are currently in a region of code covered by a @glint-ignore directive, so don't
+      // 	// even bother performing any type-checking: set verification to false.
+      // 	return {
+      // 		...features,
+      // 		verification: false,
+      // 	};
+      // }
+
+      if (expectErrorToken) {
+        // We are currently in a region of code covered by a @glint-expect-error directive. We need to
+        // keep track of the number of errors encountered within this region so that we can know whether
+        // we will need to propagate an "unused ts-expect-error" diagnostic back to the original
+        // .gts file or not.
+        const token = expectErrorToken;
+        return {
+          ...features,
+          verification: {
+            shouldReport: () => {
+              token.numErrors++;
+              return false;
+            },
+          },
+        };
+      }
+    }
+    return features;
+  }
+
+  let record: Mapper['record'] = {
     error(message: string, location: Range) {
       errors.push({ message, location });
     },
     directive(kind: DirectiveKind, location: Range, areaOfEffect: Range) {
+      // TODO move this emit to outer context object.
+      if (kind === 'expect-error') {
+        // expectErrorToken = {
+        //   numErrors: 0,
+        //   node: location, // TODO can probably change this to area of effect... we need it to
+        // };
+      }
+
       directives.push({ kind, location, areaOfEffect });
     },
   };
 
-  let emit = {
+  let emit: Mapper['emit'] = {
     indent() {
       indent += '  ';
     },
@@ -229,19 +288,8 @@ export function mapTemplateContents(
     newline() {
       offset += 1;
       segmentsStack[0].push('\n');
-
-      // This was disabled in Volar-ized glint, as it messes up an otherwise usable
-      // TS diagnostic boundary. It appears to be cosmetic only, and hidden away in the
-      // Intermediate Representation, so I've commented it ou.
-      // needsIndent = true;
     },
     text(value: string) {
-      if (needsIndent) {
-        offset += indent.length;
-        segmentsStack[0].push(indent);
-        needsIndent = false;
-      }
-
       offset += value.length;
       segmentsStack[0].push(value);
     },
@@ -254,18 +302,48 @@ export function mapTemplateContents(
       captureMapping(rangeForNode(node), source, true, () => {});
     },
     identifier(value: string, hbsOffset: number, hbsLength = value.length) {
-      // If there's a pending indent, flush that so it's not included in
-      // the range mapping for the identifier we're about to emit
-      if (needsIndent) {
-        emit.text('');
-      }
-
       let hbsRange = { start: hbsOffset, end: hbsOffset + hbsLength };
       let source = new Identifier(value);
       captureMapping(hbsRange, source, true, () => emit.text(value));
     },
     forNode(node: AST.Node, callback: () => void) {
       captureMapping(rangeForNode(node), node, false, callback);
+    },
+
+    // TODO: this is awkwardly somewhere between `emit` and `record` but needs to simulataneousl
+    // emit and record state; perhaps refactor `emit` and `record` into some common context interface?
+    resetDirectiveComments() {
+      if (expectErrorToken) {
+        const token = expectErrorToken;
+        // the vue code is emitting a value here and directly emitting the verification mapping logic.
+        // right now we are still generating mapping code and then calling `toVolarMappings`.
+        // This MIGHT mean that in order to set all of these values, we need to state on the old Glint object
+        // enough data to convert to Volar mappings
+        // If this is too difficult then we will need to refactor things to more eagerly generate Volar mappings.
+        //
+        // man my brain hurts, this is how i know my brain is out of shape. Press on.
+        //
+        // so next steps: see TODO.md
+
+        // yield *
+        //   wrapWith(
+        //     expectErrorToken.node.loc.start.offset,
+        //     expectErrorToken.node.loc.end.offset,
+        //     {
+        //       verification: {
+        //         shouldReport: () => token.errors === 0,
+        //       },
+        //     },
+        //     `// @ts-expect-error __VLS_TS_EXPECT_ERROR`,
+        //   );
+        // yield`${newLine}${endOfLine}`;
+        // expectErrorToken = undefined;
+        // yield`// @vue-expect-error ${endStr}${newLine}`;
+      }
+      // if (ignoredError) {
+      //   ignoredError = false;
+      //   yield`// @vue-ignore ${endStr}${newLine}`;
+      // }
     },
   };
 
@@ -274,6 +352,14 @@ export function mapTemplateContents(
   assert(segmentsStack.length === 1);
 
   let code = segmentsStack[0].join('');
+
+  const codeFeaturesProxy = new Proxy(codeFeatures, {
+    get(target, key: keyof typeof codeFeatures) {
+      const data = target[key];
+      return resolveCodeFeatures(data);
+    },
+  });
+
   let mapping = new GlimmerASTMappingTree(
     { start: 0, end: code.length },
     {
@@ -282,6 +368,7 @@ export function mapTemplateContents(
     },
     mappingsStack[0],
     new TemplateEmbedding(),
+    codeFeaturesProxy.all,
   );
 
   return { errors, result: { code, directives, mapping } };

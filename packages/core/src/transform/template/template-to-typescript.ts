@@ -164,6 +164,18 @@ export function templateToTypescript(
       emit.text(`// glint: BEGIN area of effect for directive: @glint-${kind}`);
       emit.newline();
 
+      // in order for this to work we need to wrap the next "node".
+      // OK so for view how does this work...
+      // I think this is where we need to start deferring all of this "ending"/terminating
+      // code to all of the other nodes that might terminate it.
+      //
+      // e.g. a "terminating" node in Vue is:
+      // - the end of interpolation e.g. {{foo}} that triggers the comment: `// @vue-expect-error end of INTERPOLATION`
+      // - the end of a <div> or node or whatever that triggers `@vue-expect-error end of element children start`
+      //   - child-less tags like img produce the same "end of element children start" comment
+      // - probably other things that we should be on the lookout for;
+      //   - TODO: check all the places this fires in Vue
+      //     - in Vue these points all happen at: resetDirectiveComments
       emit.text(`(glintDSL.readProp('theProp'))`);
       emit.newline();
 
@@ -907,9 +919,12 @@ export function templateToTypescript(
         if (!hasParams && position === 'arg' && !isGlobal(node.path)) {
           emitExpression(node.path);
         } else if (position === 'top-level') {
+          // e.g. top-level mustache `{{someValue}}`
           emit.text('__glintDSL__.emitContent(');
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
           emit.text(')');
+          // emit.clearDirectiveComments();
+          // this is where we wants to call clearDirectiveComments
         } else {
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
         }
