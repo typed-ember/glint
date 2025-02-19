@@ -152,10 +152,10 @@ export function templateToTypescript(
       let location = rangeForNode(node);
       if (kind === 'ignore' || kind === 'expect-error') {
         // Push to the directives array on the record
-        mapper.directive(kind, location, rangeForLine(node.loc.endPosition.line + 1));
+        mapper.directive(node, kind, location, rangeForLine(node.loc.endPosition.line + 1));
       } else if (kind === 'nocheck') {
         // Push to the directives array on the record
-        mapper.directive('ignore', location, { start: 0, end: template.length - 1 });
+        mapper.directive(node, 'ignore', location, { start: 0, end: template.length - 1 });
       } else {
         // Push an error on the record
         mapper.error(`Unknown directive @glint-${kind}`, location);

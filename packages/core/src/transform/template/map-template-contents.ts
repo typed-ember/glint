@@ -39,7 +39,12 @@ export type Mapper = {
    * Captures the existence of a directive specified by the given source
    * node and affecting the given range of text.
    */
-  directive: (type: DirectiveKind, location: Range, areaOfEffect: Range) => void;
+  directive: (
+    commentNode: AST.CommentStatement | AST.MustacheCommentStatement,
+    type: DirectiveKind,
+    location: Range,
+    areaOfEffect: Range,
+  ) => void;
 
   // directiveTerminatingExpression: (location: Range) => void;
 
@@ -173,11 +178,19 @@ export function mapTemplateContents(
   let offset = 0;
   let directives: Array<LocalDirective> = [];
 
+  const codeFeaturesProxy = new Proxy(codeFeatures, {
+    get(target, key: keyof typeof codeFeatures) {
+      const data = target[key];
+      return resolveCodeFeatures(data);
+    },
+  });
+
   let expectErrorToken:
     | {
         numErrors: number;
         location: Range;
         areaOfEffect: Range;
+        commentNode: AST.CommentStatement | AST.MustacheCommentStatement;
       }
     | undefined;
 
@@ -221,7 +234,7 @@ export function mapTemplateContents(
           hbsRange,
           mappings,
           source,
-          codeFeaturesForNode ?? codeFeatures.all,
+          codeFeaturesForNode ?? codeFeaturesProxy.all,
         ),
       );
       segmentsStack[0].push(...segments);
@@ -300,15 +313,20 @@ export function mapTemplateContents(
       let source = new Identifier(value);
       captureMapping(hbsRange, source, true, () => mapper.text(value));
     },
-    forNode(node: AST.Node, callback: () => void) {
-      captureMapping(mapper.rangeForNode(node), node, false, callback);
+    forNode(node: AST.Node, callback: () => void, codeFeaturesForNode?: CodeInformation) {
+      captureMapping(mapper.rangeForNode(node), node, false, callback, codeFeaturesForNode);
     },
 
     error(message: string, location: Range) {
       errors.push({ message, location });
     },
 
-    directive(kind: DirectiveKind, location: Range, areaOfEffect: Range) {
+    directive(
+      commentNode: AST.CommentStatement | AST.MustacheCommentStatement,
+      kind: DirectiveKind,
+      location: Range,
+      areaOfEffect: Range,
+    ) {
       if (kind === 'expect-error') {
         if (!expectErrorToken) {
           mapper.text(`// glint: BEGIN area of effect for directive: @glint-${kind}`);
@@ -319,6 +337,7 @@ export function mapTemplateContents(
           numErrors: 0,
           location,
           areaOfEffect,
+          commentNode,
         };
       }
 
@@ -369,7 +388,7 @@ export function mapTemplateContents(
         // followed with an empty semi-colon statement. Wrap in a mapping with a `shouldReport`
         // callback to filter out the diagnostic if there are no errors in the area of effect.
         mapper.forNode(
-          node,
+          token.commentNode,
           () => {
             mapper.text(`// @ts-expect-error - placeholder`);
             mapper.newline();
@@ -385,6 +404,7 @@ export function mapTemplateContents(
         mapper.text(`// glint: END area of effect for directive: @glint-expect-error`);
         mapper.newline();
       }
+
       // if (ignoredError) {
       //   ignoredError = false;
       //   yield`// @vue-ignore ${endStr}${newLine}`;
@@ -404,13 +424,6 @@ export function mapTemplateContents(
   assert(segmentsStack.length === 1);
 
   let code = segmentsStack[0].join('');
-
-  const codeFeaturesProxy = new Proxy(codeFeatures, {
-    get(target, key: keyof typeof codeFeatures) {
-      const data = target[key];
-      return resolveCodeFeatures(data);
-    },
-  });
 
   let mapping = new GlimmerASTMappingTree(
     { start: 0, end: code.length },
