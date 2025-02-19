@@ -35,61 +35,57 @@ export type Mapper = {
    */
   rangeForLine: (line: number) => Range;
 
-  record: {
-    /**
-     * Captures the existence of a directive specified by the given source
-     * node and affecting the given range of text.
-     */
-    directive: (type: DirectiveKind, location: Range, areaOfEffect: Range) => void;
+  /**
+   * Captures the existence of a directive specified by the given source
+   * node and affecting the given range of text.
+   */
+  directive: (type: DirectiveKind, location: Range, areaOfEffect: Range) => void;
 
-    // directiveTerminatingExpression: (location: Range) => void;
+  // directiveTerminatingExpression: (location: Range) => void;
 
-    /**
-     * Records an error at the given location.
-     */
-    error: (message: string, location: Range) => void;
-  };
+  /**
+   * Records an error at the given location.
+   */
+  error: (message: string, location: Range) => void;
 
-  emit: {
-    /** Emit a newline in the transformed source */
-    newline(): void;
+  /** Emit a newline in the transformed source */
+  newline(): void;
 
-    /** Increase the indent level for future emitted content */
-    indent(): void;
+  /** Increase the indent level for future emitted content */
+  indent(): void;
 
-    /** Decrease the indent level for future emitted content */
-    dedent(): void;
+  /** Decrease the indent level for future emitted content */
+  dedent(): void;
 
-    /** Append the given raw text to the transformed source */
-    text(value: string): void;
+  /** Append the given raw text to the transformed source */
+  text(value: string): void;
 
-    /**
-     * Append the given raw text to the transformed source, creating
-     * a 0-length mapping for it in the output.
-     */
-    synthetic(value: string): void;
+  /**
+   * Append the given raw text to the transformed source, creating
+   * a 0-length mapping for it in the output.
+   */
+  synthetic(value: string): void;
 
-    /**
-     * Essentially the inverse of `emit.synthetic`, this notes the
-     * presence of a template AST node at a given location while not
-     * emitting anything in the resulting TS translation.
-     */
-    nothing(node: AST.Node, source?: MappingSource): void;
+  /**
+   * Essentially the inverse of `emit.synthetic`, this notes the
+   * presence of a template AST node at a given location while not
+   * emitting anything in the resulting TS translation.
+   */
+  nothing(node: AST.Node, source?: MappingSource): void;
 
-    /**
-     * Append the given value to the transformed source, mapping
-     * that span back to the given offset in the original source.
-     */
-    identifier(value: string, hbsOffset: number, hbsLength?: number): void;
+  /**
+   * Append the given value to the transformed source, mapping
+   * that span back to the given offset in the original source.
+   */
+  identifier(value: string, hbsOffset: number, hbsLength?: number): void;
 
-    /**
-     * Map all content emitted in the given callback to the span
-     * corresponding to the given AST node in the original source.
-     */
-    forNode(node: AST.Node, callback: () => void): void;
+  /**
+   * Map all content emitted in the given callback to the span
+   * corresponding to the given AST node in the original source.
+   */
+  forNode(node: AST.Node, callback: () => void): void;
 
-    resetDirectiveComments(): void;
-  };
+  resetDirectiveComments(): void;
 };
 
 type LocalDirective = Omit<Directive, 'source'>;
@@ -165,12 +161,6 @@ export function mapTemplateContents(
     errors.push({ message, location });
   }
 
-  let rangeForNode = buildRangeForNode(lineOffsets);
-  let rangeForLine = (line: number): Range => ({
-    start: lineOffsets[line],
-    end: lineOffsets[line + 1] ?? template.length,
-  });
-
   let segmentsStack: string[][] = [[]];
   let mappingsStack: GlimmerASTMappingTree[][] = [[]];
   let indent = '';
@@ -217,7 +207,7 @@ export function mapTemplateContents(
       let end = offset;
       let tsRange = { start, end };
 
-      mappingsStack[0].push(new GlimmerASTMappingTree(tsRange, hbsRange, mappings, source));
+      mappingsStack[0].push(new GlimmerASTMappingTree(tsRange, hbsRange, mappings, source, codeFeatures.all));
       segmentsStack[0].push(...segments);
     }
   };
@@ -261,24 +251,7 @@ export function mapTemplateContents(
     return features;
   }
 
-  let record: Mapper['record'] = {
-    error(message: string, location: Range) {
-      errors.push({ message, location });
-    },
-    directive(kind: DirectiveKind, location: Range, areaOfEffect: Range) {
-      // TODO move this emit to outer context object.
-      if (kind === 'expect-error') {
-        // expectErrorToken = {
-        //   numErrors: 0,
-        //   node: location, // TODO can probably change this to area of effect... we need it to
-        // };
-      }
-
-      directives.push({ kind, location, areaOfEffect });
-    },
-  };
-
-  let emit: Mapper['emit'] = {
+  let mapper: Mapper = {
     indent() {
       indent += '  ';
     },
@@ -295,19 +268,19 @@ export function mapTemplateContents(
     },
     synthetic(value: string) {
       if (value.length) {
-        emit.identifier(value, 0, 0);
+        mapper.identifier(value, 0, 0);
       }
     },
     nothing(node: AST.Node, source: MappingSource = node) {
-      captureMapping(rangeForNode(node), source, true, () => {});
+      captureMapping(mapper.rangeForNode(node), source, true, () => {});
     },
     identifier(value: string, hbsOffset: number, hbsLength = value.length) {
       let hbsRange = { start: hbsOffset, end: hbsOffset + hbsLength };
       let source = new Identifier(value);
-      captureMapping(hbsRange, source, true, () => emit.text(value));
+      captureMapping(hbsRange, source, true, () => mapper.text(value));
     },
     forNode(node: AST.Node, callback: () => void) {
-      captureMapping(rangeForNode(node), node, false, callback);
+      captureMapping(mapper.rangeForNode(node), node, false, callback);
     },
 
     // TODO: this is awkwardly somewhere between `emit` and `record` but needs to simulataneousl
@@ -345,9 +318,30 @@ export function mapTemplateContents(
       //   yield`// @vue-ignore ${endStr}${newLine}`;
       // }
     },
+
+    rangeForNode: buildRangeForNode(lineOffsets),
+    rangeForLine: (line: number): Range => ({
+      start: lineOffsets[line],
+      end: lineOffsets[line + 1] ?? template.length,
+    }),
+
+    error(message: string, location: Range) {
+      errors.push({ message, location });
+    },
+    directive(kind: DirectiveKind, location: Range, areaOfEffect: Range) {
+      // TODO move this emit to outer context object.
+      if (kind === 'expect-error') {
+        // expectErrorToken = {
+        //   numErrors: 0,
+        //   node: location, // TODO can probably change this to area of effect... we need it to
+        // };
+      }
+
+      directives.push({ kind, location, areaOfEffect });
+    },
   };
 
-  callback(ast, { emit, record, rangeForLine, rangeForNode });
+  callback(ast, mapper);
 
   assert(segmentsStack.length === 1);
 

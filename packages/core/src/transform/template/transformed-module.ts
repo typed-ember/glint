@@ -1,6 +1,7 @@
 import GlimmerASTMappingTree from './glimmer-ast-mapping-tree.js';
 import { assert } from '../util.js';
 import { CodeInformation, CodeMapping } from '@volar/language-core';
+import { codeFeatures } from './code-features.js';
 
 export type Range = { start: number; end: number };
 export type RangeWithMapping = Range & { mapping?: GlimmerASTMappingTree };
@@ -325,8 +326,10 @@ export default class TransformedModule {
         // contents of a companion .hbs file in loose mode)
         recurse(span, span.glimmerAstMapping);
       } else {
-        // this span is untransformed TS content. Because there's no
-        // transformation, we expect these to be the same length (in fact, they
+        // This span contains untransformed TS content (because it comes
+        // from a region of source code that is already TS, e.g. the top of a .gts file,
+        // outside of any `<template>` tags). Because there's no transformation,
+        // we expect these to be the same length (in fact, they
         // should be the same string entirely)
 
         // This assertion seemed valid when parsing .gts files with extracted hbs in <template> tags,
@@ -338,7 +341,7 @@ export default class TransformedModule {
         // );
 
         if (span.originalLength === span.transformedLength) {
-          push(span.originalStart, span.transformedStart, span.originalLength, undefined);
+          push(span.originalStart, span.transformedStart, span.originalLength, codeFeatures.all);
         }
       }
     });
