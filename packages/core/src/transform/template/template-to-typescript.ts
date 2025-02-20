@@ -49,6 +49,8 @@ export function templateToTypescript(
       }
     });
 
+    mapper.terminateDirectiveAreaOfEffect("endOfTemplate");
+
     return;
 
     function emitTopLevelStatement(node: AST.TopLevelStatement): void {

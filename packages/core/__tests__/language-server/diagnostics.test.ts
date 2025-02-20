@@ -470,7 +470,7 @@ describe('Language Server: Diagnostics', () => {
         {
           "items": [
             {
-              "code": 0,
+              "code": 2578,
               "data": {
                 "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
                 "isFormat": false,
@@ -479,19 +479,19 @@ describe('Language Server: Diagnostics', () => {
                 "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
                 "version": 3,
               },
-              "message": "Unused '@glint-expect-error' directive.",
+              "message": "Unused '@ts-expect-error' directive.",
               "range": {
                 "end": {
                   "character": 30,
                   "line": 4,
                 },
                 "start": {
-                  "character": 12,
-                  "line": 3,
+                  "character": 4,
+                  "line": 4,
                 },
               },
               "severity": 1,
-              "source": "disregard.gts",
+              "source": "glint",
             },
           ],
           "kind": "full",

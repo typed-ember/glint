@@ -389,6 +389,8 @@ export function mapTemplateContents(
         // error tracking and filtering logic in `shouldReport` callbacks.
         const token = expectErrorToken;
 
+        mapper.newline();
+
         // 1. Emit a ts-expect-error this is guaranteed to trigger within the generated TS code
         //    because we immediately follow it up with an empty semi-colon statement.
         // 2. Map it back to the original `{{ @glint-expect-error }}` comment node in the source.
