@@ -240,14 +240,6 @@ export default class TransformedModule {
   public toVolarMappings(filenameFilter?: string): CodeMapping[] {
     const codeMappings: CodeMapping[] = [];
 
-    // If this is going to work with CodeInformation then we need this to accept a CodeFeatures object with
-    // the proxy approach that Vue uses.
-    //
-    // Can this be done?
-    // - For this to work then
-    //   - there must not be any overlapping nesting, e.g. a region of mapping from outer to inner wheere the outer is larger, inner overlaps and is smaller
-    //     - e.g. I think we have this for `{{#each foos as |foo|}} {{foo}} {{/each}}`
-    //     - but i think we handled this with leaf-checking?
     const push = (
       sourceOffset: number,
       generatedOffset: number,
@@ -340,32 +332,13 @@ export default class TransformedModule {
         // );
 
         if (span.originalLength === span.transformedLength) {
+          // TODO: audit usage of `codeFeatures.all` here: https://github.com/typed-ember/glint/issues/769
+          // There are cases where we need to be disabling certain features to prevent, e.g., navigation
+          // that targets an "in-between" piece of generated code.
           push(span.originalStart, span.transformedStart, span.originalLength, codeFeatures.all);
         }
       }
     });
-
-    // TODO: in order to fix/address Issue https://github.com/typed-ember/glint/issues/769,
-    // we will need to split up this array into multiple CodeMappings, each with a different
-    // CodeInformation object. Specifically, everything but `verification` should be false or
-    // omitted for any mappings that represent regions of generated code that don't exist in the source.
-    // Otherwise there is risk of code completions and other things happening in the wrong place.
-    // return [
-    //   {
-    //     sourceOffsets,
-    //     generatedOffsets,
-    //     lengths,
-
-    //     data: {
-    //   completion: true,
-    //   format: false,
-    //   navigation: true,
-    //   semantic: true,
-    //   structure: true,
-    //   verification: true,
-    // } satisfies CodeInformation,
-    //   },
-    // ];
 
     return codeMappings;
   }

@@ -49,6 +49,8 @@ export function templateToTypescript(
       }
     });
 
+    // Ensure any "@glint-expect-error" directives at the end of the template
+    // trigger "unused @glint-expect-error" diagnostics.
     mapper.terminateDirectiveAreaOfEffect("endOfTemplate");
 
     return;
