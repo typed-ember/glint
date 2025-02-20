@@ -1,8 +1,8 @@
-import { CodeInformation } from "@volar/language-server/node.js";
+import { CodeInformation } from '@volar/language-server/node.js';
 
 /**
  * Based on https://github.com/machty/vue-language-tools/blob/deff856aa8c15f691544e646519215a15aacbef1/packages/language-core/lib/codegen/codeFeatures.ts
- * 
+ *
  * This file exports a "code features" object which provides a useful shorthand/shortcut
  * for specifying a nubmer of Volar CodeInformation configuration options in the code
  * we use for mapping between source code (e.g. .gts files) and transformed (i.e. type-checkable TS) code.

@@ -51,7 +51,7 @@ export function templateToTypescript(
 
     // Ensure any "@glint-expect-error" directives at the end of the template
     // trigger "unused @glint-expect-error" diagnostics.
-    mapper.terminateDirectiveAreaOfEffect("endOfTemplate");
+    mapper.terminateDirectiveAreaOfEffect('endOfTemplate');
 
     return;
 
@@ -151,7 +151,7 @@ export function templateToTypescript(
     function emitDirective(
       match: RegExpExecArray,
       node: AST.CommentStatement | AST.MustacheCommentStatement,
-    ) {
+    ): void {
       let kind = match[1];
       let location = rangeForNode(node);
       if (kind === 'ignore' || kind === 'expect-error') {
@@ -170,7 +170,7 @@ export function templateToTypescript(
       emitMustacheStatement(node, 'top-level');
       mapper.text(';');
       mapper.newline();
-      mapper.terminateDirectiveAreaOfEffect("topLevelMustacheStatement");
+      mapper.terminateDirectiveAreaOfEffect('topLevelMustacheStatement');
     }
 
     // Captures the context in which a given invocation (i.e. a mustache or
