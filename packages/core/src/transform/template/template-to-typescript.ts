@@ -166,6 +166,7 @@ export function templateToTypescript(
       emitMustacheStatement(node, 'top-level');
       mapper.text(';');
       mapper.newline();
+      mapper.terminateDirectiveAreaOfEffect();
     }
 
     // Captures the context in which a given invocation (i.e. a mustache or
@@ -889,7 +890,6 @@ export function templateToTypescript(
           mapper.text('__glintDSL__.emitContent(');
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
           mapper.text(')');
-          mapper.terminateDirectiveAreaOfEffect(node);
         } else {
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
         }

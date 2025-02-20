@@ -96,7 +96,7 @@ export type Mapper = {
    * filter out the "unused ts-expect-error" placeholder diagnostic if, in fact, an error
    * diagnostic was reported within the directive's area of effect.
    */
-  terminateDirectiveAreaOfEffect(node: AST.Node): void;
+  terminateDirectiveAreaOfEffect(): void;
 };
 
 type LocalDirective = Omit<Directive, 'source'>;
@@ -329,7 +329,7 @@ export function mapTemplateContents(
     ) {
       if (kind === 'expect-error') {
         if (!expectErrorToken) {
-          mapper.text(`// glint: BEGIN area of effect for directive: @glint-${kind}`);
+          mapper.text(`// GLINT BEGIN @glint-${kind} AREA_OF_EFFECT`);
           mapper.newline();
         }
 
@@ -344,7 +344,7 @@ export function mapTemplateContents(
       directives.push({ kind, location, areaOfEffect });
     },
 
-    terminateDirectiveAreaOfEffect(node: AST.Node) {
+    terminateDirectiveAreaOfEffect() {
       if (expectErrorToken) {
         // There is an active "@glint-expect-error" directive whose
         // are of effect we need to terminate.
@@ -369,12 +369,12 @@ export function mapTemplateContents(
         //    found in the region.
         //
         // 4. The second `shouldReport` that gets called is below: we emit a
-        //    `// @ts-expect-error - placeholder` diagnostic that is always triggering
+        //    `// @ts-expect-error GLINT_PLACEHOLDER` diagnostic that is always triggering
         //    within the transformed code, and we use `shouldReport` to decide whether
         //    to filter out that diagnostic or not.
         //
         // This approach was taken from Vue tooling; it is complicated but it solves the problem
-        // of keeping the code transform reasonably static while keeping all of the dynamic
+        // of keeping the code transform static while keeping all of the dynamic/stateful
         // error tracking and filtering logic in `shouldReport` callbacks.
         const token = expectErrorToken;
 
@@ -390,7 +390,7 @@ export function mapTemplateContents(
         mapper.forNode(
           token.commentNode,
           () => {
-            mapper.text(`// @ts-expect-error - placeholder`);
+            mapper.text(`// @ts-expect-error GLINT_PLACEHOLDER`);
             mapper.newline();
           },
           codeFeaturesForPlaceholderTsExpectError,
@@ -401,7 +401,7 @@ export function mapTemplateContents(
 
         expectErrorToken = undefined;
 
-        mapper.text(`// glint: END area of effect for directive: @glint-expect-error`);
+        mapper.text(`// GLINT END @glint-expect-error AREA_OF_EFFECT`);
         mapper.newline();
       }
 
