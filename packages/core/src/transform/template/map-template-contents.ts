@@ -96,7 +96,7 @@ export type Mapper = {
    * filter out the "unused ts-expect-error" placeholder diagnostic if, in fact, an error
    * diagnostic was reported within the directive's area of effect.
    */
-  terminateDirectiveAreaOfEffect(): void;
+  terminateDirectiveAreaOfEffect(endStr: string): void;
 };
 
 type LocalDirective = Omit<Directive, 'source'>;
@@ -185,6 +185,7 @@ export function mapTemplateContents(
     },
   });
 
+	let ignoredError = false;
   let expectErrorToken:
     | {
         numErrors: number;
@@ -256,14 +257,16 @@ export function mapTemplateContents(
       // back to Volar, in case we have active `glint-ignore/expect-error` directives
       // in active effect.
 
-      // if (ignoredError) {
-      // 	// We are currently in a region of code covered by a @glint-ignore directive, so don't
-      // 	// even bother performing any type-checking: set verification to false.
-      // 	return {
-      // 		...features,
-      // 		verification: false,
-      // 	};
-      // }
+      if (ignoredError) {
+      	// We are currently in a region of code covered by a @glint-ignore directive, so don't
+      	// even bother performing any type-checking: override verification (i.e. type-checking) to false
+        // for this mapping (note that the whole generated TS file will be type-checked but any
+        // diagnostics in this region will be suppressed by Volar)
+      	return {
+      		...features,
+      		verification: false,
+      	};
+      }
 
       if (expectErrorToken) {
         // We are currently in a region of code covered by a @glint-expect-error directive. We need to
@@ -329,7 +332,7 @@ export function mapTemplateContents(
     ) {
       if (kind === 'expect-error') {
         if (!expectErrorToken) {
-          mapper.text(`// GLINT BEGIN @glint-${kind} AREA_OF_EFFECT`);
+          mapper.text(`// GLINT BEGIN @glint-expect-error AREA_OF_EFFECT`);
           mapper.newline();
         }
 
@@ -341,10 +344,16 @@ export function mapTemplateContents(
         };
       }
 
+      if (kind === 'ignore') {
+        ignoredError = true;
+        mapper.text(`// GLINT BEGIN @glint-ignore AREA_OF_EFFECT`);
+        mapper.newline();
+      }
+
       directives.push({ kind, location, areaOfEffect });
     },
 
-    terminateDirectiveAreaOfEffect() {
+    terminateDirectiveAreaOfEffect(endStr: string) {
       if (expectErrorToken) {
         // There is an active "@glint-expect-error" directive whose
         // are of effect we need to terminate.
@@ -389,27 +398,30 @@ export function mapTemplateContents(
           {
             verification: {
               // If no diagnostic errors were encountered within the area of effect,
-              // then filter out the "unused ts-expect-error" diagnostic.
+              // then filter out the "unused ts-expect-error" diagnostic triggered by our
+              // placeholder @ts-expect-error
               shouldReport: () => token.numErrors === 0,
             },
           },
         );
 
-        // Trigger the "unused ts-expect-error" diagnostic (which may get filtered out later by `shouldReport`)
+        // Make the above placeholder diagnostic trigger an "unused ts-expect-error" diagnostic
+        // by introducing an error-less empty semi-colon statement.
         mapper.newline();
         mapper.text(';');
-
         mapper.newline();
+
         expectErrorToken = undefined;
 
-        mapper.text(`// GLINT END @glint-expect-error AREA_OF_EFFECT`);
+        mapper.text(`// GLINT END @glint-expect-error AREA_OF_EFFECT for ${endStr}`);
         mapper.newline();
       }
 
-      // if (ignoredError) {
-      //   ignoredError = false;
-      //   yield`// @vue-ignore ${endStr}${newLine}`;
-      // }
+      if (ignoredError) {
+        ignoredError = false;
+        mapper.text(`// GLINT END @glint-ignore AREA_OF_EFFECT for ${endStr}`);
+        mapper.newline();
+      }
     },
 
     rangeForNode: buildRangeForNode(lineOffsets),

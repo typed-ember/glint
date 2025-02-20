@@ -166,7 +166,7 @@ export function templateToTypescript(
       emitMustacheStatement(node, 'top-level');
       mapper.text(';');
       mapper.newline();
-      mapper.terminateDirectiveAreaOfEffect();
+      mapper.terminateDirectiveAreaOfEffect("topLevelMustacheStatement");
     }
 
     // Captures the context in which a given invocation (i.e. a mustache or

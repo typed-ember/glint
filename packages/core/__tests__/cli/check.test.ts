@@ -176,6 +176,40 @@ describe('CLI: single-pass typechecking', () => {
     `);
   });
 
+  test('ignores @glint-ignored errors', async () => {
+    let code = stripIndent`
+      import Component from '@glimmer/component';
+
+      type ApplicationArgs = {
+        version: string;
+      };
+
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
+        private startupTime = new Date().toISOString();
+
+        <template>
+          Welcome to app v{{@version}}.
+
+          {{! @glint-ignore 'unknown property' }}
+          The current time is {{this.startupTimeError}}.
+
+          {{! @glint-ignore 'if this were expect-error this would be an unused expect-error' }}
+          The current time is {{this.startupTime}}.
+        </template>
+      }
+    `;
+
+    project.write('index.gts', code);
+
+    let checkResult = await project.check({ reject: false });
+
+    expect(checkResult.exitCode).toBe(0);
+
+    expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
+      ""
+    `);
+  });
+
   test('reports unused @glint-expect-error', async () => {
     let code = stripIndent`
       import Component from '@glimmer/component';
@@ -199,7 +233,7 @@ describe('CLI: single-pass typechecking', () => {
 
     let checkResult = await project.check({ reject: false });
 
-    expect(checkResult.exitCode).not.toBe(0); // TODO seems like unusead isn't working
+    expect(checkResult.exitCode).not.toBe(0);
 
     expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
       "index.gts:12:5 - error TS2578: Unused '@ts-expect-error' directive.
