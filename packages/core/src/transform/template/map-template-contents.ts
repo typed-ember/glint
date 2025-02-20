@@ -378,27 +378,28 @@ export function mapTemplateContents(
         // error tracking and filtering logic in `shouldReport` callbacks.
         const token = expectErrorToken;
 
-        const codeFeaturesForPlaceholderTsExpectError = {
-          verification: {
-            shouldReport: () => token.numErrors === 0,
-          },
-        };
-
-        // Emit a ts-expect-error this is guaranteed to trigger because it is immediately
-        // followed with an empty semi-colon statement. Wrap in a mapping with a `shouldReport`
-        // callback to filter out the diagnostic if there are no errors in the area of effect.
+        // 1. Emit a ts-expect-error this is guaranteed to trigger within the generated TS code
+        //    because we immediately follow it up with an empty semi-colon statement.
+        // 2. Map it back to the original `{{ @glint-expect-error }}` comment node in the source.
         mapper.forNode(
           token.commentNode,
           () => {
             mapper.text(`// @ts-expect-error GLINT_PLACEHOLDER`);
-            mapper.newline();
           },
-          codeFeaturesForPlaceholderTsExpectError,
+          {
+            verification: {
+              // If no diagnostic errors were encountered within the area of effect,
+              // then filter out the "unused ts-expect-error" diagnostic.
+              shouldReport: () => token.numErrors === 0,
+            },
+          },
         );
 
-        mapper.text(';');
+        // Trigger the "unused ts-expect-error" diagnostic (which may get filtered out later by `shouldReport`)
         mapper.newline();
+        mapper.text(';');
 
+        mapper.newline();
         expectErrorToken = undefined;
 
         mapper.text(`// GLINT END @glint-expect-error AREA_OF_EFFECT`);
