@@ -155,7 +155,7 @@ export function templateToTypescript(
         mapper.directive(node, kind, location, rangeForLine(node.loc.endPosition.line + 1));
       } else if (kind === 'nocheck') {
         // Push to the directives array on the record
-        mapper.directive(node, 'ignore', location, { start: 0, end: template.length - 1 });
+        mapper.directive(node, 'nocheck', location, { start: 0, end: template.length - 1 });
       } else {
         // Push an error on the record
         mapper.error(`Unknown directive @glint-${kind}`, location);

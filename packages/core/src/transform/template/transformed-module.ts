@@ -26,7 +26,7 @@ export type CorrelatedSpan = {
   glimmerAstMapping?: GlimmerASTMappingTree;
 };
 
-export type DirectiveKind = 'ignore' | 'expect-error';
+export type DirectiveKind = 'ignore' | 'expect-error' | 'nocheck';
 export type Directive = {
   kind: DirectiveKind;
   source: SourceFile;

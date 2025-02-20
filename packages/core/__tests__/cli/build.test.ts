@@ -614,7 +614,7 @@ describe('CLI: single-pass build mode typechecking', () => {
           });
         });
 
-        describe.skip('for a type error covered by `@glint-nocheck`', () => {
+        describe('for a type error covered by `@glint-nocheck`', () => {
           beforeEach(async () => {
             let aCode = stripIndent`
               import C from '@glint-test/c';
