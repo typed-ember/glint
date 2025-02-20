@@ -189,7 +189,6 @@ export function mapTemplateContents(
   let expectErrorToken:
     | {
         numErrors: number;
-        location: Range;
         commentNode: AST.CommentStatement | AST.MustacheCommentStatement;
       }
     | undefined;
@@ -336,7 +335,6 @@ export function mapTemplateContents(
 
         expectErrorToken = {
           numErrors: 0,
-          location,
           commentNode,
         };
       }
