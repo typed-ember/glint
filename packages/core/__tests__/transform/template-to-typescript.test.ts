@@ -1047,7 +1047,6 @@ describe('Transform: rewriteTemplate', () => {
         const [bar] = __glintY__.blockParams["default"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(bar)());
         }
-        __glintDSL__.Globals["Foo"];
         }"
       `);
     });
@@ -1077,7 +1076,6 @@ describe('Transform: rewriteTemplate', () => {
         {
         const [] = __glintY__.blockParams["default"];
         }
-        div;
         }
         }
         __glintDSL__.Globals["let"];
@@ -1147,10 +1145,8 @@ describe('Transform: rewriteTemplate', () => {
         {
         const [] = __glintY__.blockParams["default"];
         }
-        b?.contents;
         }
         }
-        __glintDSL__.Globals["Foo"];
         }"
       `);
     });
@@ -1186,7 +1182,6 @@ describe('Transform: rewriteTemplate', () => {
         });
         }
         }
-        __glintDSL__.Globals["Foo"];
         }"
       `);
     });
@@ -1206,7 +1201,6 @@ describe('Transform: rewriteTemplate', () => {
         const [__switch] = __glintY__.blockParams["default"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__switch)());
         }
-        __glintDSL__.Globals["Foo"];
         }"
       `);
     });
