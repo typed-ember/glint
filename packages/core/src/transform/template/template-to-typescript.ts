@@ -40,7 +40,7 @@ export function templateToTypescript(
   let template = `${''.padEnd(prefix.length)}${originalTemplate}${''.padEnd(suffix.length)}`;
 
   return mapTemplateContents(originalTemplate, { embeddingSyntax }, (ast, mapper) => {
-    let { rangeForLine, rangeForNode } = mapper;
+    let { rangeForNode } = mapper;
     let scope = new ScopeStack([]);
 
     emitTemplateBoilerplate(() => {
@@ -156,10 +156,10 @@ export function templateToTypescript(
       let location = rangeForNode(node);
       if (kind === 'ignore' || kind === 'expect-error') {
         // Push to the directives array on the record
-        mapper.directive(node, kind, location);
+        mapper.directive(node, kind);
       } else if (kind === 'nocheck') {
         // Push to the directives array on the record
-        mapper.directive(node, 'nocheck', location);
+        mapper.directive(node, 'nocheck');
       } else {
         // Push an error on the record
         mapper.error(`Unknown directive @glint-${kind}`, location);

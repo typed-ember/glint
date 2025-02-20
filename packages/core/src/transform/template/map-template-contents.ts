@@ -30,19 +30,12 @@ export type Mapper = {
   rangeForNode: (node: AST.Node) => Range;
 
   /**
-   * Given a 0-based line number, returns the corresponding start and
-   * end offsets for that line.
-   */
-  rangeForLine: (line: number) => Range;
-
-  /**
    * Captures the existence of a directive specified by the given source
    * node and affecting the given range of text.
    */
   directive: (
     commentNode: AST.CommentStatement | AST.MustacheCommentStatement,
     type: DirectiveKind,
-    location: Range,
   ) => void;
 
   // directiveTerminatingExpression: (location: Range) => void;
@@ -248,7 +241,7 @@ export function mapTemplateContents(
    * depending on whether an error diagnostic was reported by TS in a span of code, we need to
    * conditionally filter out the "unused ts-expect-error" placeholder diagnostic that we emit.
    */
-  function resolveCodeFeatures(features: CodeInformation) {
+  function resolveCodeFeatures(features: CodeInformation): CodeInformation {
     if (features.verification) {
       // If this code span requests verification (e.g. TS type-checking), then
       // we potentially need to decorate the `verification` value that we pass
@@ -325,7 +318,6 @@ export function mapTemplateContents(
     directive(
       commentNode: AST.CommentStatement | AST.MustacheCommentStatement,
       kind: DirectiveKind,
-      location: Range,
     ) {
       if (kind === 'expect-error') {
         if (!expectErrorToken) {
@@ -352,7 +344,7 @@ export function mapTemplateContents(
         mapper.newline();
       }
 
-      directives.push({ kind, location });
+      directives.push({ kind });
     },
 
     terminateDirectiveAreaOfEffect(endStr: string) {
@@ -429,11 +421,6 @@ export function mapTemplateContents(
     },
 
     rangeForNode: buildRangeForNode(lineOffsets),
-
-    rangeForLine: (line: number): Range => ({
-      start: lineOffsets[line],
-      end: lineOffsets[line + 1] ?? template.length,
-    }),
   };
 
   callback(ast, mapper);
