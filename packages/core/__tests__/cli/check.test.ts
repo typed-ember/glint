@@ -176,6 +176,82 @@ describe('CLI: single-pass typechecking', () => {
     `);
   });
 
+  test('reports unused @glint-expect-error', async () => {
+    let code = stripIndent`
+      import Component from '@glimmer/component';
+
+      type ApplicationArgs = {
+        version: string;
+      };
+
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
+        private startupTime = new Date().toISOString();
+
+        <template>
+          Welcome to app v{{@version}}.
+          {{! @glint-expect-error 'no error here' }}
+          The current time is {{this.startupTime}}.
+        </template>
+      }
+    `;
+
+    project.write('index.gts', code);
+
+    let checkResult = await project.check({ reject: false });
+
+    expect(checkResult.exitCode).not.toBe(0); // TODO seems like unusead isn't working
+
+    expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
+      "index.gts:12:5 - error TS2578: Unused '@ts-expect-error' directive.
+
+      12     {{! @glint-expect-error 'no error here' }}
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+      Found 1 error in index.gts:12
+      "
+    `);
+  });
+
+  test('does not report errors skipped by @glint-expect-error', async () => {
+    let code = stripIndent`
+      import Component from '@glimmer/component';
+
+      type ApplicationArgs = {
+        version: string;
+      };
+
+      export default class Application extends Component<{ Args: ApplicationArgs }> {
+        private startupTime = new Date().toISOString();
+
+        <template>
+          Welcome to app v{{@version}}.
+          {{! @glint-expect-error 'skipping this error' }}
+          The current time is {{this.startupTimee}}.
+
+          {{this.otherError}}
+        </template>
+      }
+    `;
+
+    project.write('index.gts', code);
+
+    let checkResult = await project.check({ reject: false });
+
+    expect(checkResult.exitCode).not.toBe(0);
+
+    expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
+      "index.gts:15:12 - error TS2339: Property 'otherError' does not exist on type 'Application'.
+
+      15     {{this.otherError}}
+                    ~~~~~~~~~~
+
+
+      Found 1 error in index.gts:15
+      "
+    `);
+  });
+
   test.skip('reports diagnostics for a companion template type error', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
 
