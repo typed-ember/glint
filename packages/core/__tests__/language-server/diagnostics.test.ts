@@ -455,16 +455,6 @@ describe('Language Server: Diagnostics', () => {
       (await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items.length,
     ).toEqual(1);
 
-    // TODO: the start range for this is not quite right; specifically the start range seems
-    // seems to go all the way to the end of the opening `<template>` tag, e.g.
-    // `<template>[HERE]`. This causes excess red suiggles, and this goes away if there
-    // are any other HTML elements preceding the glint-expect-error directive. I'm not
-    // sure the root cause of this, but it may go away if/when we refactor a few things about
-    // Volar's mapping logic.
-    //
-    // Tracking this issue here:
-    //
-    // https://github.com/typed-ember/glint/issues/796
     expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
       .toMatchInlineSnapshot(`
         {
@@ -497,5 +487,53 @@ describe('Language Server: Diagnostics', () => {
           "kind": "full",
         }
       `);
+  });
+
+  test('@glint-expect-error - unknown component reference', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          {{! @glint-expect-error }}
+          <Wat>
+            {{this.unknownReference}}
+          </Wat>
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
+
+    expect(diagnostics.items.length).toEqual(1);
+  });
+
+  test('@glint-expect-error - unknown component reference', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          {{! @glint-expect-error }}
+          <Wat>
+            {{this.unknownReference}}
+          </Wat>
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
+
+    expect(diagnostics.items.length).toEqual(1);
   });
 });

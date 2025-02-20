@@ -644,6 +644,10 @@ export function templateToTypescript(
 
         emitAttributesAndModifiers(node);
 
+        // terminate @glint-expect-error directives after opening tag; any
+        // diagnostics due to attributes or modifiers are covered by the directive
+        mapper.terminateDirectiveAreaOfEffect('emitComponent - end of opening tag');
+
         if (!node.selfClosing) {
           let blocks = determineBlockChildren(node);
           if (blocks.type === 'named') {
@@ -678,12 +682,6 @@ export function templateToTypescript(
               blocks.children,
             );
           }
-
-          // Emit `ComponentName;` to represent the closing tag, so we have
-          // an anchor for things like symbol renames.
-          emitPathContents(path, template.lastIndexOf(node.tag, rangeForNode(node).end), kind);
-          mapper.text(';');
-          mapper.newline();
         }
 
         mapper.dedent();
@@ -773,6 +771,10 @@ export function templateToTypescript(
         mapper.newline();
 
         emitAttributesAndModifiers(node);
+
+        // terminate @glint-expect-error directives after opening tag; any
+        // diagnostics due to attributes or modifiers are covered by the directive
+        mapper.terminateDirectiveAreaOfEffect('emitPlainElement - end of opening tag');
 
         for (let child of node.children) {
           emitTopLevelStatement(child);
