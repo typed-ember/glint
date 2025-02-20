@@ -90,15 +90,6 @@ export function calculateCompanionTemplateSpans(
     );
 
     if (transformedTemplate.result) {
-      directives.push(
-        ...transformedTemplate.result.directives.map(({ kind, location, areaOfEffect }) => ({
-          kind,
-          location,
-          areaOfEffect,
-          source: template,
-        })),
-      );
-
       partialSpans.push(
         {
           originalFile: template,

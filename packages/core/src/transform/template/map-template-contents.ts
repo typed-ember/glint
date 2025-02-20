@@ -43,7 +43,6 @@ export type Mapper = {
     commentNode: AST.CommentStatement | AST.MustacheCommentStatement,
     type: DirectiveKind,
     location: Range,
-    areaOfEffect: Range,
   ) => void;
 
   // directiveTerminatingExpression: (location: Range) => void;
@@ -191,7 +190,6 @@ export function mapTemplateContents(
     | {
         numErrors: number;
         location: Range;
-        areaOfEffect: Range;
         commentNode: AST.CommentStatement | AST.MustacheCommentStatement;
       }
     | undefined;
@@ -329,7 +327,6 @@ export function mapTemplateContents(
       commentNode: AST.CommentStatement | AST.MustacheCommentStatement,
       kind: DirectiveKind,
       location: Range,
-      areaOfEffect: Range,
     ) {
       if (kind === 'expect-error') {
         if (!expectErrorToken) {
@@ -340,7 +337,6 @@ export function mapTemplateContents(
         expectErrorToken = {
           numErrors: 0,
           location,
-          areaOfEffect,
           commentNode,
         };
       }
@@ -358,7 +354,7 @@ export function mapTemplateContents(
         mapper.newline();
       }
 
-      directives.push({ kind, location, areaOfEffect });
+      directives.push({ kind, location });
     },
 
     terminateDirectiveAreaOfEffect(endStr: string) {

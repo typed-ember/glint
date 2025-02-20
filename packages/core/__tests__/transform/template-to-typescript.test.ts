@@ -81,10 +81,6 @@ describe('Transform: rewriteTemplate', () => {
             start: template.indexOf('{{!'),
             end: template.indexOf('fine }}') + 'fine }}'.length,
           },
-          areaOfEffect: {
-            start: template.indexOf('<Foo as'),
-            end: template.indexOf('|bar|>') + '|bar|>'.length + 1,
-          },
         },
       ]);
     });
@@ -109,71 +105,6 @@ describe('Transform: rewriteTemplate', () => {
           location: {
             start: template.indexOf('{{!'),
             end: template.indexOf('fine }}') + 'fine }}'.length,
-          },
-          areaOfEffect: {
-            start: template.indexOf('  @arg='),
-            end: template.indexOf('"hi"') + '"hi"'.length + 1,
-          },
-        },
-      ]);
-    });
-
-    test('nocheck', () => {
-      let template = stripIndent`
-        {{! @glint-nocheck: don't check this whole template }}
-        <Foo />
-        {{foo-bar}}
-        {{this.baz}}
-      `;
-
-      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
-
-      expect(errors).toEqual([]);
-      expect(result?.directives).toEqual([
-        {
-          kind: 'ignore',
-          location: {
-            start: 0,
-            end: template.indexOf('template }}') + 'template }}'.length,
-          },
-          areaOfEffect: {
-            start: 0,
-            end: template.length - 1,
-          },
-        },
-      ]);
-      expect(templateBody(template)).toMatchInlineSnapshot(`
-        "// @glint-nocheck
-        {
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["Foo"])());
-        __glintY__;
-        }
-        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintDSL__.Globals["foo-bar"])());
-        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.baz)());"
-      `);
-    });
-
-    test('expect-error', () => {
-      let template = stripIndent`
-        {{! @glint-expect-error: this is fine }}
-        <Foo as |bar|>
-          {{hello}}
-        </Foo>
-      `;
-
-      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
-
-      expect(errors).toEqual([]);
-      expect(result?.directives).toEqual([
-        {
-          kind: 'expect-error',
-          location: {
-            start: template.indexOf('{{!'),
-            end: template.indexOf('fine }}') + 'fine }}'.length,
-          },
-          areaOfEffect: {
-            start: template.indexOf('<Foo as'),
-            end: template.indexOf('|bar|>') + '|bar|>'.length + 1,
           },
         },
       ]);

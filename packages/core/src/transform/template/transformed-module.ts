@@ -31,7 +31,6 @@ export type Directive = {
   kind: DirectiveKind;
   source: SourceFile;
   location: Range;
-  areaOfEffect: Range;
 };
 
 export type TransformError = {
