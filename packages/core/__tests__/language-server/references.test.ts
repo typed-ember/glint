@@ -168,7 +168,7 @@ describe('Language Server: References', () => {
       {
         uri: project.fileURI('index.gts'),
         range: {
-          start: { line: 5, character: 14 },
+          start: { line: 5, character: 15 },
           end: { line: 5, character: 21 },
         },
       },

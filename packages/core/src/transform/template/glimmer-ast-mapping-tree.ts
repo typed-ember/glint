@@ -1,6 +1,7 @@
 import { AST } from '@glimmer/syntax';
 import { Range } from './transformed-module.js';
 import { Identifier } from './map-template-contents.js';
+import { CodeInformation } from '@volar/language-server/node.js';
 
 export type MappingSource = AST.Node | TemplateEmbedding | TextContent | Identifier | ParseError;
 
@@ -56,6 +57,7 @@ export default class GlimmerASTMappingTree {
     public originalRange: Range,
     public children: Array<GlimmerASTMappingTree> = [],
     public sourceNode: MappingSource,
+    public codeInformation?: CodeInformation,
   ) {
     children.forEach((child) => (child.parent = this));
   }

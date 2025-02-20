@@ -1,6 +1,7 @@
 import GlimmerASTMappingTree from './glimmer-ast-mapping-tree.js';
 import { assert } from '../util.js';
 import { CodeInformation, CodeMapping } from '@volar/language-core';
+import { codeFeatures } from './code-features.js';
 
 export type Range = { start: number; end: number };
 export type RangeWithMapping = Range & { mapping?: GlimmerASTMappingTree };
@@ -25,12 +26,10 @@ export type CorrelatedSpan = {
   glimmerAstMapping?: GlimmerASTMappingTree;
 };
 
-export type DirectiveKind = 'ignore' | 'expect-error';
+export type DirectiveKind = 'ignore' | 'expect-error' | 'nocheck';
 export type Directive = {
   kind: DirectiveKind;
   source: SourceFile;
-  location: Range;
-  areaOfEffect: Range;
 };
 
 export type TransformError = {
@@ -238,32 +237,38 @@ export default class TransformedModule {
    * - `[[ZEROLEN-A]]__glintDSL__.emitContent(__glintDSL__.resolveOrReturn([[expectsAtLeastOneArg]])());[[ZEROLEN-B]]`
    */
   public toVolarMappings(filenameFilter?: string): CodeMapping[] {
-    const sourceOffsets: number[] = [];
-    const generatedOffsets: number[] = [];
-    const lengths: number[] = [];
+    const codeMappings: CodeMapping[] = [];
 
-    const push = (sourceOffset: number, generatedOffset: number, length: number): void => {
-      if (sourceOffsets.length > 0) {
-        // TODO: these assertions are firing for certain files/transformations, which means
-        // we're emitting unsorted mappings, which means volar has to fall back to an inefficient
-        // source mapping algorithm rather than using binary search:
-        // https://github.com/volarjs/volar.js/blob/3798f27684f5c671f06bf7a19e32bc489e652e14/packages/source-map/lib/translateOffset.ts#L18
-        //
-        // The fix for this is probably somewhere in the `template-to-typescript.ts` file, but I
-        // don't have a sense for how complicated that'll be.
-        // assert(
-        //   sourceOffset >= sourceOffsets[sourceOffsets.length - 1],
-        //   'Source offsets should be monotonically increasing',
-        // );
-        // assert(
-        //   generatedOffset >= generatedOffsets[generatedOffsets.length - 1],
-        //   'Generated offsets should be monotonically increasing',
-        // );
-      }
+    const push = (
+      sourceOffset: number,
+      generatedOffset: number,
+      length: number,
+      codeInformation: CodeInformation | undefined,
+    ): void => {
+      // if (sourceOffsets.length > 0) {
+      // TODO: these assertions are firing for certain files/transformations, which means
+      // we're emitting unsorted mappings, which means volar has to fall back to an inefficient
+      // source mapping algorithm rather than using binary search:
+      // https://github.com/volarjs/volar.js/blob/3798f27684f5c671f06bf7a19e32bc489e652e14/packages/source-map/lib/translateOffset.ts#L18
+      //
+      // The fix for this is probably somewhere in the `template-to-typescript.ts` file, but I
+      // don't have a sense for how complicated that'll be.
+      // assert(
+      //   sourceOffset >= sourceOffsets[sourceOffsets.length - 1],
+      //   'Source offsets should be monotonically increasing',
+      // );
+      // assert(
+      //   generatedOffset >= generatedOffsets[generatedOffsets.length - 1],
+      //   'Generated offsets should be monotonically increasing',
+      // );
+      // }
 
-      sourceOffsets.push(sourceOffset);
-      generatedOffsets.push(generatedOffset);
-      lengths.push(length);
+      codeMappings.push({
+        sourceOffsets: [sourceOffset],
+        generatedOffsets: [generatedOffset],
+        lengths: [length],
+        data: codeInformation || {},
+      });
     };
 
     let recurse = (span: CorrelatedSpan, mapping: GlimmerASTMappingTree): void => {
@@ -281,22 +286,22 @@ export default class TransformedModule {
         if (hbsLength === tsLength) {
           // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
           // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
-          push(hbsStart, tsStart, hbsLength);
+          push(hbsStart, tsStart, hbsLength, mapping.codeInformation);
         } else {
           // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
           if (hbsLength > 0 && tsLength > 0) {
-            push(hbsStart, tsStart, 0);
-            push(hbsEnd, tsEnd, 0);
+            push(hbsStart, tsStart, 0, mapping.codeInformation);
+            push(hbsEnd, tsEnd, 0, mapping.codeInformation);
           }
         }
       } else {
-        push(hbsStart, tsStart, 0);
+        push(hbsStart, tsStart, 0, mapping.codeInformation);
 
         mapping.children.forEach((child) => {
           recurse(span, child);
         });
 
-        push(hbsEnd, tsEnd, 0);
+        push(hbsEnd, tsEnd, 0, mapping.codeInformation);
       }
     };
 
@@ -311,8 +316,10 @@ export default class TransformedModule {
         // contents of a companion .hbs file in loose mode)
         recurse(span, span.glimmerAstMapping);
       } else {
-        // this span is untransformed TS content. Because there's no
-        // transformation, we expect these to be the same length (in fact, they
+        // This span contains untransformed TS content (because it comes
+        // from a region of source code that is already TS, e.g. the top of a .gts file,
+        // outside of any `<template>` tags). Because there's no transformation,
+        // we expect these to be the same length (in fact, they
         // should be the same string entirely)
 
         // This assertion seemed valid when parsing .gts files with extracted hbs in <template> tags,
@@ -324,31 +331,14 @@ export default class TransformedModule {
         // );
 
         if (span.originalLength === span.transformedLength) {
-          push(span.originalStart, span.transformedStart, span.originalLength);
+          // TODO: audit usage of `codeFeatures.all` here: https://github.com/typed-ember/glint/issues/769
+          // There are cases where we need to be disabling certain features to prevent, e.g., navigation
+          // that targets an "in-between" piece of generated code.
+          push(span.originalStart, span.transformedStart, span.originalLength, codeFeatures.all);
         }
       }
     });
 
-    // TODO: in order to fix/address Issue https://github.com/typed-ember/glint/issues/769,
-    // we will need to split up this array into multiple CodeMappings, each with a different
-    // CodeInformation object. Specifically, everything but `verification` should be false or
-    // omitted for any mappings that represent regions of generated code that don't exist in the source.
-    // Otherwise there is risk of code completions and other things happening in the wrong place.
-    return [
-      {
-        sourceOffsets,
-        generatedOffsets,
-        lengths,
-
-        data: {
-          completion: true,
-          format: false,
-          navigation: true,
-          semantic: true,
-          structure: true,
-          verification: true,
-        } satisfies CodeInformation,
-      },
-    ];
+    return codeMappings;
   }
 }

@@ -91,15 +91,6 @@ export function calculateTaggedTemplateSpans(
     }
 
     if (transformedTemplate.result) {
-      for (let { kind, location, areaOfEffect } of transformedTemplate.result.directives) {
-        directives.push({
-          kind: kind,
-          source: script,
-          location: addOffset(location, templateLocation.start),
-          areaOfEffect: addOffset(areaOfEffect, templateLocation.start),
-        });
-      }
-
       partialSpans.push({
         originalFile: script,
         originalStart: templateLocation.start,
