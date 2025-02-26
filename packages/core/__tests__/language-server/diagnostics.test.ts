@@ -696,6 +696,43 @@ describe('Language Server: Diagnostics', () => {
       `);
   });
 
+  test('passing no args to a Component with args should be an error -- suppressed with @glint-expect-error', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          {{! @glint-expect-error }}
+          <Greeting />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [],
+          "kind": "full",
+        }
+      `);
+  });
+
   test('@glint-expect-error - open element tag inline directive', async () => {
     let componentA = stripIndent`
       import Component from '@glimmer/component';
