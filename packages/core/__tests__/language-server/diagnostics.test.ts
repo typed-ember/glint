@@ -733,6 +733,67 @@ describe('Language Server: Diagnostics', () => {
       `);
   });
 
+  test('passing wrong arg name to a Component should be an error', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          <Greeting @target2="world" />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "code": 2561,
+              "data": {
+                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+                "isFormat": false,
+                "original": {},
+                "pluginIndex": 0,
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+                "version": 0,
+              },
+              "message": "Object literal may only specify known properties, but 'target2' does not exist in type 'NamedArgs<{ target: string; }>'. Did you mean to write 'target'?",
+              "range": {
+                "end": {
+                  "character": 22,
+                  "line": 14,
+                },
+                "start": {
+                  "character": 15,
+                  "line": 14,
+                },
+              },
+              "severity": 1,
+              "source": "glint",
+            },
+          ],
+          "kind": "full",
+        }
+      `);
+  });
+
   test('@glint-expect-error - open element tag inline directive', async () => {
     let componentA = stripIndent`
       import Component from '@glimmer/component';
