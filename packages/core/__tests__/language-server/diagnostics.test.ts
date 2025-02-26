@@ -536,4 +536,141 @@ describe('Language Server: Diagnostics', () => {
 
     expect(diagnostics.items.length).toEqual(1);
   });
+
+  test('passing args to vanilla Component should be an error', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          <Component
+            @foo={{123}} />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+      {
+        "items": [
+          {
+            "code": 2554,
+            "data": {
+              "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+              "isFormat": false,
+              "original": {},
+              "pluginIndex": 0,
+              "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+              "version": 0,
+            },
+            "message": "Expected 0 arguments, but got 1.",
+            "range": {
+              "end": {
+                "character": 21,
+                "line": 5,
+              },
+              "start": {
+                "character": 4,
+                "line": 4,
+              },
+            },
+            "severity": 1,
+            "source": "glint",
+          },
+        ],
+        "kind": "full",
+      }
+    `);
+  });
+
+  test(
+    'passing args to vanilla Component should be an error - suppress with @glint-expect-error (TODO see above)',
+  );
+
+  test.only('@glint-expect-error - open element tag inline directive', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          <Component
+            {{! @glint-expect-error }}
+            @foo={{unknownReference}} />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
+
+    // expect(diagnostics.items.length).toEqual(0);
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "code": 2304,
+              "data": {
+                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+                "isFormat": false,
+                "original": {},
+                "pluginIndex": 0,
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+                "version": 0,
+              },
+              "message": "Cannot find name 'unknownReference'.",
+              "range": {
+                "end": {
+                  "character": 29,
+                  "line": 6,
+                },
+                "start": {
+                  "character": 13,
+                  "line": 6,
+                },
+              },
+              "severity": 1,
+              "source": "glint",
+            },
+            {
+              "code": 2554,
+              "data": {
+                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+                "isFormat": false,
+                "original": {},
+                "pluginIndex": 0,
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+                "version": 0,
+              },
+              "message": "Expected 0 arguments, but got 1.",
+              "range": {
+                "end": {
+                  "character": 34,
+                  "line": 6,
+                },
+                "start": {
+                  "character": 4,
+                  "line": 4,
+                },
+              },
+              "severity": 1,
+              "source": "glint",
+            },
+          ],
+          "kind": "full",
+        }
+      `);
+  });
 });

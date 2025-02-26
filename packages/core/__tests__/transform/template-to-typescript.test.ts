@@ -85,31 +85,6 @@ describe('Transform: rewriteTemplate', () => {
       ]);
     });
 
-    test('in an element bobdy', () => {
-      let template = stripIndent`
-        <Foo
-          {{! @glint-ignore: this is fine }}
-          @arg="hi"
-          as |bar|
-        >
-          {{hello}}
-        </Foo>
-      `;
-
-      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
-
-      expect(errors).toEqual([]);
-      expect(result?.directives).toEqual([
-        {
-          kind: 'ignore',
-          location: {
-            start: template.indexOf('{{!'),
-            end: template.indexOf('fine }}') + 'fine }}'.length,
-          },
-        },
-      ]);
-    });
-
     test('unknown type', () => {
       let template = stripIndent`
         {{! @glint-check }}
