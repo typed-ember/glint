@@ -4,6 +4,8 @@ import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-templ
 import ScopeStack from './scope-stack.js';
 import { GlintEmitMetadata, GlintSpecialForm } from '@glint/core/config-types';
 import { TextContent } from './glimmer-ast-mapping-tree.js';
+import { Directive } from './transformed-module.js';
+import { DirectiveKind } from './transformed-module.js';
 
 const SPLATTRIBUTES = '...attributes';
 
@@ -145,6 +147,7 @@ export function templateToTypescript(
         return mapper.nothing(node);
       }
 
+      // here
       emitDirective(match, node);
     }
 
@@ -591,13 +594,109 @@ export function templateToTypescript(
       }
     }
 
+    type ElementOpenTagPieces = {
+      // node: AST.MustacheCommentStatement | AST.ElementModifierStatement | AST.AttrNode;
+      // directive: Directive;
+
+      modifiers: { node: AST.ElementModifierStatement; directive: DirectiveKind | null }[];
+      attributes: { node: AST.AttrNode; directive: DirectiveKind | null }[];
+      dataArgs: { node: AST.AttrNode; directive: DirectiveKind | null }[];
+    };
+
+    /**
+     * Given an ElementNode, return an array of attributes, args, and modifiers
+     * in the order they appear in the element open tag, and filter out any
+     * comments, while also detecting any directives (e.g. `@glint-expect-error`)
+     * and assigning them to the next non-comment/non-directive piece.
+     *
+     * This is useful for implementing logic for supporting `@glint-expect-error` (and similar)
+     * directives that appear inline within the opening tag of an element, e.g.
+     *
+     *     <Component @dataArg={{bar}}
+     *                {{!@glint-expect-error suppress href attribute}}
+     *                href="foo"
+     *                {{!@glint-expect-error suppress dataArg2 arg}}
+     *                @dataArg2={{bar2}}
+     *                link="rel" />
+     */
+    function computeElementOpenTagPiecesWithDirectives(
+      node: AST.ElementNode,
+    ): ElementOpenTagPieces {
+      let pieces = [...node.attributes, ...node.modifiers, ...node.comments].sort(
+        (a, b) => a.loc.getStart().offset! - b.loc.getStart().offset!,
+      );
+
+      let activeDirective: DirectiveKind | null = null;
+
+      const result: ElementOpenTagPieces = {
+        modifiers: [],
+        attributes: [],
+        dataArgs: [],
+      };
+
+      for (let piece of pieces) {
+        if (piece.type === 'MustacheCommentStatement') {
+          // this needs to categorize directives. But which while do we do that in? this file is template-to-typescript
+          // activeDirective = piece.value.includes('@glint-expect-error') ? 'expect-error' : null;
+
+          const directiveRegex = /^@glint-([a-z-]+)/i;
+          let text = piece.value;
+          let match = directiveRegex.exec(text);
+          if (!match) {
+            // Just a comment, not a directive. Skip.
+            continue;
+          }
+
+          let directive = match[1];
+          switch (directive) {
+            case 'expect-error':
+              activeDirective = 'expect-error';
+              break;
+            case 'ignore':
+              activeDirective = 'ignore';
+              break;
+            default:
+              // TODO: should this be an error?
+              continue;
+          }
+        } else if (piece.type === 'ElementModifierStatement') {
+          // Assign the directive to this modifier.
+          result.modifiers.push({
+            node: piece,
+            directive: activeDirective,
+          });
+
+          activeDirective = null;
+        } else if (piece.type === 'AttrNode') {
+          // Assign the directive to this arg/attribute.
+          if (piece.name.startsWith('@')) {
+            result.dataArgs.push({
+              node: piece,
+              directive: activeDirective,
+            });
+          } else {
+            result.attributes.push({
+              node: piece,
+              directive: activeDirective,
+            });
+          }
+
+          activeDirective = null;
+        } else {
+          throw new Error('Unknown piece type');
+        }
+      }
+
+      return result;
+    }
+
     function emitComponent(node: AST.ElementNode): void {
       mapper.forNode(node, () => {
         let { start, path, kind } = tagNameToPathContents(node);
 
-        for (let comment of node.comments) {
-          emitComment(comment);
-        }
+        // for (let comment of node.comments) {
+        //   emitComment(comment);
+        // }
 
         mapper.text('{');
         mapper.newline();
@@ -607,12 +706,28 @@ export function templateToTypescript(
         emitPathContents(path, start, kind);
         mapper.text(')(');
 
+        // Maybe I should rework this is that it returns dataArgs, attributes, and modifiers.
+
         let dataAttrs = node.attributes.filter(({ name }) => name.startsWith('@'));
         if (dataAttrs.length) {
           mapper.text('{ ');
 
+          /**
+           * TRICKY: glimmer-syntax has already parsed the element into an AST and has put
+           * the comments into a separate array from blocks.
+           *
+           * This is because they probably never though we'd be doing what we're doing.
+           *
+           * <Component @dataArg={{bar}} {{!@glint-expect-error suppress href attribute}} href="foo" {{!@glint-expect-error suppress dataArg2 arg}} @dataArg2={{bar2}} link="rel" >
+           */
+
           for (let attr of dataAttrs) {
             mapper.forNode(attr, () => {
+              // Newline before each arg so that any `{{!@glint-expect-error}}`s applied to a particular
+              // arg assignment can have their corresponding generated `@ts-expect-error`s applied to
+              // only this specific arg.
+              mapper.newline();
+
               start = template.indexOf(attr.name, start + 1);
               emitHashKey(attr.name.slice(1), start + 1);
               mapper.text(': ');
@@ -634,6 +749,12 @@ export function templateToTypescript(
 
             start = rangeForNode(attr.value).end;
             mapper.text(', ');
+
+            // mapper.terminateDirectiveAreaOfEffect('emitComponent - end of data attribute');
+
+            // Newline after args to prevent `@ts-expect-error` generated from `{{!@glint-expect-error}}`
+            // from over-applying to following content.
+            // mapper.newline();
           }
 
           mapper.text('...__glintDSL__.NamedArgsMarker }');
@@ -642,18 +763,28 @@ export function templateToTypescript(
         mapper.text('));');
         mapper.newline();
 
-        emitAttributesAndModifiers(node);
-
         // terminate @glint-expect-error directives after opening tag; any
         // diagnostics due to attributes or modifiers are covered by the directive
-        mapper.terminateDirectiveAreaOfEffect('emitComponent - end of opening tag');
+        // mapper.terminateDirectiveAreaOfEffect('emitComponent - end of opening tag');
+
+        emitAttributesAndModifiers(node);
 
         if (!node.selfClosing) {
           let blocks = determineBlockChildren(node);
           if (blocks.type === 'named') {
             for (const child of blocks.children) {
               if (child.type === 'CommentStatement' || child.type === 'MustacheCommentStatement') {
-                emitComment(child);
+                /**
+                 * TODO: figure out what needs to be reinstate here for glint-expect-error, e.g.
+                 *
+                 * <LayoutComponent>
+                 *   {{!@glint-expect-error this component isn't typed to provide block params but definitely does }}
+                 *   <:footer as |footerArgs|>
+                 *     {{footerArgs.something}}
+                 *   </:footer>
+                 * </LayoutComponent>
+                 */
+                // emitComment(child);
                 continue;
               }
 
@@ -730,10 +861,10 @@ export function templateToTypescript(
           type: 'named',
           children: node.children.filter(
             // Filter out ignorable content between named blocks
-            (child): child is NamedBlockChild =>
-              child.type === 'ElementNode' ||
-              child.type === 'CommentStatement' ||
-              child.type === 'MustacheCommentStatement',
+            (child): child is NamedBlockChild => child.type === 'ElementNode',
+            //  ||
+            //   child.type === 'CommentStatement' ||
+            //   child.type === 'MustacheCommentStatement',
           ),
         };
       } else {
@@ -757,9 +888,9 @@ export function templateToTypescript(
 
     function emitPlainElement(node: AST.ElementNode): void {
       mapper.forNode(node, () => {
-        for (let comment of node.comments) {
-          emitComment(comment);
-        }
+        // for (let comment of node.comments) {
+        //   emitComment(comment);
+        // }
 
         mapper.text('{');
         mapper.newline();
@@ -770,11 +901,11 @@ export function templateToTypescript(
         mapper.text(');');
         mapper.newline();
 
-        emitAttributesAndModifiers(node);
-
         // terminate @glint-expect-error directives after opening tag; any
         // diagnostics due to attributes or modifiers are covered by the directive
         mapper.terminateDirectiveAreaOfEffect('emitPlainElement - end of opening tag');
+
+        emitAttributesAndModifiers(node);
 
         for (let child of node.children) {
           emitTopLevelStatement(child);
@@ -790,6 +921,9 @@ export function templateToTypescript(
       let nonArgAttributes = node.attributes.filter((attr) => !attr.name.startsWith('@'));
       if (!nonArgAttributes.length && !node.modifiers.length) {
         // Avoid unused-symbol diagnostics
+        // TODO: With Volar you can simply disable `verification` on the CodeInformation
+        // to prevent diagnostics from mapping back upwards. Perhaps we should use that
+        // instead of preserving these empty statements/expressions.
         mapper.text('__glintY__;');
         mapper.newline();
       } else {
@@ -830,6 +964,8 @@ export function templateToTypescript(
           mapper.text(',');
           mapper.newline();
         });
+
+        mapper.terminateDirectiveAreaOfEffect('emitPlainAttributes');
       }
 
       mapper.dedent();
@@ -851,8 +987,12 @@ export function templateToTypescript(
       });
 
       mapper.newline();
+
+      mapper.terminateDirectiveAreaOfEffect('emitSplattributes');
     }
 
+    // What if, instead of computing this one blob and reworking all the code around it,
+    // I returned a block of WeakMaps of (node => directive)
     function emitModifiers(node: AST.ElementNode): void {
       for (let modifier of node.modifiers) {
         mapper.forNode(modifier, () => {
@@ -863,6 +1003,8 @@ export function templateToTypescript(
           mapper.text('));');
           mapper.newline();
         });
+
+        mapper.terminateDirectiveAreaOfEffect('emitModifiers');
       }
     }
 
