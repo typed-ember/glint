@@ -794,6 +794,123 @@ describe('Language Server: Diagnostics', () => {
       `);
   });
 
+  test('passing wrong arg name to a Component should be an error -- improperly attempting to suppress with @glint-expect-error before the opening tag', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          {{! @glint-expect-error }}
+          <Greeting @target2="world" />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    // TODO this is wrong; the AOE needs to be constrained to not include attributes.
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [],
+          "kind": "full",
+        }
+      `);
+
+    expect(false).toEqual(true); // remove me when above error addressed
+  });
+
+  test('passing wrong arg name to a Component should be an error -- suppressed with inline @glint-expect-error with element open tag', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          <Greeting
+            {{! @glint-expect-error }}
+            @target2="world" />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [],
+          "kind": "full",
+        }
+      `);
+  });
+
+  test('passing wrong arg name to a Component should be an error followed by passing the correct arg name -- suppressed with inline @glint-expect-error with element open tag', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          <Greeting
+            {{! @glint-expect-error }}
+            @target2="world"
+            @target="hello" />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [],
+          "kind": "full",
+        }
+      `);
+  });
+
   test('@glint-expect-error - open element tag inline directive', async () => {
     let componentA = stripIndent`
       import Component from '@glimmer/component';
