@@ -553,7 +553,7 @@ describe('Language Server: Diagnostics', () => {
 
     project.write('component-a.gts', componentA);
 
-    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
 
     expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
       .toMatchInlineSnapshot(`
@@ -606,7 +606,7 @@ describe('Language Server: Diagnostics', () => {
 
     project.write('component-a.gts', componentA);
 
-    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
 
     expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
       .toMatchInlineSnapshot(`
