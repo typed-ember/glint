@@ -617,7 +617,86 @@ describe('Language Server: Diagnostics', () => {
       `);
   });
 
-  test.only('@glint-expect-error - open element tag inline directive', async () => {
+  test('passing no args to a Component with args should be an error', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          <Greeting />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "code": 2554,
+              "data": {
+                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+                "isFormat": false,
+                "original": {},
+                "pluginIndex": 0,
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+                "version": 0,
+              },
+              "message": "Expected 1 arguments, but got 0.",
+              "range": {
+                "end": {
+                  "character": 16,
+                  "line": 14,
+                },
+                "start": {
+                  "character": 4,
+                  "line": 14,
+                },
+              },
+              "relatedInformation": [
+                {
+                  "location": {
+                    "range": {
+                      "end": {
+                        "character": 48,
+                        "line": 23,
+                      },
+                      "start": {
+                        "character": 4,
+                        "line": 23,
+                      },
+                    },
+                    "uri": "file:///Users/machty/code/glint/packages/environment-ember-template-imports/-private/dsl/index.d.ts",
+                  },
+                  "message": "Arguments for the rest parameter 'args' were not provided.",
+                },
+              ],
+              "severity": 1,
+              "source": "glint",
+            },
+          ],
+          "kind": "full",
+        }
+      `);
+  });
+
+  test('@glint-expect-error - open element tag inline directive', async () => {
     let componentA = stripIndent`
       import Component from '@glimmer/component';
 
