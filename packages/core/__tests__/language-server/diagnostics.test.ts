@@ -554,7 +554,6 @@ describe('Language Server: Diagnostics', () => {
     project.write('component-a.gts', componentA);
 
     const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
 
     expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
       .toMatchInlineSnapshot(`
@@ -590,9 +589,33 @@ describe('Language Server: Diagnostics', () => {
     `);
   });
 
-  test(
-    'passing args to vanilla Component should be an error - suppress with @glint-expect-error (TODO see above)',
-  );
+  test('passing args to vanilla Component should be an error -- suppressed with @glint-expect-error', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+        {{! @glint-expect-error }}
+          <Component
+            @foo={{123}} />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [],
+          "kind": "full",
+        }
+      `);
+  });
 
   test.only('@glint-expect-error - open element tag inline directive', async () => {
     let componentA = stripIndent`
