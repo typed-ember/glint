@@ -817,7 +817,7 @@ describe('Language Server: Diagnostics', () => {
                         "line": 23,
                       },
                     },
-                    "uri": "file:///Users/machty/code/glint/packages/environment-ember-template-imports/-private/dsl/index.d.ts",
+                    "uri": "file:///PATH_TO_MODULE/@glint/environment-ember-template-imports/-private/dsl/index.d.ts",
                   },
                   "message": "Arguments for the rest parameter 'args' were not provided.",
                 },
