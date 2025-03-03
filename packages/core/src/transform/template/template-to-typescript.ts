@@ -627,7 +627,7 @@ export function templateToTypescript(
           // activeDirective = piece.value.includes('@glint-expect-error') ? 'expect-error' : null;
 
           const directiveRegex = /^@glint-([a-z-]+)/i;
-          let text = piece.value;
+          let text = piece.value.trim();
           let match = directiveRegex.exec(text);
           if (!match) {
             // Just a comment, not a directive. Skip.
