@@ -323,8 +323,8 @@ export function mapTemplateContents(
         if (!expectErrorToken) {
           mapper.text(`// @glint-expect-error BEGIN AREA_OF_EFFECT`);
           mapper.newline();
-        // } else {
-        //   let a = 'wat';
+          // } else {
+          //   let a = 'wat';
         }
 
         expectErrorToken = {
