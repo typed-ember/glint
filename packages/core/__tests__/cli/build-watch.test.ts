@@ -209,7 +209,7 @@ describe('CLI: watched build mode typechecking', () => {
       await watch.terminate();
     });
 
-    test.skip('reports on errors introduced after removing a glint-nocheck directive', async () => {
+    test('reports on errors introduced after removing a glint-nocheck directive', async () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
@@ -460,7 +460,12 @@ describe('CLI: watched build mode typechecking', () => {
             stripped.indexOf('index.gts'),
             stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
           );
-          expect(error).toMatchInlineSnapshot(`""`);
+          expect(error).toMatchInlineSnapshot(`
+            "index.gts:15:5 - error TS2554: Expected 0 arguments, but got 1.
+
+            15     <A @foo="bar" />
+                   ~~~~~~~~~~~~~~~~"
+          `);
 
           await pauseForTSBuffering();
 
@@ -488,7 +493,12 @@ describe('CLI: watched build mode typechecking', () => {
             stripped.indexOf('index.gts'),
             stripped.lastIndexOf(`~~~${os.EOL}`) + 3,
           );
-          expect(error).toMatchInlineSnapshot(`""`);
+          expect(error).toMatchInlineSnapshot(`
+            "index.gts:3:28 - error TS2554: Expected 0 arguments, but got 1.
+
+            3 const A = <template>Hello! <C @foo="bar" /></template>;
+                                         ~~~~~~~~~~~~~~~~"
+          `);
 
           await pauseForTSBuffering();
 

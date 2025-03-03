@@ -63,123 +63,7 @@ describe('Transform: rewriteTemplate', () => {
   });
 
   describe('directives', () => {
-    test('in a top-level mustache', () => {
-      let template = stripIndent`
-        {{! @glint-ignore: this is fine }}
-        <Foo as |bar|>
-          {{hello}}
-        </Foo>
-      `;
-
-      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
-
-      expect(errors).toEqual([]);
-      expect(result?.directives).toEqual([
-        {
-          kind: 'ignore',
-          location: {
-            start: template.indexOf('{{!'),
-            end: template.indexOf('fine }}') + 'fine }}'.length,
-          },
-          areaOfEffect: {
-            start: template.indexOf('<Foo as'),
-            end: template.indexOf('|bar|>') + '|bar|>'.length + 1,
-          },
-        },
-      ]);
-    });
-
-    test('in an element bobdy', () => {
-      let template = stripIndent`
-        <Foo
-          {{! @glint-ignore: this is fine }}
-          @arg="hi"
-          as |bar|
-        >
-          {{hello}}
-        </Foo>
-      `;
-
-      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
-
-      expect(errors).toEqual([]);
-      expect(result?.directives).toEqual([
-        {
-          kind: 'ignore',
-          location: {
-            start: template.indexOf('{{!'),
-            end: template.indexOf('fine }}') + 'fine }}'.length,
-          },
-          areaOfEffect: {
-            start: template.indexOf('  @arg='),
-            end: template.indexOf('"hi"') + '"hi"'.length + 1,
-          },
-        },
-      ]);
-    });
-
-    test('nocheck', () => {
-      let template = stripIndent`
-        {{! @glint-nocheck: don't check this whole template }}
-        <Foo />
-        {{foo-bar}}
-        {{this.baz}}
-      `;
-
-      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
-
-      expect(errors).toEqual([]);
-      expect(result?.directives).toEqual([
-        {
-          kind: 'ignore',
-          location: {
-            start: 0,
-            end: template.indexOf('template }}') + 'template }}'.length,
-          },
-          areaOfEffect: {
-            start: 0,
-            end: template.length - 1,
-          },
-        },
-      ]);
-      expect(templateBody(template)).toMatchInlineSnapshot(`
-        "// @glint-nocheck
-        {
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["Foo"])());
-        __glintY__;
-        }
-        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintDSL__.Globals["foo-bar"])());
-        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.baz)());"
-      `);
-    });
-
-    test('expect-error', () => {
-      let template = stripIndent`
-        {{! @glint-expect-error: this is fine }}
-        <Foo as |bar|>
-          {{hello}}
-        </Foo>
-      `;
-
-      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
-
-      expect(errors).toEqual([]);
-      expect(result?.directives).toEqual([
-        {
-          kind: 'expect-error',
-          location: {
-            start: template.indexOf('{{!'),
-            end: template.indexOf('fine }}') + 'fine }}'.length,
-          },
-          areaOfEffect: {
-            start: template.indexOf('<Foo as'),
-            end: template.indexOf('|bar|>') + '|bar|>'.length + 1,
-          },
-        },
-      ]);
-    });
-
-    test('unknown type', () => {
+    test('unknown directies are reported as errors', () => {
       let template = stripIndent`
         {{! @glint-check }}
         <Foo as |bar|>
@@ -767,7 +651,8 @@ describe('Transform: rewriteTemplate', () => {
 
           expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
             "{
-            const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Foo)({ bar: __glintDSL__.resolve(helper)({ param: true , ...__glintDSL__.NamedArgsMarker }), ...__glintDSL__.NamedArgsMarker }));
+            const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Foo)({ 
+            bar: __glintDSL__.resolve(helper)({ param: true , ...__glintDSL__.NamedArgsMarker }), ...__glintDSL__.NamedArgsMarker }));
             __glintY__;
             }"
           `);
@@ -815,7 +700,8 @@ describe('Transform: rewriteTemplate', () => {
 
             expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
               "{
-              const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Greet)({ message: __glintRef__.args.arg, ...__glintDSL__.NamedArgsMarker }));
+              const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Greet)({ 
+              message: __glintRef__.args.arg, ...__glintDSL__.NamedArgsMarker }));
               __glintY__;
               }"
             `);
@@ -826,7 +712,8 @@ describe('Transform: rewriteTemplate', () => {
 
             expect(templateBody(template, { globals: ['foo'] })).toMatchInlineSnapshot(`
               "{
-              const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Greet)({ message: __glintDSL__.resolveOrReturn(__glintDSL__.Globals["foo"])(), ...__glintDSL__.NamedArgsMarker }));
+              const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Greet)({ 
+              message: __glintDSL__.resolveOrReturn(__glintDSL__.Globals["foo"])(), ...__glintDSL__.NamedArgsMarker }));
               __glintY__;
               }"
             `);
@@ -837,7 +724,8 @@ describe('Transform: rewriteTemplate', () => {
 
             expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
               "{
-              const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Greet)({ message: foo, ...__glintDSL__.NamedArgsMarker }));
+              const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Greet)({ 
+              message: foo, ...__glintDSL__.NamedArgsMarker }));
               __glintY__;
               }"
             `);
@@ -852,7 +740,8 @@ describe('Transform: rewriteTemplate', () => {
               {
               const [bar] = __glintY__.blockParams["default"];
               {
-              const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Greet)({ message: bar, ...__glintDSL__.NamedArgsMarker }));
+              const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Greet)({ 
+              message: bar, ...__glintDSL__.NamedArgsMarker }));
               __glintY__;
               }
               }
@@ -1095,7 +984,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["Foo"])({ bar: "hello", ...__glintDSL__.NamedArgsMarker }));
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["Foo"])({ 
+        bar: "hello", ...__glintDSL__.NamedArgsMarker }));
         __glintY__;
         }"
       `);
@@ -1116,7 +1006,6 @@ describe('Transform: rewriteTemplate', () => {
         const [bar] = __glintY__.blockParams["default"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(bar)());
         }
-        __glintDSL__.Globals["Foo"];
         }"
       `);
     });
@@ -1146,7 +1035,6 @@ describe('Transform: rewriteTemplate', () => {
         {
         const [] = __glintY__.blockParams["default"];
         }
-        div;
         }
         }
         __glintDSL__.Globals["let"];
@@ -1159,7 +1047,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(foo?.bar)({ arg: "hello", ...__glintDSL__.NamedArgsMarker }));
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(foo?.bar)({ 
+        arg: "hello", ...__glintDSL__.NamedArgsMarker }));
         __glintY__;
         }"
       `);
@@ -1170,7 +1059,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintRef__.args.foo)({ arg: "hello", ...__glintDSL__.NamedArgsMarker }));
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintRef__.args.foo)({ 
+        arg: "hello", ...__glintDSL__.NamedArgsMarker }));
         __glintY__;
         }"
       `);
@@ -1181,7 +1071,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintRef__.this.foo)({ arg: "hello", ...__glintDSL__.NamedArgsMarker }));
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintRef__.this.foo)({ 
+        arg: "hello", ...__glintDSL__.NamedArgsMarker }));
         __glintY__;
         }"
       `);
@@ -1216,10 +1107,8 @@ describe('Transform: rewriteTemplate', () => {
         {
         const [] = __glintY__.blockParams["default"];
         }
-        b?.contents;
         }
         }
-        __glintDSL__.Globals["Foo"];
         }"
       `);
     });
@@ -1229,7 +1118,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Foo)({ arg: \`\${__glintDSL__.resolveOrReturn(baz)()}\`, ...__glintDSL__.NamedArgsMarker }));
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Foo)({ 
+        arg: \`\${__glintDSL__.resolveOrReturn(baz)()}\`, ...__glintDSL__.NamedArgsMarker }));
         __glintY__;
         }"
       `);
@@ -1255,7 +1145,6 @@ describe('Transform: rewriteTemplate', () => {
         });
         }
         }
-        __glintDSL__.Globals["Foo"];
         }"
       `);
     });
@@ -1275,7 +1164,6 @@ describe('Transform: rewriteTemplate', () => {
         const [__switch] = __glintY__.blockParams["default"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__switch)());
         }
-        __glintDSL__.Globals["Foo"];
         }"
       `);
     });

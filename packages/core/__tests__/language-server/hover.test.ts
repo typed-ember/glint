@@ -155,6 +155,12 @@ describe('Language Server: Hover', () => {
           "kind": "markdown",
           "value": "\`\`\`typescript
       const index: number
+      \`\`\`
+
+      ---
+
+      \`\`\`typescript
+      const index: number
       \`\`\`",
         },
         "range": {
@@ -181,6 +187,12 @@ describe('Language Server: Hover', () => {
         "contents": {
           "kind": "markdown",
           "value": "\`\`\`typescript
+      const item: string
+      \`\`\`
+
+      ---
+
+      \`\`\`typescript
       const item: string
       \`\`\`",
         },

@@ -4,6 +4,8 @@ import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-templ
 import ScopeStack from './scope-stack.js';
 import { GlintEmitMetadata, GlintSpecialForm } from '@glint/core/config-types';
 import { TextContent } from './glimmer-ast-mapping-tree.js';
+import { Directive } from './transformed-module.js';
+import { DirectiveKind } from './transformed-module.js';
 
 const SPLATTRIBUTES = '...attributes';
 
@@ -40,7 +42,7 @@ export function templateToTypescript(
   let template = `${''.padEnd(prefix.length)}${originalTemplate}${''.padEnd(suffix.length)}`;
 
   return mapTemplateContents(originalTemplate, { embeddingSyntax }, (ast, mapper) => {
-    let { emit, record, rangeForLine, rangeForNode } = mapper;
+    let { rangeForNode } = mapper;
     let scope = new ScopeStack([]);
 
     emitTemplateBoilerplate(() => {
@@ -48,6 +50,10 @@ export function templateToTypescript(
         emitTopLevelStatement(statement);
       }
     });
+
+    // Ensure any "@glint-expect-error" directives at the end of the template
+    // trigger "unused @glint-expect-error" diagnostics.
+    mapper.terminateDirectiveAreaOfEffect('endOfTemplate');
 
     return;
 
@@ -80,49 +86,49 @@ export function templateToTypescript(
 
     function emitTemplateBoilerplate(emitBody: () => void): void {
       if (meta?.prepend) {
-        emit.text(meta.prepend);
+        mapper.text(meta.prepend);
       }
 
       if (useJsDoc) {
-        emit.text(`(/** @type {typeof import("${typesModule}")} */ ({}))`);
+        mapper.text(`(/** @type {typeof import("${typesModule}")} */ ({}))`);
       } else {
-        emit.text(`({} as typeof import("${typesModule}"))`);
+        mapper.text(`({} as typeof import("${typesModule}"))`);
       }
 
       if (backingValue) {
-        emit.text(`.templateForBackingValue(${backingValue}, function(__glintRef__`);
+        mapper.text(`.templateForBackingValue(${backingValue}, function(__glintRef__`);
       } else {
-        emit.text(`.templateExpression(function(__glintRef__`);
+        mapper.text(`.templateExpression(function(__glintRef__`);
       }
 
       if (useJsDoc) {
-        emit.text(`, /** @type {typeof import("${typesModule}")} */ __glintDSL__) {`);
+        mapper.text(`, /** @type {typeof import("${typesModule}")} */ __glintDSL__) {`);
       } else {
-        emit.text(`, __glintDSL__: typeof import("${typesModule}")) {`);
+        mapper.text(`, __glintDSL__: typeof import("${typesModule}")) {`);
       }
 
-      emit.newline();
-      emit.indent();
+      mapper.newline();
+      mapper.indent();
 
       for (let line of preamble) {
-        emit.text(line);
-        emit.newline();
+        mapper.text(line);
+        mapper.newline();
       }
 
       if (ast) {
-        emit.forNode(ast, emitBody);
+        mapper.forNode(ast, emitBody);
       }
 
       // Ensure the context and lib variables are always consumed to prevent
       // an unused variable warning
-      emit.text('__glintRef__; __glintDSL__;');
-      emit.newline();
+      mapper.text('__glintRef__; __glintDSL__;');
+      mapper.newline();
 
-      emit.dedent();
-      emit.text('})');
+      mapper.dedent();
+      mapper.text('})');
 
       if (meta?.append) {
-        emit.text(meta.append);
+        mapper.text(meta.append);
       }
     }
 
@@ -130,30 +136,44 @@ export function templateToTypescript(
       // We don't need to emit any code for text nodes, but we want to track
       // where they are so we know NOT to try and suggest global completions
       // in "text space" where it wouldn't make sense.
-      emit.nothing(node, new TextContent());
+      mapper.nothing(node, new TextContent());
     }
 
     function emitComment(node: AST.MustacheCommentStatement | AST.CommentStatement): void {
       let text = node.value.trim();
-      let match = /^@glint-([a-z-]+)/i.exec(text);
+      const directiveRegex = /^@glint-([a-z-]+)/i;
+      let match = directiveRegex.exec(text);
       if (!match) {
-        return emit.nothing(node);
+        return mapper.nothing(node);
       }
 
+      // here
+      emitDirective(match, node);
+    }
+
+    function emitDirective(
+      match: RegExpExecArray,
+      node: AST.CommentStatement | AST.MustacheCommentStatement,
+    ): void {
       let kind = match[1];
       let location = rangeForNode(node);
       if (kind === 'ignore' || kind === 'expect-error') {
-        record.directive(kind, location, rangeForLine(node.loc.endPosition.line + 1));
+        // Push to the directives array on the record
+        mapper.directive(node, kind);
       } else if (kind === 'nocheck') {
-        record.directive('ignore', location, { start: 0, end: template.length - 1 });
+        // Push to the directives array on the record
+        mapper.directive(node, 'nocheck');
       } else {
-        record.error(`Unknown directive @glint-${kind}`, location);
+        // Push an error on the record
+        mapper.error(`Unknown directive @glint-${kind}`, location);
       }
+    }
 
-      emit.forNode(node, () => {
-        emit.text(`// @glint-${kind}`);
-        emit.newline();
-      });
+    function emitTopLevelMustacheStatement(node: AST.MustacheStatement): void {
+      emitMustacheStatement(node, 'top-level');
+      mapper.text(';');
+      mapper.newline();
+      mapper.terminateDirectiveAreaOfEffect('topLevelMustacheStatement');
     }
 
     // Captures the context in which a given invocation (i.e. a mustache or
@@ -162,21 +182,15 @@ export function templateToTypescript(
     // evaluates a helper or returns it also depends on the location it's in.
     type InvokePosition = 'top-level' | 'attr' | 'arg' | 'concat' | 'sexpr';
 
-    function emitTopLevelMustacheStatement(node: AST.MustacheStatement): void {
-      emitMustacheStatement(node, 'top-level');
-      emit.text(';');
-      emit.newline();
-    }
-
     function emitSpecialFormExpression(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition,
     ): void {
       if (formInfo.requiresConsumption) {
-        emit.text('(__glintDSL__.noop(');
+        mapper.text('(__glintDSL__.noop(');
         emitExpression(node.path);
-        emit.text('), ');
+        mapper.text('), ');
       }
 
       switch (formInfo.form) {
@@ -219,12 +233,12 @@ export function templateToTypescript(
           break;
 
         default:
-          record.error(`${formInfo.name} is not valid in inline form`, rangeForNode(node));
-          emit.text('undefined');
+          mapper.error(`${formInfo.name} is not valid in inline form`, rangeForNode(node));
+          mapper.text('undefined');
       }
 
       if (formInfo.requiresConsumption) {
-        emit.text(')');
+        mapper.text(')');
       }
     }
 
@@ -233,7 +247,7 @@ export function templateToTypescript(
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition,
     ): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         assert(
           node.params.length >= 1,
           () => `{{${formInfo.name}}} requires at least one positional argument`,
@@ -249,7 +263,7 @@ export function templateToTypescript(
         );
 
         if (position === 'top-level') {
-          emit.text('__glintDSL__.emitContent(');
+          mapper.text('__glintDSL__.emitContent(');
         }
 
         // Treat the first argument to a bind-invokable expression (`{{component}}`,
@@ -260,16 +274,16 @@ export function templateToTypescript(
         // invokable is the source of record for its own type and we don't want inference
         // from the `resolveForBind` call to be affected by other (potentially incorrect)
         // parameter types.
-        emit.text('__glintDSL__.resolve(');
+        mapper.text('__glintDSL__.resolve(');
         emitExpression(node.path);
-        emit.text(')((() => __glintDSL__.resolveForBind(');
+        mapper.text(')((() => __glintDSL__.resolveForBind(');
         emitExpression(node.params[0]);
-        emit.text('))(), ');
+        mapper.text('))(), ');
         emitArgs(node.params.slice(1), node.hash);
-        emit.text(')');
+        mapper.text(')');
 
         if (position === 'top-level') {
-          emit.text(')');
+          mapper.text(')');
         }
       });
     }
@@ -278,33 +292,33 @@ export function templateToTypescript(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
     ): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         assert(
           node.params.length === 0,
           () => `{{${formInfo.name}}} only accepts named parameters`,
         );
 
         if (!node.hash.pairs.length) {
-          emit.text('{}');
+          mapper.text('{}');
           return;
         }
 
-        emit.text('({');
-        emit.indent();
-        emit.newline();
+        mapper.text('({');
+        mapper.indent();
+        mapper.newline();
 
         let start = template.indexOf('hash', rangeForNode(node).start) + 4;
         for (let pair of node.hash.pairs) {
           start = template.indexOf(pair.key, start);
           emitHashKey(pair.key, start);
-          emit.text(': ');
+          mapper.text(': ');
           emitExpression(pair.value);
-          emit.text(',');
-          emit.newline();
+          mapper.text(',');
+          mapper.newline();
         }
 
-        emit.dedent();
-        emit.text('})');
+        mapper.dedent();
+        mapper.text('})');
       });
     }
 
@@ -312,23 +326,23 @@ export function templateToTypescript(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
     ): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         assert(
           node.hash.pairs.length === 0,
           () => `{{${formInfo.name}}} only accepts positional parameters`,
         );
 
-        emit.text('[');
+        mapper.text('[');
 
         for (let [index, param] of node.params.entries()) {
           emitExpression(param);
 
           if (index < node.params.length - 1) {
-            emit.text(', ');
+            mapper.text(', ');
           }
         }
 
-        emit.text(']');
+        mapper.text(']');
       });
     }
 
@@ -336,25 +350,25 @@ export function templateToTypescript(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
     ): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         assert(
           node.params.length >= 2,
           () => `{{${formInfo.name}}} requires at least two parameters`,
         );
 
-        emit.text('(');
+        mapper.text('(');
         emitExpression(node.params[0]);
-        emit.text(') ? (');
+        mapper.text(') ? (');
         emitExpression(node.params[1]);
-        emit.text(') : (');
+        mapper.text(') : (');
 
         if (node.params[2]) {
           emitExpression(node.params[2]);
         } else {
-          emit.text('undefined');
+          mapper.text('undefined');
         }
 
-        emit.text(')');
+        mapper.text(')');
       });
     }
 
@@ -362,25 +376,25 @@ export function templateToTypescript(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
     ): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         assert(
           node.params.length >= 2,
           () => `{{${formInfo.name}}} requires at least two parameters`,
         );
 
-        emit.text('!(');
+        mapper.text('!(');
         emitExpression(node.params[0]);
-        emit.text(') ? (');
+        mapper.text(') ? (');
         emitExpression(node.params[1]);
-        emit.text(') : (');
+        mapper.text(') : (');
 
         if (node.params[2]) {
           emitExpression(node.params[2]);
         } else {
-          emit.text('undefined');
+          mapper.text('undefined');
         }
 
-        emit.text(')');
+        mapper.text(')');
       });
     }
 
@@ -388,7 +402,7 @@ export function templateToTypescript(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
     ): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         assert(
           node.hash.pairs.length === 0,
           () => `{{${formInfo.name}}} only accepts positional parameters`,
@@ -400,11 +414,11 @@ export function templateToTypescript(
 
         const [left, right] = node.params;
 
-        emit.text('(');
+        mapper.text('(');
         emitExpression(left);
-        emit.text(` ${formInfo.form} `);
+        mapper.text(` ${formInfo.form} `);
         emitExpression(right);
-        emit.text(')');
+        mapper.text(')');
       });
     }
 
@@ -412,7 +426,7 @@ export function templateToTypescript(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
     ): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         assert(
           node.hash.pairs.length === 0,
           () => `{{${formInfo.name}}} only accepts positional parameters`,
@@ -422,15 +436,15 @@ export function templateToTypescript(
           () => `{{${formInfo.name}}} requires at least two parameters`,
         );
 
-        emit.text('(');
+        mapper.text('(');
         for (const [index, param] of node.params.entries()) {
           emitExpression(param);
 
           if (index < node.params.length - 1) {
-            emit.text(` ${formInfo.form} `);
+            mapper.text(` ${formInfo.form} `);
           }
         }
-        emit.text(')');
+        mapper.text(')');
       });
     }
 
@@ -438,7 +452,7 @@ export function templateToTypescript(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
     ): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         assert(
           node.hash.pairs.length === 0,
           () => `{{${formInfo.name}}} only accepts positional parameters`,
@@ -450,7 +464,7 @@ export function templateToTypescript(
 
         const [param] = node.params;
 
-        emit.text(formInfo.form);
+        mapper.text(formInfo.form);
         emitExpression(param);
       });
     }
@@ -513,26 +527,26 @@ export function templateToTypescript(
     }
 
     function emitConcatStatement(node: AST.ConcatStatement): void {
-      emit.forNode(node, () => {
-        emit.text('`');
+      mapper.forNode(node, () => {
+        mapper.text('`');
         for (let part of node.parts) {
           if (part.type === 'MustacheStatement') {
-            emit.text('$' + '{');
+            mapper.text('$' + '{');
             emitMustacheStatement(part, 'concat');
-            emit.text('}');
+            mapper.text('}');
           }
         }
-        emit.text('`');
+        mapper.text('`');
       });
     }
 
     function emitIdentifierReference(name: string, hbsOffset: number): void {
       if (treatAsGlobal(name)) {
-        emit.text('__glintDSL__.Globals["');
-        emit.identifier(JSON.stringify(name).slice(1, -1), hbsOffset, name.length);
-        emit.text('"]');
+        mapper.text('__glintDSL__.Globals["');
+        mapper.identifier(JSON.stringify(name).slice(1, -1), hbsOffset, name.length);
+        mapper.text('"]');
       } else {
-        emit.identifier(makeJSSafe(name), hbsOffset, name.length);
+        mapper.identifier(makeJSSafe(name), hbsOffset, name.length);
       }
     }
 
@@ -580,65 +594,164 @@ export function templateToTypescript(
       }
     }
 
+    /**
+     * Given an ElementNode, return an array of attributes, args, and modifiers
+     * in the order they appear in the element open tag, and filter out any
+     * comments, while also detecting any directives (e.g. `@glint-expect-error`)
+     * and assigning them to the next non-comment/non-directive piece.
+     *
+     * This is useful for implementing logic for supporting `@glint-expect-error` (and similar)
+     * directives that appear inline within the opening tag of an element, e.g.
+     *
+     *     <Component @dataArg={{bar}}
+     *                {{!@glint-expect-error suppress href attribute}}
+     *                href="foo"
+     *                {{!@glint-expect-error suppress dataArg2 arg}}
+     *                @dataArg2={{bar2}}
+     *                link="rel" />
+     */
+    function assignDirectivesToElementOpenTagPieces(
+      node: AST.ElementNode,
+    ): WeakMap<AST.Node, DirectiveKind> {
+      let pieces = [...node.attributes, ...node.modifiers, ...node.comments].sort(
+        (a, b) => a.loc.getStart().offset! - b.loc.getStart().offset!,
+      );
+
+      let activeDirective: DirectiveKind | null = null;
+
+      const result: WeakMap<AST.Node, DirectiveKind> = new WeakMap();
+
+      for (let piece of pieces) {
+        if (piece.type === 'MustacheCommentStatement') {
+          // this needs to categorize directives. But which while do we do that in? this file is template-to-typescript
+          // activeDirective = piece.value.includes('@glint-expect-error') ? 'expect-error' : null;
+
+          const directiveRegex = /^@glint-([a-z-]+)/i;
+          let text = piece.value.trim();
+          let match = directiveRegex.exec(text);
+          if (!match) {
+            // Just a comment, not a directive. Skip.
+            continue;
+          }
+
+          let directive = match[1];
+          switch (directive) {
+            case 'expect-error':
+              activeDirective = 'expect-error';
+              break;
+            case 'ignore':
+              activeDirective = 'ignore';
+              break;
+            default:
+              // TODO: should this be an error?
+              continue;
+          }
+        } else if (piece.type === 'ElementModifierStatement' || piece.type === 'AttrNode') {
+          if (activeDirective) {
+            // Assign the directive to this modifier.
+            result.set(piece, activeDirective);
+            activeDirective = null;
+          }
+        } else {
+          throw new Error('Unknown piece type');
+        }
+      }
+
+      return result;
+    }
+
     function emitComponent(node: AST.ElementNode): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         let { start, path, kind } = tagNameToPathContents(node);
 
-        for (let comment of node.comments) {
-          emitComment(comment);
-        }
+        const directivesWeakMap = assignDirectivesToElementOpenTagPieces(node);
 
-        emit.text('{');
-        emit.newline();
-        emit.indent();
+        mapper.text('{');
+        mapper.newline();
+        mapper.indent();
 
-        emit.text('const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(');
-        emitPathContents(path, start, kind);
-        emit.text(')(');
+        // Resolve the component and stash into the `__glintY__` variable for later invocation.
+        mapper.text('const __glintY__ = __glintDSL__.emitComponent(');
+
+        // Error boundary: "Expected 1 arguments, but got 0." e.g. when invoking `<ComponentThatHasArgs />`
+        mapper.forNode(node, () => {
+          mapper.text('__glintDSL__.resolve(');
+          emitPathContents(path, start, kind);
+          mapper.text(')');
+        });
+
+        // "Call" the component, optionally passing args if they are provided in the template.
+        mapper.text('(');
 
         let dataAttrs = node.attributes.filter(({ name }) => name.startsWith('@'));
         if (dataAttrs.length) {
-          emit.text('{ ');
+          // Error boundary: "Expected 0 arguments, but got 1." e.g. when invoking `<ComponentThatHasNoArgs @foo={{bar}} />`
+          mapper.forNode(node, () => {
+            mapper.text('{ ');
 
-          for (let attr of dataAttrs) {
-            emit.forNode(attr, () => {
-              start = template.indexOf(attr.name, start + 1);
-              emitHashKey(attr.name.slice(1), start + 1);
-              emit.text(': ');
+            for (let attr of dataAttrs) {
+              mapper.forNode(attr, () => {
+                mapper.newline();
 
-              switch (attr.value.type) {
-                case 'TextNode':
-                  emit.text(JSON.stringify(attr.value.chars));
-                  break;
-                case 'ConcatStatement':
-                  emitConcatStatement(attr.value);
-                  break;
-                case 'MustacheStatement':
-                  emitMustacheStatement(attr.value, 'arg');
-                  break;
-                default:
-                  unreachable(attr.value);
-              }
-            });
+                // If this attribute has an inline directive, emit the corresponding `@ts-...` directive.
+                const directive = directivesWeakMap.get(attr);
+                if (directive) {
+                  mapper.text(`// @ts-${directive}`);
+                  mapper.newline();
+                }
 
-            start = rangeForNode(attr.value).end;
-            emit.text(', ');
-          }
+                start = template.indexOf(attr.name, start + 1);
+                emitHashKey(attr.name.slice(1), start + 1);
+                mapper.text(': ');
 
-          emit.text('...__glintDSL__.NamedArgsMarker }');
+                switch (attr.value.type) {
+                  case 'TextNode':
+                    mapper.text(JSON.stringify(attr.value.chars));
+                    break;
+                  case 'ConcatStatement':
+                    emitConcatStatement(attr.value);
+                    break;
+                  case 'MustacheStatement':
+                    emitMustacheStatement(attr.value, 'arg');
+                    break;
+                  default:
+                    unreachable(attr.value);
+                }
+              });
+
+              start = rangeForNode(attr.value).end;
+              mapper.text(', ');
+            }
+
+            mapper.text('...__glintDSL__.NamedArgsMarker }');
+          });
         }
 
-        emit.text('));');
-        emit.newline();
+        mapper.text('));');
+        mapper.newline();
 
-        emitAttributesAndModifiers(node);
+        emitAttributesAndModifiers(node, directivesWeakMap);
+
+        // terminate @glint-expect-error directives after opening tag; any
+        // diagnostics due to attributes or modifiers are covered by the directive
+        mapper.terminateDirectiveAreaOfEffect('emitComponent - end of opening tag');
 
         if (!node.selfClosing) {
           let blocks = determineBlockChildren(node);
           if (blocks.type === 'named') {
             for (const child of blocks.children) {
               if (child.type === 'CommentStatement' || child.type === 'MustacheCommentStatement') {
-                emitComment(child);
+                /**
+                 * TODO: figure out what needs to be reinstate here for glint-expect-error, e.g.
+                 *
+                 * <LayoutComponent>
+                 *   {{!@glint-expect-error this component isn't typed to provide block params but definitely does }}
+                 *   <:footer as |footerArgs|>
+                 *     {{footerArgs.something}}
+                 *   </:footer>
+                 * </LayoutComponent>
+                 */
+                // emitComment(child);
                 continue;
               }
 
@@ -647,7 +760,7 @@ export function templateToTypescript(
               let blockParamsStart = template.indexOf('|', childStart);
               let name = child.tag.slice(1);
 
-              emit.forNode(child, () =>
+              mapper.forNode(child, () =>
                 emitBlockContents(
                   name,
                   nameStart,
@@ -667,17 +780,11 @@ export function templateToTypescript(
               blocks.children,
             );
           }
-
-          // Emit `ComponentName;` to represent the closing tag, so we have
-          // an anchor for things like symbol renames.
-          emitPathContents(path, template.lastIndexOf(node.tag, rangeForNode(node).end), kind);
-          emit.text(';');
-          emit.newline();
         }
 
-        emit.dedent();
-        emit.text('}');
-        emit.newline();
+        mapper.dedent();
+        mapper.text('}');
+        mapper.newline();
       });
     }
 
@@ -721,10 +828,10 @@ export function templateToTypescript(
           type: 'named',
           children: node.children.filter(
             // Filter out ignorable content between named blocks
-            (child): child is NamedBlockChild =>
-              child.type === 'ElementNode' ||
-              child.type === 'CommentStatement' ||
-              child.type === 'MustacheCommentStatement',
+            (child): child is NamedBlockChild => child.type === 'ElementNode',
+            //  ||
+            //   child.type === 'CommentStatement' ||
+            //   child.type === 'MustacheCommentStatement',
           ),
         };
       } else {
@@ -733,7 +840,7 @@ export function templateToTypescript(
         // those nodes
         for (let child of node.children) {
           if (!isNamedBlock(child)) {
-            emit.forNode(child, () =>
+            mapper.forNode(child, () =>
               assert(
                 isAllowedAmongNamedBlocks(child),
                 'Named blocks may not be mixed with other content',
@@ -747,81 +854,94 @@ export function templateToTypescript(
     }
 
     function emitPlainElement(node: AST.ElementNode): void {
-      emit.forNode(node, () => {
-        for (let comment of node.comments) {
-          emitComment(comment);
-        }
+      mapper.forNode(node, () => {
+        const directivesWeakMap = assignDirectivesToElementOpenTagPieces(node);
 
-        emit.text('{');
-        emit.newline();
-        emit.indent();
+        mapper.text('{');
+        mapper.newline();
+        mapper.indent();
 
-        emit.text('const __glintY__ = __glintDSL__.emitElement(');
-        emit.text(JSON.stringify(node.tag));
-        emit.text(');');
-        emit.newline();
+        mapper.text('const __glintY__ = __glintDSL__.emitElement(');
+        mapper.text(JSON.stringify(node.tag));
+        mapper.text(');');
+        mapper.newline();
 
-        emitAttributesAndModifiers(node);
+        emitAttributesAndModifiers(node, directivesWeakMap);
+
+        // terminate @glint-expect-error directives after opening tag; any
+        // diagnostics due to attributes or modifiers are covered by the directive
+        mapper.terminateDirectiveAreaOfEffect('emitPlainElement - end of opening tag');
 
         for (let child of node.children) {
           emitTopLevelStatement(child);
         }
 
-        emit.dedent();
-        emit.text('}');
-        emit.newline();
+        mapper.dedent();
+        mapper.text('}');
+        mapper.newline();
       });
     }
 
-    function emitAttributesAndModifiers(node: AST.ElementNode): void {
+    function emitAttributesAndModifiers(
+      node: AST.ElementNode,
+      directivesWeakMap: WeakMap<AST.Node, DirectiveKind>,
+    ): void {
       let nonArgAttributes = node.attributes.filter((attr) => !attr.name.startsWith('@'));
       if (!nonArgAttributes.length && !node.modifiers.length) {
         // Avoid unused-symbol diagnostics
-        emit.text('__glintY__;');
-        emit.newline();
+        // TODO: With Volar you can simply disable `verification` on the CodeInformation
+        // to prevent diagnostics from mapping back upwards. Perhaps we should use that
+        // instead of preserving these empty statements/expressions.
+        mapper.text('__glintY__;');
+        mapper.newline();
       } else {
         emitSplattributes(node);
-        emitPlainAttributes(node);
-        emitModifiers(node);
+        emitPlainAttributes(node, directivesWeakMap);
+        emitModifiers(node, directivesWeakMap);
       }
     }
 
-    function emitPlainAttributes(node: AST.ElementNode): void {
+    function emitPlainAttributes(
+      node: AST.ElementNode,
+      directivesWeakMap: WeakMap<AST.Node, DirectiveKind>,
+    ): void {
       let attributes = node.attributes.filter(
         (attr) => !attr.name.startsWith('@') && attr.name !== SPLATTRIBUTES,
       );
 
       if (!attributes.length) return;
 
-      emit.text('__glintDSL__.applyAttributes(__glintY__.element, {');
-      emit.newline();
-      emit.indent();
+      mapper.text('__glintDSL__.applyAttributes(__glintY__.element, {');
+      mapper.newline();
+      mapper.indent();
 
       let start = template.indexOf(node.tag, rangeForNode(node).start) + node.tag.length;
 
       for (let attr of attributes) {
-        emit.forNode(attr, () => {
+        mapper.forNode(attr, () => {
           start = template.indexOf(attr.name, start + 1);
 
           emitHashKey(attr.name, start);
-          emit.text(': ');
+          mapper.text(': ');
 
           if (attr.value.type === 'MustacheStatement') {
             emitMustacheStatement(attr.value, 'attr');
           } else if (attr.value.type === 'ConcatStatement') {
             emitConcatStatement(attr.value);
           } else {
-            emit.text(JSON.stringify(attr.value.chars));
+            mapper.text(JSON.stringify(attr.value.chars));
           }
 
-          emit.text(',');
-          emit.newline();
+          mapper.text(',');
+          mapper.newline();
         });
+
+        mapper.terminateDirectiveAreaOfEffect('emitPlainAttributes');
       }
 
-      emit.dedent();
-      emit.text('});');
-      emit.newline();
+      mapper.dedent();
+      mapper.text('});');
+      mapper.newline();
     }
 
     function emitSplattributes(node: AST.ElementNode): void {
@@ -833,23 +953,32 @@ export function templateToTypescript(
         '`...attributes` cannot accept a value',
       );
 
-      emit.forNode(splattributes, () => {
-        emit.text('__glintDSL__.applySplattributes(__glintRef__.element, __glintY__.element);');
+      mapper.forNode(splattributes, () => {
+        mapper.text('__glintDSL__.applySplattributes(__glintRef__.element, __glintY__.element);');
       });
 
-      emit.newline();
+      mapper.newline();
+
+      mapper.terminateDirectiveAreaOfEffect('emitSplattributes');
     }
 
-    function emitModifiers(node: AST.ElementNode): void {
+    function emitModifiers(
+      node: AST.ElementNode,
+      directivesWeakMap: WeakMap<AST.Node, DirectiveKind>,
+    ): void {
       for (let modifier of node.modifiers) {
-        emit.forNode(modifier, () => {
-          emit.text('__glintDSL__.applyModifier(__glintDSL__.resolve(');
+        mapper.forNode(modifier, () => {
+          // TODO: implement for modifiers
+          // const directive = directivesWeakMap.get(modifier);
+          mapper.text('__glintDSL__.applyModifier(__glintDSL__.resolve(');
           emitExpression(modifier.path);
-          emit.text(')(__glintY__.element, ');
+          mapper.text(')(__glintY__.element, ');
           emitArgs(modifier.params, modifier.hash);
-          emit.text('));');
-          emit.newline();
+          mapper.text('));');
+          mapper.newline();
         });
+
+        mapper.terminateDirectiveAreaOfEffect('emitModifiers');
       }
     }
 
@@ -870,7 +999,7 @@ export function templateToTypescript(
         return;
       }
 
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         // If a mustache has parameters, we know it must be an invocation; if
         // not, it depends on where it appears. In arg position, it's always
         // passed directly as a value; otherwise it's invoked if it's a
@@ -879,9 +1008,10 @@ export function templateToTypescript(
         if (!hasParams && position === 'arg' && !isGlobal(node.path)) {
           emitExpression(node.path);
         } else if (position === 'top-level') {
-          emit.text('__glintDSL__.emitContent(');
+          // e.g. top-level mustache `{{someValue}}`
+          mapper.text('__glintDSL__.emitContent(');
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
-          emit.text(')');
+          mapper.text(')');
         } else {
           emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
         }
@@ -902,7 +1032,7 @@ export function templateToTypescript(
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition,
     ): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         assert(
           position === 'top-level',
           () => `{{${formInfo.name}}} may only appear as a top-level statement`,
@@ -922,27 +1052,27 @@ export function templateToTypescript(
           to = 'else';
         }
 
-        emit.text('__glintDSL__.yieldToBlock(__glintRef__, ');
-        emit.text(JSON.stringify(to));
-        emit.text(')(');
+        mapper.text('__glintDSL__.yieldToBlock(__glintRef__, ');
+        mapper.text(JSON.stringify(to));
+        mapper.text(')(');
 
         for (let [index, param] of node.params.entries()) {
           if (index) {
-            emit.text(', ');
+            mapper.text(', ');
           }
 
           emitExpression(param);
         }
 
-        emit.text(')');
+        mapper.text(')');
       });
     }
 
     function emitSpecialFormStatement(formInfo: SpecialFormInfo, node: AST.BlockStatement): void {
       if (formInfo.requiresConsumption) {
         emitExpression(node.path);
-        emit.text(';');
-        emit.newline();
+        mapper.text(';');
+        mapper.newline();
       }
 
       switch (formInfo.form) {
@@ -955,7 +1085,7 @@ export function templateToTypescript(
           break;
 
         case 'bind-invokable':
-          record.error(
+          mapper.error(
             `The {{${formInfo.name}}} helper can't be used directly in block form under Glint. ` +
               `Consider first binding the result to a variable, e.g. '{{#let (${formInfo.name} ...) as |...|}}' ` +
               `and then using the bound value.`,
@@ -964,75 +1094,75 @@ export function templateToTypescript(
           break;
 
         default:
-          record.error(`${formInfo.name} is not valid in block form`, rangeForNode(node.path));
+          mapper.error(`${formInfo.name} is not valid in block form`, rangeForNode(node.path));
       }
     }
 
     function emitIfStatement(formInfo: SpecialFormInfo, node: AST.BlockStatement): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         assert(
           node.params.length === 1,
           () => `{{#${formInfo.name}}} requires exactly one condition`,
         );
 
-        emit.text('if (');
+        mapper.text('if (');
         emitExpression(node.params[0]);
-        emit.text(') {');
-        emit.newline();
-        emit.indent();
+        mapper.text(') {');
+        mapper.newline();
+        mapper.indent();
 
         for (let statement of node.program.body) {
           emitTopLevelStatement(statement);
         }
 
         if (node.inverse) {
-          emit.dedent();
-          emit.text('} else {');
-          emit.indent();
-          emit.newline();
+          mapper.dedent();
+          mapper.text('} else {');
+          mapper.indent();
+          mapper.newline();
 
           for (let statement of node.inverse.body) {
             emitTopLevelStatement(statement);
           }
         }
 
-        emit.dedent();
-        emit.text('}');
-        emit.newline();
+        mapper.dedent();
+        mapper.text('}');
+        mapper.newline();
       });
     }
 
     function emitUnlessStatement(formInfo: SpecialFormInfo, node: AST.BlockStatement): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         assert(
           node.params.length === 1,
           () => `{{#${formInfo.name}}} requires exactly one condition`,
         );
 
-        emit.text('if (!(');
+        mapper.text('if (!(');
         emitExpression(node.params[0]);
-        emit.text(')) {');
-        emit.newline();
-        emit.indent();
+        mapper.text(')) {');
+        mapper.newline();
+        mapper.indent();
 
         for (let statement of node.program.body) {
           emitTopLevelStatement(statement);
         }
 
         if (node.inverse) {
-          emit.dedent();
-          emit.text('} else {');
-          emit.indent();
-          emit.newline();
+          mapper.dedent();
+          mapper.text('} else {');
+          mapper.indent();
+          mapper.newline();
 
           for (let statement of node.inverse.body) {
             emitTopLevelStatement(statement);
           }
         }
 
-        emit.dedent();
-        emit.text('}');
-        emit.newline();
+        mapper.dedent();
+        mapper.text('}');
+        mapper.newline();
       });
     }
 
@@ -1043,15 +1173,15 @@ export function templateToTypescript(
         return;
       }
 
-      emit.forNode(node, () => {
-        emit.text('{');
-        emit.newline();
-        emit.indent();
+      mapper.forNode(node, () => {
+        mapper.text('{');
+        mapper.newline();
+        mapper.indent();
 
-        emit.text('const __glintY__ = __glintDSL__.emitComponent(');
+        mapper.text('const __glintY__ = __glintDSL__.emitComponent(');
         emitResolve(node, 'resolve');
-        emit.text(');');
-        emit.newline();
+        mapper.text(');');
+        mapper.newline();
 
         emitBlock('default', node.program);
 
@@ -1065,15 +1195,15 @@ export function templateToTypescript(
         if (node.path.type === 'PathExpression') {
           let start = template.lastIndexOf(node.path.original, rangeForNode(node).end);
           emitPathContents(node.path.parts, start, determinePathKind(node.path));
-          emit.text(';');
-          emit.newline();
+          mapper.text(';');
+          mapper.newline();
         }
 
-        emit.dedent();
-        emit.text('}');
+        mapper.dedent();
+        mapper.text('}');
       });
 
-      emit.newline();
+      mapper.newline();
     }
 
     function emitBlock(name: string, node: AST.Block): void {
@@ -1099,32 +1229,32 @@ export function templateToTypescript(
 
       scope.push(blockParams);
 
-      emit.text('{');
-      emit.newline();
-      emit.indent();
+      mapper.text('{');
+      mapper.newline();
+      mapper.indent();
 
-      emit.text('const [');
+      mapper.text('const [');
 
       let start = blockParamsOffset;
       for (let [index, param] of blockParams.entries()) {
-        if (index) emit.text(', ');
+        if (index) mapper.text(', ');
 
         start = template.indexOf(param, start);
-        emit.identifier(makeJSSafe(param), start, param.length);
+        mapper.identifier(makeJSSafe(param), start, param.length);
       }
 
-      emit.text('] = __glintY__.blockParams');
+      mapper.text('] = __glintY__.blockParams');
       emitPropertyAccesss(name, { offset: nameOffset, synthetic: true });
-      emit.text(';');
-      emit.newline();
+      mapper.text(';');
+      mapper.newline();
 
       for (let statement of children) {
         emitTopLevelStatement(statement);
       }
 
-      emit.dedent();
-      emit.text('}');
-      emit.newline();
+      mapper.dedent();
+      mapper.text('}');
+      mapper.newline();
       scope.pop();
     }
 
@@ -1135,7 +1265,7 @@ export function templateToTypescript(
         return;
       }
 
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         emitResolve(node, 'resolve');
       });
     }
@@ -1152,14 +1282,14 @@ export function templateToTypescript(
       // we convert to Volar mappings, we can create a boundary around
       // e.g. "__glintDSL__.resolveOrReturn(expectsAtLeastOneArg)()", which is required because
       // this is where TS might generate a diagnostic error.
-      emit.forNode(node, () => {
-        emit.text('__glintDSL__.');
-        emit.text(resolveType);
-        emit.text('(');
+      mapper.forNode(node, () => {
+        mapper.text('__glintDSL__.');
+        mapper.text(resolveType);
+        mapper.text('(');
         emitExpression(node.path);
-        emit.text(')(');
+        mapper.text(')(');
         emitArgs(node.params, node.hash);
-        emit.text(')');
+        mapper.text(')');
       });
     }
 
@@ -1167,7 +1297,7 @@ export function templateToTypescript(
       // Emit positional args
       for (let [index, param] of positional.entries()) {
         if (index) {
-          emit.text(', ');
+          mapper.text(', ');
         }
 
         emitExpression(param);
@@ -1176,29 +1306,29 @@ export function templateToTypescript(
       // Emit named args
       if (named.pairs.length) {
         if (positional.length) {
-          emit.text(', ');
+          mapper.text(', ');
         }
 
         // TS diagnostic error boundary
-        emit.forNode(named, () => {
-          emit.text('{ ');
+        mapper.forNode(named, () => {
+          mapper.text('{ ');
 
           let { start } = rangeForNode(named);
           for (let [index, pair] of named.pairs.entries()) {
             start = template.indexOf(pair.key, start);
             emitHashKey(pair.key, start);
-            emit.text(': ');
+            mapper.text(': ');
             emitExpression(pair.value);
 
             if (index === named.pairs.length - 1) {
-              emit.text(' ');
+              mapper.text(' ');
             }
 
             start = rangeForNode(pair.value).end;
-            emit.text(', ');
+            mapper.text(', ');
           }
 
-          emit.text('...__glintDSL__.NamedArgsMarker }');
+          mapper.text('...__glintDSL__.NamedArgsMarker }');
         });
       }
     }
@@ -1206,7 +1336,7 @@ export function templateToTypescript(
     type PathKind = 'this' | 'arg' | 'free';
 
     function emitPath(node: AST.PathExpression): void {
-      emit.forNode(node, () => {
+      mapper.forNode(node, () => {
         let { start } = rangeForNode(node);
         emitPathContents(node.parts, start, determinePathKind(node));
       });
@@ -1219,11 +1349,11 @@ export function templateToTypescript(
     function emitPathContents(parts: string[], start: number, kind: PathKind): void {
       if (kind === 'this') {
         let thisStart = template.indexOf('this', start);
-        emit.text('__glintRef__.');
-        emit.identifier('this', thisStart);
+        mapper.text('__glintRef__.');
+        mapper.identifier('this', thisStart);
         start = template.indexOf('.', thisStart) + 1;
       } else if (kind === 'arg') {
-        emit.text('__glintRef__.args');
+        mapper.text('__glintRef__.args');
         start = template.indexOf('@', start) + 1;
       }
 
@@ -1264,40 +1394,40 @@ export function templateToTypescript(
       // `noPropertyAccessFromIndexSignature`. Emitting `{{foo.bar}}` property accesses, however,
       // should use `.` notation for exactly the same reason.
       if (!synthetic && isSafeKey(name)) {
-        emit.text(optional ? '?.' : '.');
+        mapper.text(optional ? '?.' : '.');
         if (offset) {
-          emit.identifier(name, offset);
+          mapper.identifier(name, offset);
         } else {
-          emit.text(name);
+          mapper.text(name);
         }
       } else {
-        emit.text(optional ? '?.[' : '[');
+        mapper.text(optional ? '?.[' : '[');
         if (offset) {
           emitIdentifierString(name, offset);
         } else {
-          emit.text(JSON.stringify(name));
+          mapper.text(JSON.stringify(name));
         }
-        emit.text(']');
+        mapper.text(']');
       }
     }
 
     function emitHashKey(name: string, start: number): void {
       if (isSafeKey(name)) {
-        emit.identifier(name, start);
+        mapper.identifier(name, start);
       } else {
         emitIdentifierString(name, start);
       }
     }
 
     function emitIdentifierString(name: string, start: number): void {
-      emit.text('"');
-      emit.identifier(JSON.stringify(name).slice(1, -1), start, name.length);
-      emit.text('"');
+      mapper.text('"');
+      mapper.identifier(JSON.stringify(name).slice(1, -1), start, name.length);
+      mapper.text('"');
     }
 
     function emitLiteral(node: AST.Literal): void {
-      emit.forNode(node, () =>
-        emit.text(node.value === undefined ? 'undefined' : JSON.stringify(node.value)),
+      mapper.forNode(node, () =>
+        mapper.text(node.value === undefined ? 'undefined' : JSON.stringify(node.value)),
       );
     }
 

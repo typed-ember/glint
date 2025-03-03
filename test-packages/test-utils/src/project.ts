@@ -16,10 +16,14 @@ import { WorkspaceSymbolRequest, WorkspaceSymbolParams } from '@volar/language-s
 
 const require = createRequire(import.meta.url);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-const pathToTemplatePackage = pathUtils.normalizeFilePath(
-  path.resolve(dirname, '../../../packages/template'),
+const fileUriToTemplatePackage = pathUtils.filePathToUri(
+  pathUtils.normalizeFilePath(path.resolve(dirname, '../../../packages/template')),
 );
-const fileUriToTemplatePackage = pathUtils.filePathToUri(pathToTemplatePackage);
+const fileUriToEmberTemplateImportsPackage = pathUtils.filePathToUri(
+  pathUtils.normalizeFilePath(
+    path.resolve(dirname, '../../../packages/environment-ember-template-imports'),
+  ),
+);
 const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
@@ -171,7 +175,11 @@ export class Project {
       )
       .replaceAll(`"${this.filePath('.')}`, '"/path/to/EPHEMERAL_TEST_PROJECT')
       .replaceAll(`"${this.fileURI('.')}`, '"file:///path/to/EPHEMERAL_TEST_PROJECT')
-      .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template');
+      .replaceAll(fileUriToTemplatePackage, 'file:///PATH_TO_MODULE/@glint/template')
+      .replaceAll(
+        fileUriToEmberTemplateImportsPackage,
+        'file:///PATH_TO_MODULE/@glint/environment-ember-template-imports',
+      );
 
     return JSON.parse(normalized);
   }

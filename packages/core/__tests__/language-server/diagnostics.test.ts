@@ -362,6 +362,141 @@ describe('Language Server: Diagnostics', () => {
       export default class ComponentA extends Component {
         <template>
           {{! @glint-expect-error }}
+          Welcome to app _code_v{{@version}}_/code_.
+        </template>
+      }
+    `;
+
+    let componentB = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentB extends Component {
+        public startupTime = new Date().toISOString();
+
+        <template>
+          {{! @glint-ignore: this looks like a typo but for some reason it isn't }}
+          The current time is {{this.startupTimee}}.
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+    project.write('component-b.gts', componentB);
+
+    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
+
+    expect(diagnostics.items).toEqual([]);
+
+    const docB = await server.openTextDocument(project.filePath('component-b.gts'), 'glimmer-ts');
+    diagnostics = await server.sendDocumentDiagnosticRequest(docB.uri);
+    expect(diagnostics.items).toEqual([]);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    await server.replaceTextDocument(
+      project.fileURI('component-a.gts'),
+      componentA.replace('{{! @glint-expect-error }}', ''),
+    );
+
+    expect(
+      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).items,
+    ).toEqual([]);
+    expect((await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items)
+      .toMatchInlineSnapshot(`
+      [
+        {
+          "code": 2339,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 0,
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+            "version": 1,
+          },
+          "message": "Property 'version' does not exist on type '{}'.",
+          "range": {
+            "end": {
+              "character": 36,
+              "line": 5,
+            },
+            "start": {
+              "character": 29,
+              "line": 5,
+            },
+          },
+          "severity": 1,
+          "source": "glint",
+        },
+      ]
+    `);
+
+    await server.replaceTextDocument(project.fileURI('component-a.gts'), componentA);
+
+    expect(
+      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items,
+    ).toEqual([]);
+    expect(
+      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).items,
+    ).toEqual([]);
+
+    await server.replaceTextDocument(
+      project.fileURI('component-a.gts'),
+      componentA.replace('{{@version}}', ''),
+    );
+
+    expect(
+      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).items,
+    ).toEqual([]);
+
+    expect(
+      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items.length,
+    ).toEqual(1);
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "code": 2578,
+              "data": {
+                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+                "isFormat": false,
+                "original": {},
+                "pluginIndex": 0,
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+                "version": 3,
+              },
+              "message": "Unused '@ts-expect-error' directive.",
+              "range": {
+                "end": {
+                  "character": 30,
+                  "line": 4,
+                },
+                "start": {
+                  "character": 4,
+                  "line": 4,
+                },
+              },
+              "severity": 1,
+              "source": "glint",
+            },
+          ],
+          "kind": "full",
+        }
+      `);
+  });
+
+  // Regression / breaking change since Glint 2
+  test.skip('@glint-ignore and @glint-expect-error skip over simple element declarations', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          {{! @glint-expect-error }}
           Welcome to app <code>v{{@version}}</code>.
         </template>
       }
@@ -455,22 +590,12 @@ describe('Language Server: Diagnostics', () => {
       (await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items.length,
     ).toEqual(1);
 
-    // TODO: the start range for this is not quite right; specifically the start range seems
-    // seems to go all the way to the end of the opening `<template>` tag, e.g.
-    // `<template>[HERE]`. This causes excess red suiggles, and this goes away if there
-    // are any other HTML elements preceding the glint-expect-error directive. I'm not
-    // sure the root cause of this, but it may go away if/when we refactor a few things about
-    // Volar's mapping logic.
-    //
-    // Tracking this issue here:
-    //
-    // https://github.com/typed-ember/glint/issues/796
     expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
       .toMatchInlineSnapshot(`
         {
           "items": [
             {
-              "code": 0,
+              "code": 2578,
               "data": {
                 "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
                 "isFormat": false,
@@ -479,19 +604,506 @@ describe('Language Server: Diagnostics', () => {
                 "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
                 "version": 3,
               },
-              "message": "Unused '@glint-expect-error' directive.",
+              "message": "Unused '@ts-expect-error' directive.",
               "range": {
                 "end": {
                   "character": 30,
                   "line": 4,
                 },
                 "start": {
-                  "character": 12,
-                  "line": 3,
+                  "character": 4,
+                  "line": 4,
                 },
               },
               "severity": 1,
-              "source": "disregard.gts",
+              "source": "glint",
+            },
+          ],
+          "kind": "full",
+        }
+      `);
+  });
+
+  test('@glint-expect-error - unknown component reference', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          {{! @glint-expect-error }}
+          <Wat>
+            {{this.unknownReference}}
+          </Wat>
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
+
+    expect(diagnostics.items.length).toEqual(1);
+  });
+
+  test('@glint-expect-error - unknown component reference', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          {{! @glint-expect-error }}
+          <Wat>
+            {{this.unknownReference}}
+          </Wat>
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
+
+    expect(diagnostics.items.length).toEqual(1);
+  });
+
+  test('passing args to vanilla Component should be an error', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          <Component
+            @foo={{123}} />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+      {
+        "items": [
+          {
+            "code": 2554,
+            "data": {
+              "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+              "isFormat": false,
+              "original": {},
+              "pluginIndex": 0,
+              "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+              "version": 0,
+            },
+            "message": "Expected 0 arguments, but got 1.",
+            "range": {
+              "end": {
+                "character": 21,
+                "line": 5,
+              },
+              "start": {
+                "character": 4,
+                "line": 4,
+              },
+            },
+            "severity": 1,
+            "source": "glint",
+          },
+        ],
+        "kind": "full",
+      }
+    `);
+  });
+
+  test('passing args to vanilla Component should be an error -- suppressed with @glint-expect-error', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+        {{! @glint-expect-error }}
+          <Component
+            @foo={{123}} />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [],
+          "kind": "full",
+        }
+      `);
+  });
+
+  test('passing no args to a Component with args should be an error', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          <Greeting />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "code": 2554,
+              "data": {
+                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+                "isFormat": false,
+                "original": {},
+                "pluginIndex": 0,
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+                "version": 0,
+              },
+              "message": "Expected 1 arguments, but got 0.",
+              "range": {
+                "end": {
+                  "character": 16,
+                  "line": 14,
+                },
+                "start": {
+                  "character": 4,
+                  "line": 14,
+                },
+              },
+              "relatedInformation": [
+                {
+                  "location": {
+                    "range": {
+                      "end": {
+                        "character": 48,
+                        "line": 23,
+                      },
+                      "start": {
+                        "character": 4,
+                        "line": 23,
+                      },
+                    },
+                    "uri": "file:///PATH_TO_MODULE/@glint/environment-ember-template-imports/-private/dsl/index.d.ts",
+                  },
+                  "message": "Arguments for the rest parameter 'args' were not provided.",
+                },
+              ],
+              "severity": 1,
+              "source": "glint",
+            },
+          ],
+          "kind": "full",
+        }
+      `);
+  });
+
+  test('glint-expect error on plain element does not consume errors within body');
+  test('glint-expect error on component invocation does not consume errors within body');
+
+  test('passing no args to a Component with args should be an error -- suppressed with @glint-expect-error', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          {{! @glint-expect-error }}
+          <Greeting />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [],
+          "kind": "full",
+        }
+      `);
+  });
+
+  test('passing wrong arg name to a Component should be an error', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          <Greeting @target2="world" />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "code": 2561,
+              "data": {
+                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+                "isFormat": false,
+                "original": {},
+                "pluginIndex": 0,
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+                "version": 0,
+              },
+              "message": "Object literal may only specify known properties, but 'target2' does not exist in type 'NamedArgs<{ target: string; }>'. Did you mean to write 'target'?",
+              "range": {
+                "end": {
+                  "character": 22,
+                  "line": 14,
+                },
+                "start": {
+                  "character": 15,
+                  "line": 14,
+                },
+              },
+              "severity": 1,
+              "source": "glint",
+            },
+          ],
+          "kind": "full",
+        }
+      `);
+  });
+
+  test('passing wrong arg name to a Component should be an error -- suppressed with top-level @glint-expect-error', async () => {
+    /**
+     * The specified/desired behavior here is difficult to implement due to the complexities and assymmetries between
+     * the expected behavior of `{{! @glint-expect-error}}` within a template and the transformed/generated
+     * `// @ts-expect-error` that is produced. The region of code covered by `glint-expect-error` might be a complex
+     * component invocation that includes attributes, modifiers, and/or comments, which can themselves be individually
+     * guarded by inline `{{! @glint-expect-error}}` directives within the element open tag.
+     *
+     * The end result of this is that there are cases where the top-level `{{! @glint-expect-error}}` preceding a
+     * component invocation might also cover and area of effect overlapping those of inline directives, and keeping
+     * these areas of effect totally separate is not possible.
+     */
+
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          {{! @glint-expect-error }}
+          <Greeting @target2="world" />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [],
+          "kind": "full",
+        }
+      `);
+  });
+
+  test('passing wrong arg name to a Component should be an error -- suppressed with inline @glint-expect-error with element open tag', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          <Greeting
+            {{! @glint-expect-error }}
+            @target2="world" />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [],
+          "kind": "full",
+        }
+      `);
+  });
+
+  test('passing wrong arg name to a Component should be an error followed by passing the correct arg name -- suppressed with inline @glint-expect-error with element open tag', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface GreetingSignature {
+        Args: { target: string };
+      }
+        
+      class Greeting extends Component<GreetingSignature> {
+        <template>
+          {{@target}}
+        </template>
+      }
+
+      export default class extends Component {
+        <template>
+          <Greeting
+            {{! @glint-expect-error }}
+            @target2="world"
+            @target="hello" />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [],
+          "kind": "full",
+        }
+      `);
+  });
+
+  test('@glint-expect-error - open element tag inline directive', async () => {
+    let componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          <Component
+            {{! @glint-expect-error }}
+            @foo={{unknownReference}} />
+        </template>
+      }
+    `;
+
+    let server = await project.startLanguageServer();
+
+    project.write('component-a.gts', componentA);
+
+    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
+
+    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
+      .toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "code": 2554,
+              "data": {
+                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+                "isFormat": false,
+                "original": {},
+                "pluginIndex": 0,
+                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
+                "version": 0,
+              },
+              "message": "Expected 0 arguments, but got 1.",
+              "range": {
+                "end": {
+                  "character": 34,
+                  "line": 6,
+                },
+                "start": {
+                  "character": 4,
+                  "line": 4,
+                },
+              },
+              "severity": 1,
+              "source": "glint",
             },
           ],
           "kind": "full",
