@@ -730,11 +730,11 @@ export function templateToTypescript(
         mapper.text('));');
         mapper.newline();
 
+        emitAttributesAndModifiers(node, directivesWeakMap);
+
         // terminate @glint-expect-error directives after opening tag; any
         // diagnostics due to attributes or modifiers are covered by the directive
-        // mapper.terminateDirectiveAreaOfEffect('emitComponent - end of opening tag');
-
-        emitAttributesAndModifiers(node, directivesWeakMap);
+        mapper.terminateDirectiveAreaOfEffect('emitComponent - end of opening tag');
 
         if (!node.selfClosing) {
           let blocks = determineBlockChildren(node);
@@ -866,11 +866,11 @@ export function templateToTypescript(
         mapper.text(');');
         mapper.newline();
 
+        emitAttributesAndModifiers(node, directivesWeakMap);
+
         // terminate @glint-expect-error directives after opening tag; any
         // diagnostics due to attributes or modifiers are covered by the directive
         mapper.terminateDirectiveAreaOfEffect('emitPlainElement - end of opening tag');
-
-        emitAttributesAndModifiers(node, directivesWeakMap);
 
         for (let child of node.children) {
           emitTopLevelStatement(child);
