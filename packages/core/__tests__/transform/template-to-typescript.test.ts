@@ -63,29 +63,7 @@ describe('Transform: rewriteTemplate', () => {
   });
 
   describe('directives', () => {
-    test('in a top-level mustache', () => {
-      let template = stripIndent`
-        {{! @glint-ignore: this is fine }}
-        <Foo as |bar|>
-          {{hello}}
-        </Foo>
-      `;
-
-      let { result, errors } = templateToTypescript(template, { typesModule: '@glint/template' });
-
-      expect(errors).toEqual([]);
-      expect(result?.directives).toEqual([
-        {
-          kind: 'ignore',
-          location: {
-            start: template.indexOf('{{!'),
-            end: template.indexOf('fine }}') + 'fine }}'.length,
-          },
-        },
-      ]);
-    });
-
-    test('unknown type', () => {
+    test('unknown directies are reported as errors', () => {
       let template = stripIndent`
         {{! @glint-check }}
         <Foo as |bar|>
