@@ -72,7 +72,8 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
         "--disable-extensions", // uncomment to activate your local extensions
-        "${workspaceFolder}/test-packages/ts-plugin-test-app"
+        // "${workspaceFolder}/test-packages/ts-plugin-test-app"
+        "${workspaceFolder}/packages/vscode/__fixtures__/template-imports-app-ts-plugin"
       ]
     },
     {
