@@ -60,6 +60,7 @@ try {
       `${packageRoot}/__fixtures__/ember-app`,
       `${packageRoot}/__fixtures__/template-imports-app`,
       `${packageRoot}/__fixtures__/template-imports-app-ts-plugin`,
+      `${packageRoot}/__fixtures__/ember-app-loose-and-gts`,
     ],
   });
 } catch (error) {
