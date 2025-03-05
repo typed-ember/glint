@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "es2019",
+    "module": "es2015",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true
+  },
+  "glint": {
+    "environment": ["ember-loose", "ember-template-imports"],
+    "enableTsPlugin": true
+  }
+}
