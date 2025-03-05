@@ -86,25 +86,6 @@ describe.skip('Smoke test: Ember', () => {
   });
 
   describe('component layout', () => {
-    test('classic', async () => {
-      let scriptURI = Uri.file(`${rootDir}/app/components/classic-layout.ts`);
-      let templateURI = Uri.file(`${rootDir}/app/templates/components/classic-layout.hbs`);
-
-      await window.showTextDocument(templateURI);
-
-      await waitUntil(() => extensions.getExtension('typed-ember.glint-vscode')?.isActive);
-
-      let positions = (await commands.executeCommand(
-        'vscode.executeDefinitionProvider',
-        templateURI,
-        new Position(0, 11),
-      )) as Array<Location>;
-
-      expect(positions.length).toBe(1);
-      expect(positions[0].uri.fsPath).toEqual(scriptURI.fsPath);
-      expect(positions[0].range).toEqual(new Range(3, 10, 3, 17));
-    });
-
     test('colocated', async () => {
       let scriptURI = Uri.file(`${rootDir}/app/components/colocated-layout.ts`);
       let templateURI = Uri.file(`${rootDir}/app/components/colocated-layout.hbs`);

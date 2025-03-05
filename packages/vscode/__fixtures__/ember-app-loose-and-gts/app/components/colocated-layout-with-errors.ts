@@ -1,5 +1,5 @@
 import Component from '@glimmer/component';
 
-export default class ClassicLayoutComponent extends Component {
+export default class ColocatedLayoutComponent extends Component {
   private message = 'hello';
 }
