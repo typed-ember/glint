@@ -10,14 +10,12 @@ const emptyUserDataDir = path.join(os.tmpdir(), `user-data-${Math.random()}`);
 const settingsDir = path.join(emptyUserDataDir, 'User');
 fs.mkdirSync(settingsDir, { recursive: true });
 
-const userPreferences = {
+const userPreferences: Record<string, any> = {
   // When testing TS Plugin, it can be useful to look at tsserver logs within
   // the test runner VSCode instance. To do this, uncomment the following line,
   // and then check the logs for TypeScript
-  // "typescript.tsserver.log": "verbose",
+  // 'typescript.tsserver.log': 'verbose',
 };
-
-fs.writeFileSync(path.join(settingsDir, 'settings.json'), JSON.stringify(userPreferences, null, 2));
 
 const testType = process.argv[2];
 
@@ -34,12 +32,16 @@ switch (testType) {
   case 'ts-plugin':
     testRunner = 'lib/__tests__/support/vscode-runner-ts-plugin.js';
 
+    userPreferences['glint.server.hybridMode'] = true;
+
     // Note: here, we WANT vanilla TS to be enabled since we're testing the TS Plugin.
     break;
   default:
     console.error('Test type must be either "language-server" or "ts-plugin"');
     process.exit(1);
 }
+
+fs.writeFileSync(path.join(settingsDir, 'settings.json'), JSON.stringify(userPreferences, null, 2));
 
 try {
   runTests({

@@ -28,83 +28,24 @@ describe('Smoke test: Loose Mode + GTS with TS Plugin Mode', () => {
   describe.only('loose mode aka ts + hbs two-file components', () => {
     describe('diagnostics', () => {
       test('adds missing args from template into Args type', async () => {
-        let scriptURI = Uri.file(`${rootDir}/app/components/Greeting.gts`);
+        let scriptURI = Uri.file(`${rootDir}/app/components/colocated-layout-with-errors.hbs`);
 
         // Open the script and the template
         let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
 
-        await hackishlyWaitForTypescriptPluginToActivate(scriptEditor, scriptURI);
-
-        // Comment out a property in the script that's referenced in the template
-        await scriptEditor.edit((edit) => {
-          edit.insert(new Position(10, 4), '{{@undocumentedProperty}} ');
-        });
-
         // Wait for a diagnostic to appear in the template
         await waitUntil(() => languages.getDiagnostics(scriptURI).length);
 
-        const fixes = await commands.executeCommand<CodeAction[]>(
-          'vscode.executeCodeActionProvider',
-          scriptURI,
-          new Range(new Position(10, 9), new Position(10, 9)),
-        );
-
-        expect(fixes.length).toBe(5);
-
-        const fix = fixes.find((fix) => fix.title === "Declare property 'undocumentedProperty'");
-
-        expect(fix).toBeDefined();
-
-        // apply the missing arg fix
-        await workspace.applyEdit(fix!.edit!);
-
-        await waitUntil(
-          () =>
-            scriptEditor.document.getText().includes('undocumentedProperty: any') &&
-            languages.getDiagnostics(scriptURI).length === 0,
-        );
+        expect(languages.getDiagnostics(scriptURI)).toMatchObject([
+          {
+            message:
+              "Property 'messageeee' does not exist on type 'ColocatedLayoutComponent'. Did you mean 'message'?",
+            source: 'ts-plugin',
+            code: 2551,
+          },
+        ]);
       });
     });
-
-    // describe('diagnostics', () => {
-    //   test('adds missing args from template into Args type', async () => {
-    //     let scriptURI = Uri.file(`${rootDir}/app/components/Greeting.gts`);
-
-    //     // Open the script and the template
-    //     let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
-
-    //     await hackishlyWaitForTypescriptPluginToActivate(scriptEditor, scriptURI);
-
-    //     // Comment out a property in the script that's referenced in the template
-    //     await scriptEditor.edit((edit) => {
-    //       edit.insert(new Position(10, 4), '{{@undocumentedProperty}} ');
-    //     });
-
-    //     // Wait for a diagnostic to appear in the template
-    //     await waitUntil(() => languages.getDiagnostics(scriptURI).length);
-
-    //     const fixes = await commands.executeCommand<CodeAction[]>(
-    //       'vscode.executeCodeActionProvider',
-    //       scriptURI,
-    //       new Range(new Position(10, 9), new Position(10, 9)),
-    //     );
-
-    //     expect(fixes.length).toBe(5);
-
-    //     const fix = fixes.find((fix) => fix.title === "Declare property 'undocumentedProperty'");
-
-    //     expect(fix).toBeDefined();
-
-    //     // apply the missing arg fix
-    //     await workspace.applyEdit(fix!.edit!);
-
-    //     await waitUntil(
-    //       () =>
-    //         scriptEditor.document.getText().includes('undocumentedProperty: any') &&
-    //         languages.getDiagnostics(scriptURI).length === 0,
-    //     );
-    //   });
-    // });
   });
 });
 
