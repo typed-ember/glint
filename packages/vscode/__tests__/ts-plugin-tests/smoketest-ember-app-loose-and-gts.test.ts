@@ -27,7 +27,7 @@ describe('Smoke test: Loose Mode + GTS with TS Plugin Mode', () => {
 
   describe.only('loose mode aka ts + hbs two-file components', () => {
     describe('diagnostics', () => {
-      test('adds missing args from template into Args type', async () => {
+      test('reports errors and errors disappear when fixed', async () => {
         let scriptURI = Uri.file(`${rootDir}/app/components/colocated-layout-with-errors.hbs`);
 
         // Open the script and the template
@@ -44,6 +44,14 @@ describe('Smoke test: Loose Mode + GTS with TS Plugin Mode', () => {
             code: 2551,
           },
         ]);
+
+        // Replace a string with a number
+        await scriptEditor.edit((edit) => {
+          edit.replace(new Range(4, 14, 4, 17), '');
+        });
+
+        // Wait for a diagnostic to appear in the template
+        await waitUntil(() => languages.getDiagnostics(scriptURI).length == 0);
       });
     });
   });
