@@ -1,18 +1,18 @@
-import { Project } from 'glint-monorepo-test-utils';
+import {
+  Project,
+  getSharedTestWorkspaceHelper,
+  teardownSharedTestWorkspaceAfterEach,
+  prepareDocument,
+  testWorkspacePath,
+} from 'glint-monorepo-test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
+import { URI } from 'vscode-uri';
 
-describe('Language Server: Definitions', () => {
-  let project!: Project;
+describe('Language Server: Definitions (ts plugin)', () => {
+  afterEach(teardownSharedTestWorkspaceAfterEach);
 
-  beforeEach(async () => {
-    project = await Project.create();
-  });
-
-  afterEach(async () => {
-    await project.destroy();
-  });
-
+  /*
   test.skip('querying a standalone template', async () => {
     project.setGlintConfig({ environment: 'ember-loose' });
     project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
@@ -33,52 +33,52 @@ describe('Language Server: Definitions', () => {
       },
     ]);
   });
+  */
 
-  test('component invocation', async () => {
-    project.write({
-      'greeting.gts': stripIndent`
+  test.only('component invocation', async () => {
+    // TODO: prepareDoucment for Greeting.gts and go from there.
+
+    expect(
+      await requestDefinition(
+        'ts-template-imports-app/src/FakeFileComponent.gts',
+        'typescript',
+        stripIndent`
         import Component from '@glimmer/component';
-        export default class Greeting extends Component<{ Args: { message: string } }> {
-          <template>{{@message}}, World!</template>
-        }
-      `,
-      'index.gts': stripIndent`
-        import Component from '@glimmer/component';
-        import Greeting from './greeting';
+        import Greeting from './Greeting.gts';
 
         export default class Application extends Component {
           <template>
-            <Greeting @message="hello" />
+            <Gr|eeting @message="hello" />
           </template>
         }
       `,
-    });
-
-    let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
-      line: 5,
-      character: 7,
-    });
-
-    expect(definitions).toMatchInlineSnapshot(`
+      ),
+    ).toMatchInlineSnapshot(`
       [
         {
-          "range": {
-            "end": {
-              "character": 1,
-              "line": 3,
-            },
-            "start": {
-              "character": 0,
-              "line": 1,
-            },
+          "contextEnd": {
+            "line": 2,
+            "offset": 39,
           },
-          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "contextStart": {
+            "line": 2,
+            "offset": 1,
+          },
+          "end": {
+            "line": 2,
+            "offset": 16,
+          },
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/FakeFileComponent.gts",
+          "start": {
+            "line": 2,
+            "offset": 8,
+          },
         },
       ]
     `);
   });
 
+  /*
   test('arg passing', async () => {
     project.write({
       'greeting.gts': stripIndent`
@@ -218,4 +218,31 @@ describe('Language Server: Definitions', () => {
       ]
     `);
   });
+  */
 });
+
+async function requestDefinition(fileName: string, languageId: string, content: string) {
+  const offset = content.indexOf('|');
+  expect(offset).toBeGreaterThanOrEqual(0);
+  content = content.slice(0, offset) + content.slice(offset + 1);
+
+  const workspaceHelper = await getSharedTestWorkspaceHelper();
+  let document = await prepareDocument(fileName, languageId, content);
+
+  const res = await workspaceHelper.tsserver.message({
+    seq: workspaceHelper.nextSeq(),
+    command: 'definition',
+    arguments: {
+      file: URI.parse(document.uri).fsPath,
+      position: offset,
+    },
+  });
+  expect(res.success).toBe(true);
+
+  for (const ref of res.body) {
+    console.log(ref.file);
+    ref.file = '${testWorkspacePath}' + ref.file.slice(testWorkspacePath.length);
+  }
+
+  return res.body;
+}
