@@ -10,6 +10,17 @@ describe('Language Server: Definitions', () => {
   });
 
   afterEach(async () => {
+    // vue takes this opportunity to close the docs on the langauge server.
+    // why don't they destroy?
+
+    // vue tests are written in such a way to reuse the vue server and tsserver.
+    // we should follow along with that.
+    // one way we could make that work is
+    // for the Server that we return to keep track of all its open files so that
+    // when we dispose it it's just doing what these other files are doing.
+
+    // QUESTION: does have duplicate teardown fns?
+    // ANSWER: YES
     await project.destroy();
   });
 

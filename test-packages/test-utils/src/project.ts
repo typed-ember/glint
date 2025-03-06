@@ -6,13 +6,11 @@ import { execaNode, ExecaChildProcess, Options } from 'execa';
 import { type GlintConfigInput } from '@glint/core/config-types';
 import { pathUtils } from '@glint/core';
 import { startLanguageServer, LanguageServerHandle } from '@volar/test-utils';
-import { FullDocumentDiagnosticReport } from '@volar/language-service';
+import { FullDocumentDiagnosticReport, TextDocument } from '@volar/language-service';
 import { URI } from 'vscode-uri';
 import { Diagnostic } from 'typescript';
 import { Position, Range, TextEdit } from '@volar/language-server';
 import { WorkspaceSymbolRequest, WorkspaceSymbolParams } from '@volar/language-server/node.js';
-
-// type GlintLanguageServer = ProjectAnalysis['languageServer'];
 
 const require = createRequire(import.meta.url);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -45,8 +43,8 @@ const newWorkingDir = (): string =>
 
 export class Project {
   private rootDir: string;
-  // private projectAnalysis?: ProjectAnalysis;
   private languageServerHandle?: LanguageServerHandle;
+  openedDocuments: TextDocument[] = [];
 
   private constructor(rootDir: string) {
     this.rootDir = rootDir;
@@ -69,18 +67,7 @@ export class Project {
     const languageServerHandle = startLanguageServer('../core/bin/glint-language-server.js');
     this.languageServerHandle = languageServerHandle;
 
-    const initializeParams = {
-      // TODO: is this necessary to add?
-      // typescript: {
-      //   tsdk: path.join(
-      //     path.dirname(fileURLToPath(import.meta.url)),
-      //     '../',
-      //     'node_modules',
-      //     'typescript',
-      //     'lib',
-      //   ),
-      // },
-    };
+    const initializeParams = {};
 
     // We need to construct a capabilities object that mirrors how VScode + similar editors
     // will initialize the Language Server.
@@ -301,8 +288,13 @@ export class Project {
   }
 
   public async destroy(): Promise<void> {
-    // this.projectAnalysis?.shutdown();
     this.languageServerHandle?.connection.dispose();
+
+
+    // rootDir... does that mean this Project instance is tied to a (possibly ephemeral) thing?
+    // Is it the case that Glint "opens" folders/workspaces whereas Vue does not?
+
+    // Vue reuses `test-workspace`. How does that work??? Does it ever create files?
 
     fs.rmSync(this.rootDir, { recursive: true, force: true });
   }
