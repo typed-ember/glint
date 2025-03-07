@@ -31,17 +31,17 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
         '--globalPlugins',
         '@glint/typescript-plugin',
         '--suppressDiagnosticEvents',
-        // '--logVerbosity',
-        // 'verbose',
-        // '--logFile',
-        // path.join(__dirname, '..', '..', '..', 'tsserver.log'),
+        '--logVerbosity',
+        'verbose',
+        '--logFile',
+        path.join(__dirname, '..', '..', '..', 'tsserver.log'),
       ],
     );
 
     tsserver.on('exit', (code) => console.log(code ? `Exited with code ${code}` : `Terminated`));
 
     // Uncomment to show additional event logging (less verbose than tsserver.log)
-    // tsserver.on('event', (e) => console.log(e));
+    tsserver.on('event', (e) => console.log(e));
 
     serverHandle = startLanguageServer(
       require.resolve('../../../packages/core/bin/glint-language-server.js'),
