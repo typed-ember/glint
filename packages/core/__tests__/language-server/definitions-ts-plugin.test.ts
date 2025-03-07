@@ -36,8 +36,6 @@ describe('Language Server: Definitions (ts plugin)', () => {
   */
 
   test.only('component invocation', async () => {
-    // TODO: prepareDoucment for Greeting.gts and go from there.
-
     expect(
       await requestDefinition(
         'ts-template-imports-app/src/FakeFileComponent.gts',
@@ -57,21 +55,21 @@ describe('Language Server: Definitions (ts plugin)', () => {
       [
         {
           "contextEnd": {
-            "line": 2,
-            "offset": 39,
+            "line": 14,
+            "offset": 2,
           },
           "contextStart": {
-            "line": 2,
+            "line": 8,
             "offset": 1,
           },
           "end": {
-            "line": 2,
-            "offset": 16,
+            "line": 8,
+            "offset": 30,
           },
-          "file": "\${testWorkspacePath}/ts-template-imports-app/src/FakeFileComponent.gts",
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/Greeting.gts",
           "start": {
-            "line": 2,
-            "offset": 8,
+            "line": 8,
+            "offset": 22,
           },
         },
       ]

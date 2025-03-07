@@ -4,3 +4,4 @@ test-packages/ephemeral
 .eslintcache
 *.tsbuildinfo
 *.js.map
+tsserver.log
