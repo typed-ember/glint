@@ -8,7 +8,7 @@ import {
 import { createEmberLanguagePlugin } from './ember-language-plugin.js';
 import { ConfigLoader } from '../config/loader.js';
 import ts from 'typescript';
-import { Disposable } from '@volar/language-service';
+import { Disposable, LanguagePlugin, URI, VirtualCode } from '@volar/language-service';
 import { createTypescriptLanguageServicePlugin } from './typescript-language-service-plugin.js';
 
 const connection = createConnection();
@@ -48,7 +48,15 @@ connection.onInitialize((parameters) => {
       // assert(glintConfig, 'Glint config is missing');
 
       if (glintConfig) {
-        if (!glintConfig.enableTsPlugin) {
+        // TODO: this is where we used to initialize the Language Server
+        // with our Ember Language Plugin so that we can teach the LS how to perform
+        // TS diagnostics, but this functionality has been moved to TS Plugin.
+        // There will still be commands and other tooling that is useful to have
+        // in the Language Server so we should identify what those are and reinstate,
+        // while continu
+
+        const disableLanguagePlugin = true;
+        if (!disableLanguagePlugin) {
           // When TS Plugin is enabled, we want the TS Plugin to perform all type-checking/diagnostics/etc,
           // rather than the Language Server.
           languagePlugins.unshift(createEmberLanguagePlugin(glintConfig));

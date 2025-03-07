@@ -50,7 +50,7 @@ describe('Smoke test: Loose Mode + GTS with TS Plugin Mode', () => {
           edit.replace(new Range(4, 14, 4, 17), '');
         });
 
-        // Wait for a diagnostic to appear in the template
+        // Wait for the diagnostic to disappear
         await waitUntil(() => languages.getDiagnostics(scriptURI).length == 0);
       });
     });

@@ -12,7 +12,6 @@ export class GlintConfig {
   public readonly configPath: string;
   public readonly environment: GlintEnvironment;
   public readonly checkStandaloneTemplates: boolean;
-  public readonly enableTsPlugin: boolean;
 
   public constructor(
     ts: typeof import('typescript'),
@@ -24,7 +23,6 @@ export class GlintConfig {
     this.rootDir = path.dirname(configPath);
     this.environment = GlintEnvironment.load(config.environment, { rootDir: this.rootDir });
     this.checkStandaloneTemplates = config.checkStandaloneTemplates ?? true;
-    this.enableTsPlugin = config.enableTsPlugin ?? false;
   }
 }
 

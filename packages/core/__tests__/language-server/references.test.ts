@@ -13,40 +13,6 @@ describe('Language Server: References', () => {
     await project.destroy();
   });
 
-  test.skip('querying a standalone template', async () => {
-    project.setGlintConfig({ environment: 'ember-loose' });
-    project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
-
-    let server = await project.startLanguageServer();
-    let references = await server.sendReferencesRequest(
-      project.fileURI('index.hbs'),
-      {
-        line: 0,
-        character: 11,
-      },
-      {
-        includeDeclaration: true,
-      },
-    );
-
-    expect(references).toEqual([
-      {
-        uri: project.fileURI('index.hbs'),
-        range: {
-          start: { line: 0, character: 9 },
-          end: { line: 0, character: 12 },
-        },
-      },
-      {
-        uri: project.fileURI('index.hbs'),
-        range: {
-          start: { line: 0, character: 16 },
-          end: { line: 0, character: 19 },
-        },
-      },
-    ]);
-  });
-
   test('component references', async () => {
     project.write({
       'greeting.gts': stripIndent`
