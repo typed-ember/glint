@@ -3,6 +3,8 @@ import {
   teardownSharedTestWorkspaceAfterEach,
   prepareDocument,
   testWorkspacePath,
+  extractCursor,
+  extractCursors,
 } from 'glint-monorepo-test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
@@ -233,22 +235,4 @@ async function performDefinitionRequest(document: TextDocument, offset: number) 
     ref.file = '${testWorkspacePath}' + ref.file.slice(testWorkspacePath.length);
   }
   return res.body;
-}
-
-function extractCursor(contentWithCursors: string): [number, string] {
-  const [offsets, content] = extractCursors(contentWithCursors);
-  expect(offsets.length).toEqual(1);
-  const offset = offsets[0];
-  return [offset, content];
-}
-
-function extractCursors(content: string): [number[], string] {
-  const offsets = [];
-  while (true) {
-    const offset = content.indexOf('%');
-    if (offset === -1) break;
-    offsets.push(offset);
-    content = content.slice(0, offset) + content.slice(offset + 1);
-  }
-  return [offsets, content];
 }

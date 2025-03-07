@@ -145,3 +145,20 @@ export async function prepareDocument(fileName: string, languageId: string, cont
   }
   return document;
 }
+
+export function extractCursor(contentWithCursors: string): [number, string] {
+  const [offsets, content] = extractCursors(contentWithCursors);
+  const offset = offsets[0];
+  return [offset, content];
+}
+
+export function extractCursors(content: string): [number[], string] {
+  const offsets = [];
+  while (true) {
+    const offset = content.indexOf('%');
+    if (offset === -1) break;
+    offsets.push(offset);
+    content = content.slice(0, offset) + content.slice(offset + 1);
+  }
+  return [offsets, content];
+}
