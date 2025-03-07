@@ -38,13 +38,11 @@ export function createEmberLanguagePlugin<T extends URI | string>(
       }
     },
 
-    // When does this get called?
     createVirtualCode(scriptId: URI | string, languageId, snapshot, codegenContext) {
       const scriptIdStr = String(scriptId);
 
       // See: https://github.com/JetBrains/intellij-plugins/blob/11a9149e20f4d4ba2c1600da9f2b81ff88bd7c97/Angular/src/angular-service/src/index.ts#L31
       if (
-        glintConfig.enableTsPlugin && // Loose mode not supported for classic "takeover" mode, only TS Plugin
         languageId === 'typescript' &&
         !scriptIdStr.endsWith('.d.ts') &&
         scriptIdStr.indexOf('/node_modules/') < 0

@@ -8,37 +8,84 @@ import {
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
 import { URI } from 'vscode-uri';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 describe('Language Server: Definitions (ts plugin)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
 
-  /*
-  test.skip('querying a standalone template', async () => {
-    project.setGlintConfig({ environment: 'ember-loose' });
-    project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
+  // not possible in Glint 2.
+  // test('querying a standalone template');
 
-    let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('index.hbs'), {
-      line: 0,
-      character: 17,
-    });
+  test.only('querying a template with a simple backing component', async () => {
+    const [[blockParamOffset, valueOffset], templateContent] = extractCursors(
+      stripIndent`
+        <Foo as |f%oo|>{{foo}}{{this.val%ue}}</Foo>
+      `,
+    );
 
-    expect(definitions).toMatchObject([
-      {
-        uri: project.fileURI('index.hbs'),
-        range: {
-          start: { line: 0, character: 9 },
-          end: { line: 0, character: 12 },
+    const templateDoc = await prepareDocument(
+      'ts-ember-app/app/components/ephemeral.hbs',
+      'handlebars',
+      templateContent,
+    );
+
+    await prepareDocument(
+      'ts-ember-app/app/components/ephemeral.ts',
+      'typescript',
+      stripIndent`
+        import Component from '@glimmer/component';
+
+        export default class Foo extends Component {
+          value = 123;
+        }
+      `,
+    );
+
+    expect(await performDefinitionRequest(templateDoc, blockParamOffset)).toMatchInlineSnapshot(`
+      [
+        {
+          "end": {
+            "line": 1,
+            "offset": 13,
+          },
+          "file": "\${testWorkspacePath}/ts-ember-app/app/components/ephemeral.hbs",
+          "start": {
+            "line": 1,
+            "offset": 10,
+          },
         },
-      },
-    ]);
-  });
-  */
+      ]
+    `);
 
-  test.only('component invocation', async () => {
+    expect(await performDefinitionRequest(templateDoc, valueOffset)).toMatchInlineSnapshot(`
+      [
+        {
+          "contextEnd": {
+            "line": 4,
+            "offset": 15,
+          },
+          "contextStart": {
+            "line": 4,
+            "offset": 3,
+          },
+          "end": {
+            "line": 4,
+            "offset": 8,
+          },
+          "file": "\${testWorkspacePath}/ts-ember-app/app/components/ephemeral.ts",
+          "start": {
+            "line": 4,
+            "offset": 3,
+          },
+        },
+      ]
+    `);
+  });
+
+  test('component invocation', async () => {
     expect(
       await requestDefinition(
-        'ts-template-imports-app/src/FakeFileComponent.gts',
+        'ts-template-imports-app/src/ephemeral.gts',
         'typescript',
         stripIndent`
         import Component from '@glimmer/component';
@@ -46,7 +93,7 @@ describe('Language Server: Definitions (ts plugin)', () => {
 
         export default class Application extends Component {
           <template>
-            <Gr|eeting @message="hello" />
+            <Gr%eeting @message="hello" />
           </template>
         }
       `,
@@ -219,13 +266,18 @@ describe('Language Server: Definitions (ts plugin)', () => {
   */
 });
 
-async function requestDefinition(fileName: string, languageId: string, content: string) {
-  const offset = content.indexOf('|');
-  expect(offset).toBeGreaterThanOrEqual(0);
-  content = content.slice(0, offset) + content.slice(offset + 1);
+async function requestDefinition(fileName: string, languageId: string, contentWithCursor: string) {
+  const [offset, content] = extractCursor(contentWithCursor);
 
-  const workspaceHelper = await getSharedTestWorkspaceHelper();
   let document = await prepareDocument(fileName, languageId, content);
+
+  const res = await performDefinitionRequest(document, offset);
+
+  return res;
+}
+
+async function performDefinitionRequest(document: TextDocument, offset: number) {
+  const workspaceHelper = await getSharedTestWorkspaceHelper();
 
   const res = await workspaceHelper.tsserver.message({
     seq: workspaceHelper.nextSeq(),
@@ -238,9 +290,25 @@ async function requestDefinition(fileName: string, languageId: string, content: 
   expect(res.success).toBe(true);
 
   for (const ref of res.body) {
-    console.log(ref.file);
     ref.file = '${testWorkspacePath}' + ref.file.slice(testWorkspacePath.length);
   }
-
   return res.body;
+}
+
+function extractCursor(contentWithCursors: string): [number, string] {
+  const [offsets, content] = extractCursors(contentWithCursors);
+  expect(offsets.length).toEqual(1);
+  const offset = offsets[0];
+  return [offset, content];
+}
+
+function extractCursors(content: string): [number[], string] {
+  const offsets = [];
+  while (true) {
+    const offset = content.indexOf('%');
+    if (offset === -1) break;
+    offsets.push(offset);
+    content = content.slice(0, offset) + content.slice(offset + 1);
+  }
+  return [offsets, content];
 }
