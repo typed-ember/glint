@@ -14,20 +14,6 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 describe('Language Server: Hover (ts plugin)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
 
-  test.skip('querying a standalone template', async () => {
-    const [offset, content] = extractCursor(stripIndent`
-      <Foo as |foo|>{{f%oo}}</Foo>
-    `);
-
-    const doc = await prepareDocument(
-      'ts-template-imports-app/src/index.hbs',
-      'handlebars',
-      content
-    );
-
-    expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot();
-  });
-
   test('using private properties', async () => {
     const [offset, content] = extractCursor(stripIndent`
       import Component from '@glimmer/component';
@@ -78,7 +64,7 @@ describe('Language Server: Hover (ts plugin)', () => {
 
       export default class MyComponent extends Component<{ Args: MyComponentArgs }> {
         <template>
-          {{@s%tr}}
+          {{@%str}}
         </template>
       }
     `);
@@ -89,7 +75,23 @@ describe('Language Server: Hover (ts plugin)', () => {
       content
     );
 
-    expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot();
+    expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
+      {
+        "displayString": "(property) MyComponentArgs.str: string",
+        "documentation": "Some string",
+        "end": {
+          "line": 10,
+          "offset": 11,
+        },
+        "kind": "property",
+        "kindModifiers": "",
+        "start": {
+          "line": 10,
+          "offset": 8,
+        },
+        "tags": [],
+      }
+    `);
   });
 
   test('curly block params', async () => {
