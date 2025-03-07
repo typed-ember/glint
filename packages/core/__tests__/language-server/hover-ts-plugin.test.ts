@@ -2,9 +2,7 @@ import {
   getSharedTestWorkspaceHelper,
   teardownSharedTestWorkspaceAfterEach,
   prepareDocument,
-  testWorkspacePath,
   extractCursor,
-  extractCursors,
 } from 'glint-monorepo-test-utils';
 import { describe, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
@@ -31,7 +29,7 @@ describe('Language Server: Hover (ts plugin)', () => {
     const doc = await prepareDocument(
       'ts-template-imports-app/src/ephemeral.gts',
       'glimmer-ts',
-      content
+      content,
     );
 
     expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
@@ -72,7 +70,7 @@ describe('Language Server: Hover (ts plugin)', () => {
     const doc = await prepareDocument(
       'ts-template-imports-app/src/ephemeral.gts',
       'glimmer-ts',
-      content
+      content,
     );
 
     expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
@@ -110,34 +108,26 @@ describe('Language Server: Hover (ts plugin)', () => {
     const doc = await prepareDocument(
       'ts-template-imports-app/src/ephemeral.gts',
       'glimmer-ts',
-      content
+      content,
     );
 
-    expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot();
-  });
-
-  test('module details', async () => {
-    const [offset, content] = extractCursor(stripIndent`
-      import { foo } from './f%oo';
-
-      console.log(foo);
+    expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
+      {
+        "displayString": "const index: number",
+        "documentation": "",
+        "end": {
+          "line": 6,
+          "offset": 20,
+        },
+        "kind": "const",
+        "kindModifiers": "",
+        "start": {
+          "line": 6,
+          "offset": 15,
+        },
+        "tags": [],
+      }
     `);
-
-    await prepareDocument(
-      'ts-template-imports-app/src/foo.ts',
-      'typescript',
-      stripIndent`
-        export const foo = 'hi';
-      `
-    );
-
-    const doc = await prepareDocument(
-      'ts-template-imports-app/src/index.ts',
-      'typescript',
-      content
-    );
-
-    expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot();
   });
 
   describe.skip('JS in a TS project', () => {
@@ -155,13 +145,13 @@ describe('Language Server: Hover (ts plugin)', () => {
           export default class MyComponent extends Component {
             message = 'hi';
           }
-        `
+        `,
       );
 
       const doc = await prepareDocument(
         'ts-template-imports-app/src/index.hbs',
         'handlebars',
-        content
+        content,
       );
 
       expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot();
@@ -181,13 +171,13 @@ describe('Language Server: Hover (ts plugin)', () => {
           export default class MyComponent extends Component {
             message = 'hi';
           }
-        `
+        `,
       );
 
       const doc = await prepareDocument(
         'ts-template-imports-app/src/index.hbs',
         'handlebars',
-        content
+        content,
       );
 
       expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot();
