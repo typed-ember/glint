@@ -217,7 +217,9 @@ describe('CLI: watched typechecking', () => {
     await watch.terminate();
   });
 
-  test.skip('reports on errors introduced and cleared in a script with a .gts extension', async () => {
+  // TODO: Reinstate this; some reason this doesn't work when `--build` flag is omitted; specifically
+  // it will detect the change and recompile but doesn't see the error.
+  test.skip('reports on errors introduced and cleared in a script with a .gts extension (without --build)', async () => {
     project.setGlintConfig({ environment: 'ember-template-imports' });
 
     let code = stripIndent`
@@ -233,6 +235,38 @@ describe('CLI: watched typechecking', () => {
     project.write('index.gts', code);
 
     let watch = project.checkWatch({ reject: true });
+    let output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 0 errors.');
+
+    project.write('index.gts', code.replace('this.startupTime', 'this.startupTimee'));
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 1 error.');
+
+    project.write('index.gts', code);
+
+    output = await watch.awaitOutput('Watching for file changes.');
+    expect(output).toMatch('Found 0 errors.');
+
+    await watch.terminate();
+  });
+
+  test('reports on errors introduced and cleared in a script with a .gts extension (with --build)', async () => {
+    project.setGlintConfig({ environment: 'ember-template-imports' });
+
+    let code = stripIndent`
+      export default class MyClass {
+        private startupTime = new Date().toISOString();
+
+        public render(): void {
+          console.log(this.startupTime);
+        }
+      }
+    `;
+
+    project.write('index.gts', code);
+
+    let watch = project.checkWatch({ reject: true, build: true });
     let output = await watch.awaitOutput('Watching for file changes.');
     expect(output).toMatch('Found 0 errors.');
 

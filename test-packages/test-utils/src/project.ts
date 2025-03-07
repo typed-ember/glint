@@ -323,8 +323,11 @@ export class Project {
     });
   }
 
-  public checkWatch(options: Options & { flags?: string[] } = {}): Watch {
+  public checkWatch(options: Options & { flags?: string[], build?: boolean } = {}): Watch {
     let flags = ['--watch', ...(options.flags ?? [])];
+    if (options.build) {
+      flags.unshift('--build');
+    }
     return new Watch(this.check({ ...options, flags, reject: false }));
   }
 
