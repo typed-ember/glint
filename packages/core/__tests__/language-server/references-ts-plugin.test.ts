@@ -14,7 +14,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 describe('Language Server: References (ts plugin)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
 
-  test.only('component references', async () => {
+  test('component references', async () => {
     const [offset, content] = extractCursor(stripIndent`
       import Component from '@glimmer/component';
 
