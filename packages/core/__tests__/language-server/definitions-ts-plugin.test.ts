@@ -86,7 +86,7 @@ describe('Language Server: Definitions (ts plugin)', () => {
     expect(
       await requestDefinition(
         'ts-template-imports-app/src/ephemeral.gts',
-        'typescript',
+        'glimmer-ts',
         stripIndent`
         import Component from '@glimmer/component';
         import Greeting from './Greeting.gts';
@@ -127,7 +127,7 @@ describe('Language Server: Definitions (ts plugin)', () => {
     expect(
       await requestDefinition(
         'ts-template-imports-app/src/ephemeral.gts',
-        'typescript',
+        'glimmer-ts',
         stripIndent`
         import Component from '@glimmer/component';
         import Greeting from './Greeting.gts';
@@ -164,11 +164,12 @@ describe('Language Server: Definitions (ts plugin)', () => {
     `);
   });
 
-  /*
-
   test('arg use', async () => {
-    project.write({
-      'greeting.gts': stripIndent`
+    expect(
+      await requestDefinition(
+        'ts-template-imports-app/src/ephemeral.gts',
+        'glimmer-ts',
+        stripIndent`
         import Component from '@glimmer/component';
 
         export type GreetingArgs = {
@@ -176,35 +177,37 @@ describe('Language Server: Definitions (ts plugin)', () => {
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!</template>
+          <template>{{@mes%sage}}, World!</template>
         }
       `,
-    });
-
-    let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('greeting.gts'), {
-      line: 7,
-      character: 18,
-    });
-
-    expect(definitions).toMatchInlineSnapshot(`
+      ),
+    ).toMatchInlineSnapshot(`
       [
         {
-          "range": {
-            "end": {
-              "character": 18,
-              "line": 3,
-            },
-            "start": {
-              "character": 2,
-              "line": 3,
-            },
+          "contextEnd": {
+            "line": 4,
+            "offset": 19,
           },
-          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "contextStart": {
+            "line": 4,
+            "offset": 3,
+          },
+          "end": {
+            "line": 4,
+            "offset": 10,
+          },
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/ephemeral.gts",
+          "start": {
+            "line": 4,
+            "offset": 3,
+          },
         },
       ]
     `);
   });
+
+  /*
+
 
   test('import source', async () => {
     project.write({
