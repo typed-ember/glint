@@ -13,10 +13,10 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 describe('Language Server: Definitions (ts plugin)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
 
-  // not possible in Glint 2.
+  // not possible in Glint 2:
   // test('querying a standalone template');
 
-  test.only('querying a template with a simple backing component', async () => {
+  test('querying a template with a simple backing component', async () => {
     const [[blockParamOffset, valueOffset], templateContent] = extractCursors(
       stripIndent`
         <Foo as |f%oo|>{{foo}}{{this.val%ue}}</Foo>
@@ -123,56 +123,48 @@ describe('Language Server: Definitions (ts plugin)', () => {
     `);
   });
 
-  /*
   test('arg passing', async () => {
-    project.write({
-      'greeting.gts': stripIndent`
+    expect(
+      await requestDefinition(
+        'ts-template-imports-app/src/ephemeral.gts',
+        'typescript',
+        stripIndent`
         import Component from '@glimmer/component';
-
-        export type GreetingArgs = {
-          message: string;
-        };
-
-        export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!</template>
-        }
-      `,
-      'index.gts': stripIndent`
-        import Component from '@glimmer/component';
-        import Greeting from './greeting';
+        import Greeting from './Greeting.gts';
 
         export default class Application extends Component {
           <template>
-            <Greeting @message="hello" />
+            <Greeting @ta%rget="hello" />
           </template>
         }
       `,
-    });
-
-    let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
-      line: 5,
-      character: 17,
-    });
-
-    expect(definitions).toMatchInlineSnapshot(`
+      ),
+    ).toMatchInlineSnapshot(`
       [
         {
-          "range": {
-            "end": {
-              "character": 18,
-              "line": 3,
-            },
-            "start": {
-              "character": 2,
-              "line": 3,
-            },
+          "contextEnd": {
+            "line": 5,
+            "offset": 25,
           },
-          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "contextStart": {
+            "line": 5,
+            "offset": 11,
+          },
+          "end": {
+            "line": 5,
+            "offset": 17,
+          },
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/Greeting.gts",
+          "start": {
+            "line": 5,
+            "offset": 11,
+          },
         },
       ]
     `);
   });
+
+  /*
 
   test('arg use', async () => {
     project.write({
