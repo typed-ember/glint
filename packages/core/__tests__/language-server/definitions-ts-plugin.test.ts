@@ -1,5 +1,4 @@
 import {
-  Project,
   getSharedTestWorkspaceHelper,
   teardownSharedTestWorkspaceAfterEach,
   prepareDocument,
@@ -205,60 +204,6 @@ describe('Language Server: Definitions (ts plugin)', () => {
       ]
     `);
   });
-
-  /*
-
-
-  test('import source', async () => {
-    project.write({
-      'greeting.gts': stripIndent`
-        import Component from '@glimmer/component';
-
-        export type GreetingArgs = {
-          message: string;
-        };
-
-        export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!</template>
-        }
-      `,
-      'index.gts': stripIndent`
-        import Component from '@glimmer/component';
-        import Greeting from './greeting';
-
-        export class Application extends Component {
-          <template>
-            <Greeting @message="Hello" />
-          </template>
-        }
-      `,
-    });
-
-    let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
-      line: 1,
-      character: 27,
-    });
-
-    expect(definitions).toMatchInlineSnapshot(`
-      [
-        {
-          "range": {
-            "end": {
-              "character": 0,
-              "line": 0,
-            },
-            "start": {
-              "character": 0,
-              "line": 0,
-            },
-          },
-          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
-        },
-      ]
-    `);
-  });
-  */
 });
 
 async function requestDefinition(fileName: string, languageId: string, contentWithCursor: string) {
