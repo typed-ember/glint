@@ -38,7 +38,7 @@ describe('Language Server: References (ts plugin)', () => {
     )
 
     await prepareDocument(
-      'ts-template-imports-app/src/ephemeral-app.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       stripIndent`
         import Component from '@glimmer/component';
@@ -95,6 +95,42 @@ describe('Language Server: References (ts plugin)', () => {
             "offset": 8,
           },
         },
+        {
+          "contextEnd": {
+            "line": 2,
+            "offset": 49,
+          },
+          "contextStart": {
+            "line": 2,
+            "offset": 1,
+          },
+          "end": {
+            "line": 2,
+            "offset": 16,
+          },
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/empty-fixture.gts",
+          "isDefinition": false,
+          "isWriteAccess": true,
+          "lineText": "import Greeting from './ephemeral-greeting.gts';",
+          "start": {
+            "line": 2,
+            "offset": 8,
+          },
+        },
+        {
+          "end": {
+            "line": 6,
+            "offset": 14,
+          },
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/empty-fixture.gts",
+          "isDefinition": false,
+          "isWriteAccess": false,
+          "lineText": "    <Greeting />",
+          "start": {
+            "line": 6,
+            "offset": 6,
+          },
+        },
       ]
     `);
   });
@@ -121,7 +157,7 @@ describe('Language Server: References (ts plugin)', () => {
 
     expect(
       await requestReferences(
-        'ts-template-imports-app/src/ephemeral-app.gts',
+        'ts-template-imports-app/src/empty-fixture.gts',
         'glimmer-ts',
         stripIndent`
           import Component from '@glimmer/component';
@@ -185,7 +221,7 @@ describe('Language Server: References (ts plugin)', () => {
             "line": 6,
             "offset": 22,
           },
-          "file": "\${testWorkspacePath}/ts-template-imports-app/src/ephemeral-app.gts",
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/empty-fixture.gts",
           "isDefinition": true,
           "isWriteAccess": true,
           "lineText": "    <Greeting @target="World" />",
