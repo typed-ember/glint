@@ -1,19 +1,13 @@
 import type { LanguageServer } from '@volar/language-server';
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject.js';
-import { createConnection, createServer, loadTsdkByPath } from '@volar/language-server/node';
-import {
-  createLanguage,
-  createParsedCommandLine,
-  createVueLanguagePlugin,
-  getDefaultCompilerOptions,
-} from '@volar/language-core';
-import {
-  createLanguageService,
-  createUriMap,
-  LanguageService,
-} from '@volar/language-service';
+import { createConnection, createServer, loadTsdkByPath } from '@volar/language-server/node.js';
+import { createLanguage } from '@volar/language-core';
+import { createLanguageService, createUriMap, LanguageService } from '@volar/language-service';
 import type * as ts from 'typescript';
 import { URI } from 'vscode-uri';
+import { createEmberLanguagePlugin } from './ember-language-plugin.js';
+import { ConfigLoader } from '../config/loader.js';
+import type { LanguageServiceContext, LanguageServicePlugin } from '@volar/language-service';
 
 type GlintInitializationOptions = any; // TODO rm hackiness
 
@@ -140,21 +134,25 @@ connection.onInitialize((params) => {
     return connection.sendRequest<T>(options.typescript.requestForwardingCommand!, [command, args]);
   }
 
-  function createLs(server: LanguageServer, tsconfig: string | undefined) {
-    const commonLine = tsconfig
-      ? createParsedCommandLine(ts, ts.sys, tsconfig)
-      : {
-          options: ts.getDefaultCompilerOptions(),
-          vueOptions: getDefaultCompilerOptions(),
-        };
+  function createLs(server: LanguageServer, tsconfigFileName: string | undefined) {
+    if (!tsconfigFileName) {
+      throw new Error('tsconfigFileName is required');
+    }
+
+    const configLoader = new ConfigLoader();
+    const glintConfig = configLoader.configForFile(tsconfigFileName);
+
+    if (!glintConfig) {
+      throw new Error('glintConfig is required');
+    }
+
+    const emberLanguagePlugin = createEmberLanguagePlugin(glintConfig);
     const language = createLanguage<URI>(
       [
         {
           getLanguageId: (uri) => server.documents.get(uri)?.languageId,
         },
-        createVueLanguagePlugin(ts, commonLine.options, commonLine.vueOptions, (uri) =>
-          uri.fsPath.replace(/\\/g, '/'),
-        ),
+        emberLanguagePlugin,
       ],
       createUriMap(),
       (uri) => {
@@ -170,7 +168,8 @@ connection.onInitialize((params) => {
       language,
       server.languageServicePlugins,
       createLanguageServiceEnvironment(server, [...server.workspaceFolders.all]),
-      { vue: { compilerOptions: commonLine.vueOptions } },
+      {},
+      // { vue: { compilerOptions: commonLine.vueOptions } },
     );
   }
 });
@@ -180,99 +179,101 @@ connection.onInitialized(server.initialized);
 connection.onShutdown(server.shutdown);
 
 function getHybridModeLanguageServicePluginsForLanguageServer(
-	ts: typeof import('typescript'),
-	getTsPluginClient: import('@vue/typescript-plugin/lib/requests').Requests | undefined
+  ts: typeof import('typescript'),
+  getTsPluginClient: any,
+  // getTsPluginClient: import('@glint/tsserver/lib/requests').Requests | undefined,
 ) {
-	const plugins = [
-		createTypeScriptSyntacticPlugin(ts),
-		createTypeScriptDocCommentTemplatePlugin(ts),
-		...getCommonLanguageServicePluginsForLanguageServer(ts, () => getTsPluginClient)
-	];
-	for (const plugin of plugins) {
-		// avoid affecting TS plugin
-		delete plugin.capabilities.semanticTokensProvider;
-	}
-	return plugins;
+  const plugins = [
+    // createTypeScriptSyntacticPlugin(ts),
+    // createTypeScriptDocCommentTemplatePlugin(ts),
+    ...getCommonLanguageServicePluginsForLanguageServer(ts, () => getTsPluginClient),
+  ];
+  for (const plugin of plugins) {
+    // avoid affecting TS plugin
+    delete plugin.capabilities.semanticTokensProvider;
+  }
+  return plugins;
 }
 
 function getCommonLanguageServicePluginsForLanguageServer(
-	ts: typeof import('typescript'),
-	getTsPluginClient: (context: LanguageServiceContext) => import('@vue/typescript-plugin/lib/requests').Requests | undefined
+  ts: typeof import('typescript'),
+  getTsPluginClient: (context: LanguageServiceContext) => any,
+  // ) => import('@glint/tsserver/lib/requests').Requests | undefined,
 ): LanguageServicePlugin[] {
-	return [
-		// createTypeScriptTwoslashQueriesPlugin(ts),
-		// createCssPlugin(),
-		// createPugFormatPlugin(),
-		// createJsonPlugin(),
-		// createVueTemplatePlugin('html', getTsPluginClient),
-		// createVueTemplatePlugin('pug', getTsPluginClient),
-		// createVueMissingPropsHintsPlugin(getTsPluginClient),
-		// createVueCompilerDomErrorsPlugin(),
-		// createVueSfcPlugin(),
-		// createVueTwoslashQueriesPlugin(getTsPluginClient),
-		// createVueDocumentLinksPlugin(),
-		// createVueDocumentDropPlugin(ts, getTsPluginClient),
-		// createVueCompleteDefineAssignmentPlugin(),
-		// createVueAutoDotValuePlugin(ts, getTsPluginClient),
-		// createVueAutoAddSpacePlugin(),
-		// createVueInlayHintsPlugin(ts),
-		// createVueDirectiveCommentsPlugin(),
-		// createVueExtractFilePlugin(ts, getTsPluginClient),
-		// createEmmetPlugin({
-		// 	mappedLanguages: {
-		// 		'vue-root-tags': 'html',
-		// 		'postcss': 'scss',
-		// 	},
-		// }),
-		// {
-		// 	name: 'vue-parse-sfc',
-		// 	capabilities: {
-		// 		executeCommandProvider: {
-		// 			commands: [commands.parseSfc],
-		// 		},
-		// 	},
-		// 	create() {
-		// 		return {
-		// 			executeCommand(_command, [source]) {
-		// 				return parse(source);
-		// 			},
-		// 		};
-		// 	},
-		// },
-		// {
-		// 	name: 'vue-name-casing',
-		// 	capabilities: {
-		// 		executeCommandProvider: {
-		// 			commands: [
-		// 				commands.detectNameCasing,
-		// 				commands.convertTagsToKebabCase,
-		// 				commands.convertTagsToPascalCase,
-		// 				commands.convertPropsToKebabCase,
-		// 				commands.convertPropsToCamelCase,
-		// 			],
-		// 		}
-		// 	},
-		// 	create(context) {
-		// 		return {
-		// 			executeCommand(command, [uri]) {
-		// 				if (command === commands.detectNameCasing) {
-		// 					return detect(context, URI.parse(uri));
-		// 				}
-		// 				else if (command === commands.convertTagsToKebabCase) {
-		// 					return convertTagName(context, URI.parse(uri), TagNameCasing.Kebab, getTsPluginClient(context));
-		// 				}
-		// 				else if (command === commands.convertTagsToPascalCase) {
-		// 					return convertTagName(context, URI.parse(uri), TagNameCasing.Pascal, getTsPluginClient(context));
-		// 				}
-		// 				else if (command === commands.convertPropsToKebabCase) {
-		// 					return convertAttrName(context, URI.parse(uri), AttrNameCasing.Kebab, getTsPluginClient(context));
-		// 				}
-		// 				else if (command === commands.convertPropsToCamelCase) {
-		// 					return convertAttrName(context, URI.parse(uri), AttrNameCasing.Camel, getTsPluginClient(context));
-		// 				}
-		// 			},
-		// 		};
-		// 	},
-		// }
-	];
+  return [
+    // createTypeScriptTwoslashQueriesPlugin(ts),
+    // createCssPlugin(),
+    // createPugFormatPlugin(),
+    // createJsonPlugin(),
+    // createVueTemplatePlugin('html', getTsPluginClient),
+    // createVueTemplatePlugin('pug', getTsPluginClient),
+    // createVueMissingPropsHintsPlugin(getTsPluginClient),
+    // createVueCompilerDomErrorsPlugin(),
+    // createVueSfcPlugin(),
+    // createVueTwoslashQueriesPlugin(getTsPluginClient),
+    // createVueDocumentLinksPlugin(),
+    // createVueDocumentDropPlugin(ts, getTsPluginClient),
+    // createVueCompleteDefineAssignmentPlugin(),
+    // createVueAutoDotValuePlugin(ts, getTsPluginClient),
+    // createVueAutoAddSpacePlugin(),
+    // createVueInlayHintsPlugin(ts),
+    // createVueDirectiveCommentsPlugin(),
+    // createVueExtractFilePlugin(ts, getTsPluginClient),
+    // createEmmetPlugin({
+    // 	mappedLanguages: {
+    // 		'vue-root-tags': 'html',
+    // 		'postcss': 'scss',
+    // 	},
+    // }),
+    // {
+    // 	name: 'vue-parse-sfc',
+    // 	capabilities: {
+    // 		executeCommandProvider: {
+    // 			commands: [commands.parseSfc],
+    // 		},
+    // 	},
+    // 	create() {
+    // 		return {
+    // 			executeCommand(_command, [source]) {
+    // 				return parse(source);
+    // 			},
+    // 		};
+    // 	},
+    // },
+    // {
+    // 	name: 'vue-name-casing',
+    // 	capabilities: {
+    // 		executeCommandProvider: {
+    // 			commands: [
+    // 				commands.detectNameCasing,
+    // 				commands.convertTagsToKebabCase,
+    // 				commands.convertTagsToPascalCase,
+    // 				commands.convertPropsToKebabCase,
+    // 				commands.convertPropsToCamelCase,
+    // 			],
+    // 		}
+    // 	},
+    // 	create(context) {
+    // 		return {
+    // 			executeCommand(command, [uri]) {
+    // 				if (command === commands.detectNameCasing) {
+    // 					return detect(context, URI.parse(uri));
+    // 				}
+    // 				else if (command === commands.convertTagsToKebabCase) {
+    // 					return convertTagName(context, URI.parse(uri), TagNameCasing.Kebab, getTsPluginClient(context));
+    // 				}
+    // 				else if (command === commands.convertTagsToPascalCase) {
+    // 					return convertTagName(context, URI.parse(uri), TagNameCasing.Pascal, getTsPluginClient(context));
+    // 				}
+    // 				else if (command === commands.convertPropsToKebabCase) {
+    // 					return convertAttrName(context, URI.parse(uri), AttrNameCasing.Kebab, getTsPluginClient(context));
+    // 				}
+    // 				else if (command === commands.convertPropsToCamelCase) {
+    // 					return convertAttrName(context, URI.parse(uri), AttrNameCasing.Camel, getTsPluginClient(context));
+    // 				}
+    // 			},
+    // 		};
+    // 	},
+    // }
+  ];
 }
