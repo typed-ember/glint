@@ -29,7 +29,7 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
       [
         '--disableAutomaticTypingAcquisition',
         '--globalPlugins',
-        '@glint/typescript-plugin',
+        '@glint/tsserver-plugin',
         '--suppressDiagnosticEvents',
         '--logVerbosity',
         'verbose',

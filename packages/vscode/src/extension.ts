@@ -223,7 +223,7 @@ try {
   // work in .gts files.
   //
   // https://github.com/search?q=repo%3Amicrosoft%2Fvscode%20isSupportedLanguageMode&type=code
-  const typeScriptServerPluginName = '@glint/typescript-plugin';
+  const typeScriptServerPluginName = '@glint/tsserver-plugin';
 
   const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features')!;
   const readFileSync = fs.readFileSync;
