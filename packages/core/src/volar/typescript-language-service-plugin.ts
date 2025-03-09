@@ -17,7 +17,7 @@ import { VirtualGtsCode } from './gts-virtual-code.js';
 // (TS + Handlebars) combined into one, but we can use the TS language service because the only
 // scripts we pass to the TS service for type-checking is transformed Intermediate Representation (IR)
 // TypeScript code with all <template> tags converted to type-checkable TS.
-export function createTypescriptLanguageServicePlugin(
+export function createTypescriptLanguageServicePlugins(
   ts: typeof import('typescript'),
 ): LanguageServicePlugin<any>[] {
   return createTypeScriptServices(ts).map<LanguageServicePlugin>((plugin) => {

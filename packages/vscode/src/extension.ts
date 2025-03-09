@@ -284,6 +284,19 @@ try {
     // @ts-expect-error – not easy to type
     return readFileSync(...args);
   };
+
+  // handle typescript-language-features module loading race condition
+  // https://github.com/vuejs/language-tools/pull/5260
+  const loadedModule = require.cache[extensionJsPath];
+  if (loadedModule) {
+    delete require.cache[extensionJsPath];
+    const patchedModule = require(extensionJsPath);
+    Object.assign(loadedModule.exports, patchedModule);
+  }
+
+  if (tsExtension.isActive) {
+    vscode.commands.executeCommand('workbench.action.restartExtensionHost');
+  }
 } catch {
   // ignore
 }
