@@ -175,3 +175,48 @@ export function extractCursors(content: string): [number[], string] {
   }
   return [offsets, content];
 }
+
+export async function requestDiagnostics(fileName: string, languageId: string, content: string) {
+  const workspaceHelper = await getSharedTestWorkspaceHelper();
+
+  const diagnosticsReceivedPromise = new Promise<any>((resolve) => {
+    workspaceHelper.setTsserverEventHandler((e) => {
+      if (e.event == 'semanticDiag') {
+        // TODO: double check filename is for the correct one?
+        // Perhaps there are race conditions.
+        resolve(e.body);
+      }
+    });
+  });
+
+  let document = await prepareDocument(fileName, languageId, content);
+
+  // `geterr`'s response doesn't contain diagnostic data; diagnostic
+  // data comes in the form of events.
+  const res = await workspaceHelper.tsserver.message({
+    seq: workspaceHelper.nextSeq(),
+    command: 'geterr',
+    arguments: {
+      delay: 0,
+      files: [URI.parse(document.uri).fsPath],
+    },
+  });
+  if (res.event != 'requestCompleted') {
+    throw new Error(`expected requestCompleted event, got ${res.event}`);
+  }
+
+  const diagnosticsResponse = await diagnosticsReceivedPromise;
+
+  for (const diagnostic of diagnosticsResponse.diagnostics) {
+    if (diagnostic.relatedInformation) {
+      for (const related of diagnostic.relatedInformation) {
+        if (related.span) {
+          related.span.file =
+            '${testWorkspacePath}' + related.span.file.slice(testWorkspacePath.length);
+        }
+      }
+    }
+  }
+
+  return diagnosticsResponse.diagnostics;
+}

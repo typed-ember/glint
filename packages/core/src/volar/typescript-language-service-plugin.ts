@@ -11,6 +11,8 @@ import { augmentDiagnostic } from '../transform/diagnostics/augmentation.js';
 import GlimmerASTMappingTree from '../transform/template/glimmer-ast-mapping-tree.js';
 import { VirtualGtsCode } from './gts-virtual-code.js';
 
+// TODO: delete this file or figure out how to re-express it to work with TS Plugin.
+
 // Return the service plugins required/used by our language server. Service plugins provide
 // functionality for a single file/language type. For example, we use Volar's TypeScript service
 // for type-checking our .gts/.gjs files, but .gts/.gjs files are actually two separate languages

@@ -5,11 +5,10 @@ import {
   testWorkspacePath,
   extractCursor,
   extractCursors,
+  requestDiagnostics,
 } from 'glint-monorepo-test-utils';
 import { describe, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
-import { TextDocument } from 'vscode-languageserver-textdocument';
-import { URI } from 'vscode-uri';
 
 describe('Language Server: Diagnostics (ts plugin)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
@@ -642,46 +641,3 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 });
-
-async function requestDiagnostics(fileName: string, languageId: string, content: string) {
-  const workspaceHelper = await getSharedTestWorkspaceHelper();
-
-  const diagnosticsReceivedPromise = new Promise<any>((resolve) => {
-    workspaceHelper.setTsserverEventHandler((e) => {
-      if (e.event == 'semanticDiag') {
-        // TODO: double check filename is for the correct one?
-        // Perhaps there are race conditions.
-        resolve(e.body);
-      }
-    });
-  });
-
-  let document = await prepareDocument(fileName, languageId, content);
-
-  // `geterr`'s response doesn't contain diagnostic data; diagnostic
-  // data comes in the form of events.
-  const res = await workspaceHelper.tsserver.message({
-    seq: workspaceHelper.nextSeq(),
-    command: 'geterr',
-    arguments: {
-      delay: 0,
-      files: [URI.parse(document.uri).fsPath],
-    },
-  });
-  expect(res.event).toEqual('requestCompleted');
-
-  const diagnosticsResponse = await diagnosticsReceivedPromise;
-
-  for (const diagnostic of diagnosticsResponse.diagnostics) {
-    if (diagnostic.relatedInformation) {
-      for (const related of diagnostic.relatedInformation) {
-        if (related.span) {
-          related.span.file =
-            '${testWorkspacePath}' + related.span.file.slice(testWorkspacePath.length);
-        }
-      }
-    }
-  }
-
-  return diagnosticsResponse.diagnostics;
-}
