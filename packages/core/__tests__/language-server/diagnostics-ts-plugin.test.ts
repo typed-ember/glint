@@ -109,6 +109,9 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
+  // Seems like the TS Plugin isn't kicking in on this one for some reason;
+  // lots of diagnostics on uncompiled Handlebars. Maybe for diagnostics there are
+  // race conditions?
   test.skip('reports diagnostics for a companion template type error', async () => {
     const script = stripIndent`
       import Component from '@glimmer/component';
