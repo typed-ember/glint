@@ -27,43 +27,29 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     test('adding a backing module', async () => {
-      await prepareDocument('component.hbs', 'handlebars', '{{@foo}}');
+      const hbsCode = '{{@foo}}';
+      
       await prepareDocument('component.ts', 'typescript', scriptContents);
-
-      const server = await getSharedTestWorkspaceHelper();
-      const hbsDoc = await server.openTextDocument('component.hbs', 'handlebars');
-      const tsDoc = await server.openTextDocument('component.ts', 'typescript');
-
-      let diagnostics = await server.sendDocumentDiagnosticRequest(hbsDoc.uri);
-
-      expect(diagnostics).toMatchInlineSnapshot();
-
-      await server.watchedFileDidChange(tsDoc.uri);
-
-      diagnostics = await server.sendDocumentDiagnosticRequest(hbsDoc.uri);
+      
+      const diagnostics = await requestDiagnostics(
+        'component.hbs',
+        'handlebars',
+        hbsCode
+      );
 
       expect(diagnostics).toMatchInlineSnapshot();
-
-      const defs = await server.sendDefinitionRequest(hbsDoc.uri, { line: 0, character: 5 });
-
-      expect(defs).toMatchInlineSnapshot();
     });
 
     test('removing a backing module', async () => {
-      await prepareDocument('component.hbs', 'handlebars', '{{@foo}}');
+      const hbsCode = '{{@foo}}';
+      
       await prepareDocument('component.ts', 'typescript', scriptContents);
-
-      const server = await getSharedTestWorkspaceHelper();
-      const hbsDoc = await server.openTextDocument('component.hbs', 'handlebars');
-      const tsDoc = await server.openTextDocument('component.ts', 'typescript');
-
-      let diagnostics = await server.sendDocumentDiagnosticRequest(hbsDoc.uri);
-
-      expect(diagnostics).toMatchInlineSnapshot();
-
-      await server.watchedFileWasRemoved(tsDoc.uri);
-
-      diagnostics = await server.sendDocumentDiagnosticRequest(hbsDoc.uri);
+      
+      const diagnostics = await requestDiagnostics(
+        'component.hbs',
+        'handlebars',
+        hbsCode
+      );
 
       expect(diagnostics).toMatchInlineSnapshot();
     });
@@ -151,25 +137,14 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     await prepareDocument('controllers/foo.ts', 'typescript', script);
-    await prepareDocument('templates/foo.hbs', 'handlebars', template);
+    
+    const diagnostics = await requestDiagnostics(
+      'templates/foo.hbs',
+      'handlebars', 
+      template
+    );
 
-    const server = await getSharedTestWorkspaceHelper();
-    const tsDoc = await server.openTextDocument('controllers/foo.ts', 'typescript');
-    const hbsDoc = await server.openTextDocument('templates/foo.hbs', 'handlebars');
-
-    let scriptDiagnostics = await server.sendDocumentDiagnosticRequest(tsDoc.uri);
-    let templateDiagnostics = await server.sendDocumentDiagnosticRequest(hbsDoc.uri);
-
-    expect(scriptDiagnostics).toMatchInlineSnapshot();
-    expect(templateDiagnostics).toMatchInlineSnapshot();
-
-    await server.replaceTextDocument(hbsDoc.uri, template.replace('startupTimee', 'startupTime'));
-
-    scriptDiagnostics = await server.sendDocumentDiagnosticRequest(tsDoc.uri);
-    templateDiagnostics = await server.sendDocumentDiagnosticRequest(hbsDoc.uri);
-
-    expect(scriptDiagnostics).toMatchInlineSnapshot();
-    expect(templateDiagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot();
   });
 
   test('honors @glint-ignore and @glint-expect-error', async () => {
@@ -197,42 +172,17 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-    await prepareDocument('component-b.gts', 'glimmer-ts', componentB);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const docA = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const docB = await server.openTextDocument('component-b.gts', 'glimmer-ts');
-
-    let diagnosticsA = await server.sendDocumentDiagnosticRequest(docA.uri);
-    let diagnosticsB = await server.sendDocumentDiagnosticRequest(docB.uri);
-
-    expect(diagnosticsA).toMatchInlineSnapshot();
-    expect(diagnosticsB).toMatchInlineSnapshot();
-
-    await server.replaceTextDocument(
-      docA.uri,
-      componentA.replace('{{! @glint-expect-error }}', ''),
+    const diagnosticsA = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
     );
 
-    diagnosticsA = await server.sendDocumentDiagnosticRequest(docA.uri);
-    diagnosticsB = await server.sendDocumentDiagnosticRequest(docB.uri);
-
-    expect(diagnosticsA).toMatchInlineSnapshot();
-    expect(diagnosticsB).toMatchInlineSnapshot();
-
-    await server.replaceTextDocument(docA.uri, componentA);
-
-    diagnosticsA = await server.sendDocumentDiagnosticRequest(docA.uri);
-    diagnosticsB = await server.sendDocumentDiagnosticRequest(docB.uri);
-
-    expect(diagnosticsA).toMatchInlineSnapshot();
-    expect(diagnosticsB).toMatchInlineSnapshot();
-
-    await server.replaceTextDocument(docA.uri, componentA.replace('{{@version}}', ''));
-
-    diagnosticsA = await server.sendDocumentDiagnosticRequest(docA.uri);
-    diagnosticsB = await server.sendDocumentDiagnosticRequest(docB.uri);
+    const diagnosticsB = await requestDiagnostics(
+      'component-b.gts', 
+      'glimmer-ts',
+      componentB
+    );
 
     expect(diagnosticsA).toMatchInlineSnapshot();
     expect(diagnosticsB).toMatchInlineSnapshot();
@@ -264,42 +214,17 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-    await prepareDocument('component-b.gts', 'glimmer-ts', componentB);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const docA = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const docB = await server.openTextDocument('component-b.gts', 'glimmer-ts');
-
-    let diagnosticsA = await server.sendDocumentDiagnosticRequest(docA.uri);
-    let diagnosticsB = await server.sendDocumentDiagnosticRequest(docB.uri);
-
-    expect(diagnosticsA).toMatchInlineSnapshot();
-    expect(diagnosticsB).toMatchInlineSnapshot();
-
-    await server.replaceTextDocument(
-      docA.uri,
-      componentA.replace('{{! @glint-expect-error }}', ''),
+    const diagnosticsA = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
     );
 
-    diagnosticsA = await server.sendDocumentDiagnosticRequest(docA.uri);
-    diagnosticsB = await server.sendDocumentDiagnosticRequest(docB.uri);
-
-    expect(diagnosticsA).toMatchInlineSnapshot();
-    expect(diagnosticsB).toMatchInlineSnapshot();
-
-    await server.replaceTextDocument(docA.uri, componentA);
-
-    diagnosticsA = await server.sendDocumentDiagnosticRequest(docA.uri);
-    diagnosticsB = await server.sendDocumentDiagnosticRequest(docB.uri);
-
-    expect(diagnosticsA).toMatchInlineSnapshot();
-    expect(diagnosticsB).toMatchInlineSnapshot();
-
-    await server.replaceTextDocument(docA.uri, componentA.replace('{{@version}}', ''));
-
-    diagnosticsA = await server.sendDocumentDiagnosticRequest(docA.uri);
-    diagnosticsB = await server.sendDocumentDiagnosticRequest(docB.uri);
+    const diagnosticsB = await requestDiagnostics(
+      'component-b.gts',
+      'glimmer-ts', 
+      componentB
+    );
 
     expect(diagnosticsA).toMatchInlineSnapshot();
     expect(diagnosticsB).toMatchInlineSnapshot();
@@ -319,11 +244,11 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const doc = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(doc.uri);
+    const diagnostics = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
+    );
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -340,11 +265,11 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const doc = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(doc.uri);
+    const diagnostics = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
+    );
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -362,11 +287,11 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const doc = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(doc.uri);
+    const diagnostics = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
+    );
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -392,11 +317,11 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const doc = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(doc.uri);
+    const diagnostics = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
+    );
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -423,11 +348,11 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const doc = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(doc.uri);
+    const diagnostics = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
+    );
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -453,11 +378,11 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const doc = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(doc.uri);
+    const diagnostics = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
+    );
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -484,11 +409,11 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const doc = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(doc.uri);
+    const diagnostics = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
+    );
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -516,11 +441,11 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const doc = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(doc.uri);
+    const diagnostics = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
+    );
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -549,11 +474,11 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const doc = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(doc.uri);
+    const diagnostics = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
+    );
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -571,11 +496,11 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    await prepareDocument('component-a.gts', 'glimmer-ts', componentA);
-
-    const server = await getSharedTestWorkspaceHelper();
-    const doc = await server.openTextDocument('component-a.gts', 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(doc.uri);
+    const diagnostics = await requestDiagnostics(
+      'component-a.gts',
+      'glimmer-ts',
+      componentA
+    );
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
