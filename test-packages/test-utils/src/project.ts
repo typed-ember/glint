@@ -290,12 +290,6 @@ export class Project {
   public async destroy(): Promise<void> {
     this.languageServerHandle?.connection.dispose();
 
-
-    // rootDir... does that mean this Project instance is tied to a (possibly ephemeral) thing?
-    // Is it the case that Glint "opens" folders/workspaces whereas Vue does not?
-
-    // Vue reuses `test-workspace`. How does that work??? Does it ever create files?
-
     fs.rmSync(this.rootDir, { recursive: true, force: true });
   }
 

@@ -407,4 +407,25 @@ describe('CLI: single-pass typechecking', () => {
       "
     `);
   });
+
+  test('reporting one-shot diagnostics', async () => {
+    let code = 'let identifier: string = 123;';
+
+    project.setGlintConfig({ environment: 'ember-template-imports' });
+    project.write('index.gts', code);
+
+    let result = await project.check({ reject: false });
+
+    expect(result.exitCode).not.toBe(0);
+    expect(stripAnsi(result.stdout)).toMatchInlineSnapshot(`
+      "index.gts:1:5 - error TS2322: Type 'number' is not assignable to type 'string'.
+
+      1 let identifier: string = 123;let identifier: string = 123;
+            ~~~~~~~~~~
+
+
+      Found 1 error in index.gts:1
+      "
+    `);
+  });
 });
