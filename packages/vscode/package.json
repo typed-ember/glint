@@ -208,26 +208,6 @@
               "verbose"
             ]
           },
-          "glint.server.hybridMode": {
-            "type": [
-              "boolean",
-              "string"
-            ],
-            "default": "auto",
-            "enum": [
-              "auto",
-              "typeScriptPluginOnly",
-              true,
-              false
-            ],
-            "enumDescriptions": [
-              "Automatically detect and enable TypeScript Plugin/Hybrid Mode in a safe environment.",
-              "Only enable Glint TypeScript Plugin but disable the Glint language server.",
-              "Enable TypeScript Plugin/Hybrid Mode.",
-              "Disable TypeScript Plugin/Hybrid Mode."
-            ],
-            "description": "Hybrid mode means that Glint will use a TypeScript server plugin for typechecking and use the Glint language server for other features. This is the recommended mode."
-          },
           "glint.server.compatibleExtensions": {
             "type": "array",
             "items": {
