@@ -206,7 +206,7 @@
               "off",
               "messages",
               "verbose"
-            ]
+            ] 
           },
           "glint.server.compatibleExtensions": {
             "type": "array",
