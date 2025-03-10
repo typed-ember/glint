@@ -28,28 +28,20 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
 
     test('adding a backing module', async () => {
       const hbsCode = '{{@foo}}';
-      
+
       await prepareDocument('component.ts', 'typescript', scriptContents);
-      
-      const diagnostics = await requestDiagnostics(
-        'component.hbs',
-        'handlebars',
-        hbsCode
-      );
+
+      const diagnostics = await requestDiagnostics('component.hbs', 'handlebars', hbsCode);
 
       expect(diagnostics).toMatchInlineSnapshot();
     });
 
     test('removing a backing module', async () => {
       const hbsCode = '{{@foo}}';
-      
+
       await prepareDocument('component.ts', 'typescript', scriptContents);
-      
-      const diagnostics = await requestDiagnostics(
-        'component.hbs',
-        'handlebars',
-        hbsCode
-      );
+
+      const diagnostics = await requestDiagnostics('component.hbs', 'handlebars', hbsCode);
 
       expect(diagnostics).toMatchInlineSnapshot();
     });
@@ -137,55 +129,88 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     await prepareDocument('controllers/foo.ts', 'typescript', script);
-    
-    const diagnostics = await requestDiagnostics(
-      'templates/foo.hbs',
-      'handlebars', 
-      template
-    );
+
+    const diagnostics = await requestDiagnostics('templates/foo.hbs', 'handlebars', template);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
 
-  test('honors @glint-ignore and @glint-expect-error', async () => {
+  test('honors @glint-expect-error / ignore shared test throws error', async () => {
     const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       export default class ComponentA extends Component {
         <template>
-          {{! @glint-expect-error }}
           Welcome to app _code_v{{@version}}_/code_.
         </template>
       }
     `;
 
-    const componentB = stripIndent`
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2339,
+          "end": {
+            "line": 5,
+            "offset": 37,
+          },
+          "start": {
+            "line": 5,
+            "offset": 30,
+          },
+          "text": "Property 'version' does not exist on type '{}'.",
+        },
+      ]
+    `);
+  });
+
+  test('honors @glint-expect-error', async () => {
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
-      export default class ComponentB extends Component {
-        public startupTime = new Date().toISOString();
-
+      export default class ComponentA extends Component {
         <template>
-          {{! @glint-ignore: this looks like a typo but for some reason it isn't }}
-          The current time is {{this.startupTimee}}.
+          {{! @glint-expect-error foo bar }}
+          Welcome to app _code_v{{@version}}_/code_.
         </template>
       }
     `;
 
-    const diagnosticsA = await requestDiagnostics(
-      'component-a.gts',
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
-      componentA
+      componentA,
     );
 
-    const diagnosticsB = await requestDiagnostics(
-      'component-b.gts', 
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
+
+  test('honors @glint-ignore', async () => {
+    const componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          {{! @glint-ignore foo bar }}
+          Welcome to app _code_v{{@version}}_/code_.
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
-      componentB
+      componentA,
     );
 
-    expect(diagnosticsA).toMatchInlineSnapshot();
-    expect(diagnosticsB).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   // Regression / breaking change since Glint 2
@@ -214,17 +239,9 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnosticsA = await requestDiagnostics(
-      'component-a.gts',
-      'glimmer-ts',
-      componentA
-    );
+    const diagnosticsA = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
 
-    const diagnosticsB = await requestDiagnostics(
-      'component-b.gts',
-      'glimmer-ts', 
-      componentB
-    );
+    const diagnosticsB = await requestDiagnostics('component-b.gts', 'glimmer-ts', componentB);
 
     expect(diagnosticsA).toMatchInlineSnapshot();
     expect(diagnosticsB).toMatchInlineSnapshot();
@@ -244,11 +261,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
-      'component-a.gts',
-      'glimmer-ts',
-      componentA
-    );
+    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -265,11 +278,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
-      'component-a.gts',
-      'glimmer-ts',
-      componentA
-    );
+    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -287,11 +296,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
-      'component-a.gts',
-      'glimmer-ts',
-      componentA
-    );
+    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -317,11 +322,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
-      'component-a.gts',
-      'glimmer-ts',
-      componentA
-    );
+    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -348,11 +349,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
-      'component-a.gts',
-      'glimmer-ts',
-      componentA
-    );
+    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -378,11 +375,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
-      'component-a.gts',
-      'glimmer-ts',
-      componentA
-    );
+    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -409,11 +402,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
-      'component-a.gts',
-      'glimmer-ts',
-      componentA
-    );
+    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -441,11 +430,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
-      'component-a.gts',
-      'glimmer-ts',
-      componentA
-    );
+    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -474,11 +459,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
-      'component-a.gts',
-      'glimmer-ts',
-      componentA
-    );
+    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -496,11 +477,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
-      'component-a.gts',
-      'glimmer-ts',
-      componentA
-    );
+    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
@@ -539,7 +516,8 @@ async function requestDiagnostics(fileName: string, languageId: string, content:
     if (diagnostic.relatedInformation) {
       for (const related of diagnostic.relatedInformation) {
         if (related.span) {
-          related.span.file = '${testWorkspacePath}' + related.span.file.slice(testWorkspacePath.length);
+          related.span.file =
+            '${testWorkspacePath}' + related.span.file.slice(testWorkspacePath.length);
         }
       }
     }
