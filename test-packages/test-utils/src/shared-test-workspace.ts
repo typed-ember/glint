@@ -16,12 +16,15 @@ let seq = 1;
 
 export const testWorkspacePath = path.resolve(__dirname, '../..');
 
+let eventHandler: ((e: any) => void) | undefined;
+
 export async function getSharedTestWorkspaceHelper(): Promise<{
   glintserver: LanguageServerHandle;
   tsserver: import('@typescript/server-harness').Server;
   nextSeq: () => number;
   open: (uri: string, languageId: string, content: string) => Promise<TextDocument>;
   close: (uri: string) => Promise<void>;
+  setTsserverEventHandler: (handler: (e: any) => void) => void;
 }> {
   if (!serverHandle) {
     tsserver = launchServer(
@@ -30,7 +33,7 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
         '--disableAutomaticTypingAcquisition',
         '--globalPlugins',
         '@glint/tsserver-plugin',
-        '--suppressDiagnosticEvents',
+        // '--suppressDiagnosticEvents',
         '--logVerbosity',
         'verbose',
         '--logFile',
@@ -41,7 +44,13 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
     tsserver.on('exit', (code) => console.log(code ? `Exited with code ${code}` : `Terminated`));
 
     // Uncomment to show additional event logging (less verbose than tsserver.log)
-    tsserver.on('event', (e) => console.log(e));
+    tsserver.on('event', (e) => {
+      // console.log(e);
+
+      if (eventHandler) {
+        eventHandler(e);
+      }
+    });
 
     serverHandle = startLanguageServer(
       require.resolve('../../../packages/core/bin/glint-language-server.js'),
@@ -123,6 +132,9 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
       }
       await serverHandle!.closeTextDocument(uri);
     },
+    setTsserverEventHandler: (handler: (e: any) => void) => {
+      eventHandler = handler;
+    },
   };
 }
 
@@ -134,6 +146,7 @@ export async function teardownSharedTestWorkspaceAfterEach() {
     await server.close(document.uri);
   }
   openedDocuments.length = 0;
+  eventHandler = undefined;
 }
 
 export async function prepareDocument(fileName: string, languageId: string, content: string) {
