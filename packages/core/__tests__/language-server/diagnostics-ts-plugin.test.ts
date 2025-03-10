@@ -239,15 +239,22 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnosticsA = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
-
-    const diagnosticsB = await requestDiagnostics('component-b.gts', 'glimmer-ts', componentB);
-
+    const diagnosticsA = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
     expect(diagnosticsA).toMatchInlineSnapshot();
+
+    const diagnosticsB = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentB,
+    );
     expect(diagnosticsB).toMatchInlineSnapshot();
   });
 
-  test('@glint-expect-error - unknown component reference', async () => {
+  test('@glint-expect-error - unknown component reference - error on component does not mask unknownReference', async () => {
     const componentA = stripIndent`
       import Component from '@glimmer/component';
 
@@ -261,9 +268,29 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2339,
+          "end": {
+            "line": 7,
+            "offset": 30,
+          },
+          "start": {
+            "line": 7,
+            "offset": 14,
+          },
+          "text": "Property 'unknownReference' does not exist on type 'ComponentA'.",
+        },
+      ]
+    `);
   });
 
   test('passing args to vanilla Component should be an error', async () => {
@@ -278,9 +305,29 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 6,
+            "offset": 22,
+          },
+          "start": {
+            "line": 5,
+            "offset": 5,
+          },
+          "text": "Expected 0 arguments, but got 1.",
+        },
+      ]
+    `);
   });
 
   test('passing args to vanilla Component should be an error -- suppressed with @glint-expect-error', async () => {
@@ -296,9 +343,13 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   test('passing no args to a Component with args should be an error', async () => {
@@ -322,9 +373,47 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 15,
+            "offset": 17,
+          },
+          "relatedInformation": [
+            {
+              "category": "error",
+              "code": 6236,
+              "message": "Arguments for the rest parameter 'args' were not provided.",
+              "span": {
+                "end": {
+                  "line": 24,
+                  "offset": 49,
+                },
+                "file": "\${testWorkspacePath}ronment-ember-template-imports/-private/dsl/index.d.ts",
+                "start": {
+                  "line": 24,
+                  "offset": 5,
+                },
+              },
+            },
+          ],
+          "start": {
+            "line": 15,
+            "offset": 5,
+          },
+          "text": "Expected 1 arguments, but got 0.",
+        },
+      ]
+    `);
   });
 
   test('passing no args to a Component with args should be an error -- suppressed with @glint-expect-error', async () => {
@@ -349,9 +438,13 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   test('passing wrong arg name to a Component should be an error', async () => {
@@ -375,12 +468,44 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2561,
+          "end": {
+            "line": 15,
+            "offset": 23,
+          },
+          "start": {
+            "line": 15,
+            "offset": 16,
+          },
+          "text": "Object literal may only specify known properties, but 'target2' does not exist in type 'NamedArgs<{ target: string; }>'. Did you mean to write 'target'?",
+        },
+      ]
+    `);
   });
 
   test('passing wrong arg name to a Component should be an error -- suppressed with top-level @glint-expect-error', async () => {
+    /**
+     * The specified/desired behavior here is difficult to implement due to the complexities and assymmetries between
+     * the expected behavior of `{{! @glint-expect-error}}` within a template and the transformed/generated
+     * `// @ts-expect-error` that is produced. The region of code covered by `glint-expect-error` might be a complex
+     * component invocation that includes attributes, modifiers, and/or comments, which can themselves be individually
+     * guarded by inline `{{! @glint-expect-error}}` directives within the element open tag.
+     *
+     * The end result of this is that there are cases where the top-level `{{! @glint-expect-error}}` preceding a
+     * component invocation might also cover and area of effect overlapping those of inline directives, and keeping
+     * these areas of effect totally separate is not possible.
+     */
+
     const componentA = stripIndent`
       import Component from '@glimmer/component';
 
@@ -402,9 +527,13 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   test('passing wrong arg name to a Component should be an error -- suppressed with inline @glint-expect-error with element open tag', async () => {
@@ -430,9 +559,13 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   test('passing wrong arg name to a Component should be an error followed by passing the correct arg name -- suppressed with inline @glint-expect-error with element open tag', async () => {
@@ -459,9 +592,13 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   test('@glint-expect-error - open element tag inline directive', async () => {
@@ -477,9 +614,29 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics('component-a.gts', 'glimmer-ts', componentA);
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 7,
+            "offset": 35,
+          },
+          "start": {
+            "line": 5,
+            "offset": 5,
+          },
+          "text": "Expected 0 arguments, but got 1.",
+        },
+      ]
+    `);
   });
 });
 
