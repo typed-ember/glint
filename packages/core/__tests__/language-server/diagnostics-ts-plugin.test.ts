@@ -109,7 +109,6 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
-  // skipping until we tackle two-file components
   test.skip('reports diagnostics for a companion template type error', async () => {
     const script = stripIndent`
       import Component from '@glimmer/component';
@@ -128,9 +127,10 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       The current time is {{this.startupTimee}}.
     `;
 
-    await prepareDocument('controllers/foo.ts', 'typescript', script);
+    await prepareDocument('ts-ember-app/app/templates/ephemeral.hbs', 'handlebars', template);
+    await prepareDocument('ts-ember-app/app/controllers/ephemeral.ts', 'typescript', script);
 
-    const diagnostics = await requestDiagnostics('templates/foo.hbs', 'handlebars', template);
+    const diagnostics = await requestDiagnostics('templates/ephemeral.hbs', 'handlebars', template);
 
     expect(diagnostics).toMatchInlineSnapshot();
   });
