@@ -124,12 +124,6 @@ function validateConfigInput(input: Record<string, unknown>): GlintConfigInput |
       'mapping environment names to their config.',
   );
 
-  assert(
-    input['checkStandaloneTemplates'] === undefined ||
-      typeof input['checkStandaloneTemplates'] === 'boolean',
-    'If defined, `checkStandaloneTemplates` must be a boolean',
-  );
-
   return input as GlintConfigInput;
 }
 
