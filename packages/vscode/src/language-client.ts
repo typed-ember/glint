@@ -11,17 +11,7 @@ import {
 } from 'reactive-vscode';
 import * as vscode from 'vscode';
 import { config } from './config';
-// import { activate as activateDoctor } from './features/doctor';
-// import { activate as activateNameCasing } from './features/nameCasing';
-// import { activate as activateSplitEditors } from './features/splitEditors';
-import {
-  enabledHybridMode,
-  enabledTypeScriptPlugin,
-  useHybridModeStatusItem,
-  useHybridModeTips,
-} from './hybrid-mode';
-import { NullLiteral } from 'typescript';
-// import { useInsidersStatusItem } from './insiders';
+import { checkCompatible } from './hybrid-mode';
 
 let client: lsp.BaseLanguageClient;
 
@@ -54,7 +44,7 @@ export function watchWorkspaceFolderForLanguageClientActivation(
 
   let clientPromise: Promise<lsp.BaseLanguageClient | null> | null = null;
 
-  useHybridModeTips();
+  checkCompatible();
 
   const { stop } = watch(
     activeTextEditor,
@@ -109,12 +99,11 @@ async function activateLanguageClient(
     pattern: `${workspaceFolder.uri.fsPath}/**/*`,
   }));
 
-  // This might return null if there is no...
   const client = createLanguageClient(
     'glint',
     'Glint',
     documentSelectors,
-    await getInitializationOptions(context, enabledHybridMode.value),
+    await getInitializationOptions(context),
     6009,
     outputChannel,
   );
@@ -124,38 +113,14 @@ async function activateLanguageClient(
   }
 
   if (!hasInitialized) {
-    watch([enabledHybridMode, enabledTypeScriptPlugin], (newValues, oldValues) => {
-      if (newValues[0] !== oldValues[0]) {
-        requestReloadVscode(
-          `Please reload VSCode to ${newValues[0] ? 'enable' : 'disable'} Hybrid Mode.`,
-        );
-      } else if (newValues[1] !== oldValues[1]) {
-        requestReloadVscode(
-          `Please reload VSCode to ${newValues[1] ? 'enable' : 'disable'} Glint TypeScript Plugin.`,
-        );
-      }
-    });
-
-    watch(
-      () => config.server.includeLanguages,
-      () => {
-        if (enabledHybridMode.value) {
-          requestReloadVscode('Please reload VSCode to apply the new language settings.');
-        }
-      },
-    );
-
     // NOTE: this will fire when `glint.libraryPath` is changed, among others
     // (leaving this note here so I don't re-implement the `affectsConfiguration` logic we used
     // to have when changing this config value)
     watch(
-      () => config.server,
+      () => config.libraryPath,
       () => {
-        if (!enabledHybridMode.value) {
-          executeCommand('glint.restart-language-server', false);
-        }
+        executeCommand('glint.restart-language-server', false);
       },
-      { deep: true },
     );
 
     useCommand('glint.restart-language-server', async (restartTsServer = true) => {
@@ -164,10 +129,7 @@ async function activateLanguageClient(
       }
       await client.stop();
       outputChannel.clear();
-      client.clientOptions.initializationOptions = await getInitializationOptions(
-        context,
-        enabledHybridMode.value,
-      );
+      client.clientOptions.initializationOptions = await getInitializationOptions(context);
       await client.start();
     });
 
@@ -179,39 +141,19 @@ async function activateLanguageClient(
     lsp.activateDocumentDropEdit(documentSelectors, client);
     lsp.activateWriteVirtualFiles('glint.action.writeVirtualFiles', client);
 
-    if (!enabledHybridMode.value) {
-      lsp.activateTsConfigStatusItem(documentSelectors, 'glint.tsconfig', client);
-      lsp.activateTsVersionStatusItem(
-        documentSelectors,
-        'glint.tsversion',
-        context,
-        (text) => 'TS ' + text,
-      );
-      lsp.activateFindFileReferences('glint.findAllFileReferences', client);
-    }
-
-    useHybridModeStatusItem();
     // useInsidersStatusItem(context);
   }
 
   hasInitialized = true;
-
-  async function requestReloadVscode(msg: string): Promise<void> {
-    const reload = await vscode.window.showInformationMessage(msg, 'Reload Window');
-    if (reload) {
-      executeCommand('workbench.action.reloadWindow');
-    }
-  }
 
   return client;
 }
 
 async function getInitializationOptions(
   context: vscode.ExtensionContext,
-  hybridMode: boolean,
 ): Promise<GlintInitializationOptions> {
   return {
     typescript: { tsdk: (await lsp.getTsdk(context))!.tsdk },
-    glint: { hybridMode },
+    glint: {},
   };
 }

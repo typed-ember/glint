@@ -1,39 +1,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import {
-  computed,
-  executeCommand,
-  useAllExtensions,
-  useVscodeContext,
-  watchEffect,
-} from 'reactive-vscode';
+import { computed, useAllExtensions } from 'reactive-vscode';
 import * as semver from 'semver';
 import * as vscode from 'vscode';
-import { incompatibleExtensions, unknownExtensions } from './compatibility';
-import { config } from './config';
 
 const extensions = useAllExtensions();
-
-export const enabledHybridMode = computed(() => {
-  if (config.server.hybridMode === 'typeScriptPluginOnly') {
-    return false;
-  } else if (config.server.hybridMode === 'auto') {
-    if (incompatibleExtensions.value.length || unknownExtensions.value.length) {
-      return false;
-    } else if (
-      (vscodeTsdkVersion.value && !semver.gte(vscodeTsdkVersion.value, '5.3.0')) ||
-      (workspaceTsdkVersion.value && !semver.gte(workspaceTsdkVersion.value, '5.3.0'))
-    ) {
-      return false;
-    }
-    return true;
-  }
-  return config.server.hybridMode;
-});
-
-export const enabledTypeScriptPlugin = computed(() => {
-  return enabledHybridMode.value || config.server.hybridMode === 'typeScriptPluginOnly';
-});
 
 const vscodeTsdkVersion = computed(() => {
   const nightly = extensions.value.find(({ id }) => id === 'ms-vscode.vscode-typescript-next');
@@ -64,85 +35,35 @@ const workspaceTsdkVersion = computed(() => {
   }
 });
 
-export function useHybridModeTips(): void {
-  useVscodeContext('glintHybridMode', enabledHybridMode);
-
-  watchEffect(() => {
-    if (config.server.hybridMode === 'auto') {
-      if (incompatibleExtensions.value.length || unknownExtensions.value.length) {
-        vscode.window
-          .showInformationMessage(
-            `Hybrid Mode is disabled automatically because there is a potentially incompatible ${[
-              ...incompatibleExtensions.value,
-              ...unknownExtensions.value,
-            ].join(', ')} TypeScript plugin installed.`,
-            'Open Settings',
-            'Report a false positive',
-          )
-          .then((value) => {
-            if (value === 'Open Settings') {
-              executeCommand('workbench.action.openSettings', 'glint.server.hybridMode');
-            } else if (value == 'Report a false positive') {
-              vscode.env.openExternal(
-                vscode.Uri.parse('https://github.com/vuejs/language-tools/pull/4206'),
-              );
-            }
-          });
-      } else if (
-        (vscodeTsdkVersion.value && !semver.gte(vscodeTsdkVersion.value, '5.3.0')) ||
-        (workspaceTsdkVersion.value && !semver.gte(workspaceTsdkVersion.value, '5.3.0'))
-      ) {
-        let msg = `Hybrid Mode is disabled automatically because TSDK >= 5.3.0 is required (VSCode TSDK: ${vscodeTsdkVersion.value}`;
-        if (workspaceTsdkVersion.value) {
-          msg += `, Workspace TSDK: ${workspaceTsdkVersion.value}`;
-        }
-        msg += `).`;
-        vscode.window.showInformationMessage(msg, 'Open Settings').then((value) => {
-          if (value === 'Open Settings') {
-            executeCommand('workbench.action.openSettings', 'glint.server.hybridMode');
-          }
-        });
-      }
-    } else if (config.server.hybridMode && incompatibleExtensions.value.length) {
-      vscode.window
-        .showWarningMessage(
-          `You have explicitly enabled Hybrid Mode, but you have installed known incompatible extensions: ${incompatibleExtensions.value.join(
-            ', ',
-          )}. You may want to change glint.server.hybridMode to "auto" to avoid compatibility issues.`,
-          'Open Settings',
-          'Report a false positive',
-        )
-        .then((value) => {
-          if (value === 'Open Settings') {
-            executeCommand('workbench.action.openSettings', 'glint.server.hybridMode');
-          } else if (value == 'Report a false positive') {
-            vscode.env.openExternal(
-              vscode.Uri.parse('https://github.com/vuejs/language-tools/pull/4206'),
-            );
-          }
-        });
+export function checkCompatible() {
+  for (const extension of extensions.value) {
+    if (
+      extension.id === 'denoland.vscode-deno' &&
+      vscode.workspace.getConfiguration('deno').get<boolean>('enable')
+    ) {
+      vscode.window.showWarningMessage(
+        `The ${extension.packageJSON.displayName}(${extension.id}) extension is incompatible with the Glint extension. Please disable Deno in workspace to avoid issues.`,
+      );
     }
-  });
-}
-
-export function useHybridModeStatusItem(): void {
-  const item = vscode.languages.createLanguageStatusItem(
-    'vue-hybrid-mode',
-    config.server.includeLanguages,
-  );
-
-  item.text = 'Hybrid Mode';
-  item.detail =
-    (enabledHybridMode.value ? 'Enabled' : 'Disabled') +
-    (config.server.hybridMode === 'auto' ? ' (Auto)' : '');
-  item.command = {
-    title: 'Open Setting',
-    command: 'workbench.action.openSettings',
-    arguments: ['glint.server.hybridMode'],
-  };
-
-  if (!enabledHybridMode.value) {
-    item.severity = vscode.LanguageStatusSeverity.Warning;
+    if (
+      extension.id === 'svelte.svelte-vscode' &&
+      semver.lt(extension.packageJSON.version, '108.4.0')
+    ) {
+      vscode.window.showWarningMessage(
+        `The ${extension.packageJSON.displayName}(${extension.id}) extension is incompatible with the Glint extension. Please update ${extension.packageJSON.displayName} to the latest version to avoid issues.`,
+      );
+    }
+  }
+  if (
+    (vscodeTsdkVersion.value && !semver.gte(vscodeTsdkVersion.value, '5.3.0')) ||
+    (workspaceTsdkVersion.value && !semver.gte(workspaceTsdkVersion.value, '5.3.0'))
+  ) {
+    let msg = `TSDK >= 5.3.0 is required (VSCode TSDK: ${vscodeTsdkVersion.value}`;
+    if (workspaceTsdkVersion.value) {
+      msg += `, Workspace TSDK: ${workspaceTsdkVersion.value}`;
+    }
+    msg += `).`;
+    vscode.window.showWarningMessage(msg);
   }
 }
 

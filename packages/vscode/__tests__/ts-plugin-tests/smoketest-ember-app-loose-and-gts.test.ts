@@ -25,7 +25,7 @@ describe('Smoke test: Loose Mode + GTS with TS Plugin Mode', () => {
     }
   });
 
-  describe.only('loose mode aka ts + hbs two-file components', () => {
+  describe('loose mode aka ts + hbs two-file components', () => {
     describe('diagnostics', () => {
       test('reports errors and errors disappear when fixed', async () => {
         let scriptURI = Uri.file(`${rootDir}/app/components/colocated-layout-with-errors.hbs`);
@@ -50,7 +50,7 @@ describe('Smoke test: Loose Mode + GTS with TS Plugin Mode', () => {
           edit.replace(new Range(4, 14, 4, 17), '');
         });
 
-        // Wait for a diagnostic to appear in the template
+        // Wait for the diagnostic to disappear
         await waitUntil(() => languages.getDiagnostics(scriptURI).length == 0);
       });
     });

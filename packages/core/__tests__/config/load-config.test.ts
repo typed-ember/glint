@@ -32,7 +32,6 @@ describe('Config: loadConfig', () => {
       JSON.stringify({
         glint: {
           environment: 'kaboom',
-          checkStandaloneTemplates: false,
         },
       }),
     );
@@ -50,7 +49,6 @@ describe('Config: loadConfig', () => {
 
     expect(config.rootDir).toBe(normalizePath(`${testDir}/deeply`));
     expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: {} });
-    expect(config.checkStandaloneTemplates).toBe(false);
   });
 
   test('locates config in package', () => {
@@ -77,7 +75,6 @@ describe('Config: loadConfig', () => {
       JSON.stringify({
         glint: {
           environment: 'kaboom',
-          checkStandaloneTemplates: false,
         },
       }),
     );
@@ -95,6 +92,5 @@ describe('Config: loadConfig', () => {
 
     expect(config.rootDir).toBe(normalizePath(`${directory}`));
     expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: {} });
-    expect(config.checkStandaloneTemplates).toBe(false);
   });
 });

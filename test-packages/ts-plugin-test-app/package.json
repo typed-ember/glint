@@ -10,6 +10,6 @@
   "description": "",
   "devDependencies": {
     "typescript": "*",
-    "@glint/typescript-plugin": "*"
+    "@glint/tsserver-plugin": "*"
   }
 }

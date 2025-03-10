@@ -1,8 +1,7 @@
 {
   "extends": "../../tsconfig.compileroptions.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "plugins": [{ "name": "@glint/typescript-plugin" }]
+    "baseUrl": "."
   },
   "include": ["src", "types"],
   "glint": {

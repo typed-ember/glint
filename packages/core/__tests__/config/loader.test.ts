@@ -123,7 +123,7 @@ describe('Config: loadConfig', () => {
         `${testDir}/tsconfig.json`,
         JSON.stringify({
           extends: './tsconfig.base.json',
-          glint: { checkStandaloneTemplates: false },
+          glint: {},
         }),
       );
 
@@ -131,7 +131,6 @@ describe('Config: loadConfig', () => {
 
       expect(config?.rootDir).toBe(normalizePath(testDir));
       expect(config?.environment.names).toEqual(['./local-env']);
-      expect(config?.checkStandaloneTemplates).toBe(false);
     });
   });
 });

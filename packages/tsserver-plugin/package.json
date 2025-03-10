@@ -1,5 +1,5 @@
 {
-  "name": "@glint/typescript-plugin",
+  "name": "@glint/tsserver-plugin",
   "version": "1.4.0",
   "type": "commonjs",
   "repository": "typed-ember/glint",
