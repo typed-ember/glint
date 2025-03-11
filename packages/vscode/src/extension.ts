@@ -300,9 +300,7 @@ try {
   }
 
   if (tsExtension.isActive) {
-    // TODO: I'm seeing a restart loop when I open debug window and .ts is the active editor.
-    // If .gts is active editor then it's fine.
-    // vscode.commands.executeCommand('workbench.action.restartExtensionHost');
+    vscode.commands.executeCommand('workbench.action.restartExtensionHost');
   }
 } catch {
   // ignore

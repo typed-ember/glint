@@ -42,10 +42,7 @@
   "engines": {
     "vscode": "^1.68.1"
   },
-  "activationEvents": [
-    "workspaceContains:**/tsconfig.json",
-    "workspaceContains:**/jsconfig.json"
-  ],
+  "activationEvents": [],
   "contributes": {
     "languages": [
       {
