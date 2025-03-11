@@ -134,7 +134,7 @@ connection.onInitialize((params) => {
     return connection.sendRequest<T>(options.typescript.requestForwardingCommand!, [command, args]);
   }
 
-  function createLs(server: LanguageServer, tsconfigFileName: string | undefined): any {
+  function createLs(server: LanguageServer, tsconfigFileName: string | undefined): LanguageService {
     if (!tsconfigFileName) {
       throw new Error('tsconfigFileName is required');
     }
