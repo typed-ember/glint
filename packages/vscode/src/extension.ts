@@ -16,6 +16,7 @@ import {
 } from 'reactive-vscode';
 
 import { watchWorkspaceFolderForLanguageClientActivation } from './language-client';
+import { ExtensionContext } from 'vscode';
 
 export const { activate, deactivate } = defineExtension(async () => {
   const volarLabs = createLabsInfo(languageServerProtocol);
@@ -299,7 +300,9 @@ try {
   }
 
   if (tsExtension.isActive) {
-    vscode.commands.executeCommand('workbench.action.restartExtensionHost');
+    // TODO: I'm seeing a restart loop when I open debug window and .ts is the active editor.
+    // If .gts is active editor then it's fine.
+    // vscode.commands.executeCommand('workbench.action.restartExtensionHost');
   }
 } catch {
   // ignore
