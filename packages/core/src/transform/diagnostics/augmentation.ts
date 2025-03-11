@@ -2,23 +2,36 @@ import type ts from 'typescript';
 import { Diagnostic } from './index.js';
 import GlimmerASTMappingTree, { MappingSource } from '../template/glimmer-ast-mapping-tree.js';
 
-/**
- * Given a diagnostic and a mapping tree node corresponding to its location,
- * returns updated message text for that diagnostic with Glint-specific
- * information included, if applicable.
- */
-export function augmentDiagnostic<T extends Diagnostic>(
-  diagnostic: T,
-  mappingForDiagnostic: (diagnostic: T) => GlimmerASTMappingTree | null,
-): T {
-  // TODO: fix any types, remove casting
-  return rewriteMessageText(diagnostic, mappingForDiagnostic as any) as T;
+export function augmentDiagnostics<T extends Diagnostic>(
+  transformedModule: any,
+  diagnostics: T[],
+): T[] {
+  const mappingForDiagnostic = (diagnostic: ts.Diagnostic): GlimmerASTMappingTree | null => {
+    if (!transformedModule) {
+      return null;
+    }
+
+    if (!diagnostic.start || !diagnostic.length) {
+      return null;
+    }
+
+    const start = diagnostic.start;
+    const end = start + diagnostic.length;
+
+    // TODO: de-hardwire "disregard.gts" and consider the case of two-file components where
+    // the hardcoded source file name might be the hbs file.
+    const rangeWithMappingAndSource = transformedModule.getTransformedRange('disregard.gts', start, end);
+    return rangeWithMappingAndSource.mapping || null;
+  };
+
+  // @ts-expect-error not sure how to fix
+  return diagnostics.map((diagnostic) => rewriteMessageText(diagnostic, mappingForDiagnostic));
 }
 
-type DiagnosticHandler = (
-  diagnostic: Diagnostic,
+type DiagnosticHandler<T extends Diagnostic> = (
+  diagnostic: T,
   mapping: GlimmerASTMappingTree,
-) => Diagnostic | undefined;
+) => T | undefined;
 
 function rewriteMessageText(
   diagnostic: Diagnostic,
@@ -37,7 +50,7 @@ function rewriteMessageText(
   return handler(diagnostic, mapping) ?? diagnostic;
 }
 
-const diagnosticHandlers: Record<string, DiagnosticHandler | undefined> = {
+const diagnosticHandlers: Record<string, DiagnosticHandler<Diagnostic> | undefined> = {
   '2322': checkAssignabilityError, // TS2322: Type 'X' is not assignable to type 'Y'.
   '2345': checkAssignabilityError, // TS2345: Argument of type 'X' is not assignable to parameter of type 'Y'.
   '2554': noteNamedArgsAffectArity, // TS2554: Expected N arguments, but got M.
@@ -119,7 +132,7 @@ function checkAssignabilityError(
     let kind = mapping.sourceNode.path.original;
     return {
       ...diagnostic,
-      message: `Unable to pre-bind the given args to the given ${kind}. This likely indicates a type mismatch between its signature and the values you're passing.`,
+      messageText: `Unable to pre-bind the given args to the given ${kind}. This likely indicates a type mismatch between its signature and the values you're passing.`,
     };
   }
 }
@@ -151,7 +164,7 @@ function noteNamedArgsAffectArity(
 
     return {
       ...diagnostic,
-      message: `${diagnostic.message} ${note}`,
+      messageText: `${diagnostic.messageText} ${note}`,
     };
   }
 }
@@ -207,12 +220,12 @@ function checkImplicitAnyError(
   diagnostic: Diagnostic,
   mapping: GlimmerASTMappingTree,
 ): Diagnostic | undefined {
-  let message = diagnostic.message;
+  let message = diagnostic.messageText;
 
   // We don't want to bake in assumptions about the exact format of TS error messages,
   // but we can assume that the name of the type we're indexing (`Globals`) will appear
   // in the text in the case we're interested in.
-  if (message.includes('Globals')) {
+  if (typeof message === 'string' && message.includes('Globals')) {
     let { sourceNode } = mapping;
 
     // This error may appear either on `<Foo />` or `{{foo}}`/`(foo)`
@@ -237,13 +250,13 @@ function checkIndexAccessError(
   diagnostic: Diagnostic,
   mapping: GlimmerASTMappingTree,
 ): Diagnostic | undefined {
-  if (mapping.sourceNode.type === 'Identifier') {
-    let message = diagnostic.message;
+  if (mapping.sourceNode.type === 'Identifier' && typeof diagnostic.messageText === 'string') {
+    let message = diagnostic.messageText;
 
     // "accessed with ['x']" => "accessed with {{get ... 'x'}}"
     return {
       ...diagnostic,
-      message: message.replace(/\[(['"])(.*)\1\]/, `{{get ... $1$2$1}}`),
+      messageText: message.replace(/\[(['"])(.*)\1\]/, `{{get ... $1$2$1}}`),
     };
   }
 }
@@ -251,7 +264,7 @@ function checkIndexAccessError(
 function addGlintDetails(diagnostic: Diagnostic, details: string): Diagnostic {
   return {
     ...diagnostic,
-    message: `${details}\n${diagnostic.message}`,
+    messageText: `${details}\n${diagnostic.messageText}`,
   };
 }
 

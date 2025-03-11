@@ -39,7 +39,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
   test('expected argument count', async () => {
     let diagnostics = await requestDiagnostics(
-      'index.gts',
+      'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       stripIndent`
         import Component from '@glimmer/component';
@@ -74,7 +74,49 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `
     );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 21,
+            "offset": 37,
+          },
+          "start": {
+            "line": 21,
+            "offset": 30,
+          },
+          "text": "Expected 2 arguments, but got 3.",
+        },
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 22,
+            "offset": 40,
+          },
+          "start": {
+            "line": 22,
+            "offset": 30,
+          },
+          "text": "Expected 2 arguments, but got 3. Note that named args are passed together as a final argument, so they collectively increase the given arg count by 1.",
+        },
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 26,
+            "offset": 28,
+          },
+          "start": {
+            "line": 26,
+            "offset": 21,
+          },
+          "text": "Expected 2 arguments, but got 3.",
+        },
+      ]
+    `);
   });
 
   test('emit for attributes and top-level content', async () => {
