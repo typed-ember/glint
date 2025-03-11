@@ -121,7 +121,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
   test('emit for attributes and top-level content', async () => {
     let diagnostics = await requestDiagnostics(
-      'index.gts',
+      'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       stripIndent`
         import Component from '@glimmer/component';
@@ -147,7 +147,120 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `
     );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2322,
+          "end": {
+            "line": 10,
+            "offset": 17,
+          },
+          "start": {
+            "line": 10,
+            "offset": 10,
+          },
+          "text": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
+      Type '{}' is not assignable to type 'AttrValue'.",
+        },
+        {
+          "category": "error",
+          "code": 2345,
+          "end": {
+            "line": 11,
+            "offset": 23,
+          },
+          "start": {
+            "line": 11,
+            "offset": 5,
+          },
+          "text": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+        },
+        {
+          "category": "error",
+          "code": 2345,
+          "end": {
+            "line": 12,
+            "offset": 28,
+          },
+          "start": {
+            "line": 12,
+            "offset": 10,
+          },
+          "text": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+        },
+        {
+          "category": "error",
+          "code": 2345,
+          "end": {
+            "line": 13,
+            "offset": 31,
+          },
+          "start": {
+            "line": 13,
+            "offset": 13,
+          },
+          "text": "Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+        },
+        {
+          "category": "error",
+          "code": 2322,
+          "end": {
+            "line": 15,
+            "offset": 17,
+          },
+          "start": {
+            "line": 15,
+            "offset": 10,
+          },
+          "text": "Only primitive values (see \`AttrValue\` in \`@glint/template\`) are assignable as HTML attributes. If you want to set an event listener, consider using the \`{{on}}\` modifier instead.
+      Type '{}' is not assignable to type 'AttrValue'.",
+        },
+        {
+          "category": "error",
+          "code": 2345,
+          "end": {
+            "line": 16,
+            "offset": 27,
+          },
+          "start": {
+            "line": 16,
+            "offset": 5,
+          },
+          "text": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+        },
+        {
+          "category": "error",
+          "code": 2345,
+          "end": {
+            "line": 17,
+            "offset": 32,
+          },
+          "start": {
+            "line": 17,
+            "offset": 10,
+          },
+          "text": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+        },
+        {
+          "category": "error",
+          "code": 2345,
+          "end": {
+            "line": 18,
+            "offset": 35,
+          },
+          "start": {
+            "line": 18,
+            "offset": 13,
+          },
+          "text": "Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+        },
+      ]
+    `);
   });
 
   test.skip('unresolved globals', async () => {
