@@ -31,7 +31,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           <template>
             {{expectsTwoArgs "one"}}
         }
-      `
+      `,
     );
 
     expect(diagnostics).toMatchInlineSnapshot();
@@ -71,7 +71,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             {{yield to="expectsAtLeastOneParam"}}
           </template>
         }
-      `
+      `,
     );
 
     expect(diagnostics).toMatchInlineSnapshot(`
@@ -144,7 +144,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             {{#let}}{{obj.someRandomPOJO}}{{/let}}
           </template>
         }
-      `
+      `,
     );
 
     expect(diagnostics).toMatchInlineSnapshot(`
@@ -278,7 +278,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           {{! failed non-global lookup (no custom message) }}
           {{locals.bad-thing}}
         {{/let}}
-      `
+      `,
     );
 
     expect(diagnostics).toMatchInlineSnapshot();
@@ -300,7 +300,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             <Foo /><Bar /><Baz />
           {{/let}}
         {{/let}}
-      `
+      `,
     );
 
     expect(diagnostics).toMatchInlineSnapshot();
@@ -318,7 +318,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
         {{! block invocation }}
         {{#component 'my-component'}}{{/component}}
         {{#component 'my-component' message="hi"}}{{/component}}
-      `
+      `,
     );
 
     expect(diagnostics).toMatchInlineSnapshot();
@@ -343,7 +343,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           }}
           {{/let}}
         </template>
-      `
+      `,
     );
 
     expect(diagnostics).toMatchInlineSnapshot(`
@@ -473,7 +473,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
         <template>
           {{stringRecord.fooBar}}          
         </template>
-      `
+      `,
     );
 
     expect(diagnostics).toMatchInlineSnapshot(`[]`);

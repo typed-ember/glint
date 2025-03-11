@@ -18,9 +18,9 @@ export default defineConfig({
       // our reuse of the shared tsserver instance (via tsserver harness) means
       // we can't be running tests in parallel.
       forks: {
-				singleFork: true,
-				isolate: false,
-      }
+        singleFork: true,
+        isolate: false,
+      },
     },
   },
 });

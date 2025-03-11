@@ -1,3 +1,3 @@
-import { testFoo as testFooWatlol } from "./test";
+import { testFoo as testFooWatlol } from './test';
 
-testFooWatlol
+testFooWatlol;
