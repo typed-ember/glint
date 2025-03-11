@@ -326,7 +326,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
   test('bad `component`/`helper`/`modifier` arg type', async () => {
     let diagnostics = await requestDiagnostics(
-      'index.gts',
+      'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       stripIndent`
         import { ComponentLike, HelperLike, ModifierLike } from '@glint/template';
@@ -346,7 +346,118 @@ describe('Language Server: Diagnostic Augmentation', () => {
       `
     );
 
-    expect(diagnostics).toMatchInlineSnapshot();
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2345,
+          "end": {
+            "line": 9,
+            "offset": 28,
+          },
+          "relatedInformation": [
+            {
+              "category": "error",
+              "code": 2771,
+              "message": "The last overload is declared here.",
+              "span": {
+                "end": {
+                  "line": 94,
+                  "offset": 5,
+                },
+                "file": "\${testWorkspacePath}late/-private/keywords/-bind-invokable.d.ts",
+                "start": {
+                  "line": 80,
+                  "offset": 3,
+                },
+              },
+            },
+          ],
+          "start": {
+            "line": 9,
+            "offset": 21,
+          },
+          "text": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
+        Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.
+          Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type 'NamedArgs<{ foo: string; }>'.
+            Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type '{ foo: string; }'.
+              Types of property 'foo' are incompatible.
+                Type 'number' is not assignable to type 'string'.",
+        },
+        {
+          "category": "error",
+          "code": 2345,
+          "end": {
+            "line": 10,
+            "offset": 25,
+          },
+          "relatedInformation": [
+            {
+              "category": "error",
+              "code": 2771,
+              "message": "The last overload is declared here.",
+              "span": {
+                "end": {
+                  "line": 94,
+                  "offset": 5,
+                },
+                "file": "\${testWorkspacePath}late/-private/keywords/-bind-invokable.d.ts",
+                "start": {
+                  "line": 80,
+                  "offset": 3,
+                },
+              },
+            },
+          ],
+          "start": {
+            "line": 10,
+            "offset": 18,
+          },
+          "text": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
+        Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.
+          Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type 'NamedArgs<{ foo: string; }>'.
+            Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type '{ foo: string; }'.
+              Types of property 'foo' are incompatible.
+                Type 'number' is not assignable to type 'string'.",
+        },
+        {
+          "category": "error",
+          "code": 2345,
+          "end": {
+            "line": 11,
+            "offset": 26,
+          },
+          "relatedInformation": [
+            {
+              "category": "error",
+              "code": 2771,
+              "message": "The last overload is declared here.",
+              "span": {
+                "end": {
+                  "line": 94,
+                  "offset": 5,
+                },
+                "file": "\${testWorkspacePath}late/-private/keywords/-bind-invokable.d.ts",
+                "start": {
+                  "line": 80,
+                  "offset": 3,
+                },
+              },
+            },
+          ],
+          "start": {
+            "line": 11,
+            "offset": 19,
+          },
+          "text": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
+        Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.
+          Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type 'NamedArgs<{ foo: string; }>'.
+            Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type '{ foo: string; }'.
+              Types of property 'foo' are incompatible.
+                Type 'number' is not assignable to type 'string'.",
+        },
+      ]
+    `);
   });
 
   test('`noPropertyAccessFromIndexSignature` violation', async () => {

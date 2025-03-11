@@ -124,7 +124,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
 
 
-  
+
   test('unresolvable template entities', async () => {
     project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
     project.write({
@@ -875,167 +875,9 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test('bad `component`/`helper`/`modifier` arg type', async () => {
-    project.setGlintConfig({ environment: ['ember-loose', 'ember-template-imports'] });
-    project.write({
-      'index.gts': stripIndent`
-        import { ComponentLike, HelperLike, ModifierLike } from '@glint/template';
 
-        declare const Comp: ComponentLike<{ Args: { foo: string } }>;
-        declare const help: HelperLike<{ Args: { Named: { foo: string } } }>;
-        declare const mod: ModifierLike<{ Args: { Named: { foo: string } } }>;
 
-        <template>
-          {{#let
-            (component Comp foo=123)
-            (helper help foo=123)
-            (modifier mod foo=123)
-          }}
-          {{/let}}
-        </template>
-      `,
-    });
-
-    let server = await project.startLanguageServer();
-
-    const { uri } = await server.openTextDocument(project.filePath('index.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequest(uri);
-
-    expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
-      [
-        {
-          "code": 2345,
-          "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 0,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-            "version": 0,
-          },
-          "message": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
-        Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.",
-          "range": {
-            "end": {
-              "character": 27,
-              "line": 8,
-            },
-            "start": {
-              "character": 20,
-              "line": 8,
-            },
-          },
-          "relatedInformation": [
-            {
-              "location": {
-                "range": {
-                  "end": {
-                    "character": 4,
-                    "line": 93,
-                  },
-                  "start": {
-                    "character": 2,
-                    "line": 79,
-                  },
-                },
-                "uri": "file:///PATH_TO_MODULE/@glint/template/-private/keywords/-bind-invokable.d.ts",
-              },
-              "message": "The last overload is declared here.",
-            },
-          ],
-          "severity": 1,
-          "source": "glint",
-        },
-        {
-          "code": 2345,
-          "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 0,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-            "version": 0,
-          },
-          "message": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
-        Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.",
-          "range": {
-            "end": {
-              "character": 24,
-              "line": 9,
-            },
-            "start": {
-              "character": 17,
-              "line": 9,
-            },
-          },
-          "relatedInformation": [
-            {
-              "location": {
-                "range": {
-                  "end": {
-                    "character": 4,
-                    "line": 93,
-                  },
-                  "start": {
-                    "character": 2,
-                    "line": 79,
-                  },
-                },
-                "uri": "file:///PATH_TO_MODULE/@glint/template/-private/keywords/-bind-invokable.d.ts",
-              },
-              "message": "The last overload is declared here.",
-            },
-          ],
-          "severity": 1,
-          "source": "glint",
-        },
-        {
-          "code": 2345,
-          "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 0,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-            "version": 0,
-          },
-          "message": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
-        Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.",
-          "range": {
-            "end": {
-              "character": 25,
-              "line": 10,
-            },
-            "start": {
-              "character": 18,
-              "line": 10,
-            },
-          },
-          "relatedInformation": [
-            {
-              "location": {
-                "range": {
-                  "end": {
-                    "character": 4,
-                    "line": 93,
-                  },
-                  "start": {
-                    "character": 2,
-                    "line": 79,
-                  },
-                },
-                "uri": "file:///PATH_TO_MODULE/@glint/template/-private/keywords/-bind-invokable.d.ts",
-              },
-              "message": "The last overload is declared here.",
-            },
-          ],
-          "severity": 1,
-          "source": "glint",
-        },
-      ]
-    `);
-  });
-
+  
   test('`noPropertyAccessFromIndexSignature` violation', async () => {
     project.updateTsconfig((tsconfig) => {
       tsconfig.glint = { environment: ['ember-loose', 'ember-template-imports'] };
