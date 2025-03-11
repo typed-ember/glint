@@ -134,7 +134,7 @@ connection.onInitialize((params) => {
     return connection.sendRequest<T>(options.typescript.requestForwardingCommand!, [command, args]);
   }
 
-  function createLs(server: LanguageServer, tsconfigFileName: string | undefined) {
+  function createLs(server: LanguageServer, tsconfigFileName: string | undefined): any {
     if (!tsconfigFileName) {
       throw new Error('tsconfigFileName is required');
     }
@@ -182,7 +182,7 @@ function getHybridModeLanguageServicePluginsForLanguageServer(
   ts: typeof import('typescript'),
   getTsPluginClient: any,
   // getTsPluginClient: import('@glint/tsserver/lib/requests').Requests | undefined,
-) {
+): LanguageServicePlugin<any>[] {
   const plugins = [
     // createTypeScriptSyntacticPlugin(ts),
     // createTypeScriptDocCommentTemplatePlugin(ts),

@@ -35,7 +35,7 @@ const workspaceTsdkVersion = computed(() => {
   }
 });
 
-export function checkCompatible() {
+export function checkCompatible(): void {
   for (const extension of extensions.value) {
     if (
       extension.id === 'denoland.vscode-deno' &&

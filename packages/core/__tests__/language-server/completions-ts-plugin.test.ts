@@ -242,9 +242,8 @@ describe('Language Server: Completions (ts plugin)', () => {
       }
     `;
 
-    expect(
-      await requestCompletion('ts-template-imports-app/src/index.gts', 'glimmer-ts', code),
-    ).toMatchInlineSnapshot(`
+    expect(await requestCompletion('ts-template-imports-app/src/index.gts', 'glimmer-ts', code))
+      .toMatchInlineSnapshot(`
       [
         {
           "kind": "property",
@@ -341,21 +340,25 @@ async function requestCompletionItem(
   languageId: string,
   content: string,
   itemLabel: string,
-) {
+): Promise<any> {
   const completions = await requestCompletion(fileName, languageId, content);
   let completion = completions.find((item: any) => item.name === itemLabel);
   expect(completion).toBeDefined();
   return completion!;
 }
 
-async function requestCompletion(fileName: string, languageId: string, contentWithCursor: string) {
+async function requestCompletion(
+  fileName: string,
+  languageId: string,
+  contentWithCursor: string,
+): Promise<any> {
   const [offset, content] = extractCursor(contentWithCursor);
   const document = await prepareDocument(fileName, languageId, content);
   const res = await performCompletionRequest(document, offset);
   return res;
 }
 
-async function performCompletionRequest(document: TextDocument, offset: number) {
+async function performCompletionRequest(document: TextDocument, offset: number): Promise<any> {
   const workspaceHelper = await getSharedTestWorkspaceHelper();
   const res = await workspaceHelper.tsserver.message({
     seq: workspaceHelper.nextSeq(),

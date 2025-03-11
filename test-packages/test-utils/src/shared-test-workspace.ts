@@ -140,7 +140,7 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
 
 const openedDocuments: TextDocument[] = [];
 
-export async function teardownSharedTestWorkspaceAfterEach() {
+export async function teardownSharedTestWorkspaceAfterEach(): Promise<void> {
   const server = await getSharedTestWorkspaceHelper();
   for (const document of openedDocuments) {
     await server.close(document.uri);
@@ -149,7 +149,11 @@ export async function teardownSharedTestWorkspaceAfterEach() {
   eventHandler = undefined;
 }
 
-export async function prepareDocument(fileName: string, languageId: string, content: string) {
+export async function prepareDocument(
+  fileName: string,
+  languageId: string,
+  content: string,
+): Promise<TextDocument> {
   const server = await getSharedTestWorkspaceHelper();
   const uri = URI.file(`${testWorkspacePath}/${fileName}`);
   const document = await server.open(uri.toString(), languageId, content);
@@ -167,6 +171,8 @@ export function extractCursor(contentWithCursors: string): [number, string] {
 
 export function extractCursors(content: string): [number[], string] {
   const offsets = [];
+
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const offset = content.indexOf('%');
     if (offset === -1) break;
@@ -176,7 +182,11 @@ export function extractCursors(content: string): [number[], string] {
   return [offsets, content];
 }
 
-export async function requestDiagnostics(fileName: string, languageId: string, content: string) {
+export async function requestDiagnostics(
+  fileName: string,
+  languageId: string,
+  content: string,
+): Promise<any> {
   const workspaceHelper = await getSharedTestWorkspaceHelper();
 
   const diagnosticsReceivedPromise = new Promise<any>((resolve) => {

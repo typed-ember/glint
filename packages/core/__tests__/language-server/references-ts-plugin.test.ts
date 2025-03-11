@@ -34,7 +34,7 @@ describe('Language Server: References (ts plugin)', () => {
       'ts-template-imports-app/src/ephemeral-greeting.gts',
       'glimmer-ts',
       content,
-    )
+    );
 
     await prepareDocument(
       'ts-template-imports-app/src/empty-fixture.gts',
@@ -51,12 +51,7 @@ describe('Language Server: References (ts plugin)', () => {
       `,
     );
 
-    expect(
-      await performReferencesRequest(
-        greetingDoc,
-        offset,
-      ),
-    ).toMatchInlineSnapshot(`
+    expect(await performReferencesRequest(greetingDoc, offset)).toMatchInlineSnapshot(`
       [
         {
           "contextEnd": {
@@ -234,7 +229,11 @@ describe('Language Server: References (ts plugin)', () => {
   });
 });
 
-async function requestReferences(fileName: string, languageId: string, contentWithCursor: string) {
+async function requestReferences(
+  fileName: string,
+  languageId: string,
+  contentWithCursor: string,
+): Promise<any> {
   const [offset, content] = extractCursor(contentWithCursor);
 
   let document = await prepareDocument(fileName, languageId, content);
@@ -244,7 +243,7 @@ async function requestReferences(fileName: string, languageId: string, contentWi
   return res;
 }
 
-async function performReferencesRequest(document: TextDocument, offset: number) {
+async function performReferencesRequest(document: TextDocument, offset: number): Promise<any> {
   const workspaceHelper = await getSharedTestWorkspaceHelper();
 
   const res = await workspaceHelper.tsserver.message({
@@ -253,7 +252,7 @@ async function performReferencesRequest(document: TextDocument, offset: number) 
     arguments: {
       file: URI.parse(document.uri).fsPath,
       position: offset,
-			includeDeclaration: false,
+      includeDeclaration: false,
     },
   });
   expect(res.success).toBe(true);

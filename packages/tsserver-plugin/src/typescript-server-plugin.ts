@@ -80,7 +80,7 @@ function proxyLanguageServiceForGlint<T>(
   language: any, // Language<T>,
   languageService: ts.LanguageService,
   asScriptId: (fileName: string) => T,
-) {
+): ts.LanguageService {
   const proxyCache = new Map<string | symbol, Function | undefined>();
   const getProxyMethod = (target: ts.LanguageService, p: string | symbol): Function | undefined => {
     switch (p) {
@@ -149,10 +149,7 @@ function getSemanticDiagnostics<T>(
       return tsDiagnostics;
     }
 
-    const augmentedTsDiagnostics = augmentDiagnostics(
-      transformedModule,
-      tsDiagnostics,
-    );
+    const augmentedTsDiagnostics = augmentDiagnostics(transformedModule, tsDiagnostics);
 
     return augmentedTsDiagnostics;
   };

@@ -185,7 +185,7 @@ describe('Language Server: Hover (ts plugin)', () => {
   });
 });
 
-async function performHoverRequest(document: TextDocument, offset: number) {
+async function performHoverRequest(document: TextDocument, offset: number): Promise<any> {
   const workspaceHelper = await getSharedTestWorkspaceHelper();
 
   const res = await workspaceHelper.tsserver.message({

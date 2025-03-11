@@ -208,7 +208,11 @@ describe('Language Server: Definitions (ts plugin)', () => {
   });
 });
 
-async function requestDefinition(fileName: string, languageId: string, contentWithCursor: string) {
+async function requestDefinition(
+  fileName: string,
+  languageId: string,
+  contentWithCursor: string,
+): Promise<any> {
   const [offset, content] = extractCursor(contentWithCursor);
 
   let document = await prepareDocument(fileName, languageId, content);
@@ -218,7 +222,7 @@ async function requestDefinition(fileName: string, languageId: string, contentWi
   return res;
 }
 
-async function performDefinitionRequest(document: TextDocument, offset: number) {
+async function performDefinitionRequest(document: TextDocument, offset: number): Promise<any> {
   const workspaceHelper = await getSharedTestWorkspaceHelper();
 
   const res = await workspaceHelper.tsserver.message({
