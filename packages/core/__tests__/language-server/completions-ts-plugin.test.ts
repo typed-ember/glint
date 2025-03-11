@@ -2,9 +2,7 @@ import {
   getSharedTestWorkspaceHelper,
   teardownSharedTestWorkspaceAfterEach,
   prepareDocument,
-  testWorkspacePath,
   extractCursor,
-  extractCursors,
 } from 'glint-monorepo-test-utils';
 import { describe, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';

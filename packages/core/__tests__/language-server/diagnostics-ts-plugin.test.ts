@@ -1,10 +1,6 @@
 import {
-  getSharedTestWorkspaceHelper,
   teardownSharedTestWorkspaceAfterEach,
   prepareDocument,
-  testWorkspacePath,
-  extractCursor,
-  extractCursors,
   requestDiagnostics,
 } from 'glint-monorepo-test-utils';
 import { describe, afterEach, test, expect } from 'vitest';
