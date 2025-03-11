@@ -239,14 +239,23 @@ describe('Language Server: Completions (ts plugin)', () => {
 
       export default class MyComponent<T> extends Component<{ Args: MyComponentArgs<T> }> {
         <template>
-          {{@i}}
+          {{@i%}}
         </template>
       }
     `;
 
     expect(
       await requestCompletion('ts-template-imports-app/src/index.gts', 'glimmer-ts', code),
-    ).toMatchInlineSnapshot();
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "kind": "property",
+          "kindModifiers": "",
+          "name": "items",
+          "sortText": "11",
+        },
+      ]
+    `);
   });
 
   test('referencing block params', async () => {
@@ -256,15 +265,27 @@ describe('Language Server: Completions (ts plugin)', () => {
       export default class MyComponent extends Component {
         <template>
           {{#each "abc" as |letter|}}
-            {{l}}
+            {{l%}}
           {{/each}}
         </template>
       }
     `;
 
     expect(
-      await requestCompletion('ts-template-imports-app/src/index.gts', 'glimmer-ts', code),
-    ).toMatchInlineSnapshot();
+      await requestCompletionItem(
+        'ts-template-imports-app/src/index.gts',
+        'glimmer-ts',
+        code,
+        'letter',
+      ),
+    ).toMatchInlineSnapshot(`
+      {
+        "kind": "const",
+        "kindModifiers": "",
+        "name": "letter",
+        "sortText": "11",
+      }
+    `);
   });
 
   test('referencing module-scope identifiers', async () => {
