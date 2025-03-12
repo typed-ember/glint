@@ -1,3 +1,10 @@
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+
+test('maybe reinstate these tests');
+
+/*
+TODO: decide whether worth reinstating post Volar
+
 import { Project } from 'glint-monorepo-test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
@@ -322,3 +329,4 @@ describe('Language Server: Renaming Symbols', () => {
     });
   });
 });
+*/

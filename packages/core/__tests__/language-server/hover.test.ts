@@ -1,318 +1,202 @@
-import { Project } from 'glint-monorepo-test-utils';
-import { describe, beforeEach, afterEach, test, expect } from 'vitest';
+import {
+  getSharedTestWorkspaceHelper,
+  teardownSharedTestWorkspaceAfterEach,
+  prepareDocument,
+  extractCursor,
+} from 'glint-monorepo-test-utils';
+import { describe, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
+import { URI } from 'vscode-uri';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
-describe('Language Server: Hover', () => {
-  let project!: Project;
-
-  beforeEach(async () => {
-    project = await Project.create();
-  });
-
-  afterEach(async () => {
-    await project.destroy();
-  });
-
-  test.skip('querying a standalone template', async () => {
-    project.setGlintConfig({ environment: 'ember-loose' });
-    project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
-
-    let server = await project.startLanguageServer();
-    let info = await server.sendHoverRequest(project.fileURI('index.hbs'), {
-      line: 0,
-      character: 17,
-    });
-
-    expect(info).toEqual({
-      contents: [{ language: 'ts', value: 'const foo: any' }],
-      range: {
-        start: { line: 0, character: 16 },
-        end: { line: 0, character: 19 },
-      },
-    });
-  });
+describe('Language Server: Hover (ts plugin)', () => {
+  afterEach(teardownSharedTestWorkspaceAfterEach);
 
   test('using private properties', async () => {
-    project.write({
-      'index.gts': stripIndent`
-        import Component from '@glimmer/component';
+    const [offset, content] = extractCursor(stripIndent`
+      import Component from '@glimmer/component';
 
-        export default class MyComponent extends Component {
-          /** A message. */
-          private message = 'hi';
+      export default class MyComponent extends Component {
+        /** A message. */
+        private message = 'hi';
 
-          <template>
-            {{this.message}}
-          </template>
-        }
-      `,
-    });
+        <template>
+          {{this.m%essage}}
+        </template>
+      }
+    `);
 
-    let server = await project.startLanguageServer();
-    let messageInfo = await server.sendHoverRequest(project.fileURI('index.gts'), {
-      line: 7,
-      character: 12,
-    });
+    const doc = await prepareDocument(
+      'ts-template-imports-app/src/ephemeral.gts',
+      'glimmer-ts',
+      content,
+    );
 
-    expect(messageInfo).toMatchInlineSnapshot(`
+    expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
       {
-        "contents": {
-          "kind": "markdown",
-          "value": "\`\`\`typescript
-      (property) MyComponent.message: string
-      \`\`\`
-
-      A message.",
+        "displayString": "(property) MyComponent.message: string",
+        "documentation": "A message.",
+        "end": {
+          "line": 8,
+          "offset": 19,
         },
-        "range": {
-          "end": {
-            "character": 18,
-            "line": 7,
-          },
-          "start": {
-            "character": 11,
-            "line": 7,
-          },
+        "kind": "property",
+        "kindModifiers": "private",
+        "start": {
+          "line": 8,
+          "offset": 12,
         },
+        "tags": [],
       }
     `);
   });
 
   test('using args', async () => {
-    project.write({
-      'index.gts': stripIndent`
-        import Component from '@glimmer/component';
+    const [offset, content] = extractCursor(stripIndent`
+      import Component from '@glimmer/component';
 
-        interface MyComponentArgs {
-          /** Some string */
-          str: string;
-        }
+      interface MyComponentArgs {
+        /** Some string */
+        str: string;
+      }
 
-        export default class MyComponent extends Component<{ Args: MyComponentArgs }> {
-          <template>
-            {{@str}}
-          </template>
-        }
-      `,
-    });
+      export default class MyComponent extends Component<{ Args: MyComponentArgs }> {
+        <template>
+          {{@%str}}
+        </template>
+      }
+    `);
 
-    let server = await project.startLanguageServer();
-    let strInfo = await server.sendHoverRequest(project.fileURI('index.gts'), {
-      line: 9,
-      character: 7,
-    });
+    const doc = await prepareDocument(
+      'ts-template-imports-app/src/ephemeral.gts',
+      'glimmer-ts',
+      content,
+    );
 
-    // {{@str}} in the template matches back to the arg definition
-    expect(strInfo).toMatchInlineSnapshot(`
+    expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
       {
-        "contents": {
-          "kind": "markdown",
-          "value": "\`\`\`typescript
-      (property) MyComponentArgs.str: string
-      \`\`\`
-
-      Some string",
+        "displayString": "(property) MyComponentArgs.str: string",
+        "documentation": "Some string",
+        "end": {
+          "line": 10,
+          "offset": 11,
         },
-        "range": {
-          "end": {
-            "character": 10,
-            "line": 9,
-          },
-          "start": {
-            "character": 7,
-            "line": 9,
-          },
+        "kind": "property",
+        "kindModifiers": "",
+        "start": {
+          "line": 10,
+          "offset": 8,
         },
+        "tags": [],
       }
     `);
   });
 
   test('curly block params', async () => {
-    project.write({
-      'index.gts': stripIndent`
-        import Component from '@glimmer/component';
+    const [offset, content] = extractCursor(stripIndent`
+      import Component from '@glimmer/component';
 
-        export default class MyComponent extends Component {
-          <template>
-            {{#each "abc" as |item index|}}
-              Item #{{index}}: {{item}}<br>
-            {{/each}}
-          </template>
-        }
-      `,
-    });
-
-    let server = await project.startLanguageServer();
-    let indexInfo = await server.sendHoverRequest(project.fileURI('index.gts'), {
-      line: 5,
-      character: 14,
-    });
-
-    // {{index}} in the template matches back to the block param
-    expect(indexInfo).toMatchInlineSnapshot(`
-      {
-        "contents": {
-          "kind": "markdown",
-          "value": "\`\`\`typescript
-      const index: number
-      \`\`\`
-
-      ---
-
-      \`\`\`typescript
-      const index: number
-      \`\`\`",
-        },
-        "range": {
-          "end": {
-            "character": 19,
-            "line": 5,
-          },
-          "start": {
-            "character": 14,
-            "line": 5,
-          },
-        },
+      export default class MyComponent extends Component {
+        <template>
+          {{#each "abc" as |item index|}}
+            Item #{{ind%ex}}: {{item}}<br>
+          {{/each}}
+        </template>
       }
     `);
 
-    let itemInfo = await server.sendHoverRequest(project.fileURI('index.gts'), {
-      line: 5,
-      character: 25,
-    });
+    const doc = await prepareDocument(
+      'ts-template-imports-app/src/ephemeral.gts',
+      'glimmer-ts',
+      content,
+    );
 
-    // {{item}} in the template matches back to the block param
-    expect(itemInfo).toMatchInlineSnapshot(`
+    expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
       {
-        "contents": {
-          "kind": "markdown",
-          "value": "\`\`\`typescript
-      const item: string
-      \`\`\`
-
-      ---
-
-      \`\`\`typescript
-      const item: string
-      \`\`\`",
+        "displayString": "const index: number",
+        "documentation": "",
+        "end": {
+          "line": 6,
+          "offset": 20,
         },
-        "range": {
-          "end": {
-            "character": 29,
-            "line": 5,
-          },
-          "start": {
-            "character": 25,
-            "line": 5,
-          },
+        "kind": "const",
+        "kindModifiers": "",
+        "start": {
+          "line": 6,
+          "offset": 15,
         },
-      }
-    `);
-  });
-
-  test('module details', async () => {
-    project.write({
-      'foo.ts': stripIndent`
-        export const foo = 'hi';
-      `,
-      'index.ts': stripIndent`
-        import { foo } from './foo';
-
-        console.log(foo);
-      `,
-    });
-
-    let server = await project.startLanguageServer();
-    let info = await server.sendHoverRequest(project.fileURI('index.ts'), {
-      line: 0,
-      character: 24,
-    });
-
-    expect(info).toMatchInlineSnapshot(`
-      {
-        "contents": {
-          "kind": "markdown",
-          "value": "\`\`\`typescript
-      module "/path/to/EPHEMERAL_TEST_PROJECT/foo"
-      \`\`\`",
-        },
-        "range": {
-          "end": {
-            "character": 27,
-            "line": 0,
-          },
-          "start": {
-            "character": 20,
-            "line": 0,
-          },
-        },
+        "tags": [],
       }
     `);
   });
 
   describe.skip('JS in a TS project', () => {
     test('with allowJs: true', async () => {
-      let tsconfig = JSON.parse(project.read('tsconfig.json'));
-      tsconfig.glint = { environment: 'ember-loose' };
-      tsconfig.compilerOptions.allowJs = true;
-      project.write('tsconfig.json', JSON.stringify(tsconfig));
+      const [offset, content] = extractCursor(stripIndent`
+        {{this.mes%sage}}
+      `);
 
-      project.write({
-        'index.hbs': '{{this.message}}',
-        'index.js': stripIndent`
+      await prepareDocument(
+        'ts-template-imports-app/src/index.js',
+        'javascript',
+        stripIndent`
           import Component from '@glimmer/component';
 
           export default class MyComponent extends Component {
             message = 'hi';
           }
         `,
-      });
+      );
 
-      let server = await project.startLanguageServer();
-      let info = await server.sendHoverRequest(project.fileURI('index.hbs'), {
-        line: 0,
-        character: 10,
-      });
+      const doc = await prepareDocument(
+        'ts-template-imports-app/src/index.hbs',
+        'handlebars',
+        content,
+      );
 
-      expect(server.getDiagnostics(project.fileURI('index.hbs'))).toEqual([]);
-      expect(server.getDiagnostics(project.fileURI('index.js'))).toEqual([]);
-
-      expect(info).toEqual({
-        contents: [{ language: 'ts', value: '(property) MyComponent.message: string' }],
-        range: {
-          start: { line: 0, character: 7 },
-          end: { line: 0, character: 14 },
-        },
-      });
+      expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot();
     });
 
     test('allowJs: false', async () => {
-      let tsconfig = JSON.parse(project.read('tsconfig.json'));
-      tsconfig.glint = { environment: 'ember-loose' };
-      tsconfig.compilerOptions.allowJs = false;
-      project.write('tsconfig.json', JSON.stringify(tsconfig));
+      const [offset, content] = extractCursor(stripIndent`
+        {{this.mes%sage}}
+      `);
 
-      project.write({
-        'index.hbs': '{{this.message}}',
-        'index.js': stripIndent`
+      await prepareDocument(
+        'ts-template-imports-app/src/index.js',
+        'javascript',
+        stripIndent`
           import Component from '@glimmer/component';
 
           export default class MyComponent extends Component {
             message = 'hi';
           }
         `,
-      });
+      );
 
-      let server = await project.startLanguageServer();
-      let info = await server.sendHoverRequest(project.fileURI('index.hbs'), {
-        line: 0,
-        character: 10,
-      });
+      const doc = await prepareDocument(
+        'ts-template-imports-app/src/index.hbs',
+        'handlebars',
+        content,
+      );
 
-      expect(server.getDiagnostics(project.fileURI('index.hbs'))).toEqual([]);
-      expect(server.getDiagnostics(project.fileURI('index.js'))).toEqual([]);
-
-      expect(info).toEqual(undefined);
+      expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot();
     });
   });
 });
+
+async function performHoverRequest(document: TextDocument, offset: number): Promise<any> {
+  const workspaceHelper = await getSharedTestWorkspaceHelper();
+
+  const res = await workspaceHelper.tsserver.message({
+    seq: workspaceHelper.nextSeq(),
+    command: 'quickinfo',
+    arguments: {
+      file: URI.parse(document.uri).fsPath,
+      position: offset,
+    },
+  });
+  expect(res.success).toBe(true);
+
+  return res.body;
+}

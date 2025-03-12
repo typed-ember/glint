@@ -1,101 +1,13 @@
-import { Project } from 'glint-monorepo-test-utils';
-import { describe, beforeEach, afterEach, test, expect } from 'vitest';
+import {
+  teardownSharedTestWorkspaceAfterEach,
+  prepareDocument,
+  requestDiagnostics,
+} from 'glint-monorepo-test-utils';
+import { describe, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
 
-describe('Language Server: Diagnostics', () => {
-  let project!: Project;
-
-  beforeEach(async () => {
-    project = await Project.create();
-  });
-
-  afterEach(async () => {
-    await project.destroy();
-  });
-
-  describe('checkStandaloneTemplates', () => {
-    beforeEach(() => {
-      let registry = stripIndent`
-        import { ComponentLike } from '@glint/template';
-
-        declare module '@glint/environment-ember-loose/registry' {
-          export default interface Registry {
-            Foo: ComponentLike<{ Args: { name: string } }>;
-          }
-        }
-      `;
-
-      let template = stripIndent`
-        {{@missingArg}}
-
-        <Foo @name={{123}} />
-      `;
-
-      project.write('registry.d.ts', registry);
-      project.write('my-component.hbs', template);
-    });
-
-    test.skip('disabled', async () => {
-      project.setGlintConfig({
-        environment: 'ember-loose',
-        checkStandaloneTemplates: false,
-      });
-
-      let server = await project.startLanguageServer();
-      let templateDiagnostics = server.getDiagnostics(project.fileURI('my-component.hbs'));
-
-      expect(templateDiagnostics).toEqual([]);
-    });
-
-    test.skip('enabled', async () => {
-      project.setGlintConfig({
-        environment: 'ember-loose',
-        checkStandaloneTemplates: true,
-      });
-
-      let server = await project.startLanguageServer();
-      let templateDiagnostics = server.getDiagnostics(project.fileURI('my-component.hbs'));
-
-      expect(templateDiagnostics).toMatchInlineSnapshot(`
-        [
-          {
-            "code": 2339,
-            "message": "Property 'missingArg' does not exist on type '{}'.",
-            "range": {
-              "end": {
-                "character": 13,
-                "line": 0,
-              },
-              "start": {
-                "character": 3,
-                "line": 0,
-              },
-            },
-            "severity": 1,
-            "source": "glint",
-            "tags": [],
-          },
-          {
-            "code": 2322,
-            "message": "Type 'number' is not assignable to type 'string'.",
-            "range": {
-              "end": {
-                "character": 10,
-                "line": 2,
-              },
-              "start": {
-                "character": 6,
-                "line": 2,
-              },
-            },
-            "severity": 1,
-            "source": "glint",
-            "tags": [],
-          },
-        ]
-      `);
-    });
-  });
+describe('Language Server: Diagnostics (ts plugin)', () => {
+  afterEach(teardownSharedTestWorkspaceAfterEach);
 
   // skipping until we tackle two-file components
   describe.skip('external file changes', () => {
@@ -109,70 +21,29 @@ describe('Language Server: Diagnostics', () => {
       export default templateOnly<TemplateOnlySignature>();
     `;
 
-    beforeEach(() => {
-      project.setGlintConfig({ environment: 'ember-loose' });
-    });
-
     test('adding a backing module', async () => {
-      project.write('component.hbs', '{{@foo}}');
+      const hbsCode = '{{@foo}}';
 
-      let server = await project.startLanguageServer();
-      let diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
+      await prepareDocument('component.ts', 'typescript', scriptContents);
 
-      expect(diagnostics).toMatchObject([
-        {
-          message: "Property 'foo' does not exist on type '{}'.",
-          source: 'glint',
-          code: 2339,
-        },
-      ]);
+      const diagnostics = await requestDiagnostics('component.hbs', 'handlebars', hbsCode);
 
-      project.write('component.ts', scriptContents);
-      server.watchedFileDidChange(project.fileURI('component.ts'));
-
-      diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
-
-      expect(diagnostics).toEqual([]);
-
-      let defs = server.getDefinition(project.fileURI('component.hbs'), { line: 0, character: 5 });
-
-      expect(defs).toEqual([
-        {
-          uri: project.fileURI('component.ts'),
-          range: {
-            start: { line: 3, character: 10 },
-            end: { line: 3, character: 13 },
-          },
-        },
-      ]);
+      expect(diagnostics).toMatchInlineSnapshot();
     });
 
     test('removing a backing module', async () => {
-      project.write('component.hbs', '{{@foo}}');
-      project.write('component.ts', scriptContents);
+      const hbsCode = '{{@foo}}';
 
-      let server = await project.startLanguageServer();
-      let diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
+      await prepareDocument('component.ts', 'typescript', scriptContents);
 
-      expect(diagnostics).toEqual([]);
+      const diagnostics = await requestDiagnostics('component.hbs', 'handlebars', hbsCode);
 
-      project.remove('component.ts');
-      server.watchedFileWasRemoved(project.fileURI('component.ts'));
-
-      diagnostics = server.getDiagnostics(project.fileURI('component.hbs'));
-
-      expect(diagnostics).toMatchObject([
-        {
-          message: "Property 'foo' does not exist on type '{}'.",
-          source: 'glint',
-          code: 2339,
-        },
-      ]);
+      expect(diagnostics).toMatchInlineSnapshot();
     });
   });
 
   test('reports diagnostics for an inline template type error', async () => {
-    let code = stripIndent`
+    const code = stripIndent`
       // Here's a leading comment to make sure we handle trivia right
       import Component from '@glimmer/component';
 
@@ -190,91 +61,54 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    project.write('index.gts', code);
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      code,
+    );
 
-    let server = await project.startLanguageServer();
-    const gtsUri = project.filePath('index.gts');
-    const { uri } = await server.openTextDocument(gtsUri, 'glimmer-ts');
-    const diagnostics = await server.sendDocumentDiagnosticRequest(uri);
-
-    expect(diagnostics.items.reverse()).toMatchInlineSnapshot(`
+    expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
-          "code": 6133,
-          "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 0,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-            "version": 0,
-          },
-          "message": "'startupTime' is declared but its value is never read.",
-          "range": {
-            "end": {
-              "character": 21,
-              "line": 8,
-            },
-            "start": {
-              "character": 10,
-              "line": 8,
-            },
-          },
-          "severity": 4,
-          "source": "glint",
-          "tags": [
-            1,
-          ],
-        },
-        {
+          "category": "error",
           "code": 2551,
-          "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 0,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-            "version": 0,
-          },
-          "message": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
-          "range": {
-            "end": {
-              "character": 43,
-              "line": 12,
-            },
-            "start": {
-              "character": 31,
-              "line": 12,
-            },
+          "end": {
+            "line": 13,
+            "offset": 44,
           },
           "relatedInformation": [
             {
-              "location": {
-                "range": {
-                  "end": {
-                    "character": 21,
-                    "line": 8,
-                  },
-                  "start": {
-                    "character": 10,
-                    "line": 8,
-                  },
-                },
-                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/index.gts",
-              },
+              "category": "message",
+              "code": 2728,
               "message": "'startupTime' is declared here.",
+              "span": {
+                "end": {
+                  "line": 9,
+                  "offset": 22,
+                },
+                "file": "\${testWorkspacePath}/ts-template-imports-app/src/ephemeral-index.gts",
+                "start": {
+                  "line": 9,
+                  "offset": 11,
+                },
+              },
             },
           ],
-          "severity": 1,
-          "source": "glint",
+          "start": {
+            "line": 13,
+            "offset": 32,
+          },
+          "text": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
         },
       ]
     `);
   });
 
-  // skipping until we tackle two-file components
+  // Seems like the TS Plugin isn't kicking in on this one for some reason;
+  // lots of diagnostics on uncompiled Handlebars. Maybe for diagnostics there are
+  // race conditions?
   test.skip('reports diagnostics for a companion template type error', async () => {
-    let script = stripIndent`
+    const script = stripIndent`
       import Component from '@glimmer/component';
 
       type ApplicationArgs = {
@@ -286,212 +120,100 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let template = stripIndent`
+    const template = stripIndent`
       Welcome to app v{{@version}}.
       The current time is {{this.startupTimee}}.
     `;
 
-    project.setGlintConfig({ environment: 'ember-loose' });
-    project.write('controllers/foo.ts', script);
-    project.write('templates/foo.hbs', template);
+    await prepareDocument('ts-ember-app/app/templates/ephemeral.hbs', 'handlebars', template);
+    await prepareDocument('ts-ember-app/app/controllers/ephemeral.ts', 'typescript', script);
 
-    let server = await project.startLanguageServer();
-    let scriptDiagnostics = server.getDiagnostics(project.fileURI('controllers/foo.ts'));
-    let templateDiagnostics = server.getDiagnostics(project.fileURI('templates/foo.hbs'));
+    const diagnostics = await requestDiagnostics('templates/ephemeral.hbs', 'handlebars', template);
 
-    expect(scriptDiagnostics).toMatchInlineSnapshot(`
-      [
-        {
-          "code": 6133,
-          "message": "'startupTime' is declared but its value is never read.",
-          "range": {
-            "end": {
-              "character": 21,
-              "line": 7,
-            },
-            "start": {
-              "character": 10,
-              "line": 7,
-            },
-          },
-          "severity": 4,
-          "source": "glint",
-          "tags": [
-            1,
-          ],
-        },
-      ]
-    `);
-
-    expect(templateDiagnostics).toMatchInlineSnapshot(`
-      [
-        {
-          "code": 2551,
-          "message": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
-          "range": {
-            "end": {
-              "character": 39,
-              "line": 1,
-            },
-            "start": {
-              "character": 27,
-              "line": 1,
-            },
-          },
-          "severity": 1,
-          "source": "glint",
-          "tags": [],
-        },
-      ]
-    `);
-
-    server.openFile(project.fileURI('templates/foo.hbs'), template);
-    server.updateFile(
-      project.fileURI('templates/foo.hbs'),
-      template.replace('startupTimee', 'startupTime'),
-    );
-
-    expect(server.getDiagnostics(project.fileURI('controllers/foo.ts'))).toEqual([]);
-    expect(server.getDiagnostics(project.fileURI('templates/foo.hbs'))).toEqual([]);
+    expect(diagnostics).toMatchInlineSnapshot();
   });
 
-  test('honors @glint-ignore and @glint-expect-error', async () => {
-    let componentA = stripIndent`
+  test('honors @glint-expect-error / ignore shared test throws error', async () => {
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       export default class ComponentA extends Component {
         <template>
-          {{! @glint-expect-error }}
           Welcome to app _code_v{{@version}}_/code_.
         </template>
       }
     `;
 
-    let componentB = stripIndent`
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2339,
+          "end": {
+            "line": 5,
+            "offset": 37,
+          },
+          "start": {
+            "line": 5,
+            "offset": 30,
+          },
+          "text": "Property 'version' does not exist on type '{}'.",
+        },
+      ]
+    `);
+  });
+
+  test('honors @glint-expect-error', async () => {
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
-      export default class ComponentB extends Component {
-        public startupTime = new Date().toISOString();
-
+      export default class ComponentA extends Component {
         <template>
-          {{! @glint-ignore: this looks like a typo but for some reason it isn't }}
-          The current time is {{this.startupTimee}}.
+          {{! @glint-expect-error foo bar }}
+          Welcome to app _code_v{{@version}}_/code_.
         </template>
       }
     `;
 
-    let server = await project.startLanguageServer();
-
-    project.write('component-a.gts', componentA);
-    project.write('component-b.gts', componentB);
-
-    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
-
-    expect(diagnostics.items).toEqual([]);
-
-    const docB = await server.openTextDocument(project.filePath('component-b.gts'), 'glimmer-ts');
-    diagnostics = await server.sendDocumentDiagnosticRequest(docB.uri);
-    expect(diagnostics.items).toEqual([]);
-
-    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-    await server.replaceTextDocument(
-      project.fileURI('component-a.gts'),
-      componentA.replace('{{! @glint-expect-error }}', ''),
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
     );
 
-    expect(
-      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).items,
-    ).toEqual([]);
-    expect((await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items)
-      .toMatchInlineSnapshot(`
-      [
-        {
-          "code": 2339,
-          "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 0,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
-            "version": 1,
-          },
-          "message": "Property 'version' does not exist on type '{}'.",
-          "range": {
-            "end": {
-              "character": 36,
-              "line": 5,
-            },
-            "start": {
-              "character": 29,
-              "line": 5,
-            },
-          },
-          "severity": 1,
-          "source": "glint",
-        },
-      ]
-    `);
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
 
-    await server.replaceTextDocument(project.fileURI('component-a.gts'), componentA);
+  test('honors @glint-ignore', async () => {
+    const componentA = stripIndent`
+      import Component from '@glimmer/component';
 
-    expect(
-      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items,
-    ).toEqual([]);
-    expect(
-      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).items,
-    ).toEqual([]);
+      export default class ComponentA extends Component {
+        <template>
+          {{! @glint-ignore foo bar }}
+          Welcome to app _code_v{{@version}}_/code_.
+        </template>
+      }
+    `;
 
-    await server.replaceTextDocument(
-      project.fileURI('component-a.gts'),
-      componentA.replace('{{@version}}', ''),
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
     );
 
-    expect(
-      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).items,
-    ).toEqual([]);
-
-    expect(
-      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items.length,
-    ).toEqual(1);
-
-    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
-      .toMatchInlineSnapshot(`
-        {
-          "items": [
-            {
-              "code": 2578,
-              "data": {
-                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-                "isFormat": false,
-                "original": {},
-                "pluginIndex": 0,
-                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
-                "version": 3,
-              },
-              "message": "Unused '@ts-expect-error' directive.",
-              "range": {
-                "end": {
-                  "character": 30,
-                  "line": 4,
-                },
-                "start": {
-                  "character": 4,
-                  "line": 4,
-                },
-              },
-              "severity": 1,
-              "source": "glint",
-            },
-          ],
-          "kind": "full",
-        }
-      `);
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   // Regression / breaking change since Glint 2
   test.skip('@glint-ignore and @glint-expect-error skip over simple element declarations', async () => {
-    let componentA = stripIndent`
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       export default class ComponentA extends Component {
@@ -502,7 +224,7 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let componentB = stripIndent`
+    const componentB = stripIndent`
       import Component from '@glimmer/component';
 
       export default class ComponentB extends Component {
@@ -515,165 +237,62 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let server = await project.startLanguageServer();
+    const diagnosticsA = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
+    expect(diagnosticsA).toMatchInlineSnapshot();
 
-    project.write('component-a.gts', componentA);
-    project.write('component-b.gts', componentB);
+    const diagnosticsB = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentB,
+    );
+    expect(diagnosticsB).toMatchInlineSnapshot();
+  });
 
-    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
+  test('@glint-expect-error - unknown component reference - error on component does not mask unknownReference', async () => {
+    const componentA = stripIndent`
+      import Component from '@glimmer/component';
 
-    expect(diagnostics.items).toEqual([]);
+      export default class ComponentA extends Component {
+        <template>
+          {{! @glint-expect-error }}
+          <Wat>
+            {{this.unknownReference}}
+          </Wat>
+        </template>
+      }
+    `;
 
-    const docB = await server.openTextDocument(project.filePath('component-b.gts'), 'glimmer-ts');
-    diagnostics = await server.sendDocumentDiagnosticRequest(docB.uri);
-    expect(diagnostics.items).toEqual([]);
-
-    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-    await server.replaceTextDocument(
-      project.fileURI('component-a.gts'),
-      componentA.replace('{{! @glint-expect-error }}', ''),
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
     );
 
-    expect(
-      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).items,
-    ).toEqual([]);
-    expect((await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items)
-      .toMatchInlineSnapshot(`
+    expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
+          "category": "error",
           "code": 2339,
-          "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 0,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
-            "version": 1,
+          "end": {
+            "line": 7,
+            "offset": 30,
           },
-          "message": "Property 'version' does not exist on type '{}'.",
-          "range": {
-            "end": {
-              "character": 36,
-              "line": 5,
-            },
-            "start": {
-              "character": 29,
-              "line": 5,
-            },
+          "start": {
+            "line": 7,
+            "offset": 14,
           },
-          "severity": 1,
-          "source": "glint",
+          "text": "Property 'unknownReference' does not exist on type 'ComponentA'.",
         },
       ]
     `);
-
-    await server.replaceTextDocument(project.fileURI('component-a.gts'), componentA);
-
-    expect(
-      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items,
-    ).toEqual([]);
-    expect(
-      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).items,
-    ).toEqual([]);
-
-    await server.replaceTextDocument(
-      project.fileURI('component-a.gts'),
-      componentA.replace('{{@version}}', ''),
-    );
-
-    expect(
-      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-b.gts'))).items,
-    ).toEqual([]);
-
-    expect(
-      (await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts'))).items.length,
-    ).toEqual(1);
-
-    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
-      .toMatchInlineSnapshot(`
-        {
-          "items": [
-            {
-              "code": 2578,
-              "data": {
-                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-                "isFormat": false,
-                "original": {},
-                "pluginIndex": 0,
-                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
-                "version": 3,
-              },
-              "message": "Unused '@ts-expect-error' directive.",
-              "range": {
-                "end": {
-                  "character": 30,
-                  "line": 4,
-                },
-                "start": {
-                  "character": 4,
-                  "line": 4,
-                },
-              },
-              "severity": 1,
-              "source": "glint",
-            },
-          ],
-          "kind": "full",
-        }
-      `);
-  });
-
-  test('@glint-expect-error - unknown component reference', async () => {
-    let componentA = stripIndent`
-      import Component from '@glimmer/component';
-
-      export default class ComponentA extends Component {
-        <template>
-          {{! @glint-expect-error }}
-          <Wat>
-            {{this.unknownReference}}
-          </Wat>
-        </template>
-      }
-    `;
-
-    let server = await project.startLanguageServer();
-
-    project.write('component-a.gts', componentA);
-
-    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
-
-    expect(diagnostics.items.length).toEqual(1);
-  });
-
-  test('@glint-expect-error - unknown component reference', async () => {
-    let componentA = stripIndent`
-      import Component from '@glimmer/component';
-
-      export default class ComponentA extends Component {
-        <template>
-          {{! @glint-expect-error }}
-          <Wat>
-            {{this.unknownReference}}
-          </Wat>
-        </template>
-      }
-    `;
-
-    let server = await project.startLanguageServer();
-
-    project.write('component-a.gts', componentA);
-
-    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-    let diagnostics = await server.sendDocumentDiagnosticRequest(docA.uri);
-
-    expect(diagnostics.items.length).toEqual(1);
   });
 
   test('passing args to vanilla Component should be an error', async () => {
-    let componentA = stripIndent`
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       export default class ComponentA extends Component {
@@ -684,48 +303,33 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let server = await project.startLanguageServer();
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    project.write('component-a.gts', componentA);
-
-    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-
-    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
-      .toMatchInlineSnapshot(`
-      {
-        "items": [
-          {
-            "code": 2554,
-            "data": {
-              "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-              "isFormat": false,
-              "original": {},
-              "pluginIndex": 0,
-              "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
-              "version": 0,
-            },
-            "message": "Expected 0 arguments, but got 1.",
-            "range": {
-              "end": {
-                "character": 21,
-                "line": 5,
-              },
-              "start": {
-                "character": 4,
-                "line": 4,
-              },
-            },
-            "severity": 1,
-            "source": "glint",
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 6,
+            "offset": 22,
           },
-        ],
-        "kind": "full",
-      }
+          "start": {
+            "line": 5,
+            "offset": 5,
+          },
+          "text": "Expected 0 arguments, but got 1.",
+        },
+      ]
     `);
   });
 
   test('passing args to vanilla Component should be an error -- suppressed with @glint-expect-error', async () => {
-    let componentA = stripIndent`
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       export default class ComponentA extends Component {
@@ -737,23 +341,17 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let server = await project.startLanguageServer();
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    project.write('component-a.gts', componentA);
-
-    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-
-    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
-      .toMatchInlineSnapshot(`
-        {
-          "items": [],
-          "kind": "full",
-        }
-      `);
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   test('passing no args to a Component with args should be an error', async () => {
-    let componentA = stripIndent`
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       interface GreetingSignature {
@@ -773,69 +371,51 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let server = await project.startLanguageServer();
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    project.write('component-a.gts', componentA);
-
-    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-
-    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
-      .toMatchInlineSnapshot(`
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
         {
-          "items": [
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 15,
+            "offset": 17,
+          },
+          "relatedInformation": [
             {
-              "code": 2554,
-              "data": {
-                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-                "isFormat": false,
-                "original": {},
-                "pluginIndex": 0,
-                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
-                "version": 0,
-              },
-              "message": "Expected 1 arguments, but got 0.",
-              "range": {
+              "category": "error",
+              "code": 6236,
+              "message": "Arguments for the rest parameter 'args' were not provided.",
+              "span": {
                 "end": {
-                  "character": 16,
-                  "line": 14,
+                  "line": 24,
+                  "offset": 49,
                 },
+                "file": "\${testWorkspacePath}ronment-ember-template-imports/-private/dsl/index.d.ts",
                 "start": {
-                  "character": 4,
-                  "line": 14,
+                  "line": 24,
+                  "offset": 5,
                 },
               },
-              "relatedInformation": [
-                {
-                  "location": {
-                    "range": {
-                      "end": {
-                        "character": 48,
-                        "line": 23,
-                      },
-                      "start": {
-                        "character": 4,
-                        "line": 23,
-                      },
-                    },
-                    "uri": "file:///PATH_TO_MODULE/@glint/environment-ember-template-imports/-private/dsl/index.d.ts",
-                  },
-                  "message": "Arguments for the rest parameter 'args' were not provided.",
-                },
-              ],
-              "severity": 1,
-              "source": "glint",
             },
           ],
-          "kind": "full",
-        }
-      `);
+          "start": {
+            "line": 15,
+            "offset": 5,
+          },
+          "text": "Expected 1 arguments, but got 0.",
+        },
+      ]
+    `);
   });
 
-  test('glint-expect error on plain element does not consume errors within body');
-  test('glint-expect error on component invocation does not consume errors within body');
-
   test('passing no args to a Component with args should be an error -- suppressed with @glint-expect-error', async () => {
-    let componentA = stripIndent`
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       interface GreetingSignature {
@@ -856,23 +436,17 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let server = await project.startLanguageServer();
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    project.write('component-a.gts', componentA);
-
-    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-
-    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
-      .toMatchInlineSnapshot(`
-        {
-          "items": [],
-          "kind": "full",
-        }
-      `);
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   test('passing wrong arg name to a Component should be an error', async () => {
-    let componentA = stripIndent`
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       interface GreetingSignature {
@@ -892,44 +466,29 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let server = await project.startLanguageServer();
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    project.write('component-a.gts', componentA);
-
-    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-
-    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
-      .toMatchInlineSnapshot(`
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
         {
-          "items": [
-            {
-              "code": 2561,
-              "data": {
-                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-                "isFormat": false,
-                "original": {},
-                "pluginIndex": 0,
-                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
-                "version": 0,
-              },
-              "message": "Object literal may only specify known properties, but 'target2' does not exist in type 'NamedArgs<{ target: string; }>'. Did you mean to write 'target'?",
-              "range": {
-                "end": {
-                  "character": 22,
-                  "line": 14,
-                },
-                "start": {
-                  "character": 15,
-                  "line": 14,
-                },
-              },
-              "severity": 1,
-              "source": "glint",
-            },
-          ],
-          "kind": "full",
-        }
-      `);
+          "category": "error",
+          "code": 2561,
+          "end": {
+            "line": 15,
+            "offset": 23,
+          },
+          "start": {
+            "line": 15,
+            "offset": 16,
+          },
+          "text": "Object literal may only specify known properties, but 'target2' does not exist in type 'NamedArgs<{ target: string; }>'. Did you mean to write 'target'?",
+        },
+      ]
+    `);
   });
 
   test('passing wrong arg name to a Component should be an error -- suppressed with top-level @glint-expect-error', async () => {
@@ -945,7 +504,7 @@ describe('Language Server: Diagnostics', () => {
      * these areas of effect totally separate is not possible.
      */
 
-    let componentA = stripIndent`
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       interface GreetingSignature {
@@ -966,23 +525,17 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let server = await project.startLanguageServer();
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    project.write('component-a.gts', componentA);
-
-    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-
-    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
-      .toMatchInlineSnapshot(`
-        {
-          "items": [],
-          "kind": "full",
-        }
-      `);
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   test('passing wrong arg name to a Component should be an error -- suppressed with inline @glint-expect-error with element open tag', async () => {
-    let componentA = stripIndent`
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       interface GreetingSignature {
@@ -1004,23 +557,17 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let server = await project.startLanguageServer();
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    project.write('component-a.gts', componentA);
-
-    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-
-    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
-      .toMatchInlineSnapshot(`
-        {
-          "items": [],
-          "kind": "full",
-        }
-      `);
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   test('passing wrong arg name to a Component should be an error followed by passing the correct arg name -- suppressed with inline @glint-expect-error with element open tag', async () => {
-    let componentA = stripIndent`
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       interface GreetingSignature {
@@ -1043,23 +590,17 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let server = await project.startLanguageServer();
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    project.write('component-a.gts', componentA);
-
-    await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-
-    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
-      .toMatchInlineSnapshot(`
-        {
-          "items": [],
-          "kind": "full",
-        }
-      `);
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   test('@glint-expect-error - open element tag inline directive', async () => {
-    let componentA = stripIndent`
+    const componentA = stripIndent`
       import Component from '@glimmer/component';
 
       export default class ComponentA extends Component {
@@ -1071,43 +612,28 @@ describe('Language Server: Diagnostics', () => {
       }
     `;
 
-    let server = await project.startLanguageServer();
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
 
-    project.write('component-a.gts', componentA);
-
-    const docA = await server.openTextDocument(project.filePath('component-a.gts'), 'glimmer-ts');
-
-    expect(await server.sendDocumentDiagnosticRequest(project.fileURI('component-a.gts')))
-      .toMatchInlineSnapshot(`
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
         {
-          "items": [
-            {
-              "code": 2554,
-              "data": {
-                "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
-                "isFormat": false,
-                "original": {},
-                "pluginIndex": 0,
-                "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/component-a.gts",
-                "version": 0,
-              },
-              "message": "Expected 0 arguments, but got 1.",
-              "range": {
-                "end": {
-                  "character": 34,
-                  "line": 6,
-                },
-                "start": {
-                  "character": 4,
-                  "line": 4,
-                },
-              },
-              "severity": 1,
-              "source": "glint",
-            },
-          ],
-          "kind": "full",
-        }
-      `);
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 7,
+            "offset": 35,
+          },
+          "start": {
+            "line": 5,
+            "offset": 5,
+          },
+          "text": "Expected 0 arguments, but got 1.",
+        },
+      ]
+    `);
   });
 });

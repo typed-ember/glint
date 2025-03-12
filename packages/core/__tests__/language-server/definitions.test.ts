@@ -1,137 +1,176 @@
-import { Project } from 'glint-monorepo-test-utils';
+import {
+  getSharedTestWorkspaceHelper,
+  teardownSharedTestWorkspaceAfterEach,
+  prepareDocument,
+  testWorkspacePath,
+  extractCursor,
+  extractCursors,
+} from 'glint-monorepo-test-utils';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
+import { URI } from 'vscode-uri';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
-describe('Language Server: Definitions', () => {
-  let project!: Project;
+describe('Language Server: Definitions (ts plugin)', () => {
+  afterEach(teardownSharedTestWorkspaceAfterEach);
 
-  beforeEach(async () => {
-    project = await Project.create();
-  });
+  // not possible in Glint 2:
+  // test('querying a standalone template');
 
-  afterEach(async () => {
-    await project.destroy();
-  });
+  test('querying a template with a simple backing component', async () => {
+    const [[blockParamOffset, valueOffset], templateContent] = extractCursors(
+      stripIndent`
+        <Foo as |f%oo|>{{foo}}{{this.val%ue}}</Foo>
+      `,
+    );
 
-  test.skip('querying a standalone template', async () => {
-    project.setGlintConfig({ environment: 'ember-loose' });
-    project.write('index.hbs', '<Foo as |foo|>{{foo}}</Foo>');
+    const templateDoc = await prepareDocument(
+      'ts-ember-app/app/components/ephemeral.hbs',
+      'handlebars',
+      templateContent,
+    );
 
-    let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('index.hbs'), {
-      line: 0,
-      character: 17,
-    });
+    await prepareDocument(
+      'ts-ember-app/app/components/ephemeral.ts',
+      'typescript',
+      stripIndent`
+        import Component from '@glimmer/component';
 
-    expect(definitions).toMatchObject([
-      {
-        uri: project.fileURI('index.hbs'),
-        range: {
-          start: { line: 0, character: 9 },
-          end: { line: 0, character: 12 },
+        export default class Foo extends Component {
+          value = 123;
+        }
+      `,
+    );
+
+    expect(await performDefinitionRequest(templateDoc, blockParamOffset)).toMatchInlineSnapshot(`
+      [
+        {
+          "end": {
+            "line": 1,
+            "offset": 13,
+          },
+          "file": "\${testWorkspacePath}/ts-ember-app/app/components/ephemeral.hbs",
+          "start": {
+            "line": 1,
+            "offset": 10,
+          },
         },
-      },
-    ]);
+      ]
+    `);
+
+    expect(await performDefinitionRequest(templateDoc, valueOffset)).toMatchInlineSnapshot(`
+      [
+        {
+          "contextEnd": {
+            "line": 4,
+            "offset": 15,
+          },
+          "contextStart": {
+            "line": 4,
+            "offset": 3,
+          },
+          "end": {
+            "line": 4,
+            "offset": 8,
+          },
+          "file": "\${testWorkspacePath}/ts-ember-app/app/components/ephemeral.ts",
+          "start": {
+            "line": 4,
+            "offset": 3,
+          },
+        },
+      ]
+    `);
   });
 
   test('component invocation', async () => {
-    project.write({
-      'greeting.gts': stripIndent`
+    expect(
+      await requestDefinition(
+        'ts-template-imports-app/src/ephemeral.gts',
+        'glimmer-ts',
+        stripIndent`
         import Component from '@glimmer/component';
-        export default class Greeting extends Component<{ Args: { message: string } }> {
-          <template>{{@message}}, World!</template>
-        }
-      `,
-      'index.gts': stripIndent`
-        import Component from '@glimmer/component';
-        import Greeting from './greeting';
+        import Greeting from './Greeting.gts';
 
         export default class Application extends Component {
           <template>
-            <Greeting @message="hello" />
+            <Gr%eeting @message="hello" />
           </template>
         }
       `,
-    });
-
-    let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
-      line: 5,
-      character: 7,
-    });
-
-    expect(definitions).toMatchInlineSnapshot(`
+      ),
+    ).toMatchInlineSnapshot(`
       [
         {
-          "range": {
-            "end": {
-              "character": 1,
-              "line": 3,
-            },
-            "start": {
-              "character": 0,
-              "line": 1,
-            },
+          "contextEnd": {
+            "line": 14,
+            "offset": 2,
           },
-          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "contextStart": {
+            "line": 8,
+            "offset": 1,
+          },
+          "end": {
+            "line": 8,
+            "offset": 30,
+          },
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/Greeting.gts",
+          "start": {
+            "line": 8,
+            "offset": 22,
+          },
         },
       ]
     `);
   });
 
   test('arg passing', async () => {
-    project.write({
-      'greeting.gts': stripIndent`
+    expect(
+      await requestDefinition(
+        'ts-template-imports-app/src/ephemeral.gts',
+        'glimmer-ts',
+        stripIndent`
         import Component from '@glimmer/component';
-
-        export type GreetingArgs = {
-          message: string;
-        };
-
-        export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!</template>
-        }
-      `,
-      'index.gts': stripIndent`
-        import Component from '@glimmer/component';
-        import Greeting from './greeting';
+        import Greeting from './Greeting.gts';
 
         export default class Application extends Component {
           <template>
-            <Greeting @message="hello" />
+            <Greeting @ta%rget="hello" />
           </template>
         }
       `,
-    });
-
-    let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
-      line: 5,
-      character: 17,
-    });
-
-    expect(definitions).toMatchInlineSnapshot(`
+      ),
+    ).toMatchInlineSnapshot(`
       [
         {
-          "range": {
-            "end": {
-              "character": 18,
-              "line": 3,
-            },
-            "start": {
-              "character": 2,
-              "line": 3,
-            },
+          "contextEnd": {
+            "line": 5,
+            "offset": 25,
           },
-          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "contextStart": {
+            "line": 5,
+            "offset": 11,
+          },
+          "end": {
+            "line": 5,
+            "offset": 17,
+          },
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/Greeting.gts",
+          "start": {
+            "line": 5,
+            "offset": 11,
+          },
         },
       ]
     `);
   });
 
   test('arg use', async () => {
-    project.write({
-      'greeting.gts': stripIndent`
+    expect(
+      await requestDefinition(
+        'ts-template-imports-app/src/ephemeral.gts',
+        'glimmer-ts',
+        stripIndent`
         import Component from '@glimmer/component';
 
         export type GreetingArgs = {
@@ -139,83 +178,65 @@ describe('Language Server: Definitions', () => {
         };
 
         export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!</template>
+          <template>{{@mes%sage}}, World!</template>
         }
       `,
-    });
-
-    let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('greeting.gts'), {
-      line: 7,
-      character: 18,
-    });
-
-    expect(definitions).toMatchInlineSnapshot(`
+      ),
+    ).toMatchInlineSnapshot(`
       [
         {
-          "range": {
-            "end": {
-              "character": 18,
-              "line": 3,
-            },
-            "start": {
-              "character": 2,
-              "line": 3,
-            },
+          "contextEnd": {
+            "line": 4,
+            "offset": 19,
           },
-          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
-        },
-      ]
-    `);
-  });
-
-  test('import source', async () => {
-    project.write({
-      'greeting.gts': stripIndent`
-        import Component from '@glimmer/component';
-
-        export type GreetingArgs = {
-          message: string;
-        };
-
-        export default class Greeting extends Component<{ Args: GreetingArgs }> {
-          <template>{{@message}}, World!</template>
-        }
-      `,
-      'index.gts': stripIndent`
-        import Component from '@glimmer/component';
-        import Greeting from './greeting';
-
-        export class Application extends Component {
-          <template>
-            <Greeting @message="Hello" />
-          </template>
-        }
-      `,
-    });
-
-    let server = await project.startLanguageServer();
-    let definitions = await server.sendDefinitionRequest(project.fileURI('index.gts'), {
-      line: 1,
-      character: 27,
-    });
-
-    expect(definitions).toMatchInlineSnapshot(`
-      [
-        {
-          "range": {
-            "end": {
-              "character": 0,
-              "line": 0,
-            },
-            "start": {
-              "character": 0,
-              "line": 0,
-            },
+          "contextStart": {
+            "line": 4,
+            "offset": 3,
           },
-          "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/greeting.gts",
+          "end": {
+            "line": 4,
+            "offset": 10,
+          },
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/ephemeral.gts",
+          "start": {
+            "line": 4,
+            "offset": 3,
+          },
         },
       ]
     `);
   });
 });
+
+async function requestDefinition(
+  fileName: string,
+  languageId: string,
+  contentWithCursor: string,
+): Promise<any> {
+  const [offset, content] = extractCursor(contentWithCursor);
+
+  let document = await prepareDocument(fileName, languageId, content);
+
+  const res = await performDefinitionRequest(document, offset);
+
+  return res;
+}
+
+async function performDefinitionRequest(document: TextDocument, offset: number): Promise<any> {
+  const workspaceHelper = await getSharedTestWorkspaceHelper();
+
+  const res = await workspaceHelper.tsserver.message({
+    seq: workspaceHelper.nextSeq(),
+    command: 'definition',
+    arguments: {
+      file: URI.parse(document.uri).fsPath,
+      position: offset,
+    },
+  });
+  expect(res.success).toBe(true);
+
+  for (const ref of res.body) {
+    ref.file = '${testWorkspacePath}' + ref.file.slice(testWorkspacePath.length);
+  }
+  return res.body;
+}

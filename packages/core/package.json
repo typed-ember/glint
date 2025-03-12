@@ -54,6 +54,7 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
+    "@typescript/server-harness": "latest",
     "@types/common-tags": "^1.8.0",
     "@types/node": "^18.11.5",
     "@types/semver": "^7.3.13",

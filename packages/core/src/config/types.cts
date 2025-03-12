@@ -7,8 +7,6 @@ type TSLib = typeof ts;
 
 export type GlintConfigInput = {
   environment: string | Array<string> | Record<string, unknown>;
-  checkStandaloneTemplates?: boolean;
-  enableTsPlugin?: boolean;
 };
 
 export type GlintEnvironmentConfig = {

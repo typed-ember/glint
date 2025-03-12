@@ -1,8 +1,16 @@
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+
+test('maybe reinstate these tests');
+
+/*
+Skipping all of this for now. Now that we've offloaded a lot of this logic to Volar
+this is an opportunity to rebuild the test suite to not re-test what Volar already
+tests.
+
 import * as os from 'node:os';
 
 import { stripIndent } from 'common-tags';
 import stripAnsi = require('strip-ansi');
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
 import {
   Project,
@@ -42,7 +50,7 @@ const BUILD_WATCH_TSCONFIG = {
 const IS_WINDOWS = os.type() === 'Windows_NT';
 const PAUSE_TIME = IS_WINDOWS ? 2_500 : 1_000;
 
-/** Combine `setTimeout` and a `Promise` to defer further work for some time. */
+// Combine `setTimeout` and a `Promise` to defer further work for some time.
 const pauseForTSBuffering = (): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, PAUSE_TIME));
 
@@ -546,3 +554,5 @@ describe('CLI: watched build mode typechecking', () => {
     });
   });
 });
+
+*/

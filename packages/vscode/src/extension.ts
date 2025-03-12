@@ -5,7 +5,6 @@ import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 import * as languageServerProtocol from '@volar/language-server/protocol.js';
 import { createLabsInfo } from '@volar/vscode';
-import { enabledHybridMode, enabledTypeScriptPlugin } from './hybrid-mode';
 import { config } from './config';
 
 import {
@@ -17,6 +16,7 @@ import {
 } from 'reactive-vscode';
 
 import { watchWorkspaceFolderForLanguageClientActivation } from './language-client';
+import { ExtensionContext } from 'vscode';
 
 export const { activate, deactivate } = defineExtension(async () => {
   const volarLabs = createLabsInfo(languageServerProtocol);
@@ -211,8 +211,11 @@ function findLanguageServer(
 
 try {
   // The code below contains hacks lifted from the Vue extension to monkeypatch
-  // portions of official VSCode TS extension to add some missing features that make the tooling
-  // more seamless.
+  // portions of official VSCode TS extension (vscode.typescript-language-features)
+  // to add some missing features that make the tooling more seamless.
+  //
+  // Note that these hacks should ABSOLUTELY be upstreamed to VSCode but it is unclear
+  // whether our efforts will be successful.
   //
   // https://github.com/vuejs/language-tools/blob/master/extensions/vscode/src/nodeClientMain.ts#L135-L195
   //
@@ -223,7 +226,7 @@ try {
   // work in .gts files.
   //
   // https://github.com/search?q=repo%3Amicrosoft%2Fvscode%20isSupportedLanguageMode&type=code
-  const typeScriptServerPluginName = '@glint/typescript-plugin';
+  const typeScriptServerPluginName = '@glint/tsserver-plugin';
 
   const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features')!;
   const readFileSync = fs.readFileSync;
@@ -239,51 +242,66 @@ try {
       // @ts-expect-error – not easy to type
       let text = readFileSync(...args) as string;
 
-      if (!enabledTypeScriptPlugin.value) {
-        // Make it possible to disable the TS server plugin if it's disabled by VSCode configuration.
-        // Default VSCode/TS doesn't make it possible to control this via configuration due to the
-        // fact that the TS plugin is declared in the extension's package.json's `typescriptServerPlugins`
-        text = text.replace(
-          'for(const e of n.contributes.typescriptServerPlugins',
-          (s) => s + `.filter(p=>p.name!=='${typeScriptServerPluginName}')`,
-        );
-      } else if (enabledHybridMode.value) {
-        // patch readPlugins
-        text = text.replace(
-          'languages:Array.isArray(e.languages)',
-          [
-            'languages:',
-            `e.name==='${typeScriptServerPluginName}'?[${languageIdsQuoted}]`,
-            ':Array.isArray(e.languages)',
-          ].join(''),
-        );
+      // patch readPlugins
+      text = text.replace(
+        'languages:Array.isArray(e.languages)',
+        [
+          'languages:',
+          `e.name==='${typeScriptServerPluginName}'?[${languageIdsQuoted}]`,
+          ':Array.isArray(e.languages)',
+        ].join(''),
+      );
 
-        // VSCode < 1.87.0
-        text = text.replace(
-          't.$u=[t.$r,t.$s,t.$p,t.$q]',
-          (s) => s + `.concat(${languageIdsQuoted})`,
-        ); // patch jsTsLanguageModes
-        text = text.replace(
-          '.languages.match([t.$p,t.$q,t.$r,t.$s]',
-          (s) => s + `.concat(${languageIdsQuoted})`,
-        ); // patch isSupportedLanguageMode
+      // Expose tsserver process in SingleTsServer constructor
+      text = text.replace(
+        ',this._callbacks.destroy("server errored")}))',
+        (s) => s + ',globalThis.__TSSERVER__||={},globalThis.__TSSERVER__[arguments[1]]=this',
+      );
 
-        // VSCode >= 1.87.0
-        text = text.replace(
-          't.jsTsLanguageModes=[t.javascript,t.javascriptreact,t.typescript,t.typescriptreact]',
-          (s) => s + `.concat(${languageIdsQuoted})`,
-        ); // patch jsTsLanguageModes
-        text = text.replace(
-          '.languages.match([t.typescript,t.typescriptreact,t.javascript,t.javascriptreact]',
-          (s) => s + `.concat(${languageIdsQuoted})`,
-        ); // patch isSupportedLanguageMode
+      /**
+       * VSCode < 1.87.0
+       */
 
-        return text;
-      }
+      text = text.replace('t.$u=[t.$r,t.$s,t.$p,t.$q]', (s) => s + `.concat(${languageIdsQuoted})`); // patch jsTsLanguageModes
+      text = text.replace(
+        '.languages.match([t.$p,t.$q,t.$r,t.$s]',
+        (s) => s + `.concat(${languageIdsQuoted})`,
+      ); // patch isSupportedLanguageMode
+
+      /**
+       * VSCode >= 1.87.0
+       */
+
+      text = text.replace(
+        't.jsTsLanguageModes=[t.javascript,t.javascriptreact,t.typescript,t.typescriptreact]',
+        (s) => s + `.concat(${languageIdsQuoted})`,
+      ); // patch jsTsLanguageModes
+      text = text.replace(
+        '.languages.match([t.typescript,t.typescriptreact,t.javascript,t.javascriptreact]',
+        (s) => s + `.concat(${languageIdsQuoted})`,
+      ); // patch isSupportedLanguageMode
+
+      return text;
     }
     // @ts-expect-error – not easy to type
     return readFileSync(...args);
   };
+
+  // Handle the case where the VSCode TS extension was already loaded prior
+  // to our readFileSync hacks above, in which case we restart the extension host
+  // so that the TS extension is reloaded with our hacks in place.
+  //
+  // https://github.com/vuejs/language-tools/pull/5260
+  const loadedModule = require.cache[extensionJsPath];
+  if (loadedModule) {
+    delete require.cache[extensionJsPath];
+    const patchedModule = require(extensionJsPath);
+    Object.assign(loadedModule.exports, patchedModule);
+  }
+
+  if (tsExtension.isActive) {
+    vscode.commands.executeCommand('workbench.action.restartExtensionHost');
+  }
 } catch {
   // ignore
 }
