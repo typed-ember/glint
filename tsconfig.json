@@ -7,7 +7,6 @@
     { "path": "./packages/type-test" },
     { "path": "./packages/tsserver-plugin" },
     { "path": "./packages/vscode" },
-    { "path": "./packages/scripts" },
     { "path": "./test-packages/test-utils" }
   ],
   "files": []
