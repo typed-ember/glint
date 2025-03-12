@@ -9,20 +9,17 @@ import { startLanguageServer, LanguageServerHandle } from '@volar/test-utils';
 import { FullDocumentDiagnosticReport, TextDocument } from '@volar/language-service';
 import { URI } from 'vscode-uri';
 import { Diagnostic } from 'typescript';
-import { Position, Range, TextEdit } from '@volar/language-server';
 import { WorkspaceSymbolRequest, WorkspaceSymbolParams } from '@volar/language-server/node.js';
 
 const require = createRequire(import.meta.url);
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-const fileUriToTemplatePackage = pathUtils.filePathToUri(
-  pathUtils.normalizeFilePath(path.resolve(dirname, '../../../packages/template')),
+const fileUriToTemplatePackage = filePathToUri(
+  normalizeFilePath(path.resolve(dirname, '../../../packages/template')),
 );
-const fileUriToEmberTemplateImportsPackage = pathUtils.filePathToUri(
-  pathUtils.normalizeFilePath(
-    path.resolve(dirname, '../../../packages/environment-ember-template-imports'),
-  ),
+const fileUriToEmberTemplateImportsPackage = filePathToUri(
+  normalizeFilePath(path.resolve(dirname, '../../../packages/environment-ember-template-imports')),
 );
-const ROOT = pathUtils.normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
+const ROOT = normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
 
 // You'd think this would exist, but... no? Accordingly, supply a minimal
 // definition for our purposes here in tests.
@@ -37,7 +34,7 @@ interface TsconfigWithGlint {
 }
 
 const newWorkingDir = (): string =>
-  pathUtils.normalizeFilePath(path.join(ROOT, Math.random().toString(16).slice(2)));
+  normalizeFilePath(path.join(ROOT, Math.random().toString(16).slice(2)));
 
 // export type LanguageServerHandle = ReturnType<typeof startLanguageServer>;
 
@@ -51,11 +48,11 @@ export class Project {
   }
 
   public filePath(fileName: string): string {
-    return pathUtils.normalizeFilePath(path.join(this.rootDir, fileName));
+    return normalizeFilePath(path.join(this.rootDir, fileName));
   }
 
   public fileURI(fileName: string): string {
-    return pathUtils.filePathToUri(this.filePath(fileName));
+    return filePathToUri(this.filePath(fileName));
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -104,35 +101,11 @@ export class Project {
     return {
       ...this.languageServerHandle,
 
-      sendDocumentDiagnosticRequest: wrapForSnapshottability('sendDocumentDiagnosticRequest') as (
-        uri: string,
-      ) => Promise<FullDocumentDiagnosticReport>,
-      sendDefinitionRequest: wrapForSnapshottability('sendDefinitionRequest'),
-      sendHoverRequest: wrapForSnapshottability('sendHoverRequest'),
-
       // Volar test-utils doesn't provide this, would be nice to upstream this.
       sendWorkspaceSymbolRequest: async (query: string) => {
         return languageServerHandle.connection.sendRequest(WorkspaceSymbolRequest.type, {
           query,
         } satisfies WorkspaceSymbolParams);
-      },
-
-      /**
-       * Helper fn that makes it easier to replace the whole contents of a file,
-       * rather than having to manually construct the Range and TextEdit.
-       */
-      replaceTextDocument: async (uri: string, text: string) => {
-        // await languageServerHandle.replaceTextDocument(uri, text);
-
-        // Create a Range that represents the whole document
-        const wholeDocumentRange = Range.create(
-          Position.create(0, 0),
-          Position.create(Number.MAX_VALUE, Number.MAX_VALUE),
-        );
-
-        const textEdit = TextEdit.replace(wholeDocumentRange, text);
-
-        return await languageServerHandle.updateTextDocument(uri, [textEdit]);
       },
     };
   }
@@ -389,4 +362,16 @@ class Watch {
     this.process.kill();
     return this.process;
   }
+}
+
+function uriToFilePath(uri: string): string {
+  return URI.parse(uri).fsPath.replace(/\\/g, '/');
+}
+
+function filePathToUri(filePath: string): string {
+  return URI.file(filePath).toString();
+}
+
+function normalizeFilePath(filePath: string): string {
+  return uriToFilePath(filePathToUri(filePath));
 }

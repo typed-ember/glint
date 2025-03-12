@@ -99,8 +99,6 @@ jobs:
   #         max_attempts: 2
   #         timeout_minutes: 10
   #         command: yarn workspace glint-vscode test
-  #     - name: Test @glint/scripts
-  #       run: yarn workspace @glint/scripts test
 
   # tracking for re-enablement here: https://github.com/typed-ember/glint/issues/728
   # test-floating-deps:
