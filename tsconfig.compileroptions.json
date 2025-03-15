@@ -16,6 +16,10 @@
     "sourceMap": true,
     "types": ["@types/node"],
 
+    // added because lru-cache has incorrect types
+    // (used by @babel/eslint-parser)
+    "skipLibCheck": true,
+
     // new
     "allowSyntheticDefaultImports": true
   }
