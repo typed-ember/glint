@@ -169,7 +169,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testIf: 'if' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"(__glintRef__.args.foo) ? ("ok") : (undefined);"`,
+          `"(__glintRef__.args["@foo"]) ? ("ok") : (undefined);"`,
         );
       });
 
@@ -178,7 +178,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testIf: 'if' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"(__glintRef__.args.foo) ? ("ok") : ("nope");"`,
+          `"(__glintRef__.args["@foo"]) ? ("ok") : ("nope");"`,
         );
       });
     });
@@ -189,7 +189,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testUnless: 'if-not' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"!(__glintRef__.args.foo) ? ("ok") : (undefined);"`,
+          `"!(__glintRef__.args["@foo"]) ? ("ok") : (undefined);"`,
         );
       });
 
@@ -198,7 +198,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testUnless: 'if-not' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"!(__glintRef__.args.foo) ? ("ok") : ("nope");"`,
+          `"!(__glintRef__.args["@foo"]) ? ("ok") : ("nope");"`,
         );
       });
     });
@@ -214,8 +214,8 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testIf: 'if' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
-          "if (__glintRef__.args.foo) {
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.ok)());
+          "if (__glintRef__.args["@foo"]) {
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@ok"])());
           }"
         `);
       });
@@ -232,10 +232,10 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testIf: 'if' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
-          "if (__glintRef__.args.foo) {
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.ok)());
+          "if (__glintRef__.args["@foo"]) {
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@ok"])());
           } else {
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.noGood)());
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@noGood"])());
           }"
         `);
       });
@@ -254,13 +254,13 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testIf: 'if' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
-          "if (__glintRef__.args.foo) {
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.ok)());
+          "if (__glintRef__.args["@foo"]) {
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@ok"])());
           } else {
-          if (__glintRef__.args.bar) {
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.noGood)());
+          if (__glintRef__.args["@bar"]) {
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@noGood"])());
           } else {
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.done)());
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@done"])());
           }
           }"
         `);
@@ -280,8 +280,8 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testIf: 'if' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
-          "if (__glintRef__.args.foo) {
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.ok)());
+          "if (__glintRef__.args["@foo"]) {
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@ok"])());
           } else {
           {
           const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["doAThing"])());
@@ -291,7 +291,7 @@ describe('Transform: rewriteTemplate', () => {
           }
           {
           const [] = __glintY__.blockParams["else"];
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.nevermind)());
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@nevermind"])());
           }
           __glintDSL__.Globals["doAThing"];
           }
@@ -311,8 +311,8 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testUnless: 'if-not' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
-          "if (!(__glintRef__.args.foo)) {
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.ok)());
+          "if (!(__glintRef__.args["@foo"])) {
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@ok"])());
           }"
         `);
       });
@@ -329,10 +329,10 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testUnless: 'if-not' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(`
-          "if (!(__glintRef__.args.foo)) {
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.ok)());
+          "if (!(__glintRef__.args["@foo"])) {
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@ok"])());
           } else {
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.noGood)());
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@noGood"])());
           }"
         `);
       });
@@ -347,7 +347,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testYield: 'yield' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"__glintDSL__.yieldToBlock(__glintRef__, "default")(123, __glintRef__.this.message);"`,
+          `"__glintDSL__.yieldToBlock(__glintRef__, "default")(123, __glintRef__.this.this?.message);"`,
         );
       });
 
@@ -597,7 +597,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this)());"',
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.this)());"`,
           );
         });
 
@@ -605,7 +605,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this.foo.bar}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.foo?.bar)());"',
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.this?.foo?.bar)());"`,
           );
         });
 
@@ -613,7 +613,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this.foo-bar}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this["foo-bar"])());"`,
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.this?.["foo-bar"])());"`,
           );
         });
 
@@ -621,7 +621,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{@foo}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.foo)());"',
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@foo"])());"`,
           );
         });
 
@@ -629,7 +629,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{@foo-bar}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["foo-bar"])());"`,
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@foo-bar"])());"`,
           );
         });
 
@@ -664,7 +664,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{@input}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.input)());"',
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@input"])());"`,
           );
         });
 
@@ -675,7 +675,7 @@ describe('Transform: rewriteTemplate', () => {
             "{
             const __glintY__ = __glintDSL__.emitElement("div");
             __glintDSL__.applyAttributes(__glintY__.element, {
-            "data-attr": __glintDSL__.resolveOrReturn(__glintRef__.args.input)(),
+            "data-attr": __glintDSL__.resolveOrReturn(__glintRef__.args["@input"])(),
             });
             }"
           `);
@@ -688,7 +688,7 @@ describe('Transform: rewriteTemplate', () => {
             "{
             const __glintY__ = __glintDSL__.emitElement("div");
             __glintDSL__.applyAttributes(__glintY__.element, {
-            "data-attr": \`\${__glintDSL__.resolveOrReturn(__glintRef__.args.input)()}\`,
+            "data-attr": \`\${__glintDSL__.resolveOrReturn(__glintRef__.args["@input"])()}\`,
             });
             }"
           `);
@@ -701,7 +701,7 @@ describe('Transform: rewriteTemplate', () => {
             expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
               "{
               const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Greet)({ 
-              message: __glintRef__.args.arg, ...__glintDSL__.NamedArgsMarker }));
+              message: __glintRef__.args["@arg"], ...__glintDSL__.NamedArgsMarker }));
               __glintY__;
               }"
             `);
@@ -755,7 +755,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{(@foo)}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintDSL__.resolve(__glintRef__.args.foo)())());"',
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintDSL__.resolve(__glintRef__.args["@foo"])())());"`,
           );
         });
       });
@@ -893,7 +893,7 @@ describe('Transform: rewriteTemplate', () => {
         }
         {
         const [] = __glintY__.blockParams["else"];
-        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.oh)());
+        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@oh"])());
         }
         __glintDSL__.Globals["foo"];
         }"
@@ -919,7 +919,7 @@ describe('Transform: rewriteTemplate', () => {
         }
         {
         const [] = __glintY__.blockParams["else"];
-        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.oh)());
+        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@oh"])());
         }
         __glintDSL__.Globals["foo"];
         }"
@@ -935,7 +935,7 @@ describe('Transform: rewriteTemplate', () => {
         "{
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintY__;
-        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.foo)());
+        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@foo"])());
         }"
       `);
     });
@@ -947,7 +947,7 @@ describe('Transform: rewriteTemplate', () => {
         "{
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.applyAttributes(__glintY__.element, {
-        "data-foo": __glintDSL__.resolveOrReturn(__glintRef__.args.foo)(),
+        "data-foo": __glintDSL__.resolveOrReturn(__glintRef__.args["@foo"])(),
         });
         }"
       `);
@@ -960,7 +960,7 @@ describe('Transform: rewriteTemplate', () => {
         "{
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.applyAttributes(__glintY__.element, {
-        "data-foo": \`\${__glintDSL__.resolveOrReturn(__glintRef__.args.foo)()}\${__glintDSL__.resolveOrReturn(__glintRef__.args.bar)()}\`,
+        "data-foo": \`\${__glintDSL__.resolveOrReturn(__glintRef__.args["@foo"])()}\${__glintDSL__.resolveOrReturn(__glintRef__.args["@bar"])()}\`,
         });
         }"
       `);
