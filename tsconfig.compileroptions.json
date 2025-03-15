@@ -14,7 +14,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "types": ["@types/node"],
+    "types": ["ember-source/types", "@types/node"],
 
     // new
     "allowSyntheticDefaultImports": true
