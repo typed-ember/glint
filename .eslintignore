@@ -5,6 +5,7 @@
 
 dist/
 __fixtures__
+*.js
 
 # Ephemeral test applications
 /test-packages/ephemeral

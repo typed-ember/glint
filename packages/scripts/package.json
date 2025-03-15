@@ -26,6 +26,7 @@
     "prepack": "pnpm build"
   },
   "dependencies": {
+    "common-tags": "^1.8.0",
     "glob": "^7.2.3",
     "golden-fleece": "^1.0.9",
     "js-yaml": "^4.1.0",
