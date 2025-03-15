@@ -32,8 +32,8 @@
     "content-tag": "^2.0.1"
   },
   "peerDependencies": {
-    "@glint/environment-ember-loose": "^1.4.0",
-    "@glint/template": "^1.4.0",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/template": "workspace:*",
     "@types/ember__component": "^4.0.10",
     "@types/ember__helper": "^4.0.1",
     "@types/ember__modifier": "^4.0.3",
@@ -54,6 +54,7 @@
     }
   },
   "devDependencies": {
+    "@glint/core": "workspace:^",
     "@types/ember": "^4.0.0",
     "@types/ember__component": "^4.0.10",
     "@types/ember__helper": "^4.0.1",
