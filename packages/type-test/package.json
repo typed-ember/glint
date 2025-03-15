@@ -26,7 +26,11 @@
     "@glint/template": "*"
   },
   "devDependencies": {
-    "@glint/template": "workspace:*"
+    "@glint/core": "workspace:*",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/environment-ember-template-imports": "workspace:*",
+    "@glint/template": "workspace:*",
+    "ember-source": "^6.3.0"
   },
   "publishConfig": {
     "access": "public"

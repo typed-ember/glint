@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.compileroptions.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "lib"
+    "outDir": "lib",
+    "types": ["ember-source/types"],
   },
   "include": ["src"],
   "references": [{ "path": "../template" }]

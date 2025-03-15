@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import envDefinition from '../-private/environment/index.js';
+import envDefinition from '@glint/environment-ember-loose/glint-environment-definition';
 
 describe('Environments: Ember Loose', () => {
   test.each(['ts', 'js'])('finds possible template paths for %s script paths', (ext) => {

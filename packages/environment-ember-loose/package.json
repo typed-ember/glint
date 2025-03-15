@@ -7,19 +7,27 @@
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "main": "-private/index.js",
   "exports": {
-    ".": "./-private/index.js",
-    "./registry": "./registry/index.js",
-    "./glint-environment-definition": "./-private/environment/index.js",
-    "./-private/dsl": "./-private/dsl/index.js"
+    ".": {
+      "types": "./-private/index.d.ts",
+      "default": "./-private/index.js"
+    },
+    "./registry": {
+      "types": "./registry/index.d.ts",
+      "default": "./registry/index.js"
+    },
+    "./glint-environment-definition": {
+      "types": "./-private/environment/index.d.ts",
+      "default": "./-private/environment/index.js"
+    },
+    "./-private/dsl": {
+      "types": "./-private/dsl/index.d.ts",
+      "default": "./-private/dsl/index.js"
+    }
   },
   "keywords": [
     "glint-environment"
   ],
   "scripts": {
-    "test": "echo 'no tests within this project'",
-    "test:tsc": "echo 'no standalone typecheck within this project'",
-    "test:typecheck": "glint --project __tests__/type-tests && vitest run",
-    "test:watch": "vitest watch",
     "build": "tsc --build",
     "prepack": "pnpm build"
   },

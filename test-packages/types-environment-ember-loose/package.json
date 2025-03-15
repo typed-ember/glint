@@ -1,0 +1,22 @@
+{
+  "name": "type-tests-glint-environment-ember-loose",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "echo 'no standalone tests within this project'",
+    "test:typecheck": "tsc",
+    "test:tsc": "echo 'no standalone typecheck within this project'"
+  },
+  "devDependencies": {
+    "@glimmer/component": "^1.1.2",
+    "@glimmer/runtime": "^0.94.10",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/template": "workspace:*",
+    "@glint/core": "workspace:*",
+    "ember-source": "^6.3.0",
+    "expect-type": "^0.15.0",
+    "sums-up": "^2.1.0",
+    "typescript": "^5.8.2",
+    "vitest": "~3.0.9"
+  }
+}

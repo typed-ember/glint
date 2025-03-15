@@ -1,0 +1,19 @@
+{
+  "name": "type-tests-glint-template",
+  "private": true,
+  "scripts": {
+    "test": "echo 'no standalone tests within this project'",
+    "test:typecheck": "tsc",
+    "test:tsc": "echo 'no standalone typecheck within this project'"
+  },
+  "devDependencies": {
+    "@glint/template": "workspace:*",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glimmer/component": "^1.1.2",
+    "@glimmer/runtime": "^0.94.10",
+    "ember-source": "^6.3.0",
+    "expect-type": "^0.15.0",
+    "sums-up": "^2.1.0",
+    "typescript": "^5.8.2"
+  }
+}
