@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "common-tags": "^1.8.0",
+    "glint-monorepo-test-utils": "workspace:*",
     "glob": "^7.2.3",
     "golden-fleece": "^1.0.9",
     "js-yaml": "^4.1.0",
@@ -36,6 +37,7 @@
     "zod": "^3.22.3"
   },
   "devDependencies": {
+    "@types/common-tags": "^1.8.0",
     "@types/glob": "^8.1.0",
     "@types/js-yaml": "^4.0.5",
     "@types/yargs": "^17.0.10",
