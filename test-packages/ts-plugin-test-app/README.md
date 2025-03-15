@@ -2,9 +2,9 @@
 
 To test this out:
 
-1. Run `yarn` in root directory if you haven't already
-1. Run root tsc `yarn run tsc --build --watch`
-1. Within `packages/vscode`: `yarn bundle:watch`
+1. Run `pnpm install` in root directory if you haven't already
+1. Run root tsc `pnpm run tsc --build --watch`
+1. Within `packages/vscode`: `pnpm bundle:watch`
 1. In VSCode's Run and Debug, run the "Debug Extension (TS Plugin Only)"
 1. Navigate to `test.ts`; this will fully activate the vanilla VSCode TS language tooling, which has the side-effect of loading our Ember TS Plugin.
 1. You may need to run the command `TypeScript: Select TypeScript Version` and set it to the workspace. You might need to do this every time you re-start the debug process.

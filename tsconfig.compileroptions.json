@@ -13,18 +13,14 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "types": ["ember-source/types", "@types/node"],
 
-    // compatibility, since
-    // https://github.com/microsoft/vscode/issues/130367
+    // added because lru-cache has incorrect types
+    // (used by @babel/eslint-parser)
+    "skipLibCheck": true,
+
+    // new
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    // Need skipLibCheck because @glimmer/* packages don't have extensiosn on their imports.
-    // The @glimmer packages have moduleResultion: bundler.
-    // This could probably be avoided if we bundle the types for @glimmer/* packages,
-    // But that comes with its own challenges.
-    //
-    // Because of how vscode/ls extesnions need to be cjs, we can't use moduleResolution=bundler
-    "skipLibCheck": true
+
+    "types": ["ember-source/types", "@types/node"]
   }
 }

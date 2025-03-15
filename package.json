@@ -14,19 +14,20 @@
     ]
   },
   "scripts": {
-    "lint": "yarn lint:scripts && yarn lint:formatting",
-    "lint:fix": "yarn lint:scripts --fix && yarn prettier --write .",
-    "lint:scripts": "yarn eslint .",
-    "lint:formatting": "yarn prettier --check .",
-    "test": "yarn workspaces run test",
-    "test:typecheck": "yarn workspaces run test:typecheck",
+    "lint": "pnpm lint:scripts && pnpm lint:formatting",
+    "lint:fix": "pnpm lint:scripts --fix && pnpm prettier --write .",
+    "lint:scripts": "pnpm eslint --cache .",
+    "lint:formatting": "pnpm prettier --check .",
+    "test": "pnpm --filter '*' run test",
+    "test:typecheck": "pnpm --filter '*' run test:typecheck",
     "build": "tsc --build",
-    "release-it": "echo \"Running release-it via yarn breaks publishing! Use npx or a Volta global installation.\""
+    "release-it": "echo \"Running release-it via pnpm breaks publishing! Use npx or a Volta global installation.\""
   },
   "volta": {
     "node": "18.20.3",
-    "yarn": "1.22.4"
+    "pnpm": "10.6.2"
   },
+  "packageManager": "pnpm@10.6.2",
   "devDependencies:notes": {
     "typescript": "bumped version because volar caused error TS2694, TS1383"
   },
@@ -34,6 +35,7 @@
     "@release-it-plugins/lerna-changelog": "^5.0.0",
     "@release-it-plugins/workspaces": "^3.2.0",
     "@types/babel__traverse": "^7.18.2",
+    "@types/node": "^20.10.6",
     "@types/yargs": "^17.0.10",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
@@ -49,10 +51,18 @@
     "@types/yargs": "Locking temporarily to avoid an issue with the ESM types in 17.0.14; see DT#63373",
     "@types/node": "Locking to avoid conflicts between the declared version in packages/core and floating '*' versions when we run in CI without the lockfile"
   },
-  "resolutions": {
-    "@types/yargs": "17.0.13",
-    "@types/node": "^20.10.6",
-    "ember-cli-htmlbars": "^6.0.1"
+  "pnpm": {
+    "overrides": {
+      "@glimmer/manager": "0.84.3",
+      "@glimmer/interfaces": "0.84.3",
+      "@glimmer/runtime": "0.84.3",
+      "@glimmer/reference": "0.84.3",
+      "@glimmer/util": "0.84.3",
+      "@glimmer/validator": "0.84.3",
+      "@types/yargs": "17.0.13",
+      "@types/node": "^20.10.6",
+      "ember-cli-htmlbars": "^6.0.1"
+    }
   },
   "version": "1.4.0"
 }

@@ -6,10 +6,17 @@ To use Glint with [Ember](https://github.com/emberjs/ember.js) v3.24 or higher, 
 Read on for a more detailed explanation of each of these steps.
 
 {% tabs %}
+{% tab title="pnpm" %}
+
+```sh
+pnpm add -D @glint/core @glint/template @glint/environment-ember-loose
+```
+
+{% endtab %}
 {% tab title="Yarn" %}
 
 ```sh
-yarn add --dev @glint/core @glint/template @glint/environment-ember-loose
+pnpm add -D @glint/core @glint/template @glint/environment-ember-loose
 ```
 
 {% endtab %}

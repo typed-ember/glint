@@ -17,7 +17,7 @@
       }
     },
     {
-      "files": ["*.ts", "*.cts", "*.mts"],
+      "files": ["**/*.{ts,cts,mts}"],
       "parser": "@typescript-eslint/parser",
       "plugins": ["@typescript-eslint"],
       "extends": [
