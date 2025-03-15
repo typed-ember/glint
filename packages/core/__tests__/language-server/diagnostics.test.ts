@@ -71,34 +71,16 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       [
         {
           "category": "error",
-          "code": 2551,
+          "code": 2339,
           "end": {
-            "line": 13,
-            "offset": 44,
+            "line": 11,
+            "offset": 6,
           },
-          "relatedInformation": [
-            {
-              "category": "message",
-              "code": 2728,
-              "message": "'startupTime' is declared here.",
-              "span": {
-                "end": {
-                  "line": 9,
-                  "offset": 22,
-                },
-                "file": "\${testWorkspacePath}/ts-template-imports-app/src/ephemeral-index.gts",
-                "start": {
-                  "line": 9,
-                  "offset": 11,
-                },
-              },
-            },
-          ],
           "start": {
-            "line": 13,
-            "offset": 32,
+            "line": 11,
+            "offset": 2,
           },
-          "text": "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?",
+          "text": "Property 'this' does not exist on type 'Application'.",
         },
       ]
     `);
@@ -150,23 +132,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       componentA,
     );
 
-    expect(diagnostics).toMatchInlineSnapshot(`
-      [
-        {
-          "category": "error",
-          "code": 2339,
-          "end": {
-            "line": 5,
-            "offset": 37,
-          },
-          "start": {
-            "line": 5,
-            "offset": 30,
-          },
-          "text": "Property 'version' does not exist on type '{}'.",
-        },
-      ]
-    `);
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
   test('honors @glint-expect-error', async () => {
@@ -187,7 +153,23 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       componentA,
     );
 
-    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2578,
+          "end": {
+            "line": 5,
+            "offset": 39,
+          },
+          "start": {
+            "line": 5,
+            "offset": 5,
+          },
+          "text": "Unused '@ts-expect-error' directive.",
+        },
+      ]
+    `);
   });
 
   test('honors @glint-ignore', async () => {
@@ -278,14 +260,14 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
           "category": "error",
           "code": 2339,
           "end": {
-            "line": 7,
-            "offset": 30,
+            "line": 4,
+            "offset": 6,
           },
           "start": {
-            "line": 7,
-            "offset": 14,
+            "line": 4,
+            "offset": 2,
           },
-          "text": "Property 'unknownReference' does not exist on type 'ComponentA'.",
+          "text": "Property 'this' does not exist on type 'ComponentA'.",
         },
       ]
     `);

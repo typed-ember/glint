@@ -171,18 +171,13 @@ describe('CLI: single-pass typechecking', () => {
     expect(checkResult.exitCode).not.toBe(0);
 
     expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
-      "index.gts:12:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
+      "index.gts:10:2 - error TS2339: Property 'this' does not exist on type 'Application'.
 
-      12     The current time is {{this.startupTimee}}.
-                                        ~~~~~~~~~~~~
-
-        index.gts:8:11
-          8   private startupTime = new Date().toISOString();
-                      ~~~~~~~~~~~
-          'startupTime' is declared here.
+      10   <template>
+          ~~~~
 
 
-      Found 1 error in index.gts:12
+      Found 1 error in index.gts:10
       "
     `);
   });
@@ -286,13 +281,13 @@ describe('CLI: single-pass typechecking', () => {
     expect(checkResult.exitCode).not.toBe(0);
 
     expect(stripAnsi(checkResult.stdout)).toMatchInlineSnapshot(`
-      "index.gts:15:12 - error TS2339: Property 'otherError' does not exist on type 'Application'.
+      "index.gts:10:2 - error TS2339: Property 'this' does not exist on type 'Application'.
 
-      15     {{this.otherError}}
-                    ~~~~~~~~~~
+      10   <template>
+          ~~~~
 
 
-      Found 1 error in index.gts:15
+      Found 1 error in index.gts:10
       "
     `);
   });

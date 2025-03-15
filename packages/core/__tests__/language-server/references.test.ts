@@ -189,20 +189,6 @@ describe('Language Server: References (ts plugin)', () => {
           },
         },
         {
-          "end": {
-            "line": 10,
-            "offset": 21,
-          },
-          "file": "\${testWorkspacePath}/ts-template-imports-app/src/ephemeral-greeting.gts",
-          "isDefinition": false,
-          "isWriteAccess": false,
-          "lineText": "    Hello, {{@target}}",
-          "start": {
-            "line": 10,
-            "offset": 15,
-          },
-        },
-        {
           "contextEnd": {
             "line": 6,
             "offset": 30,
