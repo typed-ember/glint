@@ -836,7 +836,7 @@ describe('Transform: rewriteTemplate', () => {
         }"
       `);
     });
-    
+
     test('in a conditional expression', () => {
       let template = `{{(if @onSelect (modifier on "click" @onSelect))}}`;
       let specialForms = { if: 'if' } as const;

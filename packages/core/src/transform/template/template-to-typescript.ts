@@ -355,29 +355,32 @@ export function templateToTypescript(
           node.params.length >= 2,
           () => `{{${formInfo.name}}} requires at least two parameters`,
         );
-        
+
         // Check if this is a conditional modifier case
-        const isModifierHelper = 
-          node.params[1].type === 'SubExpression' && 
-          node.params[1].path.type === 'PathExpression' && 
+        const isModifierHelper =
+          node.params[1].type === 'SubExpression' &&
+          node.params[1].path.type === 'PathExpression' &&
           node.params[1].path.original === 'modifier';
-        
+
         if (isModifierHelper) {
           // For conditional modifiers, we need to handle them specially
           // to avoid type instantiation depth issues
           mapper.text('(');
           emitExpression(node.params[0]);
           mapper.text(') ? (');
-          
+
           // For the truthy case, we emit the modifier directly
           if (node.params[1].type === 'SubExpression') {
             // Extract the modifier and its arguments
             const modifierExpr = node.params[1];
-            if (modifierExpr.params.length > 0 && modifierExpr.params[0].type === 'PathExpression') {
+            if (
+              modifierExpr.params.length > 0 &&
+              modifierExpr.params[0].type === 'PathExpression'
+            ) {
               mapper.text('__glintDSL__.applyModifier(__glintDSL__.resolve(');
               emitExpression(modifierExpr.params[0]);
               mapper.text(')(__glintY__.element, ');
-              
+
               // Skip the first param (the modifier itself) and emit the rest
               const restParams = modifierExpr.params.slice(1);
               for (let [index, param] of restParams.entries()) {
@@ -386,25 +389,25 @@ export function templateToTypescript(
                 }
                 emitExpression(param);
               }
-              
+
               // Handle named args if any
               if (modifierExpr.hash.pairs.length) {
                 if (restParams.length) {
                   mapper.text(', ');
                 }
-                
+
                 mapper.text('{ ');
                 for (let [index, pair] of modifierExpr.hash.pairs.entries()) {
                   mapper.text(`${pair.key}: `);
                   emitExpression(pair.value);
-                  
+
                   if (index < modifierExpr.hash.pairs.length - 1) {
                     mapper.text(', ');
                   }
                 }
                 mapper.text(' }');
               }
-              
+
               mapper.text('))');
             } else {
               // Fallback to normal emission if structure is unexpected
@@ -414,16 +417,16 @@ export function templateToTypescript(
             // Fallback to normal emission if structure is unexpected
             emitExpression(node.params[1]);
           }
-          
+
           mapper.text(') : (');
-          
+
           // For the falsy case, emit null or the else branch
           if (node.params[2]) {
             emitExpression(node.params[2]);
           } else {
             mapper.text('null');
           }
-          
+
           mapper.text(')');
         } else {
           // Standard if expression handling (unchanged)
@@ -432,13 +435,13 @@ export function templateToTypescript(
           mapper.text(') ? (');
           emitExpression(node.params[1]);
           mapper.text(') : (');
-          
+
           if (node.params[2]) {
             emitExpression(node.params[2]);
           } else {
             mapper.text('undefined');
           }
-          
+
           mapper.text(')');
         }
       });
