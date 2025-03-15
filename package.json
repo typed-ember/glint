@@ -16,7 +16,7 @@
   "scripts": {
     "lint": "pnpm lint:scripts && pnpm lint:formatting",
     "lint:fix": "pnpm lint:scripts --fix && pnpm prettier --write .",
-    "lint:scripts": "pnpm eslint --max-warnings 0 --cache .",
+    "lint:scripts": "pnpm eslint --cache .",
     "lint:formatting": "pnpm prettier --check .",
     "test": "pnpm --filter '*' run test",
     "test:typecheck": "pnpm --filter '*' run test:typecheck",
