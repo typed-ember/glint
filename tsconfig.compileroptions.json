@@ -18,6 +18,13 @@
     // compatibility, since 
     // https://github.com/microsoft/vscode/issues/130367
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    // Need skipLibCheck because @glimmer/* packages don't have extensiosn on their imports.
+    // The @glimmer packages have moduleResultion: bundler.
+    // This could probably be avoided if we bundle the types for @glimmer/* packages,
+    // But that comes with its own challenges.
+    //
+    // Because of how vscode/ls extesnions need to be cjs, we can't use moduleResolution=bundler
+    "skipLibCheck": true
   }
 }
