@@ -15,7 +15,7 @@
     "sourceMap": true,
     "types": ["ember-source/types", "@types/node"],
 
-    // compatibility, since 
+    // compatibility, since
     // https://github.com/microsoft/vscode/issues/130367
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
