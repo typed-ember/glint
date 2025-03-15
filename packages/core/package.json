@@ -28,7 +28,7 @@
     "test:tsc": "echo 'no standalone typecheck within this project'",
     "test:watch": "vitest watch",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "peerDependencies": {
     "typescript": ">=5.6.0"
@@ -63,7 +63,7 @@
     "@vitest/ui": "~1.0.0",
     "common-tags": "^1.8.0",
     "execa": "^4.0.1",
-    "glint-monorepo-test-utils": "^1.4.0",
+    "glint-monorepo-test-utils": "workspace:*",
     "strip-ansi": "^6.0.0",
     "vitest": "~1.0.0"
   },

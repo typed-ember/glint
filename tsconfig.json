@@ -10,5 +10,15 @@
     { "path": "./packages/scripts" },
     { "path": "./test-packages/test-utils" }
   ],
-  "files": []
+  "files": [],
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "ignoreDeprecations": "5.0",
+    "paths": {
+      "@glint/core/config-types": ["./types/glint-core-config.d.ts"],
+      "@glint/core": ["./types/glint-core-config.d.ts"]
+    }
+  }
 }

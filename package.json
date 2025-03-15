@@ -14,33 +14,53 @@
     ]
   },
   "scripts": {
-    "lint": "yarn lint:scripts && yarn lint:formatting",
-    "lint:fix": "yarn lint:scripts --fix && yarn prettier --write .",
-    "lint:scripts": "yarn eslint .",
-    "lint:formatting": "yarn prettier --check .",
-    "test": "yarn workspaces run test",
-    "test:typecheck": "yarn workspaces run test:typecheck",
+    "lint": "pnpm lint:scripts && pnpm lint:formatting",
+    "lint:fix": "pnpm lint:scripts --fix && pnpm prettier --write .",
+    "lint:scripts": "pnpm eslint --max-warnings 0 --cache .",
+    "lint:formatting": "pnpm prettier --check .",
+    "test": "pnpm --filter '*' run test",
+    "test:typecheck": "pnpm --filter '*' run test:typecheck",
     "build": "tsc --build",
-    "release-it": "echo \"Running release-it via yarn breaks publishing! Use npx or a Volta global installation.\""
+    "release-it": "echo \"Running release-it via pnpm breaks publishing! Use npx or a Volta global installation.\""
   },
   "volta": {
     "node": "18.20.3",
-    "yarn": "1.22.4"
+    "pnpm": "10.6.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "@glimmer/validator": ">= 0.83.0"
+    }
   },
   "devDependencies:notes": {
     "typescript": "bumped version because volar caused error TS2694, TS1383"
   },
   "devDependencies": {
+    "@glimmer/interfaces": "0.84.3",
+    "@glimmer/validator": ">= 0.83.0",
     "@release-it-plugins/lerna-changelog": "^5.0.0",
     "@release-it-plugins/workspaces": "^3.2.0",
     "@types/babel__traverse": "^7.18.2",
+    "@types/glob": "^8.1.0",
+    "@types/lru-cache": "^5.1.1",
+    "@types/minimatch": "^5.1.2",
+    "@types/node": "^20.17.24",
+    "@types/semver": "^7.5.8",
+    "@types/typescript": "^2.0.0",
     "@types/yargs": "^17.0.10",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
+    "@typescript/server-harness": "^0.3.5",
+    "@volar/language-server": "2.4.12",
+    "@volar/language-service": "2.4.12",
+    "@volar/test-utils": "2.4.12",
     "eslint": "^8.27.0",
+    "lru-cache": "10.4.3",
     "prettier": "^3.3.2",
     "release-it": "^15.5.0",
-    "typescript": ">=5.6.0"
+    "semver": "^7.5.2",
+    "typescript": ">=5.6.0",
+    "vscode-uri": "^3.1.0"
   },
   "resolutions:notes": {
     "@glimmer/validator": "Newer versions of @glimmer/* are ESM-only, and Glint is compiled to CJS, so newer versions of @glimmer/* are not compatible",
