@@ -836,6 +836,15 @@ describe('Transform: rewriteTemplate', () => {
         }"
       `);
     });
+    
+    test('in a conditional expression', () => {
+      let template = `{{(if @onSelect (modifier on "click" @onSelect))}}`;
+      let specialForms = { if: 'if' } as const;
+
+      expect(templateBody(template, { globals: ['on'], specialForms })).toMatchInlineSnapshot(`
+        "__glintDSL__.emitContent(__glintDSL__.resolveOrReturn((__glintDSL__.noop(__if), (__glintRef__.args.onSelect) ? (__glintDSL__.applyModifier(__glintDSL__.resolve(__glintDSL__.Globals["on"])(__glintY__.element, "click", __glintRef__.args.onSelect))) : (null)))());"
+      `);
+    });
   });
 
   describe('subexpressions', () => {
