@@ -21,7 +21,7 @@
     "test:tsc": "echo 'no standalone typecheck within this project'",
     "test:watch": "vitest watch",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "files": [
     "README.md",

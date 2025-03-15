@@ -14,18 +14,23 @@
     ]
   },
   "scripts": {
-    "lint": "yarn lint:scripts && yarn lint:formatting",
-    "lint:fix": "yarn lint:scripts --fix && yarn prettier --write .",
-    "lint:scripts": "yarn eslint .",
-    "lint:formatting": "yarn prettier --check .",
-    "test": "yarn workspaces run test",
-    "test:typecheck": "yarn workspaces run test:typecheck",
+    "lint": "pnpm lint:scripts && pnpm lint:formatting",
+    "lint:fix": "pnpm lint:scripts --fix && pnpm prettier --write .",
+    "lint:scripts": "pnpm eslint --max-warnings 0 --cache .",
+    "lint:formatting": "pnpm prettier --check .",
+    "test": "pnpm --filter '*' run test",
+    "test:typecheck": "pnpm --filter '*' run test:typecheck",
     "build": "tsc --build",
-    "release-it": "echo \"Running release-it via yarn breaks publishing! Use npx or a Volta global installation.\""
+    "release-it": "echo \"Running release-it via pnpm breaks publishing! Use npx or a Volta global installation.\""
   },
   "volta": {
     "node": "18.20.3",
-    "yarn": "1.22.4"
+    "pnpm": "10.6.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "@glimmer/validator": ">= 0.83.0"
+    }
   },
   "devDependencies:notes": {
     "typescript": "bumped version because volar caused error TS2694, TS1383"

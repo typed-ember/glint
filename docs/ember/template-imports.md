@@ -5,10 +5,17 @@ When adding Glint to an Ember project with `ember-template-imports` installed, t
 In addition to the `@glint/core`, `@glint/template` and `@glint/environment-ember-loose` packages, you also need to install the `@glint/environment-ember-template-imports` package and configure it in `tsconfig.json` under `glint.environment`:
 
 {% tabs %}
+{% tab title="pnpm" %}
+
+```sh
+pnpm add -D @glint/core @glint/template @glint/environment-ember-loose @glint/environment-ember-template-imports
+```
+
+{% endtab %}
 {% tab title="Yarn" %}
 
 ```sh
-yarn add --dev @glint/core @glint/template @glint/environment-ember-loose @glint/environment-ember-template-imports
+pnpm add -D @glint/core @glint/template @glint/environment-ember-loose @glint/environment-ember-template-imports
 ```
 
 {% endtab %}

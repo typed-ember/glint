@@ -27,10 +27,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: yarn
+          cache: 'pnpm'
 
-      - run: yarn install --frozen-lockfile
-      - run: yarn lint
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.6.2
+          run_install: true
+
+      - run: pnpm lint
 
 
   # tracking for re-enablement here: https://github.com/typed-ember/glint/issues/728
@@ -42,12 +46,15 @@ jobs:
   #     - uses: actions/setup-node@v4
   #       with:
   #         node-version: 18
-  #         cache: yarn
+  #         cache: pnpm
 
-  #     - run: yarn install --frozen-lockfile
-  #     - run: "yarn build"
-  #     - run: "yarn workspaces run test:typecheck"
-  #     - run: "yarn workspaces run test:tsc"
+  #     - uses: pnpm/action-setup@v2
+  #       with:
+  #         version: 10.6.2
+  #         run_install: true
+  #     - run: "pnpm build"
+  #     - run: "pnpm --filter '*' run test:typecheck"
+  #     - run: "pnpm --filter '*' run test:tsc"
 
   test:
     name: Test
@@ -57,14 +64,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: yarn
-      - run: yarn install --frozen-lockfile
+          cache: 'pnpm'
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.6.2
+          run_install: true
+
       - name: Build
-        run: yarn build
+        run: pnpm build
       - name: Run Tests
         uses: coactions/setup-xvfb@v1
         with:
-          run: yarn test
+          run: pnpm test
 
   # The Windows runner can be super flaky both with Yarn installs and
   # when launching browser tests, so we allow for retries in those steps.
@@ -84,23 +96,23 @@ jobs:
   #       with:
   #         max_attempts: 2
   #         timeout_minutes: 10
-  #         command: yarn install --frozen-lockfile
+  #         command: pnpm install
   #     - name: Build
-  #       run: yarn build
+  #       run: pnpm build
   #     - name: Test @glint/core
   #       uses: nick-fields/retry@v2
   #       with:
   #         max_attempts: 2
   #         timeout_minutes: 20
-  #         command: yarn workspace @glint/core test
+  #         command: pnpm --filter @glint/core test
   #     - name: Test glint-vscode
   #       uses: nick-fields/retry@v2
   #       with:
   #         max_attempts: 2
   #         timeout_minutes: 10
-  #         command: yarn workspace glint-vscode test
+  #         command: pnpm --filter glint-vscode test
   #     - name: Test @glint/scripts
-  #       run: yarn workspace @glint/scripts test
+  #       run: pnpm --filter @glint/scripts test
 
   # tracking for re-enablement here: https://github.com/typed-ember/glint/issues/728
   # test-floating-deps:
@@ -111,14 +123,17 @@ jobs:
   #     - uses: actions/setup-node@v4
   #       with:
   #         node-version: 18
-  #         cache: yarn
-  #     - run: yarn install --no-lockfile
+  #         cache: 'pnpm'
+  #     - uses: pnpm/action-setup@v2
+  #       with:
+  #         version: 10.6.2
+  #         run_install: true
   #     - name: Build
-  #       run: yarn build
+  #       run: pnpm build
   #     - name: Run Tests
   #       uses: coactions/setup-xvfb@v1
   #       with:
-  #         run: yarn test
+  #         run: pnpm test
 
   # tracking for re-enablement here: https://github.com/typed-ember/glint/issues/728
   # test-ts-nightly:
@@ -129,12 +144,15 @@ jobs:
   #     - uses: actions/setup-node@v4
   #       with:
   #         node-version: 18
-  #         cache: yarn
-  #     - run: yarn install --frozen-lockfile
-  #     - run: yarn add --dev -W typescript@next
+  #         cache: 'pnpm'
+  #     - uses: pnpm/action-setup@v2
+  #       with:
+  #         version: 10.6.2
+  #         run_install: true
+  #     - run: pnpm add -D typescript@next
   #     - name: Build
-  #       run: yarn build
+  #       run: pnpm build
   #     - name: Run Tests
   #       uses: coactions/setup-xvfb@v1
   #       with:
-  #         run: yarn test
+  #         run: pnpm test

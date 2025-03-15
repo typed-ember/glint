@@ -24,13 +24,13 @@
     "Linters"
   ],
   "scripts": {
-    "pretest": "yarn build",
-    "test": "yarn test-language-server && yarn test-ts-plugin",
+    "pretest": "pnpm build",
+    "test": "pnpm test-language-server && pnpm test-ts-plugin",
     "test-language-server": "node lib/__tests__/support/launch-from-cli.mjs language-server",
     "test-ts-plugin": "node lib/__tests__/support/launch-from-cli.mjs ts-plugin",
     "test:typecheck": "echo 'no standalone typecheck within this project'",
     "test:tsc": "echo 'no standalone tsc within this project'",
-    "build": "yarn compile && yarn bundle",
+    "build": "pnpm compile && pnpm bundle",
     "compile": "tsc --build",
     "bundle": "node ./scripts/build.mjs",
     "bundle:watch": "node ./scripts/build.mjs -- --watch",

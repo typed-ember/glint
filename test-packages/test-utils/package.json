@@ -12,6 +12,7 @@
   "scripts": {
     "test": "true",
     "test:typecheck": "echo 'no standalone typecheck within this project'",
-    "test:tsc": "echo 'no standalone tsc within this project'"
+    "test:tsc": "echo 'no standalone tsc within this project'",
+    "build": "echo 'no build step required'"
   }
 }
