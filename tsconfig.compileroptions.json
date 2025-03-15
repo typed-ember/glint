@@ -9,14 +9,15 @@
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
-    "esModuleInterop": false,
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "types": ["ember-source/types", "@types/node"],
 
-    // new
-    "allowSyntheticDefaultImports": true
+    // compatibility, since 
+    // https://github.com/microsoft/vscode/issues/130367
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   }
 }
