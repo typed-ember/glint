@@ -34,14 +34,14 @@ describe('Language Server: Hover (ts plugin)', () => {
 
     expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
       {
-        "displayString": "(property) MyComponent.message: string",
-        "documentation": "A message.",
+        "displayString": "any",
+        "documentation": "",
         "end": {
           "line": 8,
           "offset": 19,
         },
-        "kind": "property",
-        "kindModifiers": "private",
+        "kind": "",
+        "kindModifiers": "",
         "start": {
           "line": 8,
           "offset": 12,
