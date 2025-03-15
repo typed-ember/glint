@@ -34,7 +34,7 @@
     "typescript": ">=5.6.0"
   },
   "dependencies": {
-    "@glimmer/syntax": "^0.84.3",
+    "@glimmer/syntax": "*",
     "@volar/kit": "2.4.12",
     "@volar/language-core": "2.4.12",
     "@volar/language-server": "2.4.12",
