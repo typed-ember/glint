@@ -1199,11 +1199,7 @@ export function templateToTypescript(
         // A little hairier (ha) for mustaches, since they
         if (node.path.type === 'PathExpression') {
           let start = template.lastIndexOf(node.path.original, rangeForNode(node).end);
-          emitPathContents(
-            [node.path.head.original, ...node.path.tail],
-            start,
-            determinePathKind(node.path),
-          );
+          emitPathContents(node.path.original.split('.'), start, determinePathKind(node.path));
           mapper.text(';');
           mapper.newline();
         }
@@ -1347,7 +1343,7 @@ export function templateToTypescript(
     function emitPath(node: AST.PathExpression): void {
       mapper.forNode(node, () => {
         let { start } = rangeForNode(node);
-        emitPathContents([node.head.original, ...node.tail], start, determinePathKind(node));
+        emitPathContents(node.original.split('.'), start, determinePathKind(node));
       });
     }
 
