@@ -127,10 +127,14 @@ describe('CLI: watched typechecking', () => {
 
     expect(output).toMatch('Found 1 error.');
     expect(error.replace(/\r/g, '')).toMatchInlineSnapshot(`
-      "index.gts:10:2 - error TS2339: Property 'this' does not exist on type 'Application'.
+      "index.gts:12:32 - error TS2551: Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?
 
-      10   <template>
-          ~~~~"
+      12     The current time is {{this.startupTimee}}.
+                                        ~~~~~~~~~~~~
+
+        index.gts:8:11
+          8   private startupTime = new Date().toISOString();
+                      ~~~~~~~~~~~"
     `);
   });
 

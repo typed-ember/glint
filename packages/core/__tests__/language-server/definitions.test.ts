@@ -58,7 +58,29 @@ describe('Language Server: Definitions (ts plugin)', () => {
       ]
     `);
 
-    expect(await performDefinitionRequest(templateDoc, valueOffset)).toMatchInlineSnapshot(`[]`);
+    expect(await performDefinitionRequest(templateDoc, valueOffset)).toMatchInlineSnapshot(`
+      [
+        {
+          "contextEnd": {
+            "line": 4,
+            "offset": 15,
+          },
+          "contextStart": {
+            "line": 4,
+            "offset": 3,
+          },
+          "end": {
+            "line": 4,
+            "offset": 8,
+          },
+          "file": "\${testWorkspacePath}/ts-ember-app/app/components/ephemeral.ts",
+          "start": {
+            "line": 4,
+            "offset": 3,
+          },
+        },
+      ]
+    `);
   });
 
   test('component invocation', async () => {
@@ -160,7 +182,29 @@ describe('Language Server: Definitions (ts plugin)', () => {
         }
       `,
       ),
-    ).toMatchInlineSnapshot(`[]`);
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "contextEnd": {
+            "line": 4,
+            "offset": 19,
+          },
+          "contextStart": {
+            "line": 4,
+            "offset": 3,
+          },
+          "end": {
+            "line": 4,
+            "offset": 10,
+          },
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/ephemeral.gts",
+          "start": {
+            "line": 4,
+            "offset": 3,
+          },
+        },
+      ]
+    `);
   });
 });
 

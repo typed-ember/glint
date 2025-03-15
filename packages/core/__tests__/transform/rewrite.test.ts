@@ -466,11 +466,11 @@ describe('Transform: rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(22:74):   <template>\\n    Hello, {{this.target}}!\\n  </template>
-        |  ts(22:375):   static { ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.this?.target)());\\n__glintRef__; __glintDSL__;\\n}) }
+        |  ts(22:369):   static { ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.target)());\\n__glintRef__; __glintDSL__;\\n}) }
         |
         | | Mapping: Template
         | |  hbs(32:63):   Hello, {{this.target}}!
-        | |  ts(253:343):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.this?.target)());
+        | |  ts(253:337):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.target)());
         | |
         | | | Mapping: TextContent
         | | |  hbs(37:43):   Hello,
@@ -478,34 +478,30 @@ describe('Transform: rewriteModule', () => {
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(44:59):   {{this.target}}
-        | | |  ts(253:341):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.this?.target)())
+        | | |  ts(253:335):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.target)())
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(44:59):   {{this.target}}
-        | | | |  ts(278:340):  __glintDSL__.resolveOrReturn(__glintRef__.this.this?.target)()
+        | | | |  ts(278:334):  __glintDSL__.resolveOrReturn(__glintRef__.this.target)()
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(46:57):   this.target
-        | | | | |  ts(307:337):  __glintRef__.this.this?.target
+        | | | | |  ts(307:331):  __glintRef__.this.target
         | | | | |
         | | | | | | Mapping: Identifier
         | | | | | |  hbs(46:50):   this
         | | | | | |  ts(320:324):  this
         | | | | | |
         | | | | | | Mapping: Identifier
-        | | | | | |  hbs(21:25):
-        | | | | | |  ts(325:329):  this
-        | | | | | |
-        | | | | | | Mapping: Identifier
         | | | | | |  hbs(51:57):   target
-        | | | | | |  ts(331:337):  target
+        | | | | | |  ts(325:331):  target
         | | | | | |
         | | | | |
         | | | |
         | | |
         | | | Mapping: TextContent
         | | |  hbs(59:60):   !
-        | | |  ts(343:343):
+        | | |  ts(337:337):
         | | |
         | |
         |"
@@ -528,11 +524,11 @@ describe('Transform: rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(0:44):    <template>\\n  Hello, {{@target}}!\\n</template>
-        |  ts(0:344):    export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@target"])());\\n__glintRef__; __glintDSL__;\\n})
+        |  ts(0:340):    export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)());\\n__glintRef__; __glintDSL__;\\n})
         |
         | | Mapping: Template
         | |  hbs(10:33):   Hello, {{@target}}!
-        | |  ts(226:314):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@target"])());
+        | |  ts(226:310):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)());
         | |
         | | | Mapping: TextContent
         | | |  hbs(13:19):   Hello,
@@ -540,26 +536,26 @@ describe('Transform: rewriteModule', () => {
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(20:31):   {{@target}}
-        | | |  ts(226:312):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@target"])())
+        | | |  ts(226:308):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)())
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(20:31):   {{@target}}
-        | | | |  ts(251:311):  __glintDSL__.resolveOrReturn(__glintRef__.args["@target"])()
+        | | | |  ts(251:307):  __glintDSL__.resolveOrReturn(__glintRef__.args.target)()
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(22:29):   @target
-        | | | | |  ts(280:308):  __glintRef__.args["@target"]
+        | | | | |  ts(280:304):  __glintRef__.args.target
         | | | | |
         | | | | | | Mapping: Identifier
-        | | | | | |  hbs(-1:6):
-        | | | | | |  ts(299:306):  @target
+        | | | | | |  hbs(23:29):   target
+        | | | | | |  ts(298:304):  target
         | | | | | |
         | | | | |
         | | | |
         | | |
         | | | Mapping: TextContent
         | | |  hbs(31:32):   !
-        | | |  ts(314:314):
+        | | |  ts(310:310):
         | | |
         | |
         |"
@@ -597,27 +593,27 @@ describe('Transform: rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(56:89):   <template>{{@message}}</template>
-        |  ts(56:386):   ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@message"])());\\n__glintRef__; __glintDSL__;\\n})
+        |  ts(56:382):   ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)());\\n__glintRef__; __glintDSL__;\\n})
         |
         | | Mapping: Template
         | |  hbs(66:78):   {{@message}}
-        | |  ts(267:356):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@message"])());
+        | |  ts(267:352):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)());
         | |
         | | | Mapping: MustacheStatement
         | | |  hbs(66:78):   {{@message}}
-        | | |  ts(267:354):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args["@message"])())
+        | | |  ts(267:350):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)())
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(66:78):   {{@message}}
-        | | | |  ts(292:353):  __glintDSL__.resolveOrReturn(__glintRef__.args["@message"])()
+        | | | |  ts(292:349):  __glintDSL__.resolveOrReturn(__glintRef__.args.message)()
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(68:76):   @message
-        | | | | |  ts(321:350):  __glintRef__.args["@message"]
+        | | | | |  ts(321:346):  __glintRef__.args.message
         | | | | |
         | | | | | | Mapping: Identifier
-        | | | | | |  hbs(55:63):
-        | | | | | |  ts(340:348):  @message
+        | | | | | |  hbs(69:76):   message
+        | | | | | |  ts(339:346):  message
         | | | | | |
         | | | | |
         | | | |
@@ -627,35 +623,31 @@ describe('Transform: rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(139:174): <template>{{this.title}}</template>
-        |  ts(436:788):  static { ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.this?.title)());\\n__glintRef__; __glintDSL__;\\n}) }
+        |  ts(432:778):  static { ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.title)());\\n__glintRef__; __glintDSL__;\\n}) }
         |
         | | Mapping: Template
         | |  hbs(149:163): {{this.title}}
-        | |  ts(667:756):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.this?.title)());
+        | |  ts(663:746):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.title)());
         | |
         | | | Mapping: MustacheStatement
         | | |  hbs(149:163): {{this.title}}
-        | | |  ts(667:754):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.this?.title)())
+        | | |  ts(663:744):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.title)())
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(149:163): {{this.title}}
-        | | | |  ts(692:753):  __glintDSL__.resolveOrReturn(__glintRef__.this.this?.title)()
+        | | | |  ts(688:743):  __glintDSL__.resolveOrReturn(__glintRef__.this.title)()
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(151:161): this.title
-        | | | | |  ts(721:750):  __glintRef__.this.this?.title
+        | | | | |  ts(717:740):  __glintRef__.this.title
         | | | | |
         | | | | | | Mapping: Identifier
         | | | | | |  hbs(151:155): this
-        | | | | | |  ts(734:738):  this
-        | | | | | |
-        | | | | | | Mapping: Identifier
-        | | | | | |  hbs(138:142):
-        | | | | | |  ts(739:743):  this
+        | | | | | |  ts(730:734):  this
         | | | | | |
         | | | | | | Mapping: Identifier
         | | | | | |  hbs(156:161): title
-        | | | | | |  ts(745:750):  title
+        | | | | | |  ts(735:740):  title
         | | | | | |
         | | | | |
         | | | |
