@@ -27,6 +27,7 @@
     "node": "18.20.3",
     "pnpm": "10.6.2"
   },
+  "packageManager": "pnpm@10.6.2",
   "pnpm": {
     "overrides": {
       "@glimmer/validator": ">= 0.83.0"
