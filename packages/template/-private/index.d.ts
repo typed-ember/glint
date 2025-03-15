@@ -35,6 +35,7 @@ export type ContentValue =
   | void
   | SafeString
   | Node
+  | Map<any, any>
   | ArglessCurlyComponent;
 
 // This encompasses both @glimmer/runtime and @ember/template's notion of `SafeString`s,

@@ -28,3 +28,6 @@ emitContent(returnsVoid());
 // Emitting an HTML element inserts that element into the DOM
 emitContent(document.createElement('div'));
 emitContent(document.createElementNS('http://www.w3.org/2000/svg', 'svg'));
+
+// Maps should be usable as content values for each-in
+emitContent(new Map([['key', 'value']]));
