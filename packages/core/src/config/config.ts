@@ -7,7 +7,7 @@ import { GlintConfigInput } from '@glint/core/config-types';
  * with methods for interrogating project configuration based on its contents.
  */
 export class GlintConfig {
-  public declare readonly ts: typeof import('typescript');
+  declare public readonly ts: typeof import('typescript');
   public readonly rootDir: string;
   public readonly configPath: string;
   public readonly environment: GlintEnvironment;

@@ -25,6 +25,9 @@
   "peerDependencies": {
     "@glint/template": "^1.4.0"
   },
+  "devDependencies": {
+    "@glint/template": "workspace:*"
+  },
   "publishConfig": {
     "access": "public"
   }

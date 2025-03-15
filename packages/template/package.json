@@ -18,7 +18,6 @@
   ],
   "devDependencies": {
     "@glimmer/component": "^1.1.2",
-    "@types/ember__component": "~4.0.8",
     "expect-type": "^0.15.0",
     "sums-up": "^2.1.0"
   },

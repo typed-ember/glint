@@ -9,7 +9,7 @@
     "test:tsc": "echo 'no standalone tsc within this project'"
   },
   "devDependencies": {
-    "@glint/tsserver-plugin": "*"
+    "@glint/tsserver-plugin": "workspace:*"
   },
   "volta": {
     "extends": "../../package.json"

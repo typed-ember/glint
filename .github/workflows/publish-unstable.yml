@@ -25,21 +25,17 @@ jobs:
           node-version: 18
           # This creates an .npmrc that reads the NODE_AUTH_TOKEN environment variable
           registry-url: 'https://registry.npmjs.org'
-      - name: Locate Yarn Cache
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
+          cache: 'pnpm'
+
+      - uses: pnpm/action-setup@v2
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+          version: 10.6.2
+          run_install: true
+
       # - name: Lint
-      #   run: yarn lint
+      #   run: pnpm lint
       - name: Build
-        run: yarn build
+        run: pnpm build
 
 
       - name: set versions

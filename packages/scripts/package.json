@@ -23,10 +23,12 @@
     "test:typecheck": "echo 'no standalone typecheck within this project'",
     "test:tsc": "echo 'no standalone typecheck within this project'",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "dependencies": {
-    "glob": "^7.2.0",
+    "common-tags": "^1.8.0",
+    "glint-monorepo-test-utils": "workspace:*",
+    "glob": "^7.2.3",
     "golden-fleece": "^1.0.9",
     "js-yaml": "^4.1.0",
     "ora": "^6.1.2",
@@ -35,6 +37,8 @@
     "zod": "^3.22.3"
   },
   "devDependencies": {
+    "@types/common-tags": "^1.8.0",
+    "@types/glob": "^8.1.0",
     "@types/js-yaml": "^4.0.5",
     "@types/yargs": "^17.0.10",
     "json5": "^2.2.2",
