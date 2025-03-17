@@ -20,6 +20,13 @@ export type TemplateToTypescriptOptions = {
   specialForms?: Record<string, GlintSpecialForm>;
 };
 
+function getPathParts(node: AST.PathExpression) {
+  // The original code which used old @glimmer/syntax used node.parts,
+  // which never included the @ of the path.
+  let atLess = node.head.original.replace(/^@/, '');
+  return [atLess, ...node.tail];
+}
+
 /**
  * Given the text contents of a template, returns a  TypeScript representation
  * of that template's contents, as well as a mapping of offsets and ranges between
@@ -1199,7 +1206,7 @@ export function templateToTypescript(
         // A little hairier (ha) for mustaches, since they
         if (node.path.type === 'PathExpression') {
           let start = template.lastIndexOf(node.path.original, rangeForNode(node).end);
-          emitPathContents(node.path.original.split('.'), start, determinePathKind(node.path));
+          emitPathContents(getPathParts(node.path), start, determinePathKind(node.path));
           mapper.text(';');
           mapper.newline();
         }
@@ -1343,7 +1350,7 @@ export function templateToTypescript(
     function emitPath(node: AST.PathExpression): void {
       mapper.forNode(node, () => {
         let { start } = rangeForNode(node);
-        emitPathContents(node.original.split('.'), start, determinePathKind(node));
+        emitPathContents(getPathParts(node), start, determinePathKind(node));
       });
     }
 
