@@ -36,7 +36,7 @@ describe.skip('CLI: single-pass build mode typechecking', () => {
       await project.destroy();
     });
 
-    test.only('passes a valid basic project', async () => {
+    test('passes a valid basic project', async () => {
       let code = stripIndent`
         import '@glint/environment-ember-template-imports';
         import Component from '@glimmer/component';
