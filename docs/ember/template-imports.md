@@ -62,12 +62,11 @@ interface ShoutSignature {
 
 const louderPlease = (message: string) => message.toUpperCase();
 
-const Shout: TOC<ShoutSignature> = <template>
+export default <template>
     <div ...attributes>
         {{yield (louderPlease @message)}}
     </div>
-</template>;
-export default Shout;
+</template> satisfies TOC<ShoutSignature>;
 ```
 
 {% endcode %}
