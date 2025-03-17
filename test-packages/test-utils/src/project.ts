@@ -4,11 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { execaNode, ExecaChildProcess, Options } from 'execa';
 import { type GlintConfigInput } from '@glint/core/config-types';
-import { pathUtils } from '@glint/core';
 import { startLanguageServer, LanguageServerHandle } from '@volar/test-utils';
-import { FullDocumentDiagnosticReport, TextDocument } from '@volar/language-service';
+import { TextDocument } from '@volar/language-service';
 import { URI } from 'vscode-uri';
-import { Diagnostic } from 'typescript';
 import { WorkspaceSymbolRequest, WorkspaceSymbolParams } from '@volar/language-server/node.js';
 
 const require = createRequire(import.meta.url);
@@ -89,14 +87,6 @@ export class Project {
         console.error(e);
         throw e;
       });
-
-    const wrapForSnapshottability = (serviceMethodName: keyof typeof languageServerHandle) => {
-      return async (uri: string, ...rest: any[]) => {
-        // @ts-expect-error not sure how to type this
-        const value = await languageServerHandle[serviceMethodName](uri, ...rest);
-        return this.normalizeForSnapshotting(uri, value);
-      };
-    };
 
     return {
       ...this.languageServerHandle,
