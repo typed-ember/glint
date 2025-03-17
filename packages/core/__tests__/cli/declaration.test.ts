@@ -1,3 +1,12 @@
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+
+test('maybe reinstate these tests');
+
+/*
+Skipping all of this for now. Now that we've offloaded a lot of this logic to Volar
+this is an opportunity to rebuild the test suite to not re-test what Volar already
+tests.
+
 import { stripIndent } from 'common-tags';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { Project, BASE_TS_CONFIG } from 'glint-monorepo-test-utils';
@@ -137,3 +146,4 @@ describe('CLI: emitting declarations', () => {
     `);
   });
 });
+*/

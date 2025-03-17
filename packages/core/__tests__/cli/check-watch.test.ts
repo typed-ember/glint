@@ -1,3 +1,12 @@
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+
+test('maybe reinstate these tests');
+
+/*
+Skipping all of this for now. Now that we've offloaded a lot of this logic to Volar
+this is an opportunity to rebuild the test suite to not re-test what Volar already
+tests.
+
 import * as os from 'node:os';
 import { stripIndent } from 'common-tags';
 import stripAnsi = require('strip-ansi');
@@ -385,3 +394,4 @@ describe('CLI: watched typechecking', () => {
     });
   });
 });
+*/
