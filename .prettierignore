@@ -3,9 +3,6 @@
 /test-packages/*/lib
 dist/
 
-# Ephemeral test applications
-/test-packages/ephemeral
-
 # Hidden directories
 .*/
 

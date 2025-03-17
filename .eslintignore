@@ -4,6 +4,3 @@
 
 dist/
 __fixtures__
-
-# Ephemeral test applications
-/test-packages/ephemeral
