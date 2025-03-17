@@ -5,7 +5,6 @@ import { createRequire } from 'node:module';
 import { execaNode, ExecaChildProcess, Options } from 'execa';
 import { type GlintConfigInput } from '@glint/core/config-types';
 import { startLanguageServer, LanguageServerHandle } from '@volar/test-utils';
-import { TextDocument } from '@volar/language-service';
 import { URI } from 'vscode-uri';
 import { WorkspaceSymbolRequest, WorkspaceSymbolParams } from '@volar/language-server/node.js';
 
@@ -39,7 +38,6 @@ const newWorkingDir = (): string =>
 export class Project {
   private rootDir: string;
   private languageServerHandle?: LanguageServerHandle;
-  openedDocuments: TextDocument[] = [];
 
   private constructor(rootDir: string) {
     this.rootDir = rootDir;
