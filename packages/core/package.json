@@ -65,7 +65,7 @@
     "execa": "^4.0.1",
     "glint-monorepo-test-utils": "^1.4.0",
     "strip-ansi": "^6.0.0",
-    "vitest": "~1.0.0"
+    "vitest": "~1.4.0"
   },
   "publishConfig": {
     "access": "public"

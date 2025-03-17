@@ -46,7 +46,7 @@
     "@glimmer/component": "^1.1.2",
     "ember-modifier": "^3.2.7 || ^4.0.0",
     "expect-type": "^0.15.0",
-    "vitest": "~1.0.0"
+    "vitest": "~1.4.0"
   },
   "publishConfig": {
     "access": "public"
