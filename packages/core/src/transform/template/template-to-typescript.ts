@@ -30,6 +30,9 @@ function getPathParts(node: AST.PathExpression) {
   // which never included the @ of the path.
   let atLess = node.head.original.replace(/^@/, '');
 
+  // The original path.parts array did not include "this" in the parts.
+  if (atLess === "this") return node.tail;
+
   return [atLess, ...node.tail];
 }
 
