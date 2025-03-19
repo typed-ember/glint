@@ -154,8 +154,6 @@ export const { activate, deactivate } = defineExtension(async () => {
     },
   );
 
-  // workspaceFolders.value.forEach((workspaceFolder) =>
-
   return volarLabs.extensionExports;
 });
 
@@ -242,7 +240,16 @@ try {
       // @ts-expect-error – not easy to type
       let text = readFileSync(...args) as string;
 
-      // patch readPlugins
+      // patch readPlugins so that it initializes our plugin with the language IDs specified
+      // in the VSCode config (e.g. `glint.server.includeLanguages`), rather than the language IDs
+      // specified in the Glint VSCode extension package.json `typescriptServerPlugins` payload.
+      //
+      // TODO: do we actually need this configure-ability or would it suffice to just use
+      // a hardcoded array of ['glimmer-js', 'glimmer-ts', 'handlebars']? If so, need to update
+      // the Glint VSCode extension package.json `typescriptServerPlugins` payload to include
+      // handlebars.
+      //
+      // https://github.com/microsoft/vscode/blob/6900113cf934d3d379757534d6f57929c5eb87f2/extensions/typescript-language-features/src/tsServer/plugins.ts#L81
       text = text.replace(
         'languages:Array.isArray(e.languages)',
         [
@@ -270,6 +277,8 @@ try {
 
       /**
        * VSCode >= 1.87.0
+       *
+       * https://github.com/microsoft/vscode/blob/7e4e3c373200b0b1564da09d1af0279a0cde8caf/extensions/typescript-language-features/src/configuration/languageIds.ts#L14-L19
        */
 
       text = text.replace(
