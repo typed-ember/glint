@@ -22,16 +22,16 @@ export type TemplateToTypescriptOptions = {
 
 /**
  * NOTE: this is tech debt. Tho solving it will require more work than polyfilling old behavior of path.parts
- * @param node 
- * @returns 
+ * @param node
+ * @returns
  */
-function getPathParts(node: AST.PathExpression) {
+function getPathParts(node: AST.PathExpression): string[] {
   // The original code which used old @glimmer/syntax used node.parts,
   // which never included the @ of the path.
   let atLess = node.head.original.replace(/^@/, '');
 
   // The original path.parts array did not include "this" in the parts.
-  if (atLess === "this") return node.tail;
+  if (atLess === 'this') return node.tail;
 
   return [atLess, ...node.tail];
 }
