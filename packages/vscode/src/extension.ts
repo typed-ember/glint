@@ -277,7 +277,7 @@ try {
 
       /**
        * VSCode >= 1.87.0
-       * 
+       *
        * https://github.com/microsoft/vscode/blob/7e4e3c373200b0b1564da09d1af0279a0cde8caf/extensions/typescript-language-features/src/configuration/languageIds.ts#L14-L19
        */
 
