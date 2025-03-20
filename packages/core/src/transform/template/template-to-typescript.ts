@@ -21,6 +21,22 @@ export type TemplateToTypescriptOptions = {
 };
 
 /**
+ * NOTE: this is tech debt. Tho solving it will require more work than polyfilling old behavior of path.parts
+ * @param node
+ * @returns
+ */
+function getPathParts(node: AST.PathExpression): string[] {
+  // The original code which used old @glimmer/syntax used node.parts,
+  // which never included the @ of the path.
+  let atLess = node.head.original.replace(/^@/, '');
+
+  // The original path.parts array did not include "this" in the parts.
+  if (atLess === 'this') return node.tail;
+
+  return [atLess, ...node.tail];
+}
+
+/**
  * Given the text contents of a template, returns a  TypeScript representation
  * of that template's contents, as well as a mapping of offsets and ranges between
  * the original and transformed contents.
@@ -60,7 +76,12 @@ export function templateToTypescript(
     function emitTopLevelStatement(node: AST.TopLevelStatement): void {
       switch (node.type) {
         case 'Block':
+          throw new Error(`Internal error: unexpected top-level ${node.type}`);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
         case 'PartialStatement':
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
           throw new Error(`Internal error: unexpected top-level ${node.type}`);
 
         case 'TextNode':
@@ -1194,7 +1215,7 @@ export function templateToTypescript(
         // A little hairier (ha) for mustaches, since they
         if (node.path.type === 'PathExpression') {
           let start = template.lastIndexOf(node.path.original, rangeForNode(node).end);
-          emitPathContents(node.path.parts, start, determinePathKind(node.path));
+          emitPathContents(getPathParts(node.path), start, determinePathKind(node.path));
           mapper.text(';');
           mapper.newline();
         }
@@ -1338,12 +1359,12 @@ export function templateToTypescript(
     function emitPath(node: AST.PathExpression): void {
       mapper.forNode(node, () => {
         let { start } = rangeForNode(node);
-        emitPathContents(node.parts, start, determinePathKind(node));
+        emitPathContents(getPathParts(node), start, determinePathKind(node));
       });
     }
 
     function determinePathKind(node: AST.PathExpression): PathKind {
-      return node.this ? 'this' : node.data ? 'arg' : 'free';
+      return node.head.original === 'this' ? 'this' : node.data ? 'arg' : 'free';
     }
 
     function emitPathContents(parts: string[], start: number, kind: PathKind): void {

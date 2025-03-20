@@ -34,7 +34,7 @@
     "typescript": ">=5.6.0"
   },
   "dependencies": {
-    "@glimmer/syntax": "^0.84.3",
+    "@glimmer/syntax": "*",
     "@volar/kit": "2.4.12",
     "@volar/language-core": "2.4.12",
     "@volar/language-server": "2.4.12",
@@ -65,7 +65,7 @@
     "execa": "^4.0.1",
     "glint-monorepo-test-utils": "^1.4.0",
     "strip-ansi": "^6.0.0",
-    "vitest": "~1.0.0"
+    "vitest": "~1.4.0"
   },
   "publishConfig": {
     "access": "public"

@@ -33,11 +33,7 @@
   },
   "peerDependencies": {
     "@glint/environment-ember-loose": "^1.4.0",
-    "@glint/template": "^1.4.0",
-    "@types/ember__component": "^4.0.10",
-    "@types/ember__helper": "^4.0.1",
-    "@types/ember__modifier": "^4.0.3",
-    "@types/ember__routing": "^4.0.12"
+    "@glint/template": "^1.4.0"
   },
   "peerDependenciesMeta": {
     "@types/ember__component": {
@@ -54,13 +50,8 @@
     }
   },
   "devDependencies": {
-    "@types/ember": "^4.0.0",
-    "@types/ember__component": "^4.0.10",
-    "@types/ember__helper": "^4.0.1",
-    "@types/ember__modifier": "^4.0.3",
-    "@types/ember__routing": "^4.0.12",
     "@types/node": "^18.11.5",
-    "vitest": "~1.0.0"
+    "vitest": "~1.4.0"
   },
   "publishConfig": {
     "access": "public"

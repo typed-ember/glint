@@ -37,6 +37,8 @@
     "@types/yargs": "^17.0.10",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
+    "@types/rsvp": "^4.0.9",
+    "ember-source": "~6.2.0",
     "eslint": "^8.27.0",
     "prettier": "^3.3.2",
     "release-it": "^15.5.0",
@@ -48,12 +50,6 @@
     "@types/node": "Locking to avoid conflicts between the declared version in packages/core and floating '*' versions when we run in CI without the lockfile"
   },
   "resolutions": {
-    "@glimmer/manager": "0.84.3",
-    "@glimmer/interfaces": "0.84.3",
-    "@glimmer/runtime": "0.84.3",
-    "@glimmer/reference": "0.84.3",
-    "@glimmer/util": "0.84.3",
-    "@glimmer/validator": "0.84.3",
     "@types/yargs": "17.0.13",
     "@types/node": "^20.10.6",
     "ember-cli-htmlbars": "^6.0.1"
