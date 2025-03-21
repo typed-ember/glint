@@ -417,7 +417,7 @@ describe('Transform: rewriteModule', () => {
         contents: stripIndent`
           import Component, { hbs } from 'special/component';
           export default class MyComponent extends Component(<template></template>) {
-            
+
           }
         `,
       };
@@ -429,7 +429,7 @@ describe('Transform: rewriteModule', () => {
         export default class MyComponent extends Component(({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
         __glintRef__; __glintDSL__;
         })) {
-          
+
         }"
       `);
     });
@@ -820,6 +820,31 @@ describe('Transform: rewriteModule', () => {
         | | |
         | |
         |"
+      `);
+    });
+
+    test('with implicit export default and satisfies', () => {
+      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let script = {
+        filename: 'test.gts',
+        contents: stripIndent`
+          import type { TOC } from '@ember/component/template-only';
+          <template>HelloWorld!</template> satisfies TOC<{
+            Blocks: { default: [] }
+          }>;
+        `,
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, customEnv);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import type { TOC } from '@ember/component/template-only';
+        export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
+        __glintRef__; __glintDSL__;
+        }) satisfies TOC<{
+          Blocks: { default: [] }
+        }>;"
       `);
     });
   });
