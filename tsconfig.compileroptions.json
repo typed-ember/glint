@@ -20,6 +20,7 @@
 
     // new
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
 
     "types": ["ember-source/types", "@types/node"]
   }
