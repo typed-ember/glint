@@ -30,14 +30,13 @@
     "test-ts-plugin": "node lib/__tests__/support/launch-from-cli.mjs ts-plugin",
     "test:typecheck": "echo 'no standalone typecheck within this project'",
     "test:tsc": "echo 'no standalone tsc within this project'",
-    "build": "pnpm compile && pnpm bundle",
+    "build": "pnpm ext:gen && pnpm compile && pnpm bundle",
     "compile": "tsc --build",
     "bundle": "node ./scripts/build.mjs",
     "bundle:watch": "node ./scripts/build.mjs -- --watch",
     "extension:package": "vsce package --no-dependencies",
     "extension:publish": "vsce publish --no-dependencies",
-    "postinstall": "vscode-ext-gen --scope glint",
-    "prebuild": "vscode-ext-gen --scope glint"
+    "ext:gen": "vscode-ext-gen --scope glint"
   },
   "engines": {
     "vscode": "^1.68.1"

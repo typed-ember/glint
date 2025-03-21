@@ -33,6 +33,7 @@
   },
   "peerDependencies": {
     "@glint/environment-ember-loose": "workspace:*",
+    "@glint/core": "workspace:*",
     "@glint/template": "workspace:*"
   },
   "devDependencies": {

@@ -8,15 +8,21 @@
   "type": "module",
   "main": "lib/index.js",
   "exports": {
-    ".": "./lib/index.js",
-    "./config-types": "./lib/config/types.d.cts",
-    "./lsp-messages": "./lib/language-server/messages.cjs",
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./config-types": {
+      "types": "./lib/config/types.d.cts",
+      "default": "./lib/config/types.cjs"
+    },
     "./bin/*": "./bin/*.js"
   },
   "files": [
     "README.md",
     "lib",
-    "bin"
+    "bin",
+    "src"
   ],
   "bin": {
     "glint": "bin/glint.js",

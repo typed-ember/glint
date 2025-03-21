@@ -30,7 +30,8 @@
   ],
   "peerDependencies": {
     "@glimmer/component": ">=1.1.2",
-    "@glint/template": "^1.4.0",
+    "@glint/template": "workspace:*",
+    "@glint/core": "workspace:*",
     "ember-cli-htmlbars": "^6.0.1",
     "ember-modifier": "^3.2.7 || ^4.0.0"
   },
