@@ -62,9 +62,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           cache: 'pnpm'
-      - run: pnpm install
-      - name: Build
-        run: pnpm build
+      - run: pnpm reset
       - name: Run Tests
         uses: coactions/setup-xvfb@v1
         with:
