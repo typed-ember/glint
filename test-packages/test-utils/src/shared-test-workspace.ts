@@ -8,11 +8,15 @@ import type { LanguageServerHandle } from '@volar/test-utils';
 import { startLanguageServer } from '@volar/test-utils';
 import * as path from 'node:path';
 import { URI } from 'vscode-uri';
+import { fileURLToPath } from 'node:url';
+
 // import { VueInitializationOptions } from '../lib/types';
 
 let serverHandle: LanguageServerHandle | undefined;
 let tsserver: import('@typescript/server-harness').Server;
 let seq = 1;
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const testWorkspacePath = path.resolve(__dirname, '../..');
 
