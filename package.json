@@ -27,7 +27,7 @@
     "release-it": "echo \"Running release-it via pnpm breaks publishing! Use npx or a Volta global installation.\""
   },
   "volta": {
-    "node": "18.20.3",
+    "node": "20.19.0",
     "pnpm": "10.6.2"
   },
   "packageManager": "pnpm@10.6.2",

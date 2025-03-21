@@ -12,5 +12,8 @@ lib/
 tsconfig.json
 tsconfig.tsbuildinfo
 
-node_modules/
+# We don't want to ignore node_modules because in order for tsserver to find our
+# `@glint/tsserver-plugin`, it needs to be present in node_modules.
+# node_modules/
+
 scripts/

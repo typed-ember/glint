@@ -224,8 +224,6 @@ try {
   // work in .gts files.
   //
   // https://github.com/search?q=repo%3Amicrosoft%2Fvscode%20isSupportedLanguageMode&type=code
-  const typeScriptServerPluginName = '@glint/tsserver-plugin';
-
   const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features')!;
   const readFileSync = fs.readFileSync;
   const extensionJsPath = require.resolve('./dist/extension.js', {
@@ -250,6 +248,11 @@ try {
       // handlebars.
       //
       // https://github.com/microsoft/vscode/blob/6900113cf934d3d379757534d6f57929c5eb87f2/extensions/typescript-language-features/src/tsServer/plugins.ts#L81
+      //
+      // Note: we use the esbuild-packaged name `glint-tsserver-plugin-pack` rather than the NPM
+      // module name `@glint/tsserver-plugin` because the latter is not installed in the VSCode
+      // extension's `node_modules` folder.
+      const typeScriptServerPluginName = 'glint-tsserver-plugin-pack';
       text = text.replace(
         'languages:Array.isArray(e.languages)',
         [
