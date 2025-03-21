@@ -53,6 +53,25 @@ declare const maybeVal: { a: number; b: number } | undefined;
   }
 }
 
+// Can render maybe undefined (map)
+
+declare const maybeMapVal: Map<string, number> | undefined;
+
+{
+  const component = emitComponent(eachIn(maybeMapVal));
+
+  {
+    const [key, value] = component.blockParams.default;
+    expectTypeOf(key).toEqualTypeOf<string>();
+    expectTypeOf(value).toEqualTypeOf<number>();
+  }
+
+  {
+    const [...args] = component.blockParams.else;
+    expectTypeOf(args).toEqualTypeOf<[]>();
+  }
+}
+
 // Can render else when undefined, null, or empty.
 
 {
@@ -111,5 +130,39 @@ declare const maybeVal: { a: number; b: number } | undefined;
     const [key, value] = component.blockParams.default;
     expectTypeOf(key).toEqualTypeOf<'a' | 'b'>();
     expectTypeOf(value).toEqualTypeOf<number>();
+  }
+}
+
+// Accepts a Map
+{
+  const component = emitComponent(
+    eachIn(
+      new Map<string, number>([
+        ['a', 5],
+        ['b', 4],
+      ]),
+      { key: 'id', ...NamedArgsMarker },
+    ),
+  );
+  {
+    const [key, value] = component.blockParams.default;
+    expectTypeOf(key).toEqualTypeOf<string>();
+    expectTypeOf(value).toEqualTypeOf<number>();
+  }
+}
+
+// Accepts a custom iterable
+{
+  class CustomMap implements Iterable<[Set<string>, bigint]> {
+    [Symbol.iterator](): Iterator<[Set<string>, bigint]> {
+      throw new Error();
+    }
+  }
+
+  const component = emitComponent(eachIn(new CustomMap(), { key: 'id', ...NamedArgsMarker }));
+  {
+    const [key, value] = component.blockParams.default;
+    expectTypeOf(key).toEqualTypeOf<Set<string>>();
+    expectTypeOf(value).toEqualTypeOf<bigint>();
   }
 }
