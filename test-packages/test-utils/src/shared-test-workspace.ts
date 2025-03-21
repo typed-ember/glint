@@ -33,19 +33,16 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
   setTsserverEventHandler: (handler: (e: any) => void) => void;
 }> {
   if (!serverHandle) {
-    tsserver = launchServer(
-      require.resolve('typescript/lib/tsserver.js'),
-      [
-        '--disableAutomaticTypingAcquisition',
-        '--globalPlugins',
-        '@glint/tsserver-plugin',
-        // '--suppressDiagnosticEvents',
-        '--logVerbosity',
-        'verbose',
-        '--logFile',
-        path.join(__dirname, '..', '..', '..', 'tsserver.log'),
-      ],
-    );
+    tsserver = launchServer(require.resolve('typescript/lib/tsserver'), [
+      '--disableAutomaticTypingAcquisition',
+      '--globalPlugins',
+      '@glint/tsserver-plugin',
+      // '--suppressDiagnosticEvents',
+      '--logVerbosity',
+      'verbose',
+      '--logFile',
+      path.join(__dirname, '..', '..', '..', 'tsserver.log'),
+    ]);
 
     tsserver.on('exit', (code) => console.log(code ? `Exited with code ${code}` : `Terminated`));
 
@@ -59,7 +56,7 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
     });
 
     serverHandle = startLanguageServer(
-      require.resolve('@glint/core/bin/glint-language-server.js'),
+      require.resolve('@glint/core/bin/glint-language-server'),
       testWorkspacePath,
     );
     serverHandle.connection.onNotification(PublishDiagnosticsNotification.type, () => {});
@@ -85,7 +82,7 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
       URI.file(testWorkspacePath).toString(),
       {
         typescript: {
-          tsdk: path.dirname(require.resolve('typescript/lib/typescript.js')),
+          tsdk: path.dirname(require.resolve('typescript/lib/typescript')),
           // requestForwardingCommand: 'forwardingTsRequest',
         },
         // } satisfies VueInitializationOptions,
