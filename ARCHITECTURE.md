@@ -2,9 +2,27 @@
 
 _This is intended as a high-level overview of the structure of Glint and its fundamental design. For background on the idea, see [this writeup][matklad]._
 
-## Overview
+## Volar.js
 
-Glint is fundamentally a tool for mapping Glimmer templates into a corresponding TypeScript AST with semantics appropriate for type checking those templates as though they were a normal TypeScript program.
+As of Version 2, Glint runs atop the [Volar.js] language tooling framework, which is the same framework that drives the language tooling for Vue, angular-webstorm, MDX, and many others.
+
+For a video introduction to how Volar.js works, please check out Johnson Chu's [ViteConf 2024 Presentation on Volar.js].
+
+For background on how/why it was determined that Glint should be re-factored to work atop Volar.js, see Alex Matchneer's video Ember Europe presentation [The Bright Future of Ember Language Tooling](https://www.youtube.com/watch?v=6zy4nLHj83g&t=11s&ab_channel=EmberEurope).
+
+As a brief background, in 2024, it was determined that refactoring Glint to work atop Volar.js would provide many benefits:
+
+- By making use of Volar primitives such as `VirtualCode`s, Glint would automatically get a number of language tooling features for free that would otherwise require a custom Glint-specific implementation
+  - For example, [this Glint V1 PR](https://github.com/typed-ember/glint/pull/677) to add support for auto-import completions to .gts files required a lot of time, research, and custom low-level LSP (Language Server Protocol) in order to be merged. With Volar, all you need to do is correctly express a .gts file as a `VirtualCode` and Volar's framework will provide auto-import, Go-To-Definition, and all sorts of other common desirable functionality out-of-the-box.
+
+The rest of this document will gently introduce Volar primitives as they pertain to providing language tooling for Ember/Glimmer templates, but for a deeper understanding of Volar, please read the Volar documentation.
+
+[Volar.js]: https://volarjs.dev/
+[ViteConf 2024 Presentation on Volar.js]: https://www.youtube.com/watch?v=f7fTutifipI&ab_channel=ViteConf
+
+## Goals + Scope of Glint
+
+Glint is fundamentally a tool for mapping Ember/Glimmer templates into a corresponding TypeScript AST with semantics appropriate for type checking those templates as though they were a normal TypeScript program.
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/2403023/194098185-49d9426e-7cd8-461f-8d30-de036138be8f.png" alt="Glint flow" style="width: 400px; max-width: 100%;">
@@ -12,25 +30,125 @@ Glint is fundamentally a tool for mapping Glimmer templates into a corresponding
 
 The goal is _not_ to represent templates as a direct or naïve equivalent of their runtime semantics. Instead, it aims to produce a TS AST which is both _accurate_ and also _useful_.
 
-- _accurate_: Glint should never produce an incorrect diagnostic or “fix”, and it should also correctly resolve symbols (components, helpers, etc.)
+- _accurate_: Glint should never produce an incorrect diagnostic or "fix", and it should also correctly resolve symbols (components, helpers, etc.)
 
 - _useful_: Glint should produce diagnostics which actually make sense, and which should be actionable; and it should provide appropriate autocomplete, go-to-def, and refactoring for all the constructs which are part of a template
 
-Both of these constraints are obvious—what tool _doesn’t_ aim to be both accurate and useful?—but “useful” is the reason for many of the specific design choices in Glint’s internals. In particular, Glint uses representations which allow _preservation of parametricity_ and which support _error messages which match the user’s intuition_.
+Both of these constraints are obvious—what tool _doesn't_ aim to be both accurate and useful?—but "useful" is the reason for many of the specific design choices in Glint's internals. In particular, Glint uses representations which allow _preservation of parametricity_ and which support _error messages which match the user's intuition_.
 
 - _preservation of parametricity_: this bit of formal jargon just means that we need to keep around the types of parameters, i.e. component, helper, and modifier arguments—and in particular, we need to keep around _type parameters_ (generics) in ways that avoid collapsing into whatever the default TS falls back to is, usually `unknown`.
 
-- _error messages which match the user’s intuition_: when a user invokes a component or helper, we need to make sure the resulting error message is something that makes sense, so we need to capture enough information to handle things like (for just one of a number of possible examples) Glimmer’s notion of named and positional arguments—a concept which has no _direct_ translation into TypeScript.
+- _error messages which match the user's intuition_: when a user invokes a component or helper, we need to make sure the resulting error message is something that makes sense, so we need to capture enough information to handle things like (for just one of a number of possible examples) Glimmer's notion of named and positional arguments—a concept which has no _direct_ translation into TypeScript.
 
-Ultimately this transformation from a template AST to a TypeScript AST produces a TypeScript module (an extension of the base TypeScript module when there is one) which embeds in the template’s position a set of function calls representing the kind of thing emitted by each operation in the template.
+## Core Primitive: Virtual Code
 
-This synthesized module is never persisted to disk.[^debug] Instead, it is presented to the TS compiler, either via a programmatically constructed compiler instance for command line runs or via a language server instance for code editor operations. The results from the TS check are then mapped back to the original template provide diagnostics in the correct location, and sometimes further massaged or rewritten to make them make sense in terms of templates rather than the TS representation of templates.
+Volar provides a primitive called a `VirtualCode` which has one core responsibility: to parse a file or body of code of a particular language (such as a Glimmer .gts file or a Handlebars .hbs file), which may include other embedded languages (e.g. a .gts file with one or more embedded `<template>` tags containing a Glimmer/Handlebars template), and provide a nested tree structure of `embeddedCodes` and maintain a source mapping structure between the root/source document (e.g. the .gts file) and all of the embedded codes.
 
-[^debug]: It is possible to write to disk with a debug flag, but the statement holds for all normal operations.
+Glint implements two VirtualCodes in order to provide Language Tooling for modern as well as classic Ember paradigms:
 
-## Code structure
+- [VirtualGtsCode](https://github.com/typed-ember/glint/blob/main/packages/core/src/volar/gts-virtual-code.ts)
+  - Handles .gts and .gjs files
+  - Parses them into a structure of
+    - root code (untransformed .gts content)
+      - embeddedCodes:
+        - A singular Code containing the type-checkable TypeScript representation of the root .gts but with all `<template>` tags converted into TS
+- [LooseModeBackingComponentClassVirtualCode](https://github.com/typed-ember/glint/blob/main/packages/core/src/volar/loose-mode-backing-component-class-virtual-code.ts)
+  - Handles classic two-file (e.g. .ts + .hbs) Ember/Glimmer Components
+    - Ideally every Ember app will migrate to .gts but we still need to support classic components until that time comes
+  - The backing .ts file is already type-checkable on its own, but for type-checking an .hbs file:
+    - This Virtual Code will combine the .hbs+.ts and generate a singular type-checkable TS file in a similar mapping structure as `VirtualGtsCode` mentioned above
 
-Glint is composed of the following major components:
+Any VirtualCode, whether implemented by Glint or Vue tooling, essentially takes a language that embeds other languages (.gts is TS with embedded Glimmer, .vue has `<script>` +`<template>`+`<style>` tags, etc), and produces a tree of embedded codes where the "leaves" of that tree are simpler, single-language codes (that don't include any other embedded languages). These single-language "leaves" can then be used as inputs for a variety of Language Services, either ones already provided by Volar or custom ones implemented by Glint.
+
+Language Services operate on singular languages, e.g. a Language Service could be used to implement code completions in HTML, or to provide formatting in CSS, etc. Volar makes it possible/easy for Language Services to operate on the single-language "leaves" of your VirtualCode tree, and then, using the source maps that were built up as part of the VirtualCode implementation, reverse-source map those transformations, diagnostics, code hints, etc, back to the source file.
+
+NOTE: at the time of writing, I don't believe Glint is currently making use of Language Services due to the fact that Glint primarily has been concerned with providing TS functionality to Ember/Glimmer templates, and most of that logic has been shifted towards the Glint TS Plugin (described below). If it is decided to enhance Glint functionality, or perhaps merge it into Ember Language Server (something that has been discussed), then likely more of the Language Service framework/infrastructure will be used.
+
+## Glint V2 Moves Type-Checking Features out from Language Server and into TS Plugin
+
+Glint's architectural has drawn inspiration from Vue tooling for a long time, and as such, Glint V1, Vetur (Vue's original language tooling), and Volar 1.0 were all built around the following architecture:
+
+_(This architecture is deprecated!)_
+
+- IDE is configured (via VSCode extension, or neovim scripts, etc) to perform the following when a .gts (or other supported file) is encountered:
+  - Determine the "Project" that this file belongs to
+    - The "Project" is determined by the presence of a `tsconfig.json` file
+  - If a Project hasn't been initialized for this file, do so now by the following process:
+    - Start up a Language Server process (e.g. via `bin/glint-language-server.js`)
+      - This Language Server implements the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/)
+    - The LS provides type-checking functionality for proprietary file types (like .gts) as follows:
+      - Instantiate and configure a TypeScript LanguageService object provided by the TypeScript library
+      - Transform the .gts file into a valid TS type-checkable in-memory file
+      - Pass the transformed in-memory TS file to the TypeScript Language Service, which returns diagnostics using line/column/offsets of the transformed TS file
+      - The LS will translate these line/column/offset positions via reverse source-mapping, and then sends the diagnostics to the IDE for visual display within the open file (via red squiggles, underlines, etc)
+      - A similar process takes place for hovers, go-to-definition, and other functionality
+
+The problem with this approach is that the Language Server essentially lives alongside the IDE's built-in TypeScript `tsserver` which only knows how to provide diagnostics for .ts, .js, .tsx, .jsx files, and the end user was required to choose between two non-ideal configurations:
+
+- Takeover mode
+  - Disable the default tsserver and TS Intellisense, and let Glint (or other LS) do all the TS work
+  - Awkward to configure, other downsides (see doc below)
+- Allow default tsserver to operate alongside Glint
+  - Often this meant duplicate results in terms of Diagnostics, Go-to-Definition, and other features that end users have to sift through
+
+For further reading on the downsides of this architecture and why the decision was made to shift the next generation of TS-based tooling to using a tsserver, read Johnson Chu's [writeup on Volar 2.0](https://gist.github.com/johnsoncodehk/62580d04cb86e576e0e8d6bf1cb44e73).
+
+In short, Glint V2 follows along with Vue/Volar in the decision to shift type-checking and related functionality away from the Language Server and instead move it into a [TypeScript Server Plugin](https://github.com/microsoft/TypeScript/wiki/Writing-a-Language-Service-Plugin)
+
+## TS Plugin Architecture
+
+In contrast to the above Glint V1 (and old Volar / Vue / Vetur) architecture, the new Glint architecture is as follows:
+
+- TS Plugin (`@glint/tsserver-plugin`)
+  - Provides diagnostics, completions, Go-to-Definition, etc, for .gts, .gjs, and .hbs files
+  - TS Plugin is initialized by and operates within the same `tsserver` instance created by the IDE
+  - tsserver is configured to also operate upon `.gts`, `.gjs`, `.hbs` files
+    - NOTE: in VSCode, this "configuration" currently happens via a number of monkeypatches / hacks within the Glint VSCode extension; hopefully some day these will be upstreamed, but in the meantime we will just follow along with Vue.
+    - See the VS Code Plugin section below for more details
+  - When .gts (or related) file is opened in the IDE, IDE requests diagnostics and other info from `tsserver` just as it would for a vanilla .ts file.
+  - Our TS Plugin overrides the `getServiceScript` hook to, instead of returning the content of the `.gts` file, return the content of the transformed/generated `.ts` used for typechecking
+  - Via some [cleverness](https://github.com/volarjs/volar.js/discussions/188#discussioncomment-9569561), the diagnostic code positions are translated back to valid locations in the source .gts file and displayed properly within the IDE
+  - The TS Plugin also augments and transforms the default/original set of diagnostics returned from `tsserver`'s processing of our transformed TS code
+    - It does so via the same decoration/proxy pattern described [here](https://github.com/microsoft/TypeScript/wiki/Writing-a-Language-Service-Plugin#decorator-creation)
+- Language Server (`bin/glint-language-server.js` within `@glint/core`)
+  - Provides all other commands/functionality not related to type-checking
+    - At the time of writing, there is practically ZERO functionality provided by the LS
+    - We are keeping the LS around for the time being because:
+      - it's very inexpensive to spin it up
+      - it can be enhanced with future functionality unrelated to TS
+      - we may merge Glint into Ember Language Server, which will be easier to do with a working Glint Language Server that is already properly architected according to the latest Volar patterns
+
+In short, Glint V2 is composed of a super-charged TS Plugin and a nearly empty shell of a Language Server.
+
+### VS Code Plugin
+
+**Role:** an officially-maintained _client_ for the **language server**.
+
+**Home:** `packages/vscode`.
+
+**Invariants:** Should only depend on `@glint/core`, and only indirectly: via the version supplied by the local code base.
+
+The officially-maintained VSCode Plugin provides a smooth, minimal-configuration experience for getting Glint diagnostics, go-to-def, etc, working in the VS Code IDE.
+
+It is also crucially required for providing a seamless tooling experience now that Glint V2 works atop a TS Plugin, because:
+
+- While TS Plugins can be manually declared / configured within tsconfig.json's `compilerOptions.plugins` array, this is insufficient for providing a streamlined VS Code experience for a number of reasons that I will try to summarize briefly:
+  - Support for custom file extensions (e.g. `.gts` and `.vue`) requires monkeypatches/hacks of VS Code's default Intellisense plugin for TS
+    - i.e. `vscode.typescript-language-features`
+    - NOTE: this is the same extension that we used to encourage Glint V1 users to disable as part of "takeover" mode
+    - Hacks include:
+      - Monkey-patching [`fs.readFileSync`](https://github.com/typed-ember/glint/blob/1d0d581b1931db2514c0c8c0d96f88d933f67d8c/packages/vscode/src/extension.ts#L238) with a number of enhancements:
+        - Add `.gts`/`.gjs` to the list of TS-compatible extensions (otherwise tsserver won't actually type-check our .gts files)
+      - Restarting the VSCode extension first in case the VSCode Intellisense plugin has already activated by the time these hacks run, etc
+
+Some of these are very ugly hacks, but keep in mind:
+
+- Vue's Community is quite large and there is pressure for better support to originate from VSCode / VSCode's Intellisense plugin
+- Because Glint V2 is intentionally structured to be as similar to Vue tooling as possible, it will be easy for us to follow along with their hacks
+
+## Appendix: TypeScript Representation: Environment packages and the Template DSL
+
+_NOTE: These docs are preserved from Glint V1, and the concepts of "environments" and their interaction with the Template DSL will continue to persist for the time being, but there are some discussions surrounding simplifying Glint's setup and user experience so that "environments" are not something the end user has to be aware of; perhaps Glint V2 will merge the concept of environments into `@glint/core`, but until that time comes we will continue to document them here_
 
 ### Template DSL
 
@@ -42,7 +160,7 @@ The DSL defines three broad things:
 
 - How to _resolve_ some template element: When we see `{{this.foo}}`, is that a value to "emit" directly, or is it actually a no-argument function invocation? What args are required, what modifiers allowed, and what blocks available when invoking a component `<Foo>`? etc.
 
-- A host of type definitions. Some of these are internal and used to make _emit_ and _resolve_ work, while others are public types, usable by consumers for authoring their apps. These definitions includes the definitions for types authors can use for writing things like partially applied components.
+- A host of type definitions. Some of these are internal and used to make _emit_ and _resolve_ work, while others are public types, usable by consumers for authoring their apps. These definitions include the definitions for types authors can use for writing things like partially applied components.
 
 Note: The fact that the synthesized module is _not_ persisted to disk means that some things you might expect to be useful navigation tools within the repo, like the TypeScript _Find All References_ command, will not find any references to these DSL definitions.
 
@@ -59,7 +177,7 @@ Note: The fact that the synthesized module is _not_ persisted to disk means that
 
 ### Environments
 
-**Role:** layers on top of the **template DSL** to define items available in global scope as well as per-environment definitions for what the API is for different kinds of items—basically, a type-level implementation of Glimmer/Ember’s runtime idea of “managers,” which allow a different surface API for the same underlying primitives of components, helpers, etc. A **config** specifies the **environment(s)** to use.
+**Role:** layers on top of the **template DSL** to define items available in global scope as well as per-environment definitions for what the API is for different kinds of items—basically, a type-level implementation of Glimmer/Ember's runtime idea of "managers," which allow a different surface API for the same underlying primitives of components, helpers, etc. A **config** specifies the **environment(s)** to use.
 
 In addition, **environments** also influence elements of the **transform** layer's behavior, such as:
 
@@ -100,28 +218,8 @@ In addition, **environments** also influence elements of the **transform** layer
 
 **Role:** a layer which rewrites a Glimmer template into a TypeScript module, in terms of the **template DSL**, using the **config**. This is therefore responsible for maintaining a mapping between the original source locations and the emitted locations, so that emitted diagnostics show up in the right spot in the original template. It is also the home of targeted diagnostic rewrites, which map otherwise-inscrutable TypeScript errors related to the DSL or other parts of the expansion into something useful to end users.
 
-The result of this tranformation is the only place the DSL actually appears, which is why _Find All References_ on a DSL type will generally produce no results in the codebase. The pipeline parses the Glimmer template into an AST, then emits TypeScript _as text_, merging as appropriate with any associated JS or TS.
+The result of this transformation is the only place the DSL actually appears, which is why _Find All References_ on a DSL type will generally produce no results in the codebase. The pipeline parses the Glimmer template into an AST, then emits TypeScript _as text_, merging as appropriate with any associated JS or TS.
 
 **Invariants:** This entire layer is purely functional: it accepts the contents of a script and/or template, along with the appropriate **config**, and it returns the resulting TypeScript module and mapping information. It maintains no state and never interacts with the file system or any other part of the outside world.
 
 **Home:** `packages/core/src/transform`
-
-### VS Code Plugin
-
-**Role:** an officially-maintained _client_ for the **language server**.
-
-**Home:** `packages/vscode`.
-
-**Invariants:** Should only depend on `@glint/core`, and only indirectly: via the version supplied by the local code base.
-
-### Visualized
-
-This relationship looks roughly like this:
-
-<p align="center">
-<img src="https://user-images.githubusercontent.com/2403023/194120262-88db3c4c-3b85-4745-a5cc-2f9114042436.png" style="width: 600px; max-width: 100%;">
-</p>
-
-[matklad]: https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html
-
-[^env]: Each environment is specific to a single context (“environment”) like Ember, etc. Accordingly, they are likely to move _out_ of the Glint monorepo in the long-term, but will remain part of the Glint ecosystem and working model.
