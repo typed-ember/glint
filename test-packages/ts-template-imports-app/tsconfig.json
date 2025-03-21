@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.compileroptions.json",
+  "extends": "../../tsconfig.compileroptions.ember.json",
   "compilerOptions": {
     "baseUrl": "."
   },
