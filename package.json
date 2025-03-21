@@ -36,7 +36,12 @@
   },
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": ["webpack", "ember-auto-import", "@babel/core", "rsvp"]
+      "ignoreMissing": [
+        "webpack",
+        "ember-auto-import",
+        "@babel/core",
+        "rsvp"
+      ]
     }
   },
   "devDependencies": {
