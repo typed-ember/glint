@@ -30,6 +30,8 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install
       - run: pnpm lint
+      - uses: wyvox/action-setup-pnpm@v3
+
 
 
   # tracking for re-enablement here: https://github.com/typed-ember/glint/issues/728
@@ -67,6 +69,8 @@ jobs:
         uses: coactions/setup-xvfb@v1
         with:
           run: pnpm test
+      - uses: wyvox/action-setup-pnpm@v3
+
 
   # The Windows runner can be super flaky both with Yarn installs and
   # when launching browser tests, so we allow for retries in those steps.
