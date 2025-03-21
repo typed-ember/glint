@@ -9,9 +9,13 @@
       "default": "./lib/index.js"
     }
   },
+  "types": "./lib/index.d.ts",
+  "main": "./lib/index.js",
   "dependencies": {
     "@glint/core": "workspace:*",
     "@typescript/server-harness": "^0.3.5",
+    "@glint/template": "workspace:*",
+    "@types/node": "^20.17.24",
     "@volar/language-server": "2.4.12",
     "@volar/language-service": "2.4.12",
     "@volar/test-utils": "2.4.12",
@@ -20,12 +24,12 @@
   },
   "scripts": {
     "test": "true",
+    "lint:package": "@arethetypeswrong/cli --pack",
     "test:typecheck": "echo 'no standalone typecheck within this project'",
     "test:tsc": "echo 'no standalone tsc within this project'",
     "build": "echo 'no build step required'"
   },
   "devDependencies": {
-    "@glint/template": "workspace:*",
-    "@types/node": "^20.17.24"
+    "typescript": ">=5.6.0"
   }
 }

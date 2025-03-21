@@ -24,7 +24,8 @@
     "jiti": "~2.4.2",
     "@glint/core": "workspace:*",
     "@volar/language-core": "2.4.12",
-    "@volar/typescript": "2.4.12"
+    "@volar/typescript": "2.4.12",
+    "typescript": ">=5.6.0"
   },
   "publishConfig": {
     "access": "public"
