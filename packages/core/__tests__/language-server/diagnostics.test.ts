@@ -396,7 +396,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
                   "line": 24,
                   "offset": 49,
                 },
-                "file": "\${testWorkspacePath}ronment-ember-template-imports/-private/dsl/index.d.ts",
+                "file": "\${testWorkspacePath}.pnpm/@glint+_59e33b4e0072876e4d06a3df76d94aad/node_modules/@glint/environment-ember-template-imports/-private/dsl/index.d.ts",
                 "start": {
                   "line": 24,
                   "offset": 5,
