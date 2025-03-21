@@ -111,12 +111,19 @@ type ETITemplateProperty = ts.PropertyDeclaration & {
   name: ts.ComputedPropertyName & { expression: ETITemplateLiteral };
 };
 
-type ETIDefaultTemplate = ts.ExpressionStatement & {
-  expression: ETITemplateLiteral;
-};
+type ETIDefaultTemplate =
+  | (ts.ExpressionStatement & {
+      expression: ETITemplateLiteral;
+    })
+  | (ts.SatisfiesExpression & {
+      expression: ETITemplateLiteral;
+    });
 
 function isETIDefaultTemplate(ts: TSLib, node: ts.Node): node is ETIDefaultTemplate {
-  return ts.isExpressionStatement(node) && isETITemplateLiteral(ts, node.expression);
+  return (
+    (ts.isExpressionStatement(node) || ts.isSatisfiesExpression(node)) &&
+    isETITemplateLiteral(ts, node.expression)
+  );
 }
 
 function isETITemplateProperty(ts: TSLib, node: ts.Node): node is ETITemplateProperty {
