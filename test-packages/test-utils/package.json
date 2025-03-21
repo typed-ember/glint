@@ -9,6 +9,10 @@
       "default": "./lib/index.js"
     }
   },
+  "files": [
+    "lib",
+    "src"
+  ],
   "types": "./lib/index.d.ts",
   "main": "./lib/index.js",
   "dependencies": {
@@ -24,10 +28,13 @@
   },
   "scripts": {
     "test": "true",
-    "lint:package": "@arethetypeswrong/cli --pack",
+    "lint:package": "npx @arethetypeswrong/cli --pack --profile esm-only",
     "test:typecheck": "echo 'no standalone typecheck within this project'",
     "test:tsc": "echo 'no standalone tsc within this project'",
     "build": "echo 'no build step required'"
+  },
+  "engines": {
+    "node": ">= 18"
   },
   "devDependencies": {
     "typescript": ">=5.6.0"
