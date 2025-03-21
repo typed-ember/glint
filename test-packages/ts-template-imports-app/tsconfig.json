@@ -1,7 +1,9 @@
 {
-  "extends": "../../tsconfig.compileroptions.ember.json",
+  "extends": "@tsconfig/ember",
   "compilerOptions": {
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["ember-source/types"]
+
   },
   "include": ["src", "types"],
   "glint": {

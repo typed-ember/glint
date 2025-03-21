@@ -10,10 +10,12 @@
   },
   "devDependencies": {
     "@glimmer/component": "^2.0.0",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/environment-ember-template-imports": "workspace:*",
     "@glint/template": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
-    "@glint/environment-ember-template-imports": "workspace:*",
-    "@glint/environment-ember-loose": "workspace:*"
+    "@tsconfig/ember": "^3.0.9",
+    "ember-source": "^6.2.0"
   },
   "volta": {
     "extends": "../../package.json"

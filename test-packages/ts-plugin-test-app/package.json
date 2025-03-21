@@ -9,9 +9,11 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@tsconfig/ember": "^3.0.9",
     "@glimmer/component": "^2.0.0",
     "typescript": "*",
     "@glint/template": "workspace:*",
-    "@glint/tsserver-plugin": "workspace:*"
+    "@glint/tsserver-plugin": "workspace:*",
+    "ember-source": "^6.2.0"
   }
 }
