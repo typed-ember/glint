@@ -22,6 +22,7 @@
     "build": "echo 'no build step required'"
   },
   "devDependencies": {
+    "@glint/template": "workspace:*",
     "@types/node": "^20.17.24"
   }
 }

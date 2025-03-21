@@ -9,6 +9,8 @@
     "test:tsc": "echo 'no standalone tsc within this project'"
   },
   "devDependencies": {
+    "@glimmer/component": "^2.0.0",
+    "@glint/template": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*"
   },
   "volta": {
