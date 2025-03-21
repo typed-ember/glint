@@ -21,6 +21,7 @@
     "test": "pnpm --filter '*' run test",
     "test:typecheck": "pnpm --filter '*' run test:typecheck",
     "build": "tsc --build",
+    "sync": "echo 'Syncing injected peer dependencies (via built in pnpm behavior defined in .npmrc)'",
     "release-it": "echo \"Running release-it via pnpm breaks publishing! Use npx or a Volta global installation.\""
   },
   "volta": {
