@@ -34,7 +34,7 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
 }> {
   if (!serverHandle) {
     tsserver = launchServer(
-      path.join(__dirname, '..', '..', '..', 'node_modules', 'typescript', 'lib', 'tsserver.js'),
+      require.resolve('typescript/lib/tsserver.js'),
       [
         '--disableAutomaticTypingAcquisition',
         '--globalPlugins',
@@ -59,7 +59,7 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
     });
 
     serverHandle = startLanguageServer(
-      require.resolve('../../../packages/core/bin/glint-language-server.js'),
+      require.resolve('@glint/core/bin/glint-language-server.js'),
       testWorkspacePath,
     );
     serverHandle.connection.onNotification(PublishDiagnosticsNotification.type, () => {});
