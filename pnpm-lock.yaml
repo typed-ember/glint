@@ -4,17 +4,6 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-overrides:
-  '@glimmer/manager': 0.84.3
-  '@glimmer/interfaces': 0.84.3
-  '@glimmer/runtime': 0.84.3
-  '@glimmer/reference': 0.84.3
-  '@glimmer/util': 0.84.3
-  '@glimmer/validator': 0.84.3
-  '@types/yargs': 17.0.13
-  '@types/node': ^20.10.6
-  ember-cli-htmlbars: ^6.0.1
-
 importers:
 
   .:
@@ -35,7 +24,7 @@ importers:
         specifier: ^4.0.9
         version: 4.0.9
       '@types/yargs':
-        specifier: 17.0.13
+        specifier: ^17.0.10
         version: 17.0.13
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.42.1
@@ -123,8 +112,8 @@ importers:
         specifier: ^1.8.0
         version: 1.8.4
       '@types/node':
-        specifier: ^20.10.6
-        version: 20.17.24
+        specifier: ^18.11.5
+        version: 18.19.81
       '@types/semver':
         specifier: ^7.3.13
         version: 7.5.8
@@ -132,7 +121,7 @@ importers:
         specifier: ^8.3.4
         version: 8.3.4
       '@types/yargs':
-        specifier: 17.0.13
+        specifier: ^17.0.10
         version: 17.0.13
       '@typescript/server-harness':
         specifier: latest
@@ -154,7 +143,7 @@ importers:
         version: 6.0.1
       vitest:
         specifier: ~1.4.0
-        version: 1.4.0(@types/node@20.17.24)(@vitest/ui@1.0.4)(terser@5.39.0)
+        version: 1.4.0(@types/node@18.19.81)(@vitest/ui@1.0.4)(terser@5.39.0)
 
   packages/environment-ember-loose:
     devDependencies:
@@ -175,7 +164,7 @@ importers:
         version: 0.15.0
       vitest:
         specifier: ~1.4.0
-        version: 1.4.0(@types/node@20.17.24)(@vitest/ui@1.0.4)(terser@5.39.0)
+        version: 1.4.0(@types/node@20.17.24)(terser@5.39.0)
 
   packages/environment-ember-template-imports:
     dependencies:
@@ -187,11 +176,11 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@types/node':
-        specifier: ^20.10.6
-        version: 20.17.24
+        specifier: ^18.11.5
+        version: 18.19.81
       vitest:
         specifier: ~1.4.0
-        version: 1.4.0(@types/node@20.17.24)(@vitest/ui@1.0.4)(terser@5.39.0)
+        version: 1.4.0(@types/node@18.19.81)(@vitest/ui@1.0.4)(terser@5.39.0)
 
   packages/template:
     devDependencies:
@@ -307,7 +296,7 @@ importers:
         version: 3.1.0
     devDependencies:
       '@types/node':
-        specifier: ^20.10.6
+        specifier: ^20.17.24
         version: 20.17.24
 
   test-packages/ts-ember-app:
@@ -1517,17 +1506,11 @@ packages:
   '@glimmer/debug@0.92.4':
     resolution: {integrity: sha512-waTBOdtp92MC3h/51mYbc4GRumO+Tsa5jbXLoewqALjE1S8bMu9qgkG7Cx635x3/XpjsD9xceMqagBvYhuI6tA==}
 
-  '@glimmer/destroyable@0.84.3':
-    resolution: {integrity: sha512-4tUw5UR4ntuySPvbcWyCMRjqxMJMV1GewjU3zGq22XvuBVFfq2K9WmuYV9H9FHg8X0MgDwcus+LjxrVSel39Sw==}
-
   '@glimmer/destroyable@0.92.3':
     resolution: {integrity: sha512-vQ+mzT9Vkf+JueY7L5XbZqK0WyEVTKv0HOLrw/zDw9F5Szn3F/8Ea/qbAClo3QK3oZeg+ulFTa/61rdjSFYHGA==}
 
   '@glimmer/di@0.1.11':
     resolution: {integrity: sha512-moRwafNDwHTnTHzyyZC9D+mUSvYrs1Ak0tRPjjmCghdoHHIvMshVbEnwKb/1WmW5CUlKc2eL9rlAV32n3GiItg==}
-
-  '@glimmer/encoder@0.84.3':
-    resolution: {integrity: sha512-T99YQDhNC/1rOFgiz8k4uzgzQsQ+r1my+WVXRv26o0r+/yOnKYndrb6WH/E9d+XtBIZbm1yCSm2BMFYelR0Nrg==}
 
   '@glimmer/encoder@0.92.3':
     resolution: {integrity: sha512-DJ8DB33LxODjzCWRrxozHUaRqVyZj4p8jDLG42aCNmWo3smxrsjshcaVUwDmib24DW+dzR7kMc39ObMqT5zK0w==}
@@ -1544,29 +1527,20 @@ packages:
   '@glimmer/interfaces@0.84.3':
     resolution: {integrity: sha512-dk32ykoNojt0mvEaIW6Vli5MGTbQo58uy3Epj7ahCgTHmWOKuw/0G83f2UmFprRwFx689YTXG38I/vbpltEjzg==}
 
-  '@glimmer/low-level@0.78.2':
-    resolution: {integrity: sha512-0S6TWOOd0fzLLysw1pWZN0TgasaHmYs1Sjz9Til1mTByIXU1S+1rhdyr2veSQPO/aRjPuEQyKXZQHvx23Zax6w==}
+  '@glimmer/interfaces@0.92.3':
+    resolution: {integrity: sha512-QwQeA01N+0h+TAi/J7iUnZtRuJy+093hNyagxDQBA6b1wCBw+q+al9+O6gmbWlkWE7EifzmNE1nnrgcecJBlJQ==}
 
-  '@glimmer/manager@0.84.3':
-    resolution: {integrity: sha512-FtcwvrQ3HWlGRGChwlXiisMeKf9+XcCkMwVrrO0cxQavT01tIHx40OFtPOhXKGbgXGtRKcJI8XR41aK9t2kvyg==}
+  '@glimmer/manager@0.92.4':
+    resolution: {integrity: sha512-YMoarZT/+Ft2YSd+Wuu5McVsdP9y6jeAdVQGYFpno3NlL3TXYbl7ELtK7OGxFLjzQE01BdiUZZRvcY+a/s9+CQ==}
 
   '@glimmer/node@0.92.4':
     resolution: {integrity: sha512-a5GME7HQJZFJPQDdSetQI6jjKXXQi0Vdr3WuUrYwhienVTV5LG0uClbFE2yYWC7TX97YDHpRrNk1CC258rujkQ==}
 
-  '@glimmer/opcode-compiler@0.84.3':
-    resolution: {integrity: sha512-flUuikKLFL9cekJUA10gJxMRCDjUPb61R3UCl1u69TGN0Nm7FTsMhOsVDtJLeeiAROtPx+NvasPw/6UB1rrdyg==}
-
   '@glimmer/opcode-compiler@0.92.4':
     resolution: {integrity: sha512-WnZSBwxNqW/PPD/zfxEg6BVR5tHwTm8fp76piix8BNCQ6CuzVn6HUJ5SlvBsOwyoRCmzt/pkKmBJn+I675KG4w==}
 
-  '@glimmer/owner@0.84.3':
-    resolution: {integrity: sha512-ZwA0rU4V8m0z4ncXtWD2QEU6eh61wkKKQUThahPYhfB+JYceVM6Grx7uWeiAxc2v3ncpvbYqIGdnICXDMloxAA==}
-
   '@glimmer/owner@0.92.3':
     resolution: {integrity: sha512-ZxmXIUCy6DOobhGDhA6kMpaXZS7HAucEgIl/qcjV9crlzGOO8H4j+n2x6nA/8zpuqvO0gYaBzqdNdu+7EgOEmw==}
-
-  '@glimmer/program@0.84.3':
-    resolution: {integrity: sha512-D8z1lP8NEMyzT8gByFsZpmbRThZvGLS0Tl5AngaDbI2FqlcpEV0ujvLTzzgecd9QQ1k3Cd60dTgy/2N2CI82SA==}
 
   '@glimmer/program@0.92.4':
     resolution: {integrity: sha512-fkquujQ11lsGCWl/+XpZW2E7bjHj/g6/Ht292A7pSoANBD8Bz/gPYiPM+XuMwes9MApEsTEMjV4EXlyk2/Cirg==}
@@ -1574,8 +1548,11 @@ packages:
   '@glimmer/reference@0.84.3':
     resolution: {integrity: sha512-lV+p/aWPVC8vUjmlvYVU7WQJsLh319SdXuAWoX/SE3pq340BJlAJiEcAc6q52y9JNhT57gMwtjMX96W5Xcx/qw==}
 
-  '@glimmer/runtime@0.84.3':
-    resolution: {integrity: sha512-LzlJbPDCUH/wjsgJ5kRImvOkqAImSyVRW37t34n/1Qd3v7ZoI8xVQg92lS+2kHZe030sT49ZwKkEIeVZiBreBw==}
+  '@glimmer/reference@0.92.3':
+    resolution: {integrity: sha512-Ud4LE689mEXL6BJnJx0ZPt2dt/A540C+TAnBFXHpcAjROz5gT337RN+tgajwudEUqpufExhcPSMGzs1pvWYCJg==}
+
+  '@glimmer/runtime@0.92.4':
+    resolution: {integrity: sha512-ISqM/8hVh+fY/gnLAAPKfts4CvnJBOyCYAXgGccIlzzQrSVLaz0NoRiWTLGj5B/3xyPbqLwYPDvlTsOjYtvPoA==}
 
   '@glimmer/syntax@0.84.3':
     resolution: {integrity: sha512-ioVbTic6ZisLxqTgRBL2PCjYZTFIwobifCustrozRU2xGDiYvVIL0vt25h2c1ioDsX59UgVlDkIK4YTAQQSd2A==}
@@ -1586,24 +1563,30 @@ packages:
   '@glimmer/tracking@1.1.2':
     resolution: {integrity: sha512-cyV32zsHh+CnftuRX84ALZpd2rpbDrhLhJnTXn9W//QpqdRZ5rdMsxSY9fOsj0CKEc706tmEU299oNnDc0d7tA==}
 
+  '@glimmer/util@0.44.0':
+    resolution: {integrity: sha512-duAsm30uVK9jSysElCbLyU6QQYO2X9iLDLBIBUcCqck9qN1o3tK2qWiHbGK5d6g8E2AJ4H88UrfElkyaJlGrwg==}
+
   '@glimmer/util@0.84.3':
     resolution: {integrity: sha512-qFkh6s16ZSRuu2rfz3T4Wp0fylFj3HBsONGXQcrAdZjdUaIS6v3pNj6mecJ71qRgcym9Hbaq/7/fefIwECUiKw==}
 
+  '@glimmer/util@0.92.3':
+    resolution: {integrity: sha512-K1oH93gGU36slycxJ9CcFpUTsdOc4XQ6RuZFu5oRsxFYtEF5PSu7ik11h58fyeoaWOr1ebfkyAMawbeI2AJ5GA==}
+
+  '@glimmer/validator@0.44.0':
+    resolution: {integrity: sha512-i01plR0EgFVz69GDrEuFgq1NheIjZcyTy3c7q+w7d096ddPVeVcRzU3LKaqCfovvLJ+6lJx40j45ecycASUUyw==}
+
   '@glimmer/validator@0.84.3':
     resolution: {integrity: sha512-RTBV4TokUB0vI31UC7ikpV7lOYpWUlyqaKV//pRC4pexYMlmqnVhkFrdiimB/R1XyNdUOQUmnIAcdic39NkbhQ==}
+
+  '@glimmer/validator@0.92.3':
+    resolution: {integrity: sha512-HKrMYeW0YhiksSeKYqX2chUR/rz82j12DcY7p2dORQlTV3qlAfiE5zRTJH1KRA1X3ZMf7DI2/GOzkXwYp0o+3Q==}
 
   '@glimmer/vm-babel-plugins@0.92.3':
     resolution: {integrity: sha512-VpkKsHc3oiq9ruiwT7sN4RuOIc5n10PCeWX7tYSNZ85S1bETcAFn0XbyNjI+G3uFshQGEK0T8Fn3+/8VTNIQIg==}
     engines: {node: '>=16'}
 
-  '@glimmer/vm@0.84.3':
-    resolution: {integrity: sha512-3mBWvQLEbB8We2EwdmuALMT3zQEcE13ItfLJ0wxlSO2uj1uegeHat++mli8RMxeYNqex27DC+VuhHeWVve6Ngg==}
-
   '@glimmer/vm@0.92.3':
     resolution: {integrity: sha512-DNMQz7nn2zRwKO1irVZ4alg1lH+VInwR3vkWVgobUs0yh7OoHVGXKMd5uxzIksqJEUw1XOX9Qgu/GYZB1PiH3w==}
-
-  '@glimmer/wire-format@0.84.3':
-    resolution: {integrity: sha512-aZVfQhqv4k7tTo2vwjy+b4mAxKt7cHH75JR3zAeCilimApa+yYTYUyY73NDNSUVbelgAlQ5s6vTiMSQ55WwVow==}
 
   '@glimmer/wire-format@0.92.3':
     resolution: {integrity: sha512-gFz81Q9+V7Xs0X8mSq6y8qacHm0dPaGJo2/Bfcsdow1hLOKNgTCLr4XeDBhRML8f6I6Gk9ugH4QDxyIOXOpC4w==}
@@ -2038,8 +2021,14 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
+  '@types/node@18.19.81':
+    resolution: {integrity: sha512-7KO9oZ2//ivtSsryp0LQUqq79zyGXzwq1WqfywpC9ucjY7YyltMMmxWgtRFRKCxwa7VPxVBVy4kHf5UC1E8Lug==}
+
   '@types/node@20.17.24':
     resolution: {integrity: sha512-d7fGCyB96w9BnWQrOsJtpyiSaBcAYYr75bnK6ZRjDbql2cGLj/3GsL5OYmLPNq76l7Gf2q4Rv9J2o6h5CrD9sA==}
+
+  '@types/node@9.6.61':
+    resolution: {integrity: sha512-/aKAdg5c8n468cYLy2eQrcR5k6chlbNwZNGUj3TboyPa2hcO2QAJcfymlqPzMiRj8B6nYKXjzQz36minFE0RwQ==}
 
   '@types/qs@6.9.18':
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
@@ -7898,6 +7887,9 @@ packages:
   underscore@1.13.7:
     resolution: {integrity: sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==}
 
+  undici-types@5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
@@ -8050,7 +8042,7 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
-      '@types/node': ^20.10.6
+      '@types/node': ^18.0.0 || >=20.0.0
       less: '*'
       lightningcss: ^1.21.0
       sass: '*'
@@ -8082,7 +8074,7 @@ packages:
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
-      '@types/node': ^20.10.6
+      '@types/node': ^18.0.0 || >=20.0.0
       '@vitest/browser': 1.4.0
       '@vitest/ui': 1.4.0
       happy-dom: '*'
@@ -9556,9 +9548,9 @@ snapshots:
 
   '@glimmer/compiler@0.92.4':
     dependencies:
-      '@glimmer/interfaces': 0.84.3
+      '@glimmer/interfaces': 0.92.3
       '@glimmer/syntax': 0.92.3
-      '@glimmer/util': 0.84.3
+      '@glimmer/util': 0.92.3
       '@glimmer/vm': 0.92.3
       '@glimmer/wire-format': 0.92.3
 
@@ -9566,7 +9558,7 @@ snapshots:
     dependencies:
       '@glimmer/di': 0.1.11
       '@glimmer/env': 0.1.7
-      '@glimmer/util': 0.84.3
+      '@glimmer/util': 0.44.0
       broccoli-file-creator: 2.1.1
       broccoli-merge-trees: 3.0.2
       ember-cli-babel: 7.26.11
@@ -9584,35 +9576,22 @@ snapshots:
 
   '@glimmer/debug@0.92.4':
     dependencies:
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/util': 0.92.3
       '@glimmer/vm': 0.92.3
-
-  '@glimmer/destroyable@0.84.3':
-    dependencies:
-      '@glimmer/env': 0.1.7
-      '@glimmer/global-context': 0.84.3
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
 
   '@glimmer/destroyable@0.92.3':
     dependencies:
       '@glimmer/env': 0.1.7
       '@glimmer/global-context': 0.92.3
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/util': 0.92.3
 
   '@glimmer/di@0.1.11': {}
 
-  '@glimmer/encoder@0.84.3':
-    dependencies:
-      '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/vm': 0.84.3
-
   '@glimmer/encoder@0.92.3':
     dependencies:
-      '@glimmer/interfaces': 0.84.3
+      '@glimmer/interfaces': 0.92.3
       '@glimmer/vm': 0.92.3
 
   '@glimmer/env@0.1.7': {}
@@ -9627,34 +9606,28 @@ snapshots:
     dependencies:
       '@simple-dom/interface': 1.4.0
 
-  '@glimmer/low-level@0.78.2': {}
-
-  '@glimmer/manager@0.84.3':
+  '@glimmer/interfaces@0.92.3':
     dependencies:
-      '@glimmer/destroyable': 0.84.3
+      '@simple-dom/interface': 1.4.0
+
+  '@glimmer/manager@0.92.4':
+    dependencies:
+      '@glimmer/debug': 0.92.4
+      '@glimmer/destroyable': 0.92.3
       '@glimmer/env': 0.1.7
-      '@glimmer/global-context': 0.84.3
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/reference': 0.84.3
-      '@glimmer/util': 0.84.3
-      '@glimmer/validator': 0.84.3
+      '@glimmer/global-context': 0.92.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/reference': 0.92.3
+      '@glimmer/util': 0.92.3
+      '@glimmer/validator': 0.92.3
+      '@glimmer/vm': 0.92.3
 
   '@glimmer/node@0.92.4':
     dependencies:
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/runtime': 0.84.3
-      '@glimmer/util': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/runtime': 0.92.4
+      '@glimmer/util': 0.92.3
       '@simple-dom/document': 1.4.0
-
-  '@glimmer/opcode-compiler@0.84.3':
-    dependencies:
-      '@glimmer/encoder': 0.84.3
-      '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/reference': 0.84.3
-      '@glimmer/util': 0.84.3
-      '@glimmer/vm': 0.84.3
-      '@glimmer/wire-format': 0.84.3
 
   '@glimmer/opcode-compiler@0.92.4':
     dependencies:
@@ -9662,38 +9635,25 @@ snapshots:
       '@glimmer/encoder': 0.92.3
       '@glimmer/env': 0.1.7
       '@glimmer/global-context': 0.92.3
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/manager': 0.84.3
-      '@glimmer/reference': 0.84.3
-      '@glimmer/util': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/manager': 0.92.4
+      '@glimmer/reference': 0.92.3
+      '@glimmer/util': 0.92.3
       '@glimmer/vm': 0.92.3
       '@glimmer/wire-format': 0.92.3
 
-  '@glimmer/owner@0.84.3':
-    dependencies:
-      '@glimmer/util': 0.84.3
-
   '@glimmer/owner@0.92.3':
     dependencies:
-      '@glimmer/util': 0.84.3
-
-  '@glimmer/program@0.84.3':
-    dependencies:
-      '@glimmer/encoder': 0.84.3
-      '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/manager': 0.84.3
-      '@glimmer/opcode-compiler': 0.84.3
-      '@glimmer/util': 0.84.3
+      '@glimmer/util': 0.92.3
 
   '@glimmer/program@0.92.4':
     dependencies:
       '@glimmer/encoder': 0.92.3
       '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/manager': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/manager': 0.92.4
       '@glimmer/opcode-compiler': 0.92.4
-      '@glimmer/util': 0.84.3
+      '@glimmer/util': 0.92.3
       '@glimmer/vm': 0.92.3
       '@glimmer/wire-format': 0.92.3
 
@@ -9705,21 +9665,28 @@ snapshots:
       '@glimmer/util': 0.84.3
       '@glimmer/validator': 0.84.3
 
-  '@glimmer/runtime@0.84.3':
+  '@glimmer/reference@0.92.3':
     dependencies:
-      '@glimmer/destroyable': 0.84.3
       '@glimmer/env': 0.1.7
-      '@glimmer/global-context': 0.84.3
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/low-level': 0.78.2
-      '@glimmer/owner': 0.84.3
-      '@glimmer/program': 0.84.3
-      '@glimmer/reference': 0.84.3
-      '@glimmer/util': 0.84.3
-      '@glimmer/validator': 0.84.3
-      '@glimmer/vm': 0.84.3
-      '@glimmer/wire-format': 0.84.3
-      '@simple-dom/interface': 1.4.0
+      '@glimmer/global-context': 0.92.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/util': 0.92.3
+      '@glimmer/validator': 0.92.3
+
+  '@glimmer/runtime@0.92.4':
+    dependencies:
+      '@glimmer/destroyable': 0.92.3
+      '@glimmer/env': 0.1.7
+      '@glimmer/global-context': 0.92.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/manager': 0.92.4
+      '@glimmer/owner': 0.92.3
+      '@glimmer/program': 0.92.4
+      '@glimmer/reference': 0.92.3
+      '@glimmer/util': 0.92.3
+      '@glimmer/validator': 0.92.3
+      '@glimmer/vm': 0.92.3
+      '@glimmer/wire-format': 0.92.3
 
   '@glimmer/syntax@0.84.3':
     dependencies:
@@ -9730,8 +9697,8 @@ snapshots:
 
   '@glimmer/syntax@0.92.3':
     dependencies:
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/util': 0.92.3
       '@glimmer/wire-format': 0.92.3
       '@handlebars/parser': 2.0.0
       simple-html-tokenizer: 0.5.11
@@ -9739,7 +9706,9 @@ snapshots:
   '@glimmer/tracking@1.1.2':
     dependencies:
       '@glimmer/env': 0.1.7
-      '@glimmer/validator': 0.84.3
+      '@glimmer/validator': 0.44.0
+
+  '@glimmer/util@0.44.0': {}
 
   '@glimmer/util@0.84.3':
     dependencies:
@@ -9747,10 +9716,24 @@ snapshots:
       '@glimmer/interfaces': 0.84.3
       '@simple-dom/interface': 1.4.0
 
+  '@glimmer/util@0.92.3':
+    dependencies:
+      '@glimmer/env': 0.1.7
+      '@glimmer/interfaces': 0.92.3
+
+  '@glimmer/validator@0.44.0': {}
+
   '@glimmer/validator@0.84.3':
     dependencies:
       '@glimmer/env': 0.1.7
       '@glimmer/global-context': 0.84.3
+
+  '@glimmer/validator@0.92.3':
+    dependencies:
+      '@glimmer/env': 0.1.7
+      '@glimmer/global-context': 0.92.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/util': 0.92.3
 
   '@glimmer/vm-babel-plugins@0.92.3(@babel/core@7.26.10)':
     dependencies:
@@ -9758,25 +9741,15 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
 
-  '@glimmer/vm@0.84.3':
-    dependencies:
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
-
   '@glimmer/vm@0.92.3':
     dependencies:
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
-
-  '@glimmer/wire-format@0.84.3':
-    dependencies:
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/util': 0.92.3
 
   '@glimmer/wire-format@0.92.3':
     dependencies:
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/util': 0.92.3
 
   '@glint/environment-ember-loose@1.4.0(@glimmer/component@1.1.2(@babel/core@7.26.10))(@glint/template@1.4.0)(ember-cli-htmlbars@6.3.0)(ember-modifier@4.2.0(@babel/core@7.26.10)(ember-source@6.2.0(@glimmer/component@1.1.2(@babel/core@7.26.10))(@glint/template@1.4.0)(rsvp@4.8.5)))':
     dependencies:
@@ -10214,9 +10187,15 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
+  '@types/node@18.19.81':
+    dependencies:
+      undici-types: 5.26.5
+
   '@types/node@20.17.24':
     dependencies:
       undici-types: 6.19.8
+
+  '@types/node@9.6.61': {}
 
   '@types/qs@6.9.18': {}
 
@@ -10379,7 +10358,7 @@ snapshots:
       pathe: 1.1.2
       picocolors: 1.1.1
       sirv: 2.0.4
-      vitest: 1.4.0(@types/node@20.17.24)(@vitest/ui@1.0.4)(terser@5.39.0)
+      vitest: 1.4.0(@types/node@18.19.81)(@vitest/ui@1.0.4)(terser@5.39.0)
 
   '@vitest/utils@1.0.4':
     dependencies:
@@ -11429,7 +11408,7 @@ snapshots:
 
   broccoli-rollup@2.1.1:
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 9.6.61
       amd-name-resolver: 1.3.1
       broccoli-plugin: 1.3.1
       fs-tree-diff: 0.5.9
@@ -12949,17 +12928,17 @@ snapshots:
       '@glimmer/destroyable': 0.92.3
       '@glimmer/env': 0.1.7
       '@glimmer/global-context': 0.92.3
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/manager': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/manager': 0.92.4
       '@glimmer/node': 0.92.4
       '@glimmer/opcode-compiler': 0.92.4
       '@glimmer/owner': 0.92.3
       '@glimmer/program': 0.92.4
-      '@glimmer/reference': 0.84.3
-      '@glimmer/runtime': 0.84.3
+      '@glimmer/reference': 0.92.3
+      '@glimmer/runtime': 0.92.4
       '@glimmer/syntax': 0.92.3
-      '@glimmer/util': 0.84.3
-      '@glimmer/validator': 0.84.3
+      '@glimmer/util': 0.92.3
+      '@glimmer/validator': 0.92.3
       '@glimmer/vm': 0.92.3
       '@glimmer/vm-babel-plugins': 0.92.3(@babel/core@7.26.10)
       '@simple-dom/interface': 1.4.0
@@ -13000,17 +12979,17 @@ snapshots:
       '@glimmer/destroyable': 0.92.3
       '@glimmer/env': 0.1.7
       '@glimmer/global-context': 0.92.3
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/manager': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/manager': 0.92.4
       '@glimmer/node': 0.92.4
       '@glimmer/opcode-compiler': 0.92.4
       '@glimmer/owner': 0.92.3
       '@glimmer/program': 0.92.4
-      '@glimmer/reference': 0.84.3
-      '@glimmer/runtime': 0.84.3
+      '@glimmer/reference': 0.92.3
+      '@glimmer/runtime': 0.92.4
       '@glimmer/syntax': 0.92.3
-      '@glimmer/util': 0.84.3
-      '@glimmer/validator': 0.84.3
+      '@glimmer/util': 0.92.3
+      '@glimmer/validator': 0.92.3
       '@glimmer/vm': 0.92.3
       '@glimmer/vm-babel-plugins': 0.92.3(@babel/core@7.26.10)
       '@simple-dom/interface': 1.4.0
@@ -13051,17 +13030,17 @@ snapshots:
       '@glimmer/destroyable': 0.92.3
       '@glimmer/env': 0.1.7
       '@glimmer/global-context': 0.92.3
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/manager': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/manager': 0.92.4
       '@glimmer/node': 0.92.4
       '@glimmer/opcode-compiler': 0.92.4
       '@glimmer/owner': 0.92.3
       '@glimmer/program': 0.92.4
-      '@glimmer/reference': 0.84.3
-      '@glimmer/runtime': 0.84.3
+      '@glimmer/reference': 0.92.3
+      '@glimmer/runtime': 0.92.4
       '@glimmer/syntax': 0.92.3
-      '@glimmer/util': 0.84.3
-      '@glimmer/validator': 0.84.3
+      '@glimmer/util': 0.92.3
+      '@glimmer/validator': 0.92.3
       '@glimmer/vm': 0.92.3
       '@glimmer/vm-babel-plugins': 0.92.3(@babel/core@7.26.10)
       '@simple-dom/interface': 1.4.0
@@ -13103,17 +13082,17 @@ snapshots:
       '@glimmer/destroyable': 0.92.3
       '@glimmer/env': 0.1.7
       '@glimmer/global-context': 0.92.3
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/manager': 0.84.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/manager': 0.92.4
       '@glimmer/node': 0.92.4
       '@glimmer/opcode-compiler': 0.92.4
       '@glimmer/owner': 0.92.3
       '@glimmer/program': 0.92.4
-      '@glimmer/reference': 0.84.3
-      '@glimmer/runtime': 0.84.3
+      '@glimmer/reference': 0.92.3
+      '@glimmer/runtime': 0.92.4
       '@glimmer/syntax': 0.92.3
-      '@glimmer/util': 0.84.3
-      '@glimmer/validator': 0.84.3
+      '@glimmer/util': 0.92.3
+      '@glimmer/validator': 0.92.3
       '@glimmer/vm': 0.92.3
       '@glimmer/vm-babel-plugins': 0.92.3(@babel/core@7.26.10)
       '@simple-dom/interface': 1.4.0
@@ -18021,6 +18000,8 @@ snapshots:
 
   underscore@1.13.7: {}
 
+  undici-types@5.26.5: {}
+
   undici-types@6.19.8: {}
 
   undici@6.21.2: {}
@@ -18157,6 +18138,24 @@ snapshots:
 
   vary@1.1.2: {}
 
+  vite-node@1.4.0(@types/node@18.19.81)(terser@5.39.0):
+    dependencies:
+      cac: 6.7.14
+      debug: 4.4.0(supports-color@8.1.1)
+      pathe: 1.1.2
+      picocolors: 1.1.1
+      vite: 5.4.14(@types/node@18.19.81)(terser@5.39.0)
+    transitivePeerDependencies:
+      - '@types/node'
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+
   vite-node@1.4.0(@types/node@20.17.24)(terser@5.39.0):
     dependencies:
       cac: 6.7.14
@@ -18175,6 +18174,16 @@ snapshots:
       - supports-color
       - terser
 
+  vite@5.4.14(@types/node@18.19.81)(terser@5.39.0):
+    dependencies:
+      esbuild: 0.21.5
+      postcss: 8.5.3
+      rollup: 4.35.0
+    optionalDependencies:
+      '@types/node': 18.19.81
+      fsevents: 2.3.3
+      terser: 5.39.0
+
   vite@5.4.14(@types/node@20.17.24)(terser@5.39.0):
     dependencies:
       esbuild: 0.21.5
@@ -18185,7 +18194,42 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.39.0
 
-  vitest@1.4.0(@types/node@20.17.24)(@vitest/ui@1.0.4)(terser@5.39.0):
+  vitest@1.4.0(@types/node@18.19.81)(@vitest/ui@1.0.4)(terser@5.39.0):
+    dependencies:
+      '@vitest/expect': 1.4.0
+      '@vitest/runner': 1.4.0
+      '@vitest/snapshot': 1.4.0
+      '@vitest/spy': 1.4.0
+      '@vitest/utils': 1.4.0
+      acorn-walk: 8.3.4
+      chai: 4.5.0
+      debug: 4.4.0(supports-color@8.1.1)
+      execa: 8.0.1
+      local-pkg: 0.5.1
+      magic-string: 0.30.17
+      pathe: 1.1.2
+      picocolors: 1.1.1
+      std-env: 3.8.1
+      strip-literal: 2.1.1
+      tinybench: 2.9.0
+      tinypool: 0.8.4
+      vite: 5.4.14(@types/node@18.19.81)(terser@5.39.0)
+      vite-node: 1.4.0(@types/node@18.19.81)(terser@5.39.0)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/node': 18.19.81
+      '@vitest/ui': 1.0.4(vitest@1.4.0)
+    transitivePeerDependencies:
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+
+  vitest@1.4.0(@types/node@20.17.24)(terser@5.39.0):
     dependencies:
       '@vitest/expect': 1.4.0
       '@vitest/runner': 1.4.0
@@ -18209,7 +18253,6 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 20.17.24
-      '@vitest/ui': 1.0.4(vitest@1.4.0)
     transitivePeerDependencies:
       - less
       - lightningcss

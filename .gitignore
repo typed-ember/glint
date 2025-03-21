@@ -1,6 +1,5 @@
 node_modules
 pnpm-debug.log
-test-packages/ephemeral
 .eslintcache
 *.tsbuildinfo
 *.js.map
