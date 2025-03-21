@@ -15,7 +15,8 @@
   },
   "scripts": {
     "lint": "pnpm lint:scripts && pnpm lint:formatting",
-    "lint:fix": "pnpm lint:scripts --fix && pnpm prettier --write .",
+    "lint:fix": "pnpm lint:scripts --fix && pnpm format",
+    "format": "prettier --write .",
     "lint:scripts": "pnpm eslint --cache .",
     "lint:formatting": "pnpm prettier --check .",
     "test": "pnpm --filter '*' run test",
@@ -33,7 +34,12 @@
     "typescript": "bumped version because volar caused error TS2694, TS1383"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["@vscode/vsce-sign", "core-js", "esbuild", "keytar"]
+    "onlyBuiltDependencies": [
+      "@vscode/vsce-sign",
+      "core-js",
+      "esbuild",
+      "keytar"
+    ]
   },
   "devDependencies": {
     "@release-it-plugins/lerna-changelog": "^5.0.0",
