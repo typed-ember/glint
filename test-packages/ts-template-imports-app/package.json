@@ -11,7 +11,9 @@
   "devDependencies": {
     "@glimmer/component": "^2.0.0",
     "@glint/template": "workspace:*",
-    "@glint/tsserver-plugin": "workspace:*"
+    "@glint/tsserver-plugin": "workspace:*",
+    "@glint/environment-ember-template-imports": "workspace:*",
+    "@glint/environment-ember-loose": "workspace:*"
   },
   "volta": {
     "extends": "../../package.json"
