@@ -236,6 +236,10 @@
   },
   "devDependencies": {
     "@glint/core": "workspace:*",
+    "@glint/template": "workspace:*",
+    "@glint/tsserver-plugin": "workspace:*",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/environment-ember-template-imports": "workspace:*",
     "@types/mocha": "^10.0.1",
     "@types/semver": "^7.3.13",
     "@types/vscode": "^1.68.1",
@@ -250,6 +254,23 @@
     "reactive-vscode": "0.2.7-beta.1",
     "typescript": "^5.8.2",
     "vscode-ext-gen": "^0.5.0"
+  },
+  "dependenciesMeta": {
+    "@glint/environment-ember-loose": {
+      "injected": true
+    },
+    "@glint/environment-ember-template-imports": {
+      "injected": true
+    },
+    "@glint/template": {
+      "injected": true
+    },
+    "@glint/core": {
+      "injected": true
+    },
+    "@glint/tsserver-plugin": {
+      "injected": true
+    }
   },
   "volta": {
     "extends": "../../package.json"

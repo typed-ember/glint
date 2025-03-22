@@ -179,9 +179,15 @@ importers:
       '@glint/core':
         specifier: workspace:*
         version: link:../core
+      '@types/common-tags':
+        specifier: ^1.8.0
+        version: 1.8.4
       '@types/node':
         specifier: ^18.19.81
         version: 18.19.81
+      common-tags:
+        specifier: ^1.8.0
+        version: 1.8.2
       typescript:
         specifier: '>=5.6.0'
         version: 5.8.2
@@ -238,10 +244,33 @@ importers:
       semver:
         specifier: ^7.5.2
         version: 7.7.1
+    dependenciesMeta:
+      '@glint/core':
+        injected: true
+      '@glint/environment-ember-loose':
+        injected: true
+      '@glint/environment-ember-template-imports':
+        injected: true
+      '@glint/template':
+        injected: true
+      '@glint/tsserver-plugin':
+        injected: true
     devDependencies:
       '@glint/core':
         specifier: workspace:*
-        version: link:../core
+        version: file:packages/core(typescript@5.8.2)
+      '@glint/environment-ember-loose':
+        specifier: workspace:*
+        version: file:packages/environment-ember-loose(38fa3eca771ece9ff9ab527886fd72c4)
+      '@glint/environment-ember-template-imports':
+        specifier: workspace:*
+        version: file:packages/environment-ember-template-imports(177ad0bf598732a54290bbfd26fa1047)
+      '@glint/template':
+        specifier: workspace:*
+        version: file:packages/template
+      '@glint/tsserver-plugin':
+        specifier: workspace:*
+        version: file:packages/tsserver-plugin
       '@types/mocha':
         specifier: ^10.0.1
         version: 10.0.10
@@ -9984,6 +10013,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@glint/environment-ember-loose@file:packages/environment-ember-loose(38fa3eca771ece9ff9ab527886fd72c4)':
+    dependencies:
+      '@glint/core': file:packages/core(typescript@5.8.2)
+      '@glint/template': file:packages/template
+
   '@glint/environment-ember-loose@file:packages/environment-ember-loose(98da8c16f58325ef2d537744a0c863a0)':
     dependencies:
       '@glimmer/component': 2.0.0
@@ -9998,6 +10032,13 @@ snapshots:
       '@glimmer/component': 2.0.0
       '@glint/core': file:packages/core(typescript@5.8.2)
       '@glint/template': file:packages/template
+
+  '@glint/environment-ember-template-imports@file:packages/environment-ember-template-imports(177ad0bf598732a54290bbfd26fa1047)':
+    dependencies:
+      '@glint/core': file:packages/core(typescript@5.8.2)
+      '@glint/environment-ember-loose': file:packages/environment-ember-loose(38fa3eca771ece9ff9ab527886fd72c4)
+      '@glint/template': file:packages/template
+      content-tag: 3.1.2
 
   '@glint/environment-ember-template-imports@file:packages/environment-ember-template-imports(3e112887cc67e37e687e0dfd55f9f52e)':
     dependencies:
