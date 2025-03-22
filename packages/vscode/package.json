@@ -159,7 +159,7 @@
     ],
     "typescriptServerPlugins": [
       {
-        "name": "@glint/tsserver-plugin",
+        "name": "glint-typescript-plugin-pack",
         "enableForWorkspaceTypeScriptVersions": true,
         "languages": [
           "glimmer-ts",

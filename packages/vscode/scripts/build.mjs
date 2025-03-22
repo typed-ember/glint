@@ -55,17 +55,15 @@ const ctx = await context({
         });
       },
     },
-    {
-      name: 'resolve-share-module',
-      setup(build) {
-        build.onResolve({ filter: /^@glint\/core$/ }, () => {
-          return {
-            path: 'vue-language-core-pack',
-            external: true,
-          };
-        });
-      },
-    },
+    // TODO: may need this once we fully implement Vue-style tsserver->langauge server bridge
+    // {
+    //   name: 'resolve-share-module',
+    //   setup(build) {
+    //     build.onResolve({ filter: /^@glint\/core$/ }, () => {
+    //       return { path: 'glint-language-core-pack', external: true };
+    //     });
+    //   },
+    // },
   ],
 });
 

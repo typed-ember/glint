@@ -1,3 +1,7 @@
+# Workaround for https://github.com/microsoft/vscode-vsce/issues/580
+../../
+../
+
 .gitignore
 .eslintignore
 
@@ -12,8 +16,7 @@ lib/
 tsconfig.json
 tsconfig.tsbuildinfo
 
-# We don't want to ignore node_modules because in order for tsserver to find our
-# `@glint/tsserver-plugin`, it needs to be present in node_modules.
-# node_modules/
+node_modules/**/
+!node_modules/glint-tsserver-plugin-pack
 
 scripts/
