@@ -14,12 +14,13 @@ const ctx = await context({
   bundle: true,
   entryPoints: {
     'dist/extension': require.resolve('../lib/src/extension.js'),
-    'node_modules/glint-tsserver-plugin-pack/index':
+    'node_modules/glint-tsserver-plugin-pack':
       '../tsserver-plugin/lib/typescript-server-plugin.js',
   },
   external: ['vscode'],
   logLevel: 'info',
-  minify: !debug,
+  minify: false,
+  // minify: !debug,
   outdir: fileURLToPath(new URL('../', import.meta.url)),
   platform: 'node',
   sourcemap: debug,
