@@ -6,7 +6,8 @@
 
     // ts server plugins need to be cjs
     "module": "preserve",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "types": ["@types/node"]
   },
   "include": ["src"],
   "references": [{ "path": "../core" }]
