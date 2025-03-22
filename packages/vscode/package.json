@@ -33,8 +33,8 @@
     "compile": "tsc --build",
     "bundle": "node ./scripts/build.mjs",
     "bundle:watch": "node ./scripts/build.mjs -- --watch",
-    "extension:package": "vsce package --no-dependencies",
-    "extension:publish": "vsce publish --no-dependencies",
+    "extension:package": "vsce package --pre-release",
+    "extension:publish": "vsce publish --pre-release",
     "ext:gen": "vscode-ext-gen --scope glint"
   },
   "engines": {
