@@ -16,7 +16,7 @@ const {
  * modules from CJS which lets us avoid a ton of hacks and complexity we (or Volar)
  * would otherwise have to write to bridge the sync/async APIs.
  */
-const glintCore = jiti('@glint/core');
+const glintCore = jiti('glint-core-pack.js');
 
 const { VirtualGtsCode, LooseModeBackingComponentClassVirtualCode, augmentDiagnostics } = glintCore;
 
