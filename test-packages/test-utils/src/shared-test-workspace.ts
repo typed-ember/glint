@@ -59,10 +59,7 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
     });
 
     let glintLSPath = require.resolve('@glint/core/bin/glint-language-server');
-    serverHandle = startLanguageServer(
-      glintLSPath,
-      testWorkspacePath,
-    );
+    serverHandle = startLanguageServer(glintLSPath, testWorkspacePath);
     serverHandle.connection.onNotification(PublishDiagnosticsNotification.type, () => {});
     serverHandle.connection.onRequest(ConfigurationRequest.type, ({ items }) => {
       return items.map(({ section }) => {
