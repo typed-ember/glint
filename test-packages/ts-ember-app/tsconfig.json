@@ -29,7 +29,8 @@
       "ts-ember-app/tests/*": ["tests/*"],
       "ts-ember-app/*": ["app/*"],
       "*": ["types/*"]
-    }
+    },
+    "types": ["ember-source/types"]
   },
   "include": ["app/**/*", "tests/**/*", "types/**/*"],
   "glint": {

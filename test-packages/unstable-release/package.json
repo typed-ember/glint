@@ -16,8 +16,9 @@
     "globby": "^11.0.3"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.24.7",
+    "@babel/core": "^7.26.10",
     "@babel/eslint-parser": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-n": "^17.9.0",

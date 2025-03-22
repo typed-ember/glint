@@ -2,6 +2,8 @@
 /packages/*/lib
 /test-packages/*/lib
 dist/
+*.yaml
+*.yml
 
 # Hidden directories
 .*/

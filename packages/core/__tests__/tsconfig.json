@@ -3,5 +3,6 @@
   "include": ["../src", "**/*.ts"],
   "compilerOptions": {
     "rootDir": ".."
-  }
+  },
+  "references": [{ "path": "../../../test-packages/test-utils" }]
 }

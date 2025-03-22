@@ -8,11 +8,17 @@ import type { LanguageServerHandle } from '@volar/test-utils';
 import { startLanguageServer } from '@volar/test-utils';
 import * as path from 'node:path';
 import { URI } from 'vscode-uri';
+import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+
 // import { VueInitializationOptions } from '../lib/types';
 
 let serverHandle: LanguageServerHandle | undefined;
 let tsserver: import('@typescript/server-harness').Server;
 let seq = 1;
+
+const require = createRequire(import.meta.url);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const testWorkspacePath = path.resolve(__dirname, '../..');
 
@@ -27,19 +33,19 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
   setTsserverEventHandler: (handler: (e: any) => void) => void;
 }> {
   if (!serverHandle) {
-    tsserver = launchServer(
-      path.join(__dirname, '..', '..', '..', 'node_modules', 'typescript', 'lib', 'tsserver.js'),
-      [
-        '--disableAutomaticTypingAcquisition',
-        '--globalPlugins',
-        '@glint/tsserver-plugin',
-        // '--suppressDiagnosticEvents',
-        '--logVerbosity',
-        'verbose',
-        '--logFile',
-        path.join(__dirname, '..', '..', '..', 'tsserver.log'),
-      ],
-    );
+    let tsserverPath = require.resolve('typescript/lib/tsserver');
+    let tsserverLog = path.join(__dirname, '..', '..', '..', 'tsserver.log');
+
+    tsserver = launchServer(tsserverPath, [
+      '--disableAutomaticTypingAcquisition',
+      '--globalPlugins',
+      '@glint/tsserver-plugin',
+      // '--suppressDiagnosticEvents',
+      '--logVerbosity',
+      'verbose',
+      '--logFile',
+      tsserverLog,
+    ]);
 
     tsserver.on('exit', (code) => console.log(code ? `Exited with code ${code}` : `Terminated`));
 
@@ -52,10 +58,8 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
       }
     });
 
-    serverHandle = startLanguageServer(
-      require.resolve('../../../packages/core/bin/glint-language-server.js'),
-      testWorkspacePath,
-    );
+    let glintLSPath = require.resolve('@glint/core/bin/glint-language-server');
+    serverHandle = startLanguageServer(glintLSPath, testWorkspacePath);
     serverHandle.connection.onNotification(PublishDiagnosticsNotification.type, () => {});
     serverHandle.connection.onRequest(ConfigurationRequest.type, ({ items }) => {
       return items.map(({ section }) => {
@@ -75,11 +79,12 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
       return res.body;
     });
 
+    let tsdkPath = path.dirname(require.resolve('typescript/lib/typescript'));
     await serverHandle.initialize(
       URI.file(testWorkspacePath).toString(),
       {
         typescript: {
-          tsdk: path.dirname(require.resolve('typescript/lib/typescript.js')),
+          tsdk: tsdkPath,
           // requestForwardingCommand: 'forwardingTsRequest',
         },
         // } satisfies VueInitializationOptions,

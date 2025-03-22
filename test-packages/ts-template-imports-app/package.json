@@ -8,8 +8,34 @@
     "test:typecheck": "glint",
     "test:tsc": "echo 'no standalone tsc within this project'"
   },
+  "dependenciesMeta": {
+    "@glint/environment-ember-loose": {
+      "injected": true
+    },
+    "@glint/environment-ember-template-imports": {
+      "injected": true
+    },
+    "@glint/template": {
+      "injected": true
+    },
+    "@glint/core": {
+      "injected": true
+    },
+    "@glint/tsserver-plugin": {
+      "injected": true
+    }
+  },
   "devDependencies": {
-    "@glint/tsserver-plugin": "*"
+    "@glimmer/component": "^2.0.0",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/environment-ember-template-imports": "workspace:*",
+    "@glint/template": "workspace:*",
+    "@glint/core": "workspace:*",
+    "@types/rsvp": "^4.0.9",
+    "@glint/tsserver-plugin": "workspace:*",
+    "@tsconfig/ember": "^3.0.9",
+    "ember-source": "^6.2.0",
+    "typescript": ">=5.6.0"
   },
   "volta": {
     "extends": "../../package.json"

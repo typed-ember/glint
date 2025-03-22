@@ -365,7 +365,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
                   "line": 94,
                   "offset": 5,
                 },
-                "file": "\${testWorkspacePath}late/-private/keywords/-bind-invokable.d.ts",
+                "file": "\${testWorkspacePath}.pnpm/@glint+template@file+packages+template/node_modules/@glint/template/-private/keywords/-bind-invokable.d.ts",
                 "start": {
                   "line": 80,
                   "offset": 3,
@@ -401,7 +401,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
                   "line": 94,
                   "offset": 5,
                 },
-                "file": "\${testWorkspacePath}late/-private/keywords/-bind-invokable.d.ts",
+                "file": "\${testWorkspacePath}.pnpm/@glint+template@file+packages+template/node_modules/@glint/template/-private/keywords/-bind-invokable.d.ts",
                 "start": {
                   "line": 80,
                   "offset": 3,
@@ -437,7 +437,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
                   "line": 94,
                   "offset": 5,
                 },
-                "file": "\${testWorkspacePath}late/-private/keywords/-bind-invokable.d.ts",
+                "file": "\${testWorkspacePath}.pnpm/@glint+template@file+packages+template/node_modules/@glint/template/-private/keywords/-bind-invokable.d.ts",
                 "start": {
                   "line": 80,
                   "offset": 3,

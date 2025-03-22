@@ -9,7 +9,28 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@tsconfig/ember": "^3.0.9",
+    "@glimmer/component": "^2.0.0",
     "typescript": "*",
-    "@glint/tsserver-plugin": "*"
+    "@glint/template": "workspace:*",
+    "@glint/tsserver-plugin": "workspace:*",
+    "ember-source": "^6.2.0"
+  },
+  "dependenciesMeta": {
+    "@glint/environment-ember-loose": {
+      "injected": true
+    },
+    "@glint/environment-ember-template-imports": {
+      "injected": true
+    },
+    "@glint/template": {
+      "injected": true
+    },
+    "@glint/core": {
+      "injected": true
+    },
+    "@glint/tsserver-plugin": {
+      "injected": true
+    }
   }
 }

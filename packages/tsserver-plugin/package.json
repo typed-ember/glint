@@ -18,15 +18,19 @@
     "test:typecheck": "echo 'no standalone typecheck within this project'",
     "test:tsc": "echo 'no standalone typecheck within this project'",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "dependencies": {
-    "jiti": "~2.4.2",
-    "@glint/core": "^1.4.0",
+    "@glint/core": "workspace:*",
     "@volar/language-core": "2.4.12",
-    "@volar/typescript": "2.4.12"
+    "@volar/typescript": "2.4.12",
+    "jiti": "~2.4.2",
+    "typescript": ">=5.6.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.11"
   }
 }

@@ -21,7 +21,7 @@
     "test:typecheck": "glint --project __tests__/type-tests && vitest run",
     "test:watch": "vitest watch",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "files": [
     "README.md",
@@ -30,7 +30,8 @@
   ],
   "peerDependencies": {
     "@glimmer/component": ">=1.1.2",
-    "@glint/template": "^1.4.0",
+    "@glint/core": "workspace:*",
+    "@glint/template": "workspace:*",
     "ember-cli-htmlbars": "^6.0.1",
     "ember-modifier": "^3.2.7 || ^4.0.0"
   },
@@ -44,9 +45,13 @@
   },
   "devDependencies": {
     "@glimmer/component": "^1.1.2",
+    "@glint/core": "workspace:*",
+    "@glint/template": "workspace:*",
+    "@types/node": "^22.13.11",
     "ember-modifier": "^3.2.7 || ^4.0.0",
     "expect-type": "^0.15.0",
-    "vitest": "~1.4.0"
+    "typescript": ">=5.6.0",
+    "vitest": "~3.0.9"
   },
   "publishConfig": {
     "access": "public"

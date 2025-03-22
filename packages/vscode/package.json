@@ -24,20 +24,18 @@
     "Linters"
   ],
   "scripts": {
-    "pretest": "yarn build",
-    "test": "yarn test-language-server && yarn test-ts-plugin",
+    "test": "pnpm build && pnpm test-language-server && pnpm test-ts-plugin",
     "test-language-server": "node lib/__tests__/support/launch-from-cli.mjs language-server",
     "test-ts-plugin": "node lib/__tests__/support/launch-from-cli.mjs ts-plugin",
     "test:typecheck": "echo 'no standalone typecheck within this project'",
     "test:tsc": "echo 'no standalone tsc within this project'",
-    "build": "yarn compile && yarn bundle",
+    "build": "pnpm ext:gen && pnpm compile && pnpm bundle",
     "compile": "tsc --build",
     "bundle": "node ./scripts/build.mjs",
     "bundle:watch": "node ./scripts/build.mjs -- --watch",
     "extension:package": "vsce package --no-dependencies",
     "extension:publish": "vsce publish --no-dependencies",
-    "postinstall": "vscode-ext-gen --scope glint",
-    "prebuild": "vscode-ext-gen --scope glint"
+    "ext:gen": "vscode-ext-gen --scope glint"
   },
   "engines": {
     "vscode": "^1.68.1"
@@ -237,8 +235,13 @@
     "@vscode/test-electron": "Dropped support for Node < 16 in the 2.2.1 patch release, so locking to 2.2.0 while we still support Node 14."
   },
   "devDependencies": {
-    "@glint/core": "^1.4.0",
+    "@glint/core": "workspace:*",
+    "@glint/template": "workspace:*",
+    "@glint/tsserver-plugin": "workspace:*",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/environment-ember-template-imports": "workspace:*",
     "@types/mocha": "^10.0.1",
+    "@types/semver": "^7.3.13",
     "@types/vscode": "^1.68.1",
     "@volar/language-server": "2.4.12",
     "@volar/vscode": "2.4.12",
@@ -249,7 +252,25 @@
     "glob": "^10.2.4",
     "mocha": "^10.2.0",
     "reactive-vscode": "0.2.7-beta.1",
+    "typescript": "^5.8.2",
     "vscode-ext-gen": "^0.5.0"
+  },
+  "dependenciesMeta": {
+    "@glint/environment-ember-loose": {
+      "injected": true
+    },
+    "@glint/environment-ember-template-imports": {
+      "injected": true
+    },
+    "@glint/template": {
+      "injected": true
+    },
+    "@glint/core": {
+      "injected": true
+    },
+    "@glint/tsserver-plugin": {
+      "injected": true
+    }
   },
   "volta": {
     "extends": "../../package.json"
@@ -259,5 +280,8 @@
     "publisherDisplayName": "typed-ember",
     "publisherId": "b79e9b30-918d-42b5-9460-27287aca13c4",
     "isPreReleaseVersion": false
+  },
+  "dependencies": {
+    "semver": "^7.5.2"
   }
 }

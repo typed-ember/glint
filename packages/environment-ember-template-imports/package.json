@@ -21,7 +21,7 @@
     "test:tsc": "echo 'no standalone typecheck within this project'",
     "test:watch": "vitest watch",
     "build": "tsc --build",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "files": [
     "README.md",
@@ -29,29 +29,20 @@
     "globals/index.d.ts"
   ],
   "dependencies": {
-    "content-tag": "^2.0.1"
+    "content-tag": "^3.1.2"
   },
   "peerDependencies": {
-    "@glint/environment-ember-loose": "^1.4.0",
-    "@glint/template": "^1.4.0"
-  },
-  "peerDependenciesMeta": {
-    "@types/ember__component": {
-      "optional": true
-    },
-    "@types/ember__helper": {
-      "optional": true
-    },
-    "@types/ember__modifier": {
-      "optional": true
-    },
-    "@types/ember__routing": {
-      "optional": true
-    }
+    "@glint/core": "workspace:*",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/template": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^18.11.5",
-    "vitest": "~1.4.0"
+    "@glint/core": "workspace:*",
+    "@types/common-tags": "^1.8.0",
+    "@types/node": "^18.19.81",
+    "common-tags": "^1.8.0",
+    "typescript": ">=5.6.0",
+    "vitest": "~3.0.9"
   },
   "publishConfig": {
     "access": "public"

@@ -5,7 +5,7 @@
       "name": "Debug Extension (Glint + TS)",
       "type": "extensionHost",
       "request": "launch",
-      // this errors. Run `yarn build` before launching this task
+      // this errors. Run `pnpm build` before launching this task
       // "preLaunchTask": "npm: build",
       "autoAttachChildProcesses": true,
       "runtimeExecutable": "${execPath}",
@@ -58,7 +58,7 @@
     // },
     {
       // For this to work, make sure you're runninc `tsc --build --watch` at the root, AND
-      // `yarn bundle:watch` from within vscode directory.
+      // `pnpm bundle:watch` from within vscode directory.
       "name": "Debug Extension (TS Plugin, .gts)",
       "type": "extensionHost",
       "request": "launch",
@@ -77,7 +77,7 @@
     },
     {
       // For this to work, make sure you're runninc `tsc --build --watch` at the root, AND
-      // `yarn bundle:watch` from within vscode directory.
+      // `pnpm bundle:watch` from within vscode directory.
       "name": "Debug Extension (TS Plugin, ember-app-loose-and-gts)",
       "type": "extensionHost",
       "request": "launch",

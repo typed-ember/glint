@@ -1,0 +1,8 @@
+packages:
+  - packages/*
+  - test-packages/*
+onlyBuiltDependencies:
+  - '@vscode/vsce-sign'
+  - core-js
+  - esbuild
+  - keytar
