@@ -30,6 +30,9 @@ importers:
       eslint:
         specifier: ^8.27.0
         version: 8.57.1
+      glint-monorepo-test-utils:
+        specifier: workspace:*
+        version: link:test-packages/test-utils
       prettier:
         specifier: ^3.3.2
         version: 3.5.3
