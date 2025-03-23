@@ -2,7 +2,7 @@
   "name": "glint-vscode",
   "displayName": "Glint",
   "description": "Glint language server integration for VS Code",
-  "version": "1.4.0",
+  "version": "1.4.3",
   "publisher": "typed-ember",
   "private": true,
   "author": "James C. Davis (https://github.com/jamescdavis)",
@@ -24,17 +24,18 @@
     "Linters"
   ],
   "scripts": {
-    "test": "pnpm build && pnpm test-language-server && pnpm test-ts-plugin",
-    "test-language-server": "node lib/__tests__/support/launch-from-cli.mjs language-server",
-    "test-ts-plugin": "node lib/__tests__/support/launch-from-cli.mjs ts-plugin",
+    "test": "pnpm build && pnpm test-ts-plugin",
+    "test-ts-plugin": "node lib/__tests__/support/launch-from-cli.mjs",
     "test:typecheck": "echo 'no standalone typecheck within this project'",
     "test:tsc": "echo 'no standalone tsc within this project'",
     "build": "pnpm ext:gen && pnpm compile && pnpm bundle",
+    "build:prerelease": "pnpm ext:gen && pnpm compile && pnpm bundle --pre-release",
     "compile": "tsc --build",
     "bundle": "node ./scripts/build.mjs",
+    "bundle:prerelease": "node ./scripts/build.mjs --pre-release",
     "bundle:watch": "node ./scripts/build.mjs -- --watch",
-    "extension:package": "vsce package --no-dependencies",
-    "extension:publish": "vsce publish --no-dependencies",
+    "pack": "vsce package",
+    "pack:prerelease": "vsce package --pre-release",
     "ext:gen": "vscode-ext-gen --scope glint"
   },
   "engines": {
@@ -159,11 +160,12 @@
     ],
     "typescriptServerPlugins": [
       {
-        "name": "@glint/tsserver-plugin",
+        "name": "glint-tsserver-plugin-pack",
         "enableForWorkspaceTypeScriptVersions": true,
         "languages": [
           "glimmer-ts",
-          "glimmer-js"
+          "glimmer-js",
+          "handlebars"
         ]
       }
     ],

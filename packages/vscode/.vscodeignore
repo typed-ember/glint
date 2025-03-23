@@ -1,3 +1,7 @@
+# Workaround for https://github.com/microsoft/vscode-vsce/issues/580
+../../
+../
+
 .gitignore
 .eslintignore
 
@@ -12,5 +16,8 @@ lib/
 tsconfig.json
 tsconfig.tsbuildinfo
 
-node_modules/
+node_modules/**/
+!node_modules/glint-tsserver-plugin-pack.js
+!node_modules/glint-core-pack.js
+
 scripts/

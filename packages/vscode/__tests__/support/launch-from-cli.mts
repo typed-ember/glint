@@ -13,33 +13,13 @@ fs.mkdirSync(settingsDir, { recursive: true });
 const userPreferences: Record<string, any> = {
   // When testing TS Plugin, it can be useful to look at tsserver logs within
   // the test runner VSCode instance. To do this, uncomment the following line,
-  // and then check the logs for TypeScript
+  // and then check Output > Typescript for semantic logfile location.
   // 'typescript.tsserver.log': 'verbose',
 };
 
-const testType = process.argv[2];
-
 let disableExtensionArgs: string[] = [];
 
-let testRunner: string;
-switch (testType) {
-  case 'language-server':
-    testRunner = 'lib/__tests__/support/vscode-runner-language-server.js';
-
-    // Disable vanilla TS for full "takeover" mode.
-    disableExtensionArgs = ['--disable-extension', 'vscode.typescript-language-features'];
-    break;
-  case 'ts-plugin':
-    testRunner = 'lib/__tests__/support/vscode-runner-ts-plugin.js';
-
-    userPreferences['glint.server.hybridMode'] = true;
-
-    // Note: here, we WANT vanilla TS to be enabled since we're testing the TS Plugin.
-    break;
-  default:
-    console.error('Test type must be either "language-server" or "ts-plugin"');
-    process.exit(1);
-}
+let testRunner = 'lib/__tests__/support/vscode-runner-ts-plugin.js';
 
 fs.writeFileSync(path.join(settingsDir, 'settings.json'), JSON.stringify(userPreferences, null, 2));
 
@@ -60,7 +40,6 @@ try {
       // Load the app fixtures. Note that it's ok to load fixtures that aren't used for the
       // particular test type.
       `${packageRoot}/__fixtures__/ember-app`,
-      `${packageRoot}/__fixtures__/template-imports-app`,
       `${packageRoot}/__fixtures__/template-imports-app-ts-plugin`,
       `${packageRoot}/__fixtures__/ember-app-loose-and-gts`,
     ],

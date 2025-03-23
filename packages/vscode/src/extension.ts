@@ -224,8 +224,6 @@ try {
   // work in .gts files.
   //
   // https://github.com/search?q=repo%3Amicrosoft%2Fvscode%20isSupportedLanguageMode&type=code
-  const typeScriptServerPluginName = '@glint/tsserver-plugin';
-
   const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features')!;
   const readFileSync = fs.readFileSync;
   const extensionJsPath = require.resolve('./dist/extension.js', {
@@ -233,6 +231,10 @@ try {
   });
 
   const languageIdsQuoted = config.server.includeLanguages.map((lang) => `'${lang}'`).join(',');
+
+  // TODO: as of March 23 2025 and perhaps a few days before, this fs.readFileSync hacky
+  // is failing with "Cannot set property readFileSync of #<Object> which has only a getter".
+  // Stay tuned for another hack from Volar... or hopefully an upstream fix from VSCode.
 
   // @ts-expect-error – not easy to type
   fs.readFileSync = (...args) => {
@@ -250,6 +252,11 @@ try {
       // handlebars.
       //
       // https://github.com/microsoft/vscode/blob/6900113cf934d3d379757534d6f57929c5eb87f2/extensions/typescript-language-features/src/tsServer/plugins.ts#L81
+      //
+      // Note: we use the esbuild-packaged name `glint-tsserver-plugin-pack` rather than the NPM
+      // module name `@glint/tsserver-plugin` because the latter is not installed in the VSCode
+      // extension's `node_modules` folder.
+      const typeScriptServerPluginName = 'glint-tsserver-plugin-pack';
       text = text.replace(
         'languages:Array.isArray(e.languages)',
         [

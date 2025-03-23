@@ -16,7 +16,14 @@ const {
  * modules from CJS which lets us avoid a ton of hacks and complexity we (or Volar)
  * would otherwise have to write to bridge the sync/async APIs.
  */
-const glintCore = jiti('@glint/core');
+let glintCorePath = '@glint/core';
+try {
+  // @ts-expect-error esbuild define
+  glintCorePath = GLINT_CORE_PATH;
+} catch {
+  // Ignore; must not be running in esbuild context
+}
+const glintCore = jiti(glintCorePath);
 
 const { VirtualGtsCode, LooseModeBackingComponentClassVirtualCode, augmentDiagnostics } = glintCore;
 

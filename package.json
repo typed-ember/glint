@@ -14,7 +14,7 @@
     ]
   },
   "scripts": {
-    "reset": " git clean -Xfd; git clean -fd; pnpm i && pnpm build",
+    "reset": "git clean -Xfd; git clean -fd; pnpm i && pnpm build > /dev/null 2>&1; pnpm i -f; pnpm build; pnpm sync",
     "lint": "pnpm lint:scripts && pnpm lint:formatting",
     "lint:fix": "pnpm lint:scripts --fix && pnpm format",
     "format": "prettier --write .",
@@ -23,6 +23,7 @@
     "test": "pnpm --filter '*' run test",
     "test:typecheck": "pnpm --filter '*' run test:typecheck",
     "build": "tsc --build",
+    "build:watch": "tsc --build --watch",
     "sync": "echo 'Syncing injected peer dependencies (via built in pnpm behavior defined in .npmrc)'",
     "release-it": "echo \"Running release-it via pnpm breaks publishing! Use npx or a Volta global installation.\""
   },
