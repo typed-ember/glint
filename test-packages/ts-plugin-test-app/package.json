@@ -1,6 +1,7 @@
 {
   "name": "ts-plugin-test-app",
   "version": "1.0.0",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "test": "echo 'no standalone tests within this project'"
