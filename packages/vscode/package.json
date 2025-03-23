@@ -24,9 +24,8 @@
     "Linters"
   ],
   "scripts": {
-    "test": "pnpm build && pnpm test-language-server && pnpm test-ts-plugin",
-    "test-language-server": "node lib/__tests__/support/launch-from-cli.mjs language-server",
-    "test-ts-plugin": "node lib/__tests__/support/launch-from-cli.mjs ts-plugin",
+    "test": "pnpm build && pnpm test-ts-plugin",
+    "test-ts-plugin": "node lib/__tests__/support/launch-from-cli.mjs",
     "test:typecheck": "echo 'no standalone typecheck within this project'",
     "test:tsc": "echo 'no standalone tsc within this project'",
     "build": "pnpm ext:gen && pnpm compile && pnpm bundle",
