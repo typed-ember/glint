@@ -30,6 +30,7 @@ const ctx = await context({
   inject: [require.resolve('./import-meta-url.js')],
   define: {
     'import.meta.url': 'import_meta_url',
+    'GLINT_CORE_PATH': '"glint-core-pack.js"',
   },
 
   plugins: [
