@@ -41,6 +41,9 @@
   "engines": {
     "vscode": "^1.68.1"
   },
+  "release-plan": {
+    "skipNpmPublish": true
+  },
   "activationEvents": [],
   "contributes": {
     "languages": [
