@@ -22,7 +22,6 @@
     "lint:fix": "pnpm lint:scripts --fix && pnpm format",
     "lint:formatting": "pnpm prettier --check .",
     "lint:scripts": "pnpm eslint --cache .",
-    "release-it": "echo \"Running release-it via pnpm breaks publishing! Use npx or a Volta global installation.\"",
     "reset": "git clean -Xfd; git clean -fd; pnpm i && pnpm build > /dev/null 2>&1; pnpm i -f; pnpm build; pnpm sync",
     "sync": "echo 'Syncing injected peer dependencies (via built in pnpm behavior defined in .npmrc)'",
     "test": "pnpm --filter '*' run test",
@@ -31,14 +30,11 @@
   "devDependencies": {
     "@glimmer/component": "^2.0.0",
     "@glint/tsserver-plugin": "workspace:*",
-    "@release-it-plugins/lerna-changelog": "^5.0.0",
-    "@release-it-plugins/workspaces": "^3.2.0",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
     "eslint": "^8.27.0",
     "glint-monorepo-test-utils": "workspace:*",
     "prettier": "^3.3.2",
-    "release-it": "^15.5.0",
     "release-plan": "^0.16.0",
     "typescript": ">=5.6.0"
   },
