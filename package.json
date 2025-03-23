@@ -1,7 +1,8 @@
 {
   "name": "glint",
-  "repository": "https://github.com/typed-ember/glint",
+  "version": "1.4.0",
   "private": true,
+  "repository": "https://github.com/typed-ember/glint",
   "workspaces": {
     "packages": [
       "packages/*",
@@ -14,26 +15,33 @@
     ]
   },
   "scripts": {
-    "reset": "git clean -Xfd; git clean -fd; pnpm i && pnpm build > /dev/null 2>&1; pnpm i -f; pnpm build; pnpm sync",
-    "lint": "pnpm lint:scripts && pnpm lint:formatting",
-    "lint:fix": "pnpm lint:scripts --fix && pnpm format",
-    "format": "prettier --write .",
-    "lint:scripts": "pnpm eslint --cache .",
-    "lint:formatting": "pnpm prettier --check .",
-    "test": "pnpm --filter '*' run test",
-    "test:typecheck": "pnpm --filter '*' run test:typecheck",
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",
+    "format": "prettier --write .",
+    "lint": "pnpm lint:scripts && pnpm lint:formatting",
+    "lint:fix": "pnpm lint:scripts --fix && pnpm format",
+    "lint:formatting": "pnpm prettier --check .",
+    "lint:scripts": "pnpm eslint --cache .",
+    "reset": "git clean -Xfd; git clean -fd; pnpm i && pnpm build > /dev/null 2>&1; pnpm i -f; pnpm build; pnpm sync",
     "sync": "echo 'Syncing injected peer dependencies (via built in pnpm behavior defined in .npmrc)'",
-    "release-it": "echo \"Running release-it via pnpm breaks publishing! Use npx or a Volta global installation.\""
+    "test": "pnpm --filter '*' run test",
+    "test:typecheck": "pnpm --filter '*' run test:typecheck"
   },
+  "devDependencies": {
+    "@glimmer/component": "^2.0.0",
+    "@glint/tsserver-plugin": "workspace:*",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
+    "eslint": "^8.27.0",
+    "glint-monorepo-test-utils": "workspace:*",
+    "prettier": "^3.3.2",
+    "release-plan": "^0.16.0",
+    "typescript": ">=5.6.0"
+  },
+  "packageManager": "pnpm@10.6.2",
   "volta": {
     "node": "18.20.3",
     "pnpm": "10.6.2"
-  },
-  "packageManager": "pnpm@10.6.2",
-  "devDependencies:notes": {
-    "typescript": "bumped version because volar caused error TS2694, TS1383"
   },
   "pnpm": {
     "peerDependencyRules": {
@@ -45,23 +53,12 @@
       ]
     }
   },
-  "devDependencies": {
-    "@release-it-plugins/lerna-changelog": "^5.0.0",
-    "@release-it-plugins/workspaces": "^3.2.0",
-    "@glimmer/component": "^2.0.0",
-    "@glint/tsserver-plugin": "workspace:*",
-    "glint-monorepo-test-utils": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "^5.42.1",
-    "@typescript-eslint/parser": "^5.42.1",
-    "eslint": "^8.27.0",
-    "prettier": "^3.3.2",
-    "release-it": "^15.5.0",
-    "typescript": ">=5.6.0"
+  "devDependencies:notes": {
+    "typescript": "bumped version because volar caused error TS2694, TS1383"
   },
   "resolutions:notes": {
     "@glimmer/validator": "Newer versions of @glimmer/* are ESM-only, and Glint is compiled to CJS, so newer versions of @glimmer/* are not compatible",
     "@types/yargs": "Locking temporarily to avoid an issue with the ESM types in 17.0.14; see DT#63373",
     "@types/node": "Locking to avoid conflicts between the declared version in packages/core and floating '*' versions when we run in CI without the lockfile"
-  },
-  "version": "1.4.0"
+  }
 }
