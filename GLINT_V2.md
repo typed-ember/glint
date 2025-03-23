@@ -10,22 +10,29 @@ We are working hard to get Glint V2 running on a wide variety of modern IDEs, wi
 
 ### VSCode
 
-As of March 21 2025:
+There are a few ways to try out Glint V2 in modern TS Plugin mode:
 
-- Downloading the Glint extension from VSCode marketplace (whether stable or pre-release) does NOT work!
-  - We are very close, stay tuned for announcements!
-- The only option to try out edge Glint in VSCode (with TS-Plugin-driven tooling):
-  - Clone the glint repo
-  - `yarn`
-  - `yarn run build`
-  - `cd packages/vscode`
-  - `yarn run build`
-  - Then within VSCode:
-    - Uninstall the Glint extension if it is installed
-    - Run the command `Developer: Install Extension from Location`
-      - Choose the `packages/vscode` folder in your cloned Glint repo
-    - With this configuration, edge Glint will be running in TS Plugin mode
-      - VERY SOON this will be fixed so that pre-release Marketplace extension can be used instead!
+#### Download pre-release Glint from VSCode Marketplace
+
+Glint 1.4.3+ on the VSCode Marketplace is running in modern TS Plugin mode. It can be downloaded if you opt into pre-release versions.
+
+_Cursor users: unfortunately pre-release extensions cannot be installed into Cursor. Installing locally (described below) should work though_
+
+#### Build Glint extension locally, install locally
+
+- Clone the glint repo
+- `pnpm`
+- `pnpm build`
+- `cd packages/vscode`
+- `pnpm build`
+- Then within VSCode:
+  - Uninstall the Glint extension if it is installed
+  - Run the command `Developer: Install Extension from Location`
+    - Choose the `packages/vscode` folder in your cloned Glint repo
+  - With this configuration, edge Glint will be running in TS Plugin mode
+    - VERY SOON this will be fixed so that pre-release Marketplace extension can be used instead!
+
+You can also experiment with `vsce package` to build a local .vsix file, unzip it to a local folder of your choice (you can just `unzip` the .vsix as it is just a .zip file in disguise), and then `Install Extension from Location` and choose the `extension/` folder within the unzipped archive.
 
 ### Neovim
 
