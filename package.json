@@ -14,7 +14,7 @@
     ]
   },
   "scripts": {
-    "reset": " git clean -Xfd; git clean -fd; pnpm i && pnpm build",
+    "reset": "git clean -Xfd; git clean -fd; pnpm i && pnpm build > /dev/null 2>&1; pnpm i -f; pnpm build; pnpm sync",
     "lint": "pnpm lint:scripts && pnpm lint:formatting",
     "lint:fix": "pnpm lint:scripts --fix && pnpm format",
     "format": "prettier --write .",
