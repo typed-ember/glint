@@ -554,15 +554,6 @@ importers:
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
-      '@glint/core':
-        specifier: workspace:*
-        version: file:packages/core(typescript@5.8.2)
-      '@glint/environment-ember-loose':
-        specifier: workspace:*
-        version: file:packages/environment-ember-loose(d850b9d65dbf92ebe0c10a78947844d9)
-      '@glint/environment-ember-template-imports':
-        specifier: workspace:*
-        version: file:packages/environment-ember-template-imports(3e112887cc67e37e687e0dfd55f9f52e)
       '@glint/template':
         specifier: workspace:*
         version: file:packages/template
