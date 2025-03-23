@@ -12,8 +12,11 @@
     "@tsconfig/ember": "^3.0.9",
     "@glimmer/component": "^2.0.0",
     "typescript": "*",
+    "@glint/core": "workspace:*",
     "@glint/template": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@glint/environment-ember-template-imports": "workspace:*",
     "ember-source": "^6.2.0"
   },
   "dependenciesMeta": {
