@@ -16,10 +16,10 @@ As of March 21 2025:
   - We are very close, stay tuned for announcements!
 - The only option to try out edge Glint in VSCode (with TS-Plugin-driven tooling):
   - Clone the glint repo
-  - `yarn`
-  - `yarn run build`
+  - `pnpm`
+  - `pnpm build`
   - `cd packages/vscode`
-  - `yarn run build`
+  - `pnpm build`
   - Then within VSCode:
     - Uninstall the Glint extension if it is installed
     - Run the command `Developer: Install Extension from Location`
