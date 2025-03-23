@@ -11,7 +11,7 @@ import type TS from 'typescript';
  *
  * Only exported for testing purposes. Do not import.
  */
-export const require = createRequire(__filename);
+export const require = createRequire(import.meta.url);
 
 type TypeScript = typeof TS;
 

@@ -6,7 +6,7 @@ import { context } from 'esbuild';
 
 const require = createRequire(import.meta.url);
 
-const debug = process.argv.includes('--debug');
+const debug = process.argv.includes('--pre-release');
 const watch = process.argv.includes('--watch');
 
 // Create build context
@@ -19,43 +19,20 @@ const ctx = await context({
   },
   external: ['vscode'],
   logLevel: 'info',
-  minify: false,
-  // minify: !debug,
+  minify: !debug,
   outdir: fileURLToPath(new URL('../', import.meta.url)),
   platform: 'node',
   sourcemap: debug,
   target: 'node16',
 
+  // Since we're generating CJS, we need to replace any ESM import.meta.url with `__filename`
+  // https://github.com/evanw/esbuild/issues/1492#issuecomment-893144483
+  inject: [require.resolve('./import-meta-url.js')],
+  define: {
+    'import.meta.url': 'import_meta_url',
+  },
+
   plugins: [
-    // {
-    //   // Copied from:
-    //   // https://github.com/vuejs/language-tools/blob/81a5b6107af83a5e6aa481b18c3ffd717af6bd5d/extensions/vscode/scripts/build.js#L22-L54
-    //   name: 'umd2esm',
-    //   setup(build) {
-    //     build.onResolve(
-    //       { filter: /^(vscode-.*-languageservice|vscode-languageserver-types|jsonc-parser)$/ },
-    //       (args) => {
-    //         const pathUmdMay = require.resolve(args.path, { paths: [args.resolveDir] });
-    //         // Call twice the replace is to solve the problem of the path in Windows
-    //         const pathEsm = pathUmdMay.replace('/umd/', '/esm/').replace('\\umd\\', '\\esm\\');
-    //         return { path: pathEsm };
-    //       },
-    //     );
-    //     build.onResolve({ filter: /^vscode-uri$/ }, (args) => {
-    //       const pathUmdMay = require.resolve(args.path, { paths: [args.resolveDir] });
-    //       // v3
-    //       let pathEsm = pathUmdMay
-    //         .replace('/umd/index.js', '/esm/index.mjs')
-    //         .replace('\\umd\\index.js', '\\esm\\index.mjs');
-    //       if (pathEsm !== pathUmdMay && fs.existsSync(pathEsm)) {
-    //         return { path: pathEsm };
-    //       }
-    //       // v2
-    //       pathEsm = pathUmdMay.replace('/umd/', '/esm/').replace('\\umd\\', '\\esm\\');
-    //       return { path: pathEsm };
-    //     });
-    //   },
-    // },
     {
       name: 'resolve-share-module',
       setup(build) {

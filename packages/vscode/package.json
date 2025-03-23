@@ -30,11 +30,13 @@
     "test:typecheck": "echo 'no standalone typecheck within this project'",
     "test:tsc": "echo 'no standalone tsc within this project'",
     "build": "pnpm ext:gen && pnpm compile && pnpm bundle",
+    "build:prerelease": "pnpm ext:gen && pnpm compile && pnpm bundle --pre-release",
     "compile": "tsc --build",
     "bundle": "node ./scripts/build.mjs",
+    "bundle:prerelease": "node ./scripts/build.mjs --pre-release",
     "bundle:watch": "node ./scripts/build.mjs -- --watch",
-    "extension:package": "vsce package --pre-release",
-    "extension:publish": "vsce publish --pre-release",
+    "pack": "vsce package",
+    "pack:prerelease": "vsce package --pre-release",
     "ext:gen": "vscode-ext-gen --scope glint"
   },
   "engines": {

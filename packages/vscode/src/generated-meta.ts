@@ -4,7 +4,7 @@
 // Meta info
 export const publisher = "typed-ember"
 export const name = "glint-vscode"
-export const version = "1.4.0"
+export const version = "1.4.2"
 export const displayName = "Glint"
 export const description = "Glint language server integration for VS Code"
 export const extensionId = `${publisher}.${name}`

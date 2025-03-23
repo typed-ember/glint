@@ -13,7 +13,7 @@ import {
   SourceKind,
 } from '@glint/core/config-types';
 
-const require = createRequire(__filename);
+const require = createRequire(import.meta.url);
 
 export const DEFAULT_EXTENSIONS: GlintExtensionsConfig = {
   '.hbs': { kind: 'template' },
