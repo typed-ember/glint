@@ -164,7 +164,8 @@
         "enableForWorkspaceTypeScriptVersions": true,
         "languages": [
           "glimmer-ts",
-          "glimmer-js"
+          "glimmer-js",
+          "handlebars"
         ]
       }
     ],

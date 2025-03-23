@@ -232,6 +232,10 @@ try {
 
   const languageIdsQuoted = config.server.includeLanguages.map((lang) => `'${lang}'`).join(',');
 
+  // TODO: as of March 23 2025 and perhaps a few days before, this fs.readFileSync hacky
+  // is failing with "Cannot set property readFileSync of #<Object> which has only a getter".
+  // Stay tuned for another hack from Volar... or hopefully an upstream fix from VSCode.
+
   // @ts-expect-error – not easy to type
   fs.readFileSync = (...args) => {
     if (args[0] === extensionJsPath) {
