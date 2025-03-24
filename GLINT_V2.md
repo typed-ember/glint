@@ -16,7 +16,7 @@ As of March 21 2025:
   - We are very close, stay tuned for announcements!
 - The only option to try out edge Glint in VSCode (with TS-Plugin-driven tooling):
   - Clone the glint repo
-  - `pnpm`
+  - `pnpm install`
   - `pnpm build`
   - `cd packages/vscode`
   - `pnpm build`
