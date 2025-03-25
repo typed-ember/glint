@@ -43,36 +43,6 @@ describe('Environment: ETI', () => {
         const c = "‘foo’";
         const d = [___T\`four\`];"
       `);
-      expect(result.data).toMatchInlineSnapshot(`
-        {
-          "templateLocations": [
-            {
-              "endTagLength": 11,
-              "endTagOffset": 26,
-              "startTagLength": 10,
-              "startTagOffset": 10,
-              "transformedEnd": 25,
-              "transformedStart": 10,
-            },
-            {
-              "endTagLength": 11,
-              "endTagOffset": 62,
-              "startTagLength": 10,
-              "startTagOffset": 49,
-              "transformedEnd": 47,
-              "transformedStart": 36,
-            },
-            {
-              "endTagLength": 11,
-              "endTagOffset": 118,
-              "startTagLength": 10,
-              "startTagOffset": 104,
-              "transformedEnd": 91,
-              "transformedStart": 82,
-            },
-          ],
-        }
-      `);
     });
 
     test('multiple templates', () => {
@@ -172,6 +142,20 @@ describe('Environment: ETI', () => {
           ],
         ]),
       );
+    });
+
+    test('handles multi-byte characters', () => {
+      let source = [
+        `const a = <template>one 💩</template>;`,
+        `const b = <template>two</template>;`,
+        `const c = "‘foo’";`,
+        `const d = <template>four</template>;`,
+      ].join('\n');
+
+      let { meta, sourceFile } = applyTransform(source);
+
+      expect(sourceFile).toMatchInlineSnapshot();
+      expect(meta).toMatchInlineSnapshot();
     });
 
     test('single template with satisfies', () => {
