@@ -32,6 +32,18 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
+    test('handles the $ character', () => {
+      let script = {
+        filename: 'test.gts',
+        contents: '<template>${{dollarAmount}}</template>;',
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot();
+    });
+
     test('with a class with type parameters', () => {
       let script = {
         filename: 'test.gts',

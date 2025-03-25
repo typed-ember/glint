@@ -45,6 +45,14 @@ describe('Environment: ETI', () => {
       `);
     });
 
+    test('handles the $ character', () => {
+      let source = '<template>${{dollarAmount}}</template>;';
+
+      let result = preprocess(source, 'index.gts');
+
+      expect(result.contents).toMatchInlineSnapshot(`"[___T\`\${{dollarAmount}}\`];"`);
+    });
+
     test('multiple templates', () => {
       let source = stripIndent`
         <template>
@@ -156,6 +164,14 @@ describe('Environment: ETI', () => {
 
       expect(sourceFile).toMatchInlineSnapshot();
       expect(meta).toMatchInlineSnapshot();
+    });
+
+    test('handles the $ character', () => {
+      let source = '<template>${{dollarAmount}}</template>;';
+
+      let { meta, sourceFile } = applyTransform(source);
+
+      expect(meta).toMatchInlineSnapshot(`Map {}`);
     });
 
     test('single template with satisfies', () => {
