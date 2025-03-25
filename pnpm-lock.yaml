@@ -340,6 +340,9 @@ importers:
       '@vitest/ui':
         specifier: ~1.0.0
         version: 1.0.4(vitest@3.0.9)
+      '@volar/language-server':
+        specifier: 2.4.12
+        version: 2.4.12
       common-tags:
         specifier: ^1.8.0
         version: 1.8.2
