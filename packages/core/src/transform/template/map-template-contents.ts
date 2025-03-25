@@ -27,7 +27,7 @@ export type Mapper = {
    * Given a @glimmer/syntax AST node, returns the corresponding start
    * and end offsets of that node in the original source.
    */
-  rangeForNode: (node: AST.Node) => Range;
+  rangeForNode: (node: AST.Node, span?: AST.Node['loc']) => Range;
 
   /**
    * Captures the existence of a directive specified by the given source
@@ -81,6 +81,7 @@ export type Mapper = {
    * corresponding to the given AST node in the original source.
    */
   forNode(node: AST.Node, callback: () => void, codeFeaturesForNode?: CodeInformation): void;
+  forNodeWithSpan(node: AST.Node, span: AST.Node['loc'], callback: () => void, codeFeaturesForNode?: CodeInformation): void;
 
   /**
    * This needs to be called after any node that "consumes" a `glint-expect-error` directive.
@@ -311,6 +312,10 @@ export function mapTemplateContents(
       captureMapping(mapper.rangeForNode(node), node, false, callback, codeFeaturesForNode);
     },
 
+    forNodeWithSpan(node: AST.Node, span: AST.Node['loc'], callback: () => void, codeFeaturesForNode?: CodeInformation) {
+      captureMapping(mapper.rangeForNode(node, span), node, false, callback, codeFeaturesForNode);
+    },
+
     error(message: string, location: Range) {
       errors.push({ message, location });
     },
@@ -460,9 +465,12 @@ function calculateLineOffsets(template: string, contentOffset: number): Array<nu
   return offsets;
 }
 
-function buildRangeForNode(offsets: Array<number>): (node: AST.Node) => Range {
-  return (node) => {
+function buildRangeForNode(offsets: Array<number>): (node: AST.Node, span?: AST.Node['loc']) => Range {
+  return (node, span) => {
     let { loc } = node;
+    if (span) {
+      loc = span;
+    }
     let start = offsets[loc.start.line] + loc.start.column;
     let end = offsets[loc.end.line] + loc.end.column;
 
