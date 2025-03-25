@@ -9,5 +9,3 @@ let b = <template>
 
 let c: string = 123
 
-
-
