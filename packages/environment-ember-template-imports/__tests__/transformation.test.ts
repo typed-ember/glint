@@ -75,6 +75,45 @@ describe('Environment: ETI', () => {
         ],
       });
     });
+
+    test('handles multi-byte characters', () => {
+      let source = stripIndent`
+        let a = <template></template>;
+        // ‘
+        let b = <template></template>;
+      `;
+
+      let transformed = stripIndent`
+        let a = [___T\`\`];
+        // ‘
+        let b = [___T\`\`];
+      `;
+
+      let result = preprocess(source, 'index.gts');
+
+      expect(result.contents).toEqual(transformed);
+
+      expect(result.data).toEqual({
+        templateLocations: [
+          {
+            startTagOffset: source.indexOf('<template>'),
+            startTagLength: '<template>'.length,
+            endTagOffset: source.indexOf('</template>'),
+            endTagLength: '</template>'.length,
+            transformedStart: transformed.indexOf('[___T'),
+            transformedEnd: transformed.indexOf(']') + 1,
+          },
+          {
+            startTagOffset: source.lastIndexOf('<template>'),
+            startTagLength: '<template>'.length,
+            endTagOffset: source.lastIndexOf('</template>'),
+            endTagLength: '</template>'.length,
+            transformedStart: transformed.lastIndexOf('[___T'),
+            transformedEnd: transformed.lastIndexOf(']') + 1,
+          },
+        ],
+      });
+    });
   });
 
   describe('transform', () => {
