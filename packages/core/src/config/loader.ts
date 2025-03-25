@@ -67,36 +67,43 @@ function tryResolve<T>(load: () => T): T | null {
   }
 }
 
-function loadConfigInput(ts: TypeScript, entryPath: string): GlintConfigInput | null {
-  let fullGlintConfig: Record<string, unknown> = {};
-  let currentPath: string | undefined = entryPath;
+function parseConfigInput(
+  ts: TypeScript,
+  entryPath: string,
+  currentPath: string,
+  fullGlintConfig: Record<string, unknown>,
+): Record<string, unknown> {
+  let currentContents: any = ts.readConfigFile(currentPath, ts.sys.readFile).config;
+  let currentGlintConfig = currentContents.glint ?? {};
 
-  while (currentPath) {
-    let currentContents: any = ts.readConfigFile(currentPath, ts.sys.readFile).config;
-    let currentGlintConfig = currentContents.glint ?? {};
+  assert(
+    currentPath === entryPath || !currentGlintConfig.transform,
+    'Glint `transform` options may not be specified in extended config.',
+  );
 
-    assert(
-      currentPath === entryPath || !currentGlintConfig.transform,
-      'Glint `transform` options may not be specified in extended config.',
-    );
-
-    fullGlintConfig = { ...currentGlintConfig, ...fullGlintConfig };
-
-    if (currentContents.extends) {
-      currentPath = path.resolve(path.dirname(currentPath), currentContents.extends);
-      if (!fs.existsSync(currentPath)) {
+  if (currentContents.extends) {
+    let paths: string[] = Array.isArray(currentContents.extends)
+      ? currentContents.extends
+      : [currentContents.extends];
+    for (let extendPath of paths) {
+      let currentExtendPath = path.resolve(path.dirname(currentPath), extendPath);
+      if (!fs.existsSync(currentExtendPath)) {
         try {
-          currentPath = require.resolve(currentContents.extends);
+          currentExtendPath = require.resolve(currentContents.extends);
         } catch {
           // suppress the exception thrown by require.resolve for those scenarios where the file does not exist
         }
       }
-    } else {
-      currentPath = undefined;
+
+      fullGlintConfig = parseConfigInput(ts, entryPath, currentExtendPath, fullGlintConfig);
     }
   }
 
-  return validateConfigInput(fullGlintConfig);
+  return { ...fullGlintConfig, ...currentGlintConfig };
+}
+
+export function loadConfigInput(ts: TypeScript, entryPath: string): GlintConfigInput | null {
+  return validateConfigInput(parseConfigInput(ts, entryPath, entryPath, {}));
 }
 
 function findNearestConfigFile(ts: TypeScript, searchFrom: string): string {
