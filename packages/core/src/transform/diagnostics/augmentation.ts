@@ -235,7 +235,7 @@ function checkImplicitAnyError(
     // This error may appear either on `<Foo />` or `{{foo}}`/`(foo)`
     let globalName =
       sourceNode.type === 'ElementNode'
-        ? sourceNode.tag.split('.')[0]
+        ? sourceNode.path.head.original
         : sourceNode.type === 'PathExpression' && sourceNode.head.type === 'VarHead'
           ? sourceNode.head.name
           : null;

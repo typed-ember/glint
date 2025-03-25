@@ -384,7 +384,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
           "code": 2554,
           "end": {
             "line": 15,
-            "offset": 17,
+            "offset": 14,
           },
           "relatedInformation": [
             {
@@ -406,7 +406,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
           ],
           "start": {
             "line": 15,
-            "offset": 5,
+            "offset": 6,
           },
           "text": "Expected 1 arguments, but got 0.",
         },

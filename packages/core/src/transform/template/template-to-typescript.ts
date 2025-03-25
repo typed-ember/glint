@@ -695,7 +695,7 @@ export function templateToTypescript(
         mapper.text('const __glintY__ = __glintDSL__.emitComponent(');
 
         // Error boundary: "Expected 1 arguments, but got 0." e.g. when invoking `<ComponentThatHasArgs />`
-        mapper.forNode(node, () => {
+        mapper.forNode(node.path, () => {
           mapper.text('__glintDSL__.resolve(');
           emitPathContents(path, start, kind);
           mapper.text(')');
@@ -707,7 +707,7 @@ export function templateToTypescript(
         let dataAttrs = node.attributes.filter(({ name }) => name.startsWith('@'));
         if (dataAttrs.length) {
           // Error boundary: "Expected 0 arguments, but got 1." e.g. when invoking `<ComponentThatHasNoArgs @foo={{bar}} />`
-          mapper.forNode(node, () => {
+          mapper.forNodeWithSpan(node, node.openTag, () => {
             mapper.text('{ ');
 
             for (let attr of dataAttrs) {
@@ -883,7 +883,9 @@ export function templateToTypescript(
         mapper.indent();
 
         mapper.text('const __glintY__ = __glintDSL__.emitElement(');
-        mapper.text(JSON.stringify(node.tag));
+        mapper.forNode(node.path, () => {
+          mapper.text(JSON.stringify(node.tag));
+        });
         mapper.text(');');
         mapper.newline();
 
@@ -930,39 +932,46 @@ export function templateToTypescript(
         (attr) => !attr.name.startsWith('@') && attr.name !== SPLATTRIBUTES,
       );
 
-      if (!attributes.length) return;
-
       mapper.text('__glintDSL__.applyAttributes(__glintY__.element, {');
-      mapper.newline();
-      mapper.indent();
 
-      let start = template.indexOf(node.tag, rangeForNode(node).start) + node.tag.length;
+      mapper.forNodeWithSpan(node, node.openTag, () => {
+        mapper.newline();
+        mapper.indent();
 
-      for (let attr of attributes) {
-        mapper.forNode(attr, () => {
-          start = template.indexOf(attr.name, start + 1);
+        let start = template.indexOf(node.tag, rangeForNode(node).start) + node.tag.length;
 
-          emitHashKey(attr.name, start);
-          mapper.text(': ');
+        for (let attr of attributes) {
+          mapper.forNode(attr, () => {
+            start = template.indexOf(attr.name, start + 1);
 
-          if (attr.value.type === 'MustacheStatement') {
-            emitMustacheStatement(attr.value, 'attr');
-          } else if (attr.value.type === 'ConcatStatement') {
-            emitConcatStatement(attr.value);
-          } else {
-            mapper.text(JSON.stringify(attr.value.chars));
-          }
+            emitHashKey(attr.name, start);
+            mapper.text(': ');
 
-          mapper.text(',');
+            if (attr.value.type === 'MustacheStatement') {
+              emitMustacheStatement(attr.value, 'attr');
+            } else if (attr.value.type === 'ConcatStatement') {
+              emitConcatStatement(attr.value);
+            } else {
+              mapper.text(JSON.stringify(attr.value.chars));
+            }
+
+            mapper.text(',');
+            mapper.newline();
+          });
+
+          mapper.terminateDirectiveAreaOfEffect('emitPlainAttributes');
+        }
+
+        // in case there are no attributes, this would allow completions to trigger
+        if (attributes.length === 0) {
+          mapper.text(' ');
           mapper.newline();
-        });
+        }
 
-        mapper.terminateDirectiveAreaOfEffect('emitPlainAttributes');
-      }
-
-      mapper.dedent();
-      mapper.text('});');
-      mapper.newline();
+        mapper.dedent();
+        mapper.text('});');
+        mapper.newline();
+      });
     }
 
     function emitSplattributes(node: AST.ElementNode): void {
