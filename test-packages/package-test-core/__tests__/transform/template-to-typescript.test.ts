@@ -3,7 +3,7 @@ import { describe, test, expect } from 'vitest';
 import {
   templateToTypescript,
   TemplateToTypescriptOptions,
-} from '../../src/transform/template/template-to-typescript.js';
+} from '@glint/core/transform/template/template-to-typescript';
 
 describe('Transform: rewriteTemplate', () => {
   // Slices out the template boilerplate to return only the code representing

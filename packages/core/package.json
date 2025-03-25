@@ -6,7 +6,6 @@
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "type": "module",
-  "main": "lib/index.js",
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
@@ -16,7 +15,11 @@
       "types": "./lib/config/types.d.cts",
       "default": "./lib/config/types.cjs"
     },
-    "./bin/*": "./bin/*.js"
+    "./bin/*": "./bin/*.js",
+    "./*": {
+      "types": "./lib/*.d.ts",
+      "default": "./lib/*.js"
+    }
   },
   "files": [
     "README.md",
