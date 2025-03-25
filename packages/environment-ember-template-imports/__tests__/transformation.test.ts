@@ -27,6 +27,54 @@ describe('Environment: ETI', () => {
       });
     });
 
+    test('handles multi-byte characters', () => {
+      let source = [
+        `const a = <template>one 💩</template>;`,
+        `const b = <template>two</template>;`,
+        `const c = "‘foo’";`,
+        `const d = <template>four</template>;`,
+      ].join('\n');
+
+      let result = preprocess(source, 'index.gts');
+
+      expect(result.contents).toMatchInlineSnapshot(`
+        "const a = [___T\`one 💩\`];
+        const b = [___T\`two\`];
+        const c = "‘foo’";
+        const d = [___T\`four\`];"
+      `);
+      expect(result.data).toMatchInlineSnapshot(`
+        {
+          "templateLocations": [
+            {
+              "endTagLength": 11,
+              "endTagOffset": 26,
+              "startTagLength": 10,
+              "startTagOffset": 10,
+              "transformedEnd": 25,
+              "transformedStart": 10,
+            },
+            {
+              "endTagLength": 11,
+              "endTagOffset": 62,
+              "startTagLength": 10,
+              "startTagOffset": 49,
+              "transformedEnd": 47,
+              "transformedStart": 36,
+            },
+            {
+              "endTagLength": 11,
+              "endTagOffset": 118,
+              "startTagLength": 10,
+              "startTagOffset": 104,
+              "transformedEnd": 91,
+              "transformedStart": 82,
+            },
+          ],
+        }
+      `);
+    });
+
     test('multiple templates', () => {
       let source = stripIndent`
         <template>
