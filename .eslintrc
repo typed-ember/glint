@@ -9,6 +9,9 @@
     "prefer-const": "off",
     "require-yield": "off"
   },
+  "env": {
+    "es6": true
+  },
   "overrides": [
     {
       "files": ["*.js", "*.cjs", "*.mjs"],

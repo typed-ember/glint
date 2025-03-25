@@ -60,6 +60,7 @@ export function templateToTypescript(
   return mapTemplateContents(originalTemplate, { embeddingSyntax }, (ast, mapper) => {
     let { rangeForNode } = mapper;
     let scope = new ScopeStack([]);
+    let inSVG = false;
 
     emitTemplateBoilerplate(() => {
       for (let statement of ast?.body ?? []) {
@@ -184,6 +185,10 @@ export function templateToTypescript(
       } else if (kind === 'nocheck') {
         // Push to the directives array on the record
         mapper.directive(node, 'nocheck');
+      } else if (kind === 'in-svg') {
+        inSVG = true;
+      } else if (kind === 'out-svg') {
+        inSVG = false;
       } else {
         // Push an error on the record
         mapper.error(`Unknown directive @glint-${kind}`, location);
@@ -878,11 +883,19 @@ export function templateToTypescript(
       mapper.forNode(node, () => {
         const directivesWeakMap = assignDirectivesToElementOpenTagPieces(node);
 
+        if (node.tag === 'svg') {
+          inSVG = true;
+        }
+
         mapper.text('{');
         mapper.newline();
         mapper.indent();
 
-        mapper.text('const __glintY__ = __glintDSL__.emitElement(');
+        if (!inSVG) {
+          mapper.text('const __glintY__ = __glintDSL__.emitElement(');
+        } else {
+          mapper.text('const __glintY__ = __glintDSL__.emitSVGElement(');
+        }
         mapper.forNode(node.path, () => {
           mapper.text(JSON.stringify(node.tag));
         });
@@ -897,6 +910,10 @@ export function templateToTypescript(
 
         for (let child of node.children) {
           emitTopLevelStatement(child);
+        }
+
+        if (node.tag === 'svg') {
+          inSVG = false;
         }
 
         mapper.dedent();

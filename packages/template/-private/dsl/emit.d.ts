@@ -9,7 +9,7 @@ import {
   TemplateContext,
   NamedArgs,
 } from '../integration';
-import { ElementForTagName } from './types';
+import { AttributesForElement, ElementForTagName, ObjectKey, SVGElementForTagName } from './types';
 
 /**
  * Used during emit to denote an object literal that corresponds
@@ -44,9 +44,13 @@ export declare function emitContent(value: ContentValue): void;
  *       applyModifier(__glintY__.element, resolve(on)({}, 'click', this.clicked));
  *     });
  */
-export declare function emitElement<Name extends string>(
+export declare function emitElement<Name extends string | keyof HTMLElementTagNameMap>(
   name: Name,
 ): { element: ElementForTagName<Name> };
+
+export declare function emitSVGElement<Name extends string | keyof SVGElementTagNameMap>(
+  name: Name,
+): { element: SVGElementForTagName<Name> };
 
 /*
  * Emits the given value as an entity that expects to receive blocks
@@ -135,7 +139,10 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
-export declare function applyAttributes(element: Element, attrs: Record<string, AttrValue>): void;
+export declare function applyAttributes<T extends Element>(
+  element: T,
+  attrs: Partial<AttributesForElement<T>>,
+): void;
 
 /*
  * Applies a modifier to an element or component.
