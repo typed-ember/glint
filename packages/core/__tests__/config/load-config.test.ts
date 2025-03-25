@@ -174,4 +174,39 @@ describe('Config: loadConfig', () => {
     expect(config.rootDir).toBe(normalizePath(`${directory}`));
     expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: {} });
   });
+
+  test('loads config with extends array', () => {
+    fs.writeFileSync(
+      `${testDir}/tsconfig-first.json`,
+      JSON.stringify({
+        glint: {
+          environment: 'first',
+          checkStandaloneTemplates: false,
+        },
+      })
+    );
+
+    fs.writeFileSync(
+      `${testDir}/tsconfig-second.json`,
+      JSON.stringify({
+        glint: {
+          environment: 'second',
+          checkStandaloneTemplates: false,
+        },
+      })
+    );
+
+    fs.writeFileSync(
+      `${testDir}/tsconfig.json`,
+      JSON.stringify({
+        extends: ['./tsconfig-first.json', './tsconfig-second.json'],
+      })
+    );
+
+    let config = loadConfig(testDir);
+
+    expect(config.rootDir).toBe(normalizePath(`${testDir}/deeply`));
+    expect(config.environment.getConfiguredTemplateTags()).toEqual({ test: {} });
+    expect(config.checkStandaloneTemplates).toBe(false);
+  });
 });
