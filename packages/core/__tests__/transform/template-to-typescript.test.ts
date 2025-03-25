@@ -821,6 +821,9 @@ describe('Transform: rewriteTemplate', () => {
       expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
         const __glintY__ = __glintDSL__.emitElement("div");
+        __glintDSL__.applyAttributes(__glintY__.element, {
+         
+        });
         __glintDSL__.applyModifier(__glintDSL__.resolve(modifier)(__glintY__.element, { foo: "bar" , ...__glintDSL__.NamedArgsMarker }));
         }"
       `);
@@ -832,6 +835,9 @@ describe('Transform: rewriteTemplate', () => {
       expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
         const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(MyComponent)());
+        __glintDSL__.applyAttributes(__glintY__.element, {
+         
+        });
         __glintDSL__.applyModifier(__glintDSL__.resolve(modifier)(__glintY__.element, { foo: "bar" , ...__glintDSL__.NamedArgsMarker }));
         }"
       `);
@@ -973,6 +979,9 @@ describe('Transform: rewriteTemplate', () => {
         "{
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.applySplattributes(__glintRef__.element, __glintY__.element);
+        __glintDSL__.applyAttributes(__glintY__.element, {
+         
+        });
         }"
       `);
     });
@@ -1017,6 +1026,9 @@ describe('Transform: rewriteTemplate', () => {
         "{
         const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Foo)());
         __glintDSL__.applySplattributes(__glintRef__.element, __glintY__.element);
+        __glintDSL__.applyAttributes(__glintY__.element, {
+         
+        });
         }"
       `);
     });

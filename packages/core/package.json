@@ -34,6 +34,7 @@
     "test:tsc": "echo 'no standalone typecheck within this project'",
     "test:watch": "vitest watch",
     "build": "tsc --build",
+    "dev": "tsc --watch",
     "prepack": "pnpm build"
   },
   "peerDependencies": {
