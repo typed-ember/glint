@@ -55,6 +55,31 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
       ]);
     });
 
+    test.only('gives diagnostics for TypeScript file', async () => {
+      let scriptURI = Uri.file(`${rootDir}/src/file.ts`);
+      let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
+
+      await hackishlyWaitForTypescriptPluginToActivate(scriptEditor, scriptURI);
+
+      // Comment out a property in the script that's referenced in the template
+      await scriptEditor.edit((edit) => {
+        edit.delete(new Range(0, 0, 0, 7));
+      });
+
+      // Wait for the diagnostic to show up
+      await waitUntil(() => languages.getDiagnostics(scriptURI).length);
+
+      // Verify it's what we expect
+      expect(languages.getDiagnostics(scriptURI)).toMatchObject([
+        {
+          message: "'greeting' is declared but its value is never read.",
+          source: 'ts',
+          code: 6133,
+          range: new Range(new Position(0, 4), new Position(0, 12)),
+        },
+      ]);
+    });
+
     describe('codeactions args', () => {
       test('adds missing args from template into Args type', async () => {
         let scriptURI = Uri.file(`${rootDir}/src/Greeting.gts`);
