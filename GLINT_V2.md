@@ -8,13 +8,12 @@ _Warning: this process is very alpha and subject to change!_
 
 We are working hard to get Glint V2 running on a wide variety of modern IDEs, with the current/initial focus to get VSCode + Neovim working before addressing others.
 
-### VSCode
+### VSCode prerelease Marketplace extension
+Install the pre-release [Marketplace Glint extension](https://marketplace.visualstudio.com/items?itemName=typed-ember.glint-vscode) v1.4.3 (as of March 23 2025).
+Note that if you have used previous versions of Glint and have disabled the `@builtin typescript` extension, you can now enable it again.
 
-As of March 21 2025:
-
-- Downloading the Glint extension from VSCode marketplace (whether stable or pre-release) does NOT work!
-  - We are very close, stay tuned for announcements!
-- The only option to try out edge Glint in VSCode (with TS-Plugin-driven tooling):
+### Building the VSCode extension from source
+If you want to try out edge Glint in VSCode (with TS-Plugin-driven tooling) with your own built version of the extension:
   - Clone the glint repo
   - `pnpm install`
   - `pnpm build`
@@ -25,7 +24,6 @@ As of March 21 2025:
     - Run the command `Developer: Install Extension from Location`
       - Choose the `packages/vscode` folder in your cloned Glint repo
     - With this configuration, edge Glint will be running in TS Plugin mode
-      - VERY SOON this will be fixed so that pre-release Marketplace extension can be used instead!
 
 ### Neovim
 
