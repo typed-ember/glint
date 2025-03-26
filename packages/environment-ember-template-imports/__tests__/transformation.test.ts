@@ -27,6 +27,40 @@ describe('Environment: ETI', () => {
       });
     });
 
+    test('handles multi-byte characters', () => {
+      let source = [
+        `const a = <template>one 💩</template>;`,
+        `const b = <template>two</template>;`,
+        `const c = "‘foo’";`,
+        `const d = <template>four</template>;`,
+      ].join('\n');
+
+      let result = preprocess(source, 'index.gts');
+
+      expect(result.contents).toMatchInlineSnapshot(`
+        "const a = [___T\`one 💩\`];
+        const b = [___T\`two\`];
+        const c = "‘foo’";
+        const d = [___T\`four\`];"
+      `);
+    });
+
+    test('handles the $ character', () => {
+      let source = '<template>${{dollarAmount}}</template>;';
+
+      let result = preprocess(source, 'index.gts');
+
+      expect(result.contents).toMatchInlineSnapshot('"[___T`\\${{dollarAmount}}`];"');
+    });
+
+    test('handles the ` character', () => {
+      let source = '<template>`code`</template>;';
+
+      let result = preprocess(source, 'index.gts');
+
+      expect(result.contents).toMatchInlineSnapshot('"[___T`\\`code\\``];"');
+    });
+
     test('multiple templates', () => {
       let source = stripIndent`
         <template>
@@ -71,6 +105,45 @@ describe('Environment: ETI', () => {
             endTagLength: '</template>'.length,
             transformedStart: transformed.indexOf('[___T', transformedClassOffset),
             transformedEnd: transformed.indexOf(']', transformedClassOffset) + 1,
+          },
+        ],
+      });
+    });
+
+    test('handles multi-byte characters', () => {
+      let source = stripIndent`
+        let a = <template></template>;
+        // ‘
+        let b = <template></template>;
+      `;
+
+      let transformed = stripIndent`
+        let a = [___T\`\`];
+        // ‘
+        let b = [___T\`\`];
+      `;
+
+      let result = preprocess(source, 'index.gts');
+
+      expect(result.contents).toEqual(transformed);
+
+      expect(result.data).toEqual({
+        templateLocations: [
+          {
+            startTagOffset: source.indexOf('<template>'),
+            startTagLength: '<template>'.length,
+            endTagOffset: source.indexOf('</template>'),
+            endTagLength: '</template>'.length,
+            transformedStart: transformed.indexOf('[___T'),
+            transformedEnd: transformed.indexOf(']') + 1,
+          },
+          {
+            startTagOffset: source.lastIndexOf('<template>'),
+            startTagLength: '<template>'.length,
+            endTagOffset: source.lastIndexOf('</template>'),
+            endTagLength: '</template>'.length,
+            transformedStart: transformed.lastIndexOf('[___T'),
+            transformedEnd: transformed.lastIndexOf(']') + 1,
           },
         ],
       });
