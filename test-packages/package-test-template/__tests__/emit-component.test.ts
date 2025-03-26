@@ -9,7 +9,7 @@ import {
   templateForBackingValue,
   yieldToBlock,
   NamedArgsMarker,
-} from '../-private/dsl';
+} from '@glint/template/-private/dsl';
 import TestComponent, { globals } from './test-component';
 
 type MyComponentSignature<T> = {

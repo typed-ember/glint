@@ -3,7 +3,7 @@ import {
   ComponentSignatureArgs,
   ComponentSignatureBlocks,
   ComponentSignatureElement,
-} from '../-private/signature';
+} from '@glint/template/-private/signature';
 
 type LegacyArgs = {
   foo: number;

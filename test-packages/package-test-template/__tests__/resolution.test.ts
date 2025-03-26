@@ -4,14 +4,14 @@ import {
   DirectInvokable,
   NamedArgs,
   TemplateContext,
-} from '../-private/integration';
+} from '@glint/template/-private/integration';
 import {
   emitComponent,
   resolve,
   resolveOrReturn,
   templateForBackingValue,
   yieldToBlock,
-} from '../-private/dsl';
+} from '@glint/template/-private/dsl';
 import TestComponent, { globals } from './test-component';
 
 declare function value<T>(): T;

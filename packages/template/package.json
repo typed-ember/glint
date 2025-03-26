@@ -6,10 +6,16 @@
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "types": "-private/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./-private/index.d.ts"
+    },
+    "./*": {
+      "types": "./*.d.ts"
+    }
+  },
   "scripts": {
-    "test": "echo 'no standalone tests within this project'",
-    "test:typecheck": "tsc --project __tests__",
-    "test:tsc": "echo 'no standalone typecheck within this project'"
+    "test:typecheck": "tsc --project __tests__"
   },
   "files": [
     "README.md",
@@ -19,6 +25,7 @@
   "devDependencies": {
     "@glimmer/component": "^1.1.2",
     "expect-type": "^0.15.0",
+    "typescript": ">=5.6.0",
     "sums-up": "^2.1.0"
   },
   "publishConfig": {
