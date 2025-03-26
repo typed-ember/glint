@@ -55,7 +55,7 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
       ]);
     });
 
-    test.only('gives diagnostics for TypeScript file', async () => {
+    test('gives diagnostics for TypeScript file', async () => {
       let scriptURI = Uri.file(`${rootDir}/src/file.ts`);
       let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
 
