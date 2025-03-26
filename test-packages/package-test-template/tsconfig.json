@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.compileroptions.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "noEmit": true,
+    "lib": ["es2020", "dom"],
+    "types": ["ember-source/types"]
+  }
+}
