@@ -47,7 +47,6 @@ export function createEmberLanguagePlugin<T extends URI | string>(
         hasEmberLoose &&
         languageId === 'typescript' &&
         !scriptIdStr.endsWith('.d.ts') &&
-
         // only support component .ts files somewhere within in a `components/` folder.
         // This should cover 99% of cases while eliminating the pointless parsing of
         // a large number of non-component .ts files.
