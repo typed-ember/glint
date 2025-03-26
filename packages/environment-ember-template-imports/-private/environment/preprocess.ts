@@ -43,10 +43,14 @@ export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, pat
       startTagOffsetBytes + startTagLengthBytes,
       endTagOffsetBytes,
     );
+    let templateContentSegmentString = templateContentSegment.toString();
+    let escapedTemplateContentSegment = templateContentSegmentString
+      .replaceAll('$', '\\$')
+      .replaceAll('`', '\\`');
+    deltaBytes += templateContentSegmentString.length - escapedTemplateContentSegment.length;
 
-    contents = contents.concat(templateContentSegment.toString());
+    contents = contents.concat(escapedTemplateContentSegment);
     contents = contents.concat(TEMPLATE_END);
-
     deltaBytes += endTagLengthBytes - TEMPLATE_END.length;
 
     sourceOffsetBytes = endTagOffsetBytes + endTagLengthBytes;

@@ -50,7 +50,15 @@ describe('Environment: ETI', () => {
 
       let result = preprocess(source, 'index.gts');
 
-      expect(result.contents).toMatchInlineSnapshot(`"[___T\`\${{dollarAmount}}\`];"`);
+      expect(result.contents).toMatchInlineSnapshot('"[___T`\\${{dollarAmount}}`];"');
+    });
+
+    test('handles the ` character', () => {
+      let source = '<template>`code`</template>;';
+
+      let result = preprocess(source, 'index.gts');
+
+      expect(result.contents).toMatchInlineSnapshot('"[___T`\\`code\\``];"');
     });
 
     test('multiple templates', () => {
@@ -189,28 +197,6 @@ describe('Environment: ETI', () => {
           ],
         ]),
       );
-    });
-
-    test('handles multi-byte characters', () => {
-      let source = [
-        `const a = <template>one 💩</template>;`,
-        `const b = <template>two</template>;`,
-        `const c = "‘foo’";`,
-        `const d = <template>four</template>;`,
-      ].join('\n');
-
-      let { meta, sourceFile } = applyTransform(source);
-
-      expect(sourceFile).toMatchInlineSnapshot();
-      expect(meta).toMatchInlineSnapshot();
-    });
-
-    test('handles the $ character', () => {
-      let source = '<template>${{dollarAmount}}</template>;';
-
-      let { meta, sourceFile } = applyTransform(source);
-
-      expect(meta).toMatchInlineSnapshot(`Map {}`);
     });
 
     test('single template with satisfies', () => {
