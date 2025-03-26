@@ -6,6 +6,14 @@
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "types": "-private/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./-private/index.d.ts"
+    },
+    "./*": {
+      "types": "./*.d.ts"
+    }
+  },
   "scripts": {
     "test": "echo 'no standalone tests within this project'",
     "test:typecheck": "tsc --project __tests__",
