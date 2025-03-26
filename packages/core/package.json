@@ -6,7 +6,6 @@
   "license": "MIT",
   "author": "Dan Freeman (https://github.com/dfreeman)",
   "type": "module",
-  "main": "lib/index.js",
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
@@ -16,7 +15,11 @@
       "types": "./lib/config/types.d.cts",
       "default": "./lib/config/types.cjs"
     },
-    "./bin/*": "./bin/*.js"
+    "./bin/*": "./bin/*.js",
+    "./*": {
+      "types": "./lib/*.d.ts",
+      "default": "./lib/*.js"
+    }
   },
   "files": [
     "README.md",
@@ -29,10 +32,6 @@
     "glint-language-server": "bin/glint-language-server.js"
   },
   "scripts": {
-    "test": "vitest run",
-    "test:typecheck": "echo 'no standalone typecheck within this project'",
-    "test:tsc": "echo 'no standalone typecheck within this project'",
-    "test:watch": "vitest watch",
     "build": "tsc --build",
     "dev": "tsc --watch",
     "prepack": "pnpm build"
@@ -73,7 +72,6 @@
     "execa": "^4.0.1",
     "glint-monorepo-test-utils": "workspace:*",
     "strip-ansi": "^6.0.0",
-    "vitest": "~3.0.9",
     "typescript": ">=5.6.0"
   },
   "publishConfig": {

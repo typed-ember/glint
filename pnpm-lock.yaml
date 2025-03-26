@@ -117,7 +117,7 @@ importers:
         version: 0.3.5
       '@vitest/ui':
         specifier: ~1.0.0
-        version: 1.0.4(vitest@3.0.9)
+        version: 1.0.4
       common-tags:
         specifier: ^1.8.0
         version: 1.8.2
@@ -133,9 +133,6 @@ importers:
       typescript:
         specifier: '>=5.6.0'
         version: 5.8.2
-      vitest:
-        specifier: ~3.0.9
-        version: 3.0.9(@types/node@18.19.81)(@vitest/ui@1.0.4)
 
   packages/environment-ember-loose:
     devDependencies:
@@ -307,6 +304,66 @@ importers:
       vscode-ext-gen:
         specifier: ^0.5.0
         version: 0.5.5
+
+  test-packages/package-test-core:
+    devDependencies:
+      '@glimmer/component':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@glint/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@glint/environment-ember-loose':
+        specifier: workspace:*
+        version: link:../../packages/environment-ember-loose
+      '@glint/environment-ember-template-imports':
+        specifier: workspace:*
+        version: link:../../packages/environment-ember-template-imports
+      '@types/common-tags':
+        specifier: ^1.8.0
+        version: 1.8.4
+      '@types/node':
+        specifier: ^18.11.5
+        version: 18.19.81
+      '@types/semver':
+        specifier: ^7.3.13
+        version: 7.5.8
+      '@types/uuid':
+        specifier: ^8.3.4
+        version: 8.3.4
+      '@types/yargs':
+        specifier: ^17.0.10
+        version: 17.0.13
+      '@typescript/server-harness':
+        specifier: latest
+        version: 0.3.5
+      '@vitest/ui':
+        specifier: ~1.0.0
+        version: 1.0.4(vitest@3.0.9)
+      '@volar/language-server':
+        specifier: 2.4.12
+        version: 2.4.12
+      common-tags:
+        specifier: ^1.8.0
+        version: 1.8.2
+      execa:
+        specifier: ^4.0.1
+        version: 4.1.0
+      glint-monorepo-test-utils:
+        specifier: workspace:*
+        version: link:../test-utils
+      strip-ansi:
+        specifier: ^6.0.0
+        version: 6.0.1
+      typescript:
+        specifier: '>=5.6.0'
+        version: 5.8.2
+      vitest:
+        specifier: ~3.0.9
+        version: 3.0.9(@types/node@18.19.81)(@vitest/ui@1.0.4)
+      vscode-uri:
+        specifier: ^3.0.8
+        version: 3.1.0
 
   test-packages/test-utils:
     dependencies:
@@ -9633,7 +9690,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
       '@types/yargs': 17.0.13
       chalk: 4.1.2
 
@@ -9902,7 +9959,7 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
 
   '@types/chai-as-promised@7.1.8':
     dependencies:
@@ -9914,11 +9971,11 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
 
   '@types/cors@2.8.17':
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
 
   '@types/eslint-scope@3.7.7':
     dependencies:
@@ -9939,7 +9996,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
       '@types/qs': 6.9.18
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -9953,21 +10010,21 @@ snapshots:
 
   '@types/fs-extra@5.1.0':
     dependencies:
-      '@types/node': 22.13.11
+      '@types/node': 18.19.81
 
   '@types/fs-extra@8.1.5':
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
 
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
 
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 22.13.11
+      '@types/node': 18.19.81
 
   '@types/http-errors@2.0.4': {}
 
@@ -10014,7 +10071,7 @@ snapshots:
   '@types/rimraf@2.0.5':
     dependencies:
       '@types/glob': 8.1.0
-      '@types/node': 22.13.11
+      '@types/node': 18.19.81
 
   '@types/rsvp@4.0.9': {}
 
@@ -10023,12 +10080,12 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
       '@types/send': 0.17.4
 
   '@types/stack-utils@2.0.3': {}
@@ -10174,6 +10231,16 @@ snapshots:
   '@vitest/spy@3.0.9':
     dependencies:
       tinyspy: 3.0.2
+
+  '@vitest/ui@1.0.4':
+    dependencies:
+      '@vitest/utils': 1.0.4
+      fast-glob: 3.3.3
+      fflate: 0.8.2
+      flatted: 3.3.3
+      pathe: 1.1.2
+      picocolors: 1.1.1
+      sirv: 2.0.4
 
   '@vitest/ui@1.0.4(vitest@3.0.9)':
     dependencies:
@@ -12716,7 +12783,7 @@ snapshots:
   engine.io@6.6.4:
     dependencies:
       '@types/cors': 2.8.17
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.7.2
@@ -14468,7 +14535,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -14476,7 +14543,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 18.19.81
       merge-stream: 2.0.0
       supports-color: 8.1.1
 

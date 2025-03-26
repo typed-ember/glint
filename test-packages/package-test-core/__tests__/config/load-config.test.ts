@@ -1,9 +1,9 @@
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { describe, beforeEach, afterEach, test, expect, vi } from 'vitest';
-import { loadConfig } from '../../src/config/index.js';
-import { normalizePath } from '../../src/config/config.js';
-import { findTypeScript, loadConfigInput, require } from '../../src/config/loader.js';
+import { loadConfig } from '@glint/core/config/index';
+import { normalizePath } from '@glint/core/config/config';
+import { findTypeScript, loadConfigInput, require } from '@glint/core/config/loader';
 
 describe('Config: loadConfig', () => {
   const testDir = `${os.tmpdir()}/glint-config-test-load-config-${process.pid}`;

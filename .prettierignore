@@ -19,6 +19,7 @@ dist/
 !/packages/environment*/-private/intrinsics/**/*.d.ts
 
 packages/core/__tests__/support/character-position-viewer.html
+test-packages/*/__tests__/support/*.html
 
 /packages/vscode/src/generated-meta.ts
 

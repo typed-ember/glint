@@ -1,0 +1,37 @@
+{
+  "name": "package-test-core",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:tsc": "echo 'no standalone typecheck within this project'",
+    "test:watch": "vitest watch"
+  },
+  "devDependencies": {
+    "@glimmer/component": "^2.0.0",
+    "@glint/core": "workspace:*",
+    "@glint/environment-ember-template-imports": "workspace:*",
+    "@glint/environment-ember-loose": "workspace:*",
+    "@volar/language-server": "2.4.12",
+    "@types/common-tags": "^1.8.0",
+    "@types/node": "^18.11.5",
+    "@types/semver": "^7.3.13",
+    "@types/uuid": "^8.3.4",
+    "@types/yargs": "^17.0.10",
+    "@typescript/server-harness": "latest",
+    "@vitest/ui": "~1.0.0",
+    "common-tags": "^1.8.0",
+    "execa": "^4.0.1",
+    "glint-monorepo-test-utils": "workspace:*",
+    "strip-ansi": "^6.0.0",
+    "typescript": ">=5.6.0",
+    "vitest": "~3.0.9",
+    "vscode-uri": "^3.0.8"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

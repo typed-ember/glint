@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { GlintExtensionPreprocess, GlintExtensionTransform } from '@glint/core/config-types';
-import { GlintEnvironment } from '../../src/config/environment.js';
+import { GlintEnvironment } from '@glint/core/config/index';
 
 describe('Config: Environments', () => {
   describe('template tags config', () => {
