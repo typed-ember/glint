@@ -33,6 +33,39 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
+    test('handles the $ character', () => {
+      let script = {
+        filename: 'test.gts',
+        contents: '<template>${{dollarAmount}}</template>;',
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
+        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(dollarAmount)());
+        __glintRef__; __glintDSL__;
+        });"
+      `);
+    });
+
+    test('handles the ` character', () => {
+      let script = {
+        filename: 'test.gts',
+        contents: '<template>`code`</template>;',
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
+        __glintRef__; __glintDSL__;
+        });"
+      `);
+    });
+
     test('with a class with type parameters', () => {
       let script = {
         filename: 'test.ts',
