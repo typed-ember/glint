@@ -10,7 +10,7 @@ See the [Glint home page] for a more detailed Getting Started guide.
 
 1. Add `@glint/core`, `@glint/template` and an appropriate environment package to your project's `devDependencies`.
 1. Add a `"glint"` key to your project's `tsconfig.json` or `jsconfig.json` specifying your environment and any other relevant configuration.
-1. Consider disabling the built-in `vscode.typescript-language-features` extension for any workspaces where you use Glint to avoid extraneous diagnostics. 
+1. Consider disabling the built-in `vscode.typescript-language-features` extension for any workspaces where you use Glint to avoid extraneous diagnostics. Note that it is not necessary to disable the `@builtin typescript` extension if you are running V2 Glint with the pre-release of the Glint extension (`v1.4.3`, as of March 23 2025).
 
 <details><summary>Instructions</summary>
 
