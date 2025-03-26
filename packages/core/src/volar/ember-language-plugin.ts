@@ -15,6 +15,7 @@ export type TS = typeof ts;
 export function createEmberLanguagePlugin<T extends URI | string>(
   glintConfig: GlintConfig,
 ): LanguagePlugin<T> {
+  const hasEmberLoose = glintConfig.environment.names.indexOf('ember-loose') !== -1;
   return {
     /**
      * For files that are not opened in the IDE, the language ID will not be provided
@@ -43,6 +44,7 @@ export function createEmberLanguagePlugin<T extends URI | string>(
 
       // See: https://github.com/JetBrains/intellij-plugins/blob/11a9149e20f4d4ba2c1600da9f2b81ff88bd7c97/Angular/src/angular-service/src/index.ts#L31
       if (
+        hasEmberLoose &&
         languageId === 'typescript' &&
         !scriptIdStr.endsWith('.d.ts') &&
         scriptIdStr.indexOf('/node_modules/') < 0
