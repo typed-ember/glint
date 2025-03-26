@@ -1,13 +1,14 @@
-import { SafeString } from '@glimmer/runtime';
 import { htmlSafe } from '@ember/template';
 import { emitContent } from '../-private/dsl';
 
+type SafeString = ReturnType<typeof htmlSafe>;
+
 // Glimmer's SafeString interface
-let safeString: SafeString = {
+let safeString = {
   toHTML(): string {
     return '<span>Foo</span>';
   },
-};
+} as SafeString;
 
 emitContent(safeString);
 
