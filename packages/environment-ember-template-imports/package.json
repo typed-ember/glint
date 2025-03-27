@@ -32,9 +32,9 @@
     "content-tag": "^3.1.2"
   },
   "peerDependencies": {
-    "@glint/core": "workspace:*",
-    "@glint/environment-ember-loose": "workspace:*",
-    "@glint/template": "workspace:*"
+    "@glint/core": "*",
+    "@glint/environment-ember-loose": "*",
+    "@glint/template": "*"
   },
   "devDependencies": {
     "@glint/core": "workspace:*",

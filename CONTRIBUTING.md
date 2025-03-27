@@ -84,3 +84,18 @@ Sometimes it is useful to see the IR of any .hbs template or .gts/.gjs file for 
 
 Your template code will be replaced by the IR directly in your editor window.
 
+## How to link all the packages to an external project?
+
+Set up the links for all the `@glint/*` packages:
+
+1. `pnpm install`
+2. `pnpm build`
+3. `pnpm link:build`
+
+Then in your project that you want to test out local copies of `@glint/*` in:
+
+1. cd to your project
+2. `node ../path/to/glint/bin/link-install.mjs`
+
+The local copies of `@glint/*` packages will now be installed in your external project.
+

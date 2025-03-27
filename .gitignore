@@ -4,3 +4,4 @@ pnpm-debug.log
 *.tsbuildinfo
 *.js.map
 tsserver.log
+dist/
