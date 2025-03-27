@@ -76,7 +76,7 @@ const unpack = pkgs.map(async (pkg) => {
 await Promise.all(unpack);
 
 const packageJson = `{
-  "name": "glimmer-vm",
+  "name": "glint-monorepo-built",
   "private": true,
   "overrides": {
 ${pkgs.map((pkg) => `    "${pkg.name}": "workspace:*"`).join(',\n')}

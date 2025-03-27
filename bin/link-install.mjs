@@ -1,19 +1,33 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
-import execa from 'execa';
-import glob from 'glob';
+import { execa } from 'execa';
+import { glob } from 'glob';
+import assert from 'node:assert';
 
 const rootDir = new URL('..', import.meta.url).pathname;
 
-const packageJsonPaths = glob.sync('**/package.json', {
-  cwd: rootDir,
-  ignore: '**/node_modules/**',
-});
+const CWD = process.cwd();
+
+assert(
+  CWD !== rootDir,
+  `Cannot run link-install from the glint monorepo. Must be ran from an external project`,
+);
+
+const packageJsonPaths = glob
+  .sync('**/package.json', {
+    cwd: CWD,
+    ignore: '**/node_modules/**',
+  })
+  .filter(
+    (x) => !x.includes('unstable-release') && !x.includes('test-packages') && !x.includes('vscode'),
+  );
 
 function shouldLink(dep) {
   return dep.startsWith('@glint/');
 }
+
+console.log({ packageJsonPaths });
 
 const link = packageJsonPaths.map(async (packageJsonPath) => {
   const packagePath = path.dirname(packageJsonPath);
@@ -21,10 +35,14 @@ const link = packageJsonPaths.map(async (packageJsonPath) => {
   try {
     const packageJson = JSON.parse(await readFileSync(packageJsonPath, { encoding: 'utf8' }));
 
-    for (const [dep] of Object.entries(packageJson.dependencies ?? {})) {
+    console.log(`Gathering packages from ${chalk.gray(rootDir)}`);
+    for (const [dep] of [
+      ...Object.entries(packageJson.dependencies ?? {}),
+      ...Object.entries(packageJson.devDependencies ?? {}),
+    ]) {
       if (shouldLink(dep)) {
         // eslint-disable-next-line no-console
-        console.log(`Linking ${chalk.yellow(dep)} from ${chalk.grey(packagePath)}`);
+        console.log(`Linking ${chalk.yellow(dep)} within ${chalk.grey(CWD)}`);
         await execa('pnpm', ['link', '--global', dep], { cwd: packagePath });
       }
     }
