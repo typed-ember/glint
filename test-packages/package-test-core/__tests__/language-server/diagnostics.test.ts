@@ -169,7 +169,6 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
-
   test('(typescript.glimmer) honors @glint-expect-error / ignore shared test throws error', async () => {
     const componentA = stripIndent`
       import Component from '@glimmer/component';
@@ -205,7 +204,6 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       ]
     `);
   });
-
 
   test('honors @glint-expect-error', async () => {
     const componentA = stripIndent`

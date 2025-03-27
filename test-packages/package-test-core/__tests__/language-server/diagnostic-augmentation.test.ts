@@ -119,7 +119,6 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-
   test('(typescript.glimmer) expected argument count', async () => {
     let diagnostics = await requestDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
