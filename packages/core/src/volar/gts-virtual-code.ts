@@ -82,7 +82,7 @@ export class VirtualGtsCode implements VirtualCode {
   constructor(
     private glintConfig: GlintConfig,
     public snapshot: IScriptSnapshot,
-    public languageId: 'glimmer-ts' | 'glimmer-js',
+    public languageId: 'glimmer-ts' | 'glimmer-js' | 'typescript.glimmer' | 'javascript.glimmer',
   ) {
     this.update(snapshot);
   }

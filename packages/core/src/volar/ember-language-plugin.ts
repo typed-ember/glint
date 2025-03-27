@@ -63,7 +63,12 @@ export function createEmberLanguagePlugin<T extends URI | string>(
         );
       }
 
-      if (languageId === 'glimmer-ts' || languageId === 'glimmer-js') {
+      if (
+        languageId === 'glimmer-ts' ||
+        languageId === 'glimmer-js' ||
+        languageId === 'typescript.glimmer' ||
+        languageId === 'javascript.glimmer'
+      ) {
         return new VirtualGtsCode(glintConfig, snapshot, languageId);
       }
     },
@@ -109,12 +114,14 @@ export function createEmberLanguagePlugin<T extends URI | string>(
 
         switch (rootVirtualCode.languageId) {
           case 'glimmer-ts':
+          case 'typescript.glimmer':
             return {
               code: transformedCode,
               extension: '.ts',
               scriptKind: 3 satisfies ts.ScriptKind.TS,
             };
           case 'glimmer-js':
+          case 'javascript.glimmer':
             return {
               code: transformedCode,
               extension: '.js',
