@@ -33,14 +33,17 @@ const link = packageJsonPaths.map(async (packageJsonPath) => {
   try {
     const packageJson = JSON.parse(await readFileSync(packageJsonPath, { encoding: 'utf8' }));
 
-    console.log(`Gathering packages from ${chalk.gray(rootDir)}`);
+    const friendlyCWD = CWD.replace(process.env.HOME, '~');
+    const friendlyRoot = rootDir.replace(process.env.HOME, '~');
+    console.log(`Gathering packages from ${chalk.gray(friendlyRoot)}`);
+
     for (const [dep] of [
       ...Object.entries(packageJson.dependencies ?? {}),
       ...Object.entries(packageJson.devDependencies ?? {}),
     ]) {
       if (shouldLink(dep)) {
         // eslint-disable-next-line no-console
-        console.log(`Linking ${chalk.yellow(dep)} within ${chalk.grey(CWD)}`);
+        console.log(`Linking ${chalk.yellow(dep)} within ${chalk.grey(friendlyCWD)}`);
         await execa('pnpm', ['link', '--global', dep], { cwd: packagePath });
       }
     }
