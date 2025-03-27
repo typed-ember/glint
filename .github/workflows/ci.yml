@@ -42,8 +42,8 @@ jobs:
         with:
           cache: pnpm
       - run: pnpm reset
-      - run: "pnpm --filter '*' run test:typecheck"
-      - run: "pnpm --filter '*' run test:tsc"
+      - run: "pnpm --no-bail --filter '*' run test:typecheck"
+      - run: "pnpm --no-bail --filter '*' run test:tsc"
 
   test:
     name: Test
