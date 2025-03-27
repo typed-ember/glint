@@ -26,7 +26,8 @@
     "@glint/template": "*"
   },
   "devDependencies": {
-    "@glint/template": "workspace:*"
+    "@glint/template": "workspace:*",
+    "@glint/core": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

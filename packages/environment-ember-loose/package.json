@@ -8,7 +8,9 @@
   "main": "-private/index.js",
   "exports": {
     ".": "./-private/index.js",
-    "./registry": "./registry/index.js",
+    "./registry": {
+      "types": "./registry/index.d.ts"
+    },
     "./glint-environment-definition": "./-private/environment/index.js",
     "./-private/dsl": "./-private/dsl/index.js"
   },
