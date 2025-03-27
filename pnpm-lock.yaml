@@ -8,22 +8,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      chalk:
-        specifier: ^5.4.1
-        version: 5.4.1
-      execa:
-        specifier: ^9.5.2
-        version: 9.5.2
-      mkdirp:
-        specifier: ^3.0.1
-        version: 3.0.1
-      rimraf:
-        specifier: ^6.0.1
-        version: 6.0.1
-      tar:
-        specifier: ^7.4.3
-        version: 7.4.3
     devDependencies:
       '@glimmer/component':
         specifier: ^2.0.0
@@ -37,18 +21,36 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^5.42.1
         version: 5.62.0(eslint@8.57.1)(typescript@5.8.2)
+      chalk:
+        specifier: ^5.4.1
+        version: 5.4.1
       eslint:
         specifier: ^8.27.0
         version: 8.57.1
+      execa:
+        specifier: ^9.5.2
+        version: 9.5.2
       glint-monorepo-test-utils:
         specifier: workspace:*
         version: link:test-packages/test-utils
+      glob:
+        specifier: ^10.2.4
+        version: 10.4.5
+      mkdirp:
+        specifier: ^3.0.1
+        version: 3.0.1
       prettier:
         specifier: ^3.3.2
         version: 3.5.3
       release-plan:
         specifier: ^0.16.0
         version: 0.16.0
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
+      tar:
+        specifier: ^7.4.3
+        version: 7.4.3
       typescript:
         specifier: '>=5.6.0'
         version: 5.8.2
@@ -1918,8 +1920,8 @@ packages:
     resolution: {directory: packages/environment-ember-loose, type: directory}
     peerDependencies:
       '@glimmer/component': '>=1.1.2'
-      '@glint/core': workspace:*
-      '@glint/template': workspace:*
+      '@glint/core': '*'
+      '@glint/template': '*'
       ember-cli-htmlbars: ^6.0.1
       ember-modifier: ^3.2.7 || ^4.0.0
     peerDependenciesMeta:
@@ -1931,9 +1933,9 @@ packages:
   '@glint/environment-ember-template-imports@file:packages/environment-ember-template-imports':
     resolution: {directory: packages/environment-ember-template-imports, type: directory}
     peerDependencies:
-      '@glint/core': workspace:*
-      '@glint/environment-ember-loose': workspace:*
-      '@glint/template': workspace:*
+      '@glint/core': '*'
+      '@glint/environment-ember-loose': '*'
+      '@glint/template': '*'
 
   '@glint/template@file:packages/template':
     resolution: {directory: packages/template, type: directory}

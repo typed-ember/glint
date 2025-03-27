@@ -13,6 +13,7 @@
     {
       "files": ["*.js", "*.cjs", "*.mjs"],
       "env": {
+        "es6": true,
         "node": true
       }
     },
