@@ -169,6 +169,44 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
+
+  test('(typescript.glimmer) honors @glint-expect-error / ignore shared test throws error', async () => {
+    const componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          Welcome to app _code_v{{@version}}_/code_.
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'typescript.glimmer',
+      componentA,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2339,
+          "end": {
+            "line": 5,
+            "offset": 37,
+          },
+          "start": {
+            "line": 5,
+            "offset": 30,
+          },
+          "text": "Property 'version' does not exist on type '{}'.",
+        },
+      ]
+    `);
+  });
+
+
   test('honors @glint-expect-error', async () => {
     const componentA = stripIndent`
       import Component from '@glimmer/component';

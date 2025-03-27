@@ -124,6 +124,47 @@ describe('Language Server: Definitions (ts plugin)', () => {
     `);
   });
 
+  test('(typescript.glimmer) component invocation', async () => {
+    expect(
+      await requestDefinition(
+        'ts-template-imports-app/src/ephemeral.gts',
+        'typescript.glimmer',
+        stripIndent`
+        import Component from '@glimmer/component';
+        import Greeting from './Greeting.gts';
+
+        export default class Application extends Component {
+          <template>
+            <Gr%eeting @message="hello" />
+          </template>
+        }
+      `,
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "contextEnd": {
+            "line": 14,
+            "offset": 2,
+          },
+          "contextStart": {
+            "line": 8,
+            "offset": 1,
+          },
+          "end": {
+            "line": 8,
+            "offset": 30,
+          },
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/Greeting.gts",
+          "start": {
+            "line": 8,
+            "offset": 22,
+          },
+        },
+      ]
+    `);
+  });
+
   test('arg passing', async () => {
     expect(
       await requestDefinition(

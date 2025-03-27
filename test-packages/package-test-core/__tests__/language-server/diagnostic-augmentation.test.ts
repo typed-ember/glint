@@ -119,6 +119,89 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
+
+  test('(typescript.glimmer) expected argument count', async () => {
+    let diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'typescript.glimmer',
+      stripIndent`
+        import Component from '@glimmer/component';
+
+        export interface AppSignature {
+          Blocks: {
+            expectsTwoParams: [a: string, b: number];
+            expectsAtLeastOneParam: [a: string, ...rest: Array<string>];
+          }
+        }
+
+        function expectsTwoArgs(a: string, b: number) {
+          console.log(a, b);
+        }
+
+        function expectsAtLeastOneArg(a: string, ...rest: Array<string>) {
+          console.log(a, ...rest);
+        }
+
+        export default class App extends Component<AppSignature> {
+          <template>
+            {{expectsTwoArgs "one"}}
+            {{expectsTwoArgs "one" 2 "three"}}
+            {{expectsTwoArgs "one" 2 named=true}}
+            {{expectsAtLeastOneArg}}
+
+            {{yield "one" to="expectsTwoParams"}}
+            {{yield "one" 2 "three" to="expectsTwoParams"}}
+            {{yield to="expectsAtLeastOneParam"}}
+          </template>
+        }
+      `,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 21,
+            "offset": 37,
+          },
+          "start": {
+            "line": 21,
+            "offset": 30,
+          },
+          "text": "Expected 2 arguments, but got 3.",
+        },
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 22,
+            "offset": 40,
+          },
+          "start": {
+            "line": 22,
+            "offset": 30,
+          },
+          "text": "Expected 2 arguments, but got 3. Note that named args are passed together as a final argument, so they collectively increase the given arg count by 1.",
+        },
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 26,
+            "offset": 28,
+          },
+          "start": {
+            "line": 26,
+            "offset": 21,
+          },
+          "text": "Expected 2 arguments, but got 3.",
+        },
+      ]
+    `);
+  });
+
   test('emit for attributes and top-level content', async () => {
     let diagnostics = await requestDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
