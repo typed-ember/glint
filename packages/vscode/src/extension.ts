@@ -207,117 +207,113 @@ function findLanguageServer(
   }
 }
 
-try {
-  // The code below contains hacks lifted from the Vue extension to monkeypatch
-  // portions of official VSCode TS extension (vscode.typescript-language-features)
-  // to add some missing features that make the tooling more seamless.
-  //
-  // Note that these hacks should ABSOLUTELY be upstreamed to VSCode but it is unclear
-  // whether our efforts will be successful.
-  //
-  // https://github.com/vuejs/language-tools/blob/master/extensions/vscode/src/nodeClientMain.ts#L135-L195
-  //
-  // It is important for us (for the time being) to manually follow along with changes made to the
-  // Vue extension within the above file. Ideally Volar should extract this logic into a shared library.
-  //
-  // Specifically these hacks make things like Find File References, Go to Source Definition, etc.
-  // work in .gts files.
-  //
-  // https://github.com/search?q=repo%3Amicrosoft%2Fvscode%20isSupportedLanguageMode&type=code
-  const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features')!;
-  const readFileSync = fs.readFileSync;
-  const extensionJsPath = require.resolve('./dist/extension.js', {
-    paths: [tsExtension.extensionPath],
-  });
+// The code below contains hacks lifted from the Vue extension to monkeypatch
+// portions of official VSCode TS extension (vscode.typescript-language-features)
+// to add some missing features that make the tooling more seamless.
+//
+// Note that these hacks should ABSOLUTELY be upstreamed to VSCode but it is unclear
+// whether our efforts will be successful.
+//
+// https://github.com/vuejs/language-tools/blob/master/extensions/vscode/src/nodeClientMain.ts#L135-L195
+//
+// It is important for us (for the time being) to manually follow along with changes made to the
+// Vue extension within the above file. Ideally Volar should extract this logic into a shared library.
+//
+// Specifically these hacks make things like Find File References, Go to Source Definition, etc.
+// work in .gts files.
+//
+// https://github.com/search?q=repo%3Amicrosoft%2Fvscode%20isSupportedLanguageMode&type=code
+const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features')!;
+const readFileSync = fs.readFileSync;
+const extensionJsPath = require.resolve('./dist/extension.js', {
+  paths: [tsExtension.extensionPath],
+});
 
-  const languageIdsQuoted = config.server.includeLanguages.map((lang) => `'${lang}'`).join(',');
+const languageIdsQuoted = config.server.includeLanguages.map((lang) => `'${lang}'`).join(',');
 
-  // TODO: as of March 23 2025 and perhaps a few days before, this fs.readFileSync hacky
-  // is failing with "Cannot set property readFileSync of #<Object> which has only a getter".
-  // Stay tuned for another hack from Volar... or hopefully an upstream fix from VSCode.
+// TODO: as of March 23 2025 and perhaps a few days before, this fs.readFileSync hacky
+// is failing with "Cannot set property readFileSync of #<Object> which has only a getter".
+// Stay tuned for another hack from Volar... or hopefully an upstream fix from VSCode.
 
-  // @ts-expect-error – not easy to type
-  fs.readFileSync = (...args) => {
-    if (args[0] === extensionJsPath) {
-      // @ts-expect-error – not easy to type
-      let text = readFileSync(...args) as string;
-
-      // patch readPlugins so that it initializes our plugin with the language IDs specified
-      // in the VSCode config (e.g. `glint.server.includeLanguages`), rather than the language IDs
-      // specified in the Glint VSCode extension package.json `typescriptServerPlugins` payload.
-      //
-      // TODO: do we actually need this configure-ability or would it suffice to just use
-      // a hardcoded array of ['glimmer-js', 'glimmer-ts', 'handlebars']? If so, need to update
-      // the Glint VSCode extension package.json `typescriptServerPlugins` payload to include
-      // handlebars.
-      //
-      // https://github.com/microsoft/vscode/blob/6900113cf934d3d379757534d6f57929c5eb87f2/extensions/typescript-language-features/src/tsServer/plugins.ts#L81
-      //
-      // Note: we use the esbuild-packaged name `glint-tsserver-plugin-pack` rather than the NPM
-      // module name `@glint/tsserver-plugin` because the latter is not installed in the VSCode
-      // extension's `node_modules` folder.
-      const typeScriptServerPluginName = 'glint-tsserver-plugin-pack';
-      text = text.replace(
-        'languages:Array.isArray(e.languages)',
-        [
-          'languages:',
-          `e.name==='${typeScriptServerPluginName}'?[${languageIdsQuoted}]`,
-          ':Array.isArray(e.languages)',
-        ].join(''),
-      );
-
-      // Expose tsserver process in SingleTsServer constructor
-      text = text.replace(
-        ',this._callbacks.destroy("server errored")}))',
-        (s) => s + ',globalThis.__TSSERVER__||={},globalThis.__TSSERVER__[arguments[1]]=this',
-      );
-
-      /**
-       * VSCode < 1.87.0
-       */
-
-      text = text.replace('t.$u=[t.$r,t.$s,t.$p,t.$q]', (s) => s + `.concat(${languageIdsQuoted})`); // patch jsTsLanguageModes
-      text = text.replace(
-        '.languages.match([t.$p,t.$q,t.$r,t.$s]',
-        (s) => s + `.concat(${languageIdsQuoted})`,
-      ); // patch isSupportedLanguageMode
-
-      /**
-       * VSCode >= 1.87.0
-       *
-       * https://github.com/microsoft/vscode/blob/7e4e3c373200b0b1564da09d1af0279a0cde8caf/extensions/typescript-language-features/src/configuration/languageIds.ts#L14-L19
-       */
-
-      text = text.replace(
-        't.jsTsLanguageModes=[t.javascript,t.javascriptreact,t.typescript,t.typescriptreact]',
-        (s) => s + `.concat(${languageIdsQuoted})`,
-      ); // patch jsTsLanguageModes
-      text = text.replace(
-        '.languages.match([t.typescript,t.typescriptreact,t.javascript,t.javascriptreact]',
-        (s) => s + `.concat(${languageIdsQuoted})`,
-      ); // patch isSupportedLanguageMode
-
-      return text;
-    }
+// @ts-expect-error – not easy to type
+fs.readFileSync = (...args) => {
+  if (args[0] === extensionJsPath) {
     // @ts-expect-error – not easy to type
-    return readFileSync(...args);
-  };
+    let text = readFileSync(...args) as string;
 
-  // Handle the case where the VSCode TS extension was already loaded prior
-  // to our readFileSync hacks above, in which case we restart the extension host
-  // so that the TS extension is reloaded with our hacks in place.
-  //
-  // https://github.com/vuejs/language-tools/pull/5260
-  const loadedModule = require.cache[extensionJsPath];
-  if (loadedModule) {
-    delete require.cache[extensionJsPath];
-    const patchedModule = require(extensionJsPath);
-    Object.assign(loadedModule.exports, patchedModule);
-  }
+    // patch readPlugins so that it initializes our plugin with the language IDs specified
+    // in the VSCode config (e.g. `glint.server.includeLanguages`), rather than the language IDs
+    // specified in the Glint VSCode extension package.json `typescriptServerPlugins` payload.
+    //
+    // TODO: do we actually need this configure-ability or would it suffice to just use
+    // a hardcoded array of ['glimmer-js', 'glimmer-ts', 'handlebars']? If so, need to update
+    // the Glint VSCode extension package.json `typescriptServerPlugins` payload to include
+    // handlebars.
+    //
+    // https://github.com/microsoft/vscode/blob/6900113cf934d3d379757534d6f57929c5eb87f2/extensions/typescript-language-features/src/tsServer/plugins.ts#L81
+    //
+    // Note: we use the esbuild-packaged name `glint-tsserver-plugin-pack` rather than the NPM
+    // module name `@glint/tsserver-plugin` because the latter is not installed in the VSCode
+    // extension's `node_modules` folder.
+    const typeScriptServerPluginName = 'glint-tsserver-plugin-pack';
+    text = text.replace(
+      'languages:Array.isArray(e.languages)',
+      [
+        'languages:',
+        `e.name==='${typeScriptServerPluginName}'?[${languageIdsQuoted}]`,
+        ':Array.isArray(e.languages)',
+      ].join(''),
+    );
 
-  if (tsExtension.isActive) {
-    vscode.commands.executeCommand('workbench.action.restartExtensionHost');
+    // Expose tsserver process in SingleTsServer constructor
+    text = text.replace(
+      ',this._callbacks.destroy("server errored")}))',
+      (s) => s + ',globalThis.__TSSERVER__||={},globalThis.__TSSERVER__[arguments[1]]=this',
+    );
+
+    /**
+     * VSCode < 1.87.0
+     */
+
+    text = text.replace('t.$u=[t.$r,t.$s,t.$p,t.$q]', (s) => s + `.concat(${languageIdsQuoted})`); // patch jsTsLanguageModes
+    text = text.replace(
+      '.languages.match([t.$p,t.$q,t.$r,t.$s]',
+      (s) => s + `.concat(${languageIdsQuoted})`,
+    ); // patch isSupportedLanguageMode
+
+    /**
+     * VSCode >= 1.87.0
+     *
+     * https://github.com/microsoft/vscode/blob/7e4e3c373200b0b1564da09d1af0279a0cde8caf/extensions/typescript-language-features/src/configuration/languageIds.ts#L14-L19
+     */
+
+    text = text.replace(
+      't.jsTsLanguageModes=[t.javascript,t.javascriptreact,t.typescript,t.typescriptreact]',
+      (s) => s + `.concat(${languageIdsQuoted})`,
+    ); // patch jsTsLanguageModes
+    text = text.replace(
+      '.languages.match([t.typescript,t.typescriptreact,t.javascript,t.javascriptreact]',
+      (s) => s + `.concat(${languageIdsQuoted})`,
+    ); // patch isSupportedLanguageMode
+
+    return text;
   }
-} catch {
-  // ignore
+  // @ts-expect-error – not easy to type
+  return readFileSync(...args);
+};
+
+// Handle the case where the VSCode TS extension was already loaded prior
+// to our readFileSync hacks above, in which case we restart the extension host
+// so that the TS extension is reloaded with our hacks in place.
+//
+// https://github.com/vuejs/language-tools/pull/5260
+const loadedModule = require.cache[extensionJsPath];
+if (loadedModule) {
+  delete require.cache[extensionJsPath];
+  const patchedModule = require(extensionJsPath);
+  Object.assign(loadedModule.exports, patchedModule);
+}
+
+if (tsExtension.isActive) {
+  vscode.commands.executeCommand('workbench.action.restartExtensionHost');
 }
