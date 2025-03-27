@@ -27,8 +27,6 @@ function shouldLink(dep) {
   return dep.startsWith('@glint/');
 }
 
-console.log({ packageJsonPaths });
-
 const link = packageJsonPaths.map(async (packageJsonPath) => {
   const packagePath = path.dirname(packageJsonPath);
 
