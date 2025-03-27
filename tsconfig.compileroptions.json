@@ -20,7 +20,11 @@
 
     // new
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
+
+    // esModuleInterop needs to be false so that the fs.readFileSync monkeypatch in vscode/src/extension.ts
+    // continues to work (setting esModuleInterop to true will wrap require() in __importStar
+    // which breaks the monkeypatch)
+    "esModuleInterop": false,
 
     "types": []
   }
