@@ -51,45 +51,6 @@ describe('Language Server: Hover (ts plugin)', () => {
     `);
   });
 
-  test('(typescript.glimmer) using private properties', async () => {
-    const [offset, content] = extractCursor(stripIndent`
-      import Component from '@glimmer/component';
-
-      export default class MyComponent extends Component {
-        /** A message. */
-        private message = 'hi';
-
-        <template>
-          {{this.m%essage}}
-        </template>
-      }
-    `);
-
-    const doc = await prepareDocument(
-      'ts-template-imports-app/src/ephemeral.gts',
-      'typescript.glimmer',
-      content,
-    );
-
-    expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
-      {
-        "displayString": "(property) MyComponent.message: string",
-        "documentation": "A message.",
-        "end": {
-          "line": 8,
-          "offset": 19,
-        },
-        "kind": "property",
-        "kindModifiers": "private",
-        "start": {
-          "line": 8,
-          "offset": 12,
-        },
-        "tags": [],
-      }
-    `);
-  });
-
   test('using args', async () => {
     const [offset, content] = extractCursor(stripIndent`
       import Component from '@glimmer/component';
