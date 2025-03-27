@@ -23,7 +23,7 @@
     "expect-type": "^0.15.0"
   },
   "peerDependencies": {
-    "@glint/template": "^1.4.0"
+    "@glint/template": "*"
   },
   "devDependencies": {
     "@glint/template": "workspace:*"
