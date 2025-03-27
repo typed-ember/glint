@@ -11,6 +11,6 @@ export function packages(namespace) {
   return JSON.parse(
     execSync(`pnpm ls -r --depth -1 --filter "${namespace}/*" --json`, {
       encoding: 'utf-8',
-    })
-  ).filter(x => !x.private);
+    }),
+  ).filter((x) => !x.private);
 }

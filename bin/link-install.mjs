@@ -12,9 +12,7 @@ const packageJsonPaths = glob.sync('**/package.json', {
 });
 
 function shouldLink(dep) {
-  return (
-    dep.startsWith('@glint/') 
-  );
+  return dep.startsWith('@glint/');
 }
 
 const link = packageJsonPaths.map(async (packageJsonPath) => {

@@ -103,7 +103,7 @@ for (const pkg of pkgs) {
 
     await execa('pnpm', ['link', '--global'], {
       cwd: pkgDest,
-      stdio: 'inherit'
+      stdio: 'inherit',
     });
 
     console.log(chalk.green(`Successfully linked ${pkg.name}`));
