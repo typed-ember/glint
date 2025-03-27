@@ -1,7 +1,7 @@
 import { ComponentLike, WithBoundArgs } from '@glint/template';
 import { resolve, emitComponent, NamedArgsMarker } from '@glint/template/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { ComponentReturn, NamedArgs } from '../-private/integration';
+import { ComponentReturn, NamedArgs } from '@glint/template/-private/integration';
 import TestComponent from './test-component';
 
 {
