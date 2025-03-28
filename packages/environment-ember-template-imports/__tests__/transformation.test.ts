@@ -234,6 +234,43 @@ describe('Environment: ETI', () => {
       );
     });
 
+    test('single template, no export, with satisfies', () => {
+      let source = stripIndent`
+        import type { TOC } from '@ember/component/template-only';
+        const hello = <template>HelloWorld!</template> satisfies TOC<{
+          Blocks: { default: [] }
+        }>;
+      `;
+
+      let { meta, sourceFile } = applyTransform(source);
+
+      let declaration = sourceFile.statements[2] as ts.VariableStatement;
+      let satisfiesExpression = declaration.declarationList.declarations[0]
+        .initializer! as ts.SatisfiesExpression;
+      let templateNode = satisfiesExpression.expression;
+
+      let start = source.indexOf('<template>');
+      let contentStart = start + '<template>'.length;
+      let contentEnd = source.indexOf('</template>');
+      let end = contentEnd + '</template>'.length;
+
+      expect(meta).toEqual(
+        new Map([
+          [
+            templateNode,
+            {
+              templateLocation: {
+                start,
+                contentStart,
+                contentEnd,
+                end,
+              },
+            },
+          ],
+        ]),
+      );
+    });
+
     test('multiple templates', () => {
       let source = stripIndent`
         <template>
