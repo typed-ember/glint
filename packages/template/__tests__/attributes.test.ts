@@ -7,6 +7,8 @@ import {
   applyAttributes,
   emitElement,
   emitComponent,
+  emitSVGElement,
+  emitMathMlElement,
 } from '../-private/dsl';
 import TestComponent from './test-component';
 import { htmlSafe } from '@ember/template';
@@ -37,6 +39,14 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 
         applyModifier(resolve(imageModifier)(ctx.element));
         applySplattributes(__glintRef__.element, ctx.element);
+        applyAttributes(__glintRef__.element, {
+          src: '',
+          dir: '',
+          'data-test-id': '',
+          'data-random': 2,
+          // @ts-expect-error: this should error
+          other: '',
+        });
       }
     });
   }
@@ -61,7 +71,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 {
   const component = emitComponent(resolve(MyComponent)());
   applySplattributes(new HTMLImageElement(), component.element);
-  applyAttributes(component.element, { foo: 'bar' });
+  applyAttributes(component.element, { src: 'bar' });
 }
 
 /**
@@ -86,12 +96,22 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 
 /**
  * ```handlebars
+ * <math ...attributes></svg>
+ * ```
+ */
+{
+  const ctx = emitElement('math');
+  applySplattributes(new MathMLElement(), ctx.element);
+}
+
+/**
+ * ```handlebars
  * <a {{anchorModifier}}></a>
  * ```
  */
 {
   const ctx = emitElement('a');
-  expectTypeOf(ctx).toEqualTypeOf<{ element: HTMLAnchorElement & SVGAElement }>();
+  expectTypeOf(ctx).toEqualTypeOf<{ element: HTMLAnchorElement }>();
   applyModifier(resolve(anchorModifier)(ctx.element));
 }
 
@@ -185,15 +205,15 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 
 {
   applyAttributes(document.createElement('div'), {
-    string: 'ok',
-    safeString: htmlSafe('ok'),
-    number: 123,
-    bool: false,
-    null: null,
-    undefined: undefined,
+    dir: 'ok',
+    name: htmlSafe('ok'),
+    src: 123,
+    border: false,
+    'aria-activedescendant': null,
+    'aria-atomic': undefined,
     // @ts-expect-error: setting a `void` return as an attr makes no sense
-    nothing: undefined as void,
+    'aria-autocomplete': undefined as void,
     // @ts-expect-error: DOM nodes aren't valid values
-    div: document.createElement('div'),
+    allowusermedia: document.createElement('div'),
   });
 }
