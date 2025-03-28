@@ -1,0 +1,8 @@
+# Unlabeled Changes
+
+* `@glint/core`
+  * [#861](https://github.com/typed-ember/glint/pull/861) Inject hidden imports to fix `.gts`/`.gjs` extensions ([@machty](https://github.com/machty))
+  * [#854](https://github.com/typed-ember/glint/pull/854) Loose mode: only parse .ts in `components/` folder ([@machty](https://github.com/machty))
+
+
+*Cannot plan release until the above changes are labeled*.
