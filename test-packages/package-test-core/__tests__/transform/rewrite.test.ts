@@ -501,50 +501,6 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
-    test('handles satisfies', () => {
-      const emberTemplateImportsEnvironment = GlintEnvironment.load(['ember-template-imports']);
-
-      let script = {
-        filename: 'test.gts',
-        contents: [
-          `import type { TOC } from '@ember/component/template-only';`,
-          ``,
-          `const SmolComp = `,
-          `  <template>`,
-          `    Hello there, {{@name}}`,
-          `  </template> satisfies TOC<{ Args: { name: string }}>;`,
-          ``,
-          `<template>`,
-          `  <SmolComp @name="Ember" />`,
-          `</template> satisfies TOC<{ Args: {}, Blocks: {}, Element: null }>`,
-          ``,
-        ].join('\n'),
-      };
-
-      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
-
-      expect(transformedModule?.errors?.length).toBe(0);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-"import type { TOC } from '@ember/component/template-only';
-
-const SmolComp = 
-  ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
-__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.name)());
-__glintRef__; __glintDSL__;
-}) satisfies TOC<{ Args: { name: string }}>;
-
-export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
-{
-const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(SmolComp)({ 
-name: "Ember", ...__glintDSL__.NamedArgsMarker }));
-__glintY__;
-}
-__glintRef__; __glintDSL__;
-}) satisfies TOC<{ Args: {}, Blocks: {}, Element: null }>
-"
-`);
-    });
-
     test('embedded gts templates', () => {
       let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
       let script = {
@@ -935,31 +891,75 @@ __glintRef__; __glintDSL__;
       `);
     });
 
-    test('with implicit export default and satisfies', () => {
-      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
-      let script = {
-        filename: 'test.gts',
-        contents: stripIndent`
-          import type { TOC } from '@ember/component/template-only';
-          <template>HelloWorld!</template> satisfies TOC<{
+    describe('satisfies', () => {
+      test('with implicit export default', () => {
+        let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+        let script = {
+          filename: 'test.gts',
+          contents: stripIndent`
+            import type { TOC } from '@ember/component/template-only';
+            <template>HelloWorld!</template> satisfies TOC<{
+              Blocks: { default: [] }
+            }>;
+          `,
+        };
+
+        let transformedModule = rewriteModule(ts, { script }, customEnv);
+
+        expect(transformedModule?.errors).toEqual([]);
+        expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+          "import type { TOC } from '@ember/component/template-only';
+          export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
+          __glintRef__; __glintDSL__;
+          }) satisfies TOC<{
             Blocks: { default: [] }
-          }>;
-        `,
-      };
+          }>;"
+        `);
+      });
 
-      let transformedModule = rewriteModule(ts, { script }, customEnv);
+      test('with two template-only components', () => {
+        const emberTemplateImportsEnvironment = GlintEnvironment.load(['ember-template-imports']);
 
-      expect(transformedModule?.errors).toEqual([]);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import __GLINT_GTS_EXTENSION_HACK__ from './__glint-non-existent.gts';
-         import __GLINT_GJS_EXTENSION_HACK__ from './__glint-non-existent.gjs';
-        import type { TOC } from '@ember/component/template-only';
-        export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
-        __glintRef__; __glintDSL__;
-        }) satisfies TOC<{
-          Blocks: { default: [] }
-        }>;"
-      `);
+        let script = {
+          filename: 'test.gts',
+          contents: [
+            `import type { TOC } from '@ember/component/template-only';`,
+            ``,
+            `const SmolComp = `,
+            `  <template>`,
+            `    Hello there, {{@name}}`,
+            `  </template> satisfies TOC<{ Args: { name: string }}>;`,
+            ``,
+            `<template>`,
+            `  <SmolComp @name="Ember" />`,
+            `</template> satisfies TOC<{ Args: {}, Blocks: {}, Element: null }>`,
+            ``,
+          ].join('\n'),
+        };
+
+        let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+
+        expect(transformedModule?.errors?.length).toBe(0);
+        expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+  "import type { TOC } from '@ember/component/template-only';
+  
+  const SmolComp = 
+    ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
+  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.name)());
+  __glintRef__; __glintDSL__;
+  }) satisfies TOC<{ Args: { name: string }}>;
+  
+  export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
+  {
+  const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(SmolComp)({ 
+  name: "Ember", ...__glintDSL__.NamedArgsMarker }));
+  __glintY__;
+  }
+  __glintRef__; __glintDSL__;
+  }) satisfies TOC<{ Args: {}, Blocks: {}, Element: null }>
+  "
+  `);
+      });
     });
   });
 });
