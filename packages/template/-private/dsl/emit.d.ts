@@ -9,7 +9,12 @@ import {
   TemplateContext,
   NamedArgs,
 } from '../integration';
-import { AttributesForElement, ElementForTagName, ObjectKey, SVGElementForTagName } from './types';
+import {
+  AttributesForElement,
+  ElementForTagName,
+  MathMlElementForTagName,
+  SVGElementForTagName
+} from './types';
 
 /**
  * Used during emit to denote an object literal that corresponds
@@ -44,13 +49,17 @@ export declare function emitContent(value: ContentValue): void;
  *       applyModifier(__glintY__.element, resolve(on)({}, 'click', this.clicked));
  *     });
  */
-export declare function emitElement<Name extends string | keyof HTMLElementTagNameMap>(
+export declare function emitElement<Name extends string | keyof HTMLElementTagNameMap | 'math' | 'svg'>(
   name: Name,
-): { element: ElementForTagName<Name> };
+): { element: Name extends 'math' ? MathMlElementForTagName<'math'> : Name extends 'svg' ? SVGElementForTagName<'svg'> : ElementForTagName<Name> };
 
 export declare function emitSVGElement<Name extends string | keyof SVGElementTagNameMap>(
   name: Name,
 ): { element: SVGElementForTagName<Name> };
+
+export declare function emitMathMlElement<Name extends string | keyof MathMLElementTagNameMap>(
+  name: Name,
+): { element: MathMlElementForTagName<Name> };
 
 /*
  * Emits the given value as an entity that expects to receive blocks
