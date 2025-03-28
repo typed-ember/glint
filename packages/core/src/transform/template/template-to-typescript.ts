@@ -60,7 +60,7 @@ export function templateToTypescript(
   return mapTemplateContents(originalTemplate, { embeddingSyntax }, (ast, mapper) => {
     let { rangeForNode } = mapper;
     let scope = new ScopeStack([]);
-    let inSVG = false;
+    let inHtmlContext: 'svg' | 'math' | 'default' = 'default';
 
     emitTemplateBoilerplate(() => {
       for (let statement of ast?.body ?? []) {
@@ -186,9 +186,11 @@ export function templateToTypescript(
         // Push to the directives array on the record
         mapper.directive(node, 'nocheck');
       } else if (kind === 'in-svg') {
-        inSVG = true;
-      } else if (kind === 'out-svg') {
-        inSVG = false;
+        inHtmlContext = 'svg';
+      } else if (kind === 'in-mathml') {
+        inHtmlContext = 'math';
+      } else if (kind === 'out-svg' || kind === 'out-mathml') {
+        inHtmlContext = 'default';
       } else {
         // Push an error on the record
         mapper.error(`Unknown directive @glint-${kind}`, location);
@@ -884,17 +886,23 @@ export function templateToTypescript(
         const directivesWeakMap = assignDirectivesToElementOpenTagPieces(node);
 
         if (node.tag === 'svg') {
-          inSVG = true;
+          inHtmlContext = 'svg';
+        }
+
+        if (node.tag === 'math') {
+          inHtmlContext = 'math';
         }
 
         mapper.text('{');
         mapper.newline();
         mapper.indent();
 
-        if (!inSVG) {
+        if (inHtmlContext === 'default') {
           mapper.text('const __glintY__ = __glintDSL__.emitElement(');
-        } else {
+        } else if (inHtmlContext === 'svg') {
           mapper.text('const __glintY__ = __glintDSL__.emitSVGElement(');
+        } else if (inHtmlContext === 'math') {
+          mapper.text('const __glintY__ = __glintDSL__.emitMathMlElement(');
         }
         mapper.forNode(node.path, () => {
           mapper.text(JSON.stringify(node.tag));
@@ -912,8 +920,8 @@ export function templateToTypescript(
           emitTopLevelStatement(child);
         }
 
-        if (node.tag === 'svg') {
-          inSVG = false;
+        if (node.tag === 'svg' || node.tag === 'math') {
+          inHtmlContext = 'default';
         }
 
         mapper.dedent();

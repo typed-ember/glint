@@ -8,7 +8,7 @@ import {
   emitElement,
   emitComponent,
   emitSVGElement,
-  emitMathMlElement
+  emitMathMlElement,
 } from '../-private/dsl';
 import TestComponent from './test-component';
 import { htmlSafe } from '@ember/template';
