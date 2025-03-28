@@ -13,7 +13,7 @@ import {
   AttributesForElement,
   ElementForTagName,
   MathMlElementForTagName,
-  SVGElementForTagName
+  SVGElementForTagName,
 } from './types';
 
 /**
@@ -49,9 +49,17 @@ export declare function emitContent(value: ContentValue): void;
  *       applyModifier(__glintY__.element, resolve(on)({}, 'click', this.clicked));
  *     });
  */
-export declare function emitElement<Name extends string | keyof HTMLElementTagNameMap | 'math' | 'svg'>(
+export declare function emitElement<
+  Name extends string | keyof HTMLElementTagNameMap | 'math' | 'svg',
+>(
   name: Name,
-): { element: Name extends 'math' ? MathMlElementForTagName<'math'> : Name extends 'svg' ? SVGElementForTagName<'svg'> : ElementForTagName<Name> };
+): {
+  element: Name extends 'math'
+    ? MathMlElementForTagName<'math'>
+    : Name extends 'svg'
+      ? SVGElementForTagName<'svg'>
+      : ElementForTagName<Name>;
+};
 
 export declare function emitSVGElement<Name extends string | keyof SVGElementTagNameMap>(
   name: Name,
