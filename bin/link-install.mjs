@@ -1,7 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
-import { execa } from 'execa';
 import { glob } from 'glob';
 import assert from 'node:assert';
 
