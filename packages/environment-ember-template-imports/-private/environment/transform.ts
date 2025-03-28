@@ -25,7 +25,10 @@ export const transform: GlintExtensionTransform<PreprocessData> = (
     } else if (isETIDefaultTemplate(ts, node)) {
       // Annotate that this template is a default export
       setEmitMetadata(node.expression, { prepend: 'export default ' });
-
+      return node;
+    } else if (isETIDefaultSatisfiesTemplate(ts, node)) {
+      // Annotate that this template is a default export
+      setEmitMetadata(node.expression.expression, { prepend: 'export default ' });
       return node;
     } else if (isETITemplateExpression(ts, node)) {
       // Convert '[__T`foo`]' as an expression to just '__T`foo`'
@@ -111,18 +114,26 @@ type ETITemplateProperty = ts.PropertyDeclaration & {
   name: ts.ComputedPropertyName & { expression: ETITemplateLiteral };
 };
 
-type ETIDefaultTemplate =
-  | (ts.ExpressionStatement & {
-      expression: ETITemplateLiteral;
-    })
-  | (ts.SatisfiesExpression & {
-      expression: ETITemplateLiteral;
-    });
+type ETIDefaultTemplate = ts.ExpressionStatement & {
+  expression: ETITemplateLiteral;
+};
+
+type ETIDefaultSatisfiesTemplate = ts.ExpressionStatement & {
+  expression: ts.SatisfiesExpression & { expression: ETITemplateLiteral };
+};
 
 function isETIDefaultTemplate(ts: TSLib, node: ts.Node): node is ETIDefaultTemplate {
+  return ts.isExpressionStatement(node) && isETITemplateLiteral(ts, node.expression);
+}
+
+function isETIDefaultSatisfiesTemplate(
+  ts: TSLib,
+  node: ts.Node,
+): node is ETIDefaultSatisfiesTemplate {
   return (
-    (ts.isExpressionStatement(node) || ts.isSatisfiesExpression(node)) &&
-    isETITemplateLiteral(ts, node.expression)
+    ts.isExpressionStatement(node) &&
+    ts.isSatisfiesExpression(node.expression) &&
+    isETITemplateLiteral(ts, node.expression.expression)
   );
 }
 
