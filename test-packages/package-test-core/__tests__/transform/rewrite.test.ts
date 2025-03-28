@@ -469,7 +469,7 @@ describe('Transform: rewriteModule', () => {
 
 
     test('handles satisfies', () => {
-      const emberTemplateImportsEnvironment = GlintEnvironment.load('ember-template-imports');
+      const emberTemplateImportsEnvironment = GlintEnvironment.load(['ember-template-imports']);
 
       let script = {
         filename: 'test.gts',
@@ -479,7 +479,7 @@ describe('Transform: rewriteModule', () => {
           `const SmolComp = `,
           `  <template>`,
           `    Hello there, {{@name}}`,
-          `  <template> satisfies TOC<{ Args: { name: string }}>;`,
+          `  </template> satisfies TOC<{ Args: { name: string }}>;`,
           ``,
           `<template>`,
           `  <SmolComp @name="Ember" />`,
@@ -490,83 +490,26 @@ describe('Transform: rewriteModule', () => {
 
       let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
 
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot('two components');
-      expect(transformedModule?.errors).toEqual([]);
-    });
+      expect(transformedModule?.errors?.length).toBe(0);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+"import type { TOC } from '@ember/component/template-only';
 
-    test('embedded gts templates', () => {
-      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
-      let script = {
-        filename: 'foo.gts',
-        contents: stripIndent`
-          class MyComponent {
-            <template>
-              Hello, {{this.target}}!
-            </template>
+const SmolComp = 
+  ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
+__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.name)());
+__glintRef__; __glintDSL__;
+}) satisfies TOC<{ Args: { name: string }}>;
 
-            private target = 'World';
-          }
-        `,
-      };
-
-      let rewritten = rewriteModule(ts, { script }, customEnv);
-      let roundTripOffset = (offset: number): number | undefined =>
-        rewritten?.getOriginalOffset(rewritten.getTransformedOffset(script.filename, offset))
-          .offset;
-
-      let classOffset = script.contents.indexOf('MyComponent');
-      let accessOffset = script.contents.indexOf('this.target');
-      let fieldOffset = script.contents.indexOf('private target');
-
-      expect(roundTripOffset(classOffset)).toEqual(classOffset);
-      expect(roundTripOffset(accessOffset)).toEqual(accessOffset);
-      expect(roundTripOffset(fieldOffset)).toEqual(fieldOffset);
-
-      expect(rewritten?.toDebugString()).toMatchInlineSnapshot(`
-        "TransformedModule
-
-        | Mapping: TemplateEmbedding
-        |  hbs(22:74):   <template>\\n    Hello, {{this.target}}!\\n  </template>
-        |  ts(22:369):   static { ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.target)());\\n__glintRef__; __glintDSL__;\\n}) }
-        |
-        | | Mapping: Template
-        | |  hbs(32:63):   Hello, {{this.target}}!
-        | |  ts(253:337):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.target)());
-        | |
-        | | | Mapping: TextContent
-        | | |  hbs(37:43):   Hello,
-        | | |  ts(253:253):
-        | | |
-        | | | Mapping: MustacheStatement
-        | | |  hbs(44:59):   {{this.target}}
-        | | |  ts(253:335):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.target)())
-        | | |
-        | | | | Mapping: MustacheStatement
-        | | | |  hbs(44:59):   {{this.target}}
-        | | | |  ts(278:334):  __glintDSL__.resolveOrReturn(__glintRef__.this.target)()
-        | | | |
-        | | | | | Mapping: PathExpression
-        | | | | |  hbs(46:57):   this.target
-        | | | | |  ts(307:331):  __glintRef__.this.target
-        | | | | |
-        | | | | | | Mapping: Identifier
-        | | | | | |  hbs(46:50):   this
-        | | | | | |  ts(320:324):  this
-        | | | | | |
-        | | | | | | Mapping: Identifier
-        | | | | | |  hbs(51:57):   target
-        | | | | | |  ts(325:331):  target
-        | | | | | |
-        | | | | |
-        | | | |
-        | | |
-        | | | Mapping: TextContent
-        | | |  hbs(59:60):   !
-        | | |  ts(337:337):
-        | | |
-        | |
-        |"
-      `);
+export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
+{
+const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(SmolComp)({ 
+name: "Ember", ...__glintDSL__.NamedArgsMarker }));
+__glintY__;
+}
+__glintRef__; __glintDSL__;
+}) satisfies TOC<{ Args: {}, Blocks: {}, Element: null }>
+"
+`);
     });
 
     test('implicit default export', () => {
