@@ -32,6 +32,30 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
+    test('handles satisfies', () => {
+      let script = {
+        filename: 'test.gts',
+        contents: [
+          `import type { TOC } from '@ember/component/template-only';`,
+          ``,
+          `const SmolComp = `,
+          `  <template>`,
+          `    Hello there, {{@name}}`,
+          `  <template> satisfies TOC<{ Args: { name: string }}>;`,
+          ``,
+          `<template>`,
+          `  <SmolComp @name="Ember" />`,
+          `</template>`,
+          ``,
+        ].join('\n'),
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot();
+    });
+
     test('handles the $ character', () => {
       let script = {
         filename: 'test.gts',
