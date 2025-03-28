@@ -121,7 +121,7 @@ type ETIDefaultTemplate =
 
 function isETIDefaultTemplate(ts: TSLib, node: ts.Node): node is ETIDefaultTemplate {
   return (
-    (ts.isExpressionStatement(node) || ts.isSatisfiesExpression(node)) &&
+    (ts.isExpressionStatement(node)) &&
     isETITemplateLiteral(ts, node.expression)
   );
 }
