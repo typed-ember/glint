@@ -467,7 +467,6 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
-
     test('handles satisfies', () => {
       const emberTemplateImportsEnvironment = GlintEnvironment.load(['ember-template-imports']);
 
