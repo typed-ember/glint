@@ -8,6 +8,7 @@ import {
   emitElement,
   emitComponent,
   emitSVGElement,
+  emitMathMlElement
 } from '../-private/dsl';
 import TestComponent from './test-component';
 import { htmlSafe } from '@ember/template';
@@ -89,8 +90,18 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
  * ```
  */
 {
-  const ctx = emitSVGElement('svg');
+  const ctx = emitElement('svg');
   applySplattributes(new SVGSVGElement(), ctx.element);
+}
+
+/**
+ * ```handlebars
+ * <math ...attributes></svg>
+ * ```
+ */
+{
+  const ctx = emitElement('math');
+  applySplattributes(new MathMLElement(), ctx.element);
 }
 
 /**

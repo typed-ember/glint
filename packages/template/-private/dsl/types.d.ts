@@ -20,7 +20,10 @@ export type SVGElementForTagName<Name extends string> = Name extends keyof SVGEl
   ? SVGElementTagNameMap[Name]
   : Element;
 
-type ObjectKey<O, T> = { [K in keyof O]: O[K] extends T ? K : never }[keyof O & string];
+export type MathMlElementForTagName<Name extends string> = Name extends keyof MathMLElementTagNameMap
+  ? MathMLElementTagNameMap[Name]
+  : Element;
+
 
 type WithDataAttributes<T> = T & Record<`data-${string}`, AttrValue>;
 
@@ -31,4 +34,6 @@ export type AttributesForElement<
   ? WithDataAttributes<HtmlElementAttributes.HtmlElements[K]>
   : K extends keyof SvgElementAttributes.SvgElements
     ? WithDataAttributes<SvgElementAttributes.SvgElements[K]>
-    : Record<string, AttrValue>;
+    : K extends keyof SvgElementAttributes.SvgElements
+      ? WithDataAttributes<SvgElementAttributes.SvgElements[K]>
+      :Record<string, AttrValue>;
