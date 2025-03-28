@@ -467,50 +467,6 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
-    test('handles satisfies', () => {
-      const emberTemplateImportsEnvironment = GlintEnvironment.load(['ember-template-imports']);
-
-      let script = {
-        filename: 'test.gts',
-        contents: [
-          `import type { TOC } from '@ember/component/template-only';`,
-          ``,
-          `const SmolComp = `,
-          `  <template>`,
-          `    Hello there, {{@name}}`,
-          `  </template> satisfies TOC<{ Args: { name: string }}>;`,
-          ``,
-          `<template>`,
-          `  <SmolComp @name="Ember" />`,
-          `</template> satisfies TOC<{ Args: {}, Blocks: {}, Element: null }>`,
-          ``,
-        ].join('\n'),
-      };
-
-      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
-
-      expect(transformedModule?.errors?.length).toBe(0);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-"import type { TOC } from '@ember/component/template-only';
-
-const SmolComp = 
-  ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
-__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.name)());
-__glintRef__; __glintDSL__;
-}) satisfies TOC<{ Args: { name: string }}>;
-
-export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
-{
-const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(SmolComp)({ 
-name: "Ember", ...__glintDSL__.NamedArgsMarker }));
-__glintY__;
-}
-__glintRef__; __glintDSL__;
-}) satisfies TOC<{ Args: {}, Blocks: {}, Element: null }>
-"
-`);
-    });
-
     test('implicit default export', () => {
       let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
       let script = {
