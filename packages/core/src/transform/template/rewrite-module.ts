@@ -67,17 +67,23 @@ function calculateCorrelatedSpans(
 ): CorrelatedSpansResult {
   let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
-  let partialSpans: Array<PartialCorrelatedSpan> = [];
-
-  const headerSpan: PartialCorrelatedSpan = {
-    originalFile: script,
-    originalStart: 0,
-    originalLength: 0,
-    insertionPoint: 0,
-    transformedSource:
-      "import __GLINT_GTS_EXTENSION_HACK__ from './__glint-non-existent.gts';\n import __GLINT_GJS_EXTENSION_HACK__ from './__glint-non-existent.gjs';\n",
-  };
-  partialSpans.push(headerSpan);
+  let partialSpans: Array<PartialCorrelatedSpan> = [
+    // HACK: We prefix every transformed TS file with these non-existent imports
+    // because it causes TypeScript to consider `.gts` and `.gjs` as possible
+    // implied extensions when extensions are omitted from import module specifiers,
+    // i.e. it causes `import FooComponent from './foo';` to work given a `foo.gts` file.
+    //
+    // Origin of this hack:
+    // https://github.com/typed-ember/glint/issues/806#issuecomment-2758616327
+    {
+      originalFile: script,
+      originalStart: 0,
+      originalLength: 0,
+      insertionPoint: 0,
+      transformedSource:
+        "import __GLINT_GTS_EXTENSION_HACK__ from './__glint-non-existent.gts';\n import __GLINT_GJS_EXTENSION_HACK__ from './__glint-non-existent.gjs';\n",
+    },
+  ];
 
   let { ast, emitMetadata, error } = parseScript(ts, script, environment);
 
