@@ -75,6 +75,11 @@ function calculateCorrelatedSpans(
     //
     // Origin of this hack:
     // https://github.com/typed-ember/glint/issues/806#issuecomment-2758616327
+    //
+    // Note that these imports WILL generate diagnostic errors, but because they're
+    // mapped to zero-length source code spans, they're essentially mapped to nothing,
+    // and when Volar reverse-transforms the diagnostics back to the original source
+    // code, they'll be discarded.
     {
       originalFile: script,
       originalStart: 0,
