@@ -17,7 +17,7 @@ tsconfig.json
 tsconfig.tsbuildinfo
 
 node_modules/**/
-!node_modules/glint-tsserver-plugin-pack.js
-!node_modules/glint-core-pack.js
+!node_modules/glint-tsserver-plugin-pack/index.js
+!node_modules/glint-core-pack/index.js
 
 scripts/

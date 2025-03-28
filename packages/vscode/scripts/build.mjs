@@ -14,15 +14,16 @@ const ctx = await context({
   bundle: true,
   entryPoints: {
     'dist/extension': require.resolve('../lib/src/extension.js'),
-    'node_modules/glint-tsserver-plugin-pack': '../tsserver-plugin/lib/typescript-server-plugin.js',
-    'node_modules/glint-core-pack': '../core/lib/index.js',
+    'node_modules/glint-tsserver-plugin-pack/index':
+      '../tsserver-plugin/lib/typescript-server-plugin.js',
+    'node_modules/glint-core-pack/index': '../core/lib/index.js',
   },
   external: ['vscode'],
   logLevel: 'info',
   minify: !debug,
   outdir: fileURLToPath(new URL('../', import.meta.url)),
   platform: 'node',
-  sourcemap: debug,
+  sourcemap: false,
   target: 'node16',
 
   // Since we're generating CJS, we need to replace any ESM import.meta.url with `__filename`
@@ -30,7 +31,7 @@ const ctx = await context({
   inject: [require.resolve('./import-meta-url.js')],
   define: {
     'import.meta.url': 'import_meta_url',
-    GLINT_CORE_PATH: '"glint-core-pack.js"',
+    GLINT_CORE_PATH: '"glint-core-pack/index.js"',
   },
 
   plugins: [

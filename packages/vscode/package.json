@@ -2,7 +2,7 @@
   "name": "glint-vscode",
   "displayName": "Glint",
   "description": "Glint language server integration for VS Code",
-  "version": "1.4.3",
+  "version": "1.4.5",
   "publisher": "typed-ember",
   "private": true,
   "author": "James C. Davis (https://github.com/jamescdavis)",
@@ -257,6 +257,7 @@
     "glob": "^10.2.4",
     "mocha": "^10.2.0",
     "reactive-vscode": "0.2.7-beta.1",
+    "semver": "^7.5.2",
     "typescript": "^5.8.2",
     "vscode-ext-gen": "^0.5.0"
   },
