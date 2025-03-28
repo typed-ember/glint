@@ -122,6 +122,23 @@ type ETIDefaultSatisfiesTemplate = ts.ExpressionStatement & {
   expression: ts.SatisfiesExpression & { expression: ETITemplateLiteral };
 };
 
+/**
+ * Implicit default export:
+ * 
+ *   ( <template></template> )
+ *   ^ ExpressionStatement
+ * 
+ *   ( <template></template> satisfies ... )
+ *   ^ SatisfiesExpression
+ * 
+ * But!
+ * 
+ *   ( const X = <template></template> satisfies ... )
+ *   ^ VariableStatement
+ * 
+ * So when we check for a wrapping SatisfiesExpression, we need to also make sure 
+ * the parent node is not a variable Statement.
+ */
 function isETIDefaultTemplate(ts: TSLib, node: ts.Node): node is ETIDefaultTemplate {
   return ts.isExpressionStatement(node) && isETITemplateLiteral(ts, node.expression);
 }
