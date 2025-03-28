@@ -14,7 +14,8 @@ const ctx = await context({
   bundle: true,
   entryPoints: {
     'dist/extension': require.resolve('../lib/src/extension.js'),
-    'node_modules/glint-tsserver-plugin-pack/index': '../tsserver-plugin/lib/typescript-server-plugin.js',
+    'node_modules/glint-tsserver-plugin-pack/index':
+      '../tsserver-plugin/lib/typescript-server-plugin.js',
     'node_modules/glint-core-pack/index': '../core/lib/index.js',
   },
   external: ['vscode'],
