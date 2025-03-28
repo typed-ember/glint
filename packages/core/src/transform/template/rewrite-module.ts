@@ -74,10 +74,11 @@ function calculateCorrelatedSpans(
     originalStart: 0,
     originalLength: 0,
     insertionPoint: 0,
-    transformedSource: "import __GLINT_GTS_EXTENSION_HACK__ from './__glint-non-existent.gts';\n import __GLINT_GJS_EXTENSION_HACK__ from './__glint-non-existent.gjs';\n",
+    transformedSource:
+      "import __GLINT_GTS_EXTENSION_HACK__ from './__glint-non-existent.gts';\n import __GLINT_GJS_EXTENSION_HACK__ from './__glint-non-existent.gjs';\n",
   };
   partialSpans.push(headerSpan);
-  
+
   let { ast, emitMetadata, error } = parseScript(ts, script, environment);
 
   if (error) {
