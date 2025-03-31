@@ -1,3 +1,5 @@
+import { TransformedModule } from '@glint/core/lib/transform';
+
 const { createJiti } = require('jiti');
 const jiti = createJiti(__filename);
 
@@ -91,7 +93,8 @@ function proxyLanguageServiceForGlint<T>(
   const proxyCache = new Map<string | symbol, Function | undefined>();
   const getProxyMethod = (target: ts.LanguageService, p: string | symbol): Function | undefined => {
     switch (p) {
-      // case 'getCompletionsAtPosition': return getCompletionsAtPosition(glintOptions, target[p]);
+      case 'getCompletionsAtPosition':
+        return getCompletionsAtPosition(ts, language, languageService, asScriptId, target[p]);
       // case 'getCompletionEntryDetails': return getCompletionEntryDetails(language, asScriptId, target[p]);
       // case 'getCodeFixesAtPosition': return getCodeFixesAtPosition(target[p]);
       // case 'getDefinitionAndBoundSpan': return getDefinitionAndBoundSpan(ts, language, languageService, glintOptions, asScriptId, target[p]);
@@ -121,6 +124,45 @@ function proxyLanguageServiceForGlint<T>(
       return Reflect.set(target, p, value, receiver);
     },
   });
+}
+
+function getCompletionsAtPosition<T>(
+  ts: typeof import('typescript'),
+  language: any, // Language<T>,
+  languageService: ts.LanguageService,
+  asScriptId: (fileName: string) => T,
+  getCompletionsAtPosition: ts.LanguageService['getCompletionsAtPosition'],
+): ts.LanguageService['getCompletionsAtPosition'] {
+  return (fileName, position, options, formattingSettings) => {
+    try {
+      const sourceScript = language.scripts.get(asScriptId(fileName));
+      const root = sourceScript?.generated?.root;
+      const transformedModule: TransformedModule = root?.transformedModule;
+      const completions = getCompletionsAtPosition(fileName, position, options, formattingSettings);
+      const transformedRange = transformedModule?.getTransformedRange(
+        'disregard.gts',
+        position,
+        position,
+      );
+      if (completions && transformedRange) {
+        // for attribute names on elements, we do not want the wrapping `"`.
+        if (transformedRange.mapping?.parent?.sourceNode.type === 'ElementNode') {
+          completions.entries = completions.entries.map((e) => ({
+            ...e,
+            name: e.name.replace(/^"/, '').replace(/"$/, ''),
+            sortText: e.sortText.replace(/\\"/g, ''),
+          }));
+        }
+      }
+
+      console.log(completions);
+      return completions!;
+    } catch (e) {
+      console.log('error', (e as any)?.message);
+      console.log(e);
+      throw e;
+    }
+  };
 }
 
 function getSemanticDiagnostics<T>(

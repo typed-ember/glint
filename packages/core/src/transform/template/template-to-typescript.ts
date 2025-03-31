@@ -898,16 +898,16 @@ export function templateToTypescript(
         mapper.indent();
 
         if (inHtmlContext === 'default') {
-          mapper.text('const __glintY__ = __glintDSL__.emitElement(');
+          mapper.text('const __glintY__ = __glintDSL__.emitElement("');
         } else if (inHtmlContext === 'svg') {
-          mapper.text('const __glintY__ = __glintDSL__.emitSVGElement(');
+          mapper.text('const __glintY__ = __glintDSL__.emitSVGElement("');
         } else if (inHtmlContext === 'math') {
-          mapper.text('const __glintY__ = __glintDSL__.emitMathMlElement(');
+          mapper.text('const __glintY__ = __glintDSL__.emitMathMlElement("');
         }
         mapper.forNode(node.path, () => {
-          mapper.text(JSON.stringify(node.tag));
+          mapper.text(node.tag);
         });
-        mapper.text(');');
+        mapper.text('");');
         mapper.newline();
 
         emitAttributesAndModifiers(node, directivesWeakMap);
@@ -934,19 +934,9 @@ export function templateToTypescript(
       node: AST.ElementNode,
       directivesWeakMap: WeakMap<AST.Node, DirectiveKind>,
     ): void {
-      let nonArgAttributes = node.attributes.filter((attr) => !attr.name.startsWith('@'));
-      if (!nonArgAttributes.length && !node.modifiers.length) {
-        // Avoid unused-symbol diagnostics
-        // TODO: With Volar you can simply disable `verification` on the CodeInformation
-        // to prevent diagnostics from mapping back upwards. Perhaps we should use that
-        // instead of preserving these empty statements/expressions.
-        mapper.text('__glintY__;');
-        mapper.newline();
-      } else {
-        emitSplattributes(node);
-        emitPlainAttributes(node, directivesWeakMap);
-        emitModifiers(node, directivesWeakMap);
-      }
+      emitSplattributes(node);
+      emitPlainAttributes(node, directivesWeakMap);
+      emitModifiers(node, directivesWeakMap);
     }
 
     function emitPlainAttributes(
@@ -958,8 +948,10 @@ export function templateToTypescript(
       );
 
       mapper.text('__glintDSL__.applyAttributes(__glintY__.element, {');
-
-      mapper.forNodeWithSpan(node, node.openTag, () => {
+      const attrsSpan = node.openTag
+        .withStart(node.path.loc.getEnd())
+        .withEnd(node.openTag.getEnd().move(-1));
+      mapper.forNodeWithSpan(node, attrsSpan, () => {
         mapper.newline();
         mapper.indent();
 
@@ -986,17 +978,12 @@ export function templateToTypescript(
 
           mapper.terminateDirectiveAreaOfEffect('emitPlainAttributes');
         }
-
-        // in case there are no attributes, this would allow completions to trigger
-        if (attributes.length === 0) {
-          mapper.text(' ');
-          mapper.newline();
-        }
-
-        mapper.dedent();
-        mapper.text('});');
         mapper.newline();
       });
+      mapper.newline();
+      mapper.dedent();
+      mapper.text('});');
+      mapper.newline();
     }
 
     function emitSplattributes(node: AST.ElementNode): void {

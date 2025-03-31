@@ -49,9 +49,7 @@ export declare function emitContent(value: ContentValue): void;
  *       applyModifier(__glintY__.element, resolve(on)({}, 'click', this.clicked));
  *     });
  */
-export declare function emitElement<
-  Name extends string | keyof HTMLElementTagNameMap | 'math' | 'svg',
->(
+export declare function emitElement<Name extends keyof HTMLElementTagNameMap | 'math' | 'svg'>(
   name: Name,
 ): {
   element: Name extends 'math'
@@ -61,11 +59,11 @@ export declare function emitElement<
       : ElementForTagName<Name>;
 };
 
-export declare function emitSVGElement<Name extends string | keyof SVGElementTagNameMap>(
+export declare function emitSVGElement<Name extends keyof SVGElementTagNameMap>(
   name: Name,
 ): { element: SVGElementForTagName<Name> };
 
-export declare function emitMathMlElement<Name extends string | keyof MathMLElementTagNameMap>(
+export declare function emitMathMlElement<Name extends keyof MathMLElementTagNameMap>(
   name: Name,
 ): { element: MathMlElementForTagName<Name> };
 
