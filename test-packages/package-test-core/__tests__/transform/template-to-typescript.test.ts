@@ -1560,4 +1560,26 @@ describe('Transform: rewriteTemplate', () => {
       ]);
     });
   });
+
+  describe('global variables', () => {
+    test('uses vaariable in scope over global variable', () => {
+      let template = `
+        {{action "action"}}
+        {{#each actions as |action|}}
+          {{action}}
+        {{/each}}`;
+
+      expect(templateBody(template, { globals: ['action'] })).toMatchInlineSnapshot(`
+        "__glintDSL__.emitContent(__glintDSL__.resolve(__glintDSL__.Globals["action"])("action"));
+        {
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(each)(actions));
+        {
+        const [action] = __glintY__.blockParams["default"];
+        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(action)());
+        }
+        each;
+        }"
+      `);
+    });
+  });
 });
