@@ -60,6 +60,7 @@ export function templateToTypescript(
   return mapTemplateContents(originalTemplate, { embeddingSyntax }, (ast, mapper) => {
     let { rangeForNode } = mapper;
     let scope = new ScopeStack([]);
+    let inHtmlContext: 'svg' | 'math' | 'default' = 'default';
 
     emitTemplateBoilerplate(() => {
       for (let statement of ast?.body ?? []) {
@@ -184,6 +185,12 @@ export function templateToTypescript(
       } else if (kind === 'nocheck') {
         // Push to the directives array on the record
         mapper.directive(node, 'nocheck');
+      } else if (kind === 'in-svg') {
+        inHtmlContext = 'svg';
+      } else if (kind === 'in-mathml') {
+        inHtmlContext = 'math';
+      } else if (kind === 'out-svg' || kind === 'out-mathml') {
+        inHtmlContext = 'default';
       } else {
         // Push an error on the record
         mapper.error(`Unknown directive @glint-${kind}`, location);
@@ -878,15 +885,29 @@ export function templateToTypescript(
       mapper.forNode(node, () => {
         const directivesWeakMap = assignDirectivesToElementOpenTagPieces(node);
 
+        if (node.tag === 'svg') {
+          inHtmlContext = 'svg';
+        }
+
+        if (node.tag === 'math') {
+          inHtmlContext = 'math';
+        }
+
         mapper.text('{');
         mapper.newline();
         mapper.indent();
 
-        mapper.text('const __glintY__ = __glintDSL__.emitElement(');
+        if (inHtmlContext === 'default') {
+          mapper.text('const __glintY__ = __glintDSL__.emitElement("');
+        } else if (inHtmlContext === 'svg') {
+          mapper.text('const __glintY__ = __glintDSL__.emitSVGElement("');
+        } else if (inHtmlContext === 'math') {
+          mapper.text('const __glintY__ = __glintDSL__.emitMathMlElement("');
+        }
         mapper.forNode(node.path, () => {
-          mapper.text(JSON.stringify(node.tag));
+          mapper.text(node.tag);
         });
-        mapper.text(');');
+        mapper.text('");');
         mapper.newline();
 
         emitAttributesAndModifiers(node, directivesWeakMap);
@@ -899,6 +920,10 @@ export function templateToTypescript(
           emitTopLevelStatement(child);
         }
 
+        if (node.tag === 'svg' || node.tag === 'math') {
+          inHtmlContext = 'default';
+        }
+
         mapper.dedent();
         mapper.text('}');
         mapper.newline();
@@ -909,19 +934,9 @@ export function templateToTypescript(
       node: AST.ElementNode,
       directivesWeakMap: WeakMap<AST.Node, DirectiveKind>,
     ): void {
-      let nonArgAttributes = node.attributes.filter((attr) => !attr.name.startsWith('@'));
-      if (!nonArgAttributes.length && !node.modifiers.length) {
-        // Avoid unused-symbol diagnostics
-        // TODO: With Volar you can simply disable `verification` on the CodeInformation
-        // to prevent diagnostics from mapping back upwards. Perhaps we should use that
-        // instead of preserving these empty statements/expressions.
-        mapper.text('__glintY__;');
-        mapper.newline();
-      } else {
-        emitSplattributes(node);
-        emitPlainAttributes(node, directivesWeakMap);
-        emitModifiers(node, directivesWeakMap);
-      }
+      emitSplattributes(node);
+      emitPlainAttributes(node, directivesWeakMap);
+      emitModifiers(node, directivesWeakMap);
     }
 
     function emitPlainAttributes(
@@ -933,8 +948,10 @@ export function templateToTypescript(
       );
 
       mapper.text('__glintDSL__.applyAttributes(__glintY__.element, {');
-
-      mapper.forNodeWithSpan(node, node.openTag, () => {
+      const attrsSpan = node.openTag
+        .withStart(node.path.loc.getEnd())
+        .withEnd(node.openTag.getEnd().move(-1));
+      mapper.forNodeWithSpan(node, attrsSpan, () => {
         mapper.newline();
         mapper.indent();
 
@@ -961,17 +978,12 @@ export function templateToTypescript(
 
           mapper.terminateDirectiveAreaOfEffect('emitPlainAttributes');
         }
-
-        // in case there are no attributes, this would allow completions to trigger
-        if (attributes.length === 0) {
-          mapper.text(' ');
-          mapper.newline();
-        }
-
-        mapper.dedent();
-        mapper.text('});');
         mapper.newline();
       });
+      mapper.newline();
+      mapper.dedent();
+      mapper.text('});');
+      mapper.newline();
     }
 
     function emitSplattributes(node: AST.ElementNode): void {
