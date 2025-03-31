@@ -4,7 +4,8 @@
   "private": true,
   "repository": "https://github.com/typed-ember/glint",
   "scripts": {
-    "build": "pnpm --filter '@glint/core' --filter '@glint/tsserver-plugin' build && pnpm --filter 'glint-vscode' build",
+    "build": "tsc --build",
+    "build:vscode": "pnpm --filter '@glint/core' --filter '@glint/tsserver-plugin' build && pnpm --filter 'glint-vscode' build",
     "build:watch": "tsc --build --watch",
     "format": "prettier --write .",
     "link:build": "node ./bin/link-build.mjs",
