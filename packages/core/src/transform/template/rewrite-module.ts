@@ -28,6 +28,11 @@ export type RewriteInput = { script: SourceFile; template?: SourceFile };
 //
 // Origin of this hack:
 // https://github.com/typed-ember/glint/issues/806#issuecomment-2758616327
+//
+// This approach has the following desirable properties:
+//
+// 1. It doesn't break Organize Imports command
+// 2. It doesn't introduce any keywords/variables that'll show up in auto-complete suggestions
 const EXTENSION_FIXING_HEADER_HACK = `
 // @ts-expect-error
 ({} as typeof import('./__glint-hacky-nonexistent.gts'));
