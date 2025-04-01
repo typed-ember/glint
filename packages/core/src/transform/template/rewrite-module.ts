@@ -30,9 +30,10 @@ export type RewriteInput = { script: SourceFile; template?: SourceFile };
 // https://github.com/typed-ember/glint/issues/806#issuecomment-2758616327
 const EXTENSION_FIXING_HEADER_HACK = `
 // @ts-expect-error
-let __GLINT_GTS_EXTENSION_HACK__: typeof import('./nonexistent.gts');
+({} as typeof import('./__glint-hacky-nonexistent.gts'));
+
 // @ts-expect-error
-let __GLINT_GJS_EXTENSION_HACK__: typeof import('./nonexistent.gjs');
+({} as typeof import('./__glint-hacky-nonexistent.gjs'));
 
 `;
 
