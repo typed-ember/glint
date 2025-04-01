@@ -69,7 +69,7 @@ interface ShoutSignature {
 
 const louderPlease = (message: string) => message.toUpperCase();
 
-export default <template>
+<template>
     <div ...attributes>
         {{yield (louderPlease @message)}}
     </div>
