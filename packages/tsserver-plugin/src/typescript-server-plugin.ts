@@ -100,7 +100,8 @@ function proxyLanguageServiceForGlint<T>(
       // case 'getDefinitionAndBoundSpan': return getDefinitionAndBoundSpan(ts, language, languageService, glintOptions, asScriptId, target[p]);
       // case 'getQuickInfoAtPosition': return getQuickInfoAtPosition(ts, target, target[p]);
       // TS plugin only
-      // case 'getEncodedSemanticClassifications': return getEncodedSemanticClassifications(ts, language, target, asScriptId, target[p]);
+      case 'getEncodedSemanticClassifications':
+        return getEncodedSemanticClassifications(ts, language, target, asScriptId, target[p]);
 
       case 'getSemanticDiagnostics':
         return getSemanticDiagnostics(ts, language, languageService, asScriptId, target[p]);
@@ -201,5 +202,49 @@ function getSemanticDiagnostics<T>(
     const augmentedTsDiagnostics = augmentDiagnostics(transformedModule, tsDiagnostics);
 
     return augmentedTsDiagnostics;
+  };
+}
+
+const windowsPathReg = /\\/g;
+
+/**
+ * Return semantic tokens for semantic highlighting:
+ * https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide
+ */
+function getEncodedSemanticClassifications<T>(
+  ts: typeof import('typescript'),
+  language: any, // Language<T>,
+  languageService: ts.LanguageService,
+  asScriptId: (fileName: string) => T,
+  getEncodedSemanticClassifications: ts.LanguageService['getEncodedSemanticClassifications'],
+): ts.LanguageService['getEncodedSemanticClassifications'] {
+  return (filePath, span, format) => {
+    const fileName = filePath.replace(windowsPathReg, '/');
+    const result = getEncodedSemanticClassifications(fileName, span, format);
+    const sourceScript = language.scripts.get(asScriptId(fileName));
+    const root = sourceScript?.generated?.root;
+    if (root instanceof VirtualGtsCode) {
+      result.spans = [];
+
+    //   const { template } = root.sfc;
+    //   if (template) {
+    //     for (const componentSpan of getComponentSpans.call(
+    //       { typescript: ts, languageService },
+    //       root,
+    //       template,
+    //       {
+    //         start: span.start - template.startTagEnd,
+    //         length: span.length,
+    //       },
+    //     )) {
+    //       result.spans.push(
+    //         componentSpan.start + template.startTagEnd,
+    //         componentSpan.length,
+    //         256, // class
+    //       );
+    //     }
+    //   }
+    }
+    return result;
   };
 }
