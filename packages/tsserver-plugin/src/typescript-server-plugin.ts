@@ -100,8 +100,11 @@ function proxyLanguageServiceForGlint<T>(
       // case 'getDefinitionAndBoundSpan': return getDefinitionAndBoundSpan(ts, language, languageService, glintOptions, asScriptId, target[p]);
       // case 'getQuickInfoAtPosition': return getQuickInfoAtPosition(ts, target, target[p]);
       // TS plugin only
-      case 'getEncodedSemanticClassifications':
-        return getEncodedSemanticClassifications(ts, language, target, asScriptId, target[p]);
+
+      // Left as an example in case we want to augment semantic classification in .gts files.
+      // e.g. Vue does this to semantically classify Component names as `class` tokens.
+      // case 'getEncodedSemanticClassifications':
+      //   return getEncodedSemanticClassifications(ts, language, target, asScriptId, target[p]);
 
       case 'getSemanticDiagnostics':
         return getSemanticDiagnostics(ts, language, languageService, asScriptId, target[p]);
@@ -210,7 +213,6 @@ const windowsPathReg = /\\/g;
 /**
  * Return semantic tokens for semantic highlighting:
  * https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide
- */
 function getEncodedSemanticClassifications<T>(
   ts: typeof import('typescript'),
   language: any, // Language<T>,
@@ -224,27 +226,18 @@ function getEncodedSemanticClassifications<T>(
     const sourceScript = language.scripts.get(asScriptId(fileName));
     const root = sourceScript?.generated?.root;
     if (root instanceof VirtualGtsCode) {
-      result.spans = [];
+      // This would remove all semantic highlighting from .gts files, including the TS parts
+      // outside of the `<template>` tags, which is probably undesirable.
+      // result.spans = [];
 
-    //   const { template } = root.sfc;
-    //   if (template) {
-    //     for (const componentSpan of getComponentSpans.call(
-    //       { typescript: ts, languageService },
-    //       root,
-    //       template,
-    //       {
-    //         start: span.start - template.startTagEnd,
-    //         length: span.length,
-    //       },
-    //     )) {
-    //       result.spans.push(
-    //         componentSpan.start + template.startTagEnd,
-    //         componentSpan.length,
-    //         256, // class
-    //       );
-    //     }
-    //   }
+      // We can push span to the end of the array to override previous entries.
+      // result.spans.push(
+      //   0,
+      //   100,
+      //   256, // class
+      // );
     }
     return result;
   };
 }
+ */
