@@ -75,6 +75,8 @@ connection.onInitialize((params) => {
             return ls;
           }
         }
+        // TODO: this branch is hit when running Volar Labs and currently breaks. Figure out
+        // how to reinstate a "simple" LS without a tsconfig.
         return (simpleLs ??= createLs(server, undefined));
       },
       getExistingLanguageServices() {

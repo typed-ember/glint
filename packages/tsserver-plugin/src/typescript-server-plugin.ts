@@ -100,7 +100,11 @@ function proxyLanguageServiceForGlint<T>(
       // case 'getDefinitionAndBoundSpan': return getDefinitionAndBoundSpan(ts, language, languageService, glintOptions, asScriptId, target[p]);
       // case 'getQuickInfoAtPosition': return getQuickInfoAtPosition(ts, target, target[p]);
       // TS plugin only
-      // case 'getEncodedSemanticClassifications': return getEncodedSemanticClassifications(ts, language, target, asScriptId, target[p]);
+
+      // Left as an example in case we want to augment semantic classification in .gts files.
+      // e.g. Vue does this to semantically classify Component names as `class` tokens.
+      // case 'getEncodedSemanticClassifications':
+      //   return getEncodedSemanticClassifications(ts, language, target, asScriptId, target[p]);
 
       case 'getSemanticDiagnostics':
         return getSemanticDiagnostics(ts, language, languageService, asScriptId, target[p]);
@@ -203,3 +207,37 @@ function getSemanticDiagnostics<T>(
     return augmentedTsDiagnostics;
   };
 }
+
+const windowsPathReg = /\\/g;
+
+/**
+ * Return semantic tokens for semantic highlighting:
+ * https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide
+function getEncodedSemanticClassifications<T>(
+  ts: typeof import('typescript'),
+  language: any, // Language<T>,
+  languageService: ts.LanguageService,
+  asScriptId: (fileName: string) => T,
+  getEncodedSemanticClassifications: ts.LanguageService['getEncodedSemanticClassifications'],
+): ts.LanguageService['getEncodedSemanticClassifications'] {
+  return (filePath, span, format) => {
+    const fileName = filePath.replace(windowsPathReg, '/');
+    const result = getEncodedSemanticClassifications(fileName, span, format);
+    const sourceScript = language.scripts.get(asScriptId(fileName));
+    const root = sourceScript?.generated?.root;
+    if (root instanceof VirtualGtsCode) {
+      // This would remove all semantic highlighting from .gts files, including the TS parts
+      // outside of the `<template>` tags, which is probably undesirable.
+      // result.spans = [];
+
+      // We can push span to the end of the array to override previous entries.
+      // result.spans.push(
+      //   0,
+      //   100,
+      //   256, // class
+      // );
+    }
+    return result;
+  };
+}
+ */

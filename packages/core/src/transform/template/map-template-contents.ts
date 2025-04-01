@@ -232,7 +232,12 @@ export function mapTemplateContents(
           hbsRange,
           mappings,
           source,
-          codeFeaturesForNode ?? codeFeaturesProxy.all,
+
+          // Prevent TS's semantic classifications (used for semantic highlighting, see
+          // https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide) from being
+          // source-mapped back to the glimmer template. These might be useful to reinstate at some
+          // point in the future but by default tends to make the highlighting in gts files look wrong.
+          codeFeaturesForNode ?? codeFeaturesProxy.withoutHighlight,
         ),
       );
       segmentsStack[0].push(...segments);
