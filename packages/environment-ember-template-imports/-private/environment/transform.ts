@@ -20,8 +20,9 @@ export const transform: GlintExtensionTransform<PreprocessData> = (
 
   function transformNode(node: ts.Node): ts.Node {
     if (ts.isSourceFile(node)) {
-      // Add `import { hbs as __T } from 'ember-template-imports'` to the file
-      return addTagImport(f, node);
+      // plain TS files are not supported for transformation,
+      // we just use them as-is
+      return node;
     } else if (isETIDefaultTemplate(ts, node)) {
       // Annotate that this template is a default export
       setEmitMetadata(node.expression, { prepend: 'export default ' });
