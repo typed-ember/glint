@@ -20,17 +20,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
           # This creates an .npmrc that reads the NODE_AUTH_TOKEN environment variable
           registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 10.6.2
-          run_install: true
+          
+      - run: pnpm install
 
       # - name: Lint
       #   run: pnpm lint
