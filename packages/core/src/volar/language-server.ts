@@ -9,7 +9,7 @@ import { createEmberLanguagePlugin } from './ember-language-plugin.js';
 import { ConfigLoader } from '../config/loader.js';
 import type { LanguageServiceContext, LanguageServicePlugin } from '@volar/language-service';
 import { create as createGtsGjsPlugin } from '../plugins/gts-gjs-plugin.js';
-import { GlintConfig } from '../config/config.js';
+import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic.js';
 
 type GlintInitializationOptions = any; // TODO rm hackiness
 
@@ -183,7 +183,9 @@ function getHybridModeLanguageServicePluginsForLanguageServer(
   // getTsPluginClient: import('@glint/tsserver/lib/requests').Requests | undefined,
 ): LanguageServicePlugin<any>[] {
   const plugins = [
-    // createTypeScriptSyntacticPlugin(ts),
+    // Lightweight syntax-only TS Language Service. Provides Symbols (e.g. Outline view) and other features.
+    createTypeScriptSyntacticPlugin(ts),
+
     // createTypeScriptDocCommentTemplatePlugin(ts),
     ...getCommonLanguageServicePluginsForLanguageServer(ts, () => getTsPluginClient),
   ];

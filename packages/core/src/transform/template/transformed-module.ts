@@ -334,7 +334,12 @@ export default class TransformedModule {
           // TODO: audit usage of `codeFeatures.all` here: https://github.com/typed-ember/glint/issues/769
           // There are cases where we need to be disabling certain features to prevent, e.g., navigation
           // that targets an "in-between" piece of generated code.
-          push(span.originalStart, span.transformedStart, span.originalLength, codeFeatures.all);
+          push(span.originalStart, span.transformedStart, span.originalLength, {
+            ...codeFeatures.all,
+
+            // This enables symbol/outline info for the transformed TS to appear in for the .gts file.
+            structure: true,
+          });
         }
       }
     });
