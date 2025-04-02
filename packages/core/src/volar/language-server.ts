@@ -1,4 +1,4 @@
-import type { LanguageServer } from '@volar/language-server';
+import type { LanguagePlugin, LanguageServer } from '@volar/language-server';
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject.js';
 import { createConnection, createServer, loadTsdkByPath } from '@volar/language-server/node.js';
 import { createLanguage } from '@volar/language-core';
@@ -8,6 +8,8 @@ import { URI } from 'vscode-uri';
 import { createEmberLanguagePlugin } from './ember-language-plugin.js';
 import { ConfigLoader } from '../config/loader.js';
 import type { LanguageServiceContext, LanguageServicePlugin } from '@volar/language-service';
+import { create as createGtsGjsPlugin } from '../plugins/gts-gjs-plugin.js';
+import { GlintConfig } from '../config/config.js';
 
 type GlintInitializationOptions = any; // TODO rm hackiness
 
@@ -28,13 +30,11 @@ connection.onInitialize((params) => {
     throw new Error('typescript.tsdk is required');
   }
 
-  // TODO: Perform Vue-style proxying to tsserver instance
-  // See: https://github.com/vuejs/language-tools/pull/5252
-  // if (!options.typescript?.requestForwardingCommand) {
-  //   connection.console.warn(
-  //     'typescript.requestForwardingCommand is required since >= 3.0 for complete TS features',
-  //   );
-  // }
+  if (!options.typescript?.tsserverRequestCommand) {
+    connection.console.warn(
+      'typescript.tsserverRequestCommand is required since Glint V2 for complete TS features',
+    );
+  }
 
   const { typescript: ts } = loadTsdkByPath(options.typescript.tsdk, params.locale);
   const tsconfigProjects = createUriMap<LanguageService>();
@@ -56,7 +56,8 @@ connection.onInitialize((params) => {
     {
       setup() {},
       async getLanguageService(uri) {
-        if (uri.scheme === 'file' && options.typescript.requestForwardingCommand) {
+        if (uri.scheme === 'file' && options.typescript.tsserverRequestCommand) {
+          // Use tsserver to find the tsconfig governing this file.
           const fileName = uri.fsPath.replace(/\\/g, '/');
           const projectInfo = await sendTsRequest<ts.server.protocol.ProjectInfo>(
             ts.server.protocol.CommandTypes.ProjectInfo,
@@ -69,7 +70,7 @@ connection.onInitialize((params) => {
             const { configFileName } = projectInfo;
             let ls = tsconfigProjects.get(URI.file(configFileName));
             if (!ls) {
-              ls = createLs(server, configFileName);
+              ls = createLanguageServiceHelper(server, configFileName);
               tsconfigProjects.set(URI.file(configFileName), ls);
             }
             return ls;
@@ -77,7 +78,7 @@ connection.onInitialize((params) => {
         }
         // TODO: this branch is hit when running Volar Labs and currently breaks. Figure out
         // how to reinstate a "simple" LS without a tsconfig.
-        return (simpleLs ??= createLs(server, undefined));
+        return (simpleLs ??= createLanguageServiceHelper(server, undefined));
       },
       getExistingLanguageServices() {
         return Promise.all([...tsconfigProjects.values(), simpleLs].filter((promise) => !!promise));
@@ -92,7 +93,7 @@ connection.onInitialize((params) => {
     },
     getHybridModeLanguageServicePluginsForLanguageServer(
       ts,
-      options.typescript.requestForwardingCommand
+      options.typescript.tsserverRequestCommand
         ? {
             // TODO: Perform Vue-style proxying to tsserver instance
             // See: https://github.com/vuejs/language-tools/pull/5252
@@ -133,45 +134,41 @@ connection.onInitialize((params) => {
   );
 
   function sendTsRequest<T>(command: string, args: any): Promise<T | null> {
-    return connection.sendRequest<T>(options.typescript.requestForwardingCommand!, [command, args]);
+    return connection.sendRequest<T>(options.typescript.tsserverRequestCommand!, [command, args]);
   }
 
-  function createLs(server: LanguageServer, tsconfigFileName: string | undefined): LanguageService {
-    if (!tsconfigFileName) {
-      throw new Error('tsconfigFileName is required');
-    }
-
-    const configLoader = new ConfigLoader();
-    const glintConfig = configLoader.configForFile(tsconfigFileName);
-
-    if (!glintConfig) {
-      throw new Error('glintConfig is required');
-    }
-
-    const emberLanguagePlugin = createEmberLanguagePlugin(glintConfig);
-    const language = createLanguage<URI>(
-      [
-        {
-          getLanguageId: (uri) => server.documents.get(uri)?.languageId,
-        },
-        emberLanguagePlugin,
-      ],
-      createUriMap(),
-      (uri) => {
-        const document = server.documents.get(uri);
-        if (document) {
-          language.scripts.set(uri, document.getSnapshot(), document.languageId);
-        } else {
-          language.scripts.delete(uri);
-        }
+  function createLanguageServiceHelper(
+    server: LanguageServer,
+    tsconfigFileName: string | undefined,
+  ): LanguageService {
+    const languagePlugins: LanguagePlugin<URI>[] = [
+      {
+        getLanguageId: (uri) => server.documents.get(uri)?.languageId,
       },
-    );
+    ];
+
+    if (tsconfigFileName) {
+      const configLoader = new ConfigLoader();
+      const glintConfig = configLoader.configForFile(tsconfigFileName);
+      if (glintConfig) {
+        const emberLanguagePlugin = createEmberLanguagePlugin(glintConfig);
+        languagePlugins.push(emberLanguagePlugin);
+      }
+    }
+
+    const language = createLanguage<URI>(languagePlugins, createUriMap(), (uri) => {
+      const document = server.documents.get(uri);
+      if (document) {
+        language.scripts.set(uri, document.getSnapshot(), document.languageId);
+      } else {
+        language.scripts.delete(uri);
+      }
+    });
     return createLanguageService(
       language,
       server.languageServicePlugins,
       createLanguageServiceEnvironment(server, [...server.workspaceFolders.all]),
       {},
-      // { vue: { compilerOptions: commonLine.vueOptions } },
     );
   }
 });
@@ -203,6 +200,7 @@ function getCommonLanguageServicePluginsForLanguageServer(
   // ) => import('@glint/tsserver/lib/requests').Requests | undefined,
 ): LanguageServicePlugin[] {
   return [
+    createGtsGjsPlugin(),
     // createTypeScriptTwoslashQueriesPlugin(ts),
     // createCssPlugin(),
     // createPugFormatPlugin(),

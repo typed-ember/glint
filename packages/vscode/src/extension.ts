@@ -9,6 +9,7 @@ import { config } from './config';
 
 import {
   defineExtension,
+  executeCommand,
   extensionContext,
   onDeactivate,
   useWorkspaceFolders,
@@ -31,21 +32,16 @@ export const { activate, deactivate } = defineExtension(async () => {
 
     await tsExtension.activate();
   } else {
-    // TODO: we may decide to commit fully to TS Plugin mode, in which case it might be nice
-    // to have the message displayed below to guide the user.
-    // NOTE: Vue language tooling will continue to display this message even when willfully
-    // setting hybrid mode to false (i.e. using old LS approach). If we want to continue to support
-    // LS mode then we should leave this message commented out.
-    // vscode.window
-    //   .showWarningMessage(
-    //     'Takeover mode is no longer needed since v2. Please enable the "TypeScript and JavaScript Language Features" extension.',
-    //     'Show Extension',
-    //   )
-    //   .then((selected) => {
-    //     if (selected) {
-    //       executeCommand('workbench.extensions.search', '@builtin typescript-language-features');
-    //     }
-    //   });
+    vscode.window
+      .showWarningMessage(
+        'Glint V2 requires the "TypeScript and JavaScript Language Features" extension to be enabled.',
+        'Show Extension',
+      )
+      .then((selected) => {
+        if (selected) {
+          executeCommand('workbench.extensions.search', '@builtin typescript-language-features');
+        }
+      });
   }
 
   const context = extensionContext.value!;
@@ -139,6 +135,30 @@ export const { activate, deactivate } = defineExtension(async () => {
             volarLabs.addLanguageClient(client);
 
             updateProviders(client);
+
+            // Similarly to Vue, we implement a handler to receive requests from the LanguageServer,
+            // and then forward them to the same tsserver instance used/provided by the default
+            // VSCode TypeScript extension.
+            //
+            // This technique is described in the originating Vue PR:
+            // https://github.com/vuejs/language-tools/pull/5252
+            client.onRequest('tsserverRequest', async ([command, args]) => {
+              const tsserver = (globalThis as any).__TSSERVER__?.semantic;
+              if (!tsserver) {
+                return;
+              }
+              try {
+                const res = await tsserver.executeImpl(command, args, {
+                  isAsync: true,
+                  expectsResult: true,
+                  lowPriority: true,
+                  requireSemantic: true,
+                })[0];
+                return res.body;
+              } catch(e) {
+                // noop
+              }
+            });
 
             return client;
           },

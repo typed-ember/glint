@@ -153,7 +153,10 @@ async function getInitializationOptions(
   context: vscode.ExtensionContext,
 ): Promise<GlintInitializationOptions> {
   return {
-    typescript: { tsdk: (await lsp.getTsdk(context))!.tsdk },
+    typescript: {
+      tsdk: (await lsp.getTsdk(context))!.tsdk,
+      tsserverRequestCommand: 'tsserverRequest',
+    },
     glint: {},
   };
 }

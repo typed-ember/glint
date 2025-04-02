@@ -16,6 +16,7 @@ const raw = {
     completion: true,
     semantic: true,
     navigation: true,
+    // structure: true,
   },
   none: {},
   verification: {
@@ -60,6 +61,7 @@ const raw = {
     verification: true,
     navigation: true,
     completion: true,
+    // structure: true,
   },
   withoutHighlightAndNavigation: {
     semantic: { shouldHighlight: () => false },
