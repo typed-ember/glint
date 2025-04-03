@@ -129,8 +129,11 @@ export class VirtualGtsCode implements VirtualCode {
     };
 
     const contents = snapshot.getText(0, length);
-
-    let script = { filename: 'disregard.gts', contents };
+    const isJavascript =
+      this.languageId === 'glimmer-js' || this.languageId === 'javascript.glimmer';
+    const embeddedLanguageId = isJavascript ? 'javascript' : 'typescript';
+    const filename = isJavascript ? 'root.gjs' : 'root.gts';
+    let script = { filename, contents };
     let template = undefined;
 
     const transformedModule = rewriteModule(
@@ -149,7 +152,7 @@ export class VirtualGtsCode implements VirtualCode {
         {
           embeddedCodes: [],
           id: 'ts',
-          languageId: 'typescript',
+          languageId: embeddedLanguageId,
           mappings,
           snapshot: new ScriptSnapshot(transformedModule.transformedContents),
           directives: transformedModule.directives,
@@ -213,7 +216,7 @@ export class VirtualGtsCode implements VirtualCode {
         {
           embeddedCodes: [],
           id: 'ts',
-          languageId: 'typescript',
+          languageId: embeddedLanguageId,
           mappings: [
             {
               // Hacked hardwired values for now.

@@ -4,7 +4,8 @@
     "target": "es2019",
     "module": "es2015",
     "moduleResolution": "bundler",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "checkJs": true
   },
   "glint": {
     "environment": ["ember-loose", "ember-template-imports"]

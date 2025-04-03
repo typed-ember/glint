@@ -68,6 +68,7 @@ export default class TransformedModule {
     public readonly errors: ReadonlyArray<TransformError>,
     public readonly directives: ReadonlyArray<Directive>,
     public readonly correlatedSpans: Array<CorrelatedSpan>,
+    public readonly originalFileName: string,
   ) {}
 
   public toDebugString(): string {
