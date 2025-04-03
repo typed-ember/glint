@@ -34,7 +34,7 @@ describe('Smoke test: Loose Mode + GTS with TS Plugin Mode', () => {
         let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
 
         // Wait for a diagnostic to appear in the template
-        await waitUntil(() => languages.getDiagnostics(scriptURI).length);
+        await waitUntil(() => languages.getDiagnostics(scriptURI).length, 'diagnostic to appear');
 
         expect(languages.getDiagnostics(scriptURI)).toMatchObject([
           {
@@ -51,7 +51,10 @@ describe('Smoke test: Loose Mode + GTS with TS Plugin Mode', () => {
         });
 
         // Wait for the diagnostic to disappear
-        await waitUntil(() => languages.getDiagnostics(scriptURI).length == 0);
+        await waitUntil(
+          () => languages.getDiagnostics(scriptURI).length == 0,
+          'diagnostic to disappear',
+        );
       });
     });
   });
