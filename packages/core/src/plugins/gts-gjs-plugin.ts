@@ -182,7 +182,7 @@ export function create(): LanguageServicePlugin {
     document: TextDocument,
     context: LanguageServiceContext,
     callback: (root: VirtualGtsCode) => T,
-  ) {
+  ): T | undefined {
     if (document.languageId !== 'glimmer-ts' && document.languageId !== 'glimmer-js') {
       return;
     }
