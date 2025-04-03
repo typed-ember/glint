@@ -1,0 +1,11 @@
+# Unlabeled Changes
+
+* `@glint/core`, `@glint/tsserver-plugin`
+  * [#877](https://github.com/typed-ember/glint/pull/877) Reinstate GJS Support ([@machty](https://github.com/machty))
+  * [#873](https://github.com/typed-ember/glint/pull/873) Disregard semantic classification tokens from `<template>` portions of .gts files ([@machty](https://github.com/machty))
+* `@glint/core`
+  * [#876](https://github.com/typed-ember/glint/pull/876) Support for Symbols, Outline, Code Folding in .gts files ([@machty](https://github.com/machty))
+  * [#874](https://github.com/typed-ember/glint/pull/874) Fix organize imports ([@machty](https://github.com/machty))
+
+
+*Cannot plan release until the above changes are labeled*.
