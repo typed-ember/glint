@@ -4,6 +4,13 @@ import type * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 
+/**
+ * This is a LanguageServicePlugin that provides language features for the top-level .gts/.gjs files.
+ * For now, this just provides document symbols for `<template>` tags, which are a language
+ * construct specific to .gts/.gjs files. Note that .gts/.gjs files will have TypeScript symbols
+ * provided by our syntactic TS LanguageServicePlugin configured elsewhere, and these will be
+ * combined with the symbols provided here.
+ */
 export function create(): LanguageServicePlugin {
   return {
     name: 'gts-gjs',
@@ -17,96 +24,23 @@ export function create(): LanguageServicePlugin {
             const result: vscode.DocumentSymbol[] = [];
             const { transformedModule } = root;
 
-            // result.push({
-            //   name: 'test_fake_symbol',
-            //   kind: 2 satisfies typeof vscode.SymbolKind.Module,
-            //   range: {
-            //     start: document.positionAt(0),
-            //     end: document.positionAt(10),
-            //   },
-            //   selectionRange: {
-            //     start: document.positionAt(0),
-            //     end: document.positionAt(10),
-            //   },
-            // });
-
-            // if (sfc.template) {
-            //   result.push({
-            //     name: 'template',
-            //     kind: 2 satisfies typeof vscode.SymbolKind.Module,
-            //     range: {
-            //       start: document.positionAt(sfc.template.start),
-            //       end: document.positionAt(sfc.template.end),
-            //     },
-            //     selectionRange: {
-            //       start: document.positionAt(sfc.template.start),
-            //       end: document.positionAt(sfc.template.startTagEnd),
-            //     },
-            //   });
-            // }
-            // if (sfc.script) {
-            //   result.push({
-            //     name: 'script',
-            //     kind: 2 satisfies typeof vscode.SymbolKind.Module,
-            //     range: {
-            //       start: document.positionAt(sfc.script.start),
-            //       end: document.positionAt(sfc.script.end),
-            //     },
-            //     selectionRange: {
-            //       start: document.positionAt(sfc.script.start),
-            //       end: document.positionAt(sfc.script.startTagEnd),
-            //     },
-            //   });
-            // }
-            // if (sfc.scriptSetup) {
-            //   result.push({
-            //     name: 'script setup',
-            //     kind: 2 satisfies typeof vscode.SymbolKind.Module,
-            //     range: {
-            //       start: document.positionAt(sfc.scriptSetup.start),
-            //       end: document.positionAt(sfc.scriptSetup.end),
-            //     },
-            //     selectionRange: {
-            //       start: document.positionAt(sfc.scriptSetup.start),
-            //       end: document.positionAt(sfc.scriptSetup.startTagEnd),
-            //     },
-            //   });
-            // }
-            // for (const style of sfc.styles) {
-            //   let name = 'style';
-            //   if (style.scoped) {
-            //     name += ' scoped';
-            //   }
-            //   if (style.module) {
-            //     name += ' module';
-            //   }
-            //   result.push({
-            //     name,
-            //     kind: 2 satisfies typeof vscode.SymbolKind.Module,
-            //     range: {
-            //       start: document.positionAt(style.start),
-            //       end: document.positionAt(style.end),
-            //     },
-            //     selectionRange: {
-            //       start: document.positionAt(style.start),
-            //       end: document.positionAt(style.startTagEnd),
-            //     },
-            //   });
-            // }
-            // for (const customBlock of sfc.customBlocks) {
-            //   result.push({
-            //     name: `${customBlock.type}`,
-            //     kind: 2 satisfies typeof vscode.SymbolKind.Module,
-            //     range: {
-            //       start: document.positionAt(customBlock.start),
-            //       end: document.positionAt(customBlock.end),
-            //     },
-            //     selectionRange: {
-            //       start: document.positionAt(customBlock.start),
-            //       end: document.positionAt(customBlock.startTagEnd),
-            //     },
-            //   });
-            // }
+            if (transformedModule) {
+              const templateSymbols = transformedModule.templateSymbols();
+              for (const templateSymbol of templateSymbols) {
+                result.push({
+                  name: 'template',
+                  kind: 2 satisfies typeof vscode.SymbolKind.Module,
+                  range: {
+                    start: document.positionAt(templateSymbol.start),
+                    end: document.positionAt(templateSymbol.end),
+                  },
+                  selectionRange: {
+                    start: document.positionAt(templateSymbol.start),
+                    end: document.positionAt(templateSymbol.startTagEnd),
+                  },
+                });
+              }
+            }
 
             return result;
           });

@@ -44,6 +44,12 @@ export type SourceFile = {
   contents: string;
 };
 
+export type TemplateSymbol = {
+  start: number;
+  end: number;
+  startTagEnd: number;
+};
+
 /**
  * This class represents the result of transforming a TypeScript
  * module with one or more embedded HBS templates. It contains
@@ -345,5 +351,20 @@ export default class TransformedModule {
     });
 
     return codeMappings;
+  }
+
+  templateSymbols(): Array<TemplateSymbol> {
+    const result: Array<TemplateSymbol> = [];
+    this.correlatedSpans.forEach((span) => {
+      if (span.glimmerAstMapping) {
+        // This is a template span
+        result.push({
+          start: span.originalStart,
+          end: span.originalStart + span.originalLength,
+          startTagEnd: span.originalStart + span.originalLength,
+        });
+      }
+    });
+    return result;
   }
 }

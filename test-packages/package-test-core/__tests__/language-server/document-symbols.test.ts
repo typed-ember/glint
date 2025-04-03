@@ -32,7 +32,32 @@ describe('Language Server: Document Symbols (language server)', () => {
     expect(symbols).toMatchInlineSnapshot(`
       [
         {
-          "children": [],
+          "children": [
+            {
+              "kind": 2,
+              "name": "template",
+              "range": {
+                "end": {
+                  "character": 13,
+                  "line": 6,
+                },
+                "start": {
+                  "character": 2,
+                  "line": 4,
+                },
+              },
+              "selectionRange": {
+                "end": {
+                  "character": 13,
+                  "line": 6,
+                },
+                "start": {
+                  "character": 2,
+                  "line": 4,
+                },
+              },
+            },
+          ],
           "kind": 5,
           "name": "Application",
           "range": {
