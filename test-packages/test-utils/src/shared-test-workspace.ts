@@ -70,7 +70,7 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
         return null;
       });
     });
-    serverHandle.connection.onRequest('forwardingTsRequest', async ([command, args]) => {
+    serverHandle.connection.onRequest('tsserverRequest', async ([command, args]) => {
       const res = await tsserver.message({
         seq: seq++,
         command: command,
@@ -85,9 +85,8 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
       {
         typescript: {
           tsdk: tsdkPath,
-          // requestForwardingCommand: 'forwardingTsRequest',
+          tsserverRequestCommand: 'tsserverRequest',
         },
-        // } satisfies VueInitializationOptions,
       },
       {
         workspace: {

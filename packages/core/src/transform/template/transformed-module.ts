@@ -44,6 +44,12 @@ export type SourceFile = {
   contents: string;
 };
 
+export type TemplateSymbol = {
+  start: number;
+  end: number;
+  startTagEnd: number;
+};
+
 /**
  * This class represents the result of transforming a TypeScript
  * module with one or more embedded HBS templates. It contains
@@ -61,7 +67,7 @@ export default class TransformedModule {
     public readonly transformedContents: string,
     public readonly errors: ReadonlyArray<TransformError>,
     public readonly directives: ReadonlyArray<Directive>,
-    private readonly correlatedSpans: Array<CorrelatedSpan>,
+    public readonly correlatedSpans: Array<CorrelatedSpan>,
   ) {}
 
   public toDebugString(): string {
@@ -334,11 +340,31 @@ export default class TransformedModule {
           // TODO: audit usage of `codeFeatures.all` here: https://github.com/typed-ember/glint/issues/769
           // There are cases where we need to be disabling certain features to prevent, e.g., navigation
           // that targets an "in-between" piece of generated code.
-          push(span.originalStart, span.transformedStart, span.originalLength, codeFeatures.all);
+          push(span.originalStart, span.transformedStart, span.originalLength, {
+            ...codeFeatures.all,
+
+            // This enables symbol/outline info for the transformed TS to appear in for the .gts file.
+            structure: true,
+          });
         }
       }
     });
 
     return codeMappings;
+  }
+
+  templateSymbols(): Array<TemplateSymbol> {
+    const result: Array<TemplateSymbol> = [];
+    this.correlatedSpans.forEach((span) => {
+      if (span.glimmerAstMapping) {
+        // This is a template span
+        result.push({
+          start: span.originalStart,
+          end: span.originalStart + span.originalLength,
+          startTagEnd: span.originalStart + span.originalLength,
+        });
+      }
+    });
+    return result;
   }
 }

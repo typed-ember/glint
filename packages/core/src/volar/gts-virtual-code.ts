@@ -145,7 +145,7 @@ export class VirtualGtsCode implements VirtualCode {
       // .gts file has embedded templates, so lets generate a new embedded code
       // that contains the transformed TS code.
       const mappings = transformedModule.toVolarMappings();
-      this.embeddedCodes = [
+      const embeddedCodes = [
         {
           embeddedCodes: [],
           id: 'ts',
@@ -155,6 +155,49 @@ export class VirtualGtsCode implements VirtualCode {
           directives: transformedModule.directives,
         },
       ];
+
+      // Add an embedded code for each <template> tag in the .gts file
+      // so that the HTML Language Service can kick in and provide symbols
+      // and other functionality.
+      transformedModule.correlatedSpans.forEach((span, index) => {
+        if (!span.glimmerAstMapping) {
+          return;
+        }
+
+        const openTemplateTagLength = 10; // "<template>"
+        const closeTemplateTagLength = 11; // "</template>"
+
+        embeddedCodes.push({
+          embeddedCodes: [],
+          id: `template_html_${index}`,
+          languageId: 'html', // technically this is 'handlebars' but 'html' causes the HTML Language Service to kick in
+          mappings: [
+            {
+              sourceOffsets: [span.originalStart + openTemplateTagLength],
+              generatedOffsets: [0],
+              lengths: [span.originalLength - openTemplateTagLength - closeTemplateTagLength],
+
+              data: {
+                completion: true,
+                format: true,
+                navigation: true,
+                semantic: true,
+                structure: true,
+                verification: false,
+              } satisfies CodeInformation,
+            },
+          ],
+          snapshot: new ScriptSnapshot(
+            contents.slice(
+              span.originalStart + openTemplateTagLength,
+              span.originalStart + span.originalLength - closeTemplateTagLength,
+            ),
+          ),
+          directives: [],
+        });
+      });
+
+      this.embeddedCodes = embeddedCodes;
     } else {
       // Null transformed module means there's no embedded HBS templates,
       // so just return a full "no-op" mapping from source to transformed.
