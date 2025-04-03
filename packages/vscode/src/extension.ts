@@ -155,7 +155,7 @@ export const { activate, deactivate } = defineExtension(async () => {
                   requireSemantic: true,
                 })[0];
                 return res.body;
-              } catch(e) {
+              } catch {
                 // noop
               }
             });
