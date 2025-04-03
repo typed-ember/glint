@@ -129,12 +129,10 @@ export class VirtualGtsCode implements VirtualCode {
     };
 
     const contents = snapshot.getText(0, length);
-    const isJavascript = this.languageId === 'glimmer-js' || this.languageId === 'javascript.glimmer';
+    const isJavascript =
+      this.languageId === 'glimmer-js' || this.languageId === 'javascript.glimmer';
     const embeddedLanguageId = isJavascript ? 'javascript' : 'typescript';
-    const filename =
-      isJavascript
-        ? 'root.gjs'
-        : 'root.gts';
+    const filename = isJavascript ? 'root.gjs' : 'root.gts';
     let script = { filename, contents };
     let template = undefined;
 
