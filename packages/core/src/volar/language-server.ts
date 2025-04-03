@@ -10,6 +10,7 @@ import { ConfigLoader } from '../config/loader.js';
 import type { LanguageServiceContext, LanguageServicePlugin } from '@volar/language-service';
 import { create as createGtsGjsPlugin } from '../plugins/gts-gjs-plugin.js';
 import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic.js';
+import { create as createHtmlSyntacticPlugin } from 'volar-service-html';
 
 type GlintInitializationOptions = any; // TODO rm hackiness
 
@@ -185,8 +186,7 @@ function getHybridModeLanguageServicePluginsForLanguageServer(
   const plugins = [
     // Lightweight syntax-only TS Language Service. Provides Symbols (e.g. Outline view) and other features.
     createTypeScriptSyntacticPlugin(ts),
-
-    // createTypeScriptDocCommentTemplatePlugin(ts),
+    createHtmlSyntacticPlugin(),
     ...getCommonLanguageServicePluginsForLanguageServer(ts, () => getTsPluginClient),
   ];
   for (const plugin of plugins) {

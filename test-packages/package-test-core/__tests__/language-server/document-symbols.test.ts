@@ -34,6 +34,30 @@ describe('Language Server: Document Symbols (language server)', () => {
         {
           "children": [
             {
+              "kind": 8,
+              "name": "Greeting",
+              "range": {
+                "end": {
+                  "character": 33,
+                  "line": 5,
+                },
+                "start": {
+                  "character": 4,
+                  "line": 5,
+                },
+              },
+              "selectionRange": {
+                "end": {
+                  "character": 33,
+                  "line": 5,
+                },
+                "start": {
+                  "character": 4,
+                  "line": 5,
+                },
+              },
+            },
+            {
               "kind": 2,
               "name": "template",
               "range": {

@@ -108,6 +108,9 @@ importers:
       uuid:
         specifier: ^8.3.2
         version: 8.3.2
+      volar-service-html:
+        specifier: volar-2.4
+        version: 0.0.64(@volar/language-service@2.4.12)
       volar-service-typescript:
         specifier: volar-2.4
         version: 0.0.64(@volar/language-service@2.4.12)
@@ -2544,6 +2547,9 @@ packages:
 
   '@volar/vscode@2.4.12':
     resolution: {integrity: sha512-HPXqDszB0tGuxjF2CF1oma51ddeqoWJ58TynF1SGv+T6E07h9wcfIxvDhDCT2QdSt9hLAgJNR61OFi4ZR7lerA==}
+
+  '@vscode/l10n@0.0.18':
+    resolution: {integrity: sha512-KYSIHVmslkaCDyw013pphY+d7x1qV8IZupYfeIfzNA+nsaWHbn5uPuQRvdRFsa9zFzGeudPuoGoZ1Op4jrJXIQ==}
 
   '@vscode/test-electron@2.4.1':
     resolution: {integrity: sha512-Gc6EdaLANdktQ1t+zozoBVRynfIsMKMc94Svu1QreOBC8y76x4tvaK32TljrLi1LI2+PK58sDVbL7ALdqf3VRQ==}
@@ -8067,6 +8073,14 @@ packages:
       jsdom:
         optional: true
 
+  volar-service-html@0.0.64:
+    resolution: {integrity: sha512-5xknMYKmZBFzp2399RlsnGce25PfNu9ViXa1s63Q8NP6xeXcF3lInFsV+1o2DWBoXZdnXcuRvWOA+K+JIZLEcA==}
+    peerDependencies:
+      '@volar/language-service': ~2.4.0
+    peerDependenciesMeta:
+      '@volar/language-service':
+        optional: true
+
   volar-service-typescript@0.0.64:
     resolution: {integrity: sha512-FN2H97iqjR1id8AM4fH7lTXuTx2on9zD6QlUFllaiHKqgNrEITlQwm/9Ujrd9ST7MUzhgIKyUsa2WlanX9kkMg==}
     peerDependencies:
@@ -8078,6 +8092,9 @@ packages:
   vscode-ext-gen@0.5.5:
     resolution: {integrity: sha512-wTwcPvGF9xZ0fN7sPgdUPESH+Aw20Tk1vvgbYnKzWT4sFOqRP54qcpxjPUMdDoDGfiVIoXW87TNxn0yKXq3djw==}
     hasBin: true
+
+  vscode-html-languageservice@5.3.3:
+    resolution: {integrity: sha512-AK/jJM0VIWRrlfqkDBMZxNMnxYT5I2uoMVRoNJ5ePSplnSaT9mbYjqJlxxeLvUrOW7MEH0vVIDzU48u44QZE0w==}
 
   vscode-jsonrpc@8.2.0:
     resolution: {integrity: sha512-C+r0eKJUIfiDIfwJhria30+TYWPtuHJXHtI7J0YlOmKAo7ogxP20T0zxB7HZQIFhIyvoBPwWskjxrvAtfjyZfA==}
@@ -9783,6 +9800,7 @@ snapshots:
       silent-error: 1.1.1
       typescript: 5.8.2
       uuid: 8.3.2
+      volar-service-html: 0.0.64(@volar/language-service@2.4.12)
       volar-service-typescript: 0.0.64(@volar/language-service@2.4.12)
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-textdocument: 1.0.12
@@ -10509,6 +10527,8 @@ snapshots:
       path-browserify: 1.0.1
       vscode-languageclient: 9.0.1
       vscode-nls: 5.2.0
+
+  '@vscode/l10n@0.0.18': {}
 
   '@vscode/test-electron@2.4.1':
     dependencies:
@@ -17800,6 +17820,14 @@ snapshots:
       - tsx
       - yaml
 
+  volar-service-html@0.0.64(@volar/language-service@2.4.12):
+    dependencies:
+      vscode-html-languageservice: 5.3.3
+      vscode-languageserver-textdocument: 1.0.12
+      vscode-uri: 3.1.0
+    optionalDependencies:
+      '@volar/language-service': 2.4.12
+
   volar-service-typescript@0.0.64(@volar/language-service@2.4.12):
     dependencies:
       path-browserify: 1.0.1
@@ -17816,6 +17844,13 @@ snapshots:
       cac: 6.7.14
       scule: 1.3.0
       yargs: 17.7.2
+
+  vscode-html-languageservice@5.3.3:
+    dependencies:
+      '@vscode/l10n': 0.0.18
+      vscode-languageserver-textdocument: 1.0.12
+      vscode-languageserver-types: 3.17.5
+      vscode-uri: 3.1.0
 
   vscode-jsonrpc@8.2.0: {}
 
