@@ -421,10 +421,10 @@ describe('Transform: rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "
         // @ts-expect-error
-        ({} as typeof import('./__glint-hacky-nonexistent.gts'));
+        (/** @type {typeof import("./__glint-hacky-nonexistent.gts")} */ ({}))
 
         // @ts-expect-error
-        ({} as typeof import('./__glint-hacky-nonexistent.gjs'));
+        (/** @type {typeof import("./__glint-hacky-nonexistent.gjs")} */ ({}))
 
         import templateOnly from '@glimmer/component/template-only';
 
