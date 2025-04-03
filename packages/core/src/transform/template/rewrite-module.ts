@@ -33,12 +33,21 @@ export type RewriteInput = { script: SourceFile; template?: SourceFile };
 //
 // 1. It doesn't break Organize Imports command
 // 2. It doesn't introduce any keywords/variables that'll show up in auto-complete suggestions
-const EXTENSION_FIXING_HEADER_HACK = `
+const EXTENSION_FIXING_HEADER_HACK_GTS = `
 // @ts-expect-error
 ({} as typeof import('./__glint-hacky-nonexistent.gts'));
 
 // @ts-expect-error
 ({} as typeof import('./__glint-hacky-nonexistent.gjs'));
+
+`;
+
+const EXTENSION_FIXING_HEADER_HACK_GJS = `
+// @ts-expect-error
+(/** @type {typeof import("./__glint-hacky-nonexistent.gts")} */ ({}))
+
+// @ts-expect-error
+(/** @type {typeof import("./__glint-hacky-nonexistent.gjs")} */ ({}))
 
 `;
 
@@ -70,7 +79,7 @@ export function rewriteModule(
   let sparseSpans = completeCorrelatedSpans(partialSpans);
   let { contents, correlatedSpans } = calculateTransformedSource(script, sparseSpans);
 
-  return new TransformedModule(contents, errors, directives, correlatedSpans);
+  return new TransformedModule(contents, errors, directives, correlatedSpans, script.filename);
 }
 
 /**
@@ -94,7 +103,9 @@ function calculateCorrelatedSpans(
       originalStart: 0,
       originalLength: 0,
       insertionPoint: 0,
-      transformedSource: EXTENSION_FIXING_HEADER_HACK,
+      transformedSource: environment.isUntypedScript(script.filename)
+        ? EXTENSION_FIXING_HEADER_HACK_GJS
+        : EXTENSION_FIXING_HEADER_HACK_GTS,
     },
   ];
 

@@ -144,7 +144,7 @@ function getCompletionsAtPosition<T>(
       const transformedModule: TransformedModule = root?.transformedModule;
       const completions = getCompletionsAtPosition(fileName, position, options, formattingSettings);
       const transformedRange = transformedModule?.getTransformedRange(
-        'disregard.gts',
+        transformedModule.originalFileName,
         position,
         position,
       );

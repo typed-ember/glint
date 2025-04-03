@@ -18,10 +18,8 @@ export function augmentDiagnostics<T extends Diagnostic>(
     const start = diagnostic.start;
     const end = start + diagnostic.length;
 
-    // TODO: de-hardwire "disregard.gts" and consider the case of two-file components where
-    // the hardcoded source file name might be the hbs file.
     const rangeWithMappingAndSource = transformedModule.getTransformedRange(
-      'disregard.gts',
+      transformedModule.originalFileName,
       start,
       end,
     );
