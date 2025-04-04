@@ -636,4 +636,29 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       ]
     `);
   });
+
+  test('svg does not produce false positives', async () => {
+    const code = stripIndent`
+    import Component from '@glimmer/component';
+
+    export default class MyComponent {
+      <template>
+        <svg version="1.1"
+            width="300" height="200"
+            xmlns="http://www.w3.org/2000/svg">
+
+          <rect width="100%" height="100%" fill="red" class="foo" />
+        </svg>
+      </template>
+    }
+  `;
+
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics.length).toBe(0);
+  });
 });
