@@ -5,3 +5,4 @@ pnpm-debug.log
 *.js.map
 tsserver.log
 dist/
+.log/
