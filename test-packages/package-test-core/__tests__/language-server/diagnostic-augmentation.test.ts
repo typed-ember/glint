@@ -163,13 +163,13 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "message": "The expected type comes from property 'onclick' which is declared here on type 'Partial<WithDataAttributes<HTMLDivElementAttributes>>'",
               "span": {
                 "end": {
-                  "line": 95,
-                  "offset": 16,
+                  "line": 96,
+                  "offset": 14,
                 },
                 "file": "\${testWorkspacePath}.pnpm/@glint+template@file+packages+template/node_modules/@glint/template/-private/dsl/elements.d.ts",
                 "start": {
-                  "line": 95,
-                  "offset": 5,
+                  "line": 96,
+                  "offset": 3,
                 },
               },
             },
@@ -236,13 +236,13 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "message": "The expected type comes from property 'onclick' which is declared here on type 'Partial<WithDataAttributes<HTMLDivElementAttributes>>'",
               "span": {
                 "end": {
-                  "line": 95,
-                  "offset": 16,
+                  "line": 96,
+                  "offset": 14,
                 },
                 "file": "\${testWorkspacePath}.pnpm/@glint+template@file+packages+template/node_modules/@glint/template/-private/dsl/elements.d.ts",
                 "start": {
-                  "line": 95,
-                  "offset": 5,
+                  "line": 96,
+                  "offset": 3,
                 },
               },
             },
