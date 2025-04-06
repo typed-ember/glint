@@ -1,6 +1,8 @@
 # Compiled output
 /packages/*/lib
 /test-packages/*/lib
+packages/template/-private/dsl/elements.d.ts
+packages/template/-private/dsl/lib.dom.augmentation.d.ts
 
 dist/
 __fixtures__

@@ -17,6 +17,8 @@ dist/
 /packages/environment*/**/*.d.ts
 !/packages/environment*/-private/dsl/**/*.d.ts
 !/packages/environment*/-private/intrinsics/**/*.d.ts
+packages/template/-private/dsl/elements.d.ts
+packages/template/-private/dsl/lib.dom.augmentation.d.ts
 
 packages/core/__tests__/support/character-position-viewer.html
 test-packages/*/__tests__/support/*.html
