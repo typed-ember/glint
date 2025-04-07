@@ -130,6 +130,25 @@ describe('Language Server: Hover (ts plugin)', () => {
     `);
   });
 
+  describe('MathML', () => {
+    test('empty <math>', async () => {
+      const [offset, content] = extractCursor(stripIndent`
+        <template>
+          <ma%th>
+          </math>
+        </template>
+      `);
+
+      const doc = await prepareDocument(
+        'ts-template-imports-app/src/ephemeral.gts',
+        'glimmer-ts',
+        content,
+      );
+
+      expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot();
+    });
+  });
+
   describe.skip('JS in a TS project', () => {
     test('with allowJs: true', async () => {
       const [offset, content] = extractCursor(stripIndent`
