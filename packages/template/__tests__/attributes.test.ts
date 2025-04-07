@@ -58,6 +58,16 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   expectTypeOf(el).toEqualTypeOf<{ element: HTMLImageElement }>();
 }
 
+{
+  const el = emitElement('unknown');
+  expectTypeOf(el).toEqualTypeOf<{ element: Element }>();
+}
+
+{
+  const el = emitElement('custom-element');
+  expectTypeOf(el).toEqualTypeOf<{ element: Element }>();
+}
+
 /**
  * ```handlebars
  * <MyComponent ...attributes foo="bar" />
@@ -113,7 +123,6 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 // Error conditions:
 
 {
-  // @ts-expect-error: unknown is not an element, and cannot have an element type
   const element = emitElement('unknown');
   applySplattributes(
     new HTMLFormElement(),
