@@ -60,6 +60,7 @@ export function templateToTypescript(
   return mapTemplateContents(originalTemplate, { embeddingSyntax }, (ast, mapper) => {
     let { rangeForNode } = mapper;
     let scope = new ScopeStack([]);
+    let contextStack = ['default'];
     let inHtmlContext: 'svg' | 'math' | 'default' = 'default';
 
     emitTemplateBoilerplate(() => {
@@ -886,16 +887,18 @@ export function templateToTypescript(
         const directivesWeakMap = assignDirectivesToElementOpenTagPieces(node);
 
         if (node.tag === 'svg') {
-          inHtmlContext = 'svg';
+          contextStack.push('svg');
         }
 
         if (node.tag === 'math') {
-          inHtmlContext = 'math';
+          contextStack.push('math');
         }
 
         mapper.text('{');
         mapper.newline();
         mapper.indent();
+
+        let inHtmlContext = contextStack.at(-1);
 
         if (inHtmlContext === 'default') {
           mapper.text('const __glintY__ = __glintDSL__.emitElement("');
@@ -921,7 +924,7 @@ export function templateToTypescript(
         }
 
         if (node.tag === 'svg' || node.tag === 'math') {
-          inHtmlContext = 'default';
+          contextStack.pop();
         }
 
         mapper.dedent();
