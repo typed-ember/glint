@@ -209,7 +209,6 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
     'aria-atomic': undefined,
     // @ts-expect-error: setting a `void` return as an attr makes no sense
     'aria-autocomplete': undefined as void,
-    // @ts-expect-error: DOM nodes aren't valid values
     allowusermedia: document.createElement('div'),
   });
 }
