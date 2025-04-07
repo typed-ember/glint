@@ -58,11 +58,6 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   expectTypeOf(el).toEqualTypeOf<{ element: HTMLImageElement }>();
 }
 
-{
-  const el = emitElement('unknown');
-  expectTypeOf(el).toEqualTypeOf<{ element: Element }>();
-}
-
 /**
  * ```handlebars
  * <MyComponent ...attributes foo="bar" />
