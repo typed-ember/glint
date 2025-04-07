@@ -113,6 +113,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 // Error conditions:
 
 {
+  // @ts-expect-error: unknown is not an element, and cannot have an element type
   const element = emitElement('unknown');
   applySplattributes(
     new HTMLFormElement(),
