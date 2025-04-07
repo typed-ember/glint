@@ -1,4 +1,4 @@
-<template>
+export const MathMLExample = <template>
   <math display="block">
     <mfrac>
       <mrow>

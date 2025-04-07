@@ -636,4 +636,37 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       ]
     `);
   });
+
+  test('MathML context is retained and popped', async () => {
+    let componentA = stripIndent`
+      export const MathMLExample = <template>
+        <span>x</span>
+
+        <math display="block">
+          <mfrac>
+            <mrow>
+              <mi>a</mi>
+              <mo>+</mo>
+              <mn>2</mn>
+            </mrow>
+            <mrow>
+              <mn>3</mn>
+              <mo>−</mo>
+              <mi>b</mi>
+            </mrow>
+          </mfrac>
+        </math>
+
+        <span>x</span>
+      </template>
+      `;
+
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
 });

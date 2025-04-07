@@ -30,6 +30,7 @@
     "@glint/environment-ember-loose": "workspace:*",
     "@glint/environment-ember-template-imports": "workspace:*",
     "@glint/template": "workspace:*",
+    "@glint/tsserver-plugin": "workspace:*",
     "@glint/core": "workspace:*",
     "@types/rsvp": "^4.0.9",
     "@glint/tsserver-plugin": "workspace:*",
