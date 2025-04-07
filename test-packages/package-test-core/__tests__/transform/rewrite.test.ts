@@ -1063,5 +1063,41 @@ describe('Transform: rewriteModule', () => {
         `);
       });
     });
+
+    describe('unicode and other special characters', () => {
+      describe('$', () => {
+        test('GitHub Issue#840 - does not error', () => {
+          const emberTemplateImportsEnvironment = GlintEnvironment.load(['ember-template-imports']);
+
+          let script = {
+            filename: 'test.gts',
+            contents: [
+              // https://github.com/typed-ember/glint/issues/879
+              '<template>',
+              '  ${{foo}}',
+              '</template>',
+            ].join('\n'),
+          };
+
+          let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+
+          expect.soft(transformedModule?.errors?.length).toBe(0);
+          expect.soft(transformedModule?.errors).toMatchInlineSnapshot(`[]`);
+          expect.soft(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+            "
+            // @ts-expect-error
+            ({} as typeof import('./__glint-hacky-nonexistent.gts'));
+
+            // @ts-expect-error
+            ({} as typeof import('./__glint-hacky-nonexistent.gjs'));
+
+            export default ({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
+            __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(foo)());
+            __glintRef__; __glintDSL__;
+            })"
+          `);
+        });
+      });
+    });
   });
 });

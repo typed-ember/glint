@@ -37,6 +37,26 @@ describe('Language Server: Diagnostic Augmentation', () => {
     expect(diagnostics).toMatchInlineSnapshot();
   });
 
+  describe('unicode and other special characters', () => {
+    describe('$', () => {
+      test('GitHub Issue#840', async () => {
+        let diagnostics = await requestDiagnostics(
+          'ts-template-imports-app/src/ephemeral-index.gts',
+          'glimmer-ts',
+          [
+            'const foo = 2;',
+            // https://github.com/typed-ember/glint/issues/879
+            '<template>',
+            '  ${{foo}}',
+            '</template>',
+          ].join('\n'),
+        );
+
+        expect(diagnostics).toMatchInlineSnapshot(`[]`);
+      });
+    });
+  });
+
   test('expected argument count', async () => {
     let diagnostics = await requestDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
