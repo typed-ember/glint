@@ -286,6 +286,9 @@ importers:
         specifier: ^0.15.0
         version: 0.15.0
     devDependencies:
+      '@glint/core':
+        specifier: workspace:*
+        version: link:../core
       '@glint/template':
         specifier: workspace:*
         version: link:../template
