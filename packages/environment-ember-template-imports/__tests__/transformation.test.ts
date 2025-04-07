@@ -27,38 +27,40 @@ describe('Environment: ETI', () => {
       });
     });
 
-    test('handles multi-byte characters', () => {
-      let source = [
-        `const a = <template>one 💩</template>;`,
-        `const b = <template>two</template>;`,
-        `const c = "‘foo’";`,
-        `const d = <template>four</template>;`,
-      ].join('\n');
+    describe('character testing', () => {
+      test('‘, 💩', () => {
+        let source = [
+          `const a = <template>one 💩</template>;`,
+          `const b = <template>two</template>;`,
+          `const c = "‘foo’";`,
+          `const d = <template>four</template>;`,
+        ].join('\n');
 
-      let result = preprocess(source, 'index.gts');
+        let result = preprocess(source, 'index.gts');
 
-      expect(result.contents).toMatchInlineSnapshot(`
-        "const a = [___T\`one 💩\`];
-        const b = [___T\`two\`];
-        const c = "‘foo’";
-        const d = [___T\`four\`];"
-      `);
-    });
+        expect(result.contents).toMatchInlineSnapshot(`
+          "const a = [___T\`one 💩\`];
+          const b = [___T\`two\`];
+          const c = "‘foo’";
+          const d = [___T\`four\`];"
+        `);
+      });
 
-    test('handles the $ character', () => {
-      let source = '<template>${{dollarAmount}}</template>;';
+      test('$', () => {
+        let source = '<template>${{dollarAmount}}</template>;';
 
-      let result = preprocess(source, 'index.gts');
+        let result = preprocess(source, 'index.gts');
 
-      expect(result.contents).toMatchInlineSnapshot('"[___T`\\${{dollarAmount}}`];"');
-    });
+        expect(result.contents).toMatchInlineSnapshot('"[___T`\\${{dollarAmount}}`];"');
+      });
 
-    test('handles the ` character', () => {
-      let source = '<template>`code`</template>;';
+      test('`', () => {
+        let source = '<template>`code`</template>;';
 
-      let result = preprocess(source, 'index.gts');
+        let result = preprocess(source, 'index.gts');
 
-      expect(result.contents).toMatchInlineSnapshot('"[___T`\\`code\\``];"');
+        expect(result.contents).toMatchInlineSnapshot('"[___T`\\`code\\``];"');
+      });
     });
 
     test('multiple templates', () => {
@@ -197,6 +199,66 @@ describe('Environment: ETI', () => {
           ],
         ]),
       );
+    });
+
+    describe('character testing', () => {
+      test('‘, 💩', () => {
+        let source = [
+          `const a = <template>one 💩</template>;`,
+          `const b = <template>two</template>;`,
+          `const c = "‘foo’";`,
+          `const d = <template>four</template>;`,
+        ].join('\n');
+
+        let { sourceFile } = applyTransform(source);
+
+        expect(sourceFile.text).toMatchInlineSnapshot(`
+          "const a = [___T\`one 💩\`];
+          const b = [___T\`two\`];
+          const c = "‘foo’";
+          const d = [___T\`four\`];"
+        `);
+      });
+
+      test('$', () => {
+        let source = 'const foo = 2;\n\n<template>${{foo}}</template>\n';
+        let { sourceFile } = applyTransform(source);
+
+        expect(sourceFile.text).toMatchInlineSnapshot(`
+"const foo = 2;
+
+[___T\`\\\${{foo}}\`]
+"
+`);
+      });
+
+      test('`', () => {
+        let source = '<template>`code`</template>;';
+        let { meta, sourceFile } = applyTransform(source);
+        let templateNode = (sourceFile.statements[1] as ts.ExpressionStatement).expression;
+
+        let start = source.indexOf('<template>');
+        let contentStart = start + '<template>'.length;
+        let contentEnd = source.indexOf('</template>');
+        let end = contentEnd + '</template>'.length;
+
+        expect(meta).toEqual(
+          new Map([
+            [
+              templateNode,
+              {
+                prepend: 'export default ',
+                templateLocation: {
+                  start,
+                  contentStart,
+                  contentEnd,
+                  end,
+                },
+              },
+            ],
+          ]),
+        );
+      });
     });
 
     test('single template with satisfies', () => {
