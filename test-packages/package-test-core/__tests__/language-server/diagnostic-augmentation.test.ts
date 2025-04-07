@@ -44,6 +44,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           'ts-template-imports-app/src/ephemeral-index.gts',
           'glimmer-ts',
           [
+            'const foo = 2;',
             // https://github.com/typed-ember/glint/issues/879
             '<template>',
             '  ${{foo}}',
@@ -51,7 +52,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
           ].join('\n'),
         );
 
-        expect(diagnostics).toMatchInlineSnapshot();
+        expect(diagnostics).toMatchInlineSnapshot(`[]`);
       });
     });
   });
