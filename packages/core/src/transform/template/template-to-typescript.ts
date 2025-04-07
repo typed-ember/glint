@@ -4,7 +4,6 @@ import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-templ
 import ScopeStack from './scope-stack.js';
 import { GlintEmitMetadata, GlintSpecialForm } from '@glint/core/config-types';
 import { TextContent } from './glimmer-ast-mapping-tree.js';
-import { Directive } from './transformed-module.js';
 import { DirectiveKind } from './transformed-module.js';
 
 const SPLATTRIBUTES = '...attributes';
@@ -60,7 +59,7 @@ export function templateToTypescript(
   return mapTemplateContents(originalTemplate, { embeddingSyntax }, (ast, mapper) => {
     let { rangeForNode } = mapper;
     let scope = new ScopeStack([]);
-    let inHtmlContext: 'svg' | 'math' | 'default' = 'default';
+    let contextStack = ['default'];
 
     emitTemplateBoilerplate(() => {
       for (let statement of ast?.body ?? []) {
@@ -186,11 +185,11 @@ export function templateToTypescript(
         // Push to the directives array on the record
         mapper.directive(node, 'nocheck');
       } else if (kind === 'in-svg') {
-        inHtmlContext = 'svg';
+        contextStack.push('svg');
       } else if (kind === 'in-mathml') {
-        inHtmlContext = 'math';
+        contextStack.push('math');
       } else if (kind === 'out-svg' || kind === 'out-mathml') {
-        inHtmlContext = 'default';
+        contextStack.pop();
       } else {
         // Push an error on the record
         mapper.error(`Unknown directive @glint-${kind}`, location);
@@ -886,16 +885,18 @@ export function templateToTypescript(
         const directivesWeakMap = assignDirectivesToElementOpenTagPieces(node);
 
         if (node.tag === 'svg') {
-          inHtmlContext = 'svg';
+          contextStack.push('svg');
         }
 
         if (node.tag === 'math') {
-          inHtmlContext = 'math';
+          contextStack.push('math');
         }
 
         mapper.text('{');
         mapper.newline();
         mapper.indent();
+
+        let inHtmlContext = contextStack.at(-1);
 
         if (inHtmlContext === 'default') {
           mapper.text('const __glintY__ = __glintDSL__.emitElement("');
@@ -921,7 +922,7 @@ export function templateToTypescript(
         }
 
         if (node.tag === 'svg' || node.tag === 'math') {
-          inHtmlContext = 'default';
+          contextStack.pop();
         }
 
         mapper.dedent();
