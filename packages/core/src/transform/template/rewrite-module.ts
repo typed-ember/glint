@@ -109,7 +109,7 @@ function calculateCorrelatedSpans(
     },
   ];
 
-  let { ast, emitMetadata, error } = parseScript(ts, script, environment);
+  let { ast, error } = parseScript(ts, script, environment);
 
   if (error) {
     if (typeof error === 'string') {
@@ -146,20 +146,7 @@ function calculateCorrelatedSpans(
   ts.transform(ast, [
     (context) =>
       function visit<T extends ts.Node>(node: T): T {
-        // Here we look for ```hbs``` tagged template expressions, originally introduced
-        // in the now-removed GlimmerX environment. We can consider getting rid of this, but
-        // then again there are still some use cases in the wild (e.g. Glimmer Next / GXT)
-        // where have tagged templates closing over outer scope is desirable:
-        // https://github.com/lifeart/glimmer-next/tree/master/glint-environment-gxt
-        // https://discord.com/channels/480462759797063690/717767358743183412/1259061848632721480
-        if (ts.isTaggedTemplateExpression(node)) {
-          let meta = emitMetadata.get(node);
-          let result = calculateTaggedTemplateSpans(ts, node, meta, script, environment);
-
-          directives.push(...result.directives);
-          errors.push(...result.errors);
-          partialSpans.push(...result.partialSpans);
-        } else if (ts.isModuleDeclaration(node)) {
+        if (ts.isModuleDeclaration(node)) {
           // don't traverse into declare module
           return node;
         }
