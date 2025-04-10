@@ -685,6 +685,7 @@ interface HtmlElements {
 }
 
 export declare namespace SvgElementAttributes {
+type GenericAttributes = HtmlElementAttributes.GenericAttributes;
 interface SVGAElementAttributes extends GenericAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
