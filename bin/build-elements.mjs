@@ -85,9 +85,9 @@ export declare namespace HtmlElementAttributes {
 }
 
 function createSvgElementAttributesMap() {
-  svgElementAttributes['*'] = htmlElementAttributes['*'];
   let svgElementsContent = `
 export declare namespace SvgElementAttributes {
+  type GenericAttributes = HtmlElementAttributes.GenericAttributes;
 `;
   const processed = new Set();
   let mergedSvgElements = 'interface SvgElements {\n';
