@@ -659,6 +659,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       code,
     );
 
+    expect(JSON.stringify(diagnostics)).toBe('[]');
     expect(diagnostics.length).toBe(0);
   });
 });
