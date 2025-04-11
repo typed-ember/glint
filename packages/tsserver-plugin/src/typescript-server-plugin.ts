@@ -202,7 +202,12 @@ function getSemanticDiagnostics<T>(
       return tsDiagnostics;
     }
 
-    const augmentedTsDiagnostics = augmentDiagnostics(ts, sourceFile, transformedModule, tsDiagnostics);
+    const augmentedTsDiagnostics = augmentDiagnostics(
+      ts,
+      sourceFile,
+      transformedModule,
+      tsDiagnostics,
+    );
 
     return augmentedTsDiagnostics;
   };
