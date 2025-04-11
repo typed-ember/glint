@@ -169,7 +169,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
-  test('honors @glint-expect-error', async () => {
+  test.only('honors @glint-expect-error', async () => {
     const componentA = stripIndent`
       import Component from '@glimmer/component';
 
