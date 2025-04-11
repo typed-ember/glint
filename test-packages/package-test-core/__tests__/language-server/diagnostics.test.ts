@@ -637,6 +637,43 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
+  test('unused @glint-expect-error triggers a diagnostic', async () => {
+    const componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          {{! @glint-expect-error }}
+          <Component />
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2578,
+          "end": {
+            "line": 5,
+            "offset": 31,
+          },
+          "start": {
+            "line": 5,
+            "offset": 5,
+          },
+          "text": "Unused '@glint-expect-error' directive.",
+        },
+      ]
+    `);
+  });
+
   test('svg does not produce false positives', async () => {
     const code = stripIndent`
     import Component from '@glimmer/component';
