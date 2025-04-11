@@ -163,7 +163,6 @@ export function templateToTypescript(
         return mapper.nothing(node);
       }
 
-      // here
       emitDirective(match, node);
     }
 
@@ -617,6 +616,10 @@ export function templateToTypescript(
       mapper.forNode(node, () => {
         let { start, path, kind } = tagNameToPathContents(node);
 
+        for (let comment of node.comments) {
+          emitComment(comment);
+        }
+
         mapper.text('{');
         mapper.newline();
         mapper.indent();
@@ -681,17 +684,7 @@ export function templateToTypescript(
           if (blocks.type === 'named') {
             for (const child of blocks.children) {
               if (child.type === 'CommentStatement' || child.type === 'MustacheCommentStatement') {
-                /**
-                 * TODO: figure out what needs to be reinstate here for glint-expect-error, e.g.
-                 *
-                 * <LayoutComponent>
-                 *   {{!@glint-expect-error this component isn't typed to provide block params but definitely does }}
-                 *   <:footer as |footerArgs|>
-                 *     {{footerArgs.something}}
-                 *   </:footer>
-                 * </LayoutComponent>
-                 */
-                // emitComment(child);
+                emitComment(child);
                 continue;
               }
 
@@ -801,6 +794,10 @@ export function templateToTypescript(
 
         if (node.tag === 'math') {
           inHtmlContext = 'math';
+        }
+
+        for (let comment of node.comments) {
+          emitComment(comment);
         }
 
         mapper.text('{');
