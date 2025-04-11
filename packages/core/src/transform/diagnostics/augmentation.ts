@@ -36,7 +36,6 @@ export function augmentDiagnostics<T extends Diagnostic>(
     if (mapping) {
       const appliedDirective = transformedModule.directives.find(
         (directive) =>
-          // directive.source.filename === augmentedDiagnostic.file?.fileName &&
           directive.areaOfEffect.start <= augmentedDiagnostic.start! &&
           directive.areaOfEffect.end > augmentedDiagnostic.start!,
       );
