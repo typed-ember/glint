@@ -4,8 +4,6 @@ import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-templ
 import ScopeStack from './scope-stack.js';
 import { GlintEmitMetadata, GlintSpecialForm } from '@glint/core/config-types';
 import { TextContent } from './glimmer-ast-mapping-tree.js';
-import { Directive } from './transformed-module.js';
-import { DirectiveKind } from './transformed-module.js';
 
 const SPLATTRIBUTES = '...attributes';
 
@@ -67,10 +65,6 @@ export function templateToTypescript(
         emitTopLevelStatement(statement);
       }
     });
-
-    // Ensure any "@glint-expect-error" directives at the end of the template
-    // trigger "unused @glint-expect-error" diagnostics.
-    mapper.terminateDirectiveAreaOfEffect('endOfTemplate');
 
     return;
 
@@ -169,7 +163,6 @@ export function templateToTypescript(
         return mapper.nothing(node);
       }
 
-      // here
       emitDirective(match, node);
     }
 
@@ -180,11 +173,9 @@ export function templateToTypescript(
       let kind = match[1];
       let location = rangeForNode(node);
       if (kind === 'ignore' || kind === 'expect-error') {
-        // Push to the directives array on the record
-        mapper.directive(node, kind);
+        mapper.directive(kind, location, mapper.rangeForLine(node.loc.end.line + 1));
       } else if (kind === 'nocheck') {
-        // Push to the directives array on the record
-        mapper.directive(node, 'nocheck');
+        mapper.directive('ignore', location, { start: 0, end: template.length - 1 });
       } else if (kind === 'in-svg') {
         inHtmlContext = 'svg';
       } else if (kind === 'in-mathml') {
@@ -201,7 +192,6 @@ export function templateToTypescript(
       emitMustacheStatement(node, 'top-level');
       mapper.text(';');
       mapper.newline();
-      mapper.terminateDirectiveAreaOfEffect('topLevelMustacheStatement');
     }
 
     // Captures the context in which a given invocation (i.e. a mustache or
@@ -622,77 +612,13 @@ export function templateToTypescript(
       }
     }
 
-    /**
-     * Given an ElementNode, return an array of attributes, args, and modifiers
-     * in the order they appear in the element open tag, and filter out any
-     * comments, while also detecting any directives (e.g. `@glint-expect-error`)
-     * and assigning them to the next non-comment/non-directive piece.
-     *
-     * This is useful for implementing logic for supporting `@glint-expect-error` (and similar)
-     * directives that appear inline within the opening tag of an element, e.g.
-     *
-     *     <Component @dataArg={{bar}}
-     *                {{!@glint-expect-error suppress href attribute}}
-     *                href="foo"
-     *                {{!@glint-expect-error suppress dataArg2 arg}}
-     *                @dataArg2={{bar2}}
-     *                link="rel" />
-     */
-    function assignDirectivesToElementOpenTagPieces(
-      node: AST.ElementNode,
-    ): WeakMap<AST.Node, DirectiveKind> {
-      let pieces = [...node.attributes, ...node.modifiers, ...node.comments].sort(
-        (a, b) => a.loc.getStart().offset! - b.loc.getStart().offset!,
-      );
-
-      let activeDirective: DirectiveKind | null = null;
-
-      const result: WeakMap<AST.Node, DirectiveKind> = new WeakMap();
-
-      for (let piece of pieces) {
-        if (piece.type === 'MustacheCommentStatement') {
-          // this needs to categorize directives. But which while do we do that in? this file is template-to-typescript
-          // activeDirective = piece.value.includes('@glint-expect-error') ? 'expect-error' : null;
-
-          const directiveRegex = /^@glint-([a-z-]+)/i;
-          let text = piece.value.trim();
-          let match = directiveRegex.exec(text);
-          if (!match) {
-            // Just a comment, not a directive. Skip.
-            continue;
-          }
-
-          let directive = match[1];
-          switch (directive) {
-            case 'expect-error':
-              activeDirective = 'expect-error';
-              break;
-            case 'ignore':
-              activeDirective = 'ignore';
-              break;
-            default:
-              // TODO: should this be an error?
-              continue;
-          }
-        } else if (piece.type === 'ElementModifierStatement' || piece.type === 'AttrNode') {
-          if (activeDirective) {
-            // Assign the directive to this modifier.
-            result.set(piece, activeDirective);
-            activeDirective = null;
-          }
-        } else {
-          throw new Error('Unknown piece type');
-        }
-      }
-
-      return result;
-    }
-
     function emitComponent(node: AST.ElementNode): void {
       mapper.forNode(node, () => {
         let { start, path, kind } = tagNameToPathContents(node);
 
-        const directivesWeakMap = assignDirectivesToElementOpenTagPieces(node);
+        for (let comment of node.comments) {
+          emitComment(comment);
+        }
 
         mapper.text('{');
         mapper.newline();
@@ -720,13 +646,6 @@ export function templateToTypescript(
             for (let attr of dataAttrs) {
               mapper.forNode(attr, () => {
                 mapper.newline();
-
-                // If this attribute has an inline directive, emit the corresponding `@ts-...` directive.
-                const directive = directivesWeakMap.get(attr);
-                if (directive) {
-                  mapper.text(`// @ts-${directive}`);
-                  mapper.newline();
-                }
 
                 start = template.indexOf(attr.name, start + 1);
                 emitHashKey(attr.name.slice(1), start + 1);
@@ -758,28 +677,14 @@ export function templateToTypescript(
         mapper.text('));');
         mapper.newline();
 
-        emitAttributesAndModifiers(node, directivesWeakMap);
-
-        // terminate @glint-expect-error directives after opening tag; any
-        // diagnostics due to attributes or modifiers are covered by the directive
-        mapper.terminateDirectiveAreaOfEffect('emitComponent - end of opening tag');
+        emitAttributesAndModifiers(node);
 
         if (!node.selfClosing) {
           let blocks = determineBlockChildren(node);
           if (blocks.type === 'named') {
             for (const child of blocks.children) {
               if (child.type === 'CommentStatement' || child.type === 'MustacheCommentStatement') {
-                /**
-                 * TODO: figure out what needs to be reinstate here for glint-expect-error, e.g.
-                 *
-                 * <LayoutComponent>
-                 *   {{!@glint-expect-error this component isn't typed to provide block params but definitely does }}
-                 *   <:footer as |footerArgs|>
-                 *     {{footerArgs.something}}
-                 *   </:footer>
-                 * </LayoutComponent>
-                 */
-                // emitComment(child);
+                emitComment(child);
                 continue;
               }
 
@@ -883,14 +788,16 @@ export function templateToTypescript(
 
     function emitPlainElement(node: AST.ElementNode): void {
       mapper.forNode(node, () => {
-        const directivesWeakMap = assignDirectivesToElementOpenTagPieces(node);
-
         if (node.tag === 'svg') {
           inHtmlContext = 'svg';
         }
 
         if (node.tag === 'math') {
           inHtmlContext = 'math';
+        }
+
+        for (let comment of node.comments) {
+          emitComment(comment);
         }
 
         mapper.text('{');
@@ -910,11 +817,7 @@ export function templateToTypescript(
         mapper.text('");');
         mapper.newline();
 
-        emitAttributesAndModifiers(node, directivesWeakMap);
-
-        // terminate @glint-expect-error directives after opening tag; any
-        // diagnostics due to attributes or modifiers are covered by the directive
-        mapper.terminateDirectiveAreaOfEffect('emitPlainElement - end of opening tag');
+        emitAttributesAndModifiers(node);
 
         for (let child of node.children) {
           emitTopLevelStatement(child);
@@ -930,19 +833,13 @@ export function templateToTypescript(
       });
     }
 
-    function emitAttributesAndModifiers(
-      node: AST.ElementNode,
-      directivesWeakMap: WeakMap<AST.Node, DirectiveKind>,
-    ): void {
+    function emitAttributesAndModifiers(node: AST.ElementNode): void {
       emitSplattributes(node);
-      emitPlainAttributes(node, directivesWeakMap);
-      emitModifiers(node, directivesWeakMap);
+      emitPlainAttributes(node);
+      emitModifiers(node);
     }
 
-    function emitPlainAttributes(
-      node: AST.ElementNode,
-      directivesWeakMap: WeakMap<AST.Node, DirectiveKind>,
-    ): void {
+    function emitPlainAttributes(node: AST.ElementNode): void {
       let attributes = node.attributes.filter(
         (attr) => !attr.name.startsWith('@') && attr.name !== SPLATTRIBUTES,
       );
@@ -975,8 +872,6 @@ export function templateToTypescript(
             mapper.text(',');
             mapper.newline();
           });
-
-          mapper.terminateDirectiveAreaOfEffect('emitPlainAttributes');
         }
         mapper.newline();
       });
@@ -1000,14 +895,9 @@ export function templateToTypescript(
       });
 
       mapper.newline();
-
-      mapper.terminateDirectiveAreaOfEffect('emitSplattributes');
     }
 
-    function emitModifiers(
-      node: AST.ElementNode,
-      directivesWeakMap: WeakMap<AST.Node, DirectiveKind>,
-    ): void {
+    function emitModifiers(node: AST.ElementNode): void {
       for (let modifier of node.modifiers) {
         mapper.forNode(modifier, () => {
           // TODO: implement for modifiers
@@ -1019,8 +909,6 @@ export function templateToTypescript(
           mapper.text('));');
           mapper.newline();
         });
-
-        mapper.terminateDirectiveAreaOfEffect('emitModifiers');
       }
     }
 

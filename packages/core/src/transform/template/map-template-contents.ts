@@ -30,15 +30,16 @@ export type Mapper = {
   rangeForNode: (node: AST.Node, span?: AST.Node['loc']) => Range;
 
   /**
+   * Given a 0-based line number, returns the corresponding start and
+   * end offsets for that line.
+   */
+  rangeForLine: (line: number) => Range;
+
+  /**
    * Captures the existence of a directive specified by the given source
    * node and affecting the given range of text.
    */
-  directive: (
-    commentNode: AST.CommentStatement | AST.MustacheCommentStatement,
-    type: DirectiveKind,
-  ) => void;
-
-  // directiveTerminatingExpression: (location: Range) => void;
+  directive: (type: DirectiveKind, location: Range, areaOfEffect: Range) => void;
 
   /**
    * Records an error at the given location.
@@ -87,14 +88,6 @@ export type Mapper = {
     callback: () => void,
     codeFeaturesForNode?: CodeInformation,
   ): void;
-
-  /**
-   * This needs to be called after any node that "consumes" a `glint-expect-error` directive.
-   * This essentially marks the end of the area of effect for the directive; this helps us
-   * filter out the "unused ts-expect-error" placeholder diagnostic if, in fact, an error
-   * diagnostic was reported within the directive's area of effect.
-   */
-  terminateDirectiveAreaOfEffect(endStr: string): void;
 };
 
 type LocalDirective = Omit<Directive, 'source'>;
@@ -184,13 +177,6 @@ export function mapTemplateContents(
   });
 
   let ignoreErrors = false;
-  let isNoCheckDirectivePresent = false;
-  let expectErrorToken:
-    | {
-        numErrors: number;
-        commentNode: AST.CommentStatement | AST.MustacheCommentStatement;
-      }
-    | undefined;
 
   // Associates all content emitted during the given callback with the
   // given range in the template source and corresponding AST node.
@@ -269,23 +255,6 @@ export function mapTemplateContents(
           verification: false,
         };
       }
-
-      if (expectErrorToken) {
-        // We are currently in a region of code covered by a @glint-expect-error directive. We need to
-        // keep track of the number of errors encountered within this region so that we can know whether
-        // we will need to propagate an "unused ts-expect-error" diagnostic back to the original
-        // .gts file or not.
-        const token = expectErrorToken;
-        return {
-          ...features,
-          verification: {
-            shouldReport: () => {
-              token.numErrors++;
-              return false;
-            },
-          },
-        };
-      }
     }
     return features;
   }
@@ -335,112 +304,16 @@ export function mapTemplateContents(
       errors.push({ message, location });
     },
 
-    directive(
-      commentNode: AST.CommentStatement | AST.MustacheCommentStatement,
-      kind: DirectiveKind,
-    ) {
-      if (kind === 'expect-error') {
-        if (!expectErrorToken) {
-          mapper.text(`// @glint-expect-error BEGIN AREA_OF_EFFECT`);
-          mapper.newline();
-        }
-
-        expectErrorToken = {
-          numErrors: 0,
-          commentNode,
-        };
-      }
-
-      if (kind === 'ignore') {
-        ignoreErrors = true;
-        mapper.text(`// @glint-ignore BEGIN AREA_OF_EFFECT`);
-        mapper.newline();
-      }
-
-      if (kind === 'nocheck') {
-        ignoreErrors = true;
-        isNoCheckDirectivePresent = true;
-        mapper.text(`// @glint-nocheck`);
-        mapper.newline();
-      }
-
-      directives.push({ kind });
-    },
-
-    terminateDirectiveAreaOfEffect(endStr: string) {
-      if (expectErrorToken) {
-        // There is an active "@glint-expect-error" directive whose
-        // are of effect we need to terminate.
-        //
-        // There is a somewhat delicate order in which everything below needs to happen,
-        // but here is an outline:
-        //
-        // 1. Volar will call the `shouldReport` function of the `verification` object
-        //    of the `CodeInformation` object that we pass along with each mapping for
-        //    every diagnostic reported by TS within the transformed region of code.
-        //
-        // 2. This callback's main job is to return a boolean indicating whether we
-        //    should propagate TS diagnostics within the transformed region of code
-        //    back to search (e.g. the original .gts file). But in addition to that we are somewhat
-        //    hackishly using `shouldReport` to track the number of errors encountered
-        //    within the directive's area of effect so that we can later determine
-        //    whether to filter out the "unused ts-expect-error" placeholder diagnostic
-        //    that we emit below.
-        //
-        // 3. The first `shouldReport` that gets called by Volar is in `resolveCodeFeatures`;
-        //    this implementation of `shouldReport` increments `numErrors` for each diagnostic
-        //    found in the region.
-        //
-        // 4. The second `shouldReport` that gets called is below: we emit a
-        //    `// @ts-expect-error GLINT_PLACEHOLDER` diagnostic that is always triggering
-        //    within the transformed code, and we use `shouldReport` to decide whether
-        //    to filter out that diagnostic or not.
-        //
-        // This approach was taken from Vue tooling; it is complicated but it solves the problem
-        // of keeping the code transform static while keeping all of the dynamic/stateful
-        // error tracking and filtering logic in `shouldReport` callbacks.
-        const token = expectErrorToken;
-
-        mapper.newline();
-
-        // 1. Emit a ts-expect-error this is guaranteed to trigger within the generated TS code
-        //    because we immediately follow it up with an empty semi-colon statement.
-        // 2. Map it back to the original `{{ @glint-expect-error }}` comment node in the source.
-        mapper.forNode(
-          token.commentNode,
-          () => {
-            mapper.text(`// @ts-expect-error GLINT_PLACEHOLDER`);
-          },
-          {
-            verification: {
-              // If no diagnostic errors were encountered within the area of effect,
-              // then filter out the "unused ts-expect-error" diagnostic triggered by our
-              // placeholder @ts-expect-error
-              shouldReport: () => token.numErrors === 0,
-            },
-          },
-        );
-
-        // Make the above placeholder diagnostic trigger an "unused ts-expect-error" diagnostic
-        // by introducing an error-less empty semi-colon statement.
-        mapper.newline();
-        mapper.text(';');
-        mapper.newline();
-
-        expectErrorToken = undefined;
-
-        mapper.text(`// @glint-expect-error END AREA_OF_EFFECT for ${endStr}`);
-        mapper.newline();
-      }
-
-      if (ignoreErrors && !isNoCheckDirectivePresent) {
-        ignoreErrors = false;
-        mapper.text(`// @glint-ignore END AREA_OF_EFFECT for ${endStr}`);
-        mapper.newline();
-      }
+    directive(kind: DirectiveKind, location: Range, areaOfEffect: Range) {
+      directives.push({ kind, location, areaOfEffect });
     },
 
     rangeForNode: buildRangeForNode(lineOffsets),
+
+    rangeForLine: (line: number): Range => ({
+      start: lineOffsets[line],
+      end: lineOffsets[line + 1] ?? template.length,
+    }),
   };
 
   callback(ast, mapper);
