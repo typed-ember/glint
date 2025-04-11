@@ -1,9 +1,9 @@
 import type ts from 'typescript';
 import { Diagnostic } from './index.js';
 import GlimmerASTMappingTree, { MappingSource } from '../template/glimmer-ast-mapping-tree.js';
-
+import TransformedModule from '../template/transformed-module.js';
 export function augmentDiagnostics<T extends Diagnostic>(
-  transformedModule: any,
+  transformedModule: TransformedModule,
   diagnostics: T[],
 ): T[] {
   const mappingForDiagnostic = (diagnostic: ts.Diagnostic): GlimmerASTMappingTree | null => {
@@ -26,8 +26,32 @@ export function augmentDiagnostics<T extends Diagnostic>(
     return rangeWithMappingAndSource.mapping || null;
   };
 
-  // @ts-expect-error not sure how to fix
-  return diagnostics.map((diagnostic) => rewriteMessageText(diagnostic, mappingForDiagnostic));
+  const augmentedDiagnostics: T[] = [];
+
+  for (const diagnostic of diagnostics) {
+    const augmentedDiagnostic = rewriteMessageText(diagnostic, mappingForDiagnostic);
+
+    const mapping = mappingForDiagnostic(diagnostic);
+
+    if (mapping) {
+      const appliedDirective = transformedModule.directives.find(
+        (directive) =>
+          // directive.source.filename === augmentedDiagnostic.file?.fileName &&
+          directive.areaOfEffect.start <= augmentedDiagnostic.start! &&
+          directive.areaOfEffect.end > augmentedDiagnostic.start!,
+      );
+
+      if (appliedDirective) {
+        // Filter out this diagnostic; its covered by a directive.
+        continue;
+      }
+    }
+
+    // @ts-expect-error not sure how to fix
+    augmentedDiagnostics.push(augmentedDiagnostic);
+  }
+
+  return augmentedDiagnostics;
 }
 
 type DiagnosticHandler<T extends Diagnostic> = (
