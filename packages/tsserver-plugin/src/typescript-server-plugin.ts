@@ -65,7 +65,7 @@ const plugin = createLanguageServicePlugin(
             info.languageServiceHost.resolveModuleNameLiterals?.bind(info.languageServiceHost);
 
           if (resolveModuleNameLiterals) {
-            // TS isn't aware of our customer .gts/.gjs extensions by default which causes
+            // TS isn't aware of our custom .gts/.gjs extensions by default which causes
             // issues with resolving imports that omit extensions. We hackishly "teach"
             // TS about these extensions by overriding `resolveModuleNameLiterals` to
             // inject non-existent imports that cause TS to consider the extensions when
