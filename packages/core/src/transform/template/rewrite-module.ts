@@ -21,36 +21,6 @@ import { calculateCompanionTemplateSpans } from './inlining/companion-file.js';
  */
 export type RewriteInput = { script: SourceFile; template?: SourceFile };
 
-// HACK: We prefix every transformed TS file with these non-existent imports
-// because it causes TypeScript to consider `.gts` and `.gjs` as possible
-// implied extensions when extensions are omitted from import module specifiers,
-// i.e. it causes `import FooComponent from './foo';` to work given a `foo.gts` file.
-//
-// Origin of this hack:
-// https://github.com/typed-ember/glint/issues/806#issuecomment-2758616327
-//
-// This approach has the following desirable properties:
-//
-// 1. It doesn't break Organize Imports command
-// 2. It doesn't introduce any keywords/variables that'll show up in auto-complete suggestions
-const EXTENSION_FIXING_HEADER_HACK_GTS = `
-// @ts-expect-error
-({} as typeof import('./__glint-hacky-nonexistent.gts'));
-
-// @ts-expect-error
-({} as typeof import('./__glint-hacky-nonexistent.gjs'));
-
-`;
-
-const EXTENSION_FIXING_HEADER_HACK_GJS = `
-// @ts-expect-error
-(/** @type {typeof import("./__glint-hacky-nonexistent.gts")} */ ({}))
-
-// @ts-expect-error
-(/** @type {typeof import("./__glint-hacky-nonexistent.gjs")} */ ({}))
-
-`;
-
 /**
  * Given the script and/or template that together comprise a component module,
  * returns a `TransformedModule` representing the combined result, with the
@@ -97,17 +67,7 @@ function calculateCorrelatedSpans(
 ): CorrelatedSpansResult {
   let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
-  let partialSpans: Array<PartialCorrelatedSpan> = [
-    {
-      originalFile: script,
-      originalStart: 0,
-      originalLength: 0,
-      insertionPoint: 0,
-      transformedSource: environment.isUntypedScript(script.filename)
-        ? EXTENSION_FIXING_HEADER_HACK_GJS
-        : EXTENSION_FIXING_HEADER_HACK_GTS,
-    },
-  ];
+  let partialSpans: Array<PartialCorrelatedSpan> = [];
 
   let { ast, emitMetadata, error } = parseScript(ts, script, environment);
 

@@ -61,6 +61,49 @@ const plugin = createLanguageServicePlugin(
             (fileName) => fileName,
           );
 
+          const resolveModuleNameLiterals =
+            info.languageServiceHost.resolveModuleNameLiterals?.bind(info.languageServiceHost);
+
+          if (resolveModuleNameLiterals) {
+            // TS isn't aware of our customer .gts/.gjs extensions by default which causes
+            // issues with resolving imports that omit extensions. We hackishly "teach"
+            // TS about these extensions by overriding `resolveModuleNameLiterals` to
+            // inject non-existent imports that cause TS to consider the extensions when
+            // resolving.
+            //
+            // Origin of this hack:
+            // https://github.com/typed-ember/glint/issues/806#issuecomment-2758616327
+            info.languageServiceHost.resolveModuleNameLiterals = (
+              moduleLiterals,
+              containingFile,
+              redirectedReference,
+              options,
+              ...rest
+            ) => {
+              let fakeImportNodes: any = [];
+              if (moduleLiterals.length > 0) {
+                fakeImportNodes.push({
+                  ...moduleLiterals[0],
+                  text: './__NONEXISTENT_GLINT_HACK__.gts',
+                });
+                fakeImportNodes.push({
+                  ...moduleLiterals[0],
+                  text: './__NONEXISTENT_GLINT_HACK__.gjs',
+                });
+              }
+
+              const result = resolveModuleNameLiterals(
+                [...fakeImportNodes, ...moduleLiterals],
+                containingFile,
+                redirectedReference,
+                options,
+                ...rest,
+              );
+
+              return result.slice(fakeImportNodes.length);
+            };
+          }
+
           // #3963
           // const timer = setInterval(() => {
           //   if (info.project['program']) {
