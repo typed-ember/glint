@@ -34,10 +34,7 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
 
       // Replace a string with a number
       await scriptEditor.edit((edit) => {
-        edit.replace(new Range(10, 20, 10, 27), '{{123}}');
-
-        // Original range, in case we revert some of the TS-Plugin-specific
-        // edit.replace(new Range(6, 20, 6, 27), '{{123}}');
+        edit.replace(new Range(6, 20, 6, 27), '{{123}}');
       });
 
       // Wait for the diagnostic to show up
