@@ -55,12 +55,7 @@
         ],
         "extensions": [
           ".gjs"
-        ],
-        "configuration": "./languages/inline-template.configuration.json",
-        "icon": {
-          "light": "./assets/glimmer-js-light.svg",
-          "dark": "./assets/glimmer-js-dark.svg"
-        }
+        ]
       },
       {
         "id": "glimmer-ts",
@@ -70,95 +65,7 @@
         ],
         "extensions": [
           ".gts"
-        ],
-        "configuration": "./languages/inline-template.configuration.json",
-        "icon": {
-          "light": "./assets/glimmer-ts-light.svg",
-          "dark": "./assets/glimmer-ts-dark.svg"
-        }
-      },
-      {
-        "id": "handlebars",
-        "extensions": [
-          ".hbs"
-        ],
-        "aliases": [
-          "handlebars",
-          "hbs"
-        ],
-        "configuration": "./languages/handlebars.configuration.json"
-      },
-      {
-        "id": "markdown-glimmer"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "glimmer-js",
-        "path": "./syntaxes/source.gjs.json",
-        "scopeName": "source.gjs",
-        "embeddedLanguages": {
-          "source.gjs": "javascript",
-          "meta.embedded.block.html": "handlebars",
-          "meta.js.embeddedTemplateWithoutArgs": "handlebars",
-          "meta.js.embeddedTemplateWithArgs": "handlebars"
-        },
-        "unbalancedBracketScopes": [
-          "keyword.operator.relational",
-          "storage.type.function.arrow",
-          "keyword.operator.bitwise.shift",
-          "meta.brace.angle",
-          "punctuation.definition.tag",
-          "keyword.operator.assignment.compound.bitwise.ts"
         ]
-      },
-      {
-        "language": "glimmer-ts",
-        "path": "./syntaxes/source.gts.json",
-        "scopeName": "source.gts",
-        "embeddedLanguages": {
-          "source.gts": "typescript",
-          "meta.embedded.block.html": "handlebars",
-          "meta.js.embeddedTemplateWithoutArgs": "handlebars",
-          "meta.js.embeddedTemplateWithArgs": "handlebars"
-        },
-        "unbalancedBracketScopes": [
-          "keyword.operator.relational",
-          "storage.type.function.arrow",
-          "keyword.operator.bitwise.shift",
-          "meta.brace.angle",
-          "punctuation.definition.tag",
-          "keyword.operator.assignment.compound.bitwise.ts"
-        ]
-      },
-      {
-        "label": "Handlebars (Ember)",
-        "language": "handlebars",
-        "scopeName": "text.html.ember-handlebars",
-        "path": "./syntaxes/text.html.ember-handlebars.json"
-      },
-      {
-        "injectTo": [
-          "source.js",
-          "source.ts"
-        ],
-        "scopeName": "inline.hbs",
-        "path": "./syntaxes/inline.hbs.json",
-        "embeddedLanguages": {
-          "meta.embedded.block.html": "handlebars"
-        }
-      },
-      {
-        "language": "markdown-glimmer",
-        "scopeName": "markdown.glimmer.codeblock",
-        "path": "./syntaxes/markdown.glimmer.codeblock.json",
-        "injectTo": [
-          "text.html.markdown"
-        ],
-        "embeddedLanguages": {
-          "meta.embedded.block.gjs": "glimmer-js",
-          "meta.embedded.block.gts": "glimmer-ts"
-        }
       }
     ],
     "typescriptServerPlugins": [
