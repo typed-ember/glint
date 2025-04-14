@@ -2,42 +2,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Extension (Glint + TS)",
-      "type": "extensionHost",
-      "request": "launch",
-      // this errors. Run `pnpm build` before launching this task
-      // "preLaunchTask": "npm: build",
-      "autoAttachChildProcesses": true,
-      "runtimeExecutable": "${execPath}",
-      "outFiles": [
-        "${workspaceFolder}/**/*.js",
-        "!**/node_modules/**"
-      ],
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-        "--disable-extensions", // uncomment to activate your local extensions
-        "${workspaceFolder}/test-packages"
-      ]
-    },
-    {
-      "name": "Debug Extension (Glint Only, No TS)",
-      "type": "extensionHost",
-      "request": "launch",
-      "preLaunchTask": "npm: build",
-      "autoAttachChildProcesses": true,
-      "runtimeExecutable": "${execPath}",
-      "outFiles": [
-        "${workspaceFolder}/**/*.js",
-        "!**/node_modules/**"
-      ],
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-        "--disable-extension",
-        "vscode.typescript-language-features",
-        "${workspaceFolder}/test-packages"
-      ]
-    },
-    {
       // For this to work, make sure you're running `tsc --build --watch` at the root, AND
       // `pnpm bundle:watch` from within vscode directory.
       "name": "Debug Extension (TS Plugin, .gts)",
