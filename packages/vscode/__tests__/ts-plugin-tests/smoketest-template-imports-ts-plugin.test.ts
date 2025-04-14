@@ -26,7 +26,7 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
   });
 
   describe('diagnostics for errors', () => {
-    test('with a custom extension', async () => {
+    test('basic diagnostics for gts file', async () => {
       let scriptURI = Uri.file(`${rootDir}/src/index.gts`);
       let scriptEditor = await window.showTextDocument(scriptURI, { viewColumn: ViewColumn.One });
 
@@ -46,8 +46,7 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
           message: "Type 'number' is not assignable to type 'string'.",
           source: 'ts-plugin',
           code: 2322,
-          // range: new Range(6, 13, 6, 19),
-          range: new Range(10, 13, 10, 19),
+          range: new Range(6, 13, 6, 19),
         },
       ]);
     });
