@@ -44,7 +44,10 @@
   "release-plan": {
     "skipNpmPublish": true
   },
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:glimmer-js",
+    "onLanguage:glimmer-ts"
+  ],
   "contributes": {
     "languages": [
       {
