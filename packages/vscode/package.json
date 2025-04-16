@@ -46,7 +46,7 @@
   },
   "activationEvents": [
     "onLanguage:glimmer-js",
-    "onLanguage:glimmer-ts"    
+    "onLanguage:glimmer-ts"
   ],
   "contributes": {
     "languages": [
