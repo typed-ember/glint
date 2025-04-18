@@ -4,6 +4,7 @@ import {
   ComponentSignatureBlocks,
   ComponentSignatureElement,
 } from '../-private/signature';
+import { ComponentLike } from '../';
 
 type LegacyArgs = {
   foo: number;
@@ -153,3 +154,56 @@ interface FullLongSig {
 expectTypeOf<ComponentSignatureArgs<FullLongSig>>().toEqualTypeOf<FullLongSig['Args']>();
 expectTypeOf<ComponentSignatureBlocks<FullLongSig>>().toEqualTypeOf<FullLongSig['Blocks']>();
 expectTypeOf<ComponentSignatureElement<FullLongSig>>().toEqualTypeOf<FullLongSig['Element']>();
+
+// types to simulate the `(element)` helper
+// Issue: https://github.com/typed-ember/glint/issues/610
+type ElementFromTagName<T extends string> = T extends keyof HTMLElementTagNameMap
+  ? HTMLElementTagNameMap[T]
+  : Element;
+type ElementHelperPositional<T extends string> = [name: T];
+type ElementHelperReturn<T extends string> = ComponentLike<{
+  Element: ElementFromTagName<T>;
+  Blocks: { default: [] };
+}>;
+
+interface ElementSignature<T extends string> {
+  Args: {
+    Positional: ElementHelperPositional<T>;
+  };
+  Return: ElementHelperReturn<T> | undefined;
+}
+
+// signature for a component receiving an `(element)`
+interface ElementReceiverSignature<T extends string> {
+  Element: ElementFromTagName<T>;
+  Args: {
+    element: ElementSignature<T>['Return'];
+  };
+  Blocks: {
+    default: [];
+  };
+}
+
+expectTypeOf<ComponentSignatureArgs<ElementReceiverSignature<'div'>>>().toEqualTypeOf<{
+  Named: {
+    element: ElementSignature<'div'>['Return'];
+  };
+  Positional: []
+}>();
+
+expectTypeOf<ComponentSignatureArgs<ElementReceiverSignature<null>>>().toEqualTypeOf<{
+  Named: {
+    element: {
+      Args: {
+        Positional: ElementHelperPositional<never>;
+      };
+      Return: ComponentLike<{
+        Element: Element;
+        Blocks: { default: [] };
+      }> | undefined;
+    } | undefined;
+  };
+  Positional: []
+}>();
+expectTypeOf<ComponentSignatureElement<ElementReceiverSignature<'div'>>>().toEqualTypeOf<HTMLDivElement>();
+
