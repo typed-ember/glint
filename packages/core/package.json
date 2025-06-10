@@ -1,6 +1,6 @@
 {
   "name": "@glint/core",
-  "version": "1.4.0",
+  "version": "2.0.0-alpha.0",
   "repository": "typed-ember/glint",
   "description": "A CLI for performing typechecking on Glimmer templates",
   "license": "MIT",
@@ -35,6 +35,15 @@
     "build": "tsc --build",
     "dev": "tsc --watch",
     "prepack": "pnpm build"
+  },
+  "release-plan": {
+    "semverIncrementAs": {
+      "major": "prerelease",
+      "minor": "prerelease",
+      "patch": "prerelease"
+    },
+    "semverIncrementTag": "alpha",
+    "publishTag": "alpha"
   },
   "peerDependencies": {
     "typescript": ">=5.6.0"

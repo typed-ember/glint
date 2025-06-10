@@ -1,6 +1,6 @@
 {
   "name": "@glint/type-test",
-  "version": "1.4.0",
+  "version": "2.0.0-alpha.0",
   "repository": "typed-ember/glint",
   "description": "Tools for testing inferred types in Glint-enabled templates",
   "license": "MIT",
@@ -27,6 +27,15 @@
   },
   "devDependencies": {
     "@glint/template": "workspace:*"
+  },
+  "release-plan": {
+    "semverIncrementAs": {
+      "major": "prerelease",
+      "minor": "prerelease",
+      "patch": "prerelease"
+    },
+    "semverIncrementTag": "alpha",
+    "publishTag": "alpha"
   },
   "publishConfig": {
     "access": "public"

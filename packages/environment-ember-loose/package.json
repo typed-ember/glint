@@ -1,6 +1,6 @@
 {
   "name": "@glint/environment-ember-loose",
-  "version": "1.4.0",
+  "version": "2.0.0-alpha.0",
   "repository": "typed-ember/glint",
   "description": "A Glint environment to support loose-mode Ember.js projects",
   "license": "MIT",
@@ -22,6 +22,15 @@
     "test:watch": "vitest watch",
     "build": "tsc --build",
     "prepack": "pnpm build"
+  },
+  "release-plan": {
+    "semverIncrementAs": {
+      "major": "prerelease",
+      "minor": "prerelease",
+      "patch": "prerelease"
+    },
+    "semverIncrementTag": "alpha",
+    "publishTag": "alpha"
   },
   "files": [
     "README.md",
