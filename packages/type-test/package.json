@@ -1,6 +1,6 @@
 {
   "name": "@glint/type-test",
-  "version": "1.4.0",
+  "version": "0.0.0",
   "repository": "typed-ember/glint",
   "description": "Tools for testing inferred types in Glint-enabled templates",
   "license": "MIT",
