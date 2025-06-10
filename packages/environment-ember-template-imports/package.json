@@ -23,6 +23,15 @@
     "build": "tsc --build",
     "prepack": "pnpm build"
   },
+  "release-plan": {
+    "semverIncrementAs": {
+      "major": "prerelease",
+      "minor": "prerelease",
+      "patch": "prerelease"
+    },
+    "semverIncrementTag": "alpha",
+    "publishTag": "alpha"
+  },
   "files": [
     "README.md",
     "-private/**/*.{js,d.ts}",
