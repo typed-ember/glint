@@ -5,6 +5,12 @@ import TestComponent from '../test-component';
 
 const componentKeyword = resolve({} as ComponentKeyword);
 
+class WithElement extends TestComponent<{
+  Element: HTMLElement;
+}> {}
+
+expectTypeOf(emitComponent(resolve(WithElement)()).element).toExtend<HTMLDivElement>();
+
 class StringComponent extends TestComponent<{
   Args: { value: string };
   Blocks: { default: [string] };
