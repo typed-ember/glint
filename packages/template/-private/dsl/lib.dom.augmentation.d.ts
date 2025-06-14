@@ -11,11 +11,6 @@ declare global {
   }
 
 
-  interface HTMLElement {
-    [GlintSymbol]: 'HTMLElement';
-  }
-
-
   interface HTMLAreaElement {
     [GlintSymbol]: 'HTMLAreaElement';
   }
