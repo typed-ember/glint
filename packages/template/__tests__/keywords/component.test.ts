@@ -12,7 +12,7 @@ class WithElement extends TestComponent<{
 // https://www.typescriptlang.org/play/?#code/JYWwDg9gTgLgBAbzgUwB5mQYxgFQJ4YDyAZnAL5zFQQhwDkaG2AtDAcnQNwBQ3jWudiQA8ACRwBZADIBRADbIQyAHYwAfAAoAlADoYEGahgqAJmMlSAIsABu8xSvXae-bPiLFz063YVLVmrr6hsbKZuLS9v5OWpxAA
 expectTypeOf<HTMLDivElement>().toExtend<HTMLElement>();
 
-const ElementType = (emitComponent(resolve(WithElement)()).element);
+const ElementType = emitComponent(resolve(WithElement)()).element;
 expectTypeOf<HTMLDivElement>().toExtend<typeof ElementType>();
 
 class StringComponent extends TestComponent<{
