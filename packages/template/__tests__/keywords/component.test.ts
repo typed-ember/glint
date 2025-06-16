@@ -5,6 +5,16 @@ import TestComponent from '../test-component';
 
 const componentKeyword = resolve({} as ComponentKeyword);
 
+class WithElement extends TestComponent<{
+  Element: HTMLElement;
+}> {}
+
+// https://www.typescriptlang.org/play/?#code/JYWwDg9gTgLgBAbzgUwB5mQYxgFQJ4YDyAZnAL5zFQQhwDkaG2AtDAcnQNwBQ3jWudiQA8ACRwBZADIBRADbIQyAHYwAfAAoAlADoYEGahgqAJmMlSAIsABu8xSvXae-bPiLFz063YVLVmrr6hsbKZuLS9v5OWpxAA
+expectTypeOf<HTMLDivElement>().toExtend<HTMLElement>();
+
+const ElementType = emitComponent(resolve(WithElement)()).element;
+expectTypeOf<HTMLDivElement>().toExtend<typeof ElementType>();
+
 class StringComponent extends TestComponent<{
   Args: { value: string };
   Blocks: { default: [string] };

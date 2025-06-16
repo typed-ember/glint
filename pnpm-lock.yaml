@@ -237,8 +237,8 @@ importers:
         specifier: ^6.2.0
         version: 6.2.0(@glimmer/component@1.1.2)
       expect-type:
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^1.2.1
+        version: 1.2.1
       html-element-attributes:
         specifier: ^3.3.0
         version: 3.4.0
@@ -4588,6 +4588,10 @@ packages:
 
   expect-type@1.2.0:
     resolution: {integrity: sha512-80F22aiJ3GLyVnS/B3HzgR6RelZVumzj9jkL0Rhz4h0xYbNW9PjlQz5h3J/SShErbXBc295vseR4/MIbVmUbeA==}
+    engines: {node: '>=12.0.0'}
+
+  expect-type@1.2.1:
+    resolution: {integrity: sha512-/kP8CAwxzLVEeFrMm4kMmy4CCDlpipyA7MYLVrdJIkV0fYF0UaigQHRsxHiuY/GEea+bh4KSv3TIlgr+2UL6bw==}
     engines: {node: '>=12.0.0'}
 
   expect@29.7.0:
@@ -13747,6 +13751,8 @@ snapshots:
   expect-type@0.15.0: {}
 
   expect-type@1.2.0: {}
+
+  expect-type@1.2.1: {}
 
   expect@29.7.0:
     dependencies:
