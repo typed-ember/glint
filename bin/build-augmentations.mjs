@@ -33,6 +33,8 @@ traverse(ast, {
 
 let augmentations = [];
 for (const element of elements) {
+  if (element === 'HTMLElement') continue;
+
   augmentations.push(`
   interface ${element} {
     [GlintSymbol]: '${element}';
