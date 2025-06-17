@@ -1,5 +1,21 @@
 # Changelog
 
+## Release (2025-06-17)
+
+* @glint/core 2.0.0-alpha.2 (patch)
+* @glint/environment-ember-loose 2.0.0-alpha.2 (patch)
+* @glint/environment-ember-template-imports 2.0.0-alpha.2 (patch)
+* @glint/template 1.6.0-alpha.1 (patch)
+* @glint/tsserver-plugin 2.0.0-alpha.2 (patch)
+* @glint/type-test 2.0.0-alpha.2 (patch)
+
+#### :bug: Bug Fix
+* `@glint/core`, `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`
+  * [#908](https://github.com/typed-ember/glint/pull/908) Fix build to prepare for re-releasing alphas ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2025-06-16)
 
 * @glint/core 2.0.0-alpha.1 (major)

@@ -1,109 +1,61 @@
 {
   "solution": {
     "@glint/core": {
-      "impact": "major",
-      "oldVersion": "2.0.0-alpha.0",
-      "newVersion": "2.0.0-alpha.1",
+      "impact": "patch",
+      "oldVersion": "2.0.0-alpha.1",
+      "newVersion": "2.0.0-alpha.2",
       "tagName": "alpha",
       "constraints": [
         {
-          "impact": "major",
-          "reason": "Appears in changelog section :boom: Breaking Change"
-        },
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/core/package.json"
     },
     "@glint/environment-ember-loose": {
-      "impact": "major",
-      "oldVersion": "2.0.0-alpha.0",
-      "newVersion": "2.0.0-alpha.1",
+      "impact": "patch",
+      "oldVersion": "2.0.0-alpha.1",
+      "newVersion": "2.0.0-alpha.2",
       "tagName": "alpha",
       "constraints": [
         {
-          "impact": "major",
-          "reason": "Appears in changelog section :boom: Breaking Change"
-        },
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/environment-ember-loose/package.json"
     },
     "@glint/environment-ember-template-imports": {
-      "impact": "major",
-      "oldVersion": "2.0.0-alpha.0",
-      "newVersion": "2.0.0-alpha.1",
+      "impact": "patch",
+      "oldVersion": "2.0.0-alpha.1",
+      "newVersion": "2.0.0-alpha.2",
       "tagName": "alpha",
       "constraints": [
         {
-          "impact": "major",
-          "reason": "Appears in changelog section :boom: Breaking Change"
-        },
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/environment-ember-template-imports/package.json"
     },
     "@glint/template": {
-      "impact": "major",
-      "oldVersion": "1.5.2",
-      "newVersion": "1.6.0-alpha.0",
+      "impact": "patch",
+      "oldVersion": "1.6.0-alpha.0",
+      "newVersion": "1.6.0-alpha.1",
       "tagName": "alpha",
       "constraints": [
         {
-          "impact": "major",
-          "reason": "Appears in changelog section :boom: Breaking Change"
-        },
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
-      "impact": "major",
-      "oldVersion": "2.0.0-alpha.0",
-      "newVersion": "2.0.0-alpha.1",
+      "impact": "patch",
+      "oldVersion": "2.0.0-alpha.1",
+      "newVersion": "2.0.0-alpha.2",
       "tagName": "alpha",
       "constraints": [
         {
@@ -111,41 +63,25 @@
           "reason": "Has dependency `workspace:*` on @glint/core"
         },
         {
-          "impact": "major",
-          "reason": "Appears in changelog section :boom: Breaking Change"
-        },
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
     },
     "@glint/type-test": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.0",
-      "newVersion": "2.0.0-alpha.1",
+      "oldVersion": "2.0.0-alpha.1",
+      "newVersion": "2.0.0-alpha.2",
       "tagName": "alpha",
       "constraints": [
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :memo: Documentation"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
+          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/type-test/package.json"
     }
   },
-  "description": "## Release (2025-06-16)\n\n* @glint/core 2.0.0-alpha.1 (major)\n* @glint/environment-ember-loose 2.0.0-alpha.1 (major)\n* @glint/environment-ember-template-imports 2.0.0-alpha.1 (major)\n* @glint/template 1.6.0-alpha.0 (major)\n* @glint/tsserver-plugin 2.0.0-alpha.1 (major)\n* @glint/type-test 2.0.0-alpha.1 (patch)\n\n#### :boom: Breaking Change\n* `@glint/core`, `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`, `@glint/template`\n  * [#820](https://github.com/typed-ember/glint/pull/820) Drop support for @types/ember* only use native/built-in types ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/core`, `@glint/tsserver-plugin`\n  * [#811](https://github.com/typed-ember/glint/pull/811) Migrate tests to TS Plugin mode, remove option for old LS mode ([@machty](https://github.com/machty))\n* Other\n  * [#790](https://github.com/typed-ember/glint/pull/790) Re-write extension to use reactive-vscode, align with Vue extension ([@machty](https://github.com/machty))\n* `@glint/core`\n  * [#750](https://github.com/typed-ember/glint/pull/750) Rm TransformManager and lots of pre-volar code ([@machty](https://github.com/machty))\n  * [#740](https://github.com/typed-ember/glint/pull/740) Fix `glint` cli build tests, parity with `vue-tsc` ([@machty](https://github.com/machty))\n  * [#739](https://github.com/typed-ember/glint/pull/739) rm glint/getIR command ([@machty](https://github.com/machty))\n* `@glint/environment-ember-loose`\n  * [#721](https://github.com/typed-ember/glint/pull/721) feat: drop support for classic component layout ([@aklkv](https://github.com/aklkv))\n* `@glint/core`, `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`\n  * [#726](https://github.com/typed-ember/glint/pull/726) Re-write using Volar: initially only supporting .gts ([@machty](https://github.com/machty))\n* `@glint/core`, `@glint/template`\n  * [#716](https://github.com/typed-ember/glint/pull/716) Remove GlimmerX ([@machty](https://github.com/machty))\n\n#### :rocket: Enhancement\n* Other\n  * [#895](https://github.com/typed-ember/glint/pull/895) VSCode: Add activationEvents for glimmer-ts/js file types ([@machty](https://github.com/machty))\n  * [#803](https://github.com/typed-ember/glint/pull/803) Use jiti for sync loading from TS Plugin ([@machty](https://github.com/machty))\n  * [#791](https://github.com/typed-ember/glint/pull/791) Monkeypatch remaining TS features within .gts files ([@machty](https://github.com/machty))\n* `@glint/core`, `@glint/tsserver-plugin`\n  * [#890](https://github.com/typed-ember/glint/pull/890) Move .gts/.gjs import hacks to TS Plugin ([@machty](https://github.com/machty))\n  * [#877](https://github.com/typed-ember/glint/pull/877) Reinstate GJS Support ([@machty](https://github.com/machty))\n  * [#873](https://github.com/typed-ember/glint/pull/873) Disregard semantic classification tokens from `<template>` portions of .gts files ([@machty](https://github.com/machty))\n* `@glint/core`\n  * [#888](https://github.com/typed-ember/glint/pull/888) Restore previous approach to glint-* directives atop new TS Plugin architecture ([@machty](https://github.com/machty))\n  * [#876](https://github.com/typed-ember/glint/pull/876) Support for Symbols, Outline, Code Folding in .gts files ([@machty](https://github.com/machty))\n  * [#874](https://github.com/typed-ember/glint/pull/874) Fix organize imports ([@machty](https://github.com/machty))\n  * [#856](https://github.com/typed-ember/glint/pull/856) Support (neo)vim filetypes for gts and gjs ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#854](https://github.com/typed-ember/glint/pull/854) Loose mode: only parse .ts in `components/` folder ([@machty](https://github.com/machty))\n  * [#838](https://github.com/typed-ember/glint/pull/838) Support extending multiple config files ([@mogstad](https://github.com/mogstad))\n  * [#839](https://github.com/typed-ember/glint/pull/839) use more specific nodes for open tag ([@patricklx](https://github.com/patricklx))\n  * [#813](https://github.com/typed-ember/glint/pull/813) Cleanup old LS remainders, disable CLI tests for now, rm ephemeral tests ([@machty](https://github.com/machty))\n  * [#749](https://github.com/typed-ember/glint/pull/749) Primitives for supporting ember-loose mode (.ts + .hbs) ([@machty](https://github.com/machty))\n  * [#747](https://github.com/typed-ember/glint/pull/747) volar-2.4.0-alpha.14 ([@machty](https://github.com/machty))\n  * [#713](https://github.com/typed-ember/glint/pull/713) check if template is in heritage clause ([@patricklx](https://github.com/patricklx))\n* `@glint/core`, `@glint/template`, `@glint/tsserver-plugin`\n  * [#849](https://github.com/typed-ember/glint/pull/849) add html attribute validation & completions  ([@patricklx](https://github.com/patricklx))\n* `@glint/core`, `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`, `@glint/template`\n  * [#753](https://github.com/typed-ember/glint/pull/753) TS Plugin: basic diagnostics and functionality for .gts files ([@machty](https://github.com/machty))\n* `@glint/core`, `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`\n  * [#726](https://github.com/typed-ember/glint/pull/726) Re-write using Volar: initially only supporting .gts ([@machty](https://github.com/machty))\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#903](https://github.com/typed-ember/glint/pull/903) @glint/template: Fix Element extends comparison ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#880](https://github.com/typed-ember/glint/pull/880) fix missing generic attrs for svg ([@patricklx](https://github.com/patricklx))\n* `@glint/core`, `@glint/tsserver-plugin`\n  * [#889](https://github.com/typed-ember/glint/pull/889) Reinstate \"unused @glint-expect-error directive\" ([@machty](https://github.com/machty))\n* `@glint/core`\n  * [#865](https://github.com/typed-ember/glint/pull/865) Prefer variables in scope over global variables ([@mogstad](https://github.com/mogstad))\n  * [#861](https://github.com/typed-ember/glint/pull/861) Inject hidden imports to fix `.gts`/`.gjs` extensions ([@machty](https://github.com/machty))\n  * [#851](https://github.com/typed-ember/glint/pull/851) Refrain creating ember-loose virtual code in non ember-loose environment ([@mogstad](https://github.com/mogstad))\n  * [#809](https://github.com/typed-ember/glint/pull/809) Bump volar to 2.4.12, fix caching issue w loose mode ([@machty](https://github.com/machty))\n  * [#799](https://github.com/typed-ember/glint/pull/799) Reinstate glint-expect-error (and other directives) for tsc and TS Plugin using Vue's approach ([@machty](https://github.com/machty))\n  * [#795](https://github.com/typed-ember/glint/pull/795) Restore \"unused glint-expect-error\" diagnostic ([@machty](https://github.com/machty))\n  * [#794](https://github.com/typed-ember/glint/pull/794) Reinstate expect-error directives for .gts ([@machty](https://github.com/machty))\n  * [#783](https://github.com/typed-ember/glint/pull/783) Suppress exception thrown by require.resolve if the file does not exist ([@iarroyo](https://github.com/iarroyo))\n  * [#782](https://github.com/typed-ember/glint/pull/782) Typed ember/resolve config from extends package ([@iarroyo](https://github.com/iarroyo))\n  * [#779](https://github.com/typed-ember/glint/pull/779) Closes [#778](https://github.com/typed-ember/glint/issues/778) - add missing dependency to @glint/core ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* Other\n  * [#866](https://github.com/typed-ember/glint/pull/866) enable completions in vscode ([@patricklx](https://github.com/patricklx))\n  * [#858](https://github.com/typed-ember/glint/pull/858) Disable esModuleInterop to restore VSCode monkeypatching ([@machty](https://github.com/machty))\n* `@glint/environment-ember-template-imports`\n  * [#859](https://github.com/typed-ember/glint/pull/859) Fix handling of `satisfies` on components. ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/core`, `@glint/environment-ember-template-imports`\n  * [#842](https://github.com/typed-ember/glint/pull/842) Improve multi-byte character handling ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#825](https://github.com/typed-ember/glint/pull/825) Support implicit default export of template tags with satisfies keyword ([@mogstad](https://github.com/mogstad))\n* `@glint/tsserver-plugin`\n  * [#829](https://github.com/typed-ember/glint/pull/829) Fix VSCode extension pre-release ([@machty](https://github.com/machty))\n* `@glint/environment-ember-loose`\n  * [#826](https://github.com/typed-ember/glint/pull/826) Explicitly accept an Iterable in `each-in` ([@mogstad](https://github.com/mogstad))\n  * [#777](https://github.com/typed-ember/glint/pull/777) Widen peerDependencies to allow @glimmer/component v2 ([@SergeAstapov](https://github.com/SergeAstapov))\n\n#### :memo: Documentation\n* Other\n  * [#872](https://github.com/typed-ember/glint/pull/872) Remove `export default` from the Template-only components example ([@Windvis](https://github.com/Windvis))\n  * [#850](https://github.com/typed-ember/glint/pull/850) Update info about not disabling the `@builtin typescript` extension forV2 ([@johanrd](https://github.com/johanrd))\n  * [#847](https://github.com/typed-ember/glint/pull/847) Update GLINT_V2.md with updated information ([@johanrd](https://github.com/johanrd))\n  * [#836](https://github.com/typed-ember/glint/pull/836) Update GLINT_V2.md readme ([@johanrd](https://github.com/johanrd))\n  * [#832](https://github.com/typed-ember/glint/pull/832) Update Glint v2 docs ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#827](https://github.com/typed-ember/glint/pull/827) Update ARCHITECTURE and GLINT_V2 docs ([@machty](https://github.com/machty))\n  * [#822](https://github.com/typed-ember/glint/pull/822) Add a few docs about vscode extension monkeypatches ([@machty](https://github.com/machty))\n  * [#821](https://github.com/typed-ember/glint/pull/821) Simplify the TO template tag example ([@Windvis](https://github.com/Windvis))\n  * [#786](https://github.com/typed-ember/glint/pull/786) Clarify typing for no arguments/blocks ([@elwayman02](https://github.com/elwayman02))\n* `@glint/type-test`\n  * [#725](https://github.com/typed-ember/glint/pull/725) docs: use gjs as codefence lang ([@IgnaceMaes](https://github.com/IgnaceMaes))\n\n#### :house: Internal\n* `@glint/template`\n  * [#907](https://github.com/typed-ember/glint/pull/907) Fix @glint/template version to match with what's released ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#906](https://github.com/typed-ember/glint/pull/906) Switch to preminor for @glint/template ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#881](https://github.com/typed-ember/glint/pull/881) Consolidate scripts, add generated files to eslint/prettier ignore file ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#855](https://github.com/typed-ember/glint/pull/855) Extract type-tests from `@glint/template` that cause dependency problems to their own package ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/core`, `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#902](https://github.com/typed-ember/glint/pull/902) Setup alpha releases ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#818](https://github.com/typed-ember/glint/pull/818) Migrate to pnpm ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* Other\n  * [#892](https://github.com/typed-ember/glint/pull/892) Remove grammars ([@evoactivity](https://github.com/evoactivity))\n  * [#893](https://github.com/typed-ember/glint/pull/893) Remove deprecated F5 launch configurations ([@machty](https://github.com/machty))\n  * [#894](https://github.com/typed-ember/glint/pull/894) Fix broken main test ([@machty](https://github.com/machty))\n  * [#862](https://github.com/typed-ember/glint/pull/862) Use the tars directly, rather than links ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#852](https://github.com/typed-ember/glint/pull/852) rm test.only() ([@machty](https://github.com/machty))\n  * [#834](https://github.com/typed-ember/glint/pull/834) Make the test-apps private ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#831](https://github.com/typed-ember/glint/pull/831) Setup release-plan for releases ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#807](https://github.com/typed-ember/glint/pull/807) Introduce smoke test for TS Plugin + Loose Mode ([@machty](https://github.com/machty))\n  * [#805](https://github.com/typed-ember/glint/pull/805) Easy F5 testability of loose+gts ember app ([@machty](https://github.com/machty))\n  * [#789](https://github.com/typed-ember/glint/pull/789) Single acceptance test for ts plugin mode ([@machty](https://github.com/machty))\n  * [#744](https://github.com/typed-ember/glint/pull/744) Disable red CI for now ([@machty](https://github.com/machty))\n  * [#743](https://github.com/typed-ember/glint/pull/743) skip vscode tests ([@machty](https://github.com/machty))\n  * [#735](https://github.com/typed-ember/glint/pull/735) Fix Windows snapshots ([@machty](https://github.com/machty))\n  * [#727](https://github.com/typed-ember/glint/pull/727) Setup unstable releases ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/environment-ember-template-imports`\n  * [#883](https://github.com/typed-ember/glint/pull/883) Add character tests ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`, `@glint/type-test`\n  * [#857](https://github.com/typed-ember/glint/pull/857) Setup external project linking / testing ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/core`\n  * [#843](https://github.com/typed-ember/glint/pull/843) Move core tests out of core package due to tests depending on packages that depend on core ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#809](https://github.com/typed-ember/glint/pull/809) Bump volar to 2.4.12, fix caching issue w loose mode ([@machty](https://github.com/machty))\n  * [#788](https://github.com/typed-ember/glint/pull/788) Reinstate acceptance tests (gts) ([@machty](https://github.com/machty))\n  * [#784](https://github.com/typed-ember/glint/pull/784) Upgrade to Volar 2.4.11 ([@machty](https://github.com/machty))\n  * [#759](https://github.com/typed-ember/glint/pull/759) Fix prettier issues ([@machty](https://github.com/machty))\n  * [#752](https://github.com/typed-ember/glint/pull/752) TS Plugin progress, bump volar ([@machty](https://github.com/machty))\n  * [#751](https://github.com/typed-ember/glint/pull/751) TS Plugin WIP - restore green tests ([@machty](https://github.com/machty))\n  * [#747](https://github.com/typed-ember/glint/pull/747) volar-2.4.0-alpha.14 ([@machty](https://github.com/machty))\n  * [#746](https://github.com/typed-ember/glint/pull/746) Unskip/fix almost every test that doesn't require code changes ([@machty](https://github.com/machty))\n  * [#745](https://github.com/typed-ember/glint/pull/745) Pass a few more build tests ([@machty](https://github.com/machty))\n  * [#742](https://github.com/typed-ember/glint/pull/742) get a few composite tests passing ([@machty](https://github.com/machty))\n  * [#741](https://github.com/typed-ember/glint/pull/741) Tests: Use clearer project testing commands ([@machty](https://github.com/machty))\n* `@glint/core`, `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`, `@glint/template`, `@glint/type-test`\n  * [#731](https://github.com/typed-ember/glint/pull/731) Split typechecking from tests ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/core`, `@glint/environment-ember-loose`\n  * [#729](https://github.com/typed-ember/glint/pull/729) Most of the way to green tests ([@machty](https://github.com/machty))\n\n#### Committers: 12\n- Alex Matchneer ([@machty](https://github.com/machty))\n- Alexey Kulakov ([@aklkv](https://github.com/aklkv))\n- Bjarne Mogstad ([@mogstad](https://github.com/mogstad))\n- Ignace Maes ([@IgnaceMaes](https://github.com/IgnaceMaes))\n- Ivan Arroyo Escobar ([@iarroyo](https://github.com/iarroyo))\n- Jordan Hawker ([@elwayman02](https://github.com/elwayman02))\n- Liam Potter ([@evoactivity](https://github.com/evoactivity))\n- Patrick Pircher ([@patricklx](https://github.com/patricklx))\n- Sam Van Campenhout ([@Windvis](https://github.com/Windvis))\n- Sergey Astapov ([@SergeAstapov](https://github.com/SergeAstapov))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n- [@johanrd](https://github.com/johanrd)\n"
+  "description": "## Release (2025-06-17)\n\n* @glint/core 2.0.0-alpha.2 (patch)\n* @glint/environment-ember-loose 2.0.0-alpha.2 (patch)\n* @glint/environment-ember-template-imports 2.0.0-alpha.2 (patch)\n* @glint/template 1.6.0-alpha.1 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.2 (patch)\n* @glint/type-test 2.0.0-alpha.2 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`, `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#908](https://github.com/typed-ember/glint/pull/908) Fix build to prepare for re-releasing alphas ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
