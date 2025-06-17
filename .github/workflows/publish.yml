@@ -36,6 +36,11 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+
+      # We have a top-level build,
+      # and packages do not curerntly have the ability to
+      # "prepack"
+      - run: pnpm build
       - name: Publish to NPM
         run: NPM_CONFIG_PROVENANCE=true pnpm release-plan publish
         env:
