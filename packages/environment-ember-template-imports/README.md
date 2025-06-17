@@ -16,3 +16,4 @@ in your Glint configuration in `tsconfig.json`:
   }
 }
 ```
+
