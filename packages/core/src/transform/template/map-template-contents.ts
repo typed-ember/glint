@@ -1,12 +1,12 @@
 import { AST, preprocess } from '@glimmer/syntax';
+import { CodeInformation } from '@volar/language-server/node.js';
+import { assert } from '../util.js';
+import { codeFeatures } from './code-features.js';
 import GlimmerASTMappingTree, {
   MappingSource,
   TemplateEmbedding,
 } from './glimmer-ast-mapping-tree.js';
 import { Directive, DirectiveKind, Range } from './transformed-module.js';
-import { assert } from '../util.js';
-import { CodeInformation } from '@volar/language-server/node.js';
-import { codeFeatures } from './code-features.js';
 
 /**
  * @glimmer/syntax parses identifiers as strings. Aside from meaning
@@ -39,7 +39,20 @@ export type Mapper = {
    * Captures the existence of a directive specified by the given source
    * node and affecting the given range of text.
    */
-  directive: (type: DirectiveKind, location: Range, areaOfEffect: Range) => void;
+  directive: (
+    type: DirectiveKind,
+    commentNode: AST.CommentStatement | AST.MustacheCommentStatement,
+    location: Range,
+    areaOfEffect: Range,
+  ) => void;
+
+  /**
+   * Emits placeholder `ts-expect-error`s for corresponding `@glint-expect-error` directives.
+   * This is called at the end of the template transformation to ensure that we're at a
+   * top-level / statement-level point in the transformed code, which is a requirement for
+   * the `ts-expect-error` placeholder diagnostics to be emitted.
+   */
+  emitDirectivePlaceholders: () => void;
 
   /**
    * Records an error at the given location.
@@ -169,15 +182,6 @@ export function mapTemplateContents(
   let offset = 0;
   let directives: Array<LocalDirective> = [];
 
-  const codeFeaturesProxy = new Proxy(codeFeatures, {
-    get(target, key: keyof typeof codeFeatures) {
-      const data = target[key];
-      return resolveCodeFeatures(data);
-    },
-  });
-
-  let ignoreErrors = false;
-
   // Associates all content emitted during the given callback with the
   // given range in the template source and corresponding AST node.
   // If an exception is thrown while executing the callback, the error
@@ -223,7 +227,8 @@ export function mapTemplateContents(
           // https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide) from being
           // source-mapped back to the glimmer template. These might be useful to reinstate at some
           // point in the future but by default tends to make the highlighting in gts files look wrong.
-          codeFeaturesForNode ?? codeFeaturesProxy.withoutHighlight,
+          codeFeaturesForNode ??
+            augmentCodeFeaturesWithIgnoreDirectivesSupport(codeFeatures.withoutHighlight, hbsRange),
         ),
       );
       segmentsStack[0].push(...segments);
@@ -231,28 +236,63 @@ export function mapTemplateContents(
   };
 
   /**
-   * This function is used by the codeFeaturesProxy about to conditionally enhance/augment
-   * the `CodeInformation` object that we pass along with each mapping.
-   *
-   * In particular we use it in our implementation of `glint-expect-error` directives, wherein,
-   * depending on whether an error diagnostic was reported by TS in a span of code, we need to
-   * conditionally filter out the "unused ts-expect-error" placeholder diagnostic that we emit.
+   * This function will conditionally augment the CodeInformation object
+   * that's passed in for each mapping as a means to implement support for
+   * `@glint-expect-error` directives.
    */
-  function resolveCodeFeatures(features: CodeInformation): CodeInformation {
+  function augmentCodeFeaturesWithIgnoreDirectivesSupport(
+    features: CodeInformation,
+    hbsRange: Range,
+  ): CodeInformation {
     if (features.verification) {
       // If this code span requests verification (e.g. TS type-checking), then
       // we potentially need to decorate the `verification` value that we pass
       // back to Volar, in case we have active `glint-ignore/expect-error` directives
       // in active effect.
 
-      if (ignoreErrors) {
-        // We are currently in a region of code covered by a @glint-ignore directive, so don't
+      let activeDirective: LocalDirective | undefined;
+      for (let directive of directives) {
+        if (
+          directive.areaOfEffect.start <= hbsRange.start &&
+          directive.areaOfEffect.end > hbsRange.start
+        ) {
+          if (!activeDirective) {
+            activeDirective = directive;
+          } else {
+            // More than one directive applies here; glint-nocheck, if present, always wins.
+            if (directive.kind === 'nocheck') {
+              activeDirective = directive;
+            }
+          }
+        }
+      }
+
+      if (!activeDirective) {
+        return features;
+      }
+
+      if (activeDirective.kind === 'ignore' || activeDirective.kind === 'nocheck') {
+        // We are currently in an ignored region of code, so don't
         // even bother performing any type-checking: override verification (i.e. type-checking) to false
         // for this mapping (note that the whole generated TS file will be type-checked but any
         // diagnostics in this region will be suppressed by Volar)
         return {
           ...features,
           verification: false,
+        };
+      } else if (activeDirective.kind === 'expect-error') {
+        const expectErrorDirective = activeDirective;
+        return {
+          ...features,
+          verification: {
+            shouldReport: () => {
+              // Keep track of any errors/diagnostics reported within this region of code...
+              expectErrorDirective.errorCount++;
+
+              // ...and suppress them from bubbling up as diagnostics/errrors/warnings.
+              return false;
+            },
+          },
         };
       }
     }
@@ -304,8 +344,60 @@ export function mapTemplateContents(
       errors.push({ message, location });
     },
 
-    directive(kind: DirectiveKind, location: Range, areaOfEffect: Range) {
-      directives.push({ kind, location, areaOfEffect });
+    directive(
+      kind: DirectiveKind,
+      commentNode: AST.CommentStatement | AST.MustacheCommentStatement,
+      location: Range,
+      areaOfEffect: Range,
+    ) {
+      const directive: LocalDirective = {
+        kind,
+        commentNode,
+        location,
+        areaOfEffect,
+        errorCount: 0,
+      };
+
+      directives.push(directive);
+    },
+
+    emitDirectivePlaceholders(): void {
+      if (directives.length) {
+        mapper.text('// begin directive placeholders');
+        mapper.newline();
+      }
+
+      for (let directive of directives) {
+        if (directive.kind !== 'expect-error') {
+          continue;
+        }
+
+        mapper.forNode(
+          directive.commentNode,
+          () => {
+            mapper.text(`// @ts-expect-error ${directive.kind}`);
+          },
+          {
+            ...codeFeatures.withoutHighlight,
+            verification: {
+              shouldReport: () => {
+                // This determines whether we raise the placeholder "unused ts-expect-error" diagnostic.
+                // If errors were encountered in the region covered by the directive, then we suppress
+                // the "unused ts-expect-error" diagnostic here.
+                return directive.errorCount === 0;
+              },
+            },
+          },
+        );
+        mapper.newline();
+        mapper.text(';');
+        mapper.newline();
+      }
+
+      if (directives.length) {
+        mapper.text('// end directive placeholders');
+        mapper.newline();
+      }
     },
 
     rangeForNode: buildRangeForNode(lineOffsets),
@@ -330,7 +422,7 @@ export function mapTemplateContents(
     },
     mappingsStack[0],
     new TemplateEmbedding(),
-    codeFeaturesProxy.all,
+    codeFeatures.all,
   );
 
   return { errors, result: { code, directives, mapping } };

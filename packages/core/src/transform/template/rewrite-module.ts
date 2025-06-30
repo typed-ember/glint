@@ -1,17 +1,17 @@
+import { GlintEmitMetadata } from '@glint/core/config-types';
 import * as path from 'node:path';
 import type ts from 'typescript';
 import { GlintEnvironment } from '../../config/index.js';
-import { GlintEmitMetadata } from '@glint/core/config-types';
 import { assert, TSLib } from '../util.js';
+import { calculateCompanionTemplateSpans } from './inlining/companion-file.js';
 import { CorrelatedSpansResult, PartialCorrelatedSpan } from './inlining/index.js';
+import { calculateTaggedTemplateSpans } from './inlining/tagged-strings.js';
 import TransformedModule, {
   CorrelatedSpan,
   Directive,
   SourceFile,
   TransformError,
 } from './transformed-module.js';
-import { calculateTaggedTemplateSpans } from './inlining/tagged-strings.js';
-import { calculateCompanionTemplateSpans } from './inlining/companion-file.js';
 
 /**
  * Input to the process of rewriting a template, containing one or both of:
@@ -47,7 +47,7 @@ export function rewriteModule(
   }
 
   let sparseSpans = completeCorrelatedSpans(partialSpans);
-  let { contents, correlatedSpans } = calculateTransformedSource(script, sparseSpans);
+  let { contents, correlatedSpans } = calculateTransformedSource(script, sparseSpans, directives);
 
   return new TransformedModule(contents, errors, directives, correlatedSpans, script.filename);
 }
@@ -260,6 +260,7 @@ function parseError(e: unknown, filename: string): ParseError {
 function calculateTransformedSource(
   originalFile: SourceFile,
   sparseSpans: Array<CorrelatedSpan>,
+  directives: Array<Directive>,
 ): { contents: string; correlatedSpans: Array<CorrelatedSpan> } {
   let correlatedSpans: Array<CorrelatedSpan> = [];
   let originalOffset = 0;
@@ -289,7 +290,7 @@ function calculateTransformedSource(
 
   let trailingContent = originalFile.contents.slice(originalOffset);
 
-  correlatedSpans.push({
+  const trailingSpan: CorrelatedSpan = {
     originalFile,
     originalStart: originalOffset,
     originalLength: trailingContent.length + 1,
@@ -297,7 +298,25 @@ function calculateTransformedSource(
     transformedStart: transformedOffset,
     transformedLength: trailingContent.length + 1,
     transformedSource: trailingContent,
-  });
+  };
+
+  correlatedSpans.push(trailingSpan);
+
+  const placeholderContent = '\n\n// @ts-expect-error placeholder for glint-expect-error\n;\n';
+
+  for (let directive of directives) {
+    if (directive.kind === 'expect-error') {
+      correlatedSpans.push({
+        originalFile,
+        originalStart: directive.location.start,
+        originalLength: directive.location.end - directive.location.start,
+        insertionPoint: originalOffset + trailingContent.length,
+        transformedSource: placeholderContent,
+        transformedStart: transformedOffset + trailingContent.length,
+        transformedLength: placeholderContent.length,
+      });
+    }
+  }
 
   return {
     contents: correlatedSpans.map((span) => span.transformedSource).join(''),
