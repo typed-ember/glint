@@ -668,7 +668,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "line": 5,
             "offset": 5,
           },
-          "text": "Unused '@glint-expect-error' directive.",
+          "text": "Unused '@ts-expect-error' directive.",
         },
       ]
     `);

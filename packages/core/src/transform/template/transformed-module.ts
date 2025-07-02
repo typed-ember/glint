@@ -2,6 +2,7 @@ import GlimmerASTMappingTree from './glimmer-ast-mapping-tree.js';
 import { assert } from '../util.js';
 import { CodeInformation, CodeMapping } from '@volar/language-core';
 import { codeFeatures } from './code-features.js';
+import type { AST } from '@glimmer/syntax';
 
 export type Range = { start: number; end: number };
 export type RangeWithMapping = Range & { mapping?: GlimmerASTMappingTree };
@@ -29,9 +30,12 @@ export type CorrelatedSpan = {
 export type DirectiveKind = 'ignore' | 'expect-error' | 'nocheck';
 export type Directive = {
   kind: DirectiveKind;
+  commentNode: AST.CommentStatement | AST.MustacheCommentStatement;
   source: SourceFile;
   location: Range;
   areaOfEffect: Range;
+  /** The number of errors that have been reported for this directive */
+  errorCount: number;
 };
 
 export type TransformError = {

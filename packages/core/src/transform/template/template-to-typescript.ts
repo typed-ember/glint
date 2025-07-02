@@ -1,9 +1,9 @@
 import { AST } from '@glimmer/syntax';
-import { unreachable, assert } from '../util.js';
+import { GlintEmitMetadata, GlintSpecialForm } from '@glint/core/config-types';
+import { assert, unreachable } from '../util.js';
+import { TextContent } from './glimmer-ast-mapping-tree.js';
 import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-template-contents.js';
 import ScopeStack from './scope-stack.js';
-import { GlintEmitMetadata, GlintSpecialForm } from '@glint/core/config-types';
-import { TextContent } from './glimmer-ast-mapping-tree.js';
 
 const SPLATTRIBUTES = '...attributes';
 
@@ -140,6 +140,8 @@ export function templateToTypescript(
       mapper.text('__glintRef__; __glintDSL__;');
       mapper.newline();
 
+      mapper.emitDirectivePlaceholders();
+
       mapper.dedent();
       mapper.text('})');
 
@@ -173,9 +175,9 @@ export function templateToTypescript(
       let kind = match[1];
       let location = rangeForNode(node);
       if (kind === 'ignore' || kind === 'expect-error') {
-        mapper.directive(kind, location, mapper.rangeForLine(node.loc.end.line + 1));
+        mapper.directive(kind, node, location, mapper.rangeForLine(node.loc.end.line + 1));
       } else if (kind === 'nocheck') {
-        mapper.directive('ignore', location, { start: 0, end: template.length - 1 });
+        mapper.directive('ignore', node, location, { start: 0, end: template.length - 1 });
       } else if (kind === 'in-svg') {
         inHtmlContext = 'svg';
       } else if (kind === 'in-mathml') {

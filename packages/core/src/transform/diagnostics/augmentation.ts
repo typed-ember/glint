@@ -4,8 +4,6 @@ import GlimmerASTMappingTree, { MappingSource } from '../template/glimmer-ast-ma
 import TransformedModule from '../template/transformed-module.js';
 
 export function augmentDiagnostics<T extends Diagnostic>(
-  ts: typeof import('typescript'),
-  sourceFile: ts.SourceFile,
   transformedModule: TransformedModule,
   diagnostics: T[],
 ): T[] {
@@ -29,45 +27,12 @@ export function augmentDiagnostics<T extends Diagnostic>(
     return rangeWithMappingAndSource.mapping || null;
   };
 
-  const unusedExpectErrors = new Set(
-    transformedModule.directives.filter((d) => d.kind === 'expect-error'),
-  );
-
   const augmentedDiagnostics: Diagnostic[] = [];
 
   for (const diagnostic of diagnostics) {
     const augmentedDiagnostic = rewriteMessageText(diagnostic, mappingForDiagnostic);
 
-    const mapping = mappingForDiagnostic(diagnostic);
-
-    if (mapping) {
-      const appliedDirective = transformedModule.directives.find(
-        (directive) =>
-          directive.areaOfEffect.start <= augmentedDiagnostic.start! &&
-          directive.areaOfEffect.end > augmentedDiagnostic.start!,
-      );
-
-      if (appliedDirective) {
-        if (appliedDirective.kind === 'expect-error') {
-          unusedExpectErrors.delete(appliedDirective);
-        }
-        // Filter out this diagnostic; its covered by a directive.
-        continue;
-      }
-    }
-
     augmentedDiagnostics.push(augmentedDiagnostic);
-  }
-
-  for (const unusedExpectError of unusedExpectErrors) {
-    augmentedDiagnostics.push({
-      category: ts.DiagnosticCategory.Error,
-      code: 2578,
-      file: sourceFile,
-      start: unusedExpectError.location.start,
-      length: unusedExpectError.location.end - unusedExpectError.location.start,
-      messageText: `Unused '@glint-expect-error' directive.`,
-    });
   }
 
   // @ts-expect-error not sure how to fix

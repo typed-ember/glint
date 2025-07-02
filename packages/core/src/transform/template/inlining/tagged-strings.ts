@@ -1,15 +1,15 @@
-import type ts from 'typescript';
-import { GlintTagConfig } from '@glint/core/config-types';
-import { GlintEnvironment } from '../../../config/index.js';
-import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from './index.js';
-import { templateToTypescript } from '../template-to-typescript.js';
-import { Directive, SourceFile, TransformError, Range } from '../transformed-module.js';
-import { assert, TSLib } from '../../util.js';
 import {
   GlintEmitMetadata,
   GlintSpecialForm,
   GlintSpecialFormConfig,
+  GlintTagConfig,
 } from '@glint/core/config-types';
+import type ts from 'typescript';
+import { GlintEnvironment } from '../../../config/index.js';
+import { assert, TSLib } from '../../util.js';
+import { templateToTypescript } from '../template-to-typescript.js';
+import { Directive, Range, SourceFile, TransformError } from '../transformed-module.js';
+import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from './index.js';
 
 export function calculateTaggedTemplateSpans(
   ts: TSLib,
@@ -91,15 +91,6 @@ export function calculateTaggedTemplateSpans(
     }
 
     if (transformedTemplate.result) {
-      for (let { kind, location, areaOfEffect } of transformedTemplate.result.directives) {
-        directives.push({
-          kind: kind,
-          source: script,
-          location: addOffset(location, templateLocation.start),
-          areaOfEffect: addOffset(areaOfEffect, templateLocation.start),
-        });
-      }
-
       partialSpans.push({
         originalFile: script,
         originalStart: templateLocation.start,
