@@ -58,6 +58,7 @@ export function templateToTypescript(
   return mapTemplateContents(originalTemplate, { embeddingSyntax }, (ast, mapper) => {
     let { rangeForNode } = mapper;
     let scope = new ScopeStack([]);
+    let contextStack = ['default'];
     let inHtmlContext: 'svg' | 'math' | 'default' = 'default';
 
     emitTemplateBoilerplate(() => {
@@ -791,11 +792,11 @@ export function templateToTypescript(
     function emitPlainElement(node: AST.ElementNode): void {
       mapper.forNode(node, () => {
         if (node.tag === 'svg') {
-          inHtmlContext = 'svg';
+          contextStack.push('svg');
         }
 
         if (node.tag === 'math') {
-          inHtmlContext = 'math';
+          contextStack.push('math');
         }
 
         for (let comment of node.comments) {
@@ -805,6 +806,8 @@ export function templateToTypescript(
         mapper.text('{');
         mapper.newline();
         mapper.indent();
+
+        let inHtmlContext = contextStack.at(-1);
 
         if (inHtmlContext === 'default') {
           mapper.text('const __glintY__ = __glintDSL__.emitElement("');
@@ -826,7 +829,7 @@ export function templateToTypescript(
         }
 
         if (node.tag === 'svg' || node.tag === 'math') {
-          inHtmlContext = 'default';
+          contextStack.pop();
         }
 
         mapper.dedent();
