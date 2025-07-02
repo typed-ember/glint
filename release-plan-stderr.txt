@@ -1,0 +1,7 @@
+# Unlabeled Changes
+
+* `@glint/core`, `@glint/tsserver-plugin`
+  * [#912](https://github.com/typed-ember/glint/pull/912) Reinstate directives in a way that works with tsc (glint binary) ([@machty](https://github.com/machty))
+
+
+*Cannot plan release until the above changes are labeled*.
