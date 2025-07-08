@@ -32,18 +32,18 @@ jobs:
       - run: pnpm lint
       - uses: wyvox/action-setup-pnpm@v3
 
-  # type-tests:
-  #   name: "Type Tests"
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: pnpm/action-setup@v2
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         cache: pnpm
-  #     - run: pnpm reset
-  #     - run: "pnpm --filter '*' run test:typecheck"
-  #     - run: "pnpm --filter '*' run test:tsc"
+  type-tests:
+    name: "Type Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+      - run: pnpm reset
+      - run: "pnpm --filter '*' run test:typecheck"
+      - run: "pnpm --filter '*' run test:tsc"
 
   test:
     name: Test
