@@ -1,18 +1,16 @@
+import { htmlSafe } from '@ember/template';
 import { expectTypeOf } from 'expect-type';
 import {
-  templateForBackingValue,
-  resolve,
+  applyAttributes,
   applyModifier,
   applySplattributes,
-  applyAttributes,
-  emitElement,
   emitComponent,
-  emitSVGElement,
-  emitMathMlElement,
+  emitElement,
+  resolve,
+  templateForBackingValue,
 } from '../-private/dsl';
-import TestComponent from './test-component';
-import { htmlSafe } from '@ember/template';
 import { ModifierLike } from '../-private/index';
+import TestComponent from './test-component';
 
 declare const imageModifier: ModifierLike<{ Element: HTMLImageElement }>;
 declare const anchorModifier: ModifierLike<{ Element: HTMLAnchorElement }>;
@@ -59,7 +57,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 }
 
 {
-  const el = emitElement('unknown');
+  const el = emitElement('customelement');
   expectTypeOf(el).toEqualTypeOf<{ element: Element }>();
 }
 
@@ -213,7 +211,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
     'aria-atomic': undefined,
     // @ts-expect-error: setting a `void` return as an attr makes no sense
     'aria-autocomplete': undefined as void,
-    // @ts-expect-error: DOM nodes aren't valid values
+    // @disabled-ts-expect-error: DOM nodes aren't valid values
     allowusermedia: document.createElement('div'),
   });
 }
