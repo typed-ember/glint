@@ -189,7 +189,10 @@ importers:
         version: 22.13.11
       ember-modifier:
         specifier: ^3.2.7 || ^4.0.0
-        version: 4.2.0
+        version: 4.2.0(afdb36df4a176995884e50ce0332e199)
+      ember-source:
+        specifier: ^6.2.0
+        version: 6.2.0(f9082060ee8c333b0ccb192032664d60)
       expect-type:
         specifier: ^1.2.1
         version: 1.2.1
@@ -12855,12 +12858,14 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  ember-modifier@4.2.0:
+  ember-modifier@4.2.0(afdb36df4a176995884e50ce0332e199):
     dependencies:
       '@embroider/addon-shim': 1.9.0
       decorator-transforms: 2.3.0
       ember-cli-normalize-entity-name: 1.0.0
       ember-cli-string-utils: 1.1.0
+    optionalDependencies:
+      ember-source: 6.2.0(f9082060ee8c333b0ccb192032664d60)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
