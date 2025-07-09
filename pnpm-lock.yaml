@@ -184,9 +184,15 @@ importers:
       '@glint/template':
         specifier: workspace:*
         version: link:../template
+      '@glint/type-test':
+        specifier: workspace:*
+        version: link:../type-test
       '@types/node':
         specifier: ^22.13.11
         version: 22.13.11
+      ember-cli-htmlbars:
+        specifier: ^6.0.1
+        version: 6.3.0
       ember-modifier:
         specifier: ^3.2.7 || ^4.0.0
         version: 4.2.0(afdb36df4a176995884e50ce0332e199)
