@@ -209,6 +209,9 @@ importers:
       '@glint/core':
         specifier: workspace:*
         version: link:../core
+      '@glint/template':
+        specifier: workspace:*
+        version: link:../template
       '@types/common-tags':
         specifier: ^1.8.0
         version: 1.8.4
@@ -289,6 +292,9 @@ importers:
       '@glint/core':
         specifier: workspace:*
         version: link:../core
+      '@glint/environment-ember-loose':
+        specifier: workspace:*
+        version: link:../environment-ember-loose
       '@glint/environment-ember-template-imports':
         specifier: workspace:*
         version: link:../environment-ember-template-imports

@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@glint/core": "workspace:*",
+    "@glint/template": "workspace:*",
     "@types/common-tags": "^1.8.0",
     "@types/node": "^18.19.81",
     "common-tags": "^1.8.0",
