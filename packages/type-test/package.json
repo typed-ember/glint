@@ -26,7 +26,10 @@
     "@glint/template": "*"
   },
   "devDependencies": {
-    "@glint/template": "workspace:*"
+    "@glint/environment-ember-template-imports": "workspace:*",
+    "@glint/template": "workspace:*",
+    "@glint/core": "workspace:*",
+    "ember-cli-htmlbars": "^6.0.1"
   },
   "release-plan": {
     "semverIncrementAs": {

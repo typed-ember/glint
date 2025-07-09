@@ -286,9 +286,18 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1
     devDependencies:
+      '@glint/core':
+        specifier: workspace:*
+        version: link:../core
+      '@glint/environment-ember-template-imports':
+        specifier: workspace:*
+        version: link:../environment-ember-template-imports
       '@glint/template':
         specifier: workspace:*
         version: link:../template
+      ember-cli-htmlbars:
+        specifier: ^6.0.1
+        version: 6.3.0
 
   packages/vscode:
     dependencies:
