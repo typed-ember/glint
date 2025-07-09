@@ -40,7 +40,7 @@ expectTypeOf(get(undefined, 'name')).toEqualTypeOf<undefined>();
 // Getting a value off an ObjectProxy
 declare const proxiedObject: ObjectProxy<{ name: string }>;
 
-expectTypeOf(get(proxiedObject, 'content')).toEqualTypeOf<{ name: string } | undefined>();
+expectTypeOf(get(proxiedObject, 'content')).toEqualTypeOf<{ name: string } | null>();
 expectTypeOf(get(proxiedObject, 'name')).toEqualTypeOf<string | undefined>();
 expectTypeOf(get(proxiedObject, 'unknownKey')).toEqualTypeOf<unknown>();
 

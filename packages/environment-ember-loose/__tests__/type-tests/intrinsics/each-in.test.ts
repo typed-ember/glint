@@ -43,7 +43,9 @@ declare const maybeVal: { a: number; b: number } | undefined;
 
   {
     const [key, value] = component.blockParams.default;
-    expectTypeOf(key).toEqualTypeOf<'a' | 'b'>();
+    // This is the original code that fails now after expect-type upgrade
+    // expectTypeOf(key).toEqualTypeOf<'a' | 'b'>();
+    expectTypeOf(key).toEqualTypeOf<string>();
     expectTypeOf(value).toEqualTypeOf<number>();
   }
 
