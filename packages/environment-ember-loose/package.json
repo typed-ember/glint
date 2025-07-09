@@ -16,9 +16,9 @@
     "glint-environment"
   ],
   "scripts": {
-    "test": "echo 'no tests within this project'",
+    "test": "vitest run",
     "test:tsc": "echo 'no standalone typecheck within this project'",
-    "test:typecheck": "glint --project __tests__/type-tests && vitest run",
+    "test:typecheck": "glint --project __tests__/type-tests",
     "test:watch": "vitest watch",
     "build": "tsc --build",
     "prepack": "pnpm build"
