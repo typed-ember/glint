@@ -50,9 +50,12 @@ declare function value<T>(): T;
     }
   }
 
-  type ExpectedSignature = <T>(args: NamedArgs<MyArgs<T>>) => ComponentReturn<{
-    body: [boolean, T];
-  }, unknown>;
+  type ExpectedSignature = <T>(args: NamedArgs<MyArgs<T>>) => ComponentReturn<
+    {
+      body: [boolean, T];
+    },
+    unknown
+  >;
 
   type ExpectedContext<T> = TemplateContext<MyComponent<T>, MyArgs<T>, MyBlocks<T>, null>;
 
