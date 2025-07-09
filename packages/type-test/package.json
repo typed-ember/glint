@@ -20,7 +20,7 @@
     "test:tsc": "echo 'no standalone tsc within this project'"
   },
   "dependencies": {
-    "expect-type": "^0.15.0"
+    "expect-type": "^1.2.1"
   },
   "peerDependencies": {
     "@glint/template": "*"

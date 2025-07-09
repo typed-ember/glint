@@ -1,17 +1,17 @@
 import { expectTypeOf } from 'expect-type';
 import {
-  ComponentReturn,
-  DirectInvokable,
-  NamedArgs,
-  TemplateContext,
-} from '../-private/integration';
-import {
   emitComponent,
   resolve,
   resolveOrReturn,
   templateForBackingValue,
   yieldToBlock,
 } from '../-private/dsl';
+import {
+  ComponentReturn,
+  DirectInvokable,
+  NamedArgs,
+  TemplateContext,
+} from '../-private/integration';
 import TestComponent, { globals } from './test-component';
 
 declare function value<T>(): T;
@@ -52,12 +52,13 @@ declare function value<T>(): T;
 
   type ExpectedSignature = <T>(args: NamedArgs<MyArgs<T>>) => ComponentReturn<{
     body: [boolean, T];
-  }>;
+  }, unknown>;
 
   type ExpectedContext<T> = TemplateContext<MyComponent<T>, MyArgs<T>, MyBlocks<T>, null>;
 
   // Template has the correct type
-  expectTypeOf(resolve(MyComponent)).toEqualTypeOf<ExpectedSignature>();
+  const myComponentSignature: ExpectedSignature = resolve(MyComponent);
+  expectTypeOf(myComponentSignature).toEqualTypeOf<ExpectedSignature>();
 
   // Template context is inferred correctly
   templateForBackingValue(MyComponent<number>, function (context) {
