@@ -9,7 +9,7 @@ export function run(): void {
   let cwd = process.cwd();
 
   const options = {
-    extraSupportedExtensions: ['.gjs', '.gts', '.hbs'],
+    extraSupportedExtensions: ['.gjs', '.gts'],
 
     extraExtensionsToRemove: [],
 
