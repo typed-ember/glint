@@ -5,6 +5,6 @@ export default defineConfig({
     target: 'node18',
   },
   test: {
-    exclude: ['__tests__/type-tests'],
+    exclude: ['__tests__/type-tests', '**/node_modules/**'],
   },
 });
