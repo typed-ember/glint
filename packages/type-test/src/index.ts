@@ -1,23 +1,50 @@
 import { DirectInvokable, HasContext } from '@glint/template/-private/integration';
-import { StrictEqualUsingTSInternalIdenticalToOperator, Extends, IsAny, IsNever, IsUnknown } from 'expect-type';
+import {
+  StrictEqualUsingTSInternalIdenticalToOperator,
+  Extends,
+  IsAny,
+  IsNever,
+  IsUnknown,
+} from 'expect-type';
 
 // We use these two interfaces as a way of faking HKTs. Through the `Expectation`
 // types below, they give us a means of referencing a generic relationship type
 // by name without having to instantiate it against specific concrete types.
 interface UnaryExpectations<T> {
-  string: [StrictEqualUsingTSInternalIdenticalToOperator<T, string>, 'Expected type to be `string`, but got'];
-  number: [StrictEqualUsingTSInternalIdenticalToOperator<T, number>, 'Expected type to be `number`, but got'];
-  boolean: [StrictEqualUsingTSInternalIdenticalToOperator<T, boolean>, 'Expected type to be `boolean`, but got'];
-  symbol: [StrictEqualUsingTSInternalIdenticalToOperator<T, symbol>, 'Expected type to be a `symbol`, but got'];
+  string: [
+    StrictEqualUsingTSInternalIdenticalToOperator<T, string>,
+    'Expected type to be `string`, but got',
+  ];
+  number: [
+    StrictEqualUsingTSInternalIdenticalToOperator<T, number>,
+    'Expected type to be `number`, but got',
+  ];
+  boolean: [
+    StrictEqualUsingTSInternalIdenticalToOperator<T, boolean>,
+    'Expected type to be `boolean`, but got',
+  ];
+  symbol: [
+    StrictEqualUsingTSInternalIdenticalToOperator<T, symbol>,
+    'Expected type to be a `symbol`, but got',
+  ];
   any: [IsAny<T>, 'Expected type to be `any`, but got'];
   unknown: [IsUnknown<T>, 'Expected type to be `unknown`, but got'];
   never: [IsNever<T>, 'Expected type to be `never`, but got'];
-  null: [StrictEqualUsingTSInternalIdenticalToOperator<T, null>, 'Expected type to be `null`, but got'];
-  undefined: [StrictEqualUsingTSInternalIdenticalToOperator<T, undefined>, 'Expected type to be `undefined`, but got'];
+  null: [
+    StrictEqualUsingTSInternalIdenticalToOperator<T, null>,
+    'Expected type to be `null`, but got',
+  ];
+  undefined: [
+    StrictEqualUsingTSInternalIdenticalToOperator<T, undefined>,
+    'Expected type to be `undefined`, but got',
+  ];
 }
 
 interface BinaryExpectations<T, U> {
-  equal: [StrictEqualUsingTSInternalIdenticalToOperator<T, U>, 'Expected first type to be identical to the second'];
+  equal: [
+    StrictEqualUsingTSInternalIdenticalToOperator<T, U>,
+    'Expected first type to be identical to the second',
+  ];
   assignableTo: [Extends<T, U>, 'Expected first type to be assignable to the second'];
 }
 
