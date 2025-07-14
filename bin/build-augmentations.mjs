@@ -51,7 +51,7 @@ const filePath = resolve(
   '../../packages/template/-private/dsl/lib.dom.augmentation.d.ts',
 );
 let content = prefix;
-content += 'export const GlintSymbol: unique symbol = Symbol();\n\n';
+content += 'export const GlintSymbol: unique symbol;\n\n';
 content += 'declare global {\n';
 content += augmentations.join('\n\n') + '\n}';
 writeFileSync(filePath, content);

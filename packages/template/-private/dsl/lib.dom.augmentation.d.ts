@@ -2,7 +2,7 @@
 // this serves to provide a UNIQUE mapping for HtmlElementType -> Html Element Name -> Html Element Attributes
 // typesript file lib.dom.d.ts already has e.g. HTMLElementTagNameMap, 
 // but it does not provide unique types for each element
-export const GlintSymbol: unique symbol = Symbol();
+export const GlintSymbol: unique symbol;
 
 declare global {
 
