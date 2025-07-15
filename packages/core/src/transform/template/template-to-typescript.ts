@@ -1275,7 +1275,14 @@ export function templateToTypescript(
     }
 
     function determinePathKind(node: AST.PathExpression): PathKind {
-      return node.head.original === 'this' ? 'this' : node.data ? 'arg' : 'free';
+      switch (node.head.type) {
+        case 'AtHead':
+          return 'arg';
+        case 'ThisHead':
+          return 'this';
+        case 'VarHead':
+          return 'free';
+      }
     }
 
     function emitPathContents(parts: string[], start: number, kind: PathKind): void {
