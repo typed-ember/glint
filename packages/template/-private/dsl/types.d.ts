@@ -27,7 +27,7 @@ type WithDataAttributes<T> = T & Record<`data-${string}`, AttrValue>;
 
 export type AttributesForElement<
   Elem extends Element,
-  K = Elem[typeof GlintSymbol],
+  K = Elem extends { [GlintSymbol]: string } ? Elem[typeof GlintSymbol] : never,
 > = K extends keyof HtmlElementAttributes.HtmlElements
   ? WithDataAttributes<HtmlElementAttributes.HtmlElements[K]>
   : K extends keyof SvgElementAttributes.SvgElements
