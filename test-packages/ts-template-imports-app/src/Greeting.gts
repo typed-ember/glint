@@ -1,5 +1,5 @@
 import Component from '@glimmer/component';
-import { TOC } from '@ember/component/template-only';
+import type { TOC } from '@ember/component/template-only';
 
 export interface GreetingSignature {
   Args: { target: string };

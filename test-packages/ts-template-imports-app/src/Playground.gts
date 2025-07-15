@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
-import { TOC } from '@ember/component/template-only';
+import { type TOC } from '@ember/component/template-only';
 import { hash } from '@ember/helper';
-import { ComponentLike, ModifierLike, HelperLike } from '@glint/template';
+import { type ComponentLike, type ModifierLike, type HelperLike } from '@glint/template';
 
 const lib = {
   MaybeComponent: undefined as TOC<{ Args: { arg: string } }> | undefined

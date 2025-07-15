@@ -1,6 +1,8 @@
 /* eslint-disable ember/no-classic-components, ember/require-tagless-components */
 import Component from '@ember/component';
 
+import '@glint/environment-ember-loose/registry';
+
 export interface BarSignature {
   Args: {
     grault: number;

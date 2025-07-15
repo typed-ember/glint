@@ -16,9 +16,9 @@
     "glint-environment"
   ],
   "scripts": {
-    "test": "echo 'no tests within this project'",
+    "test": "vitest run",
     "test:tsc": "echo 'no standalone typecheck within this project'",
-    "test:typecheck": "glint --project __tests__/type-tests && vitest run",
+    "test:typecheck": "glint --project __tests__/type-tests",
     "test:watch": "vitest watch",
     "build": "tsc --build",
     "prepack": "pnpm build"
@@ -53,12 +53,15 @@
     }
   },
   "devDependencies": {
-    "@glimmer/component": "^1.1.2",
+    "@glimmer/component": "^2.0.0",
     "@glint/core": "workspace:*",
     "@glint/template": "workspace:*",
+    "@glint/type-test": "workspace:*",
     "@types/node": "^22.13.11",
+    "ember-cli-htmlbars": "^6.0.1",
     "ember-modifier": "^3.2.7 || ^4.0.0",
-    "expect-type": "^0.15.0",
+    "ember-source": "^6.2.0",
+    "expect-type": "^1.2.1",
     "typescript": ">=5.6.0",
     "vitest": "~3.0.9"
   },

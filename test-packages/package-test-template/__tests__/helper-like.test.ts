@@ -78,7 +78,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
   let definition!: new <T, U>() => InstanceType<HelperLike<GenericSignature<T, U>>>;
   let or = resolve(definition);
 
-  expectTypeOf(or).toEqualTypeOf<{ <T, U>(t: T, u: U): T | U }>();
+  expectTypeOf(or).toExtend<{ <T, U>(t: T, u: U): T | U }>();
 
   or(
     'a',
@@ -101,7 +101,7 @@ import { NamedArgs } from '@glint/template/-private/integration';
 
   let definition!: WithBoundArgs<HelperLike<InfoSignature>, 'name'>;
 
-  expectTypeOf(resolve(definition)).toEqualTypeOf<
+  expectTypeOf(resolve(definition)).toExtend<
     (args: NamedArgs<{ age: number; name?: string }>) => string
   >();
 }

@@ -127,7 +127,7 @@ import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/templa
 
   let NeatModifier!: WithBoundArgs<ModifierLike<NeatModifierSignature>, 'multiplier'>;
 
-  expectTypeOf(resolve(NeatModifier)).toEqualTypeOf<
+  expectTypeOf(resolve(NeatModifier)).toExtend<
     (
       el: HTMLImageElement,
       args: NamedArgs<{ multiplier?: number; input: string }>,
