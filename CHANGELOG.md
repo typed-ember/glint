@@ -1,5 +1,28 @@
 # Changelog
 
+## Release (2025-07-15)
+
+* @glint/core 2.0.0-alpha.3 (patch)
+* @glint/environment-ember-loose 2.0.0-alpha.3 (patch)
+* @glint/environment-ember-template-imports 2.0.0-alpha.3 (patch)
+* @glint/template 1.6.0-alpha.2 (patch)
+* @glint/tsserver-plugin 2.0.0-alpha.3 (patch)
+* @glint/type-test 2.0.0-alpha.3 (patch)
+
+#### :bug: Bug Fix
+* `@glint/core`
+  * [#910](https://github.com/typed-ember/glint/pull/910) Fix glimmer/syntax deprecation ([@ef4](https://github.com/ef4))
+* `@glint/core`, `@glint/tsserver-plugin`
+  * [#912](https://github.com/typed-ember/glint/pull/912) Reinstate directives in a way that works with tsc (glint binary) ([@machty](https://github.com/machty))
+
+#### :house: Internal
+* `@glint/core`, `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`, `@glint/template`, `@glint/type-test`
+  * [#914](https://github.com/typed-ember/glint/pull/914) Re-enable types tests ([@machty](https://github.com/machty))
+
+#### Committers: 2
+- Alex Matchneer ([@machty](https://github.com/machty))
+- Edward Faulkner ([@ef4](https://github.com/ef4))
+
 ## Release (2025-06-17)
 
 * @glint/core 2.0.0-alpha.2 (patch)

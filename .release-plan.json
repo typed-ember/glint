@@ -2,60 +2,64 @@
   "solution": {
     "@glint/core": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.1",
-      "newVersion": "2.0.0-alpha.2",
+      "oldVersion": "2.0.0-alpha.2",
+      "newVersion": "2.0.0-alpha.3",
       "tagName": "alpha",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/core/package.json"
     },
     "@glint/environment-ember-loose": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.1",
-      "newVersion": "2.0.0-alpha.2",
+      "oldVersion": "2.0.0-alpha.2",
+      "newVersion": "2.0.0-alpha.3",
       "tagName": "alpha",
       "constraints": [
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/environment-ember-loose/package.json"
     },
     "@glint/environment-ember-template-imports": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.1",
-      "newVersion": "2.0.0-alpha.2",
+      "oldVersion": "2.0.0-alpha.2",
+      "newVersion": "2.0.0-alpha.3",
       "tagName": "alpha",
       "constraints": [
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/environment-ember-template-imports/package.json"
     },
     "@glint/template": {
       "impact": "patch",
-      "oldVersion": "1.6.0-alpha.0",
-      "newVersion": "1.6.0-alpha.1",
+      "oldVersion": "1.6.0-alpha.1",
+      "newVersion": "1.6.0-alpha.2",
       "tagName": "alpha",
       "constraints": [
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.1",
-      "newVersion": "2.0.0-alpha.2",
+      "oldVersion": "2.0.0-alpha.2",
+      "newVersion": "2.0.0-alpha.3",
       "tagName": "alpha",
       "constraints": [
         {
@@ -71,17 +75,17 @@
     },
     "@glint/type-test": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.1",
-      "newVersion": "2.0.0-alpha.2",
+      "oldVersion": "2.0.0-alpha.2",
+      "newVersion": "2.0.0-alpha.3",
       "tagName": "alpha",
       "constraints": [
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/type-test/package.json"
     }
   },
-  "description": "## Release (2025-06-17)\n\n* @glint/core 2.0.0-alpha.2 (patch)\n* @glint/environment-ember-loose 2.0.0-alpha.2 (patch)\n* @glint/environment-ember-template-imports 2.0.0-alpha.2 (patch)\n* @glint/template 1.6.0-alpha.1 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.2 (patch)\n* @glint/type-test 2.0.0-alpha.2 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`, `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#908](https://github.com/typed-ember/glint/pull/908) Fix build to prepare for re-releasing alphas ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2025-07-15)\n\n* @glint/core 2.0.0-alpha.3 (patch)\n* @glint/environment-ember-loose 2.0.0-alpha.3 (patch)\n* @glint/environment-ember-template-imports 2.0.0-alpha.3 (patch)\n* @glint/template 1.6.0-alpha.2 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.3 (patch)\n* @glint/type-test 2.0.0-alpha.3 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`\n  * [#910](https://github.com/typed-ember/glint/pull/910) Fix glimmer/syntax deprecation ([@ef4](https://github.com/ef4))\n* `@glint/core`, `@glint/tsserver-plugin`\n  * [#912](https://github.com/typed-ember/glint/pull/912) Reinstate directives in a way that works with tsc (glint binary) ([@machty](https://github.com/machty))\n\n#### :house: Internal\n* `@glint/core`, `@glint/environment-ember-loose`, `@glint/environment-ember-template-imports`, `@glint/template`, `@glint/type-test`\n  * [#914](https://github.com/typed-ember/glint/pull/914) Re-enable types tests ([@machty](https://github.com/machty))\n\n#### Committers: 2\n- Alex Matchneer ([@machty](https://github.com/machty))\n- Edward Faulkner ([@ef4](https://github.com/ef4))\n"
 }
