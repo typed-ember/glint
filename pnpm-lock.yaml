@@ -119,7 +119,7 @@ importers:
         version: 0.0.64(@volar/language-service@2.4.12)
       volar-service-typescript:
         specifier: volar-2.4
-        version: 0.0.64(@volar/language-service@2.4.12)
+        version: 0.0.65(@volar/language-service@2.4.12)
       vscode-languageserver-protocol:
         specifier: ^3.17.5
         version: 3.17.5
@@ -8074,8 +8074,8 @@ packages:
       '@volar/language-service':
         optional: true
 
-  volar-service-typescript@0.0.64:
-    resolution: {integrity: sha512-FN2H97iqjR1id8AM4fH7lTXuTx2on9zD6QlUFllaiHKqgNrEITlQwm/9Ujrd9ST7MUzhgIKyUsa2WlanX9kkMg==}
+  volar-service-typescript@0.0.65:
+    resolution: {integrity: sha512-zPJuLIMs7lkQCvL+Rza8+3/EIoXEIkX8+DL7bNNfPgnbalbvRDhqWLVMJ6Zk3pINjLJafDqyhSbw8srfkUv97w==}
     peerDependencies:
       '@volar/language-service': ~2.4.0
     peerDependenciesMeta:
@@ -9760,7 +9760,7 @@ snapshots:
       typescript: 5.8.2
       uuid: 8.3.2
       volar-service-html: 0.0.64(@volar/language-service@2.4.12)
-      volar-service-typescript: 0.0.64(@volar/language-service@2.4.12)
+      volar-service-typescript: 0.0.65(@volar/language-service@2.4.12)
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
@@ -17742,7 +17742,7 @@ snapshots:
     optionalDependencies:
       '@volar/language-service': 2.4.12
 
-  volar-service-typescript@0.0.64(@volar/language-service@2.4.12):
+  volar-service-typescript@0.0.65(@volar/language-service@2.4.12):
     dependencies:
       path-browserify: 1.0.1
       semver: 7.7.1
