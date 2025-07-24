@@ -34,6 +34,7 @@
     "@types/rsvp": "^4.0.9",
     "@glint/tsserver-plugin": "workspace:*",
     "@tsconfig/ember": "^3.0.9",
+    "ember-modifier": "^4.0.0",
     "ember-source": "^6.2.0",
     "typescript": ">=5.6.0"
   },

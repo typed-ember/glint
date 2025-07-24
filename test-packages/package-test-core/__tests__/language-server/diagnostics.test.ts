@@ -389,7 +389,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
                   "line": 24,
                   "offset": 49,
                 },
-                "file": "\${testWorkspacePath}.pnpm/@glint+_e6f72560dbc55a7527cbfeaf831c494e/node_modules/@glint/environment-ember-template-imports/-private/dsl/index.d.ts",
+                "file": "\${testWorkspacePath}.pnpm/@glint+_d5968750b5e68f92c0cf6575cab94905/node_modules/@glint/environment-ember-template-imports/-private/dsl/index.d.ts",
                 "start": {
                   "line": 24,
                   "offset": 5,
@@ -690,5 +690,80 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
 
     expect(JSON.stringify(diagnostics)).toBe('[]');
     expect(diagnostics.length).toBe(0);
+  });
+
+  test('errors with modifiers are properly reported', async () => {
+    const code = stripIndent`
+    import Component from '@glimmer/component';
+    import Modifier from 'ember-modifier';
+
+    class NoopModifier extends Modifier<{
+      Element: HTMLCanvasElement;
+      Args: {
+        Positional: [number];
+        Named: { foo: string };
+      };
+    }> {}
+
+    export default class MyComponent extends Component {
+      <template>
+        <div {{NoopModifier}}>foo</div>
+      </template>
+    }
+  `;
+
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 14,
+            "offset": 26,
+          },
+          "start": {
+            "line": 14,
+            "offset": 10,
+          },
+          "text": "Expected 3 arguments, but got 1.",
+        },
+      ]
+    `);
+  });
+
+  test('errors with modifiers can be suppressed with @glint-expect-error', async () => {
+    const code = stripIndent`
+    import Component from '@glimmer/component';
+    import Modifier from 'ember-modifier';
+
+    class NoopModifier extends Modifier<{
+      Element: HTMLCanvasElement;
+      Args: {
+        Positional: [number];
+        Named: { foo: string };
+      };
+    }> {}
+
+    export default class MyComponent extends Component {
+      <template>
+        {{! @glint-expect-error }}
+        <div {{NoopModifier}}>foo</div>
+      </template>
+    }
+  `;
+
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 });

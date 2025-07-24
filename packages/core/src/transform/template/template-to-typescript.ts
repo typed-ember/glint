@@ -899,11 +899,15 @@ export function templateToTypescript(
     function emitModifiers(node: AST.ElementNode): void {
       for (let modifier of node.modifiers) {
         mapper.forNode(modifier, () => {
-          // TODO: implement for modifiers
-          // const directive = directivesWeakMap.get(modifier);
-          mapper.text('__glintDSL__.applyModifier(__glintDSL__.resolve(');
-          emitExpression(modifier.path);
-          mapper.text(')(__glintY__.element, ');
+          mapper.text('__glintDSL__.applyModifier(');
+
+          mapper.forNode(modifier, () => {
+            mapper.text('__glintDSL__.resolve(');
+            emitExpression(modifier.path);
+            mapper.text(')');
+          });
+
+          mapper.text('(__glintY__.element, ');
           emitArgs(modifier.params, modifier.hash);
           mapper.text('));');
           mapper.newline();
