@@ -649,8 +649,8 @@ export function templateToTypescript(
               mapper.forNode(attr, () => {
                 mapper.newline();
 
-                start = template.indexOf(attr.name, start + 1);
-                emitHashKey(attr.name.slice(1), start + 1);
+                const attrStartOffset = attr.loc.getStart().offset!;
+                emitHashKey(attr.name.slice(1), attrStartOffset + prefix.length + 1);
                 mapper.text(': ');
 
                 switch (attr.value.type) {
@@ -854,13 +854,10 @@ export function templateToTypescript(
         mapper.newline();
         mapper.indent();
 
-        let start = template.indexOf(node.tag, rangeForNode(node).start) + node.tag.length;
-
         for (let attr of attributes) {
           mapper.forNode(attr, () => {
-            start = template.indexOf(attr.name, start + 1);
-
-            emitHashKey(attr.name, start);
+            const attrStartOffset = attr.loc.getStart().offset!;
+            emitHashKey(attr.name, attrStartOffset + prefix.length);
             mapper.text(': ');
 
             if (attr.value.type === 'MustacheStatement') {
