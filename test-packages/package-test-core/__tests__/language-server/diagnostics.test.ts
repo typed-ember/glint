@@ -261,6 +261,29 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
+  test('it should be possible to reference the attr name in the glint-expect-error without deactivating the directive', async () => {
+    const componentA = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class ComponentA extends Component {
+        <template>
+          <div
+            {{! @glint-expect-error there is a problem with unknownAttr }}
+            unknownAttr="wat">
+          </div>
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
+
   test('passing args to vanilla Component should be an error', async () => {
     const componentA = stripIndent`
       import Component from '@glimmer/component';
