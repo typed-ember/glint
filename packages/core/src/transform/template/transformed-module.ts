@@ -1,8 +1,8 @@
-import GlimmerASTMappingTree from './glimmer-ast-mapping-tree.js';
-import { assert } from '../util.js';
-import { CodeInformation, CodeMapping } from '@volar/language-core';
-import { codeFeatures } from './code-features.js';
 import type { AST } from '@glimmer/syntax';
+import { CodeInformation, CodeMapping } from '@volar/language-core';
+import { assert } from '../util.js';
+import { codeFeatures } from './code-features.js';
+import GlimmerASTMappingTree from './glimmer-ast-mapping-tree.js';
 
 export type Range = { start: number; end: number };
 export type RangeWithMapping = Range & { mapping?: GlimmerASTMappingTree };
@@ -292,22 +292,47 @@ export default class TransformedModule {
       let tsStart = span.transformedStart + transformedRange.start;
       let tsEnd = span.transformedStart + transformedRange.end;
 
-      if (children.length === 0) {
-        // leaf node
-        const hbsLength = hbsEnd - hbsStart;
-        const tsLength = tsEnd - tsStart;
-        if (hbsLength === tsLength) {
-          // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
-          // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
-          push(hbsStart, tsStart, hbsLength, mapping.codeInformation);
-        } else {
-          // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
-          if (hbsLength > 0 && tsLength > 0) {
-            push(hbsStart, tsStart, 0, mapping.codeInformation);
-            push(hbsEnd, tsEnd, 0, mapping.codeInformation);
-          }
-        }
+      // Push mappings for equal length mapping even if there are children;
+      // Need to support recursive `forNode()`s map monotonically
+      // smaller chunks of generated code to the same source region, e.g.
+      //
+      // source: `{{foo 1 2 3}}`
+      //
+      // This might produce something like:
+      //
+      //     __glintDSL__.resolve('foo')(1, 2, 3)
+      //
+      // and depending on the nature of the type error, the diagnostic raised
+      // might originate from any of the following ranges:
+      //
+      //     __glintDSL__.resolve('foo')(1, 2, 3)
+      //     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      //
+      //     __glintDSL__.resolve('foo')(1, 2, 3)
+      //                          ~~~~~
+      //
+      //     __glintDSL__.resolve('foo')(1, 2, 3)
+      //                                ~~~~~~~~~
+      //
+      // We have some flexibility as to whether we want to map back to the entire
+      // `{{foo 1 2 3}}` region or perhaps just `1 2 3` or some other subset, but regardless,
+      // we need to support the case that multiple overlapping (or even non-overlapping) spans
+      // of generated code map back to the same source region.
+      const hbsLength = hbsEnd - hbsStart;
+      const tsLength = tsEnd - tsStart;
+      if (hbsLength === tsLength) {
+        // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
+        // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
+        push(hbsStart, tsStart, hbsLength, mapping.codeInformation);
       } else {
+        // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
+        if (hbsLength > 0 && tsLength > 0) {
+          push(hbsStart, tsStart, 0, mapping.codeInformation);
+          push(hbsEnd, tsEnd, 0, mapping.codeInformation);
+        }
+      }
+
+      if (children.length > 0) {
         push(hbsStart, tsStart, 0, mapping.codeInformation);
 
         mapping.children.forEach((child) => {

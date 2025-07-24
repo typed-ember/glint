@@ -691,4 +691,79 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     expect(JSON.stringify(diagnostics)).toBe('[]');
     expect(diagnostics.length).toBe(0);
   });
+
+  test('errors with modifiers are properly reported', async () => {
+    const code = stripIndent`
+    import Component from '@glimmer/component';
+    import Modifier from 'ember-modifier';
+
+    class NoopModifier extends Modifier<{
+      Element: HTMLCanvasElement;
+      Args: {
+        Positional: [number];
+        Named: { foo: string };
+      };
+    }> {}
+
+    export default class MyComponent extends Component {
+      <template>
+        <div {{NoopModifier}}>foo</div>
+      </template>
+    }
+  `;
+
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
+            "line": 14,
+            "offset": 26,
+          },
+          "start": {
+            "line": 14,
+            "offset": 10,
+          },
+          "text": "Expected 3 arguments, but got 1.",
+        },
+      ]
+    `);
+  });
+
+  test('errors with modifiers can be suppressed with @glint-expect-error', async () => {
+    const code = stripIndent`
+    import Component from '@glimmer/component';
+    import Modifier from 'ember-modifier';
+
+    class NoopModifier extends Modifier<{
+      Element: HTMLCanvasElement;
+      Args: {
+        Positional: [number];
+        Named: { foo: string };
+      };
+    }> {}
+
+    export default class MyComponent extends Component {
+      <template>
+        {{! @glint-expect-error }}
+        <div {{NoopModifier}}>foo</div>
+      </template>
+    }
+  `;
+
+    const diagnostics = await requestDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
 });

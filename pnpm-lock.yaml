@@ -807,10 +807,10 @@ importers:
         version: file:packages/core(typescript@5.8.2)
       '@glint/environment-ember-loose':
         specifier: workspace:*
-        version: file:packages/environment-ember-loose(d850b9d65dbf92ebe0c10a78947844d9)
+        version: file:packages/environment-ember-loose(314d295db142017c34e25a0f28c75ca6)
       '@glint/environment-ember-template-imports':
         specifier: workspace:*
-        version: file:packages/environment-ember-template-imports(3e112887cc67e37e687e0dfd55f9f52e)
+        version: file:packages/environment-ember-template-imports(9d4a568dc26d524b7491300fe40d1604)
       '@glint/template':
         specifier: workspace:*
         version: file:packages/template
@@ -823,6 +823,9 @@ importers:
       '@types/rsvp':
         specifier: ^4.0.9
         version: 4.0.9
+      ember-modifier:
+        specifier: ^4.0.0
+        version: 4.2.0(330956e1962cbbbd59b8187278b971da)
       ember-source:
         specifier: ^6.2.0
         version: 6.2.0(0b9f6e15b31a343ef2b629c667cc9f7d)
@@ -9765,6 +9768,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@glint/environment-ember-loose@file:packages/environment-ember-loose(314d295db142017c34e25a0f28c75ca6)':
+    dependencies:
+      '@glimmer/component': 2.0.0
+      '@glint/core': file:packages/core(typescript@5.8.2)
+      '@glint/template': file:packages/template
+    optionalDependencies:
+      ember-modifier: 4.2.0(330956e1962cbbbd59b8187278b971da)
+
   '@glint/environment-ember-loose@file:packages/environment-ember-loose(38fa3eca771ece9ff9ab527886fd72c4)':
     dependencies:
       '@glint/core': file:packages/core(typescript@5.8.2)
@@ -9796,6 +9807,13 @@ snapshots:
     dependencies:
       '@glint/core': file:packages/core(typescript@5.8.2)
       '@glint/environment-ember-loose': file:packages/environment-ember-loose(d850b9d65dbf92ebe0c10a78947844d9)
+      '@glint/template': file:packages/template
+      content-tag: 3.1.2
+
+  '@glint/environment-ember-template-imports@file:packages/environment-ember-template-imports(9d4a568dc26d524b7491300fe40d1604)':
+    dependencies:
+      '@glint/core': file:packages/core(typescript@5.8.2)
+      '@glint/environment-ember-loose': file:packages/environment-ember-loose(314d295db142017c34e25a0f28c75ca6)
       '@glint/template': file:packages/template
       content-tag: 3.1.2
 
@@ -12726,6 +12744,18 @@ snapshots:
     dependencies:
       ember-cli-babel: 7.26.11
       ember-cli-typescript: 2.0.2
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
+  ember-modifier@4.2.0(330956e1962cbbbd59b8187278b971da):
+    dependencies:
+      '@embroider/addon-shim': 1.9.0
+      decorator-transforms: 2.3.0
+      ember-cli-normalize-entity-name: 1.0.0
+      ember-cli-string-utils: 1.1.0
+    optionalDependencies:
+      ember-source: 6.2.0(0b9f6e15b31a343ef2b629c667cc9f7d)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
