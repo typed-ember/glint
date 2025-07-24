@@ -1,10 +1,10 @@
+import { stripIndent } from 'common-tags';
 import {
-  teardownSharedTestWorkspaceAfterEach,
   prepareDocument,
   requestDiagnostics,
+  teardownSharedTestWorkspaceAfterEach,
 } from 'glint-monorepo-test-utils';
-import { describe, afterEach, test, expect } from 'vitest';
-import { stripIndent } from 'common-tags';
+import { afterEach, describe, expect, test } from 'vitest';
 
 describe('Language Server: Diagnostics (ts plugin)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
@@ -104,35 +104,6 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
-  // Seems like the TS Plugin isn't kicking in on this one for some reason;
-  // lots of diagnostics on uncompiled Handlebars. Maybe for diagnostics there are
-  // race conditions?
-  test.skip('reports diagnostics for a companion template type error', async () => {
-    const script = stripIndent`
-      import Component from '@glimmer/component';
-
-      type ApplicationArgs = {
-        version: string;
-      };
-
-      export default class Application extends Component<{ Args: ApplicationArgs }> {
-        private startupTime = new Date().toISOString();
-      }
-    `;
-
-    const template = stripIndent`
-      Welcome to app v{{@version}}.
-      The current time is {{this.startupTimee}}.
-    `;
-
-    await prepareDocument('ts-ember-app/app/templates/ephemeral.hbs', 'handlebars', template);
-    await prepareDocument('ts-ember-app/app/controllers/ephemeral.ts', 'typescript', script);
-
-    const diagnostics = await requestDiagnostics('templates/ephemeral.hbs', 'handlebars', template);
-
-    expect(diagnostics).toMatchInlineSnapshot();
-  });
-
   test('honors @glint-expect-error / ignore shared test throws error', async () => {
     const componentA = stripIndent`
       import Component from '@glimmer/component';
@@ -211,8 +182,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
-  // Regression / breaking change since Glint 2
-  test.skip('@glint-ignore and @glint-expect-error skip over simple element declarations', async () => {
+  test('@glint-ignore and @glint-expect-error skip over simple element declarations', async () => {
     const componentA = stripIndent`
       import Component from '@glimmer/component';
 
@@ -242,14 +212,14 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       'glimmer-ts',
       componentA,
     );
-    expect(diagnosticsA).toMatchInlineSnapshot();
+    expect(diagnosticsA).toMatchInlineSnapshot(`[]`);
 
     const diagnosticsB = await requestDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentB,
     );
-    expect(diagnosticsB).toMatchInlineSnapshot();
+    expect(diagnosticsB).toMatchInlineSnapshot(`[]`);
   });
 
   test('@glint-expect-error - unknown component reference - error on component does not mask unknownReference', async () => {
