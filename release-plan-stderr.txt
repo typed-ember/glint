@@ -1,0 +1,11 @@
+# Unlabeled Changes
+
+* `@glint/core`
+  * [#928](https://github.com/typed-ember/glint/pull/928) Fix diagnostics for modifiers and other cases ([@machty](https://github.com/machty))
+  * [#927](https://github.com/typed-ember/glint/pull/927) Fix broken directives that reference suppressed attr name ([@machty](https://github.com/machty))
+* Other
+  * [#925](https://github.com/typed-ember/glint/pull/925) Reinstate a fixed test, rm unsupported .hbs test ([@machty](https://github.com/machty))
+  * [#923](https://github.com/typed-ember/glint/pull/923) rm old Pods components ([@machty](https://github.com/machty))
+
+
+*Cannot plan release until the above changes are labeled*.
