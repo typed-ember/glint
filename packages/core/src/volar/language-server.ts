@@ -1,16 +1,16 @@
+import { createLanguage } from '@volar/language-core';
 import type { LanguagePlugin, LanguageServer } from '@volar/language-server';
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject.js';
 import { createConnection, createServer, loadTsdkByPath } from '@volar/language-server/node.js';
-import { createLanguage } from '@volar/language-core';
+import type { LanguageServiceContext, LanguageServicePlugin } from '@volar/language-service';
 import { createLanguageService, createUriMap, LanguageService } from '@volar/language-service';
 import type * as ts from 'typescript';
-import { URI } from 'vscode-uri';
-import { createEmberLanguagePlugin } from './ember-language-plugin.js';
-import { ConfigLoader } from '../config/loader.js';
-import type { LanguageServiceContext, LanguageServicePlugin } from '@volar/language-service';
-import { create as createGtsGjsPlugin } from '../plugins/gts-gjs-plugin.js';
-import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic.js';
 import { create as createHtmlSyntacticPlugin } from 'volar-service-html';
+import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic.js';
+import { URI } from 'vscode-uri';
+import { ConfigLoader } from '../config/loader.js';
+import { create as createTemplateTagSymbolsPlugin } from '../plugins/g-template-tag-symbols.js';
+import { createEmberLanguagePlugin } from './ember-language-plugin.js';
 
 type GlintInitializationOptions = any; // TODO rm hackiness
 
@@ -202,7 +202,7 @@ function getCommonLanguageServicePluginsForLanguageServer(
   // ) => import('@glint/tsserver/lib/requests').Requests | undefined,
 ): LanguageServicePlugin[] {
   return [
-    createGtsGjsPlugin(),
+    createTemplateTagSymbolsPlugin(),
     // createTypeScriptTwoslashQueriesPlugin(ts),
     // createCssPlugin(),
     // createPugFormatPlugin(),

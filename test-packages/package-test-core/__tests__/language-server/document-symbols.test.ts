@@ -11,7 +11,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 describe('Language Server: Document Symbols (language server)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
 
-  test.only('typed gts file', async () => {
+  test('typed gts file', async () => {
     const document = await prepareDocument(
       'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
