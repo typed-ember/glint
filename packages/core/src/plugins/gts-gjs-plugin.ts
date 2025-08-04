@@ -1,8 +1,6 @@
-import type { LanguageServiceContext, LanguageServicePlugin } from '@volar/language-service';
-import { VirtualGtsCode } from '../volar/gts-virtual-code.js';
+import type { LanguageServicePlugin } from '@volar/language-service';
 import type * as vscode from 'vscode-languageserver-protocol';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { URI } from 'vscode-uri';
+import { getEmbeddedInfo } from './utils.js';
 
 /**
  * This is a LanguageServicePlugin that provides language features for the top-level .gts/.gjs files.
@@ -20,49 +18,38 @@ export function create(): LanguageServicePlugin {
     create(context) {
       return {
         provideDocumentSymbols(document) {
-          return worker(document, context, (root) => {
-            const result: vscode.DocumentSymbol[] = [];
-            const { transformedModule } = root;
+          const info = getEmbeddedInfo(context, document, 'gts', (languageId) =>
+            ['glimmer-ts', 'glimmer-js'].includes(languageId),
+          );
+          if (!info) {
+            return;
+          }
+          const { root } = info;
 
-            if (transformedModule) {
-              const templateSymbols = transformedModule.templateSymbols();
-              for (const templateSymbol of templateSymbols) {
-                result.push({
-                  name: 'template',
-                  kind: 2 satisfies typeof vscode.SymbolKind.Module,
-                  range: {
-                    start: document.positionAt(templateSymbol.start),
-                    end: document.positionAt(templateSymbol.end),
-                  },
-                  selectionRange: {
-                    start: document.positionAt(templateSymbol.start),
-                    end: document.positionAt(templateSymbol.startTagEnd),
-                  },
-                });
-              }
+          const result: vscode.DocumentSymbol[] = [];
+          const { transformedModule } = root;
+
+          if (transformedModule) {
+            const templateSymbols = transformedModule.templateSymbols();
+            for (const templateSymbol of templateSymbols) {
+              result.push({
+                name: 'template',
+                kind: 2 satisfies typeof vscode.SymbolKind.Module,
+                range: {
+                  start: document.positionAt(templateSymbol.start),
+                  end: document.positionAt(templateSymbol.end),
+                },
+                selectionRange: {
+                  start: document.positionAt(templateSymbol.start),
+                  end: document.positionAt(templateSymbol.startTagEnd),
+                },
+              });
             }
+          }
 
-            return result;
-          });
+          return result;
         },
       };
     },
   };
-
-  function worker<T>(
-    document: TextDocument,
-    context: LanguageServiceContext,
-    callback: (root: VirtualGtsCode) => T,
-  ): T | undefined {
-    if (document.languageId !== 'glimmer-ts' && document.languageId !== 'glimmer-js') {
-      return;
-    }
-    const uri = URI.parse(document.uri);
-    const decoded = context.decodeEmbeddedDocumentUri(uri);
-    const sourceScript = decoded && context.language.scripts.get(decoded[0]);
-    const root = sourceScript?.generated?.root;
-    if (root instanceof VirtualGtsCode) {
-      return callback(root);
-    }
-  }
 }
