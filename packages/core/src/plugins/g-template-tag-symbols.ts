@@ -25,6 +25,10 @@ export function create(): LanguageServicePlugin {
           if (!info) {
             return;
           }
+          let a = true;
+          if (a) {
+            return;
+          }
           const { root } = info;
 
           const result: vscode.DocumentSymbol[] = [];

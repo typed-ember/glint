@@ -151,7 +151,7 @@ export class VirtualGtsCode implements VirtualCode {
       const embeddedCodes = [
         {
           embeddedCodes: [],
-          id: 'ts',
+          id: 'template_ts',
           languageId: embeddedLanguageId,
           mappings,
           snapshot: new ScriptSnapshot(transformedModule.transformedContents),
@@ -215,7 +215,7 @@ export class VirtualGtsCode implements VirtualCode {
       this.embeddedCodes = [
         {
           embeddedCodes: [],
-          id: 'ts',
+          id: 'template_ts',
           languageId: embeddedLanguageId,
           mappings: [
             {

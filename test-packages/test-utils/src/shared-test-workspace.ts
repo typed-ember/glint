@@ -3,13 +3,14 @@ import {
   ConfigurationRequest,
   PublishDiagnosticsNotification,
   TextDocument,
+  type FullDocumentDiagnosticReport,
 } from '@volar/language-server';
 import type { LanguageServerHandle } from '@volar/test-utils';
 import { startLanguageServer } from '@volar/test-utils';
-import * as path from 'node:path';
-import { URI } from 'vscode-uri';
-import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { URI } from 'vscode-uri';
 
 // import { VueInitializationOptions } from '../lib/types';
 
@@ -99,7 +100,10 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
     glintserver: serverHandle,
     tsserver: tsserver,
     nextSeq: () => seq++,
+
+    // Open a document both in tsserver and the Glint language server.
     open: async (uri: string, languageId: string, content: string) => {
+      // Within tssserver:
       const res = await tsserver.message({
         seq: seq++,
         type: 'request',
@@ -118,6 +122,8 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
       if (!res.success) {
         throw new Error(res.body);
       }
+
+      // Within the Glint language server:
       return await serverHandle!.openInMemoryDocument(uri, languageId, content);
     },
     close: async (uri: string) => {
@@ -186,7 +192,14 @@ export function extractCursors(content: string): [number[], string] {
   return [offsets, content];
 }
 
-export async function requestDiagnostics(
+/**
+ * Request diagnostics from tsserver, such as the core TypeScript type-checking diagnostics
+ * that Glint provides for .gts/.gjs files.
+ *
+ * Other diagnostics unrelated to type-checking (such as detecting top-level syntax errors
+ * and others) are provided by Language Server (see `requestLanguageServerDiagnostics`).
+ */
+export async function requestTsserverDiagnostics(
   fileName: string,
   languageId: string,
   content: string,
@@ -233,4 +246,27 @@ export async function requestDiagnostics(
   }
 
   return diagnosticsResponse.diagnostics;
+}
+
+/**
+ * Request diagnostics from the Language Server, such as top-level syntax errors
+ * and others.
+ *
+ * For the more common / core diagnostics provided as part of the type-checking process,
+ * see `requestTsserverDiagnostics`.
+ */
+export async function requestLanguageServerDiagnostics(
+  fileName: string,
+  languageId: string,
+  content: string,
+): Promise<any> {
+  const workspaceHelper = await getSharedTestWorkspaceHelper();
+
+  let document = await prepareDocument(fileName, languageId, content);
+
+  const diagnostics = (await workspaceHelper.glintserver.sendDocumentDiagnosticRequest(
+    document.uri,
+  )) as FullDocumentDiagnosticReport;
+
+  return diagnostics.items;
 }

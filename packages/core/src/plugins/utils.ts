@@ -22,9 +22,9 @@ type EmbeddedInfo = {
  *
  * A example Volar embedded document URI would be something like:
  *
- *    volar-embedded-content://ts/file%253A%252F%252F%252FUsers%252Fmachty%252Fcode%252Fglint%252Ftest-packages%252Fts-template-imports-app%252Fsrc%252Fempty-fixture.gts
+ *    volar-embedded-content://gts/file%253A%252F%252F%252FUsers%252Fmachty%252Fcode%252Fglint%252Ftest-packages%252Fts-template-imports-app%252Fsrc%252Fempty-fixture.gts
  *
- * Note that the hostname/authority part of the URI is the embedded code ID, e.g. `ts`. These correspond
+ * Note that the hostname/authority part of the URI is the embedded code ID, e.g. `gts`. These correspond
  * to the IDs we assign to parsed embedded virtual codes contained within the root virtual code,
  * e.g. `ts` corresponds to the TypeScript representation of .gts files where all `<template>` tags
  * have been converted to type-checkable TS.

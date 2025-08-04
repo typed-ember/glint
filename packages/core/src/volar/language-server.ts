@@ -9,6 +9,7 @@ import { create as createHtmlSyntacticPlugin } from 'volar-service-html';
 import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic.js';
 import { URI } from 'vscode-uri';
 import { ConfigLoader } from '../config/loader.js';
+import { create as createCompilerErrorsPlugin } from '../plugins/g-compiler-errors.js';
 import { create as createTemplateTagSymbolsPlugin } from '../plugins/g-template-tag-symbols.js';
 import { createEmberLanguagePlugin } from './ember-language-plugin.js';
 
@@ -203,6 +204,7 @@ function getCommonLanguageServicePluginsForLanguageServer(
 ): LanguageServicePlugin[] {
   return [
     createTemplateTagSymbolsPlugin(),
+    createCompilerErrorsPlugin(),
     // createTypeScriptTwoslashQueriesPlugin(ts),
     // createCssPlugin(),
     // createPugFormatPlugin(),

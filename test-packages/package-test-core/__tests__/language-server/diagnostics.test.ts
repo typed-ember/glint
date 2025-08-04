@@ -1,7 +1,8 @@
 import { stripIndent } from 'common-tags';
 import {
   prepareDocument,
-  requestDiagnostics,
+  requestLanguageServerDiagnostics,
+  requestTsserverDiagnostics,
   teardownSharedTestWorkspaceAfterEach,
 } from 'glint-monorepo-test-utils';
 import { afterEach, describe, expect, test } from 'vitest';
@@ -26,7 +27,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
 
       await prepareDocument('component.ts', 'typescript', scriptContents);
 
-      const diagnostics = await requestDiagnostics('component.hbs', 'handlebars', hbsCode);
+      const diagnostics = await requestTsserverDiagnostics('component.hbs', 'handlebars', hbsCode);
 
       expect(diagnostics).toMatchInlineSnapshot();
     });
@@ -36,7 +37,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
 
       await prepareDocument('component.ts', 'typescript', scriptContents);
 
-      const diagnostics = await requestDiagnostics('component.hbs', 'handlebars', hbsCode);
+      const diagnostics = await requestTsserverDiagnostics('component.hbs', 'handlebars', hbsCode);
 
       expect(diagnostics).toMatchInlineSnapshot();
     });
@@ -61,7 +62,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       code,
@@ -115,7 +116,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -152,7 +153,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -173,7 +174,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -207,14 +208,14 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnosticsA = await requestDiagnostics(
+    const diagnosticsA = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
     );
     expect(diagnosticsA).toMatchInlineSnapshot(`[]`);
 
-    const diagnosticsB = await requestDiagnostics(
+    const diagnosticsB = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentB,
@@ -236,7 +237,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -275,7 +276,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -296,7 +297,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -334,7 +335,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -364,7 +365,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -429,7 +430,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -459,7 +460,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -518,7 +519,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -550,7 +551,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -583,7 +584,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -605,7 +606,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -642,7 +643,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       componentA,
@@ -682,7 +683,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     }
   `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       code,
@@ -712,7 +713,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     }
   `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       code,
@@ -758,8 +759,48 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     }
   `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
+
+  test('syntax errors within template tag show up in right spot (language server)', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class MyComponent extends Component {
+        <template>
+          <div>SYNTAX {{ERROR</div>
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestLanguageServerDiagnostics(
+      'ts-template-imports-app/src/SyntaxErrors.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
+
+  test('syntax errors within template tag show up in right spot (TS plugin)', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class MyComponent extends Component {
+        <template>
+          <div>SYNTAX {{ERROR</div>
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app/src/SyntaxErrors.gts',
       'glimmer-ts',
       code,
     );
