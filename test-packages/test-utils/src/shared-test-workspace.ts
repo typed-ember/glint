@@ -12,6 +12,25 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { URI } from 'vscode-uri';
 
+function uriToFilePath(uri: string): string {
+  return URI.parse(uri).fsPath.replace(/\\/g, '/');
+}
+
+function filePathToUri(filePath: string): string {
+  return URI.file(filePath).toString();
+}
+
+function normalizeFilePath(filePath: string): string {
+  return uriToFilePath(filePathToUri(filePath));
+}
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const pathToTemplatePackage = normalizeFilePath(
+  path.resolve(dirname, '../../../packages/template'),
+);
+const fileUriToTemplatePackage = filePathToUri(pathToTemplatePackage);
+// const ROOT = normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
+
 // import { VueInitializationOptions } from '../lib/types';
 
 let serverHandle: LanguageServerHandle | undefined;
@@ -262,5 +281,38 @@ export async function requestLanguageServerDiagnostics(
     document.uri,
   )) as FullDocumentDiagnosticReport;
 
-  return diagnostics.items;
+  return normalizeForSnapshotting(document.uri, diagnostics.items);
+}
+
+/**
+ * Processes the language server return object passed in and converts any absolute URIs to
+ * local files (which differ between localhost and CI) to static strings
+ * so that they can be easily snapshotted in tests using `toMatchInlineSnapshot`.
+ *
+ * @param uri
+ * @param object
+ * @returns normalized object for snapshotting
+ */
+function normalizeForSnapshotting(uri: string, object: unknown): unknown {
+  let stringified = JSON.stringify(object);
+
+  const volarEmbeddedContentUri = URI.from({
+    scheme: 'volar-embedded-content',
+    authority: 'ts',
+    path: '/' + encodeURIComponent(uri),
+  });
+
+  // Create file URI for the test workspace path
+  const testWorkspaceFileUri = URI.file(testWorkspacePath).toString();
+
+  const normalized = stringified
+    .replaceAll(
+      volarEmbeddedContentUri.toString(),
+      `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`,
+    )
+    .replaceAll(`"${testWorkspacePath}`, '"/path/to/EPHEMERAL_TEST_PROJECT')
+    .replaceAll(`"${testWorkspaceFileUri}`, '"file:///path/to/EPHEMERAL_TEST_PROJECT')
+    .replace(fileUriToTemplatePackage, '"file:///PATH_TO_MODULE/@glint/template');
+
+  return JSON.parse(normalized);
 }

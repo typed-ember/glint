@@ -785,26 +785,36 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       code,
     );
 
-    expect(diagnostics).toMatchInlineSnapshot(`[]`);
-  });
-
-  test('syntax errors within template tag show up in right spot (TS plugin)', async () => {
-    const code = stripIndent`
-      import Component from '@glimmer/component';
-
-      export default class MyComponent extends Component {
-        <template>
-          <div>SYNTAX {{ERROR</div>
-        </template>
-      }
-    `;
-
-    const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/SyntaxErrors.gts',
-      'glimmer-ts',
-      code,
-    );
-
-    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "code": 9999,
+          "data": {
+            "documentUri": "volar-embedded-content://template_ts/file%253A%252F%252F%252FUsers%252Fmachty%252Fcode%252Fglint%252Ftest-packages%252Fts-template-imports-app%252Fsrc%252FSyntaxErrors.gts",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 3,
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/ts-template-imports-app/src/SyntaxErrors.gts",
+            "version": 0,
+          },
+          "message": "Parse error on line 2:
+          <div>SYNTAX {{ERROR</div>  
+      ------------------^
+      Expecting 'OPEN_SEXPR', 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'",
+          "range": {
+            "end": {
+              "character": 10,
+              "line": 0,
+            },
+            "start": {
+              "character": 0,
+              "line": 0,
+            },
+          },
+          "severity": 1,
+          "source": "glint",
+        },
+      ]
+    `);
   });
 });
