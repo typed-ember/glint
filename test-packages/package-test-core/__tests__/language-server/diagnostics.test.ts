@@ -780,7 +780,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestLanguageServerDiagnostics(
-      'ts-template-imports-app/src/SyntaxErrors.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       code,
     );
@@ -790,11 +790,11 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
         {
           "code": 9999,
           "data": {
-            "documentUri": "volar-embedded-content://template_ts/file%253A%252F%252F%252FUsers%252Fmachty%252Fcode%252Fglint%252Ftest-packages%252Fts-template-imports-app%252Fsrc%252FSyntaxErrors.gts",
+            "documentUri": "volar-embedded-content://template_ts/file%253A%252F%252F%252FUsers%252Fmachty%252Fcode%252Fglint%252Ftest-packages%252Fts-template-imports-app%252Fsrc%252Fempty-fixture.gts",
             "isFormat": false,
             "original": {},
             "pluginIndex": 3,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/ts-template-imports-app/src/SyntaxErrors.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/ts-template-imports-app/src/empty-fixture.gts",
             "version": 0,
           },
           "message": "Parse error on line 2:
