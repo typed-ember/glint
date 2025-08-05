@@ -54,7 +54,7 @@ export const { activate, deactivate } = defineExtension(async () => {
 
   // NOTE: I tried to use the `watch` callback API to provide the old and new values
   // for workspace folders but for some reason they kept coming in as undefined
-  // so I'm tracking new and old values menually.
+  // so I'm tracking new and old values manually.
   watch(
     reactiveWorkspaceFolders,
     () => {
