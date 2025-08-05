@@ -165,8 +165,7 @@ function launch(_context: vscode.ExtensionContext): lsp.LanguageClient | undefin
 
   // Handle tsserver requests by forwarding them to the VSCode TypeScript extension
   // This is a critical piece that allows Glint to leverage the built-in TS server
-  // for things like auto-imports, refactoring, etc. Vue pioneered this approach.
-  // Using notification-based communication instead of command-based for better compatibility.
+  // for things like auto-imports, refactoring, etc.
   client.onNotification('tsserver/request', async ([seq, command, args]) => {
     vscode.commands.executeCommand<{ body: unknown } | undefined>(
       'typescript.tsserverRequest',

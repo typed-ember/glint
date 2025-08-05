@@ -71,24 +71,18 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
         return null;
       });
     });
-    serverHandle.connection.onRequest('tsserverRequest', async ([command, args]) => {
+    serverHandle.connection.onNotification('tsserver/request', async ([id, command, args]) => {
       const res = await tsserver.message({
         seq: seq++,
         command: command,
         arguments: args,
       });
-      return res.body;
+      serverHandle!.connection.sendNotification('tsserver/response', [id, res.body]);
     });
 
-    let tsdkPath = path.dirname(require.resolve('typescript/lib/typescript'));
     await serverHandle.initialize(
       URI.file(testWorkspacePath).toString(),
-      {
-        typescript: {
-          tsdk: tsdkPath,
-          tsserverRequestCommand: 'tsserverRequest',
-        },
-      },
+      {},
       {
         workspace: {
           configuration: true,
