@@ -19,20 +19,14 @@ export function create(): LanguageServicePlugin {
     create(context) {
       return {
         provideDocumentSymbols(document) {
-          const info = getEmbeddedInfo(context, document, 'gts', (languageId) =>
-            ['glimmer-ts', 'glimmer-js'].includes(languageId),
-          );
-          if (!info) {
+          const virtualCode = getEmbeddedInfo(context, document, 'gts')?.root;
+
+          if (!virtualCode) {
             return;
           }
-          let a = true;
-          if (a) {
-            return;
-          }
-          const { root } = info;
 
           const result: vscode.DocumentSymbol[] = [];
-          const { transformedModule } = root;
+          const { transformedModule } = virtualCode;
 
           if (transformedModule) {
             const templateSymbols = transformedModule.templateSymbols();

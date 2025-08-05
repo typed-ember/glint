@@ -19,15 +19,13 @@ export function create(): LanguageServicePlugin {
     create(context) {
       return {
         provideDiagnostics(document) {
-          const info = getEmbeddedInfo(context, document, 'gts', (languageId) =>
-            ['glimmer-ts', 'glimmer-js'].includes(languageId),
-          );
-          if (!info) {
+          const virtualCode = getEmbeddedInfo(context, document, 'template_ts')?.root;
+
+          if (!virtualCode) {
             return;
           }
-          const { root } = info;
 
-          const transformedModule = root.transformedModule;
+          const transformedModule = virtualCode.transformedModule;
           if (!transformedModule) {
             return;
           }
