@@ -104,6 +104,9 @@ const plugin = createLanguageServicePlugin(
             };
           }
 
+          // Add Glint-specific protocol handlers for tsserver communication
+          addGlintCommands();
+
           // #3963
           // const timer = setInterval(() => {
           //   if (info.project['program']) {
@@ -121,6 +124,42 @@ const plugin = createLanguageServicePlugin(
       return {
         languagePlugins: [],
       };
+    }
+
+    // https://github.com/JetBrains/intellij-plugins/blob/6435723ad88fa296b41144162ebe3b8513f4949b/Angular/src-js/angular-service/src/index.ts#L69
+    function addGlintCommands(): void {
+      const projectService = info.project.projectService;
+      projectService.logger.info('Glint: called handler processing ' + info.project.projectKind);
+
+      const session = info.session;
+      if (session == undefined) {
+        projectService.logger.info('Glint: there is no session in info.');
+        return;
+      }
+      if (session.addProtocolHandler == undefined) {
+        // addProtocolHandler was introduced in TS 4.4 or 4.5 in 2021, see https://github.com/microsoft/TypeScript/issues/43893
+        projectService.logger.info('Glint: there is no addProtocolHandler method.');
+        return;
+      }
+      if ((session as any).handlers.has('_glint:projectInfo')) {
+        return;
+      }
+
+      // Map _glint: prefixed commands to their corresponding TypeScript server commands
+      session.addProtocolHandler('_glint:projectInfo', ({ arguments: args }) => {
+        return (session as any).handlers.get('projectInfo')?.({ arguments: args });
+      });
+      session.addProtocolHandler('_glint:documentHighlights-full', ({ arguments: args }) => {
+        return (session as any).handlers.get('documentHighlights-full')?.({ arguments: args });
+      });
+      session.addProtocolHandler('_glint:encodedSemanticClassifications-full', ({ arguments: args }) => {
+        return (session as any).handlers.get('encodedSemanticClassifications-full')?.({ arguments: args });
+      });
+      session.addProtocolHandler('_glint:quickinfo', ({ arguments: args }) => {
+        return (session as any).handlers.get('quickinfo')?.({ arguments: args });
+      });
+
+      projectService.logger.info('Glint specific commands are successfully added.');
     }
   },
 );

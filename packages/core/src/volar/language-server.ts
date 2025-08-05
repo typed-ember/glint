@@ -88,8 +88,19 @@ connection.onInitialize((params) => {
       },
     },
     getHybridModeLanguageServicePluginsForLanguageServer(
-      // TODO: Implement Vue-style proxying to tsserver instance if needed
-      // See: https://github.com/vuejs/language-tools/pull/5252
+      {
+        // TODO: Implement Glint-specific tsserver requests similar to Vue
+        // For now, keeping the basic structure ready for future implementation
+        // getQuickInfoAtPosition(...args) {
+        //   return sendTsServerRequest('_glint:quickinfo', args);
+        // },
+        // getDocumentHighlights(...args) {
+        //   return sendTsServerRequest('_glint:documentHighlights-full', args);
+        // },
+        // getEncodedSemanticClassifications(...args) {
+        //   return sendTsServerRequest('_glint:encodedSemanticClassifications-full', args);
+        // },
+      }
     ),
   );
 
@@ -142,14 +153,13 @@ connection.onInitialized(server.initialized);
 connection.onShutdown(server.shutdown);
 
 function getHybridModeLanguageServicePluginsForLanguageServer(
-  getTsPluginClient?: any,
-  // getTsPluginClient: import('@glint/tsserver/lib/requests').Requests | undefined,
+  tsPluginClient: any = {}, // Glint's equivalent to Vue's tsPluginClient
 ): LanguageServicePlugin<any>[] {
   const plugins = [
     // Lightweight syntax-only TS Language Service. Provides Symbols (e.g. Outline view) and other features.
     createTypeScriptSyntacticPlugin(ts),
     createHtmlSyntacticPlugin(),
-    ...getCommonLanguageServicePluginsForLanguageServer(() => getTsPluginClient),
+    ...getCommonLanguageServicePluginsForLanguageServer(() => tsPluginClient),
   ];
   for (const plugin of plugins) {
     // avoid affecting TS plugin

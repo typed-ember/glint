@@ -302,7 +302,9 @@ try {
     }
   }
 }
-catch {
+catch (e) {
   // Silently fail if patching doesn't work - the extension will still function
   // but some features like cross-file references might not work as expected
+
+  console.error(e);
 }
