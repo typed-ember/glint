@@ -1,16 +1,16 @@
-import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
+import { afterEach, describe, expect, test } from 'vitest';
 
 import {
+  requestTsserverDiagnostics,
   teardownSharedTestWorkspaceAfterEach,
-  requestDiagnostics,
 } from 'glint-monorepo-test-utils';
 
 describe('Language Server: Diagnostic Augmentation', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
 
   test.skip('There is a content-tag parse error (for a class component)', async () => {
-    let diagnostics = await requestDiagnostics(
+    let diagnostics = await requestTsserverDiagnostics(
       'index.gts',
       'glimmer-ts',
       stripIndent`
@@ -40,7 +40,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
   describe('unicode and other special characters', () => {
     describe('$', () => {
       test('GitHub Issue#840', async () => {
-        let diagnostics = await requestDiagnostics(
+        let diagnostics = await requestTsserverDiagnostics(
           'ts-template-imports-app/src/ephemeral-index.gts',
           'glimmer-ts',
           [
@@ -58,7 +58,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
   });
 
   test('expected argument count', async () => {
-    let diagnostics = await requestDiagnostics(
+    let diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       stripIndent`
@@ -140,7 +140,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
   });
 
   test('emit for attributes and top-level content', async () => {
-    let diagnostics = await requestDiagnostics(
+    let diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       stripIndent`
@@ -320,7 +320,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
   });
 
   test.skip('unresolved globals', async () => {
-    let diagnostics = await requestDiagnostics(
+    let diagnostics = await requestTsserverDiagnostics(
       'index.hbs',
       'handlebars',
       stripIndent`
@@ -341,7 +341,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
   });
 
   test.skip('failed `component` name lookup', async () => {
-    let diagnostics = await requestDiagnostics(
+    let diagnostics = await requestTsserverDiagnostics(
       'index.hbs',
       'handlebars',
       stripIndent`
@@ -363,7 +363,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
   });
 
   test.skip('direct invocation of `{{component}}`', async () => {
-    let diagnostics = await requestDiagnostics(
+    let diagnostics = await requestTsserverDiagnostics(
       'index.hbs',
       'handlebars',
       stripIndent`
@@ -381,7 +381,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
   });
 
   test('bad `component`/`helper`/`modifier` arg type', async () => {
-    let diagnostics = await requestDiagnostics(
+    let diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       stripIndent`
@@ -518,7 +518,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
   // Not sure why this isn't firing...
   test.skip('`noPropertyAccessFromIndexSignature` violation', async () => {
-    let diagnostics = await requestDiagnostics(
+    let diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       stripIndent`

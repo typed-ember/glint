@@ -3,15 +3,32 @@ import {
   ConfigurationRequest,
   PublishDiagnosticsNotification,
   TextDocument,
+  type FullDocumentDiagnosticReport,
 } from '@volar/language-server';
 import type { LanguageServerHandle } from '@volar/test-utils';
 import { startLanguageServer } from '@volar/test-utils';
-import * as path from 'node:path';
-import { URI } from 'vscode-uri';
-import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { URI } from 'vscode-uri';
 
-// import { VueInitializationOptions } from '../lib/types';
+function uriToFilePath(uri: string): string {
+  return URI.parse(uri).fsPath.replace(/\\/g, '/');
+}
+
+function filePathToUri(filePath: string): string {
+  return URI.file(filePath).toString();
+}
+
+function normalizeFilePath(filePath: string): string {
+  return uriToFilePath(filePathToUri(filePath));
+}
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const pathToTemplatePackage = normalizeFilePath(
+  path.resolve(dirname, '../../../packages/template'),
+);
+const fileUriToTemplatePackage = filePathToUri(pathToTemplatePackage);
 
 let serverHandle: LanguageServerHandle | undefined;
 let tsserver: import('@typescript/server-harness').Server;
@@ -70,24 +87,18 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
         return null;
       });
     });
-    serverHandle.connection.onRequest('tsserverRequest', async ([command, args]) => {
+    serverHandle.connection.onNotification('tsserver/request', async ([id, command, args]) => {
       const res = await tsserver.message({
         seq: seq++,
         command: command,
         arguments: args,
       });
-      return res.body;
+      serverHandle!.connection.sendNotification('tsserver/response', [id, res.body]);
     });
 
-    let tsdkPath = path.dirname(require.resolve('typescript/lib/typescript'));
     await serverHandle.initialize(
       URI.file(testWorkspacePath).toString(),
-      {
-        typescript: {
-          tsdk: tsdkPath,
-          tsserverRequestCommand: 'tsserverRequest',
-        },
-      },
+      {},
       {
         workspace: {
           configuration: true,
@@ -99,7 +110,10 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
     glintserver: serverHandle,
     tsserver: tsserver,
     nextSeq: () => seq++,
+
+    // Open a document both in tsserver and the Glint language server.
     open: async (uri: string, languageId: string, content: string) => {
+      // Within tssserver:
       const res = await tsserver.message({
         seq: seq++,
         type: 'request',
@@ -118,6 +132,8 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
       if (!res.success) {
         throw new Error(res.body);
       }
+
+      // Within the Glint language server:
       return await serverHandle!.openInMemoryDocument(uri, languageId, content);
     },
     close: async (uri: string) => {
@@ -186,7 +202,14 @@ export function extractCursors(content: string): [number[], string] {
   return [offsets, content];
 }
 
-export async function requestDiagnostics(
+/**
+ * Request diagnostics from tsserver, such as the core TypeScript type-checking diagnostics
+ * that Glint provides for .gts/.gjs files.
+ *
+ * Other diagnostics unrelated to type-checking (such as detecting top-level syntax errors
+ * and others) are provided by Language Server (see `requestLanguageServerDiagnostics`).
+ */
+export async function requestTsserverDiagnostics(
   fileName: string,
   languageId: string,
   content: string,
@@ -233,4 +256,60 @@ export async function requestDiagnostics(
   }
 
   return diagnosticsResponse.diagnostics;
+}
+
+/**
+ * Request diagnostics from the Language Server, such as top-level syntax errors
+ * and others.
+ *
+ * For the more common / core diagnostics provided as part of the type-checking process,
+ * see `requestTsserverDiagnostics`.
+ */
+export async function requestLanguageServerDiagnostics(
+  fileName: string,
+  languageId: string,
+  content: string,
+): Promise<any> {
+  const workspaceHelper = await getSharedTestWorkspaceHelper();
+
+  let document = await prepareDocument(fileName, languageId, content);
+
+  const diagnostics = (await workspaceHelper.glintserver.sendDocumentDiagnosticRequest(
+    document.uri,
+  )) as FullDocumentDiagnosticReport;
+
+  return normalizeForSnapshotting(document.uri, diagnostics.items);
+}
+
+/**
+ * Processes the language server return object passed in and converts any absolute URIs to
+ * local files (which differ between localhost and CI) to static strings
+ * so that they can be easily snapshotted in tests using `toMatchInlineSnapshot`.
+ *
+ * @param uri
+ * @param object
+ * @returns normalized object for snapshotting
+ */
+function normalizeForSnapshotting(uri: string, object: unknown): unknown {
+  let stringified = JSON.stringify(object);
+
+  const volarEmbeddedContentUri = URI.from({
+    scheme: 'volar-embedded-content',
+    authority: 'template_ts',
+    path: '/' + encodeURIComponent(uri),
+  });
+
+  // Create file URI for the test workspace path
+  const testWorkspaceFileUri = URI.file(testWorkspacePath).toString();
+
+  const normalized = stringified
+    .replaceAll(
+      volarEmbeddedContentUri.toString(),
+      `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`,
+    )
+    .replaceAll(`"${testWorkspacePath}`, '"/path/to/EPHEMERAL_TEST_PROJECT')
+    .replaceAll(`"${testWorkspaceFileUri}`, '"file:///path/to/EPHEMERAL_TEST_PROJECT')
+    .replace(fileUriToTemplatePackage, '"file:///PATH_TO_MODULE/@glint/template');
+
+  return JSON.parse(normalized);
 }

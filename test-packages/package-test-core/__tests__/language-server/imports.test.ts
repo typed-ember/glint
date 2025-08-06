@@ -1,9 +1,9 @@
-import {
-  teardownSharedTestWorkspaceAfterEach,
-  requestDiagnostics,
-} from 'glint-monorepo-test-utils';
-import { describe, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
+import {
+  requestTsserverDiagnostics,
+  teardownSharedTestWorkspaceAfterEach,
+} from 'glint-monorepo-test-utils';
+import { afterEach, describe, expect, test } from 'vitest';
 
 describe('Language Server: Imports', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
@@ -17,7 +17,7 @@ describe('Language Server: Imports', () => {
       </template>
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       code,
@@ -33,7 +33,7 @@ describe('Language Server: Imports', () => {
       export default Colocated;
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-index.gts',
       'glimmer-ts',
       code,
@@ -49,7 +49,7 @@ describe('Language Server: Imports', () => {
       export default Colocated;
     `;
 
-    const diagnostics = await requestDiagnostics(
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/ephemeral-vanilla-typescript.ts',
       'glimmer-ts',
       code,

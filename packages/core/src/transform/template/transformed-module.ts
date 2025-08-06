@@ -213,7 +213,7 @@ export default class TransformedModule {
     assert(false, 'Internal error: offset out of bounds');
   }
 
-  private determineTransformedOffsetAndSpan(
+  public determineTransformedOffsetAndSpan(
     originalFileName: string,
     originalOffset: number,
   ): { transformedOffset: number; correlatedSpan: CorrelatedSpan } {

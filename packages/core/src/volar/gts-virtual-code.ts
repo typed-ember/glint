@@ -1,9 +1,9 @@
 import { CodeInformation, CodeMapping, VirtualCode } from '@volar/language-core';
-import { IScriptSnapshot } from 'typescript';
-import { ScriptSnapshot } from './script-snapshot.js';
 import type ts from 'typescript';
-import { Directive, rewriteModule } from '../transform/index.js';
+import { IScriptSnapshot } from 'typescript';
 import { GlintConfig } from '../index.js';
+import { Directive, rewriteModule } from '../transform/index.js';
+import { ScriptSnapshot } from './script-snapshot.js';
 export type TS = typeof ts;
 
 interface EmbeddedCodeWithDirectives extends VirtualCode {
@@ -151,7 +151,7 @@ export class VirtualGtsCode implements VirtualCode {
       const embeddedCodes = [
         {
           embeddedCodes: [],
-          id: 'ts',
+          id: 'template_ts',
           languageId: embeddedLanguageId,
           mappings,
           snapshot: new ScriptSnapshot(transformedModule.transformedContents),
@@ -215,7 +215,7 @@ export class VirtualGtsCode implements VirtualCode {
       this.embeddedCodes = [
         {
           embeddedCodes: [],
-          id: 'ts',
+          id: 'template_ts',
           languageId: embeddedLanguageId,
           mappings: [
             {

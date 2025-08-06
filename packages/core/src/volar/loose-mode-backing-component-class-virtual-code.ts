@@ -115,7 +115,7 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
       this.embeddedCodes = [
         {
           embeddedCodes: [],
-          id: 'ts',
+          id: 'template_ts',
           languageId: 'typescript',
 
           // Mappings from the backing component class file to the transformed module.
@@ -134,7 +134,7 @@ export class LooseModeBackingComponentClassVirtualCode implements VirtualCode {
       this.embeddedCodes = [
         {
           embeddedCodes: [],
-          id: 'ts',
+          id: 'template_ts',
           languageId: 'typescript',
           mappings: [
             {
