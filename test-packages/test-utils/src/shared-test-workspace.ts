@@ -298,7 +298,7 @@ function normalizeForSnapshotting(uri: string, object: unknown): unknown {
 
   const volarEmbeddedContentUri = URI.from({
     scheme: 'volar-embedded-content',
-    authority: 'ts',
+    authority: 'template_ts',
     path: '/' + encodeURIComponent(uri),
   });
 

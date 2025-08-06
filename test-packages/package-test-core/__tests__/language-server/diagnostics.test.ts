@@ -768,7 +768,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
 
-  test('syntax errors within template tag show up in right spot (language server)', async () => {
+  test('syntax error diagnostics within template tag show up in right spot', async () => {
     const code = stripIndent`
       import Component from '@glimmer/component';
 
@@ -790,7 +790,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
         {
           "code": 9999,
           "data": {
-            "documentUri": "volar-embedded-content://template_ts/file%253A%252F%252F%252FUsers%252Fmachty%252Fcode%252Fglint%252Ftest-packages%252Fts-template-imports-app%252Fsrc%252Fempty-fixture.gts",
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
             "isFormat": false,
             "original": {},
             "pluginIndex": 3,
@@ -803,8 +803,59 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       Expecting 'OPEN_SEXPR', 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'",
           "range": {
             "end": {
-              "character": 10,
-              "line": 0,
+              "character": 13,
+              "line": 5,
+            },
+            "start": {
+              "character": 2,
+              "line": 3,
+            },
+          },
+          "severity": 1,
+          "source": "glint",
+        },
+      ]
+    `);
+  });
+
+  test('syntax error diagnostics due to broken or unmatched template tag show up in right spot', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class MyComponent extends Component {
+        <template>
+          <div></div>
+        </template
+      }
+    `;
+
+    const diagnostics = await requestLanguageServerDiagnostics(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "code": 9999,
+          "data": {
+            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "isFormat": false,
+            "original": {},
+            "pluginIndex": 3,
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/ts-template-imports-app/src/empty-fixture.gts",
+            "version": 1,
+          },
+          "message": "Unexpected token \`<lexing error: Error { error: (Span { lo: BytePos(142), hi: BytePos(142), ctxt: #0 }, Eof) }>\`. Expected content tag
+
+       6 │   </template
+       7 │ }
+         ╰────",
+          "range": {
+            "end": {
+              "character": 1,
+              "line": 6,
             },
             "start": {
               "character": 0,
