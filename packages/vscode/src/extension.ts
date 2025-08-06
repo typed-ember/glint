@@ -1,4 +1,9 @@
-import { activateAutoInsertion, activateDocumentDropEdit, createLabsInfo, middleware } from '@volar/vscode';
+import {
+  activateAutoInsertion,
+  activateDocumentDropEdit,
+  createLabsInfo,
+  middleware,
+} from '@volar/vscode';
 import * as languageServerProtocol from '@volar/language-server/protocol.js';
 import * as lsp from '@volar/vscode/node';
 import * as fs from 'node:fs';
@@ -26,71 +31,80 @@ export const { activate, deactivate } = defineExtension(() => {
   const volarLabs = createLabsInfo(languageServerProtocol);
   const activeTextEditor = useActiveTextEditor();
   const visibleTextEditors = useVisibleTextEditors();
-  
-  const { stop } = watch(activeTextEditor, () => {
-    // Only activate when we see a Glint-supported file type
-    if (
-      !visibleTextEditors.value.some(
-        editor => config.server.includeLanguages.includes(editor.document.languageId),
-      )
-    ) {
-      return;
-    }
 
-    // Stop watching after we've activated once
-    nextTick(() => stop());
-
-    // Handle remote environment activation issues
-    if (needRestart) {
-      vscode.window.showInformationMessage(
-        'Please restart the extension host to activate Glint support in remote environments.',
-        'Restart Extension Host',
-        'Reload Window',
-      ).then(action => {
-        if (action === 'Restart Extension Host') {
-          vscode.commands.executeCommand('workbench.action.restartExtensionHost');
-        }
-        else if (action === 'Reload Window') {
-          vscode.commands.executeCommand('workbench.action.reloadWindow');
-        }
-      });
-      return;
-    }
-
-    // Watch for changes to language configuration
-    watch(() => config.server.includeLanguages, async () => {
-      const reload = await vscode.window.showInformationMessage(
-        'Please restart extension host to apply the new language settings.',
-        'Restart Extension Host',
-      );
-      if (reload) {
-        executeCommand('workbench.action.restartExtensionHost');
+  const { stop } = watch(
+    activeTextEditor,
+    () => {
+      // Only activate when we see a Glint-supported file type
+      if (
+        !visibleTextEditors.value.some((editor) =>
+          config.server.includeLanguages.includes(editor.document.languageId),
+        )
+      ) {
+        return;
       }
-    });
 
-    // Setup typescript.js in production mode (Vue does this for performance)
-    if (fs.existsSync(path.join(__dirname, 'language-server.js'))) {
-      fs.writeFileSync(
-        path.join(__dirname, 'typescript.js'),
-        `module.exports = require("${
-          vscode.env.appRoot.replace(/\\/g, '/')
-        }/extensions/node_modules/typescript/lib/typescript.js");`,
+      // Stop watching after we've activated once
+      nextTick(() => stop());
+
+      // Handle remote environment activation issues
+      if (needRestart) {
+        vscode.window
+          .showInformationMessage(
+            'Please restart the extension host to activate Glint support in remote environments.',
+            'Restart Extension Host',
+            'Reload Window',
+          )
+          .then((action) => {
+            if (action === 'Restart Extension Host') {
+              vscode.commands.executeCommand('workbench.action.restartExtensionHost');
+            } else if (action === 'Reload Window') {
+              vscode.commands.executeCommand('workbench.action.reloadWindow');
+            }
+          });
+        return;
+      }
+
+      // Watch for changes to language configuration
+      watch(
+        () => config.server.includeLanguages,
+        async () => {
+          const reload = await vscode.window.showInformationMessage(
+            'Please restart extension host to apply the new language settings.',
+            'Restart Extension Host',
+          );
+          if (reload) {
+            executeCommand('workbench.action.restartExtensionHost');
+          }
+        },
       );
-    }
 
-    const launchedClient = launch(context);
-    if (launchedClient) {
-      client = launchedClient;
-      volarLabs.addLanguageClient(client);
-    }
+      // Setup typescript.js in production mode (Vue does this for performance)
+      if (fs.existsSync(path.join(__dirname, 'language-server.js'))) {
+        fs.writeFileSync(
+          path.join(__dirname, 'typescript.js'),
+          `module.exports = require("${vscode.env.appRoot.replace(
+            /\\/g,
+            '/',
+          )}/extensions/node_modules/typescript/lib/typescript.js");`,
+        );
+      }
 
-    const selectors = config.server.includeLanguages;
+      const launchedClient = launch(context);
+      if (launchedClient) {
+        client = launchedClient;
+        volarLabs.addLanguageClient(client);
+      }
 
-    if (client) {
-      activateAutoInsertion(selectors, client);
-      activateDocumentDropEdit(selectors, client);
-    }
-  }, { immediate: true });
+      const selectors = config.server.includeLanguages;
+
+      if (client) {
+        activateAutoInsertion(selectors, client);
+        activateDocumentDropEdit(selectors, client);
+      }
+    },
+    { immediate: true },
+  );
 
   useCommand('glint.restart-language-server', async () => {
     await executeCommand('typescript.restartTsServer');
@@ -114,11 +128,11 @@ function launch(_context: vscode.ExtensionContext): lsp.LanguageClient | undefin
   }
 
   const outputChannel = useOutputChannel('Glint Language Server');
-  
+
   let userLibraryPath = vscode.workspace.getConfiguration().get('glint.libraryPath', '.');
   let resolutionDir = path.resolve(workspaceFolder.uri.fsPath, userLibraryPath);
   let serverPath: string;
-  
+
   try {
     const { createRequire } = require('node:module') as typeof import('node:module');
     const customRequire = createRequire(path.join(resolutionDir, 'package.json'));
@@ -129,8 +143,8 @@ function launch(_context: vscode.ExtensionContext): lsp.LanguageClient | undefin
     // project, though, we leave a message in our channel explaining why we didn't launch.
     outputChannel.appendLine(
       `Unable to resolve @glint/core from ${resolutionDir} — not launching Glint.\n` +
-      `If Glint is installed in a child directory, you may wish to set the 'glint.libraryPath' option ` +
-      `in your workspace settings for the Glint VS Code extension.`,
+        `If Glint is installed in a child directory, you may wish to set the 'glint.libraryPath' option ` +
+        `in your workspace settings for the Glint VS Code extension.`,
     );
     return undefined;
   }
@@ -167,18 +181,20 @@ function launch(_context: vscode.ExtensionContext): lsp.LanguageClient | undefin
   // This is a critical piece that allows Glint to leverage the built-in TS server
   // for things like auto-imports, refactoring, etc.
   client.onNotification('tsserver/request', async ([seq, command, args]) => {
-    vscode.commands.executeCommand<{ body: unknown } | undefined>(
-      'typescript.tsserverRequest',
-      command,
-      args,
-      { isAsync: true, lowPriority: true },
-    ).then(res => {
-      client.sendNotification('tsserver/response', [seq, res?.body]);
-    }, () => {
-      client.sendNotification('tsserver/response', [seq, undefined]);
-    });
+    vscode.commands
+      .executeCommand<
+        { body: unknown } | undefined
+      >('typescript.tsserverRequest', command, args, { isAsync: true, lowPriority: true })
+      .then(
+        (res) => {
+          client.sendNotification('tsserver/response', [seq, res?.body]);
+        },
+        () => {
+          client.sendNotification('tsserver/response', [seq, undefined]);
+        },
+      );
   });
-  
+
   client.start();
 
   return client;
@@ -193,18 +209,26 @@ const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-f
 if (tsExtension) {
   const activationPromise = tsExtension.activate();
   if (activationPromise && typeof activationPromise.then === 'function') {
-    activationPromise.then(() => {
-      // TypeScript extension has been activated
-    }, () => {
-    vscode.window.showWarningMessage(
-      'Glint requires the "TypeScript and JavaScript Language Features" extension to be enabled.',
-      'Show Extension',
-    ).then((selected) => {
-      if (selected) {
-        executeCommand('workbench.extensions.search', '@builtin typescript-language-features');
-      }
-    });
-    });
+    activationPromise.then(
+      () => {
+        // TypeScript extension has been activated
+      },
+      () => {
+        vscode.window
+          .showWarningMessage(
+            'Glint requires the "TypeScript and JavaScript Language Features" extension to be enabled.',
+            'Show Extension',
+          )
+          .then((selected) => {
+            if (selected) {
+              executeCommand(
+                'workbench.extensions.search',
+                '@builtin typescript-language-features',
+              );
+            }
+          });
+      },
+    );
   }
 }
 
@@ -246,11 +270,9 @@ try {
         'languages:Array.isArray(e.languages)',
         [
           'languages:',
-          `e.name==='glint-tsserver-plugin-pack'?[${
-            config.server.includeLanguages
-              .map(lang => `'${lang}'`)
-              .join(',')
-          }]`,
+          `e.name==='glint-tsserver-plugin-pack'?[${config.server.includeLanguages
+            .map((lang) => `'${lang}'`)
+            .join(',')}]`,
           ':Array.isArray(e.languages)',
         ].join(''),
       );
@@ -259,21 +281,25 @@ try {
       // as valid TypeScript-like languages for features like refactoring
       text = text.replace(
         't.jsTsLanguageModes=[t.javascript,t.javascriptreact,t.typescript,t.typescriptreact]',
-        s => s + `.concat(${config.server.includeLanguages.map(lang => `'${lang}'`).join(',')})`,
+        (s) =>
+          s + `.concat(${config.server.includeLanguages.map((lang) => `'${lang}'`).join(',')})`,
       );
-      
+
       // patch isSupportedLanguageMode - this enables features like "Find All References"
       // and "Go to Definition" to work across .gts/.gjs files
       text = text.replace(
         '.languages.match([t.typescript,t.typescriptreact,t.javascript,t.javascriptreact]',
-        s => s + `.concat(${config.server.includeLanguages.map(lang => `'${lang}'`).join(',')})`,
+        (s) =>
+          s + `.concat(${config.server.includeLanguages.map((lang) => `'${lang}'`).join(',')})`,
       );
 
       // Sort plugins to prioritize glint plugin (for compatibility with other TS plugins)
       const glintPluginName = 'glint-tsserver-plugin-pack';
       text = text.replace(
         '"--globalPlugins",i.plugins',
-        s => s + `.sort((a,b)=>(b.name==="${glintPluginName}"?-1:0)-(a.name==="${glintPluginName}"?-1:0))`,
+        (s) =>
+          s +
+          `.sort((a,b)=>(b.name==="${glintPluginName}"?-1:0)-(a.name==="${glintPluginName}"?-1:0))`,
       );
 
       return text;
@@ -296,13 +322,11 @@ try {
   if (tsExtension.isActive) {
     if (!vscode.env.remoteName) {
       vscode.commands.executeCommand('workbench.action.restartExtensionHost');
-    }
-    else {
+    } else {
       needRestart = true;
     }
   }
-}
-catch (e) {
+} catch (e) {
   // Silently fail if patching doesn't work - the extension will still function
   // but some features like cross-file references might not work as expected
 

@@ -152,9 +152,14 @@ const plugin = createLanguageServicePlugin(
       session.addProtocolHandler('_glint:documentHighlights-full', ({ arguments: args }) => {
         return (session as any).handlers.get('documentHighlights-full')?.({ arguments: args });
       });
-      session.addProtocolHandler('_glint:encodedSemanticClassifications-full', ({ arguments: args }) => {
-        return (session as any).handlers.get('encodedSemanticClassifications-full')?.({ arguments: args });
-      });
+      session.addProtocolHandler(
+        '_glint:encodedSemanticClassifications-full',
+        ({ arguments: args }) => {
+          return (session as any).handlers.get('encodedSemanticClassifications-full')?.({
+            arguments: args,
+          });
+        },
+      );
       session.addProtocolHandler('_glint:quickinfo', ({ arguments: args }) => {
         return (session as any).handlers.get('quickinfo')?.({ arguments: args });
       });

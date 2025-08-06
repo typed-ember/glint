@@ -13,7 +13,6 @@ import { create as createCompilerErrorsPlugin } from '../plugins/g-compiler-erro
 import { create as createTemplateTagSymbolsPlugin } from '../plugins/g-template-tag-symbols.js';
 import { createEmberLanguagePlugin } from './ember-language-plugin.js';
 
-
 const connection = createConnection();
 const server = createServer(connection);
 const tsserverRequestHandlers = new Map<number, (res: any) => void>();
@@ -87,25 +86,23 @@ connection.onInitialize((params) => {
         simpleLs = undefined;
       },
     },
-    getHybridModeLanguageServicePluginsForLanguageServer(
-      {
-        // TODO: Implement Glint-specific tsserver requests similar to Vue
-        // For now, keeping the basic structure ready for future implementation
-        // getQuickInfoAtPosition(...args) {
-        //   return sendTsServerRequest('_glint:quickinfo', args);
-        // },
-        // getDocumentHighlights(...args) {
-        //   return sendTsServerRequest('_glint:documentHighlights-full', args);
-        // },
-        // getEncodedSemanticClassifications(...args) {
-        //   return sendTsServerRequest('_glint:encodedSemanticClassifications-full', args);
-        // },
-      }
-    ),
+    getHybridModeLanguageServicePluginsForLanguageServer({
+      // TODO: Implement Glint-specific tsserver requests similar to Vue
+      // For now, keeping the basic structure ready for future implementation
+      // getQuickInfoAtPosition(...args) {
+      //   return sendTsServerRequest('_glint:quickinfo', args);
+      // },
+      // getDocumentHighlights(...args) {
+      //   return sendTsServerRequest('_glint:documentHighlights-full', args);
+      // },
+      // getEncodedSemanticClassifications(...args) {
+      //   return sendTsServerRequest('_glint:encodedSemanticClassifications-full', args);
+      // },
+    }),
   );
 
   async function sendTsServerRequest<T>(command: string, args: any): Promise<T | null> {
-    return await new Promise<T | null>(resolve => {
+    return await new Promise<T | null>((resolve) => {
       const requestId = ++tsserverRequestId;
       tsserverRequestHandlers.set(requestId, resolve);
       connection.sendNotification('tsserver/request', [requestId, command, args]);
