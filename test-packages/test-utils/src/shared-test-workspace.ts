@@ -29,9 +29,6 @@ const pathToTemplatePackage = normalizeFilePath(
   path.resolve(dirname, '../../../packages/template'),
 );
 const fileUriToTemplatePackage = filePathToUri(pathToTemplatePackage);
-// const ROOT = normalizeFilePath(path.resolve(dirname, '../../ephemeral'));
-
-// import { VueInitializationOptions } from '../lib/types';
 
 let serverHandle: LanguageServerHandle | undefined;
 let tsserver: import('@typescript/server-harness').Server;
