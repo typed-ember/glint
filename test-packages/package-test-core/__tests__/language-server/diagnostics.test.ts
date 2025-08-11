@@ -790,7 +790,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
         {
           "code": 9999,
           "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "documentUri": "volar-embedded-content://gts/PATH_TO_FILE",
             "isFormat": false,
             "original": {},
             "pluginIndex": 3,
@@ -803,12 +803,12 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       Expecting 'OPEN_SEXPR', 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'",
           "range": {
             "end": {
-              "character": 13,
-              "line": 5,
+              "character": 18,
+              "line": 4,
             },
             "start": {
-              "character": 2,
-              "line": 3,
+              "character": 16,
+              "line": 4,
             },
           },
           "severity": 1,
@@ -840,7 +840,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
         {
           "code": 9999,
           "data": {
-            "documentUri": "volar-embedded-content://URI_ENCODED_PATH_TO/FILE",
+            "documentUri": "volar-embedded-content://gts/PATH_TO_FILE",
             "isFormat": false,
             "original": {},
             "pluginIndex": 3,
@@ -854,12 +854,12 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
          ╰────",
           "range": {
             "end": {
-              "character": 1,
-              "line": 6,
+              "character": 8,
+              "line": 5,
             },
             "start": {
-              "character": 0,
-              "line": 0,
+              "character": 7,
+              "line": 5,
             },
           },
           "severity": 1,
