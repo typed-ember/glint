@@ -293,9 +293,15 @@ export async function requestLanguageServerDiagnostics(
 function normalizeForSnapshotting(uri: string, object: unknown): unknown {
   let stringified = JSON.stringify(object);
 
-  const volarEmbeddedContentUri = URI.from({
+  const volarEmbeddedContentUri_template_ts = URI.from({
     scheme: 'volar-embedded-content',
     authority: 'template_ts',
+    path: '/' + encodeURIComponent(uri),
+  });
+
+  const volarEmbeddedContentUri_gts = URI.from({
+    scheme: 'volar-embedded-content',
+    authority: 'gts',
     path: '/' + encodeURIComponent(uri),
   });
 
@@ -304,9 +310,10 @@ function normalizeForSnapshotting(uri: string, object: unknown): unknown {
 
   const normalized = stringified
     .replaceAll(
-      volarEmbeddedContentUri.toString(),
-      `volar-embedded-content://URI_ENCODED_PATH_TO/FILE`,
+      volarEmbeddedContentUri_template_ts.toString(),
+      `volar-embedded-content://template_ts/PATH_TO_FILE`,
     )
+    .replaceAll(volarEmbeddedContentUri_gts.toString(), `volar-embedded-content://gts/PATH_TO_FILE`)
     .replaceAll(`"${testWorkspacePath}`, '"/path/to/EPHEMERAL_TEST_PROJECT')
     .replaceAll(`"${testWorkspaceFileUri}`, '"file:///path/to/EPHEMERAL_TEST_PROJECT')
     .replace(fileUriToTemplatePackage, '"file:///PATH_TO_MODULE/@glint/template');
