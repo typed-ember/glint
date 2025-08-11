@@ -313,10 +313,7 @@ function normalizeForSnapshotting(uri: string, object: unknown): unknown {
       volarEmbeddedContentUri_template_ts.toString(),
       `volar-embedded-content://template_ts/PATH_TO_FILE`,
     )
-    .replaceAll(
-      volarEmbeddedContentUri_gts.toString(),
-      `volar-embedded-content://gts/PATH_TO_FILE`,
-    )
+    .replaceAll(volarEmbeddedContentUri_gts.toString(), `volar-embedded-content://gts/PATH_TO_FILE`)
     .replaceAll(`"${testWorkspacePath}`, '"/path/to/EPHEMERAL_TEST_PROJECT')
     .replaceAll(`"${testWorkspaceFileUri}`, '"file:///path/to/EPHEMERAL_TEST_PROJECT')
     .replace(fileUriToTemplatePackage, '"file:///PATH_TO_MODULE/@glint/template');
