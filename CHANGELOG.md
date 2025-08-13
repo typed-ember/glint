@@ -1,5 +1,28 @@
 # Changelog
 
+## Release (2025-08-13)
+
+* @glint/core 2.0.0-alpha.4 (minor)
+* @glint/tsserver-plugin 2.0.0-alpha.4 (minor)
+
+#### :rocket: Enhancement
+* `@glint/core`
+  * [#932](https://github.com/typed-ember/glint/pull/932) More precise diagnostics for parse/compiler errors ([@machty](https://github.com/machty))
+* `@glint/core`, `@glint/tsserver-plugin`
+  * [#931](https://github.com/typed-ember/glint/pull/931) Raise diagnostic errors due to syntax errors in .gts/.gjs template tags ([@machty](https://github.com/machty))
+
+#### :bug: Bug Fix
+* `@glint/core`
+  * [#928](https://github.com/typed-ember/glint/pull/928) Fix diagnostics for modifiers and other cases ([@machty](https://github.com/machty))
+  * [#927](https://github.com/typed-ember/glint/pull/927) Fix broken directives that reference suppressed attr name ([@machty](https://github.com/machty))
+
+#### :house: Internal
+* [#925](https://github.com/typed-ember/glint/pull/925) Reinstate a fixed test, rm unsupported .hbs test ([@machty](https://github.com/machty))
+* [#923](https://github.com/typed-ember/glint/pull/923) rm old Pods components ([@machty](https://github.com/machty))
+
+#### Committers: 1
+- Alex Matchneer ([@machty](https://github.com/machty))
+
 ## Release (2025-07-15)
 
 * @glint/core 2.0.0-alpha.3 (patch)
