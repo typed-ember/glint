@@ -39,9 +39,7 @@ export const { activate, deactivate } = defineExtension(() => {
     () => {
       // Only activate when we see a Glint-supported file type
       if (
-        !visibleTextEditors.value.some((editor) =>
-          languageIds.includes(editor.document.languageId),
-        )
+        !visibleTextEditors.value.some((editor) => languageIds.includes(editor.document.languageId))
       ) {
         return;
       }
@@ -66,7 +64,6 @@ export const { activate, deactivate } = defineExtension(() => {
           });
         return;
       }
-
 
       // Setup typescript.js in production mode (Vue does this for performance)
       if (fs.existsSync(path.join(__dirname, 'language-server.js'))) {
@@ -252,16 +249,14 @@ try {
       // as valid TypeScript-like languages for features like refactoring
       text = text.replace(
         't.jsTsLanguageModes=[t.javascript,t.javascriptreact,t.typescript,t.typescriptreact]',
-        (s) =>
-          s + `.concat(${languageIds.map((lang) => `'${lang}'`).join(',')})`,
+        (s) => s + `.concat(${languageIds.map((lang) => `'${lang}'`).join(',')})`,
       );
 
       // patch isSupportedLanguageMode - this enables features like "Find All References"
       // and "Go to Definition" to work across .gts/.gjs files
       text = text.replace(
         '.languages.match([t.typescript,t.typescriptreact,t.javascript,t.javascriptreact]',
-        (s) =>
-          s + `.concat(${languageIds.map((lang) => `'${lang}'`).join(',')})`,
+        (s) => s + `.concat(${languageIds.map((lang) => `'${lang}'`).join(',')})`,
       );
 
       // Sort plugins to prioritize glint plugin (for compatibility with other TS plugins)
