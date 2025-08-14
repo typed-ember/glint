@@ -39,7 +39,6 @@ try {
       emptyUserDataDir,
       // Load the app fixtures. Note that it's ok to load fixtures that aren't used for the
       // particular test type.
-      `${packageRoot}/__fixtures__/ember-app`,
       `${packageRoot}/__fixtures__/template-imports-app-ts-plugin`,
       `${packageRoot}/__fixtures__/ember-app-loose-and-gts`,
     ],
