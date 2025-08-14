@@ -26,6 +26,8 @@ import { config } from './config';
 let client: lsp.BaseLanguageClient | undefined;
 let needRestart = false;
 
+const languageIds = ['glimmer-js', 'glimmer-ts'];
+
 export const { activate, deactivate } = defineExtension(() => {
   const context = extensionContext.value!;
   const volarLabs = createLabsInfo(languageServerProtocol);
@@ -38,7 +40,7 @@ export const { activate, deactivate } = defineExtension(() => {
       // Only activate when we see a Glint-supported file type
       if (
         !visibleTextEditors.value.some((editor) =>
-          config.server.includeLanguages.includes(editor.document.languageId),
+          languageIds.includes(editor.document.languageId),
         )
       ) {
         return;
@@ -65,19 +67,6 @@ export const { activate, deactivate } = defineExtension(() => {
         return;
       }
 
-      // Watch for changes to language configuration
-      watch(
-        () => config.server.includeLanguages,
-        async () => {
-          const reload = await vscode.window.showInformationMessage(
-            'Please restart extension host to apply the new language settings.',
-            'Restart Extension Host',
-          );
-          if (reload) {
-            executeCommand('workbench.action.restartExtensionHost');
-          }
-        },
-      );
 
       // Setup typescript.js in production mode (Vue does this for performance)
       if (fs.existsSync(path.join(__dirname, 'language-server.js'))) {
@@ -96,11 +85,9 @@ export const { activate, deactivate } = defineExtension(() => {
         volarLabs.addLanguageClient(client);
       }
 
-      const selectors = config.server.includeLanguages;
-
       if (client) {
-        activateAutoInsertion(selectors, client);
-        activateDocumentDropEdit(selectors, client);
+        activateAutoInsertion(languageIds, client);
+        activateDocumentDropEdit(languageIds, client);
       }
     },
     { immediate: true },
@@ -168,7 +155,7 @@ function launch(_context: vscode.ExtensionContext): lsp.LanguageClient | undefin
       middleware: {
         ...middleware,
       },
-      documentSelector: config.server.includeLanguages,
+      documentSelector: languageIds,
       markdown: {
         isTrusted: true,
         supportHtml: true,
@@ -261,28 +248,12 @@ try {
     if (args[0] === extensionJsPath) {
       let text = readFileSync(...args) as string;
 
-      // patch readPlugins so that it initializes our plugin with the language IDs specified
-      // in the VSCode config (e.g. `glint.server.includeLanguages`), rather than the language IDs
-      // specified in the Glint VSCode extension package.json `typescriptServerPlugins` payload.
-      //
-      // https://github.com/microsoft/vscode/blob/6900113cf934d3d379757534d6f57929c5eb87f2/extensions/typescript-language-features/src/tsServer/plugins.ts#L81
-      text = text.replace(
-        'languages:Array.isArray(e.languages)',
-        [
-          'languages:',
-          `e.name==='glint-tsserver-plugin-pack'?[${config.server.includeLanguages
-            .map((lang) => `'${lang}'`)
-            .join(',')}]`,
-          ':Array.isArray(e.languages)',
-        ].join(''),
-      );
-
       // patch jsTsLanguageModes - this makes VSCode recognize our custom language IDs
       // as valid TypeScript-like languages for features like refactoring
       text = text.replace(
         't.jsTsLanguageModes=[t.javascript,t.javascriptreact,t.typescript,t.typescriptreact]',
         (s) =>
-          s + `.concat(${config.server.includeLanguages.map((lang) => `'${lang}'`).join(',')})`,
+          s + `.concat(${languageIds.map((lang) => `'${lang}'`).join(',')})`,
       );
 
       // patch isSupportedLanguageMode - this enables features like "Find All References"
@@ -290,7 +261,7 @@ try {
       text = text.replace(
         '.languages.match([t.typescript,t.typescriptreact,t.javascript,t.javascriptreact]',
         (s) =>
-          s + `.concat(${config.server.includeLanguages.map((lang) => `'${lang}'`).join(',')})`,
+          s + `.concat(${languageIds.map((lang) => `'${lang}'`).join(',')})`,
       );
 
       // Sort plugins to prioritize glint plugin (for compatibility with other TS plugins)

@@ -1,16 +1,14 @@
 import { LanguagePlugin } from '@volar/language-core';
-import { VirtualGtsCode } from './gts-virtual-code.js';
 import type ts from 'typescript';
-import { GlintConfig } from '../index.js';
 import { URI } from 'vscode-uri';
-import { LooseModeBackingComponentClassVirtualCode } from './loose-mode-backing-component-class-virtual-code.js';
+import { GlintConfig } from '../index.js';
+import { VirtualGtsCode } from './gts-virtual-code.js';
 export type TS = typeof ts;
 
 /**
  * Create a [Volar](https://volarjs.dev) language plugin to support
  *
  * - .gts/.gjs files (the `ember-template-imports` environment)
- * - .ts + .hbs files (the `ember-loose` environment)
  */
 export function createEmberLanguagePlugin<T extends URI | string>(
   glintConfig: GlintConfig,
@@ -34,34 +32,10 @@ export function createEmberLanguagePlugin<T extends URI | string>(
       if (String(fileNameOrUri).endsWith('.gjs')) {
         return 'glimmer-js';
       }
-      if (String(fileNameOrUri).endsWith('.hbs')) {
-        return 'handlebars';
-      }
     },
 
     createVirtualCode(scriptId: URI | string, languageId, snapshot, codegenContext) {
       const scriptIdStr = String(scriptId);
-
-      // See: https://github.com/JetBrains/intellij-plugins/blob/11a9149e20f4d4ba2c1600da9f2b81ff88bd7c97/Angular/src/angular-service/src/index.ts#L31
-      if (
-        hasEmberLoose &&
-        languageId === 'typescript' &&
-        !scriptIdStr.endsWith('.d.ts') &&
-        // only support component .ts files somewhere within in a `components/` folder.
-        // This should cover 99% of cases while eliminating the pointless parsing of
-        // a large number of non-component .ts files.
-        scriptIdStr.indexOf('/components/') >= 0 &&
-        scriptIdStr.indexOf('/node_modules/') < 0
-      ) {
-        // NOTE: scriptId might not be a path when we convert this plugin:
-        // https://github.com/withastro/language-tools/blob/eb7215cc0ab3a8f614455528cd71b81ea994cf68/packages/ts-plugin/src/language.ts#L19
-        return new LooseModeBackingComponentClassVirtualCode(
-          glintConfig,
-          snapshot,
-          scriptId,
-          codegenContext,
-        );
-      }
 
       if (
         languageId === 'glimmer-ts' ||
@@ -73,23 +47,10 @@ export function createEmberLanguagePlugin<T extends URI | string>(
       }
     },
 
-    /**
-     * This hook is only called in TS Plugin mode (not classic "takeover" mode), because Volar's
-     * support for two-file components only exists for TS Plugin.
-     *
-     * Because we declare handlebars files to be associated with "root" .ts files, we
-     * need to mark them here as "associated file only" so that TS doesn't attempt
-     * to type-check them directly, but rather indirectly via the .ts file.
-     **/
-    isAssociatedFileOnly(_scriptId: string | URI, languageId: string): boolean {
-      return languageId === 'handlebars';
-    },
-
     typescript: {
       extraFileExtensions: [
         { extension: 'gts', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
         { extension: 'gjs', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
-        { extension: 'hbs', isMixedContent: true, scriptKind: 7 satisfies ts.ScriptKind.Deferred },
       ],
 
       // Allow extension-less imports, e.g. `import Foo from './Foo`.
@@ -126,19 +87,6 @@ export function createEmberLanguagePlugin<T extends URI | string>(
               code: transformedCode,
               extension: '.js',
               scriptKind: 1 satisfies ts.ScriptKind.JS,
-            };
-          case 'handlebars':
-            // TODO: companion file might be .js? Not sure if this is right
-            return {
-              code: transformedCode,
-              extension: '.ts',
-              scriptKind: 3 satisfies ts.ScriptKind.TS,
-            };
-          case 'typescript': // loose mode backing .ts
-            return {
-              code: transformedCode,
-              extension: '.ts',
-              scriptKind: 3 satisfies ts.ScriptKind.TS,
             };
           default:
             throw new Error(`getScript: Unexpected languageId: ${rootVirtualCode.languageId}`);

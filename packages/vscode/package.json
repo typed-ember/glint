@@ -78,8 +78,7 @@
         "configNamespace": "typescript",
         "languages": [
           "glimmer-ts",
-          "glimmer-js",
-          "handlebars"
+          "glimmer-js"
         ]
       }
     ],
@@ -126,17 +125,6 @@
             },
             "default": [],
             "description": "Set compatible extensions to skip automatic detection of Hybrid Mode."
-          },
-          "glint.server.includeLanguages": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": [
-              "glimmer-js",
-              "glimmer-ts",
-              "handlebars"
-            ]
           }
         }
       }

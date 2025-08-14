@@ -44,7 +44,7 @@ Both of these constraints are obvious—what tool _doesn't_ aim to be both accur
 
 Volar provides a primitive called a `VirtualCode` which has one core responsibility: to parse a file or body of code of a particular language (such as a Glimmer .gts file or a Handlebars .hbs file), which may include other embedded languages (e.g. a .gts file with one or more embedded `<template>` tags containing a Glimmer/Handlebars template), and provide a nested tree structure of `embeddedCodes` and maintain a source mapping structure between the root/source document (e.g. the .gts file) and all of the embedded codes.
 
-Glint implements two VirtualCodes in order to provide Language Tooling for modern as well as classic Ember paradigms:
+Glint implements a VirtualCode to provide Language Tooling for modern Ember paradigms:
 
 - [VirtualGtsCode](https://github.com/typed-ember/glint/blob/main/packages/core/src/volar/gts-virtual-code.ts)
   - Handles .gts and .gjs files
@@ -52,11 +52,6 @@ Glint implements two VirtualCodes in order to provide Language Tooling for moder
     - root code (untransformed .gts content)
       - embeddedCodes:
         - A singular Code containing the type-checkable TypeScript representation of the root .gts but with all `<template>` tags converted into TS
-- [LooseModeBackingComponentClassVirtualCode](https://github.com/typed-ember/glint/blob/main/packages/core/src/volar/loose-mode-backing-component-class-virtual-code.ts)
-  - Handles classic two-file (e.g. .ts + .hbs) Ember/Glimmer Components
-    - Ideally every Ember app will migrate to .gts but we still need to support classic components until that time comes
-  - The backing .ts file is already type-checkable on its own, but for type-checking an .hbs file:
-    - This Virtual Code will combine the .hbs+.ts and generate a singular type-checkable TS file in a similar mapping structure as `VirtualGtsCode` mentioned above
 Any VirtualCode, whether implemented by Glint or Vue tooling, essentially takes a language that embeds other languages (.gts is TS with embedded Glimmer, .vue has `<script>` + `<template>` + `<style>` tags, etc.) and produces a tree of embedded codes where the "leaves" of that tree are simpler, single-language codes (that don't include any other embedded languages). These single-language "leaves" can then be used as inputs for a variety of Language Services (see below), either ones already provided by Volar or custom ones implemented by Glint.
 
 ## Core Primitive: Language Service
@@ -101,12 +96,12 @@ In short, Glint V2 follows along with Vue/Volar in the decision to shift type-ch
 In contrast to the above Glint V1 (and old Volar / Vue / Vetur) architecture, the new Glint architecture is as follows:
 
 - TS Plugin (`@glint/tsserver-plugin`)
-  - Provides diagnostics, completions, Go-to-Definition, etc, for .gts, .gjs, and .hbs files
+  - Provides diagnostics, completions, Go-to-Definition, etc, for .gts and .gjs files
   - TS Plugin is initialized by and operates within the same `tsserver` instance created by the IDE
-  - tsserver is configured to also operate upon `.gts`, `.gjs`, `.hbs` files
+  - tsserver is configured to also operate upon `.gts` and `.gjs` files
     - NOTE: in VSCode, this "configuration" currently happens via a number of monkeypatches / hacks within the Glint VSCode extension; hopefully some day these will be upstreamed, but in the meantime we will just follow along with Vue.
     - See the VS Code Plugin section below for more details
-  - When .gts (or related) file is opened in the IDE, IDE requests diagnostics and other info from `tsserver` just as it would for a vanilla .ts file.
+  - When a .gts or .gjs file is opened in the IDE, IDE requests diagnostics and other info from `tsserver` just as it would for a vanilla .ts file.
   - Our TS Plugin overrides the `getServiceScript` hook to, instead of returning the content of the `.gts` file, return the content of the transformed/generated `.ts` used for typechecking
   - Via some [cleverness](https://github.com/volarjs/volar.js/discussions/188#discussioncomment-9569561), the diagnostic code positions are translated back to valid locations in the source .gts file and displayed properly within the IDE
   - The TS Plugin also augments and transforms the default/original set of diagnostics returned from `tsserver`'s processing of our transformed TS code
@@ -149,7 +144,7 @@ Some of these are very ugly hacks, but keep in mind:
 
 ## Appendix: TypeScript Representation: Environment packages and the Template DSL
 
-_NOTE: These docs are preserved from Glint V1, and the concepts of "environments" and their interaction with the Template DSL will continue to persist for the time being, but there are some discussions surrounding simplifying Glint's setup and user experience so that "environments" are not something the end user has to be aware of; perhaps Glint V2 will merge the concept of environments into `@glint/core`, but until that time comes we will continue to document them here_
+_NOTE: With the move to supporting only GTS files (Ember template imports), the concept of "environments" has been simplified. Previously, Glint supported multiple environments including loose mode for classic .hbs + .ts file pairs, but now focuses solely on the template imports paradigm._
 
 ### Template DSL
 
@@ -178,22 +173,19 @@ Note: The fact that the synthesized module is _not_ persisted to disk means that
 
 ### Environments
 
-**Role:** layers on top of the **template DSL** to define items available in global scope as well as per-environment definitions for what the API is for different kinds of items—basically, a type-level implementation of Glimmer/Ember's runtime idea of "managers," which allow a different surface API for the same underlying primitives of components, helpers, etc. A **config** specifies the **environment(s)** to use.
+**Role:** layers on top of the **template DSL** to define items available in global scope as well as definitions for what the API is for different kinds of items—basically, a type-level implementation of Glimmer/Ember's runtime idea of "managers," which allow a different surface API for the same underlying primitives of components, helpers, etc. A **config** specifies the **environment** to use.
 
-In addition, **environments** also influence elements of the **transform** layer's behavior, such as:
+The **environment** also influences elements of the **transform** layer's behavior, such as:
 
 - dictating what expressions are treated as templates
-- providing preprocessing for custom file types
-- determining how `.hbs` and `.js`/`.ts` files are related to one another
+- providing preprocessing for .gts and .gjs file types
 
 **Invariants:**
 
 - Environments have one entrypoint for their configuration (specified by the `"./glint-environment-definition"` export in `package.json`), and one or more types-only entrypoints where they expose their specialized **template DSL** implementation(s).[^environments-dsl]
 - An environment will typically depend on the bedrock **template DSL** as a basis for its own DSL implementation, and it might reference types from the **config** package in defining its configuration, but an environment should have no reason to ever execute code from other Glint packages.
 
-[^environments-dsl]: I don't think any environments have multiple entrypoints today, but a hypothetical unified Ember environment in the near future would have separate DSLs for loose-mode and strict-mode templates.
-
-**Home:** `packages/environment-*`[^env]
+**Home:** `packages/environment-ember-template-imports`
 
 **Package name:** varies
 
