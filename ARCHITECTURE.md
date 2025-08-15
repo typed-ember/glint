@@ -42,7 +42,7 @@ Both of these constraints are obvious—what tool _doesn't_ aim to be both accur
 
 ## Core Primitive: Virtual Code
 
-Volar provides a primitive called a `VirtualCode` which has one core responsibility: to parse a file or body of code of a particular language (such as a Glimmer .gts file or a Handlebars .hbs file), which may include other embedded languages (e.g. a .gts file with one or more embedded `<template>` tags containing a Glimmer/Handlebars template), and provide a nested tree structure of `embeddedCodes` and maintain a source mapping structure between the root/source document (e.g. the .gts file) and all of the embedded codes.
+Volar provides a primitive called a `VirtualCode` which has one core responsibility: to parse a file or body of code of a particular language (such as a .gts file), which may include other embedded languages (e.g. a .gts file with one or more embedded `<template>` tags containing a Glimmer template), and provide a nested tree structure of `embeddedCodes` and maintain a source mapping structure between the root/source document (e.g. the .gts file) and all of the embedded codes.
 
 Glint implements a VirtualCode to provide Language Tooling for modern Ember paradigms:
 
@@ -52,7 +52,7 @@ Glint implements a VirtualCode to provide Language Tooling for modern Ember para
     - root code (untransformed .gts content)
       - embeddedCodes:
         - A singular Code containing the type-checkable TypeScript representation of the root .gts but with all `<template>` tags converted into TS
-Any VirtualCode, whether implemented by Glint or Vue tooling, essentially takes a language that embeds other languages (.gts is TS with embedded Glimmer, .vue has `<script>` + `<template>` + `<style>` tags, etc.) and produces a tree of embedded codes where the "leaves" of that tree are simpler, single-language codes (that don't include any other embedded languages). These single-language "leaves" can then be used as inputs for a variety of Language Services (see below), either ones already provided by Volar or custom ones implemented by Glint.
+Any VirtualCode, whether implemented by Glint or Vue tooling, essentially takes a language that embeds other languages (.gts is TypeScript with embedded Glimmer, .vue has `<script>` + `<template>` + `<style>` tags, etc.) and produces a tree of embedded codes where the "leaves" of that tree are simpler, single-language codes (that don't include any other embedded languages). These single-language "leaves" can then be used as inputs for a variety of Language Services (see below), either ones already provided by Volar or custom ones implemented by Glint.
 
 ## Core Primitive: Language Service
 
@@ -144,7 +144,7 @@ Some of these are very ugly hacks, but keep in mind:
 
 ## Appendix: TypeScript Representation: Environment packages and the Template DSL
 
-_NOTE: With the move to supporting only GTS files (Ember template imports), the concept of "environments" has been simplified. Previously, Glint supported multiple environments including loose mode for classic .hbs + .ts file pairs, but now focuses solely on the template imports paradigm._
+_NOTE: With the move to supporting only GTS files (Ember template imports), the concept of "environments" has been simplified. Glint now focuses solely on the template imports paradigm._
 
 ### Template DSL
 

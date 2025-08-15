@@ -16,7 +16,6 @@ import {
 const require = createRequire(import.meta.url);
 
 export const DEFAULT_EXTENSIONS: GlintExtensionsConfig = {
-  '.hbs': { kind: 'template' },
   '.js': { kind: 'untyped-script' },
   '.ts': { kind: 'typed-script' },
 };
@@ -31,10 +30,6 @@ export class GlintEnvironment {
   private standaloneTemplateConfig: GlintTemplateConfig | undefined;
   private tagImportRegexp: RegExp;
 
-  public typedScriptExtensions: ReadonlyArray<string>;
-  public untypedScriptExtensions: ReadonlyArray<string>;
-  public templateExtensions: ReadonlyArray<string>;
-
   public constructor(
     public readonly names: Array<string>,
     config: GlintEnvironmentConfig,
@@ -44,19 +39,6 @@ export class GlintEnvironment {
     this.extensionsConfig = config.extensions ?? {};
     this.standaloneTemplateConfig = config.template;
     this.tagImportRegexp = this.buildTagImportRegexp();
-
-    /**
-     * export declare type GlintEnvironmentConfig = {
-    tags?: GlintTagsConfig;
-    template?: GlintTemplateConfig;
-    extensions?: GlintExtensionsConfig;
-      };
-
-     */
-
-    this.typedScriptExtensions = this.extensionsOfType('typed-script');
-    this.untypedScriptExtensions = this.extensionsOfType('untyped-script');
-    this.templateExtensions = this.extensionsOfType('template');
   }
 
   public static load(
@@ -166,12 +148,6 @@ export class GlintEnvironment {
     let importSources = Object.keys(this.tagConfig);
     let regexpSource = importSources.map(escapeStringRegexp).join('|');
     return new RegExp(regexpSource);
-  }
-
-  private extensionsOfType(kind: SourceKind): Array<string> {
-    return Object.keys(this.extensionsConfig).filter(
-      (key) => this.extensionsConfig[key].kind === kind,
-    );
   }
 }
 
