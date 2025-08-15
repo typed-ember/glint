@@ -37,10 +37,7 @@ try {
       // Point at an empty directory so we don't have to contend with any local user preferences
       '--user-data-dir',
       emptyUserDataDir,
-      // Load the app fixtures. Note that it's ok to load fixtures that aren't used for the
-      // particular test type.
-      `${packageRoot}/__fixtures__/template-imports-app-ts-plugin`,
-      `${packageRoot}/__fixtures__/ember-app-loose-and-gts`,
+      `${packageRoot}/__fixtures__/ember-app`,
     ],
   });
 } catch (error) {

@@ -5,7 +5,7 @@ import { expect } from 'expect';
 import { waitUntil } from '../helpers/async';
 
 describe('Smoke test: Loose Mode + GTS with TS Plugin Mode', () => {
-  const rootDir = path.resolve(__dirname, '../../../__fixtures__/ember-app-loose-and-gts');
+  const rootDir = path.resolve(__dirname, '../../../__fixtures__/ember-app');
 
   afterEach(async () => {
     while (window.activeTextEditor) {
