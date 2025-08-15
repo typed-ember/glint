@@ -1,0 +1,63 @@
+{
+  "name": "@glint/environment-ember-template-imports",
+  "version": "2.0.0-alpha.3",
+  "repository": "typed-ember/glint",
+  "description": "A Glint environment to support ember-template-imports projects",
+  "license": "MIT",
+  "author": "Dan Freeman (https://github.com/dfreeman)",
+  "main": "-private/index.js",
+  "exports": {
+    ".": "./-private/index.js",
+    "./globals": "./globals/index.js",
+    "./glint-environment-definition": "./-private/environment/index.js",
+    "./-private/dsl": "./-private/dsl/index.js"
+  },
+  "keywords": [
+    "glint-environment"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:tsc": "echo 'no standalone typecheck within this project'",
+    "test:watch": "vitest watch",
+    "build": "tsc --build",
+    "prepack": "pnpm build"
+  },
+  "release-plan": {
+    "semverIncrementAs": {
+      "major": "prerelease",
+      "minor": "prerelease",
+      "patch": "prerelease"
+    },
+    "semverIncrementTag": "alpha",
+    "publishTag": "alpha"
+  },
+  "files": [
+    "README.md",
+    "-private/**/*.{js,d.ts}",
+    "globals/index.d.ts"
+  ],
+  "dependencies": {
+    "content-tag": "^3.1.2"
+  },
+  "peerDependencies": {
+    "@glint/core": "*",
+    "@glint/environment-ember-loose": "*",
+    "@glint/template": "*"
+  },
+  "devDependencies": {
+    "@glint/core": "workspace:*",
+    "@glint/template": "workspace:*",
+    "@types/common-tags": "^1.8.0",
+    "@types/node": "^18.19.81",
+    "common-tags": "^1.8.0",
+    "typescript": ">=5.6.0",
+    "vitest": "~3.0.9"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
