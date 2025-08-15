@@ -1,7 +1,3 @@
-import * as path from 'node:path';
-import { createRequire } from 'node:module';
-import escapeStringRegexp from 'escape-string-regexp';
-import SilentError from 'silent-error';
 import {
   GlintEnvironmentConfig,
   GlintExtensionConfig,
@@ -9,6 +5,10 @@ import {
   GlintTagsConfig,
   SourceKind,
 } from '@glint/core/config-types';
+import escapeStringRegexp from 'escape-string-regexp';
+import { createRequire } from 'node:module';
+import * as path from 'node:path';
+import SilentError from 'silent-error';
 
 const require = createRequire(import.meta.url);
 
@@ -65,8 +65,6 @@ export class GlintEnvironment {
     return kind === 'typed-script' || kind === 'untyped-script';
   }
 
-
-
   /**
    * Returns an array of custom file extensions that the active environment
    * is able to handle.
@@ -81,12 +79,6 @@ export class GlintEnvironment {
   public getConfigForExtension(extension: string): GlintExtensionConfig | undefined {
     return this.extensionsConfig[extension];
   }
-
-
-
-
-
-
 
   /**
    * Indicates whether the given module _may_ have embedded templates in it.
@@ -210,5 +202,3 @@ function locateEnvironment(name: string, basedir: string): string {
 
   throw new SilentError(`Unable to resolve environment '${name}' from ${basedir}`);
 }
-
-
