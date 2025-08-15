@@ -129,6 +129,11 @@ function loadMergedEnvironmentConfig(
   let tags: GlintTagsConfig = {};
   let extensions: GlintExtensionsConfig = { ...DEFAULT_EXTENSIONS };
   for (let [envName, envUserConfig] of Object.entries(envs)) {
+    if (envName === 'ember-loose') {
+      // TODO: maybe warn that this can be removed from glint 2?
+      continue;
+    }
+
     let envPath = locateEnvironment(envName, rootDir);
     let envModule = require(envPath);
     let envFunction = envModule?.default ?? envModule;

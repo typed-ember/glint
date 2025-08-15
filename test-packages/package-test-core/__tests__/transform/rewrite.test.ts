@@ -141,7 +141,7 @@ describe('Transform: rewriteModule', () => {
 
   describe('ember-template-imports', () => {
     test('in class extends', () => {
-      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let customEnv = GlintEnvironment.load(['ember-template-imports']);
       let script = {
         filename: 'test.gts',
         contents: stripIndent`
@@ -165,7 +165,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('embedded gts templates', () => {
-      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let customEnv = GlintEnvironment.load(['ember-template-imports']);
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -240,7 +240,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('implicit default export', () => {
-      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let customEnv = GlintEnvironment.load(['ember-template-imports']);
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -294,7 +294,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('mixed expression and class uses', () => {
-      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let customEnv = GlintEnvironment.load(['ember-template-imports']);
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -389,7 +389,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('with imported special forms', () => {
-      let env = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let env = GlintEnvironment.load(['ember-template-imports']);
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -556,7 +556,7 @@ describe('Transform: rewriteModule', () => {
 
     describe('satisfies', () => {
       test('with implicit export default', () => {
-        let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+        let customEnv = GlintEnvironment.load(['ember-template-imports']);
         let script = {
           filename: 'test.gts',
           contents: stripIndent`

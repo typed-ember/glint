@@ -1,8 +1,6 @@
 export * from '@glint/template/-private/dsl';
 export { Globals } from './globals';
 
-import './integration-declarations';
-
 import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {
   ComponentReturn,
