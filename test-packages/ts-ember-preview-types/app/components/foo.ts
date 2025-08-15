@@ -6,7 +6,7 @@ export default class Foo extends Component {
 
   obj = { a: 'A', b: 'B', c: 1, __glintRef__: '' };
 
-  MaybeComponent?: ComponentLike<{ Args: { arg: string } }>;
+  MaybeComponent?: ComponentLike<{  // intentional syntax error
 }
 
 declare module '@glint/environment-ember-loose/registry' {
