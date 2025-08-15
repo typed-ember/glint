@@ -6,3 +6,4 @@ pnpm-debug.log
 tsserver.log
 dist/
 .log/
+.cursor

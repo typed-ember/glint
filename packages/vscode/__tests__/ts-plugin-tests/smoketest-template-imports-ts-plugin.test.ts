@@ -16,7 +16,7 @@ import { expect } from 'expect';
 import { waitUntil } from '../helpers/async';
 
 describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
-  const rootDir = path.resolve(__dirname, '../../../__fixtures__/template-imports-app-ts-plugin');
+  const rootDir = path.resolve(__dirname, '../../../__fixtures__/ember-app');
 
   afterEach(async () => {
     while (window.activeTextEditor) {

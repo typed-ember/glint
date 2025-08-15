@@ -350,8 +350,7 @@ export default class TransformedModule {
 
       if (span.glimmerAstMapping) {
         // this span is transformation from HBS to TS (either the replaced contents
-        // within `<template>` tags in a .gts file, or the inserted and transformed
-        // contents of a companion .hbs file in loose mode)
+        // within `<template>` tags in a .gts file
         recurse(span, span.glimmerAstMapping);
       } else {
         // This span contains untransformed TS content (because it comes

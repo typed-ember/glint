@@ -1,13 +1,13 @@
-import {
-  getSharedTestWorkspaceHelper,
-  teardownSharedTestWorkspaceAfterEach,
-  prepareDocument,
-  extractCursor,
-} from 'glint-monorepo-test-utils';
-import { describe, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
-import { URI } from 'vscode-uri';
+import {
+  extractCursor,
+  getSharedTestWorkspaceHelper,
+  prepareDocument,
+  teardownSharedTestWorkspaceAfterEach,
+} from 'glint-monorepo-test-utils';
+import { afterEach, describe, expect, test } from 'vitest';
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import { URI } from 'vscode-uri';
 
 describe('Language Server: Hover (ts plugin)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
@@ -128,60 +128,6 @@ describe('Language Server: Hover (ts plugin)', () => {
         "tags": [],
       }
     `);
-  });
-
-  describe.skip('JS in a TS project', () => {
-    test('with allowJs: true', async () => {
-      const [offset, content] = extractCursor(stripIndent`
-        {{this.mes%sage}}
-      `);
-
-      await prepareDocument(
-        'ts-template-imports-app/src/index.js',
-        'javascript',
-        stripIndent`
-          import Component from '@glimmer/component';
-
-          export default class MyComponent extends Component {
-            message = 'hi';
-          }
-        `,
-      );
-
-      const doc = await prepareDocument(
-        'ts-template-imports-app/src/index.hbs',
-        'handlebars',
-        content,
-      );
-
-      expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot();
-    });
-
-    test('allowJs: false', async () => {
-      const [offset, content] = extractCursor(stripIndent`
-        {{this.mes%sage}}
-      `);
-
-      await prepareDocument(
-        'ts-template-imports-app/src/index.js',
-        'javascript',
-        stripIndent`
-          import Component from '@glimmer/component';
-
-          export default class MyComponent extends Component {
-            message = 'hi';
-          }
-        `,
-      );
-
-      const doc = await prepareDocument(
-        'ts-template-imports-app/src/index.hbs',
-        'handlebars',
-        content,
-      );
-
-      expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot();
-    });
   });
 });
 

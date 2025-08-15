@@ -42,7 +42,6 @@
   },
   "peerDependencies": {
     "@glint/core": "*",
-    "@glint/environment-ember-loose": "*",
     "@glint/template": "*"
   },
   "devDependencies": {

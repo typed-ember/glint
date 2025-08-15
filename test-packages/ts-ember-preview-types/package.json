@@ -33,9 +33,6 @@
     "eslint-plugin-qunit": "^7.2.0"
   },
   "dependenciesMeta": {
-    "@glint/environment-ember-loose": {
-      "injected": true
-    },
     "@glint/environment-ember-template-imports": {
       "injected": true
     },

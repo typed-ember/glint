@@ -14,7 +14,6 @@
     "@glint/core": "workspace:*",
     "@glint/template": "workspace:*",
     "@glint/environment-ember-template-imports": "workspace:*",
-    "@glint/environment-ember-loose": "workspace:*",
     "@volar/language-server": "2.4.12",
     "@types/common-tags": "^1.8.0",
     "expect-type": "^1.2.1",

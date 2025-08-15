@@ -17,26 +17,7 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
         "--disable-extensions", // comment to activate your local extensions
-        "${workspaceFolder}/test-packages/ts-plugin-test-app"
-      ]
-    },
-    {
-      // For this to work, make sure you're running `tsc --build --watch` at the root, AND
-      // `pnpm bundle:watch` from within vscode directory.
-      "name": "Debug Extension (TS Plugin, ember-app-loose-and-gts)",
-      "type": "extensionHost",
-      "request": "launch",
-      // "preLaunchTask": "npm: build",
-      "autoAttachChildProcesses": true,
-      "runtimeExecutable": "${execPath}",
-      "outFiles": [
-        "${workspaceFolder}/**/*.js",
-        "!**/node_modules/**"
-      ],
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-        "--disable-extensions", // comment to activate your local extensions
-        "${workspaceFolder}/packages/vscode/__fixtures__/ember-app-loose-and-gts/"
+        "${workspaceFolder}/test-packages/ember-app"
       ]
     },
     {

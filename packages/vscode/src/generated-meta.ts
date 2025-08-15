@@ -33,27 +33,23 @@ export type ConfigKey =
   | "glint.libraryPath"
   | "glint.trace.server"
   | "glint.server.compatibleExtensions"
-  | "glint.server.includeLanguages"
 
 export interface ConfigKeyTypeMap {
   "glint.libraryPath": (string | undefined),
   "glint.trace.server": ("off" | "messages" | "verbose"),
   "glint.server.compatibleExtensions": string[],
-  "glint.server.includeLanguages": string[],
 }
 
 export interface ConfigShorthandMap {
   libraryPath: "glint.libraryPath",
   traceServer: "glint.trace.server",
   serverCompatibleExtensions: "glint.server.compatibleExtensions",
-  serverIncludeLanguages: "glint.server.includeLanguages",
 }
 
 export interface ConfigShorthandTypeMap {
   libraryPath: (string | undefined),
   traceServer: ("off" | "messages" | "verbose"),
   serverCompatibleExtensions: string[],
-  serverIncludeLanguages: string[],
 }
 
 export interface ConfigItem<T extends keyof ConfigKeyTypeMap> {
@@ -96,23 +92,12 @@ export const configs = {
     key: "glint.server.compatibleExtensions",
     default: [],
   } as ConfigItem<"glint.server.compatibleExtensions">,
-  /**
-   * 
-   * @key `glint.server.includeLanguages`
-   * @default `["glimmer-js","glimmer-ts","handlebars"]`
-   * @type `array`
-   */
-  serverIncludeLanguages: {
-    key: "glint.server.includeLanguages",
-    default: ["glimmer-js","glimmer-ts","handlebars"],
-  } as ConfigItem<"glint.server.includeLanguages">,
 }
 
 export interface ScopedConfigKeyTypeMap {
   "libraryPath": (string | undefined),
   "trace.server": ("off" | "messages" | "verbose"),
   "server.compatibleExtensions": string[],
-  "server.includeLanguages": string[],
 }
 
 export const scopedConfigs = {
@@ -121,7 +106,6 @@ export const scopedConfigs = {
     "libraryPath": undefined,
     "trace.server": "off",
     "server.compatibleExtensions": [],
-    "server.includeLanguages": ["glimmer-js","glimmer-ts","handlebars"],
   } satisfies ScopedConfigKeyTypeMap,
 }
 
@@ -133,7 +117,6 @@ export interface NestedConfigs {
     },
     "server": {
       "compatibleExtensions": string[],
-      "includeLanguages": string[],
     },
   },
 }
@@ -145,7 +128,6 @@ export interface NestedScopedConfigs {
   },
   "server": {
     "compatibleExtensions": string[],
-    "includeLanguages": string[],
   },
 }
 

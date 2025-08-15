@@ -27,7 +27,7 @@ export function run(): void {
 
       // NOTE: this code used to assert in the failure of finding Glint config; I'm
       // not sure whether it's better to be lenient, but we were getting test failures
-      // on environment-ember-loose's `yarn run test`.
+      // on environment-ember-loose's `pnpm test`.
       if (glintConfig) {
         const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig);
         return [gtsLanguagePlugin];

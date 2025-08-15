@@ -13,14 +13,6 @@ import { CompletionItemKind, Position } from '@volar/language-server';
 describe('Language Server: Completions (ts plugin)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
 
-  test.skip('querying a standalone template', async () => {
-    await prepareDocument('ts-ember-app/app/components/index.hbs', 'handlebars', '<LinkT />');
-
-    expect(
-      await requestCompletion('ts-ember-app/app/components/index.hbs', 'handlebars', '<LinkT />'),
-    ).toMatchInlineSnapshot();
-  });
-
   test.skip('in unstructured text', async () => {
     const code = stripIndent`
       import Component from '@glimmer/component';
@@ -36,16 +28,6 @@ describe('Language Server: Completions (ts plugin)', () => {
 
     expect(
       await requestCompletion('ts-template-imports-app/src/index.gts', 'glimmer-ts', code),
-    ).toMatchInlineSnapshot();
-  });
-
-  test.skip('in a companion template with syntax errors', async () => {
-    const code = stripIndent`
-      Hello, {{this.target.%}}!
-    `;
-
-    expect(
-      await requestCompletion('ts-ember-app/app/components/index.hbs', 'handlebars', code),
     ).toMatchInlineSnapshot();
   });
 

@@ -30,7 +30,6 @@
     "@glimmer/tracking": "^1.1.2",
     "@glint/core": "workspace:*",
     "@glint/template": "workspace:*",
-    "@glint/environment-ember-loose": "workspace:*",
     "@types/qunit": "^2.11.1",
     "broccoli-asset-rev": "^3.0.0",
     "ember-auto-import": "^2.4.1",
@@ -64,9 +63,6 @@
     "typescript": ">=5.6.0"
   },
   "dependenciesMeta": {
-    "@glint/environment-ember-loose": {
-      "injected": true
-    },
     "@glint/environment-ember-template-imports": {
       "injected": true
     },
