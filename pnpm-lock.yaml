@@ -631,63 +631,6 @@ importers:
         specifier: ^5.72.1
         version: 5.98.0
 
-  test-packages/ts-ember-preview-types:
-    dependenciesMeta:
-      '@glint/core':
-        injected: true
-      '@glint/environment-ember-template-imports':
-        injected: true
-      '@glint/template':
-        injected: true
-      '@glint/tsserver-plugin':
-        injected: true
-    devDependencies:
-      '@ember/optional-features':
-        specifier: ^2.0.0
-        version: 2.2.0
-      '@ember/test-helpers':
-        specifier: ^5.2.2
-        version: 5.2.2(@glint/template@file:packages/template)
-      '@glimmer/component':
-        specifier: ^2.0.0
-        version: 2.0.0
-      '@glimmer/tracking':
-        specifier: ^1.1.2
-        version: 1.1.2
-      '@glint/template':
-        specifier: workspace:*
-        version: file:packages/template
-      babel-eslint:
-        specifier: ^10.1.0
-        version: 10.1.0(eslint@7.32.0)
-      ember-page-title:
-        specifier: ^7.0.0
-        version: 7.0.0
-      ember-source:
-        specifier: ~6.2.0
-        version: 6.2.0(0b9f6e15b31a343ef2b629c667cc9f7d)
-      ember-welcome-page:
-        specifier: ^6.2.0
-        version: 6.2.0
-      eslint:
-        specifier: ^7.32.0
-        version: 7.32.0
-      eslint-config-prettier:
-        specifier: ^8.5.0
-        version: 8.10.0(eslint@7.32.0)
-      eslint-plugin-ember:
-        specifier: ^10.6.1
-        version: 10.6.1(eslint@7.32.0)
-      eslint-plugin-node:
-        specifier: ^11.1.0
-        version: 11.1.0(eslint@7.32.0)
-      eslint-plugin-prettier:
-        specifier: ^4.0.0
-        version: 4.2.1(880d7ffa2735887f3a1a4d40ec1c0776)
-      eslint-plugin-qunit:
-        specifier: ^7.2.0
-        version: 7.3.4(eslint@7.32.0)
-
   test-packages/ts-plugin-test-app:
     dependenciesMeta:
       '@glint/core':
@@ -2881,13 +2824,6 @@ packages:
   azure-devops-node-api@12.5.0:
     resolution: {integrity: sha512-R5eFskGvOm3U/GzeAuxRkUsAl0hrAwGgWn6zAd2KrZmrEhWZVqLew4OOupbQlXUuojUzpGtq62SmdhJ06N88og==}
 
-  babel-eslint@10.1.0:
-    resolution: {integrity: sha512-ifWaTHQ0ce+448CYop8AdrQiBsGrnC+bMgfyKFdi6EsPLTAWG+QfyDeM6OH+FmWnKvEq5NnBMLvlBUPKQZoDSg==}
-    engines: {node: '>=6'}
-    deprecated: babel-eslint is now @babel/eslint-parser. This package will no longer receive updates.
-    peerDependencies:
-      eslint: '>= 4.12.1'
-
   babel-import-util@2.1.1:
     resolution: {integrity: sha512-3qBQWRjzP9NreSH/YrOEU1Lj5F60+pWSLP0kIdCWxjFHH7pX2YPHIxQ67el4gnMNfYoDxSDGcT0zpVlZ+gVtQA==}
     engines: {node: '>= 12.*'}
@@ -4128,10 +4064,6 @@ packages:
     resolution: {integrity: sha512-VnRN8FzEHQnw/5rCv6Wnq8MVYXbGQbFY+rEufvWV+FO/IsxMahGEud4MYWtTA2q8iG+qJFrDQefNvQ//7MI7Qw==}
     engines: {node: 12.* || 14.* || >= 16.*}
     hasBin: true
-
-  ember-welcome-page@6.2.0:
-    resolution: {integrity: sha512-bDPgNgW0eRhLCHLaFK87p1mcP8hGwr0pXvPoskDeUGQzsOI3Pc3U/8WLpUSi2mNrmv0eNtfWqE+A1Wbx6F2l0Q==}
-    engines: {node: 12.* || 14.* || >= 16}
 
   emoji-regex@10.4.0:
     resolution: {integrity: sha512-EC+0oUMY1Rqm4O6LLrgjtYDvcVYTy7chDnM4Q7030tP4Kwj3u/pR6gP9ygnp2CJMK5Gq+9Q2oqmrFJAz01DXjw==}
@@ -10783,18 +10715,6 @@ snapshots:
       tunnel: 0.0.6
       typed-rest-client: 1.8.11
 
-  babel-eslint@10.1.0(eslint@7.32.0):
-    dependencies:
-      '@babel/code-frame': 7.26.2
-      '@babel/parser': 7.26.10
-      '@babel/traverse': 7.26.10
-      '@babel/types': 7.26.10
-      eslint: 7.32.0
-      eslint-visitor-keys: 1.3.0
-      resolve: 1.22.10
-    transitivePeerDependencies:
-      - supports-color
-
   babel-import-util@2.1.1: {}
 
   babel-import-util@3.0.1: {}
@@ -12937,12 +12857,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  ember-welcome-page@6.2.0:
-    dependencies:
-      '@embroider/addon-shim': 1.9.0
-    transitivePeerDependencies:
-      - supports-color
-
   emoji-regex@10.4.0: {}
 
   emoji-regex@8.0.0: {}
@@ -13223,13 +13137,6 @@ snapshots:
       minimatch: 3.1.2
       resolve: 1.22.10
       semver: 6.3.1
-
-  eslint-plugin-prettier@4.2.1(880d7ffa2735887f3a1a4d40ec1c0776):
-    dependencies:
-      eslint: 7.32.0
-      prettier-linter-helpers: 1.0.0
-    optionalDependencies:
-      eslint-config-prettier: 8.10.0(eslint@7.32.0)
 
   eslint-plugin-prettier@4.2.1(fb2fc5142d5ad74ca43f61a056ff0cb7):
     dependencies:
