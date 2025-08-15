@@ -11,7 +11,6 @@ export type GlintConfigInput = {
 
 export type GlintEnvironmentConfig = {
   tags?: GlintTagsConfig;
-  template?: GlintTemplateConfig;
   extensions?: GlintExtensionsConfig;
 };
 
@@ -62,7 +61,7 @@ export type GlintSpecialFormConfig = {
   };
 };
 
-export type SourceKind = 'typed-script' | 'untyped-script' | 'template';
+export type SourceKind = 'typed-script' | 'untyped-script';
 export type GlintExtensionConfig<PreprocessData = any> = {
   kind: SourceKind;
   preprocess?: GlintExtensionPreprocess<PreprocessData>;
@@ -85,18 +84,4 @@ export type GlintTagsConfig = {
   };
 };
 
-export type PathCandidate = string | PathCandidateWithDeferral;
-export type PathCandidateWithDeferral = {
-  /** The path to be considered. */
-  path: string;
 
-  /** Other paths which, if present, should be preferred to this one. */
-  deferTo: Array<string>;
-};
-
-export type GlintTemplateConfig = {
-  typesModule: string;
-  specialForms?: { [global: string]: GlintSpecialForm };
-  getPossibleTemplatePaths(scriptPath: string): Array<PathCandidate>;
-  getPossibleScriptPaths(templatePath: string): Array<PathCandidate>;
-};

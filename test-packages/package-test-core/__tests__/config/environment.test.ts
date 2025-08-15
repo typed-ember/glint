@@ -45,47 +45,7 @@ describe('Config: Environments', () => {
     });
   });
 
-  describe('standalone template config', () => {
-    test('no standalone template support', () => {
-      let env = new GlintEnvironment(['test-env'], {});
 
-      expect(env.getStandaloneTemplateConfig()).toBeUndefined();
-      expect(env.getPossibleScriptPaths('hello.hbs')).toEqual([]);
-      expect(env.getPossibleTemplatePaths('hello.ts')).toEqual([]);
-    });
-
-    test('reflecting specified configuration', () => {
-      let env = new GlintEnvironment(['test-env'], {
-        template: {
-          typesModule: '@glint/test-env/types',
-          specialForms: {
-            obj: 'object-literal',
-          },
-          getPossibleTemplatePaths: (script) => [
-            { path: script.replace('.ts', '.hbs'), deferTo: ['another/script.ts'] },
-          ],
-          getPossibleScriptPaths: (template) => [
-            template.replace('.hbs', '.ts'),
-            template.replace('.hbs', '.js'),
-          ],
-        },
-      });
-
-      expect(env.getStandaloneTemplateConfig()).toEqual({
-        typesModule: '@glint/test-env/types',
-        specialForms: { obj: 'object-literal' },
-      });
-
-      expect(env.getPossibleTemplatePaths('hello.ts')).toEqual([
-        { path: 'hello.hbs', deferTo: ['another/script.ts'] },
-      ]);
-
-      expect(env.getPossibleScriptPaths('hello.hbs')).toEqual([
-        { path: 'hello.ts', deferTo: [] },
-        { path: 'hello.js', deferTo: [] },
-      ]);
-    });
-  });
 
   describe('extensions config', () => {
     type Data = { contents: string };
@@ -103,9 +63,7 @@ describe('Config: Environments', () => {
       expect(env.getConfiguredFileExtensions()).toEqual(['.ts', '.gts', '.hbs']);
     });
 
-    test('identifying scripts and templates', () => {
-      expect(env.isTemplate('foo.hbs')).toBeTruthy();
-      expect(env.isTemplate('foo.ts')).toBeFalsy();
+    test('identifying scripts', () => {
       expect(env.isTypedScript('foo.ts')).toBeTruthy();
       expect(env.isTypedScript('foo.gts')).toBeTruthy();
       expect(env.isTypedScript('foo.js')).toBeFalsy();
@@ -220,26 +178,18 @@ describe('Config: Environments', () => {
       test('loading compatible environments', () => {
         let envA = createEnvironment('() => ({ tags: { "foo-bar": { hbs: {} } } })');
         let envB = createEnvironment(
-          '() => ({ tags: { "foo-bar": { tpl: {} }, "baz": { hbs: {} } }, template: { typesModule: "foo" } })',
+          '() => ({ tags: { "foo-bar": { tpl: {} }, "baz": { hbs: {} } } })',
         );
 
         let env = GlintEnvironment.load([envA, envB], { rootDir: testDir });
 
-        expect(env.getStandaloneTemplateConfig()).toEqual({ typesModule: 'foo' });
         expect(env.getConfiguredTemplateTags()).toEqual({
           'foo-bar': { hbs: {}, tpl: {} },
           baz: { hbs: {} },
         });
       });
 
-      test('loading conflicting standalone template config', () => {
-        let envA = createEnvironment('() => ({ template: { typesModule: "foo" } })');
-        let envB = createEnvironment('() => ({ template: { typesModule: "bar" } })');
 
-        expect(() => GlintEnvironment.load([envA, envB], { rootDir: testDir })).toThrow(
-          'Multiple configured Glint environments attempted to define behavior for standalone template files',
-        );
-      });
 
       test('loading conflicting tags config', () => {
         let envA = createEnvironment('() => ({ tags: { foo: { hbs: {} } } })');
