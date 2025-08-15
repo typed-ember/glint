@@ -3,20 +3,13 @@ import Globals from '../../globals';
 import * as VM from '@glint/template/-private/keywords';
 
 import { ActionKeyword } from '../intrinsics/action';
-import { ConcatHelper } from '../intrinsics/concat';
 import { EachKeyword } from '../intrinsics/each';
 import { EachInKeyword } from '../intrinsics/each-in';
-import { FnHelper } from '../intrinsics/fn';
-import { GetHelper } from '../intrinsics/get';
-import { InputComponent } from '../intrinsics/input';
 import { LogHelper } from '../intrinsics/log';
 import { MountKeyword } from '../intrinsics/mount';
 import { MutKeyword } from '../intrinsics/mut';
-import { OnModifier } from '../intrinsics/on';
 import { OutletKeyword } from '../intrinsics/outlet';
-import { TextareaComponent } from '../intrinsics/textarea';
 import { UnboundKeyword } from '../intrinsics/unbound';
-import { UniqueIdHelper } from '../intrinsics/unique-id';
 
 // The keyword vs global breakdown here is loosely matched with
 // the listing in http://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html
@@ -195,103 +188,6 @@ interface Keywords {
 
   // `{{yield}}` is implemented directly in `@glint/core`
   yield: void;
-}
-
-export interface Globals extends Keywords, Registry {
-  // `{{array}}` is implemented directly in `@glint/core`
-  array: void;
-
-  /**
-    Concatenates the given arguments into a string.
-
-    See [the API documentation] for further details.
-
-    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/concat?anchor=concat
-  */
-  concat: ConcatHelper;
-
-  /**
-    The `fn` helper allows you to ensure a function that you are passing off
-    to another component, helper, or modifier has access to arguments that are
-    available in the template.
-
-    See [the API documentation] for further details.
-
-    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/fn?anchor=fn
-  */
-  fn: FnHelper;
-
-  /**
-    Dynamically look up a property on an object. The second argument to `{{get}}`
-    should have a string value, although it can be bound.
-
-    See [the API documentation] for further details.
-
-    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/get?anchor=get
-  */
-  get: GetHelper;
-
-  // `hash` is implemented directly in `@glint/core`
-  hash: void;
-
-  /**
-    The `{{input}}` helper lets you create an HTML `<input>` element.
-
-    See [the API documentation] for further details.
-
-    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/input?anchor=input
-  */
-  input: InputComponent;
-
-  /**
-    The `Input` component lets you create an HTML `<input>` element.
-
-    See [the API documentation] for further details.
-
-    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.components/methods/Input?anchor=Input
-  */
-  Input: InputComponent;
-
-  /**
-    The `{{on}}` modifier lets you easily add event listeners (it uses
-    [EventTarget.addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
-    internally).
-
-    See [the API documentation] for further details.
-
-    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/on?anchor=on
-  */
-  on: OnModifier;
-
-  /**
-    The `{{textarea}}` component inserts a new instance of `<textarea>` tag into the template.
-    The `value` argument provides the content of the `<textarea>`.
-
-    See [the API documentation] for further details.
-
-    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.components/methods/Textarea?anchor=Textarea
-   */
-  textarea: TextareaComponent;
-
-  /**
-    The `Textarea` component inserts a new instance of `<textarea>` tag into the template.
-    The `@value` argument provides the content of the `<textarea>`.
-
-    See [the API documentation] for further details.
-
-    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.components/methods/Textarea?anchor=Textarea
-   */
-  Textarea: TextareaComponent;
-
-  /**
-  Use the `{{unique-id}}` helper to generate a unique ID string suitable for use as an ID
-  attribute in the DOM.
- 
-  See [the API documentation] for further details.
-
-  [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/unique-id?anchor=unique-id
-   */
-  'unique-id': UniqueIdHelper;
 }
 
 export const Globals: Keywords & Globals;
