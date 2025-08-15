@@ -20,13 +20,6 @@ interface MySignature {
 }
 
 export default class MyComponent extends Component<MySignature> {}
-
-declare module '@glint/environment-ember-template-imports/registry' {
-  export default interface Registry {
-    MyComponent: typeof MyComponent;
-    'my-component': typeof MyComponent;
-  }
-}
 ```
 
 ```handlebars
@@ -46,30 +39,7 @@ interface MySignature {
 }
 
 export default class MyComponent extends Component<MySignature> {}
-
-declare module '@glint/environment-ember-template-imports/registry' {
-  export default interface Registry {
-    MyComponent: typeof MyComponent;
-    'my-component': typeof MyComponent;
-  }
-}
 ```
-
-## Invalid module name in augmentation
-
-```
-Invalid module name in augmentation: module '@glint/environment-ember-template-imports/registry' cannot be found.`
-```
-
-TypeScript will only allow you to add declarations for a module if it's already seen the original. In other words,
-if you've never directly or transitively imported `@glint/environment-ember-template-imports/registry` anywhere in your project
-that TypeScript can see then it won't allow you to add a registry entry.
-
-To fix this, [add `import '@glint/environment-ember-template-imports'` somewhere in your project][env-import]. This will ensure that the
-registry, as well as other important type information like template-aware declarations, are visible to vanilla
-`tsc` and `tsserver`.
-
-[env-import]: ./ember/installation.md
 
 ## Does not satisfy the constraint 'Invokable<AnyFunction>'
 
@@ -119,5 +89,3 @@ If you see this error with modern `.gts`/`.gjs` files, make sure you have explic
 import { SomeHelper } from 'my-addon/helpers/some-helper';
 import SomeComponent from 'my-addon/components/some-component';
 ```
-
-If you have multiple copies of the environment package in your dependencies, this can result in multiple disjoint registries, as TypeScript will maintain a separate version of the `Registry` type for each copy, meaning the registry your dependencies are adding entries to might be different than the one your application is actually using.

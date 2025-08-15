@@ -26,5 +26,6 @@
   * [Modern Ember (.gts/.gjs)](ember/template-imports.md)
 
 ## Troubleshooting
+* [Glint V2 Migration Notes](migrating-v2.md)
 * [Common Error Messages](diagnosing-common-error-messages.md)
 * [Known Limitations](known-limitations.md)

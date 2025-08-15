@@ -14,15 +14,6 @@ Glint is configured by adding a `"glint"` key to your project's `tsconfig.json` 
 
 {% endcode %}
 
-The general shape of the value of the `"glint"` key looks like this:
-
-```typescript
-interface GlintConfigInput {
-  environment: string | Array<string> | Record<string, unknown>;
-  checkStandaloneTemplates?: boolean;
-}
-```
-
 Each key is summarized in further detail below.
 
 ## `environment`
@@ -40,7 +31,3 @@ Some environments may accept user-specified configuration. To pass configuration
   }
 }
 ```
-
-## `checkStandaloneTemplates`
-
-This option is not applicable to modern Ember development with `.gts`/`.gjs` files, where templates are co-located with their TypeScript/JavaScript code within the same file.
