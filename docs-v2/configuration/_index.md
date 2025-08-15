@@ -7,7 +7,7 @@ Glint is configured by adding a `"glint"` key to your project's `tsconfig.json` 
   "compilerOptions": { /* ... */ },
   "include": [ /* ... */ ],
   "glint": {
-    "environment": "ember-loose"
+    "environment": "ember-template-imports"
   }
 }
 ```
@@ -27,7 +27,7 @@ Each key is summarized in further detail below.
 
 ## `environment`
 
-The `environment` key specifies what Glint environment(s) your project is operating in. For instance, in loose-mode Ember.js project where you have `@glint/environment-ember-loose` installed, you could specify `"environment": "ember-loose"`. You may also specify an array if your project operates in multiple environments.
+The `environment` key specifies what Glint environment(s) your project is operating in. For modern Ember.js projects using `.gts`/`.gjs` files, you should use `"environment": "ember-template-imports"`. You may also specify an array if your project operates in multiple environments.
 
 Some environments may accept user-specified configuration. To pass configuration into one or more environments, you can use an object literal mapping environment names to their config:
 
@@ -43,6 +43,4 @@ Some environments may accept user-specified configuration. To pass configuration
 
 ## `checkStandaloneTemplates`
 
-In environments like `ember-loose` that support templates in separate files from their backing class, Glint normally determines whether to typecheck a template based on whether its backing class is in a `.ts` or `.js` file. However, for a template-only component, there's no backing module to check.
-
-This flag defaults to `true`, and setting it to `false` means Glint will never produce type errors for templates that don't have a corresponding `.js` or `.ts` file.
+This option is not applicable to modern Ember development with `.gts`/`.gjs` files, where templates are co-located with their TypeScript/JavaScript code within the same file.

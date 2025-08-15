@@ -2,7 +2,7 @@
 
 Glint is not currently integrated with `ember-cli-typescript`, so typechecking performed during an `ember-cli` build will not take templates into account.
 
-In addition, the [template registry](ember/template-registry.md) must currently be maintained by hand. A few possibilities for mitigating that pain have been discussed, but ultimately the best solution will be when [strict mode] comes to Ember and we no longer need to reckon with runtime resolution of template entities.
+With modern `.gts`/`.gjs` files, dependencies are explicit through imports, which provides better type safety and aligns with modern JavaScript practices.
 
 [strict mode]: http://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html
 

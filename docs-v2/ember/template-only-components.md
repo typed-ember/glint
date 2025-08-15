@@ -1,9 +1,13 @@
-A template-only component is any template for which Ember (and Glint) can't locate a backing TS or JS module. In Glint, these are treated very similarly to a component with an empty signature: it has no args, and it can't yield to blocks or apply `...attributes` anywhere. Additionally, the value of `{{this}}` in such a template will be `void`.
+With modern `.gts`/`.gjs` files, template-only components are created using the `<template>` syntax with appropriate type annotations.
 
-While it's possible to do some simple things like invoking other components from these templates, typically you'll want to create a backing module for your template so you can declare its signature, add it to the template registry, and so on.
+## Template-Only Components with .gts/.gjs
+
+You can create template-only components directly in `.gts` files using the `TOC` (Template-Only Component) type:
+
+{% code title="app/components/shout.gts" %}
 
 ```typescript
-import templateOnlyComponent from '@ember/component/template-only';
+import type { TOC } from '@ember/component/template-only';
 
 interface ShoutSignature {
   Element: HTMLDivElement;
@@ -13,49 +17,49 @@ interface ShoutSignature {
   };
 }
 
-const Shout = templateOnlyComponent<ShoutSignature>();
+const louderPlease = (message: string) => message.toUpperCase();
 
-export default Shout;
-
-declare module '@glint/environment-ember-loose/registry' {
-  export default interface Registry {
-    Shout: typeof Shout;
-  }
-}
+<template>
+  <div ...attributes>
+    {{yield (louderPlease @message)}}
+  </div>
+</template> satisfies TOC<ShoutSignature>;
 ```
 
-Note that the runtime content of this module (effectively `export default templateOnlyComponent();`) is exactly what Ember generates at build time when creating a backing module for a template-only component.
+{% endcode %}
 
-{% hint style="info" %}
+This approach provides full type safety while keeping your component definition simple and co-located.
 
-Using `ember-template-imports`? See [Ember: Template Imports][etitoc] on how to declare types for a `<template>`-only component.
+## Generic Template-Only Components
 
-[etitoc]: ../ember/template-imports.md#template-only-components
-{% endhint %}
+For generic template-only components, you can create an empty backing class that extends `@glimmer/component`:
 
-Due to the way TypeScript works, it's not possible to have a generic signature for template-only components:
+{% code title="app/components/generic-shout.gts" %}
 
 ```typescript
-import templateOnlyComponent from '@ember/component/template-only';
+import Component from '@glimmer/component';
 
-interface ShoutSignature<T> {
+interface GenericShoutSignature<T> {
+  Element: HTMLDivElement;
   Args: { message: T };
   Blocks: {
     default: [shoutedMessage: T];
   };
 }
 
-const Shout = templateOnlyComponent<ShoutSignature<???>>();
-```
+export default class GenericShout<T> extends Component<GenericShoutSignature<T>> {
+  get shoutedMessage() {
+    return String(this.args.message).toUpperCase();
+  }
 
-If that's needed, you must create an (empty) backing class:
-
-```typescript
-import Component from '@glimmer/component';
-
-interface ShoutSignature<T> {
-  // same as above
+  <template>
+    <div ...attributes>
+      {{yield this.shoutedMessage}}
+    </div>
+  </template>
 }
-
-export default class Shout<T> extends Component<ShoutSignature<T>> {}
 ```
+
+{% endcode %}
+
+This provides the same runtime behavior as a template-only component while supporting generic type parameters.

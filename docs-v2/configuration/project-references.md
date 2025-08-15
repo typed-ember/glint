@@ -94,7 +94,7 @@ With this structure, the sub-project configurations, like `packages/a/tsconfig.j
 
 ## Customizing sub-project configuration
 
-If needed, you can customize each sub-project by overriding its `glint` settings, just as you can with `compilerOptions`. For example, if you have one sub-project which is using the `ember-loose` environment instead of `ember-template-imports`, you would need to make two changes for that package:
+If needed, you can customize each sub-project by overriding its `glint` settings, just as you can with `compilerOptions`. For example, if you have one sub-project which is using the `ember-template-imports` environment instead of `ember-template-imports`, you would need to make two changes for that package:
 
 - include the corresponding import in a file in the project (or in another shared location)
 - update the `glint` config in that project's `tsconfig.json`
@@ -121,7 +121,7 @@ The updated `packages/a/tsconfig.json` file might look like this:
   },
   "include": ["./local-types", "./src"],
   "glint": {
-    "environment": "ember-loose"
+    "environment": "ember-template-imports"
   }
 }
 ```

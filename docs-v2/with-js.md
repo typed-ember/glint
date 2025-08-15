@@ -15,19 +15,19 @@ Thus, installation for a JS setup looks like this:
 {% tabs %}
 {% tab title="pnpm" %}
 ```shell-session
-pnpm add -D typescript @glint/core @glint/template @glint/environment-ember-loose
+pnpm add -D typescript @glint/core @glint/template @glint/environment-ember-template-imports
 ```
 {% endtab %}
 
 {% tab title="Yarn" %}
 ```shell-session
-pnpm add -D typescript @glint/core @glint/template @glint/environment-ember-loose
+pnpm add -D typescript @glint/core @glint/template @glint/environment-ember-template-imports
 ```
 {% endtab %}
 
 {% tab title="npm" %}
 ```shell-session
-npm install -D typescript @glint/core @glint/template @glint/environment-ember-loose
+npm install -D typescript @glint/core @glint/template @glint/environment-ember-template-imports
 ```
 {% endtab %}
 {% endtabs %}
@@ -37,7 +37,7 @@ npm install -D typescript @glint/core @glint/template @glint/environment-ember-l
 {
   "compilerOptions": { /* ... */ },
   "glint": {
-    "environment": "ember-loose"
+    "environment": "ember-template-imports"
   }
 }
 ```

@@ -17,15 +17,14 @@
   * [Installation](ember/installation.md)
   * [Component Signatures](ember/component-signatures.md)
   * [Helper and Modifier Signatures](ember/helper-and-modifier-signatures.md)
-  * [Template Registry](ember/template-registry.md)
+
   * [Routes and Controllers](ember/routes-and-controllers.md)
   * [Template-Only Components](ember/template-only-components.md)
   * [Rendering Tests](ember/rendering-tests.md)
   * [Using Addons](ember/using-addons.md)
   * [Authoring Addons](ember/authoring-addons.md)
-  * [Template Imports](ember/template-imports.md)
+  * [Modern Ember (.gts/.gjs)](ember/template-imports.md)
 
 ## Troubleshooting
-* [Migration Notes](migrating.md)
 * [Common Error Messages](diagnosing-common-error-messages.md)
 * [Known Limitations](known-limitations.md)

@@ -21,7 +21,7 @@ interface MySignature {
 
 export default class MyComponent extends Component<MySignature> {}
 
-declare module '@glint/environment-ember-loose/registry' {
+declare module '@glint/environment-ember-template-imports/registry' {
   export default interface Registry {
     MyComponent: typeof MyComponent;
     'my-component': typeof MyComponent;
@@ -47,7 +47,7 @@ interface MySignature {
 
 export default class MyComponent extends Component<MySignature> {}
 
-declare module '@glint/environment-ember-loose/registry' {
+declare module '@glint/environment-ember-template-imports/registry' {
   export default interface Registry {
     MyComponent: typeof MyComponent;
     'my-component': typeof MyComponent;
@@ -58,14 +58,14 @@ declare module '@glint/environment-ember-loose/registry' {
 ## Invalid module name in augmentation
 
 ```
-Invalid module name in augmentation: module '@glint/environment-ember-loose/registry' cannot be found.`
+Invalid module name in augmentation: module '@glint/environment-ember-template-imports/registry' cannot be found.`
 ```
 
 TypeScript will only allow you to add declarations for a module if it's already seen the original. In other words,
-if you've never directly or transitively imported `@glint/environment-ember-loose/registry` anywhere in your project
+if you've never directly or transitively imported `@glint/environment-ember-template-imports/registry` anywhere in your project
 that TypeScript can see then it won't allow you to add a registry entry.
 
-To fix this, [add `import '@glint/environment-ember-loose'` somewhere in your project][env-import]. This will ensure that the
+To fix this, [add `import '@glint/environment-ember-template-imports'` somewhere in your project][env-import]. This will ensure that the
 registry, as well as other important type information like template-aware declarations, are visible to vanilla
 `tsc` and `tsserver`.
 
@@ -84,7 +84,7 @@ The key here is `Property '[Invoke]' is missing in type...`. This usually means 
 
 - You don’t have the latest version of Glint
 - You don’t have the latest version of the `@glimmer/component` or `@types/ember__component` packages
-- You are missing your environment import (e.g. `import '@glint/environment-ember-loose'`)
+- You are missing your environment import (e.g. `import '@glint/environment-ember-template-imports'`)
 
 As a special case of the missing environment import: if you are using a shared base `tsconfig.json` but overriding it in a Yarn workspace or similar setup, if your `"include"` key does not include the file which adds the environment import, it will not work (`include`s are not merged even when using TypeScript's `extends` option, but rather completely override the values from the base config).
 
@@ -111,11 +111,13 @@ error TS7053: Element implicitly has an 'any' type because expression of type '"
   Property 'Something' does not exist on type 'Globals'.
 ```
 
-The `Globals` type represents any values that are globally in scope in a template, like the `let` and `each` keywords. In a resolver-based environment like `@glint/environment-ember-loose`, this also includes all members of [the `Registry` interface](ember/template-registry.md) that are declared by your application and its dependencies.
+The `Globals` type represents any values that are globally in scope in a template, like the `let` and `each` keywords. With modern `.gts`/`.gjs` files, most values are explicitly imported, making dependencies clear and providing better type safety.
 
-If you see this error in a loose mode template, ensure that:
- - A registry entry exists for the name in question
- - You have imported the file where the entry is defined, if it comes from a library (i.e. `import 'ember-svg-jar/glint';`)
- - You only have one copy of the environment package in your dependency tree
+If you see this error with modern `.gts`/`.gjs` files, make sure you have explicitly imported the component, helper, or modifier you're trying to use:
+
+```typescript
+import { SomeHelper } from 'my-addon/helpers/some-helper';
+import SomeComponent from 'my-addon/components/some-component';
+```
 
 If you have multiple copies of the environment package in your dependencies, this can result in multiple disjoint registries, as TypeScript will maintain a separate version of the `Registry` type for each copy, meaning the registry your dependencies are adding entries to might be different than the one your application is actually using.

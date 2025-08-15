@@ -129,7 +129,7 @@ This is a fairly contrived example, and in most circumstances it would be simple
 base class like `@glimmer/component`, but nevertheless the option exists.
 
 **Note**: this declaration merging technique using `InstanceType<ComponentLike<...>>` is _exactly_
-how Glint's own 1st-party environment packages like `@glint/environment-ember-loose` set up the
+how Glint's own 1st-party environment packages like `@glint/environment-ember-template-imports` set up the
 template-aware types for `@glimmer/component`, `@ember/component/helper`, etc.
 
 ### Type Parameters
