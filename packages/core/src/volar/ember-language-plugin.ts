@@ -13,7 +13,6 @@ export type TS = typeof ts;
 export function createEmberLanguagePlugin<T extends URI | string>(
   glintConfig: GlintConfig,
 ): LanguagePlugin<T> {
-  const hasEmberLoose = glintConfig.environment.names.indexOf('ember-loose') !== -1;
   return {
     /**
      * For files that are not opened in the IDE, the language ID will not be provided

@@ -19,7 +19,7 @@ export const DEFAULT_EXTENSIONS: GlintExtensionsConfig = {
 
 /**
  * A GlintEnvironment represents the _merged_ configurations of one or more
- * glint environments (e.g. ember-loose and ember-template-imports).
+ * glint environments (e.g. ember-template-imports).
  */
 export class GlintEnvironment {
   private tagConfig: GlintTagsConfig;

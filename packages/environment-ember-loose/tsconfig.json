@@ -1,8 +1,0 @@
-{
-  "extends": "../../tsconfig.compileroptions.json",
-  "include": ["registry", "-private"],
-  "compileroptions": {
-    "types": ["@types/node"]
-  },
-  "references": [{ "path": "../template" }, { "path": "../core" }]
-}
