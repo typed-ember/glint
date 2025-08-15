@@ -2,15 +2,13 @@
 
 This package contains the information necessary for glint to typecheck an `ember-template-imports` project.
 
-Note that this environment should be installed alongside `@glint/environment-ember-loose` and both should be activated
-in your Glint configuration in `tsconfig.json`:
+Add this environment to your `tsconfig.json` as follows in order to enable it:
 
 ```javascript
 {
   "compilerOptions": { /* ... */ },
   "glint": {
     "environment": [
-      "ember-loose",
       "ember-template-imports"
     ]
   }
