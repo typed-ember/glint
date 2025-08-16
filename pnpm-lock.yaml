@@ -185,6 +185,9 @@ importers:
       '@glint/template':
         specifier: workspace:*
         version: link:../template
+      '@glint/type-test':
+        specifier: workspace:*
+        version: link:../type-test
       '@types/common-tags':
         specifier: ^1.8.0
         version: 1.8.4
@@ -194,6 +197,15 @@ importers:
       common-tags:
         specifier: ^1.8.0
         version: 1.8.2
+      ember-cli-htmlbars:
+        specifier: ^6.0.1
+        version: 6.3.0
+      ember-source:
+        specifier: ^6.2.0
+        version: 6.2.0(@glint/template@packages+template)
+      expect-type:
+        specifier: ^1.2.1
+        version: 1.2.1
       typescript:
         specifier: '>=5.6.0'
         version: 5.8.2
@@ -650,7 +662,7 @@ importers:
         version: file:packages/core(typescript@5.8.2)
       '@glint/environment-ember-template-imports':
         specifier: workspace:*
-        version: file:packages/environment-ember-template-imports(38fa3eca771ece9ff9ab527886fd72c4)
+        version: file:packages/environment-ember-template-imports(d850b9d65dbf92ebe0c10a78947844d9)
       '@glint/template':
         specifier: workspace:*
         version: file:packages/template
@@ -686,7 +698,7 @@ importers:
         version: file:packages/core(typescript@5.8.2)
       '@glint/environment-ember-template-imports':
         specifier: workspace:*
-        version: file:packages/environment-ember-template-imports(38fa3eca771ece9ff9ab527886fd72c4)
+        version: file:packages/environment-ember-template-imports(314d295db142017c34e25a0f28c75ca6)
       '@glint/template':
         specifier: workspace:*
         version: file:packages/template
@@ -1851,8 +1863,11 @@ packages:
   '@glint/environment-ember-template-imports@file:packages/environment-ember-template-imports':
     resolution: {directory: packages/environment-ember-template-imports, type: directory}
     peerDependencies:
+      '@glimmer/component': '>=1.1.2'
       '@glint/core': '*'
       '@glint/template': '*'
+      ember-cli-htmlbars: ^6.0.1
+      ember-modifier: ^3.2.7 || ^4.0.0
 
   '@glint/template@file:packages/template':
     resolution: {directory: packages/template, type: directory}
@@ -9618,8 +9633,23 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@glint/environment-ember-template-imports@file:packages/environment-ember-template-imports(314d295db142017c34e25a0f28c75ca6)':
+    dependencies:
+      '@glimmer/component': 2.0.0
+      '@glint/core': file:packages/core(typescript@5.8.2)
+      '@glint/template': file:packages/template
+      content-tag: 3.1.2
+      ember-modifier: 4.2.0(330956e1962cbbbd59b8187278b971da)
+
   '@glint/environment-ember-template-imports@file:packages/environment-ember-template-imports(38fa3eca771ece9ff9ab527886fd72c4)':
     dependencies:
+      '@glint/core': file:packages/core(typescript@5.8.2)
+      '@glint/template': file:packages/template
+      content-tag: 3.1.2
+
+  '@glint/environment-ember-template-imports@file:packages/environment-ember-template-imports(d850b9d65dbf92ebe0c10a78947844d9)':
+    dependencies:
+      '@glimmer/component': 2.0.0
       '@glint/core': file:packages/core(typescript@5.8.2)
       '@glint/template': file:packages/template
       content-tag: 3.1.2
@@ -12739,6 +12769,56 @@ snapshots:
       broccoli-merge-trees: 4.2.0
       chalk: 4.1.2
       ember-auto-import: 2.10.0
+      ember-cli-babel: 8.2.0(@babel/core@7.26.10)
+      ember-cli-get-component-path-option: 1.0.0
+      ember-cli-is-package-missing: 1.0.0
+      ember-cli-normalize-entity-name: 1.0.0
+      ember-cli-path-utils: 1.0.0
+      ember-cli-string-utils: 1.1.0
+      ember-cli-typescript-blueprint-polyfill: 0.1.0
+      ember-cli-version-checker: 5.1.2
+      ember-router-generator: 2.0.0
+      inflection: 2.0.1
+      route-recognizer: 0.3.4
+      router_js: 8.0.6(route-recognizer@0.3.4)
+      semver: 7.7.1
+      silent-error: 1.1.1
+      simple-html-tokenizer: 0.5.11
+    transitivePeerDependencies:
+      - '@glint/template'
+      - rsvp
+      - supports-color
+      - webpack
+
+  ember-source@6.2.0(@glint/template@packages+template):
+    dependencies:
+      '@babel/core': 7.26.10
+      '@ember/edition-utils': 1.2.0
+      '@embroider/addon-shim': 1.9.0
+      '@glimmer/compiler': 0.92.4
+      '@glimmer/destroyable': 0.92.3
+      '@glimmer/env': 0.1.7
+      '@glimmer/global-context': 0.92.3
+      '@glimmer/interfaces': 0.92.3
+      '@glimmer/manager': 0.92.4
+      '@glimmer/node': 0.92.4
+      '@glimmer/opcode-compiler': 0.92.4
+      '@glimmer/owner': 0.92.3
+      '@glimmer/program': 0.92.4
+      '@glimmer/reference': 0.92.3
+      '@glimmer/runtime': 0.92.4
+      '@glimmer/syntax': 0.92.3
+      '@glimmer/util': 0.92.3
+      '@glimmer/validator': 0.92.3
+      '@glimmer/vm': 0.92.3
+      '@glimmer/vm-babel-plugins': 0.92.3(@babel/core@7.26.10)
+      '@simple-dom/interface': 1.4.0
+      backburner.js: 2.8.0
+      broccoli-file-creator: 2.1.1
+      broccoli-funnel: 3.0.8
+      broccoli-merge-trees: 4.2.0
+      chalk: 4.1.2
+      ember-auto-import: 2.10.0(@glint/template@packages+template)
       ember-cli-babel: 8.2.0(@babel/core@7.26.10)
       ember-cli-get-component-path-option: 1.0.0
       ember-cli-is-package-missing: 1.0.0

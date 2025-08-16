@@ -3,4 +3,5 @@
 // `import '@glint/environment-ember-template-imports'` somewhere in their project.
 
 /// <reference path="../globals/index.d.ts" />
+/// <reference path="./dsl/integration-declarations.d.ts" />
 export {};
