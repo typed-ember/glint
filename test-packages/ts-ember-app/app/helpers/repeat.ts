@@ -7,9 +7,3 @@ function repeat(params: [string, number] /*, hash*/) {
 const repeatHelper = helper(repeat);
 
 export default repeatHelper;
-
-declare module '@glint/environment-ember-loose/registry' {
-  export default interface Registry {
-    repeat: typeof repeatHelper;
-  }
-}
