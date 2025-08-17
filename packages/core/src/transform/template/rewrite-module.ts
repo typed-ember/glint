@@ -34,11 +34,7 @@ export function rewriteModule(
   { script }: RewriteInput,
   environment: GlintEnvironment,
 ): TransformedModule | null {
-  let { errors, directives, partialSpans } = calculateCorrelatedSpans(
-    ts,
-    script,
-    environment,
-  );
+  let { errors, directives, partialSpans } = calculateCorrelatedSpans(ts, script, environment);
 
   if (!partialSpans.length && !errors.length) {
     return null;
@@ -124,8 +120,6 @@ function calculateCorrelatedSpans(
         return ts.visitEachChild(node, visit, context);
       },
   ]);
-
-
 
   return { errors, directives, partialSpans };
 }

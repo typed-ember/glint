@@ -83,5 +83,3 @@ export type GlintTagsConfig = {
     [importSpecifier: string]: GlintTagConfig;
   };
 };
-
-

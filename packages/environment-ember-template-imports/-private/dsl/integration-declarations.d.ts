@@ -32,7 +32,7 @@ declare module '@glimmer/component' {
   export default interface Component<S> extends InstanceType<ComponentLike<S>> {
     [Context]: ComponentContext<this, S>;
   }
-  REMOVE_ME_ALSO_THIS_SHOULD_ERROR
+  REMOVE_ME_ALSO_THIS_SHOULD_ERROR;
 }
 
 declare module '@ember/component' {

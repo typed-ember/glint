@@ -45,8 +45,6 @@ describe('Config: Environments', () => {
     });
   });
 
-
-
   describe('extensions config', () => {
     type Data = { contents: string };
     let preprocess: GlintExtensionPreprocess<Data> = () => ({ contents: 'hi' });
@@ -188,8 +186,6 @@ describe('Config: Environments', () => {
           baz: { hbs: {} },
         });
       });
-
-
 
       test('loading conflicting tags config', () => {
         let envA = createEnvironment('() => ({ tags: { foo: { hbs: {} } } })');
