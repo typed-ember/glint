@@ -5,7 +5,7 @@
 //   NamedArgsMarker,
 //   applyModifier,
 //   resolve,
-// } from '@glint/core/environment-ember-template-imports/-private/dsl';
+// } from '@glint/core/-private/dsl';
 // import { expectTypeOf } from 'expect-type';
 
 // const on = resolve(Globals['on']);

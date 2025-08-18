@@ -1,7 +1,7 @@
-import { NamedArgsMarker, resolve } from '@glint/core/environment-ember-template-imports/-private/dsl';
-import { expectTypeOf } from 'expect-type';
-import { ModifierReturn, NamedArgs } from '@glint/template/-private/integration';
+import { NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
 import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/template';
+import { ModifierReturn, NamedArgs } from '@glint/template/-private/integration';
+import { expectTypeOf } from 'expect-type';
 
 // Fixed signature params
 {

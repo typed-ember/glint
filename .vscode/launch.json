@@ -16,7 +16,7 @@
       ],
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-        "--disable-extensions", // comment to activate your local extensions
+        // "--disable-extensions", // comment to activate your local extensions
         "${workspaceFolder}/packages/vscode/__fixtures__/ember-app"
       ]
     },

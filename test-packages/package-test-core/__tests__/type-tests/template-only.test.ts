@@ -4,7 +4,7 @@ import {
   NamedArgsMarker,
   resolve,
   templateForBackingValue,
-} from '@glint/core/environment-ember-template-imports/-private/dsl';
+} from '@glint/core/-private/dsl';
 import { ComponentLike, WithBoundArgs } from '@glint/template';
 import { expectTypeOf } from 'expect-type';
 

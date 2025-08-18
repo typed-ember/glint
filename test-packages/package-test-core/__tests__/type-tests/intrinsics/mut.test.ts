@@ -1,8 +1,4 @@
-import {
-  Globals,
-  NamedArgsMarker,
-  resolve,
-} from '@glint/core/environment-ember-template-imports/-private/dsl';
+import { Globals, NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 import { Mut } from '../../../-private/intrinsics/mut';
 

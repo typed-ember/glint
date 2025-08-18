@@ -1,9 +1,6 @@
 import { registerDestructor } from '@ember/destroyable';
 import type Owner from '@ember/owner';
-import {
-  NamedArgsMarker,
-  resolve,
-} from '@glint/core/environment-ember-template-imports/-private/dsl';
+import { NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
 import { ModifierLike } from '@glint/template';
 import { ModifierReturn } from '@glint/template/-private/integration';
 import Modifier, { modifier, type ArgsFor } from 'ember-modifier';

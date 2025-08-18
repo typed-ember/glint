@@ -1,10 +1,5 @@
 import ArrayProxy from '@ember/array/proxy';
-import {
-  emitComponent,
-  Globals,
-  NamedArgsMarker,
-  resolve,
-} from '@glint/core/environment-ember-template-imports/-private/dsl';
+import { emitComponent, Globals, NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 let each = resolve(Globals['each']);

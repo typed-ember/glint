@@ -6,11 +6,10 @@ import {
   SourceKind,
 } from '@glint/core/config-types';
 import escapeStringRegexp from 'escape-string-regexp';
-import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import SilentError from 'silent-error';
 
-const require = createRequire(import.meta.url);
+import emberTemplateImportsEnvironment from '../environment-ember-template-imports/-private/environment/index.js';
 
 export const DEFAULT_EXTENSIONS: GlintExtensionsConfig = {
   '.js': { kind: 'untyped-script' },
@@ -42,9 +41,8 @@ export class GlintEnvironment {
     specifier: string | Array<string> | Record<string, unknown>,
     { rootDir = process.cwd() } = {},
   ): GlintEnvironment {
-    let envs = normalizeEnvironmentSpecifier(specifier);
-    let config = loadMergedEnvironmentConfig(envs, rootDir);
-    return new GlintEnvironment(Object.keys(envs), config);
+    let config = loadMergedEnvironmentConfig();
+    return new GlintEnvironment(Object.keys(config), config);
   }
 
   public getSourceKind(fileName: string): SourceKind | 'unknown' {
@@ -110,100 +108,55 @@ export class GlintEnvironment {
   }
 }
 
-function normalizeEnvironmentSpecifier(
-  specifier: string | string[] | Record<string, unknown>,
-): Record<string, unknown> {
-  if (typeof specifier === 'string') {
-    return { [specifier]: null };
-  } else if (Array.isArray(specifier)) {
-    return specifier.reduce((obj, name) => ({ ...obj, [name]: null }), {});
-  }
-
-  return specifier;
-}
-
-function loadMergedEnvironmentConfig(
-  envs: Record<string, unknown>,
-  rootDir: string,
-): GlintEnvironmentConfig {
+function loadMergedEnvironmentConfig(): GlintEnvironmentConfig {
   let tags: GlintTagsConfig = {};
   let extensions: GlintExtensionsConfig = { ...DEFAULT_EXTENSIONS };
-  for (let [envName, envUserConfig] of Object.entries(envs)) {
-    if (envName === 'ember-loose') {
-      // TODO: maybe warn that this can be removed from glint 2?
-      continue;
-    }
+  // for (let [envName, envUserConfig] of Object.entries(envs)) {
+  //   if (envName === 'ember-loose') {
+  //     // TODO: maybe warn that this can be removed from glint 2?
+  //     continue;
+  //   }
 
-    let envPath = locateEnvironment(envName, rootDir);
-    let envModule = require(envPath);
-    let envFunction = envModule?.default ?? envModule;
-    if (typeof envFunction !== 'function') {
-      throw new SilentError(
-        `The specified environment '${envName}', which was loaded from ${envPath}, ` +
-          `does not appear to be a Glint environment package.`,
-      );
-    }
+  const envFunction = emberTemplateImportsEnvironment;
 
-    let config = envFunction(envUserConfig ?? {}) as GlintEnvironmentConfig;
+  // TODO: load config/ move to top level tsconfig.glint scope.
 
-    if (config.tags) {
-      for (let [importSource, specifiers] of Object.entries(config.tags)) {
-        tags[importSource] ??= {};
-        for (let [importSpecifier, tagConfig] of Object.entries(specifiers)) {
-          if (importSpecifier in tags[importSource]) {
-            throw new SilentError(
-              'Multiple configured Glint environments attempted to define behavior for the tag `' +
-                importSpecifier +
-                "` in module '" +
-                importSource +
-                "'.",
-            );
-          }
+  const envUserConfig = {};
 
-          tags[importSource][importSpecifier] = tagConfig;
-        }
-      }
-    }
+  let config = envFunction(envUserConfig ?? {}) as GlintEnvironmentConfig;
 
-    if (config.extensions) {
-      for (let [extension, extensionConfig] of Object.entries(config.extensions)) {
-        if (extension in extensions) {
+  if (config.tags) {
+    for (let [importSource, specifiers] of Object.entries(config.tags)) {
+      tags[importSource] ??= {};
+      for (let [importSpecifier, tagConfig] of Object.entries(specifiers)) {
+        if (importSpecifier in tags[importSource]) {
           throw new SilentError(
-            'Multiple configured Glint environments attempted to define handling for the ' +
-              extension +
-              ' file extension.',
+            'Multiple configured Glint environments attempted to define behavior for the tag `' +
+              importSpecifier +
+              "` in module '" +
+              importSource +
+              "'.",
           );
         }
 
-        extensions[extension] = extensionConfig;
+        tags[importSource][importSpecifier] = tagConfig;
       }
+    }
+  }
+
+  if (config.extensions) {
+    for (let [extension, extensionConfig] of Object.entries(config.extensions)) {
+      if (extension in extensions) {
+        throw new SilentError(
+          'Multiple configured Glint environments attempted to define handling for the ' +
+            extension +
+            ' file extension.',
+        );
+      }
+
+      extensions[extension] = extensionConfig;
     }
   }
 
   return { tags, extensions };
-}
-
-function locateEnvironment(name: string, basedir: string): string {
-  let require = createRequire(path.resolve(basedir, 'package.json'));
-
-  for (let candidate of [
-    // 1st-party package name shorthand
-    `@glint/environment-${name}/glint-environment-definition`,
-    // 3rd-party package name shorthand
-    `glint-environment-${name}/glint-environment-definition`,
-    // Full package name
-    `${name}/glint-environment-definition`,
-    // Literal file path
-    name,
-  ]) {
-    try {
-      return require.resolve(candidate);
-    } catch (error: any) {
-      if (error?.code !== 'MODULE_NOT_FOUND') {
-        throw error;
-      }
-    }
-  }
-
-  throw new SilentError(`Unable to resolve environment '${name}' from ${basedir}`);
 }
