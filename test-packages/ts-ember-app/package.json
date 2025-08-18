@@ -63,9 +63,6 @@
     "typescript": ">=5.6.0"
   },
   "dependenciesMeta": {
-    "@glint/environment-ember-template-imports": {
-      "injected": true
-    },
     "@glint/template": {
       "injected": true
     },

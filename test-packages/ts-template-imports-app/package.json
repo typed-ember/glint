@@ -9,9 +9,6 @@
     "test:tsc": "echo 'no standalone tsc within this project'"
   },
   "dependenciesMeta": {
-    "@glint/environment-ember-template-imports": {
-      "injected": true
-    },
     "@glint/template": {
       "injected": true
     },
@@ -24,7 +21,6 @@
   },
   "devDependencies": {
     "@glimmer/component": "^2.0.0",
-    "@glint/environment-ember-template-imports": "workspace:*",
     "@glint/template": "workspace:*",
     "@glint/core": "workspace:*",
     "@types/rsvp": "^4.0.9",

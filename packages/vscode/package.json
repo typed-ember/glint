@@ -142,7 +142,6 @@
     "@glint/core": "workspace:*",
     "@glint/template": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
-    "@glint/environment-ember-template-imports": "workspace:*",
     "@types/mocha": "^10.0.1",
     "@types/semver": "^7.3.13",
     "@types/vscode": "^1.68.1",
@@ -160,9 +159,6 @@
     "vscode-ext-gen": "^0.5.0"
   },
   "dependenciesMeta": {
-    "@glint/environment-ember-template-imports": {
-      "injected": true
-    },
     "@glint/template": {
       "injected": true
     },
