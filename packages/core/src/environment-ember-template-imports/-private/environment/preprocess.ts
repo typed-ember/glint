@@ -1,5 +1,5 @@
 import { GlintExtensionPreprocess } from '@glint/core/config-types';
-import { GLOBAL_TAG, PreprocessData, TemplateLocation } from './common';
+import { GLOBAL_TAG, PreprocessData, TemplateLocation } from './common.js';
 
 const TEMPLATE_START = `[${GLOBAL_TAG}\``;
 const TEMPLATE_END = '`]';

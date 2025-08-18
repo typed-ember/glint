@@ -58,6 +58,7 @@
     "@volar/test-utils": "2.4.12",
     "@volar/typescript": "2.4.12",
     "computeds": "^0.0.1",
+    "content-tag": "^3.1.2",
     "escape-string-regexp": "^4.0.0",
     "semver": "^7.5.2",
     "silent-error": "^1.1.1",
