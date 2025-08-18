@@ -1,9 +1,9 @@
 lib/
 tsconfig.tsbuildinfo
 
-src/environment-ember-template-imports/*.js
-src/environment-ember-template-imports/*.d.ts
-src/environment-ember-template-imports/*.d.ts.map
+src/environment-ember-template-imports/**/*.js
+src/environment-ember-template-imports/**/*.d.ts
+src/environment-ember-template-imports/**/*.d.ts.map
 !src/environment-ember-template-imports/-private/dsl/**/*.d.ts
 !src/environment-ember-template-imports/-private/intrinsics/**/*.d.ts
 !src/environment-ember-template-imports/globals/**/*.d.ts
