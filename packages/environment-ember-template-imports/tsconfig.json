@@ -4,9 +4,5 @@
   "compilerOptions": {
     "types": ["@types/node"]
   },
-  "references": [
-    { "path": "../environment-ember-loose" },
-    { "path": "../core" },
-    { "path": "../template" }
-  ]
+  "references": [{ "path": "../core" }, { "path": "../template" }]
 }

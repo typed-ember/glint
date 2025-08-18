@@ -1,7 +1,12 @@
+// transformed .gts files will import this file directly. Therefore we can take this opportunity
+// to import the main index file with all of the `/// <reference path="..." />`s to include the
+// declarations mergings for upstream packages like `@ember/component` and `@glimmer/component`.
+// With this, users should no long need to put a `import '@glint/environment-ember-template-imports'`
+// "somewhere" in their projects.
+import '../index';
+
 export * from '@glint/template/-private/dsl';
 export { Globals } from './globals';
-
-import './integration-declarations';
 
 import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {

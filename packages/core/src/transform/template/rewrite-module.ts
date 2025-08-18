@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import type ts from 'typescript';
 import { GlintEnvironment } from '../../config/index.js';
 import { assert, TSLib } from '../util.js';
-import { calculateCompanionTemplateSpans } from './inlining/companion-file.js';
+
 import { CorrelatedSpansResult, PartialCorrelatedSpan } from './inlining/index.js';
 import { calculateTaggedTemplateSpans } from './inlining/tagged-strings.js';
 import TransformedModule, {
@@ -14,12 +14,11 @@ import TransformedModule, {
 } from './transformed-module.js';
 
 /**
- * Input to the process of rewriting a template, containing one or both of:
+ * Input to the process of rewriting a template, containing:
  *   script: the backing JS/TS module for a component, which may contain
  *           embedded templates depending on the environment
- *   template: a standalone template file
  */
-export type RewriteInput = { script: SourceFile; template?: SourceFile };
+export type RewriteInput = { script: SourceFile };
 
 /**
  * Given the script and/or template that together comprise a component module,
@@ -32,15 +31,10 @@ export type RewriteInput = { script: SourceFile; template?: SourceFile };
  */
 export function rewriteModule(
   ts: TSLib,
-  { script, template }: RewriteInput,
+  { script }: RewriteInput,
   environment: GlintEnvironment,
 ): TransformedModule | null {
-  let { errors, directives, partialSpans } = calculateCorrelatedSpans(
-    ts,
-    script,
-    template,
-    environment,
-  );
+  let { errors, directives, partialSpans } = calculateCorrelatedSpans(ts, script, environment);
 
   if (!partialSpans.length && !errors.length) {
     return null;
@@ -62,7 +56,6 @@ export function rewriteModule(
 function calculateCorrelatedSpans(
   ts: TSLib,
   script: SourceFile,
-  template: SourceFile | undefined,
   environment: GlintEnvironment,
 ): CorrelatedSpansResult {
   let directives: Array<Directive> = [];
@@ -127,14 +120,6 @@ function calculateCorrelatedSpans(
         return ts.visitEachChild(node, visit, context);
       },
   ]);
-
-  if (template) {
-    let result = calculateCompanionTemplateSpans(ts, ast, script, template, environment);
-
-    directives.push(...result.directives);
-    errors.push(...result.errors);
-    partialSpans.push(...result.partialSpans);
-  }
 
   return { errors, directives, partialSpans };
 }

@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "test": "vitest run",
-    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:typecheck": "glint --project __tests__/type-tests",
     "test:tsc": "echo 'no standalone typecheck within this project'",
     "test:watch": "vitest watch",
     "build": "tsc --build",
@@ -41,16 +41,27 @@
     "content-tag": "^3.1.2"
   },
   "peerDependencies": {
+    "@glimmer/component": ">=1.1.2",
     "@glint/core": "*",
-    "@glint/environment-ember-loose": "*",
-    "@glint/template": "*"
+    "@glint/template": "*",
+    "ember-modifier": "^3.2.7 || ^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "ember-modifier": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@glint/core": "workspace:*",
     "@glint/template": "workspace:*",
+    "@glint/type-test": "workspace:*",
     "@types/common-tags": "^1.8.0",
     "@types/node": "^18.19.81",
     "common-tags": "^1.8.0",
+    "ember-cli-htmlbars": "^6.0.1",
+    "ember-modifier": "^3.2.7 || ^4.0.0",
+    "ember-source": "^6.2.0",
+    "expect-type": "^1.2.1",
     "typescript": ">=5.6.0",
     "vitest": "~3.0.9"
   },

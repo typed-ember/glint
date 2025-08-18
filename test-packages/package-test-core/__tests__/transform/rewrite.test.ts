@@ -139,316 +139,13 @@ describe('Transform: rewriteModule', () => {
     });
   });
 
-  describe('standalone companion template', () => {
-    const emberLooseEnvironment = GlintEnvironment.load(`ember-loose`);
-
-    test('with a simple class', () => {
-      let script = {
-        filename: 'test.ts',
-        contents: stripIndent`
-          import Component from '@glimmer/component';
-          export default class MyComponent extends Component {
-          }
-        `,
-      };
-
-      let template = {
-        filename: 'test.hbs',
-        contents: stripIndent``,
-      };
-
-      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
-
-      expect(transformedModule?.errors).toEqual([]);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component from '@glimmer/component';
-        export default class MyComponent extends Component {
-        static {
-        ({} as typeof import("@glint/environment-ember-loose/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-loose/-private/dsl")) {
-        __glintRef__; __glintDSL__;
-        })}
-        }"
-      `);
-    });
-
-    test('with a class that is separately exported', () => {
-      let script = {
-        filename: 'test.ts',
-        contents: stripIndent`
-          import Component from '@glimmer/component';
-          class MyComponent extends Component {
-          }
-          export default MyComponent;
-        `,
-      };
-
-      let template = {
-        filename: 'test.hbs',
-        contents: stripIndent``,
-      };
-
-      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
-
-      expect(transformedModule?.errors).toEqual([]);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component from '@glimmer/component';
-        class MyComponent extends Component {
-        static {
-        ({} as typeof import("@glint/environment-ember-loose/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-loose/-private/dsl")) {
-        __glintRef__; __glintDSL__;
-        })}
-        }
-        export default MyComponent;"
-      `);
-    });
-
-    test('with a class with type parameters', () => {
-      let script = {
-        filename: 'test.ts',
-        contents: stripIndent`
-          import Component from '@glimmer/component';
-          export default class MyComponent<K extends string> extends Component<{ value: K }> {
-          }
-        `,
-      };
-
-      let template = {
-        filename: 'test.hbs',
-        contents: stripIndent``,
-      };
-
-      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
-
-      expect(transformedModule?.errors).toEqual([]);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component from '@glimmer/component';
-        export default class MyComponent<K extends string> extends Component<{ value: K }> {
-        static {
-        ({} as typeof import("@glint/environment-ember-loose/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-loose/-private/dsl")) {
-        __glintRef__; __glintDSL__;
-        })}
-        }"
-      `);
-    });
-
-    test('with an anonymous class', () => {
-      let script = {
-        filename: 'test.ts',
-        contents: stripIndent`
-          import Component from '@glimmer/component';
-          export default class extends Component {
-          }
-        `,
-      };
-
-      let template = {
-        filename: 'test.hbs',
-        contents: stripIndent``,
-      };
-
-      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
-
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component from '@glimmer/component';
-        export default class extends Component {
-        static {
-        ({} as typeof import("@glint/environment-ember-loose/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-loose/-private/dsl")) {
-        __glintRef__; __glintDSL__;
-        })}
-        }"
-      `);
-    });
-
-    test('with no default export', () => {
-      let script = {
-        filename: 'test.ts',
-        contents: stripIndent`
-          import Component from '@glimmer/component';
-          export class MyComponent extends Component {}
-        `,
-      };
-
-      let template = {
-        filename: 'test.hbs',
-        contents: stripIndent`{{hello}}`,
-      };
-
-      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
-
-      expect(transformedModule?.errors).toEqual([]);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component from '@glimmer/component';
-        export class MyComponent extends Component {}
-        ({} as typeof import("@glint/environment-ember-loose/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-loose/-private/dsl")) {
-        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintDSL__.Globals["hello"])());
-        __glintRef__; __glintDSL__;
-        });
-        "
-      `);
-    });
-
-    test('with an opaque default export', () => {
-      let script = {
-        filename: 'test.ts',
-        contents: stripIndent`
-          import templateOnly from '@glimmer/component/template-only';
-
-          export default templateOnly();
-        `,
-      };
-
-      let template = {
-        filename: 'test.hbs',
-        contents: stripIndent``,
-      };
-
-      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
-
-      expect(transformedModule?.errors).toEqual([]);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import templateOnly from '@glimmer/component/template-only';
-
-        export default templateOnly();
-        ({} as typeof import("@glint/environment-ember-loose/-private/dsl")).templateForBackingValue(({} as unknown as typeof import('./test').default), function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-loose/-private/dsl")) {
-        __glintRef__; __glintDSL__;
-        });
-        "
-      `);
-    });
-
-    test('with an opaque default export from JS file', () => {
-      let script = {
-        filename: 'test.js',
-        contents: stripIndent`
-          import templateOnly from '@glimmer/component/template-only';
-
-          export default templateOnly();
-        `,
-      };
-
-      let template = {
-        filename: 'test.hbs',
-        contents: stripIndent``,
-      };
-
-      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
-
-      expect(transformedModule?.errors).toEqual([]);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import templateOnly from '@glimmer/component/template-only';
-
-        export default templateOnly();
-        (/** @type {typeof import("@glint/environment-ember-loose/-private/dsl")} */ ({})).templateForBackingValue((/** @type {typeof import('./test').default} */ ({})), function(__glintRef__, /** @type {typeof import("@glint/environment-ember-loose/-private/dsl")} */ __glintDSL__) {
-        __glintRef__; __glintDSL__;
-        });
-        "
-      `);
-    });
-
-    test('with an unresolvable default export', () => {
-      let script = {
-        filename: 'test.ts',
-        contents: stripIndent`
-          export default Foo;
-        `,
-      };
-
-      let template = {
-        filename: 'test.hbs',
-        contents: stripIndent`{{hello}}`,
-      };
-
-      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
-
-      expect(transformedModule?.errors).toEqual([]);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "export default Foo;
-        ({} as typeof import("@glint/environment-ember-loose/-private/dsl")).templateForBackingValue(({} as unknown as typeof import('./test').default), function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-loose/-private/dsl")) {
-        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintDSL__.Globals["hello"])());
-        __glintRef__; __glintDSL__;
-        });
-        "
-      `);
-    });
-
-    test('with a class with default export in module augmentation', () => {
-      let script = {
-        filename: 'test.ts',
-        contents: stripIndent`
-          import Component from '@glimmer/component';
-          export default class MyComponent extends Component {
-          }
-          declare module '@glint/environment-ember-loose/registry' {
-            export default interface Registry {
-              Test: MyComponent;
-            }
-          }
-        `,
-      };
-
-      let template = {
-        filename: 'test.hbs',
-        contents: stripIndent``,
-      };
-
-      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
-
-      expect(transformedModule?.errors).toEqual([]);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component from '@glimmer/component';
-        export default class MyComponent extends Component {
-        static {
-        ({} as typeof import("@glint/environment-ember-loose/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-loose/-private/dsl")) {
-        __glintRef__; __glintDSL__;
-        })}
-        }
-        declare module '@glint/environment-ember-loose/registry' {
-          export default interface Registry {
-            Test: MyComponent;
-          }
-        }"
-      `);
-    });
-
-    test('with a syntax error', () => {
-      let script = {
-        filename: 'test.ts',
-        contents: stripIndent`
-          import Component from '@glimmer/component';
-          export default class MyComponent extends Component {
-          }
-        `,
-      };
-
-      let template = {
-        filename: 'test.hbs',
-        contents: stripIndent`
-          {{hello
-        `,
-      };
-
-      let transformedModule = rewriteModule(ts, { script, template }, emberLooseEnvironment);
-
-      expect(transformedModule?.errors.length).toBe(1);
-      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component from '@glimmer/component';
-        export default class MyComponent extends Component {
-        static {
-        ({} as typeof import("@glint/environment-ember-loose/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-loose/-private/dsl")) {
-        __glintRef__; __glintDSL__;
-        })}
-        }"
-      `);
-    });
-  });
-
   describe('ember-template-imports', () => {
     test('in class extends', () => {
-      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let customEnv = GlintEnvironment.load(['ember-template-imports']);
       let script = {
         filename: 'test.gts',
         contents: stripIndent`
-          import Component, { hbs } from 'special/component';
+          import Component from 'special/component';
           export default class MyComponent extends Component(<template></template>) {
 
           }
@@ -458,7 +155,7 @@ describe('Transform: rewriteModule', () => {
       let transformedModule = rewriteModule(ts, { script }, customEnv);
 
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "import Component, { hbs } from 'special/component';
+        "import Component from 'special/component';
         export default class MyComponent extends Component(({} as typeof import("@glint/environment-ember-template-imports/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-template-imports/-private/dsl")) {
         __glintRef__; __glintDSL__;
         })) {
@@ -468,7 +165,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('embedded gts templates', () => {
-      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let customEnv = GlintEnvironment.load(['ember-template-imports']);
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -543,7 +240,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('implicit default export', () => {
-      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let customEnv = GlintEnvironment.load(['ember-template-imports']);
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -597,7 +294,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('mixed expression and class uses', () => {
-      let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let customEnv = GlintEnvironment.load(['ember-template-imports']);
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -692,7 +389,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('with imported special forms', () => {
-      let env = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+      let env = GlintEnvironment.load(['ember-template-imports']);
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -859,7 +556,7 @@ describe('Transform: rewriteModule', () => {
 
     describe('satisfies', () => {
       test('with implicit export default', () => {
-        let customEnv = GlintEnvironment.load(['ember-loose', 'ember-template-imports']);
+        let customEnv = GlintEnvironment.load(['ember-template-imports']);
         let script = {
           filename: 'test.gts',
           contents: stripIndent`

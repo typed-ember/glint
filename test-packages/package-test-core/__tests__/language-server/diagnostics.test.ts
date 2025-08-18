@@ -387,12 +387,12 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
               "message": "Arguments for the rest parameter 'args' were not provided.",
               "span": {
                 "end": {
-                  "line": 24,
+                  "line": 29,
                   "offset": 49,
                 },
-                "file": "\${testWorkspacePath}.pnpm/@glint+_d5968750b5e68f92c0cf6575cab94905/node_modules/@glint/environment-ember-template-imports/-private/dsl/index.d.ts",
+                "file": "\${testWorkspacePath}.pnpm/@glint+_e51876c6918563176fc1b455771d1b61/node_modules/@glint/environment-ember-template-imports/-private/dsl/index.d.ts",
                 "start": {
-                  "line": 24,
+                  "line": 29,
                   "offset": 5,
                 },
               },

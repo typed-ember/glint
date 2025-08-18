@@ -1,39 +1,31 @@
-import * as path from 'node:path';
-import { createRequire } from 'node:module';
-import escapeStringRegexp from 'escape-string-regexp';
-import SilentError from 'silent-error';
 import {
   GlintEnvironmentConfig,
   GlintExtensionConfig,
   GlintExtensionsConfig,
   GlintTagsConfig,
-  GlintTemplateConfig,
-  PathCandidate,
-  PathCandidateWithDeferral,
   SourceKind,
 } from '@glint/core/config-types';
+import escapeStringRegexp from 'escape-string-regexp';
+import { createRequire } from 'node:module';
+import * as path from 'node:path';
+import SilentError from 'silent-error';
 
 const require = createRequire(import.meta.url);
 
 export const DEFAULT_EXTENSIONS: GlintExtensionsConfig = {
-  '.hbs': { kind: 'template' },
   '.js': { kind: 'untyped-script' },
   '.ts': { kind: 'typed-script' },
 };
 
 /**
  * A GlintEnvironment represents the _merged_ configurations of one or more
- * glint environments (e.g. ember-loose and ember-template-imports).
+ * glint environments (e.g. ember-template-imports).
  */
 export class GlintEnvironment {
   private tagConfig: GlintTagsConfig;
   private extensionsConfig: GlintExtensionsConfig;
-  private standaloneTemplateConfig: GlintTemplateConfig | undefined;
-  private tagImportRegexp: RegExp;
 
-  public typedScriptExtensions: ReadonlyArray<string>;
-  public untypedScriptExtensions: ReadonlyArray<string>;
-  public templateExtensions: ReadonlyArray<string>;
+  private tagImportRegexp: RegExp;
 
   public constructor(
     public readonly names: Array<string>,
@@ -42,21 +34,8 @@ export class GlintEnvironment {
     this.tagConfig = config.tags ?? {};
     // when is this populated? what is config?
     this.extensionsConfig = config.extensions ?? {};
-    this.standaloneTemplateConfig = config.template;
+
     this.tagImportRegexp = this.buildTagImportRegexp();
-
-    /**
-     * export declare type GlintEnvironmentConfig = {
-    tags?: GlintTagsConfig;
-    template?: GlintTemplateConfig;
-    extensions?: GlintExtensionsConfig;
-      };
-
-     */
-
-    this.typedScriptExtensions = this.extensionsOfType('typed-script');
-    this.untypedScriptExtensions = this.extensionsOfType('untyped-script');
-    this.templateExtensions = this.extensionsOfType('template');
   }
 
   public static load(
@@ -86,10 +65,6 @@ export class GlintEnvironment {
     return kind === 'typed-script' || kind === 'untyped-script';
   }
 
-  public isTemplate(path: string): boolean {
-    return this.getSourceKind(path) === 'template';
-  }
-
   /**
    * Returns an array of custom file extensions that the active environment
    * is able to handle.
@@ -103,40 +78,6 @@ export class GlintEnvironment {
    */
   public getConfigForExtension(extension: string): GlintExtensionConfig | undefined {
     return this.extensionsConfig[extension];
-  }
-
-  /**
-   * Returns configuration information for standalone templates in this environment,
-   * including the location of their backing types module and any special forms
-   * they support.
-   */
-  public getStandaloneTemplateConfig():
-    | Pick<GlintTemplateConfig, 'typesModule' | 'specialForms'>
-    | undefined {
-    if (this.standaloneTemplateConfig) {
-      let { typesModule, specialForms } = this.standaloneTemplateConfig;
-      return { typesModule, specialForms };
-    }
-  }
-
-  /**
-   * Given the path of a script, returns an array of candidate paths where
-   * a template corresponding to that script might be located.
-   */
-  public getPossibleTemplatePaths(scriptPath: string): Array<PathCandidateWithDeferral> {
-    return normalizePathCandidates(
-      this.standaloneTemplateConfig?.getPossibleTemplatePaths(scriptPath) ?? [],
-    );
-  }
-
-  /**
-   * Given the path of a template, returns an array of candidate paths where
-   * a script corresponding to that script might be located.
-   */
-  public getPossibleScriptPaths(templatePath: string): Array<PathCandidateWithDeferral> {
-    return normalizePathCandidates(
-      this.standaloneTemplateConfig?.getPossibleScriptPaths(templatePath) ?? [],
-    );
   }
 
   /**
@@ -167,12 +108,6 @@ export class GlintEnvironment {
     let regexpSource = importSources.map(escapeStringRegexp).join('|');
     return new RegExp(regexpSource);
   }
-
-  private extensionsOfType(kind: SourceKind): Array<string> {
-    return Object.keys(this.extensionsConfig).filter(
-      (key) => this.extensionsConfig[key].kind === kind,
-    );
-  }
 }
 
 function normalizeEnvironmentSpecifier(
@@ -193,8 +128,12 @@ function loadMergedEnvironmentConfig(
 ): GlintEnvironmentConfig {
   let tags: GlintTagsConfig = {};
   let extensions: GlintExtensionsConfig = { ...DEFAULT_EXTENSIONS };
-  let template: GlintTemplateConfig | undefined;
   for (let [envName, envUserConfig] of Object.entries(envs)) {
+    if (envName === 'ember-loose') {
+      // TODO: maybe warn that this can be removed from glint 2?
+      continue;
+    }
+
     let envPath = locateEnvironment(envName, rootDir);
     let envModule = require(envPath);
     let envFunction = envModule?.default ?? envModule;
@@ -206,16 +145,6 @@ function loadMergedEnvironmentConfig(
     }
 
     let config = envFunction(envUserConfig ?? {}) as GlintEnvironmentConfig;
-
-    if (config.template) {
-      if (template) {
-        throw new SilentError(
-          'Multiple configured Glint environments attempted to define behavior for standalone template files.',
-        );
-      }
-
-      template = config.template;
-    }
 
     if (config.tags) {
       for (let [importSource, specifiers] of Object.entries(config.tags)) {
@@ -251,7 +180,7 @@ function loadMergedEnvironmentConfig(
     }
   }
 
-  return { tags, extensions, template };
+  return { tags, extensions };
 }
 
 function locateEnvironment(name: string, basedir: string): string {
@@ -277,12 +206,4 @@ function locateEnvironment(name: string, basedir: string): string {
   }
 
   throw new SilentError(`Unable to resolve environment '${name}' from ${basedir}`);
-}
-
-function normalizePathCandidates(
-  candidates: Array<PathCandidate>,
-): Array<PathCandidateWithDeferral> {
-  return candidates.map((candidate) =>
-    typeof candidate === 'string' ? { path: candidate, deferTo: [] } : candidate,
-  );
 }

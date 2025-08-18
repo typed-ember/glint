@@ -59,30 +59,19 @@ pnpm run test
 
 Secondly, the Launch Configurations described above (I believe) will run your client-side extension code in debug mode, along with the language server.
 
-## How to see the transformed Intermediate Representation (IR) code of a template
+## How to see the transformed TypeScript representation of a template
 
-Glint transforms template code into TypeScript code so that it can be type-checked by the vanilla TS compiler. Transformed IR code looks something like:
+Glint transforms template code into TypeScript code so that it can be type-checked by the vanilla TS compiler. Sometimes it is useful to see this transformed representation of any .gts/.gjs file for debugging purposes.
 
-```ts
-static {
-({} as typeof import("@glint/environment-ember-loose/-private/dsl")
-       .templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/environment-ember-loose/-private/dsl")) {
-  {
-    const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["FooComponent"])
-      ({ desc: "notchHeight _ footer", ...__glintDSL__.NamedArgsMarker }));
-    __glintY__;
-    {
-      const [] = __glintY__.blockParams["default"];
-      {
-  // ...
-```
+To inspect the transformed code in VSCode:
 
-Sometimes it is useful to see the IR of any .hbs template or .gts/.gjs file for debugging purposes; if you're using VSCode you can see the IR by:
+1. Install the "Volar Labs" extension from the VSCode marketplace
+2. Open a .gts file in your editor
+3. Use the Volar Labs extension to inspect the VirtualCode tree of embedded documents
+4. You can see the transformed TypeScript representation of the GTS file
+5. Hover over source GTS code and transformed TypeScript code to see the mapped regions between them
 
-1. Enable "Glint: Debug" in your VSCode user preferences
-2. Run the "Glint: Show IR for Debugging" command
-
-Your template code will be replaced by the IR directly in your editor window.
+This provides a visual way to understand how your template code is being transformed and helps with debugging type issues.
 
 ## How to link all the packages to an external project?
 

@@ -137,11 +137,10 @@ export class VirtualGtsCode implements VirtualCode {
     const embeddedLanguageId = isJavascript ? 'javascript' : 'typescript';
     const filename = isJavascript ? 'root.gjs' : 'root.gts';
     let script = { filename, contents };
-    let template = undefined;
 
     const transformedModule = rewriteModule(
       this.glintConfig.ts,
-      { script, template },
+      { script },
       this.glintConfig.environment,
     );
 

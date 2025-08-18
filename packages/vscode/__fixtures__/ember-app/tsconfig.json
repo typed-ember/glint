@@ -1,12 +1,9 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "target": "es2019",
-    "module": "es2015",
-    "moduleResolution": "node",
-    "skipLibCheck": true
-  },
+  "extends": "../../../../tsconfig.compileroptions.json",
   "glint": {
-    "environment": "ember-loose"
+    "environment": ["ember-template-imports"]
+  },
+  "compilerOptions": {
+    "baseUrl": "."
   }
 }
