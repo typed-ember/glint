@@ -4,8 +4,5 @@
     "composite": false,
     "noEmit": true,
     "types": ["ember-source/types"]
-  },
-  "glint": {
-    "environment": "ember-template-imports"
   }
 }

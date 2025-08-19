@@ -5,7 +5,6 @@ import {
   GlintTagsConfig,
   SourceKind,
 } from '@glint/core/config-types';
-import escapeStringRegexp from 'escape-string-regexp';
 import * as path from 'node:path';
 import SilentError from 'silent-error';
 
@@ -24,8 +23,6 @@ export class GlintEnvironment {
   private tagConfig: GlintTagsConfig;
   private extensionsConfig: GlintExtensionsConfig;
 
-  private tagImportRegexp: RegExp;
-
   public constructor(
     public readonly names: Array<string>,
     config: GlintEnvironmentConfig,
@@ -33,16 +30,72 @@ export class GlintEnvironment {
     this.tagConfig = config.tags ?? {};
     // when is this populated? what is config?
     this.extensionsConfig = config.extensions ?? {};
-
-    this.tagImportRegexp = this.buildTagImportRegexp();
   }
 
   public static load(
-    specifier: string | Array<string> | Record<string, unknown>,
+    topLevelGlintConfigObject: any,
     { rootDir = process.cwd() } = {},
   ): GlintEnvironment {
-    let config = loadMergedEnvironmentConfig();
-    return new GlintEnvironment(Object.keys(config), config);
+    // Glint V1:
+    let additionalGlobals = null;
+    if (topLevelGlintConfigObject) {
+      if (topLevelGlintConfigObject.additionalGlobals) {
+        additionalGlobals = topLevelGlintConfigObject.additionalGlobals;
+      } else {
+        if (Array.isArray(topLevelGlintConfigObject.environment)) {
+          // If it's a legacy array of environment names, e.g. ['ember-template-imports', 'ember-loose'],
+          // then there is no additional config such as additionalGlobals to extract.
+        } else {
+          if (typeof topLevelGlintConfigObject.environment === 'object') {
+            const emberTemplateImportsConfig =
+              topLevelGlintConfigObject.environment?.['ember-template-imports'] ?? {};
+            additionalGlobals = emberTemplateImportsConfig.additionalGlobals ?? [];
+          }
+        }
+      }
+    }
+
+    let tags: GlintTagsConfig = {};
+    let extensions: GlintExtensionsConfig = { ...DEFAULT_EXTENSIONS };
+
+    const envUserConfig = { additionalGlobals };
+
+    let config = emberTemplateImportsEnvironment(envUserConfig) as GlintEnvironmentConfig;
+
+    if (config.tags) {
+      for (let [importSource, specifiers] of Object.entries(config.tags)) {
+        tags[importSource] ??= {};
+        for (let [importSpecifier, tagConfig] of Object.entries(specifiers)) {
+          if (importSpecifier in tags[importSource]) {
+            throw new SilentError(
+              'Multiple configured Glint environments attempted to define behavior for the tag `' +
+                importSpecifier +
+                "` in module '" +
+                importSource +
+                "'.",
+            );
+          }
+
+          tags[importSource][importSpecifier] = tagConfig;
+        }
+      }
+    }
+
+    if (config.extensions) {
+      for (let [extension, extensionConfig] of Object.entries(config.extensions)) {
+        if (extension in extensions) {
+          throw new SilentError(
+            'Multiple configured Glint environments attempted to define handling for the ' +
+              extension +
+              ' file extension.',
+          );
+        }
+
+        extensions[extension] = extensionConfig;
+      }
+    }
+
+    return new GlintEnvironment(Object.keys(config), { tags, extensions });
   }
 
   public getSourceKind(fileName: string): SourceKind | 'unknown' {
@@ -50,25 +103,8 @@ export class GlintEnvironment {
     return this.extensionsConfig[extension]?.kind ?? 'unknown';
   }
 
-  public isTypedScript(path: string): boolean {
-    return this.getSourceKind(path) === 'typed-script';
-  }
-
   public isUntypedScript(path: string): boolean {
     return this.getSourceKind(path) === 'untyped-script';
-  }
-
-  public isScript(path: string): boolean {
-    let kind = this.getSourceKind(path);
-    return kind === 'typed-script' || kind === 'untyped-script';
-  }
-
-  /**
-   * Returns an array of custom file extensions that the active environment
-   * is able to handle.
-   */
-  public getConfiguredFileExtensions(): Array<string> {
-    return Object.keys(this.extensionsConfig);
   }
 
   /**
@@ -79,20 +115,6 @@ export class GlintEnvironment {
   }
 
   /**
-   * Indicates whether the given module _may_ have embedded templates in it.
-   *
-   * Note that this method is intended to be a cheaper initial pass to avoid needlessly
-   * parsing modules that definitely don't require rewriting. It therefore may produce
-   * false positives, but should never give a false negative.
-   */
-  public moduleMayHaveEmbeddedTemplates(modulePath: string, moduleContents: string): boolean {
-    let config = this.getConfigForExtension(path.extname(modulePath));
-    return Boolean(
-      config?.preprocess || config?.transform || this.tagImportRegexp.test(moduleContents),
-    );
-  }
-
-  /**
    * Returns an array of template tags that should be rewritten according to this
    * config object, along with an import specifier indicating where the template types
    * for each tag can be found.
@@ -100,63 +122,4 @@ export class GlintEnvironment {
   public getConfiguredTemplateTags(): GlintTagsConfig {
     return this.tagConfig;
   }
-
-  private buildTagImportRegexp(): RegExp {
-    let importSources = Object.keys(this.tagConfig);
-    let regexpSource = importSources.map(escapeStringRegexp).join('|');
-    return new RegExp(regexpSource);
-  }
-}
-
-function loadMergedEnvironmentConfig(): GlintEnvironmentConfig {
-  let tags: GlintTagsConfig = {};
-  let extensions: GlintExtensionsConfig = { ...DEFAULT_EXTENSIONS };
-  // for (let [envName, envUserConfig] of Object.entries(envs)) {
-  //   if (envName === 'ember-loose') {
-  //     // TODO: maybe warn that this can be removed from glint 2?
-  //     continue;
-  //   }
-
-  const envFunction = emberTemplateImportsEnvironment;
-
-  // TODO: load config/ move to top level tsconfig.glint scope.
-
-  const envUserConfig = {};
-
-  let config = envFunction(envUserConfig ?? {}) as GlintEnvironmentConfig;
-
-  if (config.tags) {
-    for (let [importSource, specifiers] of Object.entries(config.tags)) {
-      tags[importSource] ??= {};
-      for (let [importSpecifier, tagConfig] of Object.entries(specifiers)) {
-        if (importSpecifier in tags[importSource]) {
-          throw new SilentError(
-            'Multiple configured Glint environments attempted to define behavior for the tag `' +
-              importSpecifier +
-              "` in module '" +
-              importSource +
-              "'.",
-          );
-        }
-
-        tags[importSource][importSpecifier] = tagConfig;
-      }
-    }
-  }
-
-  if (config.extensions) {
-    for (let [extension, extensionConfig] of Object.entries(config.extensions)) {
-      if (extension in extensions) {
-        throw new SilentError(
-          'Multiple configured Glint environments attempted to define handling for the ' +
-            extension +
-            ' file extension.',
-        );
-      }
-
-      extensions[extension] = extensionConfig;
-    }
-  }
-
-  return { tags, extensions };
 }
