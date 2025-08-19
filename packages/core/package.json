@@ -75,6 +75,7 @@
   },
   "devDependencies": {
     "@glimmer/component": "^2.0.0",
+    "@glint/type-test": "workspace:*",
     "@types/common-tags": "^1.8.0",
     "@types/node": "^18.11.5",
     "@types/semver": "^7.3.13",

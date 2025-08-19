@@ -142,6 +142,9 @@ importers:
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
+      '@glint/type-test':
+        specifier: workspace:*
+        version: link:../type-test
       '@types/common-tags':
         specifier: ^1.8.0
         version: 1.8.4
@@ -323,6 +326,9 @@ importers:
       '@glint/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@glint/template':
+        specifier: workspace:*
+        version: link:../../packages/template
       '@types/common-tags':
         specifier: ^1.8.0
         version: 1.8.4
@@ -353,6 +359,9 @@ importers:
       execa:
         specifier: ^4.0.1
         version: 4.1.0
+      expect-type:
+        specifier: ^1.2.1
+        version: 1.2.1
       glint-monorepo-test-utils:
         specifier: workspace:*
         version: link:../test-utils
