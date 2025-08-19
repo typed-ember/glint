@@ -27,7 +27,7 @@ try {
 }
 const glintCore = jiti(glintCorePath);
 
-const { VirtualGtsCode, LooseModeBackingComponentClassVirtualCode, augmentDiagnostics } = glintCore;
+const { VirtualGtsCode, augmentDiagnostics } = glintCore;
 
 const plugin = createLanguageServicePlugin(
   (ts: typeof import('typescript'), info: ts.server.PluginCreateInfo) => {
@@ -274,7 +274,7 @@ function getSemanticDiagnostics<T>(
 
     const root = sourceScript.generated.root;
     if (
-      !(root instanceof VirtualGtsCode || root instanceof LooseModeBackingComponentClassVirtualCode)
+      !(root instanceof VirtualGtsCode)
     ) {
       return tsDiagnostics;
     }
