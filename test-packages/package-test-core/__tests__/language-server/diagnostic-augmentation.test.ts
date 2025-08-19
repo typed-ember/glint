@@ -41,7 +41,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
     describe('$', () => {
       test('GitHub Issue#840', async () => {
         let diagnostics = await requestTsserverDiagnostics(
-          'ts-template-imports-app/src/ephemeral-index.gts',
+          'ts-template-imports-app/src/empty-fixture.gts',
           'glimmer-ts',
           [
             'const foo = 2;',
@@ -59,7 +59,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
   test('expected argument count', async () => {
     let diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       stripIndent`
         import Component from '@glimmer/component';
@@ -141,7 +141,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
   test('emit for attributes and top-level content', async () => {
     let diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       stripIndent`
         import Component from '@glimmer/component';
@@ -382,7 +382,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
   test('bad `component`/`helper`/`modifier` arg type', async () => {
     let diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       stripIndent`
         import { ComponentLike, HelperLike, ModifierLike } from '@glint/template';
@@ -519,7 +519,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
   // Not sure why this isn't firing...
   test.skip('`noPropertyAccessFromIndexSignature` violation', async () => {
     let diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       stripIndent`
         declare const stringRecord: Record<string, string>;

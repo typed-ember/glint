@@ -18,7 +18,7 @@ describe('Language Server: Imports', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       code,
     );
@@ -34,7 +34,7 @@ describe('Language Server: Imports', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       code,
     );

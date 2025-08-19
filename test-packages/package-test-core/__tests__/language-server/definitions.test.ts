@@ -1,15 +1,14 @@
-import {
-  getSharedTestWorkspaceHelper,
-  teardownSharedTestWorkspaceAfterEach,
-  prepareDocument,
-  testWorkspacePath,
-  extractCursor,
-  extractCursors,
-} from 'glint-monorepo-test-utils';
-import { describe, beforeEach, afterEach, test, expect } from 'vitest';
 import { stripIndent } from 'common-tags';
-import { URI } from 'vscode-uri';
+import {
+  extractCursor,
+  getSharedTestWorkspaceHelper,
+  prepareDocument,
+  teardownSharedTestWorkspaceAfterEach,
+  testWorkspacePath,
+} from 'glint-monorepo-test-utils';
+import { afterEach, describe, expect, test } from 'vitest';
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import { URI } from 'vscode-uri';
 
 describe('Language Server: Definitions (ts plugin)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
@@ -17,7 +16,7 @@ describe('Language Server: Definitions (ts plugin)', () => {
   test('component invocation', async () => {
     expect(
       await requestDefinition(
-        'ts-template-imports-app/src/ephemeral.gts',
+        'ts-template-imports-app/src/empty-fixture.gts',
         'glimmer-ts',
         stripIndent`
         import Component from '@glimmer/component';
@@ -58,7 +57,7 @@ describe('Language Server: Definitions (ts plugin)', () => {
   test('(typescript.glimmer) component invocation', async () => {
     expect(
       await requestDefinition(
-        'ts-template-imports-app/src/ephemeral.gts',
+        'ts-template-imports-app/src/empty-fixture.gts',
         'typescript.glimmer',
         stripIndent`
         import Component from '@glimmer/component';
@@ -99,7 +98,7 @@ describe('Language Server: Definitions (ts plugin)', () => {
   test('arg passing', async () => {
     expect(
       await requestDefinition(
-        'ts-template-imports-app/src/ephemeral.gts',
+        'ts-template-imports-app/src/empty-fixture.gts',
         'glimmer-ts',
         stripIndent`
         import Component from '@glimmer/component';
@@ -140,7 +139,7 @@ describe('Language Server: Definitions (ts plugin)', () => {
   test('arg use', async () => {
     expect(
       await requestDefinition(
-        'ts-template-imports-app/src/ephemeral.gts',
+        'ts-template-imports-app/src/empty-fixture.gts',
         'glimmer-ts',
         stripIndent`
         import Component from '@glimmer/component';
@@ -169,7 +168,7 @@ describe('Language Server: Definitions (ts plugin)', () => {
             "line": 4,
             "offset": 10,
           },
-          "file": "\${testWorkspacePath}/ts-template-imports-app/src/ephemeral.gts",
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/empty-fixture.gts",
           "start": {
             "line": 4,
             "offset": 3,
