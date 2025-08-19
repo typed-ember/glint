@@ -6,7 +6,7 @@
 /// <reference path="./integration-declarations.d.ts" preserve="true" />
 
 export * from '@glint/template/-private/dsl';
-export type { Globals } from './globals.d.ts';
+export { Globals } from './globals';
 
 import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {
