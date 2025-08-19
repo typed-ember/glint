@@ -43,7 +43,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     });
   });
 
-  test.only('reports diagnostics for an inline template type error', async () => {
+  test('reports diagnostics for an inline template type error', async () => {
     const code = stripIndent`
       // Here's a leading comment to make sure we handle trivia right
       import Component from '@glimmer/component';
@@ -63,7 +63,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       code,
     );
@@ -87,7 +87,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
                   "line": 9,
                   "offset": 22,
                 },
-                "file": "\${testWorkspacePath}/ts-template-imports-app/src/ephemeral-index.gts",
+                "file": "\${testWorkspacePath}/ts-template-imports-app/src/empty-fixture.gts",
                 "start": {
                   "line": 9,
                   "offset": 11,
@@ -117,7 +117,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -154,7 +154,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -175,7 +175,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -209,14 +209,14 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnosticsA = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
     expect(diagnosticsA).toMatchInlineSnapshot(`[]`);
 
     const diagnosticsB = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentB,
     );
@@ -238,7 +238,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -277,7 +277,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -298,7 +298,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -336,7 +336,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -366,7 +366,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -390,7 +390,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
                   "line": 29,
                   "offset": 49,
                 },
-                "file": "\${testWorkspacePath}.pnpm/@glint+_e51876c6918563176fc1b455771d1b61/node_modules/@glint/core/-private/dsl/index.d.ts",
+                "file": "\${testWorkspacePath}.pnpm/@glint+_e7cc4f750883c618a76694e3a2c3a713/node_modules/@glint/core/types/-private/dsl/index.d.ts",
                 "start": {
                   "line": 29,
                   "offset": 5,
@@ -431,7 +431,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -461,7 +461,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -520,7 +520,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -552,7 +552,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -585,7 +585,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -607,7 +607,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -644,7 +644,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       componentA,
     );
@@ -684,7 +684,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
   `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       code,
     );
@@ -714,7 +714,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
   `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       code,
     );
@@ -760,7 +760,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
   `;
 
     const diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       code,
     );
