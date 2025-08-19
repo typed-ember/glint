@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "@glimmer/syntax": "*",
+    "@glint/template": "workspace:*",
     "@volar/kit": "2.4.12",
     "@volar/language-core": "2.4.12",
     "@volar/language-server": "2.4.12",

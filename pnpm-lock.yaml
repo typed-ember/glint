@@ -78,6 +78,9 @@ importers:
       '@glimmer/syntax':
         specifier: '*'
         version: 0.92.3
+      '@glint/template':
+        specifier: workspace:*
+        version: link:../template
       '@volar/kit':
         specifier: 2.4.12
         version: 2.4.12(typescript@5.8.2)
@@ -9539,6 +9542,7 @@ snapshots:
   '@glint/core@file:packages/core(typescript@5.8.2)':
     dependencies:
       '@glimmer/syntax': 0.92.3
+      '@glint/template': link:packages/template
       '@volar/kit': 2.4.12(typescript@5.8.2)
       '@volar/language-core': 2.4.12
       '@volar/language-server': 2.4.12
