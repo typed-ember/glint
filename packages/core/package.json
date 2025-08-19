@@ -16,8 +16,8 @@
       "default": "./lib/config/types.cjs"
     },
     "./bin/*": "./bin/*.js",
-    "./globals": "./lib/environment-ember-template-imports/globals/index.js",
-    "./-private/dsl": "./lib/environment-ember-template-imports/-private/dsl/index.js",
+    "./globals": "./types/globals/index.d.ts",
+    "./-private/*": "./types/-private/*",
     "./*": {
       "types": "./lib/*.d.ts",
       "default": "./lib/*.js"
