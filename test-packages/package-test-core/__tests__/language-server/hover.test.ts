@@ -27,21 +27,21 @@ describe('Language Server: Hover (ts plugin)', () => {
     `);
 
     const doc = await prepareDocument(
-      'ts-template-imports-app/src/empty-fixture.gts',
+      'ts-template-imports-app/src/ephemeral.gts',
       'glimmer-ts',
       content,
     );
 
     expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
       {
-        "displayString": "any",
-        "documentation": "",
+        "displayString": "(property) MyComponent.message: string",
+        "documentation": "A message.",
         "end": {
           "line": 8,
           "offset": 19,
         },
-        "kind": "",
-        "kindModifiers": "",
+        "kind": "property",
+        "kindModifiers": "private",
         "start": {
           "line": 8,
           "offset": 12,
@@ -68,20 +68,20 @@ describe('Language Server: Hover (ts plugin)', () => {
     `);
 
     const doc = await prepareDocument(
-      'ts-template-imports-app/src/empty-fixture.gts',
+      'ts-template-imports-app/src/ephemeral.gts',
       'glimmer-ts',
       content,
     );
 
     expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
       {
-        "displayString": "any",
-        "documentation": "",
+        "displayString": "(property) MyComponentArgs.str: string",
+        "documentation": "Some string",
         "end": {
           "line": 10,
           "offset": 11,
         },
-        "kind": "",
+        "kind": "property",
         "kindModifiers": "",
         "start": {
           "line": 10,
@@ -106,14 +106,14 @@ describe('Language Server: Hover (ts plugin)', () => {
     `);
 
     const doc = await prepareDocument(
-      'ts-template-imports-app/src/empty-fixture.gts',
+      'ts-template-imports-app/src/ephemeral.gts',
       'glimmer-ts',
       content,
     );
 
     expect(await performHoverRequest(doc, offset)).toMatchInlineSnapshot(`
       {
-        "displayString": "const index: any",
+        "displayString": "const index: number",
         "documentation": "",
         "end": {
           "line": 6,
