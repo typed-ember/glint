@@ -17,7 +17,10 @@
     },
     "./bin/*": "./bin/*.js",
     "./globals": "./types/globals/index.d.ts",
+    "./-private/dsl": "./types/-private/dsl/index.d.ts",
+    "./-private/intrinsics/*": "./types/-private/intrinsics/*",
     "./-private/*": "./types/-private/*",
+    "./-private/intrinsics/mut": "./types/-private/intrinsics/mut.d.ts",
     "./*": {
       "types": "./lib/*.d.ts",
       "default": "./lib/*.js"
