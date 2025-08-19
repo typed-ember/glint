@@ -1,12 +1,12 @@
-// transformed .gts files will import this file directly. Therefore we can take this opportunity
-// to import the main index file with all of the `/// <reference path="..." />`s to include the
-// declarations mergings for upstream packages like `@ember/component` and `@glimmer/component`.
-// With this, users should no long need to put a `import '@glint/core/environment-ember-template-imports'`
-// "somewhere" in their projects.
-import '../index';
+// Reference the scaffolding for our merged declarations for third party modules so
+// that vanilla TS will see those as long as authors have
+// `import '@glint/core/environment-ember-template-imports'` somewhere in their project.
+
+/// <reference path="../../globals/index.d.ts" preserve="true" />
+/// <reference path="./integration-declarations.d.ts" preserve="true" />
 
 export * from '@glint/template/-private/dsl';
-export { Globals } from './globals';
+export type { Globals } from './globals.d.ts';
 
 import { ResolveOrReturn } from '@glint/template/-private/dsl';
 import {

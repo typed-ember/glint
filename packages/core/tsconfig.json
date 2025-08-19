@@ -5,5 +5,6 @@
     "outDir": "lib",
     "types": ["@types/node"]
   },
-  "include": ["src", "types"]
+  "include": ["src", "types"],
+  "references": [{ "path": "../template" }]
 }

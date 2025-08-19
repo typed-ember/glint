@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "test:typecheck": "echo 'no standalone typecheck within this project'",
+    "test:typecheck": "glint --project __tests__/type-tests",
     "test:tsc": "echo 'no standalone typecheck within this project'",
     "test:watch": "vitest watch"
   },
@@ -14,6 +14,7 @@
     "@glimmer/component": "^2.0.0",
     "@glint/core": "workspace:*",
     "@glint/template": "workspace:*",
+    "@glint/type-test": "workspace:*",
     "@volar/language-server": "2.4.12",
     "@types/common-tags": "^1.8.0",
     "@types/node": "^18.11.5",
@@ -23,6 +24,9 @@
     "@typescript/server-harness": "latest",
     "@vitest/ui": "~1.0.0",
     "common-tags": "^1.8.0",
+    "ember-cli-htmlbars": "^6.0.1",
+    "ember-modifier": "^3.2.7 || ^4.0.0",
+    "ember-source": "^6.2.0",
     "execa": "^4.0.1",
     "expect-type": "^1.2.1",
     "glint-monorepo-test-utils": "workspace:*",
