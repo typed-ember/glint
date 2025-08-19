@@ -273,9 +273,7 @@ function getSemanticDiagnostics<T>(
     }
 
     const root = sourceScript.generated.root;
-    if (
-      !(root instanceof VirtualGtsCode)
-    ) {
+    if (!(root instanceof VirtualGtsCode)) {
       return tsDiagnostics;
     }
 
