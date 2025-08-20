@@ -59,10 +59,5 @@
   },
   "devDependencies:notes": {
     "typescript": "bumped version because volar caused error TS2694, TS1383"
-  },
-  "resolutions:notes": {
-    "@glimmer/validator": "Newer versions of @glimmer/* are ESM-only, and Glint is compiled to CJS, so newer versions of @glimmer/* are not compatible",
-    "@types/yargs": "Locking temporarily to avoid an issue with the ESM types in 17.0.14; see DT#63373",
-    "@types/node": "Locking to avoid conflicts between the declared version in packages/core and floating '*' versions when we run in CI without the lockfile"
   }
 }
