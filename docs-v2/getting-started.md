@@ -69,8 +69,7 @@ npx glint src/helpers/format-date.ts src/components/date-picker.gts
 When checking specific files, Glint:
 - Uses your project's `tsconfig.json` configuration
 - Applies the same type checking rules as project-wide checking
-- Only analyzes the specified files for faster performance
-- Maintains all your project's compiler options and path mappings
+- Analyzes the specified files and all their dependencies for faster performance
 
 ### Glint Editor Extensions
 
