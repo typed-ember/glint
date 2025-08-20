@@ -159,7 +159,13 @@ export function createTempConfigForFiles(cwd: string, fileArgs: string[]): TempC
     throw new Error('No tsconfig.json found. Glint requires a TypeScript configuration file.');
   }
 
-  const originalConfig = JSON.parse(fs.readFileSync(tsconfigPath, 'utf-8'));
+  // Use TypeScript's config file reader to handle comments
+  const configFileResult = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
+  if (configFileResult.error) {
+    throw new Error(`Error reading tsconfig: ${ts.flattenDiagnosticMessageText(configFileResult.error.messageText, '\n')}`);
+  }
+  
+  const originalConfig = configFileResult.config;
   const tempConfig = {
     ...originalConfig,
     files: fileArgs,
