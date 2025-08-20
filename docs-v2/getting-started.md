@@ -51,6 +51,33 @@ To this:
 
 You can also use the `glint` command locally with the `--watch` flag to monitor your project as you work!
 
+#### Single File Checking
+
+Glint supports checking individual files or a specific set of files instead of your entire project. This can be useful for faster feedback during development or when working with large codebases.
+
+```bash
+# Check a single file
+npx glint src/components/my-component.gts
+
+# Check multiple files
+npx glint src/components/header.gts src/components/footer.gts
+
+# Check files with different extensions
+npx glint src/helpers/format-date.ts src/components/date-picker.gts
+```
+
+When checking specific files, Glint:
+- Uses your project's `tsconfig.json` configuration
+- Applies the same type checking rules as project-wide checking
+- Only analyzes the specified files for faster performance
+- Maintains all your project's compiler options and path mappings
+
+This is particularly useful for:
+- **IDE integrations** that need to check files on save
+- **Git hooks** that validate only changed files
+- **Development workflows** where you want quick feedback on specific components
+- **CI optimizations** for incremental builds
+
 ### Glint Editor Extensions
 
 You can install an editor extension to display Glint's diagnostics inline in your templates and provide richer editor support&mdash;typechecking, type information on hover, automated refactoring, and more&mdash;powered by `glint-language-server`:

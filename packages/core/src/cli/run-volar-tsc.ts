@@ -1,12 +1,35 @@
 import { runTsc } from '@volar/typescript/lib/quickstart/runTsc.js';
 import { createEmberLanguagePlugin } from '../volar/ember-language-plugin.js';
-import { findConfig } from '../config/index.js';
+import { findConfig, createTempConfigForFiles, findTypeScript } from '../config/index.js';
 
 import { createRequire } from 'node:module';
+import { LanguagePlugin, URI } from '@volar/language-server';
 const require = createRequire(import.meta.url);
 
 export function run(): void {
-  let cwd = process.cwd();
+  const cwd = process.cwd();
+  const args = process.argv.slice(2);
+  
+  // Use TypeScript's built-in command line parser
+  const ts = findTypeScript(cwd);
+
+  if (!ts) {
+    throw new Error('TypeScript not found. Glint requires TypeScript to be installed.');
+  }
+  
+  const parsedCommandLine = ts.parseCommandLine(args);
+  
+  // Handle parsing errors
+  if (parsedCommandLine.errors.length > 0) {
+    parsedCommandLine.errors.forEach(error => {
+      console.error(ts.flattenDiagnosticMessageText(error.messageText, '\n'));
+    });
+    process.exit(1);
+  }
+  
+  const files = parsedCommandLine.fileNames;
+  const compilerOptions = parsedCommandLine.options;
+  const hasSpecificFiles = files.length > 0;
 
   const options = {
     extraSupportedExtensions: ['.gjs', '.gts'],
@@ -21,16 +44,56 @@ export function run(): void {
     // See discussion here: https://github.com/typed-ember/glint/issues/628
   };
 
-  const main = (): void =>
-    runTsc(require.resolve('typescript/lib/tsc'), options, (ts, options) => {
-      const glintConfig = findConfig(cwd);
+  const createLanguagePlugin = (): LanguagePlugin<URI>[] => {
+    const glintConfig = findConfig(cwd);
+    return glintConfig ? [createEmberLanguagePlugin(glintConfig)] : [];
+  };
 
-      if (glintConfig) {
-        const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig);
-        return [gtsLanguagePlugin];
-      } else {
-        return [];
+  if (hasSpecificFiles) {
+    // For specific files, create temporary tsconfig that inherits from project config
+    const { tempConfigPath, cleanup } = createTempConfigForFiles(cwd, files);
+    const originalArgv = process.argv;
+    
+    try {
+      // Build TypeScript arguments for single file checking
+      const tscArgs = ['node', 'tsc', '--project', tempConfigPath];
+      
+      // Convert compiler options back to command line arguments
+      // Skip conflicting options that we control
+      const filteredOptions = { ...compilerOptions };
+      delete filteredOptions.project;
+      
+      // Add --noEmit as default only if user hasn't specified emit-related flags
+      const hasEmitFlag = Boolean(
+        compilerOptions.noEmit ||
+        compilerOptions.declaration ||
+        compilerOptions.emitDeclarationOnly ||
+        compilerOptions['build']
+      );
+      
+      if (!hasEmitFlag) {
+        filteredOptions.noEmit = true;
       }
-    });
-  main();
+      
+      // Convert options back to command line format
+      Object.entries(filteredOptions).forEach(([key, value]) => {
+        if (value === true) {
+          tscArgs.push(`--${key}`);
+        } else if (value === false) {
+          // Skip false boolean values
+        } else if (value !== undefined) {
+          tscArgs.push(`--${key}`, String(value));
+        }
+      });
+      
+      process.argv = tscArgs;
+      
+      runTsc(require.resolve('typescript/lib/tsc'), options, createLanguagePlugin);
+    } finally {
+      cleanup();
+      process.argv = originalArgv;
+    }
+  } else {
+    runTsc(require.resolve('typescript/lib/tsc'), options, createLanguagePlugin);
+  }
 }
