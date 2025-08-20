@@ -87,7 +87,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
                   "line": 9,
                   "offset": 22,
                 },
-                "file": "\${testWorkspacePath}/ts-template-imports-app/src/empty-fixture.gts",
+                "file": "\${repoRootPath}/test-packages/ts-template-imports-app/src/empty-fixture.gts",
                 "start": {
                   "line": 9,
                   "offset": 11,
@@ -390,7 +390,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
                   "line": 29,
                   "offset": 49,
                 },
-                "file": "\${testWorkspacePath}.pnpm/@glint+_e7cc4f750883c618a76694e3a2c3a713/node_modules/@glint/core/types/-private/dsl/index.d.ts",
+                "file": "\${repoRootPath}/node_modules/.pnpm/@glint+_e7cc4f750883c618a76694e3a2c3a713/node_modules/@glint/core/types/-private/dsl/index.d.ts",
                 "start": {
                   "line": 29,
                   "offset": 5,
@@ -794,7 +794,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 3,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/ts-template-imports-app/src/empty-fixture.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/test-packages/ts-template-imports-app/src/empty-fixture.gts",
             "version": 0,
           },
           "message": "Parse error on line 2:
@@ -844,7 +844,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "isFormat": false,
             "original": {},
             "pluginIndex": 3,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/ts-template-imports-app/src/empty-fixture.gts",
+            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/test-packages/ts-template-imports-app/src/empty-fixture.gts",
             "version": 1,
           },
           "message": "Unexpected token \`<lexing error: Error { error: (Span { lo: BytePos(142), hi: BytePos(142), ctxt: #0 }, Eof) }>\`. Expected content tag
