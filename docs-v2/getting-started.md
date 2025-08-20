@@ -72,12 +72,6 @@ When checking specific files, Glint:
 - Only analyzes the specified files for faster performance
 - Maintains all your project's compiler options and path mappings
 
-This is particularly useful for:
-- **IDE integrations** that need to check files on save
-- **Git hooks** that validate only changed files
-- **Development workflows** where you want quick feedback on specific components
-- **CI optimizations** for incremental builds
-
 ### Glint Editor Extensions
 
 You can install an editor extension to display Glint's diagnostics inline in your templates and provide richer editor support&mdash;typechecking, type information on hover, automated refactoring, and more&mdash;powered by `glint-language-server`:
@@ -92,5 +86,3 @@ To get Ember/Glimmer and TypeScript working together, Glint creates a separate T
 1. Type `@builtin typescript` in the extension search box
 1. Click the little gear icon of "TypeScript and JavaScript Language Features", and select "Disable (Workspace)".
 1. Reload the workspace. Glint will now take over TS language services.
-
-![Disabling built-in TS language service per workspace](https://user-images.githubusercontent.com/108688/111069039-6dc84100-84cb-11eb-8339-18a589be2ac5.png)
