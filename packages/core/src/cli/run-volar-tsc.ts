@@ -4,6 +4,8 @@ import { findConfig, createTempConfigForFiles, findTypeScript } from '../config/
 
 import { createRequire } from 'node:module';
 import { LanguagePlugin, URI } from '@volar/language-server';
+import { runTscWithArgs } from './utils.js';
+
 const require = createRequire(import.meta.url);
 
 export function run(): void {
@@ -52,7 +54,6 @@ export function run(): void {
   if (hasSpecificFiles) {
     // For specific files, create temporary tsconfig that inherits from project config
     const { tempConfigPath, cleanup } = createTempConfigForFiles(cwd, files);
-    const originalArgv = process.argv;
     
     try {
       // Build TypeScript arguments for single file checking
@@ -76,22 +77,17 @@ export function run(): void {
       }
       
       // Convert options back to command line format
-      Object.entries(filteredOptions).forEach(([key, value]) => {
-        if (value === true) {
-          tscArgs.push(`--${key}`);
-        } else if (value === false) {
-          // Skip false boolean values
-        } else if (value !== undefined) {
-          tscArgs.push(`--${key}`, String(value));
-        }
-      });
+      const compilerArgs = Object.entries(filteredOptions)
+        .filter(([, value]) => value !== false && value !== undefined)
+        .flatMap(([key, value]) => 
+          value === true ? [`--${key}`] : [`--${key}`, String(value)]
+        );
       
-      process.argv = tscArgs;
+      tscArgs.push(...compilerArgs);
       
-      runTsc(require.resolve('typescript/lib/tsc'), options, createLanguagePlugin);
+      runTscWithArgs(require.resolve('typescript/lib/tsc'), tscArgs, options, createLanguagePlugin);
     } finally {
       cleanup();
-      process.argv = originalArgv;
     }
   } else {
     runTsc(require.resolve('typescript/lib/tsc'), options, createLanguagePlugin);
