@@ -10,20 +10,24 @@ describe('CLI: single file checking', () => {
   beforeEach(() => {
     fs.rmSync(testDir, { recursive: true, force: true });
     fs.mkdirSync(testDir, { recursive: true });
-    
+
     // Create a minimal tsconfig.json
     fs.writeFileSync(
       path.join(testDir, 'tsconfig.json'),
-      JSON.stringify({
-        compilerOptions: {
-          target: 'ES2015',
-          module: 'commonjs',
-          strict: true
+      JSON.stringify(
+        {
+          compilerOptions: {
+            target: 'ES2015',
+            module: 'commonjs',
+            strict: true,
+          },
+          glint: {
+            environment: 'ember-loose',
+          },
         },
-        glint: {
-          environment: 'ember-loose'
-        }
-      }, null, 2)
+        null,
+        2,
+      ),
     );
 
     // Create a test file
@@ -33,7 +37,7 @@ describe('CLI: single file checking', () => {
       
 export default class Test extends Component {
   <template>Hello World!</template>
-}`
+}`,
     );
   });
 
@@ -47,7 +51,7 @@ export default class Test extends Component {
     try {
       // Check temp config exists
       expect(fs.existsSync(tempConfigPath)).toBe(true);
-      
+
       // Check temp config content
       const tempConfig = JSON.parse(fs.readFileSync(tempConfigPath, 'utf-8'));
       expect(tempConfig.files).toEqual(['test.gts']);
@@ -71,10 +75,13 @@ export default class Test extends Component {
       
 export default class Test2 extends Component {
   <template>Hello Second!</template>
-}`
+}`,
     );
 
-    const { tempConfigPath, cleanup } = createTempConfigForFiles(testDir, ['test.gts', 'test2.gts']);
+    const { tempConfigPath, cleanup } = createTempConfigForFiles(testDir, [
+      'test.gts',
+      'test2.gts',
+    ]);
 
     try {
       const tempConfig = JSON.parse(fs.readFileSync(tempConfigPath, 'utf-8'));
@@ -86,7 +93,7 @@ export default class Test2 extends Component {
 
   test('handles missing tsconfig', () => {
     fs.unlinkSync(path.join(testDir, 'tsconfig.json'));
-    
+
     expect(() => {
       createTempConfigForFiles(testDir, ['test.gts']);
     }).toThrow('No tsconfig.json found');
@@ -94,11 +101,11 @@ export default class Test2 extends Component {
 
   test('cleanup is fired', () => {
     const { tempConfigPath, cleanup } = createTempConfigForFiles(testDir, ['test.gts']);
-    
+
     // Cleanup once
     cleanup();
     expect(fs.existsSync(tempConfigPath)).toBe(false);
-    
+
     // Cleanup again - should not throw
     expect(() => cleanup()).not.toThrow();
   });

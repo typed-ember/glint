@@ -162,15 +162,17 @@ export function createTempConfigForFiles(cwd: string, fileArgs: string[]): TempC
   // Use TypeScript's config file reader to handle comments
   const configFileResult = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
   if (configFileResult.error) {
-    throw new Error(`Error reading tsconfig: ${ts.flattenDiagnosticMessageText(configFileResult.error.messageText, '\n')}`);
+    throw new Error(
+      `Error reading tsconfig: ${ts.flattenDiagnosticMessageText(configFileResult.error.messageText, '\n')}`,
+    );
   }
-  
+
   const originalConfig = configFileResult.config;
   const tempConfig = {
     ...originalConfig,
     files: fileArgs,
     include: undefined,
-    exclude: undefined
+    exclude: undefined,
   };
 
   const tempConfigPath = path.join(cwd, 'tsconfig.glint-temp.json');

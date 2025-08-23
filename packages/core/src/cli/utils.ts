@@ -9,7 +9,7 @@ export function runTscWithArgs(
   tscPath: string,
   args: string[],
   options: any,
-  createLanguagePlugin: () => LanguagePlugin<URI>[]
+  createLanguagePlugin: () => LanguagePlugin<URI>[],
 ): void {
   const originalArgv = process.argv;
   try {
