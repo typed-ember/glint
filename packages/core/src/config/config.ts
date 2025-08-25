@@ -20,7 +20,7 @@ export class GlintConfig {
     Object.defineProperty(this, 'ts', { value: ts });
     this.configPath = normalizePath(configPath);
     this.rootDir = path.dirname(configPath);
-    this.environment = GlintEnvironment.load(config.environment, { rootDir: this.rootDir });
+    this.environment = GlintEnvironment.load(config, { rootDir: this.rootDir });
   }
 }
 

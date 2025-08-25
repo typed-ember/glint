@@ -38,11 +38,7 @@ describe('Language Server: Completions (ts plugin)', () => {
     `;
 
     expect(
-      await requestCompletion(
-        'ts-template-imports-app/src/ephemeral-index.gts',
-        'glimmer-ts',
-        code,
-      ),
+      await requestCompletion('ts-template-imports-app/src/empty-fixture.gts', 'glimmer-ts', code),
     ).toMatchInlineSnapshot();
   });
 

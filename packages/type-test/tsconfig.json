@@ -5,8 +5,5 @@
     "outDir": "lib"
   },
   "include": ["src"],
-  "references": [{ "path": "../template" }],
-  "glint": {
-    "environment": "ember-template-imports"
-  }
+  "references": [{ "path": "../template" }]
 }

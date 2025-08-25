@@ -39,7 +39,7 @@ export class ConfigLoader {
     if (existing !== undefined) return existing;
 
     let configInput = loadConfigInput(ts, configPath);
-    let config = configInput ? new GlintConfig(ts, configPath, configInput) : null;
+    let config = new GlintConfig(ts, configPath, configInput || { environment: [] });
 
     this.configs.set(configPath, config);
 
@@ -120,7 +120,9 @@ function findNearestConfigFile(ts: TypeScript, searchFrom: string): string {
 }
 
 function validateConfigInput(input: Record<string, unknown>): GlintConfigInput | null {
-  if (!input['environment']) return null;
+  if (!input['environment']) {
+    input['environment'] = [];
+  }
 
   assert(
     Array.isArray(input['environment'])

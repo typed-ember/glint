@@ -16,13 +16,9 @@
     "@glint/core": "workspace:*",
     "@glint/template": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
-    "@glint/environment-ember-template-imports": "workspace:*",
     "ember-source": "^6.2.0"
   },
   "dependenciesMeta": {
-    "@glint/environment-ember-template-imports": {
-      "injected": true
-    },
     "@glint/template": {
       "injected": true
     },

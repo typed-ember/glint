@@ -26,7 +26,6 @@
     "@glint/template": "*"
   },
   "devDependencies": {
-    "@glint/environment-ember-template-imports": "workspace:*",
     "@glint/template": "workspace:*",
     "@glint/core": "workspace:*",
     "ember-cli-htmlbars": "^6.0.1"

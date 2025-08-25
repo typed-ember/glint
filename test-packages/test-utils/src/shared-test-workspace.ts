@@ -38,6 +38,7 @@ const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const testWorkspacePath = path.resolve(__dirname, '../..');
+export const repoRootPath = path.resolve(__dirname, '../../..');
 
 let eventHandler: ((e: any) => void) | undefined;
 
@@ -248,8 +249,7 @@ export async function requestTsserverDiagnostics(
     if (diagnostic.relatedInformation) {
       for (const related of diagnostic.relatedInformation) {
         if (related.span) {
-          related.span.file =
-            '${testWorkspacePath}' + related.span.file.slice(testWorkspacePath.length);
+          related.span.file = '${repoRootPath}' + related.span.file.slice(repoRootPath.length);
         }
       }
     }
@@ -306,7 +306,7 @@ function normalizeForSnapshotting(uri: string, object: unknown): unknown {
   });
 
   // Create file URI for the test workspace path
-  const testWorkspaceFileUri = URI.file(testWorkspacePath).toString();
+  const repoRootFileUri = URI.file(repoRootPath).toString();
 
   const normalized = stringified
     .replaceAll(
@@ -314,8 +314,8 @@ function normalizeForSnapshotting(uri: string, object: unknown): unknown {
       `volar-embedded-content://template_ts/PATH_TO_FILE`,
     )
     .replaceAll(volarEmbeddedContentUri_gts.toString(), `volar-embedded-content://gts/PATH_TO_FILE`)
-    .replaceAll(`"${testWorkspacePath}`, '"/path/to/EPHEMERAL_TEST_PROJECT')
-    .replaceAll(`"${testWorkspaceFileUri}`, '"file:///path/to/EPHEMERAL_TEST_PROJECT')
+    .replaceAll(`"${repoRootPath}`, '"/path/to/EPHEMERAL_TEST_PROJECT')
+    .replaceAll(`"${repoRootFileUri}`, '"file:///path/to/EPHEMERAL_TEST_PROJECT')
     .replace(fileUriToTemplatePackage, '"file:///PATH_TO_MODULE/@glint/template');
 
   return JSON.parse(normalized);

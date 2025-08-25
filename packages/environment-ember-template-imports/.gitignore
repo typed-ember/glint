@@ -1,8 +1,0 @@
-*.js
-*.d.ts
-*.d.ts.map
-tsconfig.tsbuildinfo
-
-!-private/dsl/**/*.d.ts
-!-private/intrinsics/**/*.d.ts
-!globals/**/*.d.ts

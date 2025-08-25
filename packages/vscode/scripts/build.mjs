@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 import { createRequire } from 'node:module';
+import { copyFile, mkdir } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { context } from 'esbuild';
 
 const require = createRequire(import.meta.url);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const debug = process.argv.includes('--pre-release');
 const watch = process.argv.includes('--watch');
@@ -46,13 +49,35 @@ const ctx = await context({
   ],
 });
 
+// `@glint/core` depends on `content-tag` which is a wasm module.
+// The .wasm library itself doesn't get automatically bundled via the code
+// above and needs a manual copy step.
+async function copyWasmFile() {
+  const sourceWasm = join(
+    __dirname,
+    '../../core/node_modules/content-tag/pkg/node/content_tag_bg.wasm',
+  );
+  const targetDir = join(__dirname, '../node_modules/glint-core-pack');
+  const targetWasm = join(targetDir, 'content_tag_bg.wasm');
+
+  try {
+    await mkdir(targetDir, { recursive: true });
+    await copyFile(sourceWasm, targetWasm);
+    console.log('Copied WASM file to glint-core-pack');
+  } catch (error) {
+    console.error('Failed to copy WASM file:', error);
+  }
+}
+
 if (watch) {
   // Start watch mode
   await ctx.watch();
+  await copyWasmFile();
   console.log('Watching for changes...');
 } else {
   // Do a single build
   await ctx.rebuild();
+  await copyWasmFile();
   await ctx.dispose();
 }
 
