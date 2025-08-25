@@ -7014,7 +7014,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 18.19.81
+      '@types/node': 22.13.11
       '@types/yargs': 17.0.13
       chalk: 4.1.2
 
@@ -7263,12 +7263,12 @@ snapshots:
 
   '@types/fs-extra@5.1.0':
     dependencies:
-      '@types/node': 18.19.81
+      '@types/node': 22.13.11
 
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 18.19.81
+      '@types/node': 22.13.11
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 
@@ -7303,7 +7303,7 @@ snapshots:
   '@types/rimraf@2.0.5':
     dependencies:
       '@types/glob': 8.1.0
-      '@types/node': 18.19.81
+      '@types/node': 22.13.11
 
   '@types/rsvp@4.0.9': {}
 
@@ -10090,7 +10090,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 18.19.81
+      '@types/node': 22.13.11
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11

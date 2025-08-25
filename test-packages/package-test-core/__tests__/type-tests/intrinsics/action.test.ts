@@ -2,7 +2,7 @@ import {
   Globals,
   NamedArgsMarker,
   resolve,
-} from '@glint/environment-ember-template-imports/-private/dsl';
+} from '@glint/core/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 let action = resolve(Globals['action']);

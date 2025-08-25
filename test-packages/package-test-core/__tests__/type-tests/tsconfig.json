@@ -3,6 +3,8 @@
   "compilerOptions": {
     "composite": false,
     "noEmit": true,
-    "types": ["ember-source/types"]
+    "types": ["ember-source/types"],
+    "module": "esnext",
+    "moduleResolution": "bundler"
   }
 }
