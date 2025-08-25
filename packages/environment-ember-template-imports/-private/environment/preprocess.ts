@@ -29,7 +29,7 @@ export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, pat
   let templates = p.parse(source, { filename: path });
 
   let templateLocations: Array<TemplateLocation> = [];
-  let segments: Array<string> = [];
+  let contents = '';
   let sourceOffsetBytes = 0;
   let deltaBytes = 0;
 
@@ -41,46 +41,48 @@ export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, pat
     let startTagOffsetBytes = template.startRange.start;
     let endTagOffsetBytes = template.endRange.start;
     let transformedStartBytes = startTagOffsetBytes - deltaBytes;
-
     /**
      * TODO: we want content-tag to manage all this for us, as managing indicies
      *       can be error-prone.
      *
      * SEE: https://github.com/embroider-build/content-tag/issues/39#issuecomment-1832443310
      */
-    let prefixingSegment = sourceBuffer.slice(sourceOffsetBytes, startTagOffsetBytes);
-    segments.push(prefixingSegment.toString());
-    segments.push(TEMPLATE_START);
+    let prefixingSegment = sourceBuffer.subarray(sourceOffsetBytes, startTagOffsetBytes);
+    contents = contents.concat(prefixingSegment.toString());
+    contents = contents.concat(TEMPLATE_START);
 
     // For TEMPLATE_START & TEMPLATE_END, characters === bytes
     deltaBytes += startTagLengthBytes - TEMPLATE_START.length;
 
     let transformedEnd = endTagOffsetBytes - deltaBytes + TEMPLATE_END.length;
-
-    let templateContentSegment = sourceBuffer.slice(
+    let templateContentSegment = sourceBuffer.subarray(
       startTagOffsetBytes + startTagLengthBytes,
       endTagOffsetBytes
     );
-    segments.push(templateContentSegment.toString());
-    segments.push(TEMPLATE_END);
+    let templateContentSegmentString = templateContentSegment.toString();
+    let escapedTemplateContentSegment = templateContentSegmentString
+      .replace(/\$/g, '\\$')
+      .replace(/`/g, '\\`');
+    deltaBytes += templateContentSegmentString.length - escapedTemplateContentSegment.length;
+
+    contents = contents.concat(escapedTemplateContentSegment);
+    contents = contents.concat(TEMPLATE_END);
     deltaBytes += endTagLengthBytes - TEMPLATE_END.length;
 
     sourceOffsetBytes = endTagOffsetBytes + endTagLengthBytes;
-
     templateLocations.push({
       startTagOffset: byteToCharIndex(source, startTagOffsetBytes),
       endTagOffset: byteToCharIndex(source, endTagOffsetBytes),
       startTagLength: byteToCharIndex(source, startTagLengthBytes),
       endTagLength: byteToCharIndex(source, endTagLengthBytes),
-      transformedStart: byteToCharIndex(source, transformedStartBytes),
-      transformedEnd: byteToCharIndex(source, transformedEnd),
+      transformedStart: byteToCharIndex(contents, transformedStartBytes),
+      transformedEnd: byteToCharIndex(contents, transformedEnd),
     });
   }
 
-  segments.push(sourceBuffer.slice(sourceOffsetBytes).toString());
-
+  contents = contents.concat(sourceBuffer.subarray(sourceOffsetBytes).toString());
   return {
-    contents: segments.join(''),
+    contents,
     data: {
       templateLocations,
     },
@@ -89,7 +91,7 @@ export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, pat
 
 function byteToCharIndex(str: string, byteOffset: number): number {
   const buf = getBuffer(str);
-  return buf.slice(0, byteOffset).toString().length;
+  return buf.subarray(0, byteOffset).toString().length;
 }
 
 const BufferMap = new Map();
