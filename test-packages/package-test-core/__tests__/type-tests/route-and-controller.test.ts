@@ -1,7 +1,7 @@
-import Route from '@ember/routing/route';
 import Controller from '@ember/controller';
+import Route from '@ember/routing/route';
+import { templateForBackingValue } from '@glint/core/-private/dsl';
 import { expectTypeOf } from 'expect-type';
-import { templateForBackingValue } from '../../-private/dsl';
 
 class TestRoute extends Route {
   override async model(): Promise<{ message: string }> {
