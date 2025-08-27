@@ -1,21 +1,22 @@
 // Commented because failing and I'm not sure ETI needs these kinds of "intrinsics" to be tested
 
-// import { Globals, resolve } from '@glint/core/-private/dsl';
-// import { expectTypeOf } from 'expect-type';
+import { fn as fnImport } from '@ember/helper';
+import { resolve } from '@glint/core/-private/dsl';
+import { expectTypeOf } from 'expect-type';
 
-// let fn = resolve(Globals['fn']);
+const fn = resolve(fnImport);
 
-// // @ts-expect-error: invalid arg
-// fn((t: string) => t, 123);
+// @ts-expect-error: invalid arg
+fn((t: string) => t, 123);
 
-// expectTypeOf(fn(() => true)).toEqualTypeOf<() => boolean>();
-// expectTypeOf(fn((arg: string) => arg.length)).toEqualTypeOf<(arg: string) => number>();
-// expectTypeOf(fn((arg: string) => arg.length, 'hi')).toEqualTypeOf<() => number>();
+expectTypeOf(fn(() => true)).toEqualTypeOf<() => boolean>();
+expectTypeOf(fn((arg: string) => arg.length)).toEqualTypeOf<(arg: string) => number>();
+expectTypeOf(fn((arg: string) => arg.length, 'hi')).toEqualTypeOf<() => number>();
 
-// let identity = <T>(x: T): T => x;
+let identity = <T>(x: T): T => x;
 
-// // Bound type parameters are reflected in the output
-// expectTypeOf(fn(identity, 'hi')).toEqualTypeOf<() => string>();
+// Bound type parameters are reflected in the output
+expectTypeOf(fn(identity, 'hi')).toEqualTypeOf<() => string>();
 
-// // Unbound type parameters survive to the output
-// expectTypeOf(fn(identity)).toExtend<{ <T>(x: T): T }>();
+// Unbound type parameters survive to the output
+expectTypeOf(fn(identity)).toExtend<{ <T>(x: T): T }>();
