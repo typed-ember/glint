@@ -6,6 +6,17 @@ import { ModifierReturn } from '@glint/template/-private/integration';
 import Modifier, { modifier, type ArgsFor } from 'ember-modifier';
 import { expectTypeOf } from 'expect-type';
 
+// TODO this should NOT be here; this is actually already expressed in integration-declarations.d.ts,
+// but for reasons I can't figure out, this declaration merging does not happen within
+// this type test suite and we ONLY have this issue for modifiers (FnHelper, Glimmer Component, etc
+// all just fine).
+//
+// But I have tested out modifiers within various apps and there doesn't seem to be any issues with
+// type-checking.
+declare module 'ember-modifier' {
+  export default interface ClassBasedModifier<S> extends InstanceType<ModifierLike<S>> {}
+}
+
 // Class-based modifier
 {
   interface NeatModifierSignature {
