@@ -1,3 +1,4 @@
+import EmberArray from '@ember/array';
 import { get as getImport } from '@ember/helper';
 import ObjectProxy from '@ember/object/proxy';
 import { NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
