@@ -137,9 +137,7 @@ import { expectTypeOf } from 'expect-type';
   >();
 
   // Helpers are contravariant with their `Element` type
-  expectTypeOf<HelperLike<{ Return: 'Hello, World' }>>().toExtend<
-    HelperLike<{ Return: string }>
-  >();
+  expectTypeOf<HelperLike<{ Return: 'Hello, World' }>>().toExtend<HelperLike<{ Return: string }>>();
   expectTypeOf<HelperLike<{ Return: string }>>().not.toExtend<
     HelperLike<{ Return: 'Hello, World' }>
   >();
