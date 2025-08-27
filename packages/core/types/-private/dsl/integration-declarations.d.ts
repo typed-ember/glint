@@ -123,15 +123,12 @@ declare module '@ember/modifier' {
 }
 
 import '@ember/helper';
-import {
-  ConcatHelper as ImportedConcatHelper,
-  FnHelper as ImportedFnHelper,
-  GetHelper as ImportedGetHelper,
-} from '../intrinsics/concat';
+import { ConcatHelper as ImportedConcatHelper } from '../intrinsics/concat';
+import { FnHelper as ImportedFnHelper } from '../intrinsics/fn';
+import { GetHelper as ImportedGetHelper } from '../intrinsics/get';
+
 declare module '@ember/helper' {
-  // export interface ArrayHelper extends EELArray {}
   export interface ConcatHelper extends ImportedConcatHelper {}
   export interface FnHelper extends ImportedFnHelper {}
   export interface GetHelper extends ImportedGetHelper {}
-  // export interface HashHelper extends EELHash {}
 }
