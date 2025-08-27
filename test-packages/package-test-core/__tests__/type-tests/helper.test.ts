@@ -54,7 +54,7 @@ import { expectTypeOf } from 'expect-type';
 
   // Using `toMatch` rather than `toEqual` because helper resolution (currently)
   // uses a special `EmptyObject` type to represent empty named args.
-  expectTypeOf(or).toMatchTypeOf<{ <T, U>(t: T, u: U, named?: NamedArgs<{}>): T | U }>();
+  expectTypeOf(or).toExtend<{ <T, U>(t: T, u: U, named?: NamedArgs<{}>): T | U }>();
 
   or(
     'a',
@@ -208,8 +208,8 @@ import { expectTypeOf } from 'expect-type';
   class MyHelper extends Helper<TestSignature> {}
   const myHelper = helper<TestSignature>(() => []);
 
-  expectTypeOf(MyHelper).toMatchTypeOf<HelperLike<TestSignature>>();
-  expectTypeOf(myHelper).toMatchTypeOf<HelperLike<TestSignature>>();
+  expectTypeOf(MyHelper).toExtend<HelperLike<TestSignature>>();
+  expectTypeOf(myHelper).toExtend<HelperLike<TestSignature>>();
 }
 
 // Bare-function helpers

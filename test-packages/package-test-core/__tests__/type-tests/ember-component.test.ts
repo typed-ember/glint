@@ -187,5 +187,5 @@ import '@glint/core/environment-ember-template-imports';
 
   class TestComponent extends Component<TestSignature> {}
 
-  expectTypeOf(TestComponent).toMatchTypeOf<ComponentLike<TestSignature>>();
+  expectTypeOf(TestComponent).toExtend<ComponentLike<TestSignature>>();
 }

@@ -152,26 +152,26 @@ import { expectTypeOf } from 'expect-type';
 // Assignability
 {
   // Modifiers are contravariant with their named `Args` type
-  expectTypeOf<ModifierLike<{ Args: { Named: { name: string } } }>>().toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Args: { Named: { name: string } } }>>().toExtend<
     ModifierLike<{ Args: { Named: { name: 'Dan' } } }>
   >();
-  expectTypeOf<ModifierLike<{ Args: { Named: { name: 'Dan' } } }>>().not.toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Args: { Named: { name: 'Dan' } } }>>().not.toExtend<
     ModifierLike<{ Args: { Named: { name: string } } }>
   >();
 
   // Modifiers are contravariant with their positional `Args` type
-  expectTypeOf<ModifierLike<{ Args: { Positional: [name: string] } }>>().toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Args: { Positional: [name: string] } }>>().toExtend<
     ModifierLike<{ Args: { Positional: [name: 'Dan'] } }>
   >();
-  expectTypeOf<ModifierLike<{ Args: { Positional: [name: 'Dan'] } }>>().not.toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Args: { Positional: [name: 'Dan'] } }>>().not.toExtend<
     ModifierLike<{ Args: { Positional: [name: string] } }>
   >();
 
   // Modifiers are contravariant with their `Element` type
-  expectTypeOf<ModifierLike<{ Element: HTMLElement }>>().toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Element: HTMLElement }>>().toExtend<
     ModifierLike<{ Element: HTMLAudioElement }>
   >();
-  expectTypeOf<ModifierLike<{ Element: HTMLAudioElement }>>().not.toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Element: HTMLAudioElement }>>().not.toExtend<
     ModifierLike<{ Element: HTMLElement }>
   >();
 }

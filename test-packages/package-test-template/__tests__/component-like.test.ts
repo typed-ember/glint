@@ -162,24 +162,24 @@ import TestComponent from './test-component';
 // Assignability
 {
   // A component with no signaure is a `ComponentLike` with no signature
-  expectTypeOf(TestComponent<{}>).toMatchTypeOf<ComponentLike>();
+  expectTypeOf(TestComponent<{}>).toExtend<ComponentLike>();
 
   // A component whose args are all optional is a `ComponentLike` with no signature
-  expectTypeOf(TestComponent<{ Args: { optional?: true } }>).toMatchTypeOf<ComponentLike>();
+  expectTypeOf(TestComponent<{ Args: { optional?: true } }>).toExtend<ComponentLike>();
 
   // A component with a required arg can't be used as a blank `ComponentLike`
-  expectTypeOf(TestComponent<{ Args: { optional: false } }>).not.toMatchTypeOf<ComponentLike>();
+  expectTypeOf(TestComponent<{ Args: { optional: false } }>).not.toExtend<ComponentLike>();
 
   // A component that yields a given block can be used without ever passing any blocks
-  expectTypeOf(TestComponent<{ Blocks: { default: [string] } }>).toMatchTypeOf<ComponentLike>();
+  expectTypeOf(TestComponent<{ Blocks: { default: [string] } }>).toExtend<ComponentLike>();
 
   // A component that yields specific args can be used as one that cares about fewer of them
-  expectTypeOf(TestComponent<{ Blocks: { default: [string, number] } }>).toMatchTypeOf<
+  expectTypeOf(TestComponent<{ Blocks: { default: [string, number] } }>).toExtend<
     ComponentLike<{ Blocks: { default: [string, ...unknown[]] } }>
   >();
 
   // A component that never yields can't be used as one that accepts a specific block
-  expectTypeOf(TestComponent).not.toMatchTypeOf<ComponentLike<{ Blocks: { default: [] } }>>();
+  expectTypeOf(TestComponent).not.toExtend<ComponentLike<{ Blocks: { default: [] } }>>();
 
   // `T | null` is useful to humans to signify that a component might splat its ...attributes,
   // but from a type perspective it's just the same as `T`
@@ -203,37 +203,37 @@ import TestComponent from './test-component';
       Element: HTMLImageElement;
       Blocks: { default: [] };
     }>,
-  ).toMatchTypeOf<ComponentLike>();
+  ).toExtend<ComponentLike>();
 
   // Components are contravariant with their named `Args` type
-  expectTypeOf<ComponentLike<{ Args: { name: string } }>>().toMatchTypeOf<
+  expectTypeOf<ComponentLike<{ Args: { name: string } }>>().toExtend<
     ComponentLike<{ Args: { name: 'Dan' } }>
   >();
-  expectTypeOf<ComponentLike<{ Args: { name: 'Dan' } }>>().not.toMatchTypeOf<
+  expectTypeOf<ComponentLike<{ Args: { name: 'Dan' } }>>().not.toExtend<
     ComponentLike<{ Args: { name: string } }>
   >();
 
   // Components are contravariant with their positional `Args` type
-  expectTypeOf<ComponentLike<{ Args: { Positional: [name: string] } }>>().toMatchTypeOf<
+  expectTypeOf<ComponentLike<{ Args: { Positional: [name: string] } }>>().toExtend<
     ComponentLike<{ Args: { Positional: [name: 'Dan'] } }>
   >();
-  expectTypeOf<ComponentLike<{ Args: { Positional: [name: 'Dan'] } }>>().not.toMatchTypeOf<
+  expectTypeOf<ComponentLike<{ Args: { Positional: [name: 'Dan'] } }>>().not.toExtend<
     ComponentLike<{ Args: { Positional: [name: string] } }>
   >();
 
   // Components are covariant with their `Element` type
-  expectTypeOf<ComponentLike<{ Element: HTMLAudioElement }>>().toMatchTypeOf<
+  expectTypeOf<ComponentLike<{ Element: HTMLAudioElement }>>().toExtend<
     ComponentLike<{ Element: HTMLElement }>
   >();
-  expectTypeOf<ComponentLike<{ Element: HTMLElement }>>().not.toMatchTypeOf<
+  expectTypeOf<ComponentLike<{ Element: HTMLElement }>>().not.toExtend<
     ComponentLike<{ Element: HTMLAudioElement }>
   >();
 
   // Components are covariant with their `Blocks`' `Params` types
-  expectTypeOf(TestComponent<{ Blocks: { default: ['abc', 123] } }>).toMatchTypeOf<
+  expectTypeOf(TestComponent<{ Blocks: { default: ['abc', 123] } }>).toExtend<
     ComponentLike<{ Blocks: { default: [string, number] } }>
   >();
-  expectTypeOf(TestComponent<{ Blocks: { default: [string, number] } }>).not.toMatchTypeOf<
+  expectTypeOf(TestComponent<{ Blocks: { default: [string, number] } }>).not.toExtend<
     ComponentLike<{ Blocks: { default: ['abc', 123] } }>
   >();
 }

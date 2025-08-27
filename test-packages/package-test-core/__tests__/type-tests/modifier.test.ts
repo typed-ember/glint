@@ -149,6 +149,6 @@ declare module 'ember-modifier' {
   class MyModifier extends Modifier<TestSignature> {}
   const myModifier = modifier<TestSignature>(() => {});
 
-  expectTypeOf(MyModifier).toMatchTypeOf<ModifierLike<TestSignature>>();
-  expectTypeOf(myModifier).toMatchTypeOf<ModifierLike<TestSignature>>();
+  expectTypeOf(MyModifier).toExtend<ModifierLike<TestSignature>>();
+  expectTypeOf(myModifier).toExtend<ModifierLike<TestSignature>>();
 }

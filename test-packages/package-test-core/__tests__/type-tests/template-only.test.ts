@@ -112,7 +112,7 @@ import { expectTypeOf } from 'expect-type';
   }
 
   const BasicTOC = templateOnlyComponent<TestSignature>();
-  expectTypeOf(BasicTOC).toMatchTypeOf<ComponentLike<TestSignature>>();
+  expectTypeOf(BasicTOC).toExtend<ComponentLike<TestSignature>>();
 
   // and therefore works correctly with `WithBoundArgs`
   expectTypeOf<WithBoundArgs<typeof BasicTOC, 'item'>>().not.toBeNever();

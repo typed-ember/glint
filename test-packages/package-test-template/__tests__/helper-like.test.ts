@@ -121,26 +121,26 @@ import { expectTypeOf } from 'expect-type';
 // Assignability
 {
   // Helpers are contravariant with their named `Args` type
-  expectTypeOf<HelperLike<{ Args: { Named: { name: string } } }>>().toMatchTypeOf<
+  expectTypeOf<HelperLike<{ Args: { Named: { name: string } } }>>().toExtend<
     HelperLike<{ Args: { Named: { name: 'Dan' } } }>
   >();
-  expectTypeOf<HelperLike<{ Args: { Named: { name: 'Dan' } } }>>().not.toMatchTypeOf<
+  expectTypeOf<HelperLike<{ Args: { Named: { name: 'Dan' } } }>>().not.toExtend<
     HelperLike<{ Args: { Named: { name: string } } }>
   >();
 
   // Helpers are contravariant with their positional `Args` type
-  expectTypeOf<HelperLike<{ Args: { Positional: [name: string] } }>>().toMatchTypeOf<
+  expectTypeOf<HelperLike<{ Args: { Positional: [name: string] } }>>().toExtend<
     HelperLike<{ Args: { Positional: [name: 'Dan'] } }>
   >();
-  expectTypeOf<HelperLike<{ Args: { Positional: [name: 'Dan'] } }>>().not.toMatchTypeOf<
+  expectTypeOf<HelperLike<{ Args: { Positional: [name: 'Dan'] } }>>().not.toExtend<
     HelperLike<{ Args: { Positional: [name: string] } }>
   >();
 
   // Helpers are contravariant with their `Element` type
-  expectTypeOf<HelperLike<{ Return: 'Hello, World' }>>().toMatchTypeOf<
+  expectTypeOf<HelperLike<{ Return: 'Hello, World' }>>().toExtend<
     HelperLike<{ Return: string }>
   >();
-  expectTypeOf<HelperLike<{ Return: string }>>().not.toMatchTypeOf<
+  expectTypeOf<HelperLike<{ Return: string }>>().not.toExtend<
     HelperLike<{ Return: 'Hello, World' }>
   >();
 }
