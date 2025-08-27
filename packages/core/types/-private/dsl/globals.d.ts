@@ -10,6 +10,7 @@ import { MountKeyword } from '../intrinsics/mount';
 import { MutKeyword } from '../intrinsics/mut';
 import { OutletKeyword } from '../intrinsics/outlet';
 import { UnboundKeyword } from '../intrinsics/unbound';
+import { UniqueIdHelper } from '../intrinsics/unique-id';
 
 // The keyword vs global breakdown here is loosely matched with
 // the listing in http://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html
@@ -173,6 +174,16 @@ interface Keywords {
     [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/unbound?anchor=unbound
    */
   unbound: UnboundKeyword;
+
+  /**
+  Use the `{{unique-id}}` helper to generate a unique ID string suitable for use as an ID
+  attribute in the DOM.
+ 
+  See [the API documentation] for further details.
+
+  [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/unique-id?anchor=unique-id
+   */
+  'unique-id': UniqueIdHelper;
 
   // `{{unless}}` is implemented directly in `@glint/core`
   unless: void;

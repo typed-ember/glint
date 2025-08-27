@@ -1,5 +1,3 @@
-// Commented because failing and I'm not sure ETI needs these kinds of "intrinsics" to be tested
-
 import { fn as fnImport } from '@ember/helper';
 import { resolve } from '@glint/core/-private/dsl';
 import { expectTypeOf } from 'expect-type';

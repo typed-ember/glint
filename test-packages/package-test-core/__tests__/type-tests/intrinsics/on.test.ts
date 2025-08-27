@@ -1,5 +1,3 @@
-// Commented because failing and I'm not sure ETI needs these kinds of "intrinsics" to be tested
-
 import { on as onImport } from '@ember/modifier';
 import { NamedArgsMarker, applyModifier, resolve } from '@glint/core/-private/dsl';
 import { expectTypeOf } from 'expect-type';
