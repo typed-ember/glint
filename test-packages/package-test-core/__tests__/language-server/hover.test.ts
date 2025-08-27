@@ -27,7 +27,7 @@ describe('Language Server: Hover (ts plugin)', () => {
     `);
 
     const doc = await prepareDocument(
-      'ts-template-imports-app/src/ephemeral.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       content,
     );
@@ -68,7 +68,7 @@ describe('Language Server: Hover (ts plugin)', () => {
     `);
 
     const doc = await prepareDocument(
-      'ts-template-imports-app/src/ephemeral.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       content,
     );
@@ -106,7 +106,7 @@ describe('Language Server: Hover (ts plugin)', () => {
     `);
 
     const doc = await prepareDocument(
-      'ts-template-imports-app/src/ephemeral.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       content,
     );

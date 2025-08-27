@@ -6,11 +6,6 @@
   },
   "include": ["src", "types"],
   "glint": {
-    "environment": {
-      "ember-loose": {},
-      "ember-template-imports": {
-        "additionalGlobals": ["t"]
-      }
-    }
+    "additionalGlobals": ["t"]
   }
 }

@@ -1,7 +1,7 @@
-import { NamedArgsMarker, resolve } from '@glint/environment-ember-template-imports/-private/dsl';
-import { expectTypeOf } from 'expect-type';
-import { ModifierReturn, NamedArgs } from '@glint/template/-private/integration';
+import { NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
 import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/template';
+import { ModifierReturn, NamedArgs } from '@glint/template/-private/integration';
+import { expectTypeOf } from 'expect-type';
 
 // Fixed signature params
 {
@@ -152,26 +152,26 @@ import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/templa
 // Assignability
 {
   // Modifiers are contravariant with their named `Args` type
-  expectTypeOf<ModifierLike<{ Args: { Named: { name: string } } }>>().toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Args: { Named: { name: string } } }>>().toExtend<
     ModifierLike<{ Args: { Named: { name: 'Dan' } } }>
   >();
-  expectTypeOf<ModifierLike<{ Args: { Named: { name: 'Dan' } } }>>().not.toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Args: { Named: { name: 'Dan' } } }>>().not.toExtend<
     ModifierLike<{ Args: { Named: { name: string } } }>
   >();
 
   // Modifiers are contravariant with their positional `Args` type
-  expectTypeOf<ModifierLike<{ Args: { Positional: [name: string] } }>>().toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Args: { Positional: [name: string] } }>>().toExtend<
     ModifierLike<{ Args: { Positional: [name: 'Dan'] } }>
   >();
-  expectTypeOf<ModifierLike<{ Args: { Positional: [name: 'Dan'] } }>>().not.toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Args: { Positional: [name: 'Dan'] } }>>().not.toExtend<
     ModifierLike<{ Args: { Positional: [name: string] } }>
   >();
 
   // Modifiers are contravariant with their `Element` type
-  expectTypeOf<ModifierLike<{ Element: HTMLElement }>>().toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Element: HTMLElement }>>().toExtend<
     ModifierLike<{ Element: HTMLAudioElement }>
   >();
-  expectTypeOf<ModifierLike<{ Element: HTMLAudioElement }>>().not.toMatchTypeOf<
+  expectTypeOf<ModifierLike<{ Element: HTMLAudioElement }>>().not.toExtend<
     ModifierLike<{ Element: HTMLElement }>
   >();
 }

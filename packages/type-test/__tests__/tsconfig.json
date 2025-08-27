@@ -6,8 +6,5 @@
     "noEmit": true,
     "incremental": false,
     "composite": false
-  },
-  "glint": {
-    "environment": ["ember-template-imports"]
   }
 }

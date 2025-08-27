@@ -17,12 +17,6 @@
       ],
       "pkgJSONPath": "./packages/core/package.json"
     },
-    "@glint/environment-ember-loose": {
-      "oldVersion": "2.0.0-alpha.3"
-    },
-    "@glint/environment-ember-template-imports": {
-      "oldVersion": "2.0.0-alpha.3"
-    },
     "@glint/template": {
       "oldVersion": "1.6.0-alpha.2"
     },

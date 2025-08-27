@@ -9,39 +9,11 @@ import {
 describe('Language Server: Diagnostic Augmentation', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
 
-  test.skip('There is a content-tag parse error (for a class component)', async () => {
-    let diagnostics = await requestTsserverDiagnostics(
-      'index.gts',
-      'glimmer-ts',
-      stripIndent`
-        import Component from '@glimmer/component';
-
-        export interface AppSignature {
-          Blocks: {
-            expectsTwoParams: [a: string, b: number];
-            expectsAtLeastOneParam: [a: string, ...rest: Array<string>];
-          }
-        }
-
-        function expectsTwoArgs(a: string, b: number) {
-          console.log(a, b);
-        }
-
-        export default class App extends Component<AppSignature> {
-          <template>
-            {{expectsTwoArgs "one"}}
-        }
-      `,
-    );
-
-    expect(diagnostics).toMatchInlineSnapshot();
-  });
-
   describe('unicode and other special characters', () => {
     describe('$', () => {
       test('GitHub Issue#840', async () => {
         let diagnostics = await requestTsserverDiagnostics(
-          'ts-template-imports-app/src/ephemeral-index.gts',
+          'ts-template-imports-app/src/empty-fixture.gts',
           'glimmer-ts',
           [
             'const foo = 2;',
@@ -59,7 +31,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
   test('expected argument count', async () => {
     let diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       stripIndent`
         import Component from '@glimmer/component';
@@ -141,7 +113,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
   test('emit for attributes and top-level content', async () => {
     let diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       stripIndent`
         import Component from '@glimmer/component';
@@ -186,7 +158,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
                   "line": 96,
                   "offset": 14,
                 },
-                "file": "\${testWorkspacePath}.pnpm/@glint+template@file+packages+template/node_modules/@glint/template/-private/dsl/elements.d.ts",
+                "file": "\${repoRootPath}/packages/template/-private/dsl/elements.d.ts",
                 "start": {
                   "line": 96,
                   "offset": 3,
@@ -259,7 +231,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
                   "line": 96,
                   "offset": 14,
                 },
-                "file": "\${testWorkspacePath}.pnpm/@glint+template@file+packages+template/node_modules/@glint/template/-private/dsl/elements.d.ts",
+                "file": "\${repoRootPath}/packages/template/-private/dsl/elements.d.ts",
                 "start": {
                   "line": 96,
                   "offset": 3,
@@ -382,10 +354,10 @@ describe('Language Server: Diagnostic Augmentation', () => {
 
   test('bad `component`/`helper`/`modifier` arg type', async () => {
     let diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       stripIndent`
-        import { ComponentLike, HelperLike, ModifierLike } from '@glint/template';
+        import type { ComponentLike, HelperLike, ModifierLike } from '@glint/template';
 
         declare const Comp: ComponentLike<{ Args: { foo: string } }>;
         declare const help: HelperLike<{ Args: { Named: { foo: string } } }>;
@@ -421,7 +393,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
                   "line": 94,
                   "offset": 5,
                 },
-                "file": "\${testWorkspacePath}.pnpm/@glint+template@file+packages+template/node_modules/@glint/template/-private/keywords/-bind-invokable.d.ts",
+                "file": "\${repoRootPath}/packages/template/-private/keywords/-bind-invokable.d.ts",
                 "start": {
                   "line": 80,
                   "offset": 3,
@@ -457,7 +429,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
                   "line": 94,
                   "offset": 5,
                 },
-                "file": "\${testWorkspacePath}.pnpm/@glint+template@file+packages+template/node_modules/@glint/template/-private/keywords/-bind-invokable.d.ts",
+                "file": "\${repoRootPath}/packages/template/-private/keywords/-bind-invokable.d.ts",
                 "start": {
                   "line": 80,
                   "offset": 3,
@@ -493,7 +465,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
                   "line": 94,
                   "offset": 5,
                 },
-                "file": "\${testWorkspacePath}.pnpm/@glint+template@file+packages+template/node_modules/@glint/template/-private/keywords/-bind-invokable.d.ts",
+                "file": "\${repoRootPath}/packages/template/-private/keywords/-bind-invokable.d.ts",
                 "start": {
                   "line": 80,
                   "offset": 3,
@@ -519,7 +491,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
   // Not sure why this isn't firing...
   test.skip('`noPropertyAccessFromIndexSignature` violation', async () => {
     let diagnostics = await requestTsserverDiagnostics(
-      'ts-template-imports-app/src/ephemeral-index.gts',
+      'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       stripIndent`
         declare const stringRecord: Record<string, string>;
