@@ -6,11 +6,6 @@ import { ModifierReturn } from '@glint/template/-private/integration';
 import Modifier, { modifier, type ArgsFor } from 'ember-modifier';
 import { expectTypeOf } from 'expect-type';
 
-// TODO this should NOT be here... move before merge
-declare module 'ember-modifier' {
-  export default interface ClassBasedModifier<S> extends InstanceType<ModifierLike<S>> {}
-}
-
 // Class-based modifier
 {
   interface NeatModifierSignature {
