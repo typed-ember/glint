@@ -1,0 +1,9 @@
+# Unlabeled Changes
+
+* Other
+  * [#944](https://github.com/typed-ember/glint/pull/944) rm a few wontfix skipped tests ([@machty](https://github.com/machty))
+* `@glint/core`, `@glint/tsserver-plugin`, `@glint/type-test`
+  * [#939](https://github.com/typed-ember/glint/pull/939) Absorb `@glint/environment-ember-template-imports` into `@glint/core` ([@machty](https://github.com/machty))
+
+
+*Cannot plan release until the above changes are labeled*.
