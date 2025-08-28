@@ -291,67 +291,6 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
-  test.skip('unresolved globals', async () => {
-    let diagnostics = await requestTsserverDiagnostics(
-      'index.hbs',
-      'handlebars',
-      stripIndent`
-        {{! failed global lookups (custom message about the registry) }}
-        <Foo />
-        <foo.ok />
-        {{foo.bar}}
-        {{concat foo}}
-
-        {{#let this.locals as |locals|}}
-          {{! failed non-global lookup (no custom message) }}
-          {{locals.bad-thing}}
-        {{/let}}
-      `,
-    );
-
-    expect(diagnostics).toMatchInlineSnapshot();
-  });
-
-  test.skip('failed `component` name lookup', async () => {
-    let diagnostics = await requestTsserverDiagnostics(
-      'index.hbs',
-      'handlebars',
-      stripIndent`
-        {{#let 'baz' as |baz|}}
-          {{#let
-            (component 'foo') 
-            (component this.componentName)
-            (component baz)
-            as |Foo Bar|
-          }}
-            {{! @glint-ignore: we don't care about errors here}}
-            <Foo /><Bar /><Baz />
-          {{/let}}
-        {{/let}}
-      `,
-    );
-
-    expect(diagnostics).toMatchInlineSnapshot();
-  });
-
-  test.skip('direct invocation of `{{component}}`', async () => {
-    let diagnostics = await requestTsserverDiagnostics(
-      'index.hbs',
-      'handlebars',
-      stripIndent`
-        {{! inline invocation }}
-        {{component 'my-component'}}
-        {{component 'my-component' message="hi"}}
-
-        {{! block invocation }}
-        {{#component 'my-component'}}{{/component}}
-        {{#component 'my-component' message="hi"}}{{/component}}
-      `,
-    );
-
-    expect(diagnostics).toMatchInlineSnapshot();
-  });
-
   test('bad `component`/`helper`/`modifier` arg type', async () => {
     let diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/empty-fixture.gts',

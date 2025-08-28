@@ -10,39 +10,6 @@ import { afterEach, describe, expect, test } from 'vitest';
 describe('Language Server: Diagnostics (ts plugin)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
 
-  // skipping until we tackle two-file components
-  describe.skip('external file changes', () => {
-    const scriptContents = stripIndent`
-      import templateOnly from '@ember/component/template-only';
-
-      interface TemplateOnlySignature {
-        Args: { foo: string };
-      }
-
-      export default templateOnly<TemplateOnlySignature>();
-    `;
-
-    test('adding a backing module', async () => {
-      const hbsCode = '{{@foo}}';
-
-      await prepareDocument('component.ts', 'typescript', scriptContents);
-
-      const diagnostics = await requestTsserverDiagnostics('component.hbs', 'handlebars', hbsCode);
-
-      expect(diagnostics).toMatchInlineSnapshot();
-    });
-
-    test('removing a backing module', async () => {
-      const hbsCode = '{{@foo}}';
-
-      await prepareDocument('component.ts', 'typescript', scriptContents);
-
-      const diagnostics = await requestTsserverDiagnostics('component.hbs', 'handlebars', hbsCode);
-
-      expect(diagnostics).toMatchInlineSnapshot();
-    });
-  });
-
   test('reports diagnostics for an inline template type error', async () => {
     const code = stripIndent`
       // Here's a leading comment to make sure we handle trivia right
