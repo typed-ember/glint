@@ -13,9 +13,9 @@ import TransformManager from '../src/common/transform-manager.js';
  *   - Arbitrary extensions: component.d.gjs.ts (when allowArbitraryExtensions is enabled)
  * - Code imports using .d.ts extension (e.g., import from './component.d.ts')
  * - TransformManager should find and use the appropriate declaration file
- * 
+ *
  * The implementation respects TypeScript's allowArbitraryExtensions compiler option:
- * - When true: checks both .gjs.d.ts and .d.gjs.ts patterns  
+ * - When true: checks both .gjs.d.ts and .d.gjs.ts patterns
  * - When false (default): only checks .gjs.d.ts pattern
  */
 
@@ -117,7 +117,7 @@ describe('TransformManager', () => {
         mockTS.sys.fileExists
           .mockReturnValueOnce(false) // component.gts.d.ts doesn't exist
           .mockReturnValueOnce(true); // component.d.gts.ts exists
-        
+
         // Mock getCompilerOptions to return allowArbitraryExtensions: true
         const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
         mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
@@ -139,7 +139,7 @@ describe('TransformManager', () => {
         mockTS.sys.fileExists
           .mockReturnValueOnce(false) // component.gjs.d.ts doesn't exist
           .mockReturnValueOnce(true); // component.d.gjs.ts exists
-        
+
         // Mock getCompilerOptions to return allowArbitraryExtensions: true
         const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
         mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
@@ -159,7 +159,7 @@ describe('TransformManager', () => {
           .mockReturnValueOnce(false) // component.d.ts doesn't exist normally
           .mockReturnValueOnce(true); // component.gts exists
         mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
-        
+
         // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
         const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
         mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
@@ -179,7 +179,7 @@ describe('TransformManager', () => {
           .mockReturnValueOnce(false) // component.gts doesn't exist (checked first)
           .mockReturnValueOnce(true); // component.gjs exists (checked second)
         mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
-        
+
         // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
         const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
         mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
@@ -257,7 +257,10 @@ describe('TransformManager', () => {
       const result = transformManager.readTransformedFile('/path/to/file.ts', 'utf8');
 
       expect(result).toBe('file contents');
-      expect(mockDocumentCache.getDocumentContents).toHaveBeenCalledWith('/path/to/file.ts', 'utf8');
+      expect(mockDocumentCache.getDocumentContents).toHaveBeenCalledWith(
+        '/path/to/file.ts',
+        'utf8'
+      );
     });
 
     test('returns document contents for .d.ts files with no alternatives', () => {
@@ -268,7 +271,10 @@ describe('TransformManager', () => {
       const result = transformManager.readTransformedFile('/path/to/component.d.ts', 'utf8');
 
       expect(result).toBe('fallback contents');
-      expect(mockDocumentCache.getDocumentContents).toHaveBeenCalledWith('/path/to/component.d.ts', 'utf8');
+      expect(mockDocumentCache.getDocumentContents).toHaveBeenCalledWith(
+        '/path/to/component.d.ts',
+        'utf8'
+      );
     });
 
     describe('for .d.ts files with alternatives', () => {
@@ -302,7 +308,7 @@ describe('TransformManager', () => {
           .mockReturnValueOnce(false) // component.gts.d.ts doesn't exist
           .mockReturnValueOnce(true); // component.d.gts.ts exists
         mockTS.sys.readFile.mockReturnValue('arbitrary extensions declaration contents');
-        
+
         // Mock getCompilerOptions to return allowArbitraryExtensions: true
         const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
         mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
@@ -322,7 +328,7 @@ describe('TransformManager', () => {
           .mockReturnValueOnce(false) // component.gjs.d.ts doesn't exist
           .mockReturnValueOnce(true); // component.d.gjs.ts exists
         mockTS.sys.readFile.mockReturnValue('arbitrary gjs declaration contents');
-        
+
         // Mock getCompilerOptions to return allowArbitraryExtensions: true
         const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
         mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
@@ -337,7 +343,7 @@ describe('TransformManager', () => {
       test('returns undefined when .gts source exists, standard pattern not found, and allowArbitraryExtensions is disabled', () => {
         mockDocumentCache.documentExists.mockReturnValue(true); // component.gts exists
         mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
-        
+
         // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
         const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
         mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
@@ -357,7 +363,7 @@ describe('TransformManager', () => {
           .mockReturnValueOnce(false) // component.gts doesn't exist
           .mockReturnValueOnce(true); // component.gjs exists
         mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
-        
+
         // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
         const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
         mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
@@ -379,7 +385,10 @@ describe('TransformManager', () => {
         const result = transformManager.readTransformedFile('/path/to/component.d.ts', 'utf8');
 
         expect(result).toBe('fallback contents');
-        expect(mockDocumentCache.getDocumentContents).toHaveBeenCalledWith('/path/to/component.d.ts', 'utf8');
+        expect(mockDocumentCache.getDocumentContents).toHaveBeenCalledWith(
+          '/path/to/component.d.ts',
+          'utf8'
+        );
       });
 
       test('skips .ts and .js extensions when looking for alternatives', () => {
@@ -395,8 +404,7 @@ describe('TransformManager', () => {
       });
 
       test('stops at first matching alternative file', () => {
-        mockDocumentCache.documentExists
-          .mockReturnValueOnce(true); // component.gts exists (first match)
+        mockDocumentCache.documentExists.mockReturnValueOnce(true); // component.gts exists (first match)
         mockTS.sys.fileExists.mockReturnValue(true); // component.gts.d.ts exists
         mockTS.sys.readFile.mockReturnValue('gts declaration contents');
 
@@ -411,8 +419,8 @@ describe('TransformManager', () => {
     test('returns transformed contents when transform info exists', () => {
       const mockTransformInfo = {
         transformedModule: {
-          transformedContents: 'transformed contents'
-        }
+          transformedContents: 'transformed contents',
+        },
       };
       vi.spyOn(transformManager as any, 'getTransformInfo').mockReturnValue(mockTransformInfo);
 
@@ -433,7 +441,9 @@ describe('TransformManager', () => {
       mockDocumentCache.documentExists.mockReturnValue(false);
       mockTS.sys.fileExists.mockReturnValue(false);
 
-      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+      const result = (transformManager as any).findAlternativeDeclarationFile(
+        '/path/to/component.d.ts'
+      );
 
       expect(result).toBeNull();
     });
@@ -442,7 +452,9 @@ describe('TransformManager', () => {
       mockDocumentCache.documentExists.mockReturnValue(true); // component.gts exists
       mockTS.sys.fileExists.mockReturnValue(true); // component.gts.d.ts exists
 
-      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+      const result = (transformManager as any).findAlternativeDeclarationFile(
+        '/path/to/component.d.ts'
+      );
 
       expect(result).toBe('/path/to/component.gts.d.ts');
     });
@@ -453,7 +465,9 @@ describe('TransformManager', () => {
         .mockReturnValueOnce(true); // component.gjs exists
       mockTS.sys.fileExists.mockReturnValue(true); // component.gjs.d.ts exists
 
-      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+      const result = (transformManager as any).findAlternativeDeclarationFile(
+        '/path/to/component.d.ts'
+      );
 
       expect(result).toBe('/path/to/component.gjs.d.ts');
     });
@@ -463,12 +477,14 @@ describe('TransformManager', () => {
       mockTS.sys.fileExists
         .mockReturnValueOnce(false) // component.gts.d.ts doesn't exist
         .mockReturnValueOnce(true); // component.d.gts.ts exists
-      
+
       // Mock getCompilerOptions to return allowArbitraryExtensions: true
       const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
       mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
 
-      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+      const result = (transformManager as any).findAlternativeDeclarationFile(
+        '/path/to/component.d.ts'
+      );
 
       expect(result).toBe('/path/to/component.d.gts.ts');
       expect(mockGetCompilerOptions).toHaveBeenCalled();
@@ -481,12 +497,14 @@ describe('TransformManager', () => {
       mockTS.sys.fileExists
         .mockReturnValueOnce(false) // component.gjs.d.ts doesn't exist
         .mockReturnValueOnce(true); // component.d.gjs.ts exists
-      
+
       // Mock getCompilerOptions to return allowArbitraryExtensions: true
       const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
       mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
 
-      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+      const result = (transformManager as any).findAlternativeDeclarationFile(
+        '/path/to/component.d.ts'
+      );
 
       expect(result).toBe('/path/to/component.d.gjs.ts');
       expect(mockGetCompilerOptions).toHaveBeenCalled();
@@ -497,12 +515,14 @@ describe('TransformManager', () => {
         .mockReturnValueOnce(false) // component.gts doesn't exist
         .mockReturnValueOnce(true); // component.gjs exists
       mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
-      
+
       // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
       const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
       mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
 
-      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+      const result = (transformManager as any).findAlternativeDeclarationFile(
+        '/path/to/component.d.ts'
+      );
 
       expect(result).toBeNull();
       expect(mockGetCompilerOptions).toHaveBeenCalled();
@@ -514,12 +534,14 @@ describe('TransformManager', () => {
     test('returns null when .gts source exists, standard pattern not found, and allowArbitraryExtensions is disabled', () => {
       mockDocumentCache.documentExists.mockReturnValue(true); // component.gts exists
       mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
-      
+
       // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
       const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
       mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
 
-      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+      const result = (transformManager as any).findAlternativeDeclarationFile(
+        '/path/to/component.d.ts'
+      );
 
       expect(result).toBeNull();
       expect(mockGetCompilerOptions).toHaveBeenCalled();
@@ -533,7 +555,9 @@ describe('TransformManager', () => {
       mockDocumentCache.documentExists.mockReturnValue(true); // component.gts exists
       mockTS.sys.fileExists.mockReturnValue(false); // component.gts.d.ts doesn't exist
 
-      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+      const result = (transformManager as any).findAlternativeDeclarationFile(
+        '/path/to/component.d.ts'
+      );
 
       expect(result).toBeNull();
     });
@@ -549,8 +573,12 @@ describe('TransformManager', () => {
       const result = transformManager.fileExists('/deep/nested/path/to/my-component.d.ts');
 
       expect(result).toBe(true);
-      expect(mockDocumentCache.documentExists).toHaveBeenCalledWith('/deep/nested/path/to/my-component.gts');
-      expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/deep/nested/path/to/my-component.gts.d.ts');
+      expect(mockDocumentCache.documentExists).toHaveBeenCalledWith(
+        '/deep/nested/path/to/my-component.gts'
+      );
+      expect(mockTS.sys.fileExists).toHaveBeenCalledWith(
+        '/deep/nested/path/to/my-component.gts.d.ts'
+      );
     });
 
     test('handles files with multiple dots in name', () => {
@@ -563,8 +591,12 @@ describe('TransformManager', () => {
       const result = transformManager.fileExists('/path/to/my.special.component.d.ts');
 
       expect(result).toBe(true);
-      expect(mockDocumentCache.documentExists).toHaveBeenCalledWith('/path/to/my.special.component.gts');
-      expect(mockDocumentCache.documentExists).toHaveBeenCalledWith('/path/to/my.special.component.gjs');
+      expect(mockDocumentCache.documentExists).toHaveBeenCalledWith(
+        '/path/to/my.special.component.gts'
+      );
+      expect(mockDocumentCache.documentExists).toHaveBeenCalledWith(
+        '/path/to/my.special.component.gjs'
+      );
       expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/my.special.component.gjs.d.ts');
     });
 
@@ -574,10 +606,10 @@ describe('TransformManager', () => {
         typedScriptExtensions: ['.ts'],
         untypedScriptExtensions: ['.js'],
       };
-      
+
       // Re-create transform manager with new config
       transformManager = new TransformManager(mockGlintConfig, mockDocumentCache);
-      
+
       mockDocumentCache.documentExists.mockReturnValue(false);
 
       const result = transformManager.fileExists('/path/to/component.d.ts');
@@ -636,7 +668,9 @@ describe('TransformManager', () => {
       mockDocumentCache.documentExists.mockReturnValue(true); // component.gts exists
       mockTS.sys.fileExists.mockReturnValue(false); // component.gts.d.ts doesn't exist
 
-      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+      const result = (transformManager as any).findAlternativeDeclarationFile(
+        '/path/to/component.d.ts'
+      );
 
       expect(result).toBeNull();
       expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gts.d.ts');

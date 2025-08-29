@@ -62,7 +62,7 @@ export class GlintConfig {
     if (!this.parsedTsConfig) {
       const contents = this.ts.readConfigFile(this.configPath, this.ts.sys.readFile).config;
       const host = { ...this.ts.sys };
-      
+
       this.parsedTsConfig = this.ts.parseJsonConfigFileContent(
         contents,
         host,
@@ -71,7 +71,7 @@ export class GlintConfig {
         this.configPath
       );
     }
-    
+
     return this.parsedTsConfig;
   }
 

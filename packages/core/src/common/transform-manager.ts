@@ -507,7 +507,7 @@ export default class TransformManager {
           if (this.ts.sys.fileExists(standardDtsFile)) {
             return standardDtsFile;
           }
-          
+
           // Pattern 2: component.d.gjs.ts (allowArbitraryExtensions pattern)
           // Only check this pattern if allowArbitraryExtensions is enabled
           const compilerOptions = this.glintConfig.getCompilerOptions();
