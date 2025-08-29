@@ -3,14 +3,20 @@ import TransformManager from '../src/common/transform-manager.js';
 
 /**
  * Tests for TransformManager's file existence and reading functionality,
- * specifically testing the new feature that supports finding .gjs.d.ts and .gts.d.ts
- * files when looking for .d.ts files (for Glint V1 to V2 migration support).
+ * specifically testing the feature that supports finding .gjs.d.ts, .gts.d.ts,
+ * .d.gjs.ts, and .d.gts.ts files when looking for .d.ts files (for Glint V1 to V2 migration support).
  *
  * This supports the scenario where:
  * - A .gjs or .gts file exists (e.g., component.gjs)
- * - A corresponding declaration file exists (e.g., component.gjs.d.ts)
+ * - A corresponding declaration file exists in one of two patterns:
+ *   - Standard: component.gjs.d.ts (always supported)
+ *   - Arbitrary extensions: component.d.gjs.ts (when allowArbitraryExtensions is enabled)
  * - Code imports using .d.ts extension (e.g., import from './component.d.ts')
- * - TransformManager should find and use the .gjs.d.ts file
+ * - TransformManager should find and use the appropriate declaration file
+ * 
+ * The implementation respects TypeScript's allowArbitraryExtensions compiler option:
+ * - When true: checks both .gjs.d.ts and .d.gjs.ts patterns  
+ * - When false (default): only checks .gjs.d.ts pattern
  */
 
 describe('TransformManager', () => {
@@ -36,6 +42,7 @@ describe('TransformManager', () => {
         typedScriptExtensions: ['.ts', '.gts', '.gjs'],
         untypedScriptExtensions: ['.js'],
       },
+      getCompilerOptions: vi.fn().mockReturnValue({}), // Default empty options (allowArbitraryExtensions: undefined)
     };
 
     mockDocumentCache = {
@@ -100,6 +107,89 @@ describe('TransformManager', () => {
         expect(result).toBe(true);
         expect(mockDocumentCache.documentExists).toHaveBeenCalledWith('/path/to/component.gts');
         expect(mockDocumentCache.documentExists).toHaveBeenCalledWith('/path/to/component.gjs');
+        expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gjs.d.ts');
+      });
+
+      test('returns true if .gts source file exists and has corresponding .d.gts.ts (arbitrary extensions)', () => {
+        mockDocumentCache.documentExists
+          .mockReturnValueOnce(false) // component.d.ts doesn't exist normally
+          .mockReturnValueOnce(true); // component.gts exists
+        mockTS.sys.fileExists
+          .mockReturnValueOnce(false) // component.gts.d.ts doesn't exist
+          .mockReturnValueOnce(true); // component.d.gts.ts exists
+        
+        // Mock getCompilerOptions to return allowArbitraryExtensions: true
+        const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
+        mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+        const result = transformManager.fileExists('/path/to/component.d.ts');
+
+        expect(result).toBe(true);
+        expect(mockDocumentCache.documentExists).toHaveBeenCalledWith('/path/to/component.gts');
+        expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gts.d.ts');
+        expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.d.gts.ts');
+        expect(mockGetCompilerOptions).toHaveBeenCalled();
+      });
+
+      test('returns true if .gjs source file exists and has corresponding .d.gjs.ts (arbitrary extensions)', () => {
+        mockDocumentCache.documentExists
+          .mockReturnValueOnce(false) // component.d.ts doesn't exist normally
+          .mockReturnValueOnce(false) // component.gts doesn't exist (checked first)
+          .mockReturnValueOnce(true); // component.gjs exists (checked second)
+        mockTS.sys.fileExists
+          .mockReturnValueOnce(false) // component.gjs.d.ts doesn't exist
+          .mockReturnValueOnce(true); // component.d.gjs.ts exists
+        
+        // Mock getCompilerOptions to return allowArbitraryExtensions: true
+        const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
+        mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+        const result = transformManager.fileExists('/path/to/component.d.ts');
+
+        expect(result).toBe(true);
+        expect(mockDocumentCache.documentExists).toHaveBeenCalledWith('/path/to/component.gts');
+        expect(mockDocumentCache.documentExists).toHaveBeenCalledWith('/path/to/component.gjs');
+        expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gjs.d.ts');
+        expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.d.gjs.ts');
+        expect(mockGetCompilerOptions).toHaveBeenCalled();
+      });
+
+      test('returns false if .gts source file exists but allowArbitraryExtensions is disabled', () => {
+        mockDocumentCache.documentExists
+          .mockReturnValueOnce(false) // component.d.ts doesn't exist normally
+          .mockReturnValueOnce(true); // component.gts exists
+        mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
+        
+        // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
+        const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
+        mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+        const result = transformManager.fileExists('/path/to/component.d.ts');
+
+        expect(result).toBe(false);
+        expect(mockGetCompilerOptions).toHaveBeenCalled();
+        // Should only check for standard pattern (.gts.d.ts) for the .gts source found
+        expect(mockTS.sys.fileExists).toHaveBeenCalledTimes(1);
+        expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gts.d.ts');
+      });
+
+      test('returns false if .gjs source file exists but allowArbitraryExtensions is disabled', () => {
+        mockDocumentCache.documentExists
+          .mockReturnValueOnce(false) // component.d.ts doesn't exist normally
+          .mockReturnValueOnce(false) // component.gts doesn't exist (checked first)
+          .mockReturnValueOnce(true); // component.gjs exists (checked second)
+        mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
+        
+        // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
+        const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
+        mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+        const result = transformManager.fileExists('/path/to/component.d.ts');
+
+        expect(result).toBe(false);
+        expect(mockGetCompilerOptions).toHaveBeenCalled();
+        // Should only check for standard pattern, not arbitrary pattern
+        expect(mockTS.sys.fileExists).toHaveBeenCalledTimes(1);
         expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gjs.d.ts');
       });
 
@@ -206,6 +296,81 @@ describe('TransformManager', () => {
         expect(mockTS.sys.readFile).toHaveBeenCalledWith('/path/to/component.gjs.d.ts', 'utf8');
       });
 
+      test('returns contents from .d.gts.ts when .gts source exists, standard pattern not found, and allowArbitraryExtensions is enabled', () => {
+        mockDocumentCache.documentExists.mockReturnValue(true); // component.gts exists
+        mockTS.sys.fileExists
+          .mockReturnValueOnce(false) // component.gts.d.ts doesn't exist
+          .mockReturnValueOnce(true); // component.d.gts.ts exists
+        mockTS.sys.readFile.mockReturnValue('arbitrary extensions declaration contents');
+        
+        // Mock getCompilerOptions to return allowArbitraryExtensions: true
+        const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
+        mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+        const result = transformManager.readTransformedFile('/path/to/component.d.ts', 'utf8');
+
+        expect(result).toBe('arbitrary extensions declaration contents');
+        expect(mockTS.sys.readFile).toHaveBeenCalledWith('/path/to/component.d.gts.ts', 'utf8');
+        expect(mockGetCompilerOptions).toHaveBeenCalled();
+      });
+
+      test('returns contents from .d.gjs.ts when .gjs source exists, standard pattern not found, and allowArbitraryExtensions is enabled', () => {
+        mockDocumentCache.documentExists
+          .mockReturnValueOnce(false) // component.gts doesn't exist
+          .mockReturnValueOnce(true); // component.gjs exists
+        mockTS.sys.fileExists
+          .mockReturnValueOnce(false) // component.gjs.d.ts doesn't exist
+          .mockReturnValueOnce(true); // component.d.gjs.ts exists
+        mockTS.sys.readFile.mockReturnValue('arbitrary gjs declaration contents');
+        
+        // Mock getCompilerOptions to return allowArbitraryExtensions: true
+        const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
+        mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+        const result = transformManager.readTransformedFile('/path/to/component.d.ts', 'utf8');
+
+        expect(result).toBe('arbitrary gjs declaration contents');
+        expect(mockTS.sys.readFile).toHaveBeenCalledWith('/path/to/component.d.gjs.ts', 'utf8');
+        expect(mockGetCompilerOptions).toHaveBeenCalled();
+      });
+
+      test('returns undefined when .gts source exists, standard pattern not found, and allowArbitraryExtensions is disabled', () => {
+        mockDocumentCache.documentExists.mockReturnValue(true); // component.gts exists
+        mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
+        
+        // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
+        const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
+        mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+        const result = transformManager.readTransformedFile('/path/to/component.d.ts', 'utf8');
+
+        expect(result).toBeUndefined();
+        expect(mockGetCompilerOptions).toHaveBeenCalled();
+        // Should check for both .gts and .gjs standard patterns, but not arbitrary patterns
+        expect(mockTS.sys.fileExists).toHaveBeenCalledTimes(2);
+        expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gts.d.ts');
+        expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gjs.d.ts');
+      });
+
+      test('returns undefined when .gjs source exists, standard pattern not found, and allowArbitraryExtensions is disabled', () => {
+        mockDocumentCache.documentExists
+          .mockReturnValueOnce(false) // component.gts doesn't exist
+          .mockReturnValueOnce(true); // component.gjs exists
+        mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
+        
+        // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
+        const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
+        mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+        const result = transformManager.readTransformedFile('/path/to/component.d.ts', 'utf8');
+
+        expect(result).toBeUndefined();
+        expect(mockGetCompilerOptions).toHaveBeenCalled();
+        // Should only check for standard pattern, not arbitrary pattern
+        expect(mockTS.sys.fileExists).toHaveBeenCalledTimes(1);
+        expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gjs.d.ts');
+      });
+
       test('falls back to document contents if alternative exists but no .d.ts file', () => {
         mockDocumentCache.documentExists.mockReturnValue(true); // component.gts exists
         mockTS.sys.fileExists.mockReturnValue(false); // component.gts.d.ts doesn't exist
@@ -291,6 +456,77 @@ describe('TransformManager', () => {
       const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
 
       expect(result).toBe('/path/to/component.gjs.d.ts');
+    });
+
+    test('returns .d.gts.ts path when .gts source exists, standard pattern not found, and allowArbitraryExtensions is enabled', () => {
+      mockDocumentCache.documentExists.mockReturnValue(true); // component.gts exists
+      mockTS.sys.fileExists
+        .mockReturnValueOnce(false) // component.gts.d.ts doesn't exist
+        .mockReturnValueOnce(true); // component.d.gts.ts exists
+      
+      // Mock getCompilerOptions to return allowArbitraryExtensions: true
+      const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
+      mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+
+      expect(result).toBe('/path/to/component.d.gts.ts');
+      expect(mockGetCompilerOptions).toHaveBeenCalled();
+    });
+
+    test('returns .d.gjs.ts path when .gjs source exists, standard pattern not found, and allowArbitraryExtensions is enabled', () => {
+      mockDocumentCache.documentExists
+        .mockReturnValueOnce(false) // component.gts doesn't exist
+        .mockReturnValueOnce(true); // component.gjs exists
+      mockTS.sys.fileExists
+        .mockReturnValueOnce(false) // component.gjs.d.ts doesn't exist
+        .mockReturnValueOnce(true); // component.d.gjs.ts exists
+      
+      // Mock getCompilerOptions to return allowArbitraryExtensions: true
+      const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: true });
+      mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+
+      expect(result).toBe('/path/to/component.d.gjs.ts');
+      expect(mockGetCompilerOptions).toHaveBeenCalled();
+    });
+
+    test('returns null when .gjs source exists, standard pattern not found, and allowArbitraryExtensions is disabled', () => {
+      mockDocumentCache.documentExists
+        .mockReturnValueOnce(false) // component.gts doesn't exist
+        .mockReturnValueOnce(true); // component.gjs exists
+      mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
+      
+      // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
+      const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
+      mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+
+      expect(result).toBeNull();
+      expect(mockGetCompilerOptions).toHaveBeenCalled();
+      // Should only check for standard pattern, not arbitrary pattern
+      expect(mockTS.sys.fileExists).toHaveBeenCalledTimes(1);
+      expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gjs.d.ts');
+    });
+
+    test('returns null when .gts source exists, standard pattern not found, and allowArbitraryExtensions is disabled', () => {
+      mockDocumentCache.documentExists.mockReturnValue(true); // component.gts exists
+      mockTS.sys.fileExists.mockReturnValue(false); // no .d.ts files exist
+      
+      // Mock getCompilerOptions to return allowArbitraryExtensions: false (default)
+      const mockGetCompilerOptions = vi.fn().mockReturnValue({ allowArbitraryExtensions: false });
+      mockGlintConfig.getCompilerOptions = mockGetCompilerOptions;
+
+      const result = (transformManager as any).findAlternativeDeclarationFile('/path/to/component.d.ts');
+
+      expect(result).toBeNull();
+      expect(mockGetCompilerOptions).toHaveBeenCalled();
+      // Should check standard patterns for both .gts and .gjs extensions (iterates through all)
+      expect(mockTS.sys.fileExists).toHaveBeenCalledTimes(2);
+      expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gts.d.ts');
+      expect(mockTS.sys.fileExists).toHaveBeenCalledWith('/path/to/component.gjs.d.ts');
     });
 
     test('returns null when source exists but no corresponding .d.ts file', () => {

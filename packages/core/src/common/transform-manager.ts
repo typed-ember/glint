@@ -501,10 +501,22 @@ export default class TransformManager {
         // Check if there's a source file with this extension
         const sourceFile = baseName + sourceExt;
         if (this.documents.documentExists(sourceFile)) {
-          // Check if there's a declaration file for the original extension
-          const originalDtsFile = sourceFile + '.d.ts';
-          if (this.ts.sys.fileExists(originalDtsFile)) {
-            return originalDtsFile;
+          // Check for both .ext.d.ts and .d.ext.ts patterns
+          // Pattern 1: component.gjs.d.ts (standard TypeScript pattern)
+          const standardDtsFile = sourceFile + '.d.ts';
+          if (this.ts.sys.fileExists(standardDtsFile)) {
+            return standardDtsFile;
+          }
+          
+          // Pattern 2: component.d.gjs.ts (allowArbitraryExtensions pattern)
+          // Only check this pattern if allowArbitraryExtensions is enabled
+          const compilerOptions = this.glintConfig.getCompilerOptions();
+          // @ts-ignore: allowArbitraryExtensions may not be available in older TypeScript versions
+          if (compilerOptions.allowArbitraryExtensions === true) {
+            const arbitraryDtsFile = baseName + '.d' + sourceExt + '.ts';
+            if (this.ts.sys.fileExists(arbitraryDtsFile)) {
+              return arbitraryDtsFile;
+            }
           }
         }
       }
