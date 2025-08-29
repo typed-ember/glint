@@ -287,7 +287,13 @@ export default class TransformManager {
   };
 
   public fileExists = (filename: string): boolean => {
-    return this.documents.documentExists(filename);
+    // First check if the file exists normally
+    if (this.documents.documentExists(filename)) {
+      return true;
+    }
+
+    // Check for declaration files with alternative extensions
+    return this.findAlternativeDeclarationFile(filename) !== null;
   };
 
   public readTransformedFile = (filename: string, encoding?: string): string | undefined => {
@@ -295,6 +301,15 @@ export default class TransformManager {
     if (transformInfo?.transformedModule) {
       return transformInfo.transformedModule.transformedContents;
     } else {
+      // Check if this is a request for a declaration file that should be served
+      // from the original extension (e.g. serve x.gjs.d.ts when x.d.ts is requested)
+      if (filename.endsWith('.d.ts')) {
+        const alternativeFile = this.findAlternativeDeclarationFile(filename);
+        if (alternativeFile) {
+          return this.ts.sys.readFile(alternativeFile, encoding);
+        }
+      }
+
       return this.documents.getDocumentContents(filename, encoding);
     }
   };
@@ -468,6 +483,46 @@ export default class TransformManager {
         error.isContentTagError
       )
     );
+  }
+
+  private findAlternativeDeclarationFile(filename: string): string | null {
+    if (!filename.endsWith('.d.ts')) {
+      return null;
+    }
+
+    const baseName = filename.slice(0, -5); // Remove '.d.ts'
+    const possibleSourceExtensions = [
+      ...this.glintConfig.environment.typedScriptExtensions,
+      ...this.glintConfig.environment.untypedScriptExtensions,
+    ];
+
+    for (const sourceExt of possibleSourceExtensions) {
+      if (sourceExt !== '.ts' && sourceExt !== '.js') {
+        // Check if there's a source file with this extension
+        const sourceFile = baseName + sourceExt;
+        if (this.documents.documentExists(sourceFile)) {
+          // Check for both .ext.d.ts and .d.ext.ts patterns
+          // Pattern 1: component.gjs.d.ts (standard TypeScript pattern)
+          const standardDtsFile = sourceFile + '.d.ts';
+          if (this.ts.sys.fileExists(standardDtsFile)) {
+            return standardDtsFile;
+          }
+
+          // Pattern 2: component.d.gjs.ts (allowArbitraryExtensions pattern)
+          // Only check this pattern if allowArbitraryExtensions is enabled
+          const compilerOptions = this.glintConfig.getCompilerOptions();
+          // @ts-ignore: allowArbitraryExtensions may not be available in older TypeScript versions
+          if (compilerOptions.allowArbitraryExtensions === true) {
+            const arbitraryDtsFile = baseName + '.d' + sourceExt + '.ts';
+            if (this.ts.sys.fileExists(arbitraryDtsFile)) {
+              return arbitraryDtsFile;
+            }
+          }
+        }
+      }
+    }
+
+    return null;
   }
 }
 

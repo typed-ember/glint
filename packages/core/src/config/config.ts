@@ -14,6 +14,7 @@ export class GlintConfig {
   public readonly checkStandaloneTemplates: boolean;
 
   private extensions: Array<string>;
+  private parsedTsConfig?: import('typescript').ParsedCommandLine;
 
   public constructor(
     ts: typeof import('typescript'),
@@ -51,6 +52,34 @@ export class GlintConfig {
       default:
         return filename;
     }
+  }
+
+  /**
+   * Parses and returns the TypeScript configuration for this project.
+   * Results are cached after the first call.
+   */
+  public getParsedTsConfig(): import('typescript').ParsedCommandLine {
+    if (!this.parsedTsConfig) {
+      const contents = this.ts.readConfigFile(this.configPath, this.ts.sys.readFile).config;
+      const host = { ...this.ts.sys };
+
+      this.parsedTsConfig = this.ts.parseJsonConfigFileContent(
+        contents,
+        host,
+        this.rootDir,
+        undefined,
+        this.configPath
+      );
+    }
+
+    return this.parsedTsConfig;
+  }
+
+  /**
+   * Returns the TypeScript compiler options for this project.
+   */
+  public getCompilerOptions(): import('typescript').CompilerOptions {
+    return this.getParsedTsConfig().options;
   }
 }
 
