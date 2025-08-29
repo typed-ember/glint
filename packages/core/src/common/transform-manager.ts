@@ -292,31 +292,8 @@ export default class TransformManager {
       return true;
     }
 
-    // If it's a .d.ts file that doesn't exist, check for declaration files
-    // with the original extension (e.g. x.gjs.d.ts for x.d.ts when x.gjs exists)
-    if (filename.endsWith('.d.ts')) {
-      const baseName = filename.slice(0, -5); // Remove '.d.ts'
-      const possibleSourceExtensions = [
-        ...this.glintConfig.environment.typedScriptExtensions,
-        ...this.glintConfig.environment.untypedScriptExtensions,
-      ];
-
-      for (const sourceExt of possibleSourceExtensions) {
-        if (sourceExt !== '.ts' && sourceExt !== '.js') {
-          // Check if there's a source file with this extension
-          const sourceFile = baseName + sourceExt;
-          if (this.documents.documentExists(sourceFile)) {
-            // Check if there's a declaration file for the original extension
-            const originalDtsFile = sourceFile + '.d.ts';
-            if (this.ts.sys.fileExists(originalDtsFile)) {
-              return true;
-            }
-          }
-        }
-      }
-    }
-
-    return false;
+    // Check for declaration files with alternative extensions
+    return this.findAlternativeDeclarationFile(filename) !== null;
   };
 
   public readTransformedFile = (filename: string, encoding?: string): string | undefined => {
@@ -327,24 +304,9 @@ export default class TransformManager {
       // Check if this is a request for a declaration file that should be served
       // from the original extension (e.g. serve x.gjs.d.ts when x.d.ts is requested)
       if (filename.endsWith('.d.ts')) {
-        const baseName = filename.slice(0, -5); // Remove '.d.ts'
-        const possibleSourceExtensions = [
-          ...this.glintConfig.environment.typedScriptExtensions,
-          ...this.glintConfig.environment.untypedScriptExtensions,
-        ];
-
-        for (const sourceExt of possibleSourceExtensions) {
-          if (sourceExt !== '.ts' && sourceExt !== '.js') {
-            // Check if there's a source file with this extension
-            const sourceFile = baseName + sourceExt;
-            if (this.documents.documentExists(sourceFile)) {
-              // Check if there's a declaration file for the original extension
-              const originalDtsFile = sourceFile + '.d.ts';
-              if (this.ts.sys.fileExists(originalDtsFile)) {
-                return this.ts.sys.readFile(originalDtsFile, encoding);
-              }
-            }
-          }
+        const alternativeFile = this.findAlternativeDeclarationFile(filename);
+        if (alternativeFile) {
+          return this.ts.sys.readFile(alternativeFile, encoding);
         }
       }
 
@@ -521,6 +483,34 @@ export default class TransformManager {
         error.isContentTagError
       )
     );
+  }
+
+  private findAlternativeDeclarationFile(filename: string): string | null {
+    if (!filename.endsWith('.d.ts')) {
+      return null;
+    }
+
+    const baseName = filename.slice(0, -5); // Remove '.d.ts'
+    const possibleSourceExtensions = [
+      ...this.glintConfig.environment.typedScriptExtensions,
+      ...this.glintConfig.environment.untypedScriptExtensions,
+    ];
+
+    for (const sourceExt of possibleSourceExtensions) {
+      if (sourceExt !== '.ts' && sourceExt !== '.js') {
+        // Check if there's a source file with this extension
+        const sourceFile = baseName + sourceExt;
+        if (this.documents.documentExists(sourceFile)) {
+          // Check if there's a declaration file for the original extension
+          const originalDtsFile = sourceFile + '.d.ts';
+          if (this.ts.sys.fileExists(originalDtsFile)) {
+            return originalDtsFile;
+          }
+        }
+      }
+    }
+
+    return null;
   }
 }
 
