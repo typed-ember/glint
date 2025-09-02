@@ -1,5 +1,24 @@
 # Changelog
 
+## Release (2025-09-02)
+
+* @glint/core 2.0.0-alpha.5 (major)
+* @glint/tsserver-plugin 2.0.0-alpha.5 (major)
+* @glint/type-test 2.0.0-alpha.4 (major)
+
+#### :boom: Breaking Change
+* `@glint/core`, `@glint/tsserver-plugin`, `@glint/type-test`
+  * [#939](https://github.com/typed-ember/glint/pull/939) Absorb `@glint/environment-ember-template-imports` into `@glint/core` ([@machty](https://github.com/machty))
+* `@glint/core`, `@glint/type-test`
+  * [#933](https://github.com/typed-ember/glint/pull/933) Remove ember-loose environment + handlebars support ([@machty](https://github.com/machty))
+
+#### :house: Internal
+* [#944](https://github.com/typed-ember/glint/pull/944) rm a few wontfix skipped tests ([@machty](https://github.com/machty))
+* [#938](https://github.com/typed-ember/glint/pull/938) rm leftover sentinel from previous merge ([@machty](https://github.com/machty))
+
+#### Committers: 1
+- Alex Matchneer ([@machty](https://github.com/machty))
+
 ## Release (2025-08-13)
 
 * @glint/core 2.0.0-alpha.4 (minor)
