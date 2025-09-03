@@ -50,5 +50,3 @@ To get Ember/Glimmer and TypeScript working together, Glint creates a separate T
 1. Type `@builtin typescript` in the extension search box
 1. Click the little gear icon of "TypeScript and JavaScript Language Features", and select "Disable (Workspace)".
 1. Reload the workspace. Glint will now take over TS language services.
-
-![Disabling built-in TS language service per workspace](https://user-images.githubusercontent.com/108688/111069039-6dc84100-84cb-11eb-8339-18a589be2ac5.png)

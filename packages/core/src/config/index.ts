@@ -4,7 +4,7 @@ import { ConfigLoader } from './loader.js';
 
 export { GlintConfig } from './config.js';
 export { GlintEnvironment } from './environment.js';
-export { ConfigLoader, findTypeScript } from './loader.js';
+export { ConfigLoader, findTypeScript, createTempConfigForFiles } from './loader.js';
 
 /**
  * Loads glint configuration, starting from the given directory
