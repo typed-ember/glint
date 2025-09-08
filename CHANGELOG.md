@@ -5,12 +5,45 @@
 * @glint/core 2.0.0-alpha.5 (major)
 * @glint/tsserver-plugin 2.0.0-alpha.5 (major)
 * @glint/type-test 2.0.0-alpha.4 (major)
+* VSCode extension 1.4.17 (pre-release)
 
 #### :boom: Breaking Change
 * `@glint/core`, `@glint/tsserver-plugin`, `@glint/type-test`
   * [#939](https://github.com/typed-ember/glint/pull/939) Absorb `@glint/environment-ember-template-imports` into `@glint/core` ([@machty](https://github.com/machty))
 * `@glint/core`, `@glint/type-test`
   * [#933](https://github.com/typed-ember/glint/pull/933) Remove ember-loose environment + handlebars support ([@machty](https://github.com/machty))
+
+##### Simplified Dependencies
+
+As of this release, you only need two dependencies in your Ember apps (the versions provided are up-to-date at the time of writing but please check the latest versions on NPM):
+
+```
+    "@glint/core": "2.0.0-alpha.5",
+    "@glint/template": "1.6.0-alpha.2",
+```
+
+(You will want to use the pre-release VSCode extension v1.4.17 in conjunction with these dependencies!)
+
+Notably absent are the `@glint/environment-ember-template-imports` and `@glint/environment-ember-loose` packages:
+
+There is no longer any concept of "environments" in Glint v2, which going forward will only support features previously covered/provided by the `@glint/environment-ember-template-imports` environment, which provides typechecking for `.gts`/`.gjs` files (aka the [Template Tag Format](https://guides.emberjs.com/release/components/template-tag-format/)). Furthermore, the functionality previously provided by `glint/environment-ember-loose` (namely support for type-checking classic Ember components consisting of a .ts/.js file with .hbs template) has been entirely removed. If type-checking support for .hbs files is still a requirement, you may want to consider continuing to use an older version of Glint.
+
+##### Simplified Configuration
+
+It is now _no longer a requirement_ to specify a `"glint": { ... }` configuration in your `tsconfig.json` files; going forward, you need only specify the `@glint/core` and `@glint/template` dependencies (see above) in your package.json file.
+
+The only reason to continue specifying a `"glint"` configuration object in `tsconfig.json` is if you need to specify options that applied to the (now-absorbed / obsolete) `@glint/environment-ember-template-imports` environment, e.g. `"additionalGlobals"`, in which case you would move that configuration to the top-level "namespace", e.g.
+
+```
+{
+  "compilerOptions": { ... },
+  "glint": {
+    "additionalGlobals": ["t"]
+  }
+}
+```
+
+For the time being, Glint V2 will continue to support the old style of configuration to ease the transition to Glint V2, but app maintainers are encouraged to upgrade to the above style (or in many cases just completely remove the `"glint"` config entirely) as soon as possible.
 
 #### :house: Internal
 * [#944](https://github.com/typed-ember/glint/pull/944) rm a few wontfix skipped tests ([@machty](https://github.com/machty))
