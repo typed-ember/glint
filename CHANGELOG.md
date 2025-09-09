@@ -1,5 +1,20 @@
 # Changelog
 
+## Release (2025-09-09)
+
+* @glint/core 2.0.0-alpha.6 (patch)
+* @glint/tsserver-plugin 2.0.0-alpha.6 (patch)
+
+#### :bug: Bug Fix
+* `@glint/core`
+  * [#950](https://github.com/typed-ember/glint/pull/950) Reinstate types for LinkTo, TextArea, and Input ([@machty](https://github.com/machty))
+
+#### :memo: Documentation
+* [#948](https://github.com/typed-ember/glint/pull/948) Add notes to recent CHANGELOG ([@machty](https://github.com/machty))
+
+#### Committers: 1
+- Alex Matchneer ([@machty](https://github.com/machty))
+
 ## Release (2025-09-02)
 
 * @glint/core 2.0.0-alpha.5 (major)

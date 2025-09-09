@@ -1,14 +1,14 @@
 {
   "solution": {
     "@glint/core": {
-      "impact": "major",
-      "oldVersion": "2.0.0-alpha.4",
-      "newVersion": "2.0.0-alpha.5",
+      "impact": "patch",
+      "oldVersion": "2.0.0-alpha.5",
+      "newVersion": "2.0.0-alpha.6",
       "tagName": "alpha",
       "constraints": [
         {
-          "impact": "major",
-          "reason": "Appears in changelog section :boom: Breaking Change"
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/core/package.json"
@@ -17,35 +17,21 @@
       "oldVersion": "1.6.0-alpha.2"
     },
     "@glint/tsserver-plugin": {
-      "impact": "major",
-      "oldVersion": "2.0.0-alpha.4",
-      "newVersion": "2.0.0-alpha.5",
+      "impact": "patch",
+      "oldVersion": "2.0.0-alpha.5",
+      "newVersion": "2.0.0-alpha.6",
       "tagName": "alpha",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/core"
-        },
-        {
-          "impact": "major",
-          "reason": "Appears in changelog section :boom: Breaking Change"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
     },
     "@glint/type-test": {
-      "impact": "major",
-      "oldVersion": "2.0.0-alpha.3",
-      "newVersion": "2.0.0-alpha.4",
-      "tagName": "alpha",
-      "constraints": [
-        {
-          "impact": "major",
-          "reason": "Appears in changelog section :boom: Breaking Change"
-        }
-      ],
-      "pkgJSONPath": "./packages/type-test/package.json"
+      "oldVersion": "2.0.0-alpha.4"
     }
   },
-  "description": "## Release (2025-09-02)\n\n* @glint/core 2.0.0-alpha.5 (major)\n* @glint/tsserver-plugin 2.0.0-alpha.5 (major)\n* @glint/type-test 2.0.0-alpha.4 (major)\n\n#### :boom: Breaking Change\n* `@glint/core`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#939](https://github.com/typed-ember/glint/pull/939) Absorb `@glint/environment-ember-template-imports` into `@glint/core` ([@machty](https://github.com/machty))\n* `@glint/core`, `@glint/type-test`\n  * [#933](https://github.com/typed-ember/glint/pull/933) Remove ember-loose environment + handlebars support ([@machty](https://github.com/machty))\n\n#### :house: Internal\n* [#944](https://github.com/typed-ember/glint/pull/944) rm a few wontfix skipped tests ([@machty](https://github.com/machty))\n* [#938](https://github.com/typed-ember/glint/pull/938) rm leftover sentinel from previous merge ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
+  "description": "## Release (2025-09-09)\n\n* @glint/core 2.0.0-alpha.6 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.6 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`\n  * [#950](https://github.com/typed-ember/glint/pull/950) Reinstate types for LinkTo, TextArea, and Input ([@machty](https://github.com/machty))\n\n#### :memo: Documentation\n* [#948](https://github.com/typed-ember/glint/pull/948) Add notes to recent CHANGELOG ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
 }
