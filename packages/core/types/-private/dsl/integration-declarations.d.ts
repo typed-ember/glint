@@ -34,12 +34,14 @@ declare module '@glimmer/component' {
   }
 }
 
+import { InputComponent as ImportedInputComponent } from '../intrinsics/input';
 import { TextareaComponent as ImportedTextareaComponent } from '../intrinsics/textarea';
 declare module '@ember/component' {
   export default interface Component<S> extends InstanceType<ComponentLike<S>> {
     [Context]: ComponentContext<this, S>;
   }
   export interface Textarea extends ImportedTextareaComponent {}
+  export interface Input extends ImportedInputComponent {}
 }
 
 interface TemplateOnlyComponentInstance<S> extends InstanceType<ComponentLike<S>> {
