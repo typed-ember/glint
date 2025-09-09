@@ -97,6 +97,11 @@ declare module '@ember/controller' {
   }
 }
 
+import { LinkToComponent } from '../intrinsics/link-to';
+declare module '@ember/routing' {
+  export interface LinkTo extends LinkToComponent {}
+}
+
 //////////////////////////////////////////////////////////////////////
 // Rendering Tests
 
