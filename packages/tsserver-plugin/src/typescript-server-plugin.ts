@@ -82,14 +82,14 @@ const plugin = createLanguageServicePlugin(
             ) => {
               let fakeImportNodes: any = [];
               if (moduleLiterals.length > 0) {
-                fakeImportNodes.push({
-                  ...moduleLiterals[0],
-                  text: './__NONEXISTENT_GLINT_HACK__.gts',
-                });
-                fakeImportNodes.push({
-                  ...moduleLiterals[0],
-                  text: './__NONEXISTENT_GLINT_HACK__.gjs',
-                });
+                // fakeImportNodes.push({
+                //   ...moduleLiterals[0],
+                //   text: './__NONEXISTENT_GLINT_HACK__.gts',
+                // });
+                // fakeImportNodes.push({
+                //   ...moduleLiterals[0],
+                //   text: './__NONEXISTENT_GLINT_HACK__.gjs',
+                // });
               }
 
               const result = resolveModuleNameLiterals(
