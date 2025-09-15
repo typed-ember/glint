@@ -1,11 +1,15 @@
 {
   "solution": {
     "@glint/core": {
-      "impact": "patch",
-      "oldVersion": "2.0.0-alpha.5",
-      "newVersion": "2.0.0-alpha.6",
+      "impact": "minor",
+      "oldVersion": "2.0.0-alpha.6",
+      "newVersion": "2.0.0-alpha.7",
       "tagName": "alpha",
       "constraints": [
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
@@ -17,14 +21,22 @@
       "oldVersion": "1.6.0-alpha.2"
     },
     "@glint/tsserver-plugin": {
-      "impact": "patch",
-      "oldVersion": "2.0.0-alpha.5",
-      "newVersion": "2.0.0-alpha.6",
+      "impact": "minor",
+      "oldVersion": "2.0.0-alpha.6",
+      "newVersion": "2.0.0-alpha.7",
       "tagName": "alpha",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/core"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -33,5 +45,5 @@
       "oldVersion": "2.0.0-alpha.4"
     }
   },
-  "description": "## Release (2025-09-09)\n\n* @glint/core 2.0.0-alpha.6 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.6 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`\n  * [#950](https://github.com/typed-ember/glint/pull/950) Reinstate types for LinkTo, TextArea, and Input ([@machty](https://github.com/machty))\n\n#### :memo: Documentation\n* [#948](https://github.com/typed-ember/glint/pull/948) Add notes to recent CHANGELOG ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
+  "description": "## Release (2025-09-15)\n\n* @glint/core 2.0.0-alpha.7 (minor)\n* @glint/tsserver-plugin 2.0.0-alpha.7 (minor)\n\n#### :rocket: Enhancement\n* `@glint/core`, `@glint/tsserver-plugin`\n  * [#953](https://github.com/typed-ember/glint/pull/953) Bump volar deps and cleanup ([@machty](https://github.com/machty))\n\n#### :bug: Bug Fix\n* `@glint/core`, `@glint/tsserver-plugin`\n  * [#959](https://github.com/typed-ember/glint/pull/959) Fix auto-imports for first import ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
 }
