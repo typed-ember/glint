@@ -44,7 +44,9 @@ const plugin = createLanguageServicePlugin(
         info.project.projectService.logger.info('Glint TS Plugin is running!');
       }
 
-      const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig, { clientId: 'tsserver-plugin' });
+      const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig, {
+        clientId: 'tsserver-plugin',
+      });
       return {
         languagePlugins: [gtsLanguagePlugin],
         setup: (language: any) => {
