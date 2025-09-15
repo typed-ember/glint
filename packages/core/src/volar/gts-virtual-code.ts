@@ -83,6 +83,7 @@ export class VirtualGtsCode implements VirtualCode {
     private glintConfig: GlintConfig,
     public snapshot: IScriptSnapshot,
     public languageId: 'glimmer-ts' | 'glimmer-js' | 'typescript.glimmer' | 'javascript.glimmer',
+    public clientId?: string,
   ) {
     this.update(snapshot);
   }
@@ -142,6 +143,7 @@ export class VirtualGtsCode implements VirtualCode {
       this.glintConfig.ts,
       { script },
       this.glintConfig.environment,
+      this.clientId,
     );
 
     this.transformedModule = transformedModule;

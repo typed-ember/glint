@@ -12,6 +12,7 @@ export type TS = typeof ts;
  */
 export function createEmberLanguagePlugin<T extends URI | string>(
   glintConfig: GlintConfig,
+  { clientId }: { clientId?: string } = {},
 ): LanguagePlugin<T> {
   return {
     /**
@@ -42,7 +43,7 @@ export function createEmberLanguagePlugin<T extends URI | string>(
         languageId === 'typescript.glimmer' ||
         languageId === 'javascript.glimmer'
       ) {
-        return new VirtualGtsCode(glintConfig, snapshot, languageId);
+        return new VirtualGtsCode(glintConfig, snapshot, languageId, clientId);
       }
     },
 
