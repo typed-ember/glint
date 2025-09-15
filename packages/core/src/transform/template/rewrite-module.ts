@@ -339,15 +339,9 @@ function completeCorrelatedSpans(
 }
 
 /**
- * Volar's approach to source-mapping within a tsserver/TS Plugin context involves
- * generating a transformed TS file where the _shape_ of the original content is preserved
- * at the top of the file, but with all characters replaced with spaces/newlines, and then
- * the transformed content is appended below. I'm not sure the exact reasons why it's done
- * that way, but by default this approach causes issues with auto-imports (a completion
- * will be generated but will fail to correctly apply the code edit). In order to solve
- * this, we prepend a no-op triple-slash directive to the top of the transformed file which guarantees
- * that the code edit (the inserted import) will occur below the directive and not in the
- * replaced-by-spaces region above it.
+ * Insert a no-op triple-slash directive to the top of the transformed file which provides
+ * an anchor/insertion point for auto-imports. This fixes an issue where auto-imports
+ * don't work for the first import in a file.
  */
 function generateAutoImportAnchor(script: SourceFile): PartialCorrelatedSpan {
   return {
