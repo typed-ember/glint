@@ -33,8 +33,14 @@ export function rewriteModule(
   ts: TSLib,
   { script }: RewriteInput,
   environment: GlintEnvironment,
+  clientId?: string,
 ): TransformedModule | null {
-  let { errors, directives, partialSpans } = calculateCorrelatedSpans(ts, script, environment);
+  let { errors, directives, partialSpans } = calculateCorrelatedSpans(
+    ts,
+    script,
+    environment,
+    clientId,
+  );
 
   if (!partialSpans.length && !errors.length) {
     return null;
@@ -57,10 +63,16 @@ function calculateCorrelatedSpans(
   ts: TSLib,
   script: SourceFile,
   environment: GlintEnvironment,
+  clientId?: string,
 ): CorrelatedSpansResult {
   let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
+
   let partialSpans: Array<PartialCorrelatedSpan> = [];
+
+  if (clientId === 'tsserver-plugin') {
+    partialSpans.push(generateAutoImportAnchor(script));
+  }
 
   let { ast, emitMetadata, error } = parseScript(ts, script, environment);
 
@@ -335,4 +347,26 @@ function completeCorrelatedSpans(
   }
 
   return correlatedSpans;
+}
+
+/**
+ * Insert a triple-slash reference directive to the top of the transformed file which provides
+ * an anchor/insertion point for auto-imports. This fixes an issue where auto-imports
+ * don't work for the first import in a file.
+ *
+ * Because we don't provide any mapping information to Volar, the internal error that
+ * this generates is quietly swallowed when Volar reverse source-maps the error back to
+ * .gts/.gjs. This is hacky but I don't know of any other (non-upstream) fix for this.
+ *
+ * Potential upstream Volar fix for this:
+ * https://github.com/volarjs/volar.js/pull/281
+ */
+function generateAutoImportAnchor(script: SourceFile): PartialCorrelatedSpan {
+  return {
+    originalFile: script,
+    originalStart: 0,
+    originalLength: 0,
+    insertionPoint: 0,
+    transformedSource: '/// <reference types="__GLINT_AUTO_IMPORT_ANCHOR__" />\n',
+  };
 }
