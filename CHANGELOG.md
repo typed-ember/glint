@@ -1,5 +1,21 @@
 # Changelog
 
+## Release (2025-09-15)
+
+* @glint/core 2.0.0-alpha.7 (minor)
+* @glint/tsserver-plugin 2.0.0-alpha.7 (minor)
+
+#### :rocket: Enhancement
+* `@glint/core`, `@glint/tsserver-plugin`
+  * [#953](https://github.com/typed-ember/glint/pull/953) Bump volar deps and cleanup ([@machty](https://github.com/machty))
+
+#### :bug: Bug Fix
+* `@glint/core`, `@glint/tsserver-plugin`
+  * [#959](https://github.com/typed-ember/glint/pull/959) Fix auto-imports for first import ([@machty](https://github.com/machty))
+
+#### Committers: 1
+- Alex Matchneer ([@machty](https://github.com/machty))
+
 ## Release (2025-09-09)
 
 * @glint/core 2.0.0-alpha.6 (patch)
