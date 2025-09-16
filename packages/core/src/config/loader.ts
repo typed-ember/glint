@@ -141,3 +141,60 @@ function assert(test: unknown, message: string): asserts test {
     throw new SilentError(`Glint config: ${message}`);
   }
 }
+
+interface TempConfigResult {
+  tempConfigPath: string;
+  cleanup: () => void;
+}
+
+/**
+ * Creates a temporary tsconfig.json for specific files while preserving project configuration.
+ */
+export function createTempConfigForFiles(cwd: string, fileArgs: string[]): TempConfigResult {
+  const ts = findTypeScript(cwd);
+  if (!ts) {
+    throw new Error('TypeScript not found. Glint requires TypeScript to be installed.');
+  }
+
+  const tsconfigPath = findNearestConfigFile(ts, cwd);
+  if (!tsconfigPath) {
+    throw new Error('No tsconfig.json found. Glint requires a TypeScript configuration file.');
+  }
+
+  // Use TypeScript's config file reader to handle comments
+  const configFileResult = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
+  if (configFileResult.error) {
+    throw new Error(
+      `Error reading tsconfig: ${ts.flattenDiagnosticMessageText(configFileResult.error.messageText, '\n')}`,
+    );
+  }
+
+  const originalConfig = configFileResult.config;
+  const tempConfig = {
+    ...originalConfig,
+    files: fileArgs,
+    include: undefined,
+    exclude: undefined,
+  };
+
+  const tempConfigPath = path.join(cwd, 'tsconfig.glint-temp.json');
+
+  fs.writeFileSync(tempConfigPath, JSON.stringify(tempConfig, null, 2));
+
+  const cleanup = (): void => {
+    try {
+      if (fs.existsSync(tempConfigPath)) {
+        fs.unlinkSync(tempConfigPath);
+      }
+    } catch {
+      // Ignore cleanup errors
+    }
+  };
+
+  // Setup cleanup on process exit
+  process.on('exit', cleanup);
+  process.on('SIGINT', cleanup);
+  process.on('SIGTERM', cleanup);
+
+  return { tempConfigPath, cleanup };
+}
