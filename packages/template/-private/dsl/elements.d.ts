@@ -585,6 +585,10 @@ interface HTMLTextAreaElementAttributes extends GenericAttributes {
   ['readonly']: AttrValue;
   ['required']: AttrValue;
   ['rows']: AttrValue;
+  // This is not actually an HTMLTextAreaElement attribute, but Ember/Glimmer
+  // support `value` attribute syntax to support binding values into
+  // `<textarea>`s, so we include it here.
+  ['value']: AttrValue;
   ['wrap']: AttrValue;
 }
 interface HTMLTimeElementAttributes extends GenericAttributes {
