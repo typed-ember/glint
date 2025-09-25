@@ -616,10 +616,6 @@ describe('Transform: rewriteModule', () => {
           {
           const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(SmolComp)({ 
           name: "Ember", ...__glintDSL__.NamedArgsMarker }));
-          __glintDSL__.applyAttributes(__glintY__.element, {
-
-
-          });
           }
           __glintRef__; __glintDSL__;
           }) satisfies TOC<{ Args: {}, Blocks: {}, Element: null }>
