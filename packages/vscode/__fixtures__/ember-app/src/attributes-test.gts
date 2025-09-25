@@ -25,5 +25,6 @@ export default class AttributesTest extends Component {
   <template>
     <ElementlessComponent class="bar" />
     <ElementedComponent foo="bar" />
+    <ElementedComponent class="bar" />
   </template>
 }

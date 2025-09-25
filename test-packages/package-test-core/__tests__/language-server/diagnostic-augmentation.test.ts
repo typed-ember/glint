@@ -212,7 +212,8 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "line": 13,
             "offset": 13,
           },
-          "text": "Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+          "text": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
         },
         {
           "category": "error",
@@ -285,7 +286,8 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "line": 18,
             "offset": 13,
           },
-          "text": "Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
+          "text": "Only primitive values and certain DOM objects (see \`ContentValue\` in \`@glint/template\`) are usable as top-level template content.
+      Argument of type '{}' is not assignable to parameter of type 'ContentValue'.",
         },
       ]
     `);

@@ -163,6 +163,29 @@ export default class TransformedModule {
     return { start, end };
   }
 
+  public getExactTransformedRanges(
+    originalFileName: string,
+    originalStart: number,
+    originalEnd: number,
+  ): GlimmerASTMappingTree[] {
+    let startInfo = this.determineTransformedOffsetAndSpan(originalFileName, originalStart);
+    let endInfo = this.determineTransformedOffsetAndSpan(originalFileName, originalEnd);
+
+    let start = startInfo.transformedOffset;
+    let end = endInfo.transformedOffset;
+
+    if (startInfo.correlatedSpan && startInfo.correlatedSpan === endInfo.correlatedSpan) {
+      let { correlatedSpan } = startInfo;
+      return (
+        correlatedSpan.glimmerAstMapping?.exactMappingsForOriginalRange({
+          start: start - correlatedSpan.transformedStart,
+          end: end - correlatedSpan.transformedStart,
+        }) || []
+      );
+    }
+    return [];
+  }
+
   public findTemplateAtOriginalOffset(
     originalFileName: string,
     originalOffset: number,
