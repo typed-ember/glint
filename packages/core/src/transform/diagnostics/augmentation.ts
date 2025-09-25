@@ -116,7 +116,7 @@ function checkAssignabilityError(
     // or `...attributes`, then it's an HTML attribute type issue.
     return addGlintDetails(
       diagnostic,
-      'An Element must be specified in the component signature in order to pass in HTML attributes',
+      'An Element must be specified in the component signature in order to pass in HTML attributes.',
     );
   } else if (
     node.type === 'MustacheStatement' &&
