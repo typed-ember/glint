@@ -21,7 +21,7 @@
       "types": "./types/-private/dsl/index.d.ts",
       "default": "./types/-private/dsl/index.d.ts"
     },
-    "./-private/dsl/integration-declarations": "./types/-private/dsl/integration-declarations.d.ts",
+    "./types": "./types/-private/dsl/integration-declarations.d.ts",
     "./-private/dsl/globals": "./types/-private/dsl/globals.d.ts",
     "./-private/intrinsics/action": "./types/-private/intrinsics/action.d.ts",
     "./-private/intrinsics/concat": "./types/-private/intrinsics/concat.d.ts",

@@ -1,4 +1,4 @@
-import '@glint/core/environment-ember-template-imports';
+import '@glint/core/types';
 
 import { HelperLike } from '@glint/template';
 
