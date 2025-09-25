@@ -889,7 +889,8 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "line": 26,
             "offset": 27,
           },
-          "text": "Argument of type 'unknown' is not assignable to parameter of type 'Element'.",
+          "text": "An Element must be specified in the component signature in order to pass in HTML attributes
+      Argument of type 'unknown' is not assignable to parameter of type 'Element'.",
         },
         {
           "category": "error",
