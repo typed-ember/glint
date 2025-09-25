@@ -108,6 +108,17 @@ function checkAssignabilityError(
         'If you want to set an event listener, consider using the `{{on}}` modifier instead.',
     );
   } else if (
+    node.type === 'AttrNode' &&
+    parentNode.type === 'ElementNode' &&
+    !/^(@|\.)/.test(node.name)
+  ) {
+    // If the assignability issue is on an attribute name and it's not an `@arg`
+    // or `...attributes`, then it's an HTML attribute type issue.
+    return addGlintDetails(
+      diagnostic,
+      'An Element must be specified in the component signature in order to pass in HTML attributes',
+    );
+  } else if (
     node.type === 'MustacheStatement' &&
     (parentNode.type === 'Template' ||
       parentNode.type === 'BlockStatement' ||
