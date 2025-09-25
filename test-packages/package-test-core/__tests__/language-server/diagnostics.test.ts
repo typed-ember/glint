@@ -835,4 +835,76 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       ]
     `);
   });
+
+  test('HTML attribute type-checking', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface ElementlessComponentSignature {
+      }
+
+      class ElementlessComponent extends Component<ElementlessComponentSignature> {
+        <template>
+          <div>ElementlessComponent</div>
+        </template>
+      }
+
+      interface ElementedComponentSignature {
+        Element: HTMLDivElement;
+      }
+
+      class ElementedComponent extends Component<ElementedComponentSignature> {
+        <template>
+          <div>ElementedComponent</div>
+        </template>
+      }
+
+      export default class AttributesTest extends Component {
+        private message = 'Hello';
+
+        <template>
+          <ElementlessComponent class="bar" />
+          <ElementedComponent foo="bar" />
+          <ElementedComponent class="bar" />
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2345,
+          "end": {
+            "line": 26,
+            "offset": 38,
+          },
+          "start": {
+            "line": 26,
+            "offset": 27,
+          },
+          "text": "Argument of type 'unknown' is not assignable to parameter of type 'Element'.",
+        },
+        {
+          "category": "error",
+          "code": 2353,
+          "end": {
+            "line": 27,
+            "offset": 28,
+          },
+          "start": {
+            "line": 27,
+            "offset": 25,
+          },
+          "text": "Object literal may only specify known properties, and 'foo' does not exist in type 'Partial<WithDataAttributes<HTMLDivElementAttributes>>'.",
+        },
+      ]
+    `);
+  });
 });
