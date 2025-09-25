@@ -846,15 +846,34 @@ export function templateToTypescript(
         (attr) => !attr.name.startsWith('@') && attr.name !== SPLATTRIBUTES,
       );
 
-      mapper.text('__glintDSL__.applyAttributes(__glintY__.element, {');
+      // Only emit `applyAttributes` if there are attributes to apply.
+      if (attributes.length === 0) return;
+
       const attrsSpan = node.openTag
         .withStart(node.path.loc.getEnd())
         .withEnd(node.openTag.getEnd().move(-1));
       mapper.forNodeWithSpan(node, attrsSpan, () => {
-        mapper.newline();
-        mapper.indent();
+        let isFirstAttribute = true;
 
         for (let attr of attributes) {
+          if (isFirstAttribute) {
+            isFirstAttribute = false;
+
+            mapper.text('__glintDSL__.applyAttributes(');
+
+            // We map the `__glintY__.element` arg to the first attribute node, which has the effect
+            // such that diagnostics due to passing attributes to invalid elements will show up
+            // on the attribute, rather than on the whole element.
+            mapper.forNode(attr, () => {
+              mapper.text('__glintY__.element');
+            });
+
+            mapper.text(', {');
+          }
+
+          mapper.newline();
+          mapper.indent();
+
           mapper.forNode(attr, () => {
             const attrStartOffset = attr.loc.getStart().offset!;
             emitHashKey(attr.name, attrStartOffset + prefix.length);

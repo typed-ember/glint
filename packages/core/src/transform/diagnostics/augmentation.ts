@@ -1,30 +1,29 @@
 import type ts from 'typescript';
-import { Diagnostic } from './index.js';
 import GlimmerASTMappingTree, { MappingSource } from '../template/glimmer-ast-mapping-tree.js';
 import TransformedModule from '../template/transformed-module.js';
+import { Diagnostic } from './index.js';
 
 export function augmentDiagnostics<T extends Diagnostic>(
   transformedModule: TransformedModule,
   diagnostics: T[],
 ): T[] {
-  const mappingForDiagnostic = (diagnostic: ts.Diagnostic): GlimmerASTMappingTree | null => {
+  const mappingForDiagnostic = (diagnostic: ts.Diagnostic): GlimmerASTMappingTree[] => {
     if (!transformedModule) {
-      return null;
+      return [];
     }
 
     if (!diagnostic.start || !diagnostic.length) {
-      return null;
+      return [];
     }
 
     const start = diagnostic.start;
     const end = start + diagnostic.length;
 
-    const rangeWithMappingAndSource = transformedModule.getTransformedRange(
+    return transformedModule.getExactTransformedRanges(
       transformedModule.originalFileName,
       start,
       end,
     );
-    return rangeWithMappingAndSource.mapping || null;
   };
 
   const augmentedDiagnostics: Diagnostic[] = [];
@@ -46,19 +45,21 @@ type DiagnosticHandler<T extends Diagnostic> = (
 
 function rewriteMessageText(
   diagnostic: Diagnostic,
-  mappingGetter: (diagnostic: Diagnostic) => GlimmerASTMappingTree | null,
+  mappingGetter: (diagnostic: Diagnostic) => GlimmerASTMappingTree[],
 ): Diagnostic {
   const handler = diagnosticHandlers[diagnostic.code?.toString() ?? ''];
   if (!handler) {
     return diagnostic;
   }
 
-  const mapping = mappingGetter(diagnostic);
-  if (!mapping) {
-    return diagnostic;
+  for (let mapping of mappingGetter(diagnostic)) {
+    const augmentedDiagnostic = handler(diagnostic, mapping);
+    if (augmentedDiagnostic) {
+      return augmentedDiagnostic;
+    }
   }
 
-  return handler(diagnostic, mapping) ?? diagnostic;
+  return diagnostic;
 }
 
 const diagnosticHandlers: Record<string, DiagnosticHandler<Diagnostic> | undefined> = {
@@ -105,6 +106,17 @@ function checkAssignabilityError(
       diagnostic,
       'Only primitive values (see `AttrValue` in `@glint/template`) are assignable as HTML attributes. ' +
         'If you want to set an event listener, consider using the `{{on}}` modifier instead.',
+    );
+  } else if (
+    node.type === 'AttrNode' &&
+    parentNode.type === 'ElementNode' &&
+    !/^(@|\.)/.test(node.name)
+  ) {
+    // If the assignability issue is on an attribute name and it's not an `@arg`
+    // or `...attributes`, then it's an HTML attribute type issue.
+    return addGlintDetails(
+      diagnostic,
+      'An Element must be specified in the component signature in order to pass in HTML attributes.',
     );
   } else if (
     node.type === 'MustacheStatement' &&

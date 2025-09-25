@@ -102,6 +102,27 @@ export default class GlimmerASTMappingTree {
     return this;
   }
 
+  /**
+   * Returns all mappings that exactly match the provided range.
+   */
+  public exactMappingsForOriginalRange(range: Range): GlimmerASTMappingTree[] {
+    const results: GlimmerASTMappingTree[] = [];
+
+    if (range.start < this.originalRange.start || range.end > this.originalRange.end) {
+      return results;
+    }
+
+    if (range.start == this.originalRange.start && range.end == this.originalRange.end) {
+      results.push(this);
+    }
+
+    for (let child of this.children) {
+      results.push(...child.exactMappingsForOriginalRange(range));
+    }
+
+    return results;
+  }
+
   public toDebugString(options: {
     originalStart: number;
     originalSource: string;
