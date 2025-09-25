@@ -852,22 +852,27 @@ export function templateToTypescript(
         .withStart(node.path.loc.getEnd())
         .withEnd(node.openTag.getEnd().move(-1));
       mapper.forNodeWithSpan(node, attrsSpan, () => {
-        mapper.newline();
-        mapper.indent();
-        let isFirst = true;
+        let isFirstAttribute = true;
 
         for (let attr of attributes) {
-          if (isFirst) {
-            isFirst = false;
+          if (isFirstAttribute) {
+            // Only emit `applyAttributes` if there are attributes to apply.
+            isFirstAttribute = false;
 
             mapper.text('__glintDSL__.applyAttributes(');
 
+            // We map the `__glintY__.element` arg to the first attribute node, which has the effect
+            // such that diagnostics due to passing attributes to invalid elements will show up
+            // on the attribute, rather than on the whole element.
             mapper.forNode(attr, () => {
               mapper.text('__glintY__.element');
             });
-      
+
             mapper.text(', {');
           }
+
+          mapper.newline();
+          mapper.indent();
 
           mapper.forNode(attr, () => {
             const attrStartOffset = attr.loc.getStart().offset!;
