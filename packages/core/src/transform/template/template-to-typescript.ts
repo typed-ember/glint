@@ -846,6 +846,7 @@ export function templateToTypescript(
         (attr) => !attr.name.startsWith('@') && attr.name !== SPLATTRIBUTES,
       );
 
+      // Only emit `applyAttributes` if there are attributes to apply.
       if (attributes.length === 0) return;
 
       const attrsSpan = node.openTag
@@ -856,7 +857,6 @@ export function templateToTypescript(
 
         for (let attr of attributes) {
           if (isFirstAttribute) {
-            // Only emit `applyAttributes` if there are attributes to apply.
             isFirstAttribute = false;
 
             mapper.text('__glintDSL__.applyAttributes(');
