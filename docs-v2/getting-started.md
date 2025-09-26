@@ -51,6 +51,26 @@ To this:
 
 You can also use the `glint` command locally with the `--watch` flag to monitor your project as you work!
 
+#### Single File Checking
+
+Glint supports checking individual files or a specific set of files instead of your entire project. This can be useful for faster feedback during development or when working with large codebases.
+
+```bash
+# Check a single file
+npx glint src/components/my-component.gts
+
+# Check multiple files
+npx glint src/components/header.gts src/components/footer.gts
+
+# Check files with different extensions
+npx glint src/helpers/format-date.ts src/components/date-picker.gts
+```
+
+When checking specific files, Glint:
+- Uses your project's `tsconfig.json` configuration
+- Applies the same type checking rules as project-wide checking
+- Analyzes the specified files and all their dependencies for faster performance
+
 ### Glint Editor Extensions
 
 You can install an editor extension to display Glint's diagnostics inline in your templates and provide richer editor support&mdash;typechecking, type information on hover, automated refactoring, and more&mdash;powered by `glint-language-server`:
@@ -65,5 +85,3 @@ To get Ember/Glimmer and TypeScript working together, Glint creates a separate T
 1. Type `@builtin typescript` in the extension search box
 1. Click the little gear icon of "TypeScript and JavaScript Language Features", and select "Disable (Workspace)".
 1. Reload the workspace. Glint will now take over TS language services.
-
-![Disabling built-in TS language service per workspace](https://user-images.githubusercontent.com/108688/111069039-6dc84100-84cb-11eb-8339-18a589be2ac5.png)
