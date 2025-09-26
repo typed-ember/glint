@@ -1,42 +1,44 @@
 {
   "solution": {
     "@glint/core": {
-      "impact": "minor",
-      "oldVersion": "2.0.0-alpha.6",
-      "newVersion": "2.0.0-alpha.7",
+      "impact": "patch",
+      "oldVersion": "2.0.0-alpha.7",
+      "newVersion": "2.0.0-alpha.8",
       "tagName": "alpha",
       "constraints": [
         {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
         },
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
+          "reason": "Has dependency `workspace:*` on @glint/template"
         }
       ],
       "pkgJSONPath": "./packages/core/package.json"
     },
     "@glint/template": {
-      "oldVersion": "1.6.0-alpha.2"
+      "impact": "patch",
+      "oldVersion": "1.6.0-alpha.2",
+      "newVersion": "1.6.0-alpha.3",
+      "tagName": "alpha",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        }
+      ],
+      "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
-      "impact": "minor",
-      "oldVersion": "2.0.0-alpha.6",
-      "newVersion": "2.0.0-alpha.7",
+      "impact": "patch",
+      "oldVersion": "2.0.0-alpha.7",
+      "newVersion": "2.0.0-alpha.8",
       "tagName": "alpha",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/core"
-        },
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -45,5 +47,5 @@
       "oldVersion": "2.0.0-alpha.4"
     }
   },
-  "description": "## Release (2025-09-15)\n\n* @glint/core 2.0.0-alpha.7 (minor)\n* @glint/tsserver-plugin 2.0.0-alpha.7 (minor)\n\n#### :rocket: Enhancement\n* `@glint/core`, `@glint/tsserver-plugin`\n  * [#953](https://github.com/typed-ember/glint/pull/953) Bump volar deps and cleanup ([@machty](https://github.com/machty))\n\n#### :bug: Bug Fix\n* `@glint/core`, `@glint/tsserver-plugin`\n  * [#959](https://github.com/typed-ember/glint/pull/959) Fix auto-imports for first import ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
+  "description": "## Release (2025-09-26)\n\n* @glint/core 2.0.0-alpha.8 (patch)\n* @glint/template 1.6.0-alpha.3 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.8 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`\n  * [#964](https://github.com/typed-ember/glint/pull/964) Export `@glint/core/types` for integration declarations ([@machty](https://github.com/machty))\n  * [#965](https://github.com/typed-ember/glint/pull/965) Fix occasional source mapping errors ([@machty](https://github.com/machty))\n  * [#955](https://github.com/typed-ember/glint/pull/955) Surface diagnostics due to attempting to assign attributes to default Element ([@machty](https://github.com/machty))\n* `@glint/template`\n  * [#962](https://github.com/typed-ember/glint/pull/962) Add value to HTMLTextAreaElementAttributes ([@bendemboski](https://github.com/bendemboski))\n\n#### Committers: 2\n- Alex Matchneer ([@machty](https://github.com/machty))\n- Ben Demboski ([@bendemboski](https://github.com/bendemboski))\n"
 }
