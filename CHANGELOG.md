@@ -2,6 +2,19 @@
 
 ## Release (2025-09-26)
 
+* @glint/core 2.0.0-alpha.9 (patch)
+* @glint/tsserver-plugin 2.0.0-alpha.9 (patch)
+
+#### :bug: Bug Fix
+* `@glint/core`
+  * [#968](https://github.com/typed-ember/glint/pull/968) Fix mapping issue with block params ([@machty](https://github.com/machty))
+  * [#966](https://github.com/typed-ember/glint/pull/966) Reinstate additionalSpecialForms ([@machty](https://github.com/machty))
+
+#### Committers: 1
+- Alex Matchneer ([@machty](https://github.com/machty))
+
+## Release (2025-09-26)
+
 * @glint/core 2.0.0-alpha.8 (patch)
 * @glint/template 1.6.0-alpha.3 (patch)
 * @glint/tsserver-plugin 2.0.0-alpha.8 (patch)
