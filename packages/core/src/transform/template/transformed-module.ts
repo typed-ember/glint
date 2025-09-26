@@ -343,26 +343,33 @@ export default class TransformedModule {
       // of generated code map back to the same source region.
       const hbsLength = hbsEnd - hbsStart;
       const tsLength = tsEnd - tsStart;
-      if (hbsLength === tsLength) {
-        // (Hacky?) assumption: because TS and HBS span lengths are equivalent,
-        // then this is a simple leafmost mapping, e.g. `{{this.[foo]}}` -> `this.[foo]`
-        push(hbsStart, tsStart, hbsLength, mapping.codeInformation);
-      } else {
-        // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
-        if (hbsLength > 0 && tsLength > 0) {
-          push(hbsStart, tsStart, 0, mapping.codeInformation);
-          push(hbsEnd, tsEnd, 0, mapping.codeInformation);
-        }
-      }
+
+      // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
+      const isNonNullMapping = hbsLength > 0 && tsLength > 0;
 
       if (children.length > 0) {
-        push(hbsStart, tsStart, 0, mapping.codeInformation);
+        if (isNonNullMapping) {
+          push(hbsStart, tsStart, 0, mapping.codeInformation);
+        }
 
         mapping.children.forEach((child) => {
           recurse(span, child);
         });
 
-        push(hbsEnd, tsEnd, 0, mapping.codeInformation);
+        // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
+        if (isNonNullMapping) {
+          push(hbsEnd, tsEnd, 0, mapping.codeInformation);
+        }
+      } else {
+        if (hbsLength === tsLength) {
+          push(hbsStart, tsStart, hbsLength, mapping.codeInformation);
+        } else {
+          // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
+          if (isNonNullMapping) {
+            push(hbsStart, tsStart, 0, mapping.codeInformation);
+            push(hbsEnd, tsEnd, 0, mapping.codeInformation);
+          }
+        }
       }
     };
 
