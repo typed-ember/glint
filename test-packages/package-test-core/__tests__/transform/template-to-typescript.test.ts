@@ -1179,7 +1179,7 @@ describe('Transform: rewriteTemplate', () => {
             Parse error on line 1:
             <Foo @attr={{\"123}} />
             -------------^
-            Expecting 'OPEN_SEXPR', 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
+            Expecting 'OPEN_SEXPR', 'ID', 'OPEN_ARRAY', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
           `,
         },
       ]);
