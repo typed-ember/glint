@@ -767,7 +767,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
           "message": "Parse error on line 2:
           <div>SYNTAX {{ERROR</div>  
       ------------------^
-      Expecting 'OPEN_SEXPR', 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'",
+      Expecting 'OPEN_SEXPR', 'ID', 'OPEN_ARRAY', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'",
           "range": {
             "end": {
               "character": 18,

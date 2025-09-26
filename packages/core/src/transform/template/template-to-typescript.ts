@@ -1161,7 +1161,7 @@ export function templateToTypescript(
     function emitBlock(name: string, node: AST.Block): void {
       let paramsStart = template.lastIndexOf(
         '|',
-        template.lastIndexOf('|', rangeForNode(node).start) - 1,
+        template.lastIndexOf('|', rangeForNode(node).end) - 1,
       );
 
       emitBlockContents(name, undefined, node.blockParams, paramsStart, node.body);
