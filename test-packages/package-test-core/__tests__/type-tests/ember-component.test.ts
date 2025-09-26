@@ -9,7 +9,7 @@ import {
 import type { ComponentLike } from '@glint/template';
 import { expectTypeOf } from 'expect-type';
 
-import '@glint/core/environment-ember-template-imports';
+import '@glint/core/types';
 
 {
   class NoArgsComponent extends Component {
