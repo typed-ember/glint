@@ -38,9 +38,11 @@ export class GlintEnvironment {
   ): GlintEnvironment {
     // Glint V1:
     let additionalGlobals = null;
+    let additionalSpecialForms = {};
     if (topLevelGlintConfigObject) {
       if (topLevelGlintConfigObject.additionalGlobals) {
         additionalGlobals = topLevelGlintConfigObject.additionalGlobals;
+        additionalSpecialForms = topLevelGlintConfigObject.additionalSpecialForms ?? {};
       } else {
         if (Array.isArray(topLevelGlintConfigObject.environment)) {
           // If it's a legacy array of environment names, e.g. ['ember-template-imports', 'ember-loose'],
@@ -50,6 +52,7 @@ export class GlintEnvironment {
             const emberTemplateImportsConfig =
               topLevelGlintConfigObject.environment?.['ember-template-imports'] ?? {};
             additionalGlobals = emberTemplateImportsConfig.additionalGlobals ?? [];
+            additionalSpecialForms = emberTemplateImportsConfig.additionalSpecialForms ?? {};
           }
         }
       }
@@ -58,7 +61,7 @@ export class GlintEnvironment {
     let tags: GlintTagsConfig = {};
     let extensions: GlintExtensionsConfig = { ...DEFAULT_EXTENSIONS };
 
-    const envUserConfig = { additionalGlobals };
+    const envUserConfig = { additionalGlobals, additionalSpecialForms };
 
     let config = emberTemplateImportsEnvironment(envUserConfig) as GlintEnvironmentConfig;
 
