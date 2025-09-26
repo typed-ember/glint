@@ -1,5 +1,23 @@
 # Changelog
 
+## Release (2025-09-26)
+
+* @glint/core 2.0.0-alpha.8 (patch)
+* @glint/template 1.6.0-alpha.3 (patch)
+* @glint/tsserver-plugin 2.0.0-alpha.8 (patch)
+
+#### :bug: Bug Fix
+* `@glint/core`
+  * [#964](https://github.com/typed-ember/glint/pull/964) Export `@glint/core/types` for integration declarations ([@machty](https://github.com/machty))
+  * [#965](https://github.com/typed-ember/glint/pull/965) Fix occasional source mapping errors ([@machty](https://github.com/machty))
+  * [#955](https://github.com/typed-ember/glint/pull/955) Surface diagnostics due to attempting to assign attributes to default Element ([@machty](https://github.com/machty))
+* `@glint/template`
+  * [#962](https://github.com/typed-ember/glint/pull/962) Add value to HTMLTextAreaElementAttributes ([@bendemboski](https://github.com/bendemboski))
+
+#### Committers: 2
+- Alex Matchneer ([@machty](https://github.com/machty))
+- Ben Demboski ([@bendemboski](https://github.com/bendemboski))
+
 ## Release (2025-09-15)
 
 * @glint/core 2.0.0-alpha.7 (minor)
