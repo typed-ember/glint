@@ -76,7 +76,7 @@ importers:
   packages/core:
     dependencies:
       '@glimmer/syntax':
-        specifier: 0.95.0
+        specifier: '>= 0.95.0'
         version: 0.95.0
       '@glint/template':
         specifier: workspace:*
