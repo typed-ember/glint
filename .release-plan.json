@@ -2,8 +2,8 @@
   "solution": {
     "@glint/core": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.8",
-      "newVersion": "2.0.0-alpha.9",
+      "oldVersion": "2.0.0-alpha.9",
+      "newVersion": "2.0.0-alpha.10",
       "tagName": "alpha",
       "constraints": [
         {
@@ -18,8 +18,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.8",
-      "newVersion": "2.0.0-alpha.9",
+      "oldVersion": "2.0.0-alpha.9",
+      "newVersion": "2.0.0-alpha.10",
       "tagName": "alpha",
       "constraints": [
         {
@@ -33,5 +33,5 @@
       "oldVersion": "2.0.0-alpha.4"
     }
   },
-  "description": "## Release (2025-09-26)\n\n* @glint/core 2.0.0-alpha.9 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.9 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`\n  * [#968](https://github.com/typed-ember/glint/pull/968) Fix mapping issue with block params ([@machty](https://github.com/machty))\n  * [#966](https://github.com/typed-ember/glint/pull/966) Reinstate additionalSpecialForms ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
+  "description": "## Release (2025-09-27)\n\n* @glint/core 2.0.0-alpha.10 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.10 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`\n  * [#969](https://github.com/typed-ember/glint/pull/969) Bugfix and test for additionalSpecialForms ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
 }

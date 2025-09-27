@@ -1,5 +1,17 @@
 # Changelog
 
+## Release (2025-09-27)
+
+* @glint/core 2.0.0-alpha.10 (patch)
+* @glint/tsserver-plugin 2.0.0-alpha.10 (patch)
+
+#### :bug: Bug Fix
+* `@glint/core`
+  * [#969](https://github.com/typed-ember/glint/pull/969) Bugfix and test for additionalSpecialForms ([@machty](https://github.com/machty))
+
+#### Committers: 1
+- Alex Matchneer ([@machty](https://github.com/machty))
+
 ## Release (2025-09-26)
 
 * @glint/core 2.0.0-alpha.9 (patch)
