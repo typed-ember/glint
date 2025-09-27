@@ -1,6 +1,6 @@
+import { GlintConfigInput } from '@glint/core/config-types';
 import * as path from 'node:path';
 import { GlintEnvironment } from './environment.js';
-import { GlintConfigInput } from '@glint/core/config-types';
 
 /**
  * This class represents parsed Glint configuration from a `tsconfig` or `jsconfig` file,
@@ -20,7 +20,7 @@ export class GlintConfig {
     Object.defineProperty(this, 'ts', { value: ts });
     this.configPath = normalizePath(configPath);
     this.rootDir = path.dirname(configPath);
-    this.environment = GlintEnvironment.load(config, { rootDir: this.rootDir });
+    this.environment = GlintEnvironment.load(config);
   }
 }
 

@@ -32,15 +32,15 @@ export class GlintEnvironment {
     this.extensionsConfig = config.extensions ?? {};
   }
 
-  public static load(
-    topLevelGlintConfigObject: any,
-    { rootDir = process.cwd() } = {},
-  ): GlintEnvironment {
+  public static load(topLevelGlintConfigObject: any): GlintEnvironment {
     // Glint V1:
     let additionalGlobals = null;
     let additionalSpecialForms = {};
     if (topLevelGlintConfigObject) {
-      if (topLevelGlintConfigObject.additionalGlobals) {
+      if (
+        topLevelGlintConfigObject.additionalGlobals ||
+        topLevelGlintConfigObject.additionalSpecialForms
+      ) {
         additionalGlobals = topLevelGlintConfigObject.additionalGlobals;
         additionalSpecialForms = topLevelGlintConfigObject.additionalSpecialForms ?? {};
       } else {

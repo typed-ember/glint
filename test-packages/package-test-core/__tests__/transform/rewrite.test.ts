@@ -6,7 +6,7 @@ import { describe, expect, test } from 'vitest';
 
 describe('Transform: rewriteModule', () => {
   describe('inline tagged template', () => {
-    const emberTemplateImportsEnvironment = GlintEnvironment.load('ember-template-imports');
+    const env = GlintEnvironment.load({});
 
     test('with a simple class', () => {
       let script = {
@@ -19,7 +19,7 @@ describe('Transform: rewriteModule', () => {
         `,
       };
 
-      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, env);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -38,7 +38,7 @@ describe('Transform: rewriteModule', () => {
         contents: '<template>${{dollarAmount}}</template>;',
       };
 
-      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, env);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -55,7 +55,7 @@ describe('Transform: rewriteModule', () => {
         contents: '<template>`code`</template>;',
       };
 
-      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, env);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -76,7 +76,7 @@ describe('Transform: rewriteModule', () => {
         `,
       };
 
-      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, env);
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -100,7 +100,7 @@ describe('Transform: rewriteModule', () => {
         `,
       };
 
-      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, env);
 
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
@@ -125,7 +125,7 @@ describe('Transform: rewriteModule', () => {
         `,
       };
 
-      let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+      let transformedModule = rewriteModule(ts, { script }, env);
 
       expect(transformedModule?.errors.length).toBe(1);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -139,9 +139,9 @@ describe('Transform: rewriteModule', () => {
     });
   });
 
-  describe('ember-template-imports', () => {
+  describe({}, () => {
     test('in class extends', () => {
-      let customEnv = GlintEnvironment.load(['ember-template-imports']);
+      let customEnv = GlintEnvironment.load({});
       let script = {
         filename: 'test.gts',
         contents: stripIndent`
@@ -165,7 +165,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('embedded gts templates', () => {
-      let customEnv = GlintEnvironment.load(['ember-template-imports']);
+      let customEnv = GlintEnvironment.load({});
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -240,7 +240,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('implicit default export', () => {
-      let customEnv = GlintEnvironment.load(['ember-template-imports']);
+      let customEnv = GlintEnvironment.load({});
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -294,7 +294,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('mixed expression and class uses', () => {
-      let customEnv = GlintEnvironment.load(['ember-template-imports']);
+      let customEnv = GlintEnvironment.load({});
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -389,7 +389,7 @@ describe('Transform: rewriteModule', () => {
     });
 
     test('with imported special forms', () => {
-      let env = GlintEnvironment.load(['ember-template-imports']);
+      let env = GlintEnvironment.load({});
       let script = {
         filename: 'foo.gts',
         contents: stripIndent`
@@ -556,7 +556,7 @@ describe('Transform: rewriteModule', () => {
 
     describe('satisfies', () => {
       test('with implicit export default', () => {
-        let customEnv = GlintEnvironment.load(['ember-template-imports']);
+        let customEnv = GlintEnvironment.load({});
         let script = {
           filename: 'test.gts',
           contents: stripIndent`
@@ -581,7 +581,7 @@ describe('Transform: rewriteModule', () => {
       });
 
       test('with two template-only components', () => {
-        const emberTemplateImportsEnvironment = GlintEnvironment.load(['ember-template-imports']);
+        const env = GlintEnvironment.load({});
 
         let script = {
           filename: 'test.gts',
@@ -600,7 +600,7 @@ describe('Transform: rewriteModule', () => {
           ].join('\n'),
         };
 
-        let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+        let transformedModule = rewriteModule(ts, { script }, env);
 
         expect(transformedModule?.errors?.length).toBe(0);
         expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
@@ -627,7 +627,7 @@ describe('Transform: rewriteModule', () => {
     describe('unicode and other special characters', () => {
       describe('$', () => {
         test('GitHub Issue#840 - does not error', () => {
-          const emberTemplateImportsEnvironment = GlintEnvironment.load(['ember-template-imports']);
+          const env = GlintEnvironment.load({});
 
           let script = {
             filename: 'test.gts',
@@ -639,7 +639,7 @@ describe('Transform: rewriteModule', () => {
             ].join('\n'),
           };
 
-          let transformedModule = rewriteModule(ts, { script }, emberTemplateImportsEnvironment);
+          let transformedModule = rewriteModule(ts, { script }, env);
 
           expect.soft(transformedModule?.errors?.length).toBe(0);
           expect.soft(transformedModule?.errors).toMatchInlineSnapshot(`[]`);
