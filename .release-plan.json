@@ -2,8 +2,8 @@
   "solution": {
     "@glint/core": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.9",
-      "newVersion": "2.0.0-alpha.10",
+      "oldVersion": "2.0.0-alpha.10",
+      "newVersion": "2.0.0-alpha.11",
       "tagName": "alpha",
       "constraints": [
         {
@@ -18,8 +18,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.9",
-      "newVersion": "2.0.0-alpha.10",
+      "oldVersion": "2.0.0-alpha.10",
+      "newVersion": "2.0.0-alpha.11",
       "tagName": "alpha",
       "constraints": [
         {
@@ -33,5 +33,5 @@
       "oldVersion": "2.0.0-alpha.4"
     }
   },
-  "description": "## Release (2025-09-27)\n\n* @glint/core 2.0.0-alpha.10 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.10 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`\n  * [#969](https://github.com/typed-ember/glint/pull/969) Bugfix and test for additionalSpecialForms ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
+  "description": "## Release (2025-09-29)\n\n* @glint/core 2.0.0-alpha.11 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.11 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`\n  * [#971](https://github.com/typed-ember/glint/pull/971) Surface v1/v2 dep mismatch errors ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
 }
