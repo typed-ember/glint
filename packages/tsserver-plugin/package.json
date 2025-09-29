@@ -27,6 +27,15 @@
     "jiti": "~2.4.2",
     "typescript": ">=5.6.0"
   },
+  "release-plan": {
+    "semverIncrementAs": {
+      "major": "prerelease",
+      "minor": "prerelease",
+      "patch": "prerelease"
+    },
+    "semverIncrementTag": "alpha",
+    "publishTag": "alpha"
+  },
   "publishConfig": {
     "access": "public"
   },

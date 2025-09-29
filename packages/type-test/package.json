@@ -30,6 +30,15 @@
     "@glint/core": "workspace:*",
     "ember-cli-htmlbars": "^6.0.1"
   },
+  "release-plan": {
+    "semverIncrementAs": {
+      "major": "prerelease",
+      "minor": "prerelease",
+      "patch": "prerelease"
+    },
+    "semverIncrementTag": "alpha",
+    "publishTag": "alpha"
+  },
   "publishConfig": {
     "access": "public"
   }
