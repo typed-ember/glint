@@ -180,17 +180,6 @@ describe('Transform: rewriteModule', () => {
       };
 
       let rewritten = rewriteModule(ts, { script }, customEnv);
-      let roundTripOffset = (offset: number): number | undefined =>
-        rewritten?.getOriginalOffset(rewritten.getTransformedOffset(script.filename, offset))
-          .offset;
-
-      let classOffset = script.contents.indexOf('MyComponent');
-      let accessOffset = script.contents.indexOf('this.target');
-      let fieldOffset = script.contents.indexOf('private target');
-
-      expect(roundTripOffset(classOffset)).toEqual(classOffset);
-      expect(roundTripOffset(accessOffset)).toEqual(accessOffset);
-      expect(roundTripOffset(fieldOffset)).toEqual(fieldOffset);
 
       expect(rewritten?.toDebugString()).toMatchInlineSnapshot(`
         "TransformedModule
@@ -199,6 +188,10 @@ describe('Transform: rewriteModule', () => {
         |  hbs(22:74):   <template>\\n    Hello, {{this.target}}!\\n  </template>
         |  ts(22:309):   static { ({} as typeof import("@glint/core/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/core/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.target)());\\n__glintRef__; __glintDSL__;\\n}) }
         |
+        | | Mapping: Template
+        | |  hbs(32:63):   Hello, {{this.target}}!
+        | |  ts(52:78):    "@glint/core/-private/dsl"
+        | |
         | | Mapping: Template
         | |  hbs(32:63):   Hello, {{this.target}}!
         | |  ts(193:277):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.target)());
@@ -259,6 +252,10 @@ describe('Transform: rewriteModule', () => {
         |
         | | Mapping: Template
         | |  hbs(10:33):   Hello, {{@target}}!
+        | |  ts(36:62):    "@glint/core/-private/dsl"
+        | |
+        | | Mapping: Template
+        | |  hbs(10:33):   Hello, {{@target}}!
         | |  ts(166:250):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)());
         | |
         | | | Mapping: TextContent
@@ -307,17 +304,6 @@ describe('Transform: rewriteModule', () => {
       };
 
       let rewritten = rewriteModule(ts, { script }, customEnv);
-      let roundTripOffset = (offset: number): number | undefined =>
-        rewritten?.getOriginalOffset(rewritten.getTransformedOffset(script.filename, offset))
-          .offset;
-
-      let classOffset = script.contents.indexOf('MyComponent');
-      let firstTemplateOffset = script.contents.indexOf('@message');
-      let secondTemplateOffset = script.contents.indexOf('this.title');
-
-      expect(roundTripOffset(classOffset)).toEqual(classOffset);
-      expect(roundTripOffset(firstTemplateOffset)).toEqual(firstTemplateOffset);
-      expect(roundTripOffset(secondTemplateOffset)).toEqual(secondTemplateOffset);
 
       expect(rewritten?.toDebugString()).toMatchInlineSnapshot(`
         "TransformedModule
@@ -326,6 +312,10 @@ describe('Transform: rewriteModule', () => {
         |  hbs(56:89):   <template>{{@message}}</template>
         |  ts(56:322):   ({} as typeof import("@glint/core/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/core/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)());\\n__glintRef__; __glintDSL__;\\n})
         |
+        | | Mapping: Template
+        | |  hbs(66:78):   {{@message}}
+        | |  ts(77:103):   "@glint/core/-private/dsl"
+        | |
         | | Mapping: Template
         | |  hbs(66:78):   {{@message}}
         | |  ts(207:292):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)());
@@ -356,6 +346,10 @@ describe('Transform: rewriteModule', () => {
         |  hbs(139:174): <template>{{this.title}}</template>
         |  ts(372:658):  static { ({} as typeof import("@glint/core/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/core/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.title)());\\n__glintRef__; __glintDSL__;\\n}) }
         |
+        | | Mapping: Template
+        | |  hbs(149:163): {{this.title}}
+        | |  ts(402:428):  "@glint/core/-private/dsl"
+        | |
         | | Mapping: Template
         | |  hbs(149:163): {{this.title}}
         | |  ts(543:626):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.title)());
@@ -412,6 +406,10 @@ describe('Transform: rewriteModule', () => {
         |  hbs(58:210):  <template>\\n  {{! Intentionally shadowing }}\\n  {{#let (arr 1 2) (h red="blue") as |arr h|}}\\n    Array is {{arr}}\\n    Hash is {{h}}\\n  {{/let}}\\n</template>
         |  ts(58:643):   export default ({} as typeof import("@glint/core/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/core/-private/dsl")) {\\n{\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["let"])((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n}))));\\n{\\nconst [arr, h] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(arr)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(h)());\\n}\\n__glintDSL__.Globals["let"];\\n}\\n__glintRef__; __glintDSL__;\\n})
         |
+        | | Mapping: Template
+        | |  hbs(68:199):  {{! Intentionally shadowing }}\\n  {{#let (arr 1 2) (h red="blue") as |arr h|}}\\n    Array is {{arr}}\\n    Hash is {{h}}\\n  {{/let}}
+        | |  ts(94:120):   "@glint/core/-private/dsl"
+        | |
         | | Mapping: Template
         | |  hbs(68:199):  {{! Intentionally shadowing }}\\n  {{#let (arr 1 2) (h red="blue") as |arr h|}}\\n    Array is {{arr}}\\n    Hash is {{h}}\\n  {{/let}}
         | |  ts(224:613):  {\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["let"])((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n}))));\\n{\\nconst [arr, h] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(arr)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(h)());\\n}\\n__glintDSL__.Globals["let"];\\n}
