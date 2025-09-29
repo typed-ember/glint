@@ -36,15 +36,6 @@
     "svg-element-attributes": "^2.1.0",
     "svg-event-attributes": "^2.0.2"
   },
-  "release-plan": {
-    "semverIncrementAs": {
-      "major": "preminor",
-      "minor": "prerelease",
-      "patch": "prerelease"
-    },
-    "semverIncrementTag": "alpha",
-    "publishTag": "alpha"
-  },
   "publishConfig": {
     "access": "public"
   }
