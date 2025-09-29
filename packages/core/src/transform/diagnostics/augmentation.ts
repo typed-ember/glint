@@ -89,10 +89,11 @@ function checkGlintLibImports(
   if (messageText.includes(typesModules)) {
     return addGlintDetails(
       diagnostic,
-      'You appear to be using Version 2 of the Glint VSCode extension ' +
-        '(or a V2 Glint plugin for another IDE), but your package.json still ' +
-        'references V1 Glint dependencies (or they are missing). You may need to upgrade `@glint/core` ' +
-        'and `@glint/template`. Please see the v2 upgrade guide for more information.',
+      'You appear to be using version 2 of the Glint VS Code extension ' +
+        '(or a v2 Glint plugin for another IDE), but your package.json still ' +
+        'references version 1 Glint dependencies (or they are missing). You need to either upgrade your `@glint/core` ' +
+        'and `@glint/template` project dependencies, or downgrade your VS Code Glint extension to version 1.x. ' +
+        'Please see the Glint v2 release notes and upgrade guide for more information.',
     );
   } else {
     return diagnostic;
