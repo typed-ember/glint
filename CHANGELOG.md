@@ -1,5 +1,17 @@
 # Changelog
 
+## Release (2025-09-29)
+
+* @glint/core 2.0.0-alpha.11 (patch)
+* @glint/tsserver-plugin 2.0.0-alpha.11 (patch)
+
+#### :bug: Bug Fix
+* `@glint/core`
+  * [#971](https://github.com/typed-ember/glint/pull/971) Surface v1/v2 dep mismatch errors ([@machty](https://github.com/machty))
+
+#### Committers: 1
+- Alex Matchneer ([@machty](https://github.com/machty))
+
 ## Release (2025-09-27)
 
 * @glint/core 2.0.0-alpha.10 (patch)
