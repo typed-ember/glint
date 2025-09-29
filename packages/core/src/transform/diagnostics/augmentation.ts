@@ -63,6 +63,7 @@ function rewriteMessageText(
 }
 
 const diagnosticHandlers: Record<string, DiagnosticHandler<Diagnostic> | undefined> = {
+  '2307': checkGlintLibImports, // TS2307: An import cannot be found.
   '2322': checkAssignabilityError, // TS2322: Type 'X' is not assignable to type 'Y'.
   '2345': checkAssignabilityError, // TS2345: Argument of type 'X' is not assignable to parameter of type 'Y'.
   '2554': noteNamedArgsAffectArity, // TS2554: Expected N arguments, but got M.
@@ -73,6 +74,30 @@ const diagnosticHandlers: Record<string, DiagnosticHandler<Diagnostic> | undefin
 };
 
 const bindHelpers = ['component', 'helper', 'modifier'];
+
+function checkGlintLibImports(
+  diagnostic: Diagnostic,
+  _mapping: GlimmerASTMappingTree,
+): Diagnostic | undefined {
+  let messageText =
+    typeof diagnostic.messageText === 'string'
+      ? diagnostic.messageText
+      : diagnostic.messageText.messageText;
+
+  const typesModules = '@glint/core/-private/dsl';
+
+  if (messageText.includes(typesModules)) {
+    return addGlintDetails(
+      diagnostic,
+      'You appear to be using Version 2 of the Glint VSCode extension ' +
+        '(or a V2 Glint plugin for another IDE), but your package.json still ' +
+        'references V1 Glint dependencies (or they are missing). You may need to upgrade `@glint/core` ' +
+        'and `@glint/template`. Please see the v2 upgrade guide for more information.',
+    );
+  } else {
+    return diagnostic;
+  }
+}
 
 function checkAssignabilityError(
   diagnostic: Diagnostic,

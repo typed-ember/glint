@@ -106,9 +106,25 @@ export function templateToTypescript(
       }
 
       if (useJsDoc) {
-        mapper.text(`(/** @type {typeof import("${typesModule}")} */ ({}))`);
+        mapper.text(`(/** @type {typeof import(`);
+        if (ast) {
+          mapper.forNode(ast, () => {
+            mapper.text(`"${typesModule}"`);
+          });
+        } else {
+          mapper.text(`"${typesModule}"`);
+        }
+        mapper.text(`)} */ ({}))`);
       } else {
-        mapper.text(`({} as typeof import("${typesModule}"))`);
+        mapper.text(`({} as typeof import(`);
+        if (ast) {
+          mapper.forNode(ast, () => {
+            mapper.text(`"${typesModule}"`);
+          });
+        } else {
+          mapper.text(`"${typesModule}"`);
+        }
+        mapper.text(`))`);
       }
 
       if (backingValue) {
