@@ -2,36 +2,68 @@
   "solution": {
     "@glint/core": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.10",
-      "newVersion": "2.0.0-alpha.11",
+      "oldVersion": "2.0.0-alpha.11",
+      "newVersion": "2.0.0-alpha.12",
       "tagName": "alpha",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:*` on @glint/template"
         }
       ],
       "pkgJSONPath": "./packages/core/package.json"
     },
     "@glint/template": {
-      "oldVersion": "1.6.0-alpha.3"
+      "impact": "patch",
+      "oldVersion": "1.6.0-alpha.3",
+      "newVersion": "1.6.0-alpha.4",
+      "tagName": "alpha",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.0.0-alpha.10",
-      "newVersion": "2.0.0-alpha.11",
+      "oldVersion": "2.0.0-alpha.11",
+      "newVersion": "2.0.0-alpha.12",
       "tagName": "alpha",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/core"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
     },
     "@glint/type-test": {
-      "oldVersion": "2.0.0-alpha.4"
+      "impact": "patch",
+      "oldVersion": "2.0.0-alpha.4",
+      "newVersion": "2.0.0-alpha.5",
+      "tagName": "alpha",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/type-test/package.json"
     }
   },
-  "description": "## Release (2025-09-29)\n\n* @glint/core 2.0.0-alpha.11 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.11 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`\n  * [#971](https://github.com/typed-ember/glint/pull/971) Surface v1/v2 dep mismatch errors ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
+  "description": "## Release (2025-09-30)\n\n* @glint/core 2.0.0-alpha.12 (patch)\n* @glint/template 1.6.0-alpha.4 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.12 (patch)\n* @glint/type-test 2.0.0-alpha.5 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`\n  * [#828](https://github.com/typed-ember/glint/pull/828) volar-service-typescript dep - replace NPM tag with version number ([@bartocc](https://github.com/bartocc))\n\n#### :house: Internal\n* `@glint/core`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#977](https://github.com/typed-ember/glint/pull/977) Revert \"Remove release-plan alpha configuration for v2 prep (#975)\" ([@machty](https://github.com/machty))\n  * [#975](https://github.com/typed-ember/glint/pull/975) Remove release-plan alpha configuration for v2 prep ([@machty](https://github.com/machty))\n\n#### Committers: 2\n- Alex Matchneer ([@machty](https://github.com/machty))\n- Julien Palmas ([@bartocc](https://github.com/bartocc))\n"
 }
