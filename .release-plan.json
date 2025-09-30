@@ -1,32 +1,36 @@
 {
   "solution": {
-    "@glint/core": {
-      "impact": "patch",
-      "oldVersion": "2.0.0-alpha.11",
-      "newVersion": "2.0.0-alpha.12",
-      "tagName": "alpha",
+    "@glint/ember-tsc": {
+      "impact": "minor",
+      "oldVersion": "1.0.0-alpha.1",
+      "newVersion": "1.0.0",
+      "tagName": "latest",
       "constraints": [
         {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
         },
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/template"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/core/package.json"
     },
     "@glint/template": {
-      "impact": "patch",
-      "oldVersion": "1.6.0-alpha.3",
-      "newVersion": "1.6.0-alpha.4",
-      "tagName": "alpha",
+      "impact": "minor",
+      "oldVersion": "1.6.0-alpha.4",
+      "newVersion": "1.6.0",
+      "tagName": "latest",
       "constraints": [
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
         {
           "impact": "patch",
           "reason": "Appears in changelog section :house: Internal"
@@ -35,14 +39,18 @@
       "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
-      "impact": "patch",
-      "oldVersion": "2.0.0-alpha.11",
-      "newVersion": "2.0.0-alpha.12",
-      "tagName": "alpha",
+      "impact": "minor",
+      "oldVersion": "2.0.0-alpha.12",
+      "newVersion": "2.0.0",
+      "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
-          "reason": "Has dependency `workspace:*` on @glint/core"
+          "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
         },
         {
           "impact": "patch",
@@ -52,11 +60,15 @@
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
     },
     "@glint/type-test": {
-      "impact": "patch",
-      "oldVersion": "2.0.0-alpha.4",
-      "newVersion": "2.0.0-alpha.5",
-      "tagName": "alpha",
+      "impact": "minor",
+      "oldVersion": "2.0.0-alpha.5",
+      "newVersion": "2.0.0",
+      "tagName": "latest",
       "constraints": [
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
         {
           "impact": "patch",
           "reason": "Appears in changelog section :house: Internal"
@@ -65,5 +77,5 @@
       "pkgJSONPath": "./packages/type-test/package.json"
     }
   },
-  "description": "## Release (2025-09-30)\n\n* @glint/core 2.0.0-alpha.12 (patch)\n* @glint/template 1.6.0-alpha.4 (patch)\n* @glint/tsserver-plugin 2.0.0-alpha.12 (patch)\n* @glint/type-test 2.0.0-alpha.5 (patch)\n\n#### :bug: Bug Fix\n* `@glint/core`\n  * [#828](https://github.com/typed-ember/glint/pull/828) volar-service-typescript dep - replace NPM tag with version number ([@bartocc](https://github.com/bartocc))\n\n#### :house: Internal\n* `@glint/core`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#977](https://github.com/typed-ember/glint/pull/977) Revert \"Remove release-plan alpha configuration for v2 prep (#975)\" ([@machty](https://github.com/machty))\n  * [#975](https://github.com/typed-ember/glint/pull/975) Remove release-plan alpha configuration for v2 prep ([@machty](https://github.com/machty))\n\n#### Committers: 2\n- Alex Matchneer ([@machty](https://github.com/machty))\n- Julien Palmas ([@bartocc](https://github.com/bartocc))\n"
+  "description": "## Release (2025-09-30)\n\n* @glint/ember-tsc 1.0.0 (minor)\n* @glint/template 1.6.0 (minor)\n* @glint/tsserver-plugin 2.0.0 (minor)\n* @glint/type-test 2.0.0 (minor)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#979](https://github.com/typed-ember/glint/pull/979) Split out ember-tsc and Glint 2 extension for hybrid upgrade strategy ([@machty](https://github.com/machty))\n\n#### :house: Internal\n* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#981](https://github.com/typed-ember/glint/pull/981) release-plan: prep for v2 ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
 }

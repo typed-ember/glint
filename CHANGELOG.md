@@ -2,6 +2,24 @@
 
 ## Release (2025-09-30)
 
+* @glint/ember-tsc 1.0.0 (minor)
+* @glint/template 1.6.0 (minor)
+* @glint/tsserver-plugin 2.0.0 (minor)
+* @glint/type-test 2.0.0 (minor)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`
+  * [#979](https://github.com/typed-ember/glint/pull/979) Split out ember-tsc and Glint 2 extension for hybrid upgrade strategy ([@machty](https://github.com/machty))
+
+#### :house: Internal
+* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`
+  * [#981](https://github.com/typed-ember/glint/pull/981) release-plan: prep for v2 ([@machty](https://github.com/machty))
+
+#### Committers: 1
+- Alex Matchneer ([@machty](https://github.com/machty))
+
+## Release (2025-09-30)
+
 * @glint/core 2.0.0-alpha.12 (patch)
 * @glint/template 1.6.0-alpha.4 (patch)
 * @glint/tsserver-plugin 2.0.0-alpha.12 (patch)
