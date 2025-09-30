@@ -121,10 +121,10 @@ importers:
         specifier: ^8.3.2
         version: 8.3.2
       volar-service-html:
-        specifier: volar-2.4
+        specifier: 0.0.64
         version: 0.0.64(@volar/language-service@2.4.23)
       volar-service-typescript:
-        specifier: volar-2.4
+        specifier: 0.0.65
         version: 0.0.65(@volar/language-service@2.4.23)
       vscode-languageserver-protocol:
         specifier: ^3.17.5
