@@ -1,6 +1,6 @@
+import { GlintExtensionTransform } from '@glint/ember-tsc/config-types';
 import type ts from 'typescript';
-import { GlintExtensionTransform } from '@glint/core/config-types';
-import { PreprocessData, GLOBAL_TAG, TemplateLocation } from './common.js';
+import { GLOBAL_TAG, PreprocessData, TemplateLocation } from './common.js';
 
 type TSLib = typeof ts;
 
@@ -96,7 +96,7 @@ function addTagImport(f: ts.NodeFactory, sourceFile: ts.SourceFile): ts.SourceFi
           f.createImportSpecifier(false, f.createIdentifier('hbs'), f.createIdentifier(GLOBAL_TAG)),
         ]),
       ),
-      f.createStringLiteral('@glint/core/environment-ember-template-imports/-private/tag'),
+      f.createStringLiteral('@glint/ember-tsc/environment-ember-template-imports/-private/tag'),
     ),
     ...sourceFile.statements,
   ]);

@@ -1,4 +1,4 @@
-import { NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
+import { NamedArgsMarker, resolve } from '@glint/ember-tsc/-private/dsl';
 import { ModifierLike, WithBoundArgs, WithBoundPositionals } from '@glint/template';
 import { ModifierReturn, NamedArgs } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';

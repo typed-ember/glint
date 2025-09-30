@@ -128,9 +128,8 @@ interface FetcherComponent<Params, Payload> extends InstanceType<
 This is a fairly contrived example, and in most circumstances it would be simpler to use a standard
 base class like `@glimmer/component`, but nevertheless the option exists.
 
-**Note**: this declaration merging technique using `InstanceType<ComponentLike<...>>` is _exactly_
-how Glint's own 1st-party environment packages like `@glint/environment-ember-template-imports` set up the
-template-aware types for `@glimmer/component`, `@ember/component/helper`, etc.
+**Note**: this declaration merging technique using `InstanceType<ComponentLike<...>>` is similar to how
+libraries set up template-aware types for `@glimmer/component`, `@ember/component/helper`, etc.
 
 ### Type Parameters
 

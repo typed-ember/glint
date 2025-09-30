@@ -16,7 +16,11 @@
       ],
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-        "--disable-extensions", // comment to activate your local extensions
+        // Disable v1 vscode glint
+        "--disable-extension",
+        "typed-ember.glint-vscode",
+        // comment to activate your local extensions
+        "--disable-extensions",
         "${workspaceFolder}/packages/vscode/__fixtures__/ember-app"
       ]
     },

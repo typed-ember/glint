@@ -1,5 +1,5 @@
 import { AST } from '@glimmer/syntax';
-import { GlintEmitMetadata, GlintSpecialForm } from '@glint/core/config-types';
+import { GlintEmitMetadata, GlintSpecialForm } from '@glint/ember-tsc/config-types';
 import { assert, unreachable } from '../util.js';
 import { TextContent } from './glimmer-ast-mapping-tree.js';
 import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-template-contents.js';

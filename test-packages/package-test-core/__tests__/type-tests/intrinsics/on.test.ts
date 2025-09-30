@@ -1,5 +1,5 @@
 import { on as onImport } from '@ember/modifier';
-import { NamedArgsMarker, applyModifier, resolve } from '@glint/core/-private/dsl';
+import { NamedArgsMarker, applyModifier, resolve } from '@glint/ember-tsc/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 const on = resolve(onImport);

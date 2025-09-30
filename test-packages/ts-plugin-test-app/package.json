@@ -13,7 +13,7 @@
     "@tsconfig/ember": "^3.0.9",
     "@glimmer/component": "^2.0.0",
     "typescript": "*",
-    "@glint/core": "workspace:*",
+    "@glint/ember-tsc": "workspace:*",
     "@glint/template": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
     "ember-source": "^6.2.0"
@@ -22,7 +22,7 @@
     "@glint/template": {
       "injected": true
     },
-    "@glint/core": {
+    "@glint/ember-tsc": {
       "injected": true
     },
     "@glint/tsserver-plugin": {

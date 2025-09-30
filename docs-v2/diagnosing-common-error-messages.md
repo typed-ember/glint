@@ -54,7 +54,6 @@ The key here is `Property '[Invoke]' is missing in type...`. This usually means 
 
 - You don’t have the latest version of Glint
 - You don’t have the latest version of the `@glimmer/component` or `@types/ember__component` packages
-- You are missing your environment import (e.g. `import '@glint/environment-ember-template-imports'`)
 
 As a special case of the missing environment import: if you are using a shared base `tsconfig.json` but overriding it in a Yarn workspace or similar setup, if your `"include"` key does not include the file which adds the environment import, it will not work (`include`s are not merged even when using TypeScript's `extends` option, but rather completely override the values from the base config).
 
@@ -67,12 +66,12 @@ error TS2769: The given value does not appear to be usable as a component, modif
       Argument of type 'Something' is not assignable to parameter of type '(...positional: unknown[]) => unknown'.
 ```
 
-This error appears when you attempt to use a value in a template whose type Glint doesn't recognize. Normally, Glint relies on the active environment(s) to declare, using types from `@glint/template`, exactly _how_ something like the base `Component` class works when you use it in a template.
+This error appears when you attempt to use a value in a template whose type Glint doesn't recognize. In Glint 2, template types come from `@glint/template` and library-provided types.
 
-Accordingly, if Glint doesn't see that declaration, it may indicate one of a few things:
+Accordingly, if Glint doesn't see those declarations, it may indicate one of a few things:
  - You have multiple copies of `@glint/template` in your dependency tree
  - You have an out-of-date copy of the library your template value is based on (like `ember-modifier` or `@glimmer/component`)
- - The value you're using in your template isn't something your Glint environment is aware of (e.g. it has a custom manager)
+ - The value you're using in your template isn't something Glint is aware of (e.g. it has a custom manager)
 
 ## Property does not exist on type 'Globals'
 

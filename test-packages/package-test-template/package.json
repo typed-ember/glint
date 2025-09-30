@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@glimmer/component": "^2.0.0",
-    "@glint/core": "workspace:*",
+    "@glint/ember-tsc": "workspace:*",
     "@glint/template": "workspace:*",
     "@volar/language-server": "2.4.23",
     "@types/common-tags": "^1.8.0",

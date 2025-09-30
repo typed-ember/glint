@@ -2,50 +2,39 @@ Glint 2 is designed specifically for modern Ember projects using `.gts` and `.gj
 
 ## Installation
 
-For Glint 2, you need to install `@glint/core`, `@glint/template` and `@glint/environment-ember-template-imports`:
+For Glint 2, you need to install `@glint/ember-tsc` and `@glint/template`:
 
 {% tabs %}
 {% tab title="pnpm" %}
 
 ```sh
-pnpm add -D @glint/core @glint/template @glint/environment-ember-template-imports
+pnpm add -D @glint/ember-tsc @glint/template
 ```
 
 {% endtab %}
 {% tab title="Yarn" %}
 
 ```sh
-yarn add -D @glint/core @glint/template @glint/environment-ember-template-imports
+yarn add -D @glint/ember-tsc @glint/template
 ```
 
 {% endtab %}
 {% tab title="npm" %}
 
 ```sh
-npm install -D @glint/core @glint/template @glint/environment-ember-template-imports
+npm install -D @glint/ember-tsc @glint/template
 ```
 
 {% endtab %}
 {% endtabs %}
 
-{% code title="tsconfig.json" %}
-
-```javascript
-{
-  "compilerOptions": { /* ... */ },
-  "glint": {
-    "environment": "ember-template-imports"
-  }
-}
-```
-
-Additionally, ensure you've added the following statement somewhere in your project's source files or ambient type declarations:
+Add the following ambient import somewhere in your project (for example in a `.d.ts` file or an existing ambient types file):
 
 ```typescript
-import '@glint/environment-ember-template-imports';
+import '@glint/ember-tsc/types';
 ```
 
-{% endcode %}
+No additional `tsconfig.json` `glint` configuration is required for most projects. If you need to add globals available in templates, use the `glint.additionalGlobals` option in your `tsconfig.json`.
 
 ## Migrating from .hbs Files
 
@@ -76,7 +65,7 @@ After the Glint v2 rollout, we may release a standalone CLI tool that works with
 
 When using `ember-template-imports`, you can declare the type of a `<template>` component using the `TOC` type:
 
-{% code title="app/components/shout.gts %}
+{% code title="app/components/shout.gts" %}
 
 ```glimmer-ts
 import type { TOC } from '@ember/component/template-only';

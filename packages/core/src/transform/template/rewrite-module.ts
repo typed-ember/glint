@@ -1,4 +1,4 @@
-import { GlintEmitMetadata } from '@glint/core/config-types';
+import { GlintEmitMetadata } from '@glint/ember-tsc/config-types';
 import * as path from 'node:path';
 import type ts from 'typescript';
 import { GlintEnvironment } from '../../config/index.js';

@@ -6,13 +6,13 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "test:typecheck": "glint --project __tests__/type-tests",
+    "test:typecheck": "ember-tsc --project __tests__/type-tests",
     "test:tsc": "echo 'no standalone typecheck within this project'",
     "test:watch": "vitest watch"
   },
   "devDependencies": {
     "@glimmer/component": "^2.0.0",
-    "@glint/core": "workspace:*",
+    "@glint/ember-tsc": "workspace:*",
     "@glint/template": "workspace:*",
     "@glint/type-test": "workspace:*",
     "@volar/language-server": "2.4.23",

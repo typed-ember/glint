@@ -1,10 +1,10 @@
+import { GlintConfigInput } from '@glint/ember-tsc/config-types';
+import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
-import * as fs from 'node:fs';
 import SilentError from 'silent-error';
-import { GlintConfig } from './config.js';
-import { GlintConfigInput } from '@glint/core/config-types';
 import type TS from 'typescript';
+import { GlintConfig } from './config.js';
 
 /**
  * @private

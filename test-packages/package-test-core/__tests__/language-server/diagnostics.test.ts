@@ -1,6 +1,5 @@
 import { stripIndent } from 'common-tags';
 import {
-  prepareDocument,
   requestLanguageServerDiagnostics,
   requestTsserverDiagnostics,
   teardownSharedTestWorkspaceAfterEach,
@@ -357,7 +356,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
                   "line": 29,
                   "offset": 49,
                 },
-                "file": "\${repoRootPath}/node_modules/.pnpm/@glint+_e7cc4f750883c618a76694e3a2c3a713/node_modules/@glint/core/types/-private/dsl/index.d.ts",
+                "file": "\${repoRootPath}/node_modules/.pnpm/@glint+_f4f95f14e85795b421739ab76e102d6d/node_modules/@glint/ember-tsc/types/-private/dsl/index.d.ts",
                 "start": {
                   "line": 29,
                   "offset": 5,

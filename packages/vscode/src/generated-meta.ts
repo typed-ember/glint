@@ -3,53 +3,49 @@
 
 // Meta info
 export const publisher = "typed-ember"
-export const name = "glint-vscode"
-export const version = "1.4.5"
-export const displayName = "Glint"
-export const description = "Glint language server integration for VS Code"
+export const name = "glint2-vscode"
+export const version = "0.9.0"
+export const displayName = "Glint V2"
+export const description = "Volar.js-powered Ember.js language server and TS Plugin for VS Code"
 export const extensionId = `${publisher}.${name}`
 
 /**
  * Type union of all commands
  */
 export type CommandKey = 
-  | "glint.restart-language-server"
+  | "glint2.restart-language-server"
 
 /**
- * Commands map registed by `typed-ember.glint-vscode`
+ * Commands map registed by `typed-ember.glint2-vscode`
  */
 export const commands = {
   /**
-   * Glint: Restart Glint Server
-   * @value `glint.restart-language-server`
+   * Glint V2: Restart Glint V2 Server
+   * @value `glint2.restart-language-server`
    */
-  restartLanguageServer: "glint.restart-language-server",
+  restartLanguageServer: "glint2.restart-language-server",
 } satisfies Record<string, CommandKey>
 
 /**
  * Type union of all configs
  */
 export type ConfigKey = 
-  | "glint.libraryPath"
-  | "glint.trace.server"
-  | "glint.server.compatibleExtensions"
+  | "glint2.libraryPath"
+  | "glint2.trace.server"
 
 export interface ConfigKeyTypeMap {
-  "glint.libraryPath": (string | undefined),
-  "glint.trace.server": ("off" | "messages" | "verbose"),
-  "glint.server.compatibleExtensions": string[],
+  "glint2.libraryPath": (string | undefined),
+  "glint2.trace.server": ("off" | "messages" | "verbose"),
 }
 
 export interface ConfigShorthandMap {
-  libraryPath: "glint.libraryPath",
-  traceServer: "glint.trace.server",
-  serverCompatibleExtensions: "glint.server.compatibleExtensions",
+  libraryPath: "glint2.libraryPath",
+  traceServer: "glint2.trace.server",
 }
 
 export interface ConfigShorthandTypeMap {
   libraryPath: (string | undefined),
   traceServer: ("off" | "messages" | "verbose"),
-  serverCompatibleExtensions: string[],
 }
 
 export interface ConfigItem<T extends keyof ConfigKeyTypeMap> {
@@ -59,64 +55,49 @@ export interface ConfigItem<T extends keyof ConfigKeyTypeMap> {
 
 
 /**
- * Configs map registered by `typed-ember.glint-vscode`
+ * Configs map registered by `typed-ember.glint2-vscode`
  */
 export const configs = {
   /**
    * 
-   * @key `glint.libraryPath`
+   * @key `glint2.libraryPath`
    * @default `undefined`
    * @type `string`
    */
   libraryPath: {
-    key: "glint.libraryPath",
+    key: "glint2.libraryPath",
     default: undefined,
-  } as ConfigItem<"glint.libraryPath">,
+  } as ConfigItem<"glint2.libraryPath">,
   /**
    * Traces communication between VS Code and the Glint language server.
-   * @key `glint.trace.server`
+   * @key `glint2.trace.server`
    * @default `"off"`
    * @type `string`
    */
   traceServer: {
-    key: "glint.trace.server",
+    key: "glint2.trace.server",
     default: "off",
-  } as ConfigItem<"glint.trace.server">,
-  /**
-   * Set compatible extensions to skip automatic detection of Hybrid Mode.
-   * @key `glint.server.compatibleExtensions`
-   * @default `[]`
-   * @type `array`
-   */
-  serverCompatibleExtensions: {
-    key: "glint.server.compatibleExtensions",
-    default: [],
-  } as ConfigItem<"glint.server.compatibleExtensions">,
+  } as ConfigItem<"glint2.trace.server">,
 }
 
 export interface ScopedConfigKeyTypeMap {
   "libraryPath": (string | undefined),
   "trace.server": ("off" | "messages" | "verbose"),
-  "server.compatibleExtensions": string[],
 }
 
 export const scopedConfigs = {
-  scope: "glint",
+  scope: "glint2",
   defaults: {
     "libraryPath": undefined,
     "trace.server": "off",
-    "server.compatibleExtensions": [],
   } satisfies ScopedConfigKeyTypeMap,
 }
 
 export interface NestedConfigs {
-  "glint": {
+  "glint2": {
     "libraryPath": (string | undefined),
     "trace": {
       "server": ("off" | "messages" | "verbose"),
-    },
-    "server": {
-      "compatibleExtensions": string[],
     },
   },
 }
@@ -125,9 +106,6 @@ export interface NestedScopedConfigs {
   "libraryPath": (string | undefined),
   "trace": {
     "server": ("off" | "messages" | "verbose"),
-  },
-  "server": {
-    "compatibleExtensions": string[],
   },
 }
 

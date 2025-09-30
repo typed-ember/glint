@@ -5,11 +5,11 @@ import {
   resolve,
   templateForBackingValue,
   yieldToBlock,
-} from '@glint/core/-private/dsl';
+} from '@glint/ember-tsc/-private/dsl';
 import type { ComponentLike } from '@glint/template';
 import { expectTypeOf } from 'expect-type';
 
-import '@glint/core/types';
+import '@glint/ember-tsc/types';
 
 {
   class NoArgsComponent extends Component {

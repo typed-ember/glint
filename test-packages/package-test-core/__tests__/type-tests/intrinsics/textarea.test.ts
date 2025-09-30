@@ -1,11 +1,10 @@
-import { expectTypeOf } from 'expect-type';
 import {
   applySplattributes,
   emitComponent,
-  Globals,
   NamedArgsMarker,
   resolve,
-} from '@glint/core/-private/dsl';
+} from '@glint/ember-tsc/-private/dsl';
+import { expectTypeOf } from 'expect-type';
 
 import { Textarea as TextAreaImport } from '@ember/component';
 

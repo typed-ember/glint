@@ -1,6 +1,6 @@
 import Controller from '@ember/controller';
 import Route from '@ember/routing/route';
-import { templateForBackingValue } from '@glint/core/-private/dsl';
+import { templateForBackingValue } from '@glint/ember-tsc/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 class TestRoute extends Route {

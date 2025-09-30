@@ -1,6 +1,6 @@
-import { Globals, NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
+import { Globals, NamedArgsMarker, resolve } from '@glint/ember-tsc/-private/dsl';
+import type { Mut } from '@glint/ember-tsc/-private/intrinsics/mut';
 import { expectTypeOf } from 'expect-type';
-import type { Mut } from '@glint/core/-private/intrinsics/mut';
 
 let mut = resolve(Globals['mut']);
 

@@ -4,7 +4,7 @@ import {
   GlintExtensionsConfig,
   GlintTagsConfig,
   SourceKind,
-} from '@glint/core/config-types';
+} from '@glint/ember-tsc/config-types';
 import * as path from 'node:path';
 import SilentError from 'silent-error';
 

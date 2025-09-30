@@ -1,4 +1,4 @@
-import { Globals, NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
+import { Globals, NamedArgsMarker, resolve } from '@glint/ember-tsc/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 let unbound = resolve(Globals['unbound']);
