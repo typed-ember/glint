@@ -5,14 +5,14 @@
   "license": "MIT",
   "scripts": {
     "test": "echo 'no standalone test within this project'",
-    "test:typecheck": "glint",
+    "test:typecheck": "ember-tsc",
     "test:tsc": "echo 'no standalone tsc within this project'"
   },
   "dependenciesMeta": {
     "@glint/template": {
       "injected": true
     },
-    "@glint/core": {
+    "@glint/ember-tsc": {
       "injected": true
     },
     "@glint/tsserver-plugin": {
@@ -22,7 +22,7 @@
   "devDependencies": {
     "@glimmer/component": "^2.0.0",
     "@glint/template": "workspace:*",
-    "@glint/core": "workspace:*",
+    "@glint/ember-tsc": "workspace:*",
     "@types/rsvp": "^4.0.9",
     "@glint/tsserver-plugin": "workspace:*",
     "@tsconfig/ember": "^3.0.9",

@@ -76,7 +76,7 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
       }
     });
 
-    let glintLSPath = require.resolve('@glint/core/bin/glint-language-server');
+    let glintLSPath = require.resolve('@glint/ember-tsc/bin/glint-language-server');
     serverHandle = startLanguageServer(glintLSPath, testWorkspacePath);
     serverHandle.connection.onNotification(PublishDiagnosticsNotification.type, () => {});
     serverHandle.connection.onRequest(ConfigurationRequest.type, ({ items }) => {

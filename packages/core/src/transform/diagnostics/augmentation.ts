@@ -84,7 +84,7 @@ function checkGlintLibImports(
       ? diagnostic.messageText
       : diagnostic.messageText.messageText;
 
-  const typesModules = '@glint/core/-private/dsl';
+  const typesModules = '@glint/ember-tsc/-private/dsl';
 
   if (messageText.includes(typesModules)) {
     return addGlintDetails(

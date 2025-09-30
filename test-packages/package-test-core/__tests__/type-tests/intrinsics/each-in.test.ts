@@ -1,4 +1,4 @@
-import { emitComponent, Globals, NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
+import { emitComponent, Globals, NamedArgsMarker, resolve } from '@glint/ember-tsc/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 let eachIn = resolve(Globals['each-in']);

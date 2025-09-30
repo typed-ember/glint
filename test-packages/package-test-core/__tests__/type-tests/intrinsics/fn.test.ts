@@ -1,5 +1,5 @@
 import { fn as fnImport } from '@ember/helper';
-import { resolve } from '@glint/core/-private/dsl';
+import { resolve } from '@glint/ember-tsc/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 const fn = resolve(fnImport);

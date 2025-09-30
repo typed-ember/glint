@@ -1,9 +1,9 @@
-import { GlintEnvironment } from '@glint/core/config/index';
+import { GlintEnvironment } from '@glint/ember-tsc/config/index';
 import { describe, expect, test } from 'vitest';
 
 function buildConfig(configObject: any): any {
   const env = GlintEnvironment.load(configObject) as any;
-  return env.tagConfig['@glint/core/environment-ember-template-imports/-private/tag'].hbs;
+  return env.tagConfig['@glint/ember-tsc/environment-ember-template-imports/-private/tag'].hbs;
 }
 
 describe('tsconfig.glint config object', () => {

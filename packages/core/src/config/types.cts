@@ -1,7 +1,7 @@
 import type ts from 'typescript';
 
 // This file is explicitly `.cts` so that environment packages written
-// in CJS can import its types from `@glint/core/config-types`.
+// in CJS can import its types from `@glint/ember-tsc/config-types`.
 
 type TSLib = typeof ts;
 

@@ -92,7 +92,7 @@ interface Keywords {
   */
   helper: VM.HelperKeyword;
 
-  // `{{if}}` is implemented directly in `@glint/core`
+  // `{{if}}` is implemented directly in `ember-tsc`
   if: void;
 
   /**
@@ -185,7 +185,7 @@ interface Keywords {
    */
   'unique-id': UniqueIdHelper;
 
-  // `{{unless}}` is implemented directly in `@glint/core`
+  // `{{unless}}` is implemented directly in `ember-tsc`
   unless: void;
 
   /**
@@ -197,7 +197,7 @@ interface Keywords {
    */
   with: VM.WithKeyword;
 
-  // `{{yield}}` is implemented directly in `@glint/core`
+  // `{{yield}}` is implemented directly in `ember-tsc`
   yield: void;
 }
 

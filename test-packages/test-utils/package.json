@@ -16,7 +16,7 @@
   "types": "./lib/index.d.ts",
   "main": "./lib/index.js",
   "dependencies": {
-    "@glint/core": "workspace:*",
+    "@glint/ember-tsc": "workspace:*",
     "@typescript/server-harness": "^0.3.5",
     "@glint/template": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",

@@ -3,7 +3,7 @@ import {
   emitComponent,
   NamedArgsMarker,
   resolve,
-} from '@glint/core/-private/dsl';
+} from '@glint/ember-tsc/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 // import TextArea from '@ember/component/text-area';

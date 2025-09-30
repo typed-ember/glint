@@ -1,4 +1,4 @@
-import { GlintConfigInput } from '@glint/core/config-types';
+import { GlintConfigInput } from '@glint/ember-tsc/config-types';
 import * as path from 'node:path';
 import { GlintEnvironment } from './environment.js';
 

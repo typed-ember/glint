@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "test": "echo 'no standalone tests within this project'",
-    "test:typecheck": "glint -p __tests__",
+    "test:typecheck": "ember-tsc -p __tests__",
     "test:tsc": "echo 'no standalone tsc within this project'"
   },
   "dependencies": {
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@glint/template": "workspace:*",
-    "@glint/core": "workspace:*",
+    "@glint/ember-tsc": "workspace:*",
     "ember-cli-htmlbars": "^6.0.1"
   },
   "release-plan": {

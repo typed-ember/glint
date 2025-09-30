@@ -1,4 +1,4 @@
-import { TransformedModule } from '@glint/core/lib/transform';
+import { TransformedModule } from '@glint/ember-tsc/lib/transform';
 
 const { createJiti } = require('jiti');
 const jiti = createJiti(__filename);
@@ -18,20 +18,20 @@ const {
  * modules from CJS which lets us avoid a ton of hacks and complexity we (or Volar)
  * would otherwise have to write to bridge the sync/async APIs.
  */
-let glintCorePath = '@glint/core';
+let emberTscPath = '@glint/ember-tsc';
 try {
   // @ts-expect-error esbuild define
-  glintCorePath = GLINT_CORE_PATH;
+  emberTscPath = EMBER_TSC_PATH;
 } catch {
   // Ignore; must not be running in esbuild context
 }
-const glintCore = jiti(glintCorePath);
+const emberTsc = jiti(emberTscPath);
 
-const { VirtualGtsCode, augmentDiagnostics } = glintCore;
+const { VirtualGtsCode, augmentDiagnostics } = emberTsc;
 
 const plugin = createLanguageServicePlugin(
   (ts: typeof import('typescript'), info: ts.server.PluginCreateInfo) => {
-    const { findConfig, createEmberLanguagePlugin } = glintCore;
+    const { findConfig, createEmberLanguagePlugin } = emberTsc;
 
     const cwd = info.languageServiceHost.getCurrentDirectory();
     const glintConfig = findConfig(cwd);

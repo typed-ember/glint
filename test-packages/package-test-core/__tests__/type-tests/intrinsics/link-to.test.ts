@@ -1,10 +1,9 @@
 import {
-  Globals,
-  resolve,
   applySplattributes,
   emitComponent,
   NamedArgsMarker,
-} from '@glint/core/-private/dsl';
+  resolve,
+} from '@glint/ember-tsc/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 import { LinkTo as LinkToImport } from '@ember/routing';

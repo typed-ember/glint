@@ -1,10 +1,10 @@
 Glint is a set of tools to aid in developing modern [Ember.js] applications using `.gts` and `.gjs` files with `<template>` tags. Similar to [Vue Language Tooling] for Vue projects or [Svelte Language Tools], Glint consists of a CLI and a language server to provide feedback and enforce correctness both locally during editing and project-wide in CI.
 
-## Glint CLI
+## ember-tsc
 
-Glint's CLI provides a template-aware tool for performing end-to-end TypeScript typechecking on your project.
+Glint provdes `ember-tsc` as an Ember-flavored wrapper around TypeScript's `tsc` command, with added support for type-checking `.gts` and `.gjs` files.
 
-![Command line reporting of template type errors from `glint`](https://user-images.githubusercontent.com/108688/111076577-1d61db00-84ed-11eb-876a-e5b504758d11.png)
+See [the README](https://github.com/typed-ember/glint/blob/main/packages/core/README.md) for usage notes.
 
 ## Glint Language Server
 

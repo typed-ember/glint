@@ -1,5 +1,5 @@
 import Helper, { helper } from '@ember/component/helper';
-import { NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
+import { NamedArgsMarker, resolve } from '@glint/ember-tsc/-private/dsl';
 import { HelperLike } from '@glint/template';
 import { NamedArgs } from '@glint/template/-private/integration';
 import { expectTypeOf } from 'expect-type';

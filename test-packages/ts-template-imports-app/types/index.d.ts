@@ -1,8 +1,8 @@
-import '@glint/core/types';
+import '@glint/ember-tsc/types';
 
 import { HelperLike } from '@glint/template';
 
-declare module '@glint/core/globals' {
+declare module '@glint/ember-tsc/globals' {
   export default interface Globals {
     t: HelperLike<{
       Args: {

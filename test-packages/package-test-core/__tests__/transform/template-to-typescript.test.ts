@@ -1,9 +1,9 @@
-import { stripIndent } from 'common-tags';
-import { describe, test, expect } from 'vitest';
 import {
   templateToTypescript,
   TemplateToTypescriptOptions,
-} from '@glint/core/transform/template/template-to-typescript';
+} from '@glint/ember-tsc/transform/template/template-to-typescript';
+import { stripIndent } from 'common-tags';
+import { describe, expect, test } from 'vitest';
 
 describe('Transform: rewriteTemplate', () => {
   // Slices out the template boilerplate to return only the code representing

@@ -3,7 +3,7 @@ import {
   GlintSpecialForm,
   GlintSpecialFormConfig,
   GlintTagConfig,
-} from '@glint/core/config-types';
+} from '@glint/ember-tsc/config-types';
 import type ts from 'typescript';
 import { GlintEnvironment } from '../../../config/index.js';
 import { assert, TSLib } from '../../util.js';

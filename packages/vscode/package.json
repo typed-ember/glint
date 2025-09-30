@@ -1,8 +1,8 @@
 {
-  "name": "glint-vscode",
-  "displayName": "Glint",
-  "description": "Glint language server integration for VS Code",
-  "version": "1.4.5",
+  "name": "glint2-vscode",
+  "displayName": "Glint V2",
+  "description": "Volar.js-powered Ember.js language server and TS Plugin for VS Code",
+  "version": "0.9.0",
   "publisher": "typed-ember",
   "private": true,
   "author": "James C. Davis (https://github.com/jamescdavis)",
@@ -36,7 +36,7 @@
     "bundle:watch": "node ./scripts/build.mjs -- --watch",
     "pack": "vsce package",
     "pack:prerelease": "vsce package --pre-release",
-    "ext:gen": "vscode-ext-gen --scope glint"
+    "ext:gen": "vscode-ext-gen --scope glint2"
   },
   "engines": {
     "vscode": "^1.68.1"
@@ -94,21 +94,21 @@
     ],
     "commands": [
       {
-        "title": "Glint: Restart Glint Server",
-        "command": "glint.restart-language-server"
+        "title": "Glint V2: Restart Glint V2 Server",
+        "command": "glint2.restart-language-server"
       }
     ],
     "configuration": [
       {
         "type": "object",
-        "title": "Glint",
+        "title": "Glint V2",
         "properties": {
-          "glint.libraryPath": {
-            "markdownDescription": "The path, relative to your workspace folder root, from which to resolve `@glint/core`. Defaults to `'.'`.",
+          "glint2.libraryPath": {
+            "markdownDescription": "The path, relative to your workspace folder root, from which to resolve `ember-tsc`. Defaults to `'.'`.",
             "order": 1,
             "type": "string"
           },
-          "glint.trace.server": {
+          "glint2.trace.server": {
             "description": "Traces communication between VS Code and the Glint language server.",
             "type": "string",
             "default": "off",
@@ -117,14 +117,6 @@
               "messages",
               "verbose"
             ]
-          },
-          "glint.server.compatibleExtensions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": [],
-            "description": "Set compatible extensions to skip automatic detection of Hybrid Mode."
           }
         }
       }
@@ -139,7 +131,7 @@
     "@vscode/test-electron": "Dropped support for Node < 16 in the 2.2.1 patch release, so locking to 2.2.0 while we still support Node 14."
   },
   "devDependencies": {
-    "@glint/core": "workspace:*",
+    "@glint/ember-tsc": "workspace:*",
     "@glint/template": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
     "@types/mocha": "^10.0.1",
@@ -162,7 +154,7 @@
     "@glint/template": {
       "injected": true
     },
-    "@glint/core": {
+    "@glint/ember-tsc": {
       "injected": true
     },
     "@glint/tsserver-plugin": {

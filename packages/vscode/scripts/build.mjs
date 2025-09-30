@@ -19,7 +19,7 @@ const ctx = await context({
     'dist/extension': require.resolve('../lib/src/extension.js'),
     'node_modules/glint-tsserver-plugin-pack/index':
       '../tsserver-plugin/lib/typescript-server-plugin.js',
-    'node_modules/glint-core-pack/index': '../core/lib/index.js',
+    'node_modules/glint-ember-tsc-pack/index': '../core/lib/index.js',
   },
   external: ['vscode'],
   logLevel: 'info',
@@ -34,7 +34,7 @@ const ctx = await context({
   inject: [require.resolve('./import-meta-url.js')],
   define: {
     'import.meta.url': 'import_meta_url',
-    GLINT_CORE_PATH: '"glint-core-pack/index.js"',
+    EMBER_TSC_PATH: '"glint-ember-tsc-pack/index.js"',
   },
 
   plugins: [
@@ -42,14 +42,14 @@ const ctx = await context({
       name: 'resolve-share-module',
       setup(build) {
         build.onResolve({ filter: /^@glint\/core$/ }, () => {
-          return { path: 'glint-core-pack', external: true };
+          return { path: 'glint-ember-tsc-pack', external: true };
         });
       },
     },
   ],
 });
 
-// `@glint/core` depends on `content-tag` which is a wasm module.
+// `@glint/ember-tsc` depends on `content-tag` which is a wasm module.
 // The .wasm library itself doesn't get automatically bundled via the code
 // above and needs a manual copy step.
 async function copyWasmFile() {
@@ -57,13 +57,13 @@ async function copyWasmFile() {
     __dirname,
     '../../core/node_modules/content-tag/pkg/node/content_tag_bg.wasm',
   );
-  const targetDir = join(__dirname, '../node_modules/glint-core-pack');
+  const targetDir = join(__dirname, '../node_modules/glint-ember-tsc-pack');
   const targetWasm = join(targetDir, 'content_tag_bg.wasm');
 
   try {
     await mkdir(targetDir, { recursive: true });
     await copyFile(sourceWasm, targetWasm);
-    console.log('Copied WASM file to glint-core-pack');
+    console.log('Copied WASM file to glint-ember-tsc-pack');
   } catch (error) {
     console.error('Failed to copy WASM file:', error);
   }

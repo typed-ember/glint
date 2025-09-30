@@ -1,5 +1,5 @@
 import { uniqueId as uniqueIdImport } from '@ember/helper';
-import { NamedArgsMarker, resolve } from '@glint/core/-private/dsl';
+import { NamedArgsMarker, resolve } from '@glint/ember-tsc/-private/dsl';
 import { expectTypeOf } from 'expect-type';
 
 let uniqueId = resolve(uniqueIdImport);

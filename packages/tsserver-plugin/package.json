@@ -21,7 +21,7 @@
     "prepack": "pnpm build"
   },
   "dependencies": {
-    "@glint/core": "workspace:*",
+    "@glint/ember-tsc": "workspace:*",
     "@volar/language-core": "2.4.23",
     "@volar/typescript": "2.4.23",
     "jiti": "~2.4.2",

@@ -1,9 +1,9 @@
-import * as ts from 'typescript';
+import { GlintEmitMetadata } from '@glint/ember-tsc/config-types';
+import { preprocess } from '@glint/ember-tsc/environment-ember-template-imports/-private/environment/preprocess';
+import { transform } from '@glint/ember-tsc/environment-ember-template-imports/-private/environment/transform';
 import { stripIndent } from 'common-tags';
-import { describe, test, expect } from 'vitest';
-import { preprocess } from '@glint/core/environment-ember-template-imports/-private/environment/preprocess';
-import { transform } from '@glint/core/environment-ember-template-imports/-private/environment/transform';
-import { GlintEmitMetadata } from '@glint/core/config-types';
+import * as ts from 'typescript';
+import { describe, expect, test } from 'vitest';
 
 describe('Environment: ETI', () => {
   describe('preprocess', () => {

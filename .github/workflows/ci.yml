@@ -83,12 +83,12 @@ jobs:
   #         command: pnpm install
   #     - name: Build
   #       run: pnpm build
-  #     - name: Test @glint/core
+  #     - name: Test @glint/ember-tsc
   #       uses: nick-fields/retry@v2
   #       with:
   #         max_attempts: 2
   #         timeout_minutes: 20
-  #         command: pnpm --filter @glint/core test
+  #         command: pnpm --filter @glint/ember-tsc test
   #     - name: Test glint-vscode
   #       uses: nick-fields/retry@v2
   #       with:
