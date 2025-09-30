@@ -12,6 +12,17 @@ Add the following ambient import somewhere in your project (for example in a `.d
 import '@glint/ember-tsc/types';
 ```
 
+Alternatively, you can add `@glint/ember-tsc/types` to your `tsconfig.json` file(s) within the `compilerOptions.types` array:
+
+```json
+{
+  "compilerOptions": {
+    // ...
+    "types": ["@glint/ember-tsc/types"]
+  }
+}
+```
+
 ## Migrating from Glint v1 to v2
 
 Please see [Upgrading to Glint V2](v2-upgrade.md) for how to gradually upgrade an existing app from Glint v1 to Glint v2.
