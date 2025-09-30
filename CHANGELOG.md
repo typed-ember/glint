@@ -1,5 +1,25 @@
 # Changelog
 
+## Release (2025-09-30)
+
+* @glint/core 2.0.0-alpha.12 (patch)
+* @glint/template 1.6.0-alpha.4 (patch)
+* @glint/tsserver-plugin 2.0.0-alpha.12 (patch)
+* @glint/type-test 2.0.0-alpha.5 (patch)
+
+#### :bug: Bug Fix
+* `@glint/core`
+  * [#828](https://github.com/typed-ember/glint/pull/828) volar-service-typescript dep - replace NPM tag with version number ([@bartocc](https://github.com/bartocc))
+
+#### :house: Internal
+* `@glint/core`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`
+  * [#977](https://github.com/typed-ember/glint/pull/977) Revert "Remove release-plan alpha configuration for v2 prep (#975)" ([@machty](https://github.com/machty))
+  * [#975](https://github.com/typed-ember/glint/pull/975) Remove release-plan alpha configuration for v2 prep ([@machty](https://github.com/machty))
+
+#### Committers: 2
+- Alex Matchneer ([@machty](https://github.com/machty))
+- Julien Palmas ([@bartocc](https://github.com/bartocc))
+
 ## Release (2025-09-29)
 
 * @glint/core 2.0.0-alpha.11 (patch)
