@@ -1,81 +1,51 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "minor",
-      "oldVersion": "1.0.0-alpha.1",
-      "newVersion": "1.0.0",
+      "impact": "patch",
+      "oldVersion": "1.0.0",
+      "newVersion": "1.0.1",
       "tagName": "latest",
       "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/template"
         },
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
+          "reason": "Appears in changelog section :memo: Documentation"
         }
       ],
       "pkgJSONPath": "./packages/core/package.json"
     },
     "@glint/template": {
-      "impact": "minor",
-      "oldVersion": "1.6.0-alpha.4",
-      "newVersion": "1.6.0",
+      "impact": "patch",
+      "oldVersion": "1.6.0",
+      "newVersion": "1.6.1",
       "tagName": "latest",
       "constraints": [
         {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
           "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
+          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
-      "impact": "minor",
-      "oldVersion": "2.0.0-alpha.12",
-      "newVersion": "2.0.0",
+      "impact": "patch",
+      "oldVersion": "2.0.0",
+      "newVersion": "2.0.1",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
-        },
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
     },
     "@glint/type-test": {
-      "impact": "minor",
-      "oldVersion": "2.0.0-alpha.5",
-      "newVersion": "2.0.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
-        }
-      ],
-      "pkgJSONPath": "./packages/type-test/package.json"
+      "oldVersion": "2.0.0"
     }
   },
-  "description": "## Release (2025-09-30)\n\n* @glint/ember-tsc 1.0.0 (minor)\n* @glint/template 1.6.0 (minor)\n* @glint/tsserver-plugin 2.0.0 (minor)\n* @glint/type-test 2.0.0 (minor)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#979](https://github.com/typed-ember/glint/pull/979) Split out ember-tsc and Glint 2 extension for hybrid upgrade strategy ([@machty](https://github.com/machty))\n\n#### :house: Internal\n* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#981](https://github.com/typed-ember/glint/pull/981) release-plan: prep for v2 ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
+  "description": "## Release (2025-10-01)\n\n* @glint/ember-tsc 1.0.1 (patch)\n* @glint/template 1.6.1 (patch)\n* @glint/tsserver-plugin 2.0.1 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#986](https://github.com/typed-ember/glint/pull/986) Add missing \"xmlns\" attribut to SVGSVGElementAttributes ([@bartocc](https://github.com/bartocc))\n\n#### :memo: Documentation\n* Other\n  * [#987](https://github.com/typed-ember/glint/pull/987) Listed ember-codemod-add-template-tags as a migration option ([@ijlee2](https://github.com/ijlee2))\n  * [#982](https://github.com/typed-ember/glint/pull/982) Publish v2 docs ([@machty](https://github.com/machty))\n* `@glint/ember-tsc`\n  * [#985](https://github.com/typed-ember/glint/pull/985) Typo in README.md ([@bartocc](https://github.com/bartocc))\n\n#### Committers: 3\n- Alex Matchneer ([@machty](https://github.com/machty))\n- Isaac Lee ([@ijlee2](https://github.com/ijlee2))\n- Julien Palmas ([@bartocc](https://github.com/bartocc))\n"
 }

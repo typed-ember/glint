@@ -1,5 +1,27 @@
 # Changelog
 
+## Release (2025-10-01)
+
+* @glint/ember-tsc 1.0.1 (patch)
+* @glint/template 1.6.1 (patch)
+* @glint/tsserver-plugin 2.0.1 (patch)
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#986](https://github.com/typed-ember/glint/pull/986) Add missing "xmlns" attribut to SVGSVGElementAttributes ([@bartocc](https://github.com/bartocc))
+
+#### :memo: Documentation
+* Other
+  * [#987](https://github.com/typed-ember/glint/pull/987) Listed ember-codemod-add-template-tags as a migration option ([@ijlee2](https://github.com/ijlee2))
+  * [#982](https://github.com/typed-ember/glint/pull/982) Publish v2 docs ([@machty](https://github.com/machty))
+* `@glint/ember-tsc`
+  * [#985](https://github.com/typed-ember/glint/pull/985) Typo in README.md ([@bartocc](https://github.com/bartocc))
+
+#### Committers: 3
+- Alex Matchneer ([@machty](https://github.com/machty))
+- Isaac Lee ([@ijlee2](https://github.com/ijlee2))
+- Julien Palmas ([@bartocc](https://github.com/bartocc))
+
 ## Release (2025-09-30)
 
 * @glint/ember-tsc 1.0.0 (minor)
