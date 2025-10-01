@@ -10,7 +10,7 @@ In particular, support for the Ember Loose environment, and therefore all suppor
 
 The only component authoring format supported by Glint V2 is the [Template Tag Format](https://guides.emberjs.com/release/components/template-tag-format/) by way of `.gts` and `.gjs` files.
 
-Fortunately, there are a number of codemods (e.g. [@embroider/template-tag-codemod](https://www.npmjs.com/package/@embroider/template-tag-codemod)) and other automated/AI solutions for migrating codebases from .hbs to .gts/.gjs, but if you still need tooling support for Handlebars for the time being, we do provide a hybrid upgrade path so that codebases can run V1 Glint tooling alongside V2 Glint tooling until they are ready to fully migrate to V1.
+Fortunately, there are a couple of codemods ([@embroider/template-tag-codemod](https://www.npmjs.com/package/@embroider/template-tag-codemod) and [ember-codemod-add-template-tags](https://github.com/ijlee2/ember-codemod-add-template-tags)) and other automated/AI solutions for migrating codebases from .hbs to .gts/.gjs. If you still need tooling support for Handlebars for the time being, we do provide a hybrid upgrade path so that codebases can run V1 Glint tooling alongside V2 Glint tooling until they are ready to fully migrate to V1.
 
 ## Step 1: Add `@glint/ember-tsc` to devDependencies
 
