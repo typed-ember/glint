@@ -3711,6 +3711,7 @@ interface SVGSVGElementAttributes extends GenericAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
   ['x']: AttrValue;
+  ['xmlns']: AttrValue;
   ['y']: AttrValue;
   ['zoomAndPan']: AttrValue;
 }
