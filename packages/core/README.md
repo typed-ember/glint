@@ -15,7 +15,7 @@ Because `ember-tsc` is only used for type-checking purposes (or generating decla
 
 ### Usage
 
-Gemeral Usage:
+General Usage:
 
 ```sh
 ember-tsc --noEmit [--build] [--watch|-w] [--declaration|-d] [--emitDeclarationOnly] [--project path/to/tsconfig.json]
