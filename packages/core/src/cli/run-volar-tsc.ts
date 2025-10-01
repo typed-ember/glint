@@ -11,14 +11,15 @@ export function run(): void {
   const options = {
     extraSupportedExtensions: ['.gjs', '.gts'],
 
-    extraExtensionsToRemove: [],
-
-    // With the above configuration, `{basename}.gts` will produce `{basename}.gts.d.ts`.
-    // If we would prefer `{basename}.d.ts`, we could use the following configuration instead:
+    // With the below configuration `{basename.gts}` will produce `{basename}.d.ts`
+    // This is in line with how V2 addons build their components.
+    // At build time, `.gts` components are emitted as `.js` files, so that's why the corresponding declarations should be `.d.ts`
     //
-    // extraExtensionsToRemove: ['.gts', '.gjs'],
+    // Please refer to https://github.com/typed-ember/glint/issues/988 for more information
     //
-    // See discussion here: https://github.com/typed-ember/glint/issues/628
+    // Before this option, glint emitted broken declarations in which relative imports to other .gts files did not strip extensions (https://github.com/typed-ember/glint/issues/628).
+    // The declarations outputted by volar's runTsc luckily also remove extension in imports.
+    extraExtensionsToRemove: ['.gjs', '.gts'],
   };
 
   const main = (): void =>
