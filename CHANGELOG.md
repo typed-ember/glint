@@ -2,6 +2,18 @@
 
 ## Release (2025-10-01)
 
+* @glint/ember-tsc 1.0.2 (patch)
+* @glint/tsserver-plugin 2.0.2 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#989](https://github.com/typed-ember/glint/pull/989) Allow V2 addons to get .d.ts declarations instead of .gts.d.ts ([@BoussonKarel](https://github.com/BoussonKarel))
+
+#### Committers: 1
+- [@BoussonKarel](https://github.com/BoussonKarel)
+
+## Release (2025-10-01)
+
 * @glint/ember-tsc 1.0.1 (patch)
 * @glint/template 1.6.1 (patch)
 * @glint/tsserver-plugin 2.0.1 (patch)
