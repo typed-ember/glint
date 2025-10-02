@@ -16,26 +16,28 @@
       "default": "./lib/config/types.cjs"
     },
     "./bin/*": "./bin/*.js",
-    "./globals": "./types/globals/index.d.ts",
+    "./globals": {
+      "types": "./types/globals/index.d.ts"
+    },
     "./-private/dsl": {
       "types": "./types/-private/dsl/index.d.ts",
       "default": "./types/-private/dsl/index.d.ts"
     },
     "./types": "./types/-private/dsl/integration-declarations.d.ts",
-    "./-private/dsl/globals": "./types/-private/dsl/globals.d.ts",
-    "./-private/intrinsics/action": "./types/-private/intrinsics/action.d.ts",
-    "./-private/intrinsics/concat": "./types/-private/intrinsics/concat.d.ts",
-    "./-private/intrinsics/each": "./types/-private/intrinsics/each.d.ts",
-    "./-private/intrinsics/each-in": "./types/-private/intrinsics/each-in.d.ts",
-    "./-private/intrinsics/fn": "./types/-private/intrinsics/fn.d.ts",
-    "./-private/intrinsics/get": "./types/-private/intrinsics/get.d.ts",
-    "./-private/intrinsics/log": "./types/-private/intrinsics/log.d.ts",
-    "./-private/intrinsics/mount": "./types/-private/intrinsics/mount.d.ts",
-    "./-private/intrinsics/mut": "./types/-private/intrinsics/mut.d.ts",
-    "./-private/intrinsics/on": "./types/-private/intrinsics/on.d.ts",
-    "./-private/intrinsics/outlet": "./types/-private/intrinsics/outlet.d.ts",
-    "./-private/intrinsics/unbound": "./types/-private/intrinsics/unbound.d.ts",
-    "./-private/intrinsics/unique-id": "./types/-private/intrinsics/unique-id.d.ts",
+    "./-private/dsl/globals": { "types": "./types/-private/dsl/globals.d.ts" },
+    "./-private/intrinsics/action": { "types": "./types/-private/intrinsics/action.d.ts" },
+    "./-private/intrinsics/concat": { "types": "./types/-private/intrinsics/concat.d.ts" },
+    "./-private/intrinsics/each": { "types": "./types/-private/intrinsics/each.d.ts" },
+    "./-private/intrinsics/each-in": { "types": "./types/-private/intrinsics/each-in.d.ts" },
+    "./-private/intrinsics/fn": { "types": "./types/-private/intrinsics/fn.d.ts" },
+    "./-private/intrinsics/get": { "types": "./types/-private/intrinsics/get.d.ts" },
+    "./-private/intrinsics/log": { "types": "./types/-private/intrinsics/log.d.ts" },
+    "./-private/intrinsics/mount": { "types": "./types/-private/intrinsics/mount.d.ts" },
+    "./-private/intrinsics/mut": { "types": "./types/-private/intrinsics/mut.d.ts" },
+    "./-private/intrinsics/on": { "types": "./types/-private/intrinsics/on.d.ts" },
+    "./-private/intrinsics/outlet": { "types": "./types/-private/intrinsics/outlet.d.ts" },
+    "./-private/intrinsics/unbound": { "types": "./types/-private/intrinsics/unbound.d.ts" },
+    "./-private/intrinsics/unique-id": { "types": "./types/-private/intrinsics/unique-id.d.ts" },
     "./*": {
       "types": "./lib/*.d.ts",
       "default": "./lib/*.js"
