@@ -1,14 +1,14 @@
 // This module is responsible for augmenting the upstream definitions of entities that interact
 // with templates to include the information necessary for Glint to typecheck them.
 
-import { ComponentLike, HelperLike, ModifierLike } from '@glint/template';
-import {
+import type { ComponentLike, HelperLike, ModifierLike } from '@glint/template';
+import type {
   Context,
   FlattenBlockParams,
   HasContext,
   TemplateContext,
 } from '@glint/template/-private/integration';
-import {
+import type {
   ComponentSignatureArgs,
   ComponentSignatureBlocks,
   ComponentSignatureElement,
@@ -34,8 +34,8 @@ declare module '@glimmer/component' {
   }
 }
 
-import { InputComponent as ImportedInputComponent } from '../intrinsics/input';
-import { TextareaComponent as ImportedTextareaComponent } from '../intrinsics/textarea';
+import type { InputComponent as ImportedInputComponent } from '../intrinsics/input';
+import type { TextareaComponent as ImportedTextareaComponent } from '../intrinsics/textarea';
 declare module '@ember/component' {
   export default interface Component<S> extends InstanceType<ComponentLike<S>> {
     [Context]: ComponentContext<this, S>;
@@ -78,8 +78,8 @@ declare module 'ember-modifier' {
 //////////////////////////////////////////////////////////////////////
 // Routes and Controllers
 
-import Controller from '@ember/controller';
-import Route from '@ember/routing/route';
+import type Controller from '@ember/controller';
+import type Route from '@ember/routing/route';
 
 type ModelForRoute<T extends Route> = Awaited<ReturnType<T['model']>>;
 type ModelField<T> = { model: T };
@@ -101,7 +101,7 @@ declare module '@ember/controller' {
   }
 }
 
-import { LinkToComponent } from '../intrinsics/link-to';
+import type { LinkToComponent } from '../intrinsics/link-to';
 declare module '@ember/routing' {
   export interface LinkTo extends LinkToComponent {}
 }
@@ -110,7 +110,6 @@ declare module '@ember/routing' {
 // Rendering Tests
 
 import '@ember/test-helpers';
-import 'ember-cli-htmlbars';
 
 type TestTemplate<T> = abstract new () => HasContext<TemplateContext<T, {}, {}, void>>;
 
@@ -118,23 +117,16 @@ declare module '@ember/test-helpers' {
   export function render<T>(template: TestTemplate<T>): Promise<void>;
 }
 
-// Declaring that `TemplateFactory` is a valid `TestTemplate` prevents vanilla `tsc` from freaking out
-// about `hbs` not returning a valid type for `render`. Glint itself will never see `hbs` get used, as
-// it's transformed to the template DSL before typechecking.
-declare module 'ember-cli-htmlbars' {
-  interface TemplateFactory extends TestTemplate<any> {}
-}
-
 import '@ember/modifier';
-import { OnModifier as ImportedOnModifier } from '../intrinsics/on';
+import type { OnModifier as ImportedOnModifier } from '../intrinsics/on';
 declare module '@ember/modifier' {
   export interface OnModifier extends ImportedOnModifier {}
 }
 
 import '@ember/helper';
-import { ConcatHelper as ImportedConcatHelper } from '../intrinsics/concat';
-import { FnHelper as ImportedFnHelper } from '../intrinsics/fn';
-import { GetHelper as ImportedGetHelper } from '../intrinsics/get';
+import type { ConcatHelper as ImportedConcatHelper } from '../intrinsics/concat';
+import type { FnHelper as ImportedFnHelper } from '../intrinsics/fn';
+import type { GetHelper as ImportedGetHelper } from '../intrinsics/get';
 
 declare module '@ember/helper' {
   export interface ConcatHelper extends ImportedConcatHelper {}
