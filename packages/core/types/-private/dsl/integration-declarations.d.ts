@@ -110,19 +110,11 @@ declare module '@ember/routing' {
 // Rendering Tests
 
 import '@ember/test-helpers';
-import 'ember-cli-htmlbars';
 
 type TestTemplate<T> = abstract new () => HasContext<TemplateContext<T, {}, {}, void>>;
 
 declare module '@ember/test-helpers' {
   export function render<T>(template: TestTemplate<T>): Promise<void>;
-}
-
-// Declaring that `TemplateFactory` is a valid `TestTemplate` prevents vanilla `tsc` from freaking out
-// about `hbs` not returning a valid type for `render`. Glint itself will never see `hbs` get used, as
-// it's transformed to the template DSL before typechecking.
-declare module 'ember-cli-htmlbars' {
-  interface TemplateFactory extends TestTemplate<any> {}
 }
 
 import '@ember/modifier';
