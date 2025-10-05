@@ -2,9 +2,9 @@
 
 TypeScript-powered tooling for Glimmer templates.
 
-## Glint 2 (Alpha)
+## Glint 2
 
-This branch contains the code for Glint V2, which is currently in an **alpha** state. Glint V2 is a major refactor of Glint V1 to run atop the [Volar.js language tooling framework], which powers the language tooling for Vue and many others.
+This branch contains the code for Glint V2. Glint V2 is a major refactor of Glint V1 to run atop the [Volar.js language tooling framework], which powers the language tooling for Vue and many others.
 
 See [Glint V2](./GLINT_V2.md) for information on how to try out Glint V2.
 
