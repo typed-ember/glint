@@ -2,7 +2,7 @@
 
 ## Overview: Handlebars (aka Loose Mode) No Longer Supported
 
-Glint v2 is a rebuild of Glint v1 atop the [Volar.js](https://volarjs.dev/) language tooling framework, which originated from the Vue.
+Glint v2 is a rebuild of Glint v1 atop the [Volar.js](https://volarjs.dev/) language tooling framework, which originated from the Vue team.
 
 As part of this refactor, support for a number of old Ember.js patterns and component authoring formats were dropped so that the Ember Tooling team can focus on providing the best possible tooling experience for modern Ember.
 
@@ -10,7 +10,7 @@ In particular, support for the Ember Loose environment, and therefore all suppor
 
 The only component authoring format supported by Glint V2 is the [Template Tag Format](https://guides.emberjs.com/release/components/template-tag-format/) by way of `.gts` and `.gjs` files.
 
-Fortunately, there are a couple of codemods ([@embroider/template-tag-codemod](https://www.npmjs.com/package/@embroider/template-tag-codemod) and [ember-codemod-add-template-tags](https://github.com/ijlee2/ember-codemod-add-template-tags)) and other automated/AI solutions for migrating codebases from .hbs to .gts/.gjs. If you still need tooling support for Handlebars for the time being, we do provide a hybrid upgrade path so that codebases can run V1 Glint tooling alongside V2 Glint tooling until they are ready to fully migrate to V1.
+Fortunately, there are a couple of codemods ([@embroider/template-tag-codemod](https://www.npmjs.com/package/@embroider/template-tag-codemod) and [ember-codemod-add-template-tags](https://github.com/ijlee2/ember-codemod-add-template-tags)) and other automated/AI solutions for migrating codebases from .hbs to .gts/.gjs. If you still need tooling support for Handlebars for the time being, we do provide a hybrid upgrade path so that codebases can run V1 Glint tooling alongside V2 Glint tooling until they are ready to fully migrate to V2.
 
 ## Step 1: Add `@glint/ember-tsc` to devDependencies
 
@@ -77,6 +77,7 @@ If your `"glint"` config looks something like
 
 then you can remove the entire `"glint"` config object.
 
+However, if your `"glint"` config lookgs like this
 ```
 {
   "compilerOptions": { ... },
