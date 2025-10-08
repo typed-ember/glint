@@ -36,6 +36,7 @@
     "dist"
   ],
   "scripts": {
+    "test:build": "node ./test-build.mjs",
     "build": "rollup --config",
     "format": "prettier . --cache --write",
     "lint": "concurrently \"pnpm:lint:*(!fix)\" --names \"lint:\" --prefixColors auto",
@@ -86,6 +87,7 @@
     "eslint-plugin-ember": "^12.3.3",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-n": "^17.15.1",
+    "execa": "^9.6.0",
     "globals": "^16.1.0",
     "prettier": "^3.4.2",
     "prettier-plugin-ember-template-tag": "^2.0.4",
