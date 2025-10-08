@@ -81,7 +81,7 @@ const config = [
       parser: ember.parser,
       parserOptions: tsParserOptions,
     },
-    extends: [...ts.configs.recommendedTypeChecked, ember.configs.gts],
+    extends: [...ts.configs.recommended, ember.configs.gts],
   },
   {
     files: ['src/**/*'],
