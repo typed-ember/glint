@@ -1,6 +1,7 @@
 # Compiled output
 /packages/*/lib
 /test-packages/*/lib
+/test-packages/v2-ts-ember-addon/
 dist/
 *.yaml
 *.yml

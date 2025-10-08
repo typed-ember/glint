@@ -36,6 +36,7 @@
     "html-event-attributes": "^2.2.0",
     "mkdirp": "^3.0.1",
     "prettier": "^3.3.2",
+    "prettier-plugin-ember-template-tag": "^2.0.4",
     "release-plan": "^0.16.0",
     "rimraf": "^6.0.1",
     "svg-element-attributes": "^2.1.0",
