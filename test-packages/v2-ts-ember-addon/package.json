@@ -102,6 +102,9 @@
   "ember": {
     "edition": "octane"
   },
+  "volta": {
+    "node": "24"
+  },
   "ember-addon": {
     "version": 2,
     "type": "addon",
