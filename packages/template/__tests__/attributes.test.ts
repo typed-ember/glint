@@ -215,3 +215,43 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
     allowusermedia: document.createElement('div'),
   });
 }
+
+// Properties
+{
+  applyAttributes(document.createElement('input'), {
+    indeterminate: true,
+  });
+}
+
+{
+  applyAttributes(document.createElement('input'), {
+    // @ts-expect-error: properties are typed, and indeterminate must be a bool
+    indeterminate: 'true',
+  });
+}
+
+{
+  applyAttributes(document.createElement('textarea'), {
+    value: 'ok',
+  });
+}
+
+{
+  applyAttributes(document.createElement('select'), {
+    value: 'ok',
+    length: 10,
+  });
+}
+
+{
+  applyAttributes(document.createElement('select'), {
+    // @ts-expect-error: properties are typed, and indeterminate must be a number
+    length: '10',
+  });
+}
+
+{
+  applyAttributes(new SVGSVGElement(), {
+    xmlns: 'ok',
+  });
+}
