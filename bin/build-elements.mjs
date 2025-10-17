@@ -18,6 +18,21 @@ const ast = parse(source, {
   plugins: [['typescript', { dts: true }]],
 });
 
+// Ember allow setting both attributes and properties for HTML elements, {html,svg}-element-attributes only provides
+// attributes.
+const htmlElementProperties = new Map([
+  [
+    'HTMLSelectElement',
+    new Map([
+      ['length', 'number'],
+      ['value', 'AttrValue'],
+    ]),
+  ],
+  ['HTMLInputElement', new Map([['indeterminate', 'boolean']])],
+  ['HTMLTextAreaElement', new Map([['value', 'AttrValue']])],
+  ['SVGSVGElement', new Map([['xmlns', 'AttrValue']])],
+]);
+
 const htmlElementsMap = new Map();
 const svgElementsMap = new Map();
 const mathmlElementsMap = new Map();
@@ -66,6 +81,14 @@ export declare namespace HtmlElementAttributes {
     keys.forEach((k) => {
       htmlElementsContent += `  ['${k}']: AttrValue;\n`;
     });
+
+    const properties = htmlElementProperties.get(type);
+    if (properties) {
+      properties.forEach((value, property) => {
+        htmlElementsContent += `  ['${property}']: ${value};\n`;
+      });
+    }
+
     if (name === 'GenericAttributes') {
       ariaAttributes.forEach((k) => {
         htmlElementsContent += `  ['${k}']: AttrValue;\n`;
@@ -106,6 +129,14 @@ export declare namespace SvgElementAttributes {
     keys.forEach((k) => {
       svgElementsContent += `  ['${k}']: AttrValue;\n`;
     });
+
+    const properties = htmlElementProperties.get(type);
+    if (properties) {
+      properties.forEach((value, property) => {
+        svgElementsContent += `  ['${property}']: ${value};\n`;
+      });
+    }
+
     if (name === 'GenericAttributes') {
       svgEventAttributes.forEach((k) => {
         svgElementsContent += `  ['${k}']: AttrValue;\n`;

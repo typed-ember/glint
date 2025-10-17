@@ -388,6 +388,7 @@ interface HTMLInputElementAttributes extends GenericAttributes {
   ['usemap']: AttrValue;
   ['value']: AttrValue;
   ['width']: AttrValue;
+  ['indeterminate']: boolean;
 }
 interface HTMLLabelElementAttributes extends GenericAttributes {
   ['for']: AttrValue;
@@ -516,6 +517,8 @@ interface HTMLSelectElementAttributes extends GenericAttributes {
   ['name']: AttrValue;
   ['required']: AttrValue;
   ['size']: AttrValue;
+  ['length']: number;
+  ['value']: AttrValue;
 }
 interface HTMLSlotElementAttributes extends GenericAttributes {
   ['name']: AttrValue;
@@ -585,11 +588,8 @@ interface HTMLTextAreaElementAttributes extends GenericAttributes {
   ['readonly']: AttrValue;
   ['required']: AttrValue;
   ['rows']: AttrValue;
-  // This is not actually an HTMLTextAreaElement attribute, but Ember/Glimmer
-  // support `value` attribute syntax to support binding values into
-  // `<textarea>`s, so we include it here.
-  ['value']: AttrValue;
   ['wrap']: AttrValue;
+  ['value']: AttrValue;
 }
 interface HTMLTimeElementAttributes extends GenericAttributes {
   ['datetime']: AttrValue;
@@ -689,7 +689,7 @@ interface HtmlElements {
 }
 
 export declare namespace SvgElementAttributes {
-type GenericAttributes = HtmlElementAttributes.GenericAttributes;
+  type GenericAttributes = HtmlElementAttributes.GenericAttributes;
 interface SVGAElementAttributes extends GenericAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
@@ -3711,9 +3711,9 @@ interface SVGSVGElementAttributes extends GenericAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
   ['x']: AttrValue;
-  ['xmlns']: AttrValue;
   ['y']: AttrValue;
   ['zoomAndPan']: AttrValue;
+  ['xmlns']: AttrValue;
 }
 interface SVGSwitchElementAttributes extends GenericAttributes {
   ['alignment-baseline']: AttrValue;
