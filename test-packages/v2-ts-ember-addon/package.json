@@ -1,6 +1,6 @@
 {
   "name": "v2-ts-ember-addon",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "The default blueprint for Embroider v2 addons.",
   "keywords": [
     "ember-addon"
