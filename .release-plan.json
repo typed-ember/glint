@@ -2,8 +2,21 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.0.2",
-      "newVersion": "1.0.3",
+      "oldVersion": "1.0.3",
+      "newVersion": "1.0.4",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:*` on @glint/template"
+        }
+      ],
+      "pkgJSONPath": "./packages/core/package.json"
+    },
+    "@glint/template": {
+      "impact": "patch",
+      "oldVersion": "1.6.1",
+      "newVersion": "1.6.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -11,15 +24,12 @@
           "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
-      "pkgJSONPath": "./packages/core/package.json"
-    },
-    "@glint/template": {
-      "oldVersion": "1.6.1"
+      "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.0.2",
-      "newVersion": "2.0.3",
+      "oldVersion": "2.0.3",
+      "newVersion": "2.0.4",
       "tagName": "latest",
       "constraints": [
         {
@@ -31,7 +41,20 @@
     },
     "@glint/type-test": {
       "oldVersion": "2.0.0"
+    },
+    "v2-ts-ember-addon": {
+      "impact": "patch",
+      "oldVersion": "0.0.0",
+      "newVersion": "0.0.1",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./test-packages/v2-ts-ember-addon/package.json"
     }
   },
-  "description": "## Release (2025-10-02)\n\n* @glint/ember-tsc 1.0.3 (patch)\n* @glint/tsserver-plugin 2.0.3 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#991](https://github.com/typed-ember/glint/pull/991) Add `type` annotations to fix embroider-vite builds ([@machty](https://github.com/machty))\n\n#### Committers: 1\n- Alex Matchneer ([@machty](https://github.com/machty))\n"
+  "description": "## Release (2025-10-17)\n\n* @glint/ember-tsc 1.0.4 (patch)\n* @glint/template 1.6.2 (patch)\n* @glint/tsserver-plugin 2.0.4 (patch)\n* v2-ts-ember-addon 0.0.1 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1000](https://github.com/typed-ember/glint/pull/1000) Support HTML properties for HTML elements ([@mogstad](https://github.com/mogstad))\n\n#### :memo: Documentation\n* [#997](https://github.com/typed-ember/glint/pull/997) Fix some typos in upgrade guide ([@evoactivity](https://github.com/evoactivity))\n* [#996](https://github.com/typed-ember/glint/pull/996) Delete GLINT_V2.md ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* [#994](https://github.com/typed-ember/glint/pull/994) Update README to reflect Glint 2 status ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* `v2-ts-ember-addon`\n  * [#998](https://github.com/typed-ember/glint/pull/998) Add another test project for assuring we build declarations correctly ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 3\n- Bjarne Mogstad ([@mogstad](https://github.com/mogstad))\n- Liam Potter ([@evoactivity](https://github.com/evoactivity))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }

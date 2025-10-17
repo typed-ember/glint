@@ -1,5 +1,30 @@
 # Changelog
 
+## Release (2025-10-17)
+
+* @glint/ember-tsc 1.0.4 (patch)
+* @glint/template 1.6.2 (patch)
+* @glint/tsserver-plugin 2.0.4 (patch)
+* v2-ts-ember-addon 0.0.1 (patch)
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#1000](https://github.com/typed-ember/glint/pull/1000) Support HTML properties for HTML elements ([@mogstad](https://github.com/mogstad))
+
+#### :memo: Documentation
+* [#997](https://github.com/typed-ember/glint/pull/997) Fix some typos in upgrade guide ([@evoactivity](https://github.com/evoactivity))
+* [#996](https://github.com/typed-ember/glint/pull/996) Delete GLINT_V2.md ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* [#994](https://github.com/typed-ember/glint/pull/994) Update README to reflect Glint 2 status ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :house: Internal
+* `v2-ts-ember-addon`
+  * [#998](https://github.com/typed-ember/glint/pull/998) Add another test project for assuring we build declarations correctly ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 3
+- Bjarne Mogstad ([@mogstad](https://github.com/mogstad))
+- Liam Potter ([@evoactivity](https://github.com/evoactivity))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2025-10-02)
 
 * @glint/ember-tsc 1.0.3 (patch)
