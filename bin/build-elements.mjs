@@ -29,9 +29,7 @@ const SKIP = new Set(['html', 'body']);
 // Ember allow setting both attributes and properties for HTML elements, {html,svg}-element-attributes only provides
 // attributes.
 const htmlElementProperties = new Map([
-  [
-    'HTMLElement', new Map(),
-  ],
+  ['HTMLElement', new Map()],
   [
     'HTMLSelectElement',
     new Map([
@@ -124,12 +122,12 @@ interface GlintHtmlElementAttributesMap {\n`;
       name = 'GlobalHTMLAttributes';
       htmlElementsMap.set(name, 'GlobalHTML');
     }
-    if (SKIP.has(name)) return
+    if (SKIP.has(name)) return;
     const type = htmlElementsMap.get(name);
 
     processHTML(type, keys, name);
   });
-  processHTML('HTMLElement', [], 'HTMLElement')
+  processHTML('HTMLElement', [], 'HTMLElement');
 
   mergedHtmlElements += `}\n`;
 
