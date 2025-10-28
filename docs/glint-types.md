@@ -172,3 +172,27 @@ declare const MyEach: abstract new <T>() => InstanceType<
 
 This shouldn't be a tool you frequently find the need to reach for, but it can be useful on
 occasion when working with complex declarations.
+
+### Custom Element Attributes
+
+HTML allows for unspecified attributes, but by default Glint will tell you when an attribute is not defined as being a part of the definition for that element.
+
+To add an allowed attribute to a particular element, you'll want to use _declaration merging_ to add the attribute and its valid values to the type checker
+
+example:
+```ts
+import '@glint/template';
+
+declare global {
+  interface HTMLStyleElementAttributes {
+    ['scoped']: '';
+    ['inline']: '';
+  }
+}
+```
+allows use of 
+```html
+<style scoped>
+
+</style>
+```

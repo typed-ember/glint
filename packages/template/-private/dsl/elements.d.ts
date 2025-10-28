@@ -2,7 +2,8 @@
 // this server to provide the html attributes for each element
 
 import { AttrValue } from '../index';
-export declare namespace HtmlElementAttributes {
+
+declare global {
 interface GenericAttributes  {
   ['accesskey']: AttrValue;
   ['autocapitalize']: AttrValue;
@@ -625,7 +626,7 @@ interface HTMLVideoElementAttributes extends GenericAttributes {
   ['src']: AttrValue;
   ['width']: AttrValue;
 }
-interface HtmlElements {
+interface GlintHtmlElementAttributesMap {
   ['Generic']: GenericAttributes;
   ['HTMLAnchorElement']: HTMLAnchorElementAttributes;
   ['HTMLAreaElement']: HTMLAreaElementAttributes;
@@ -688,8 +689,7 @@ interface HtmlElements {
 }
 }
 
-export declare namespace SvgElementAttributes {
-  type GenericAttributes = HtmlElementAttributes.GenericAttributes;
+declare global {
 interface SVGAElementAttributes extends GenericAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
@@ -4211,7 +4211,7 @@ interface SVGViewElementAttributes extends GenericAttributes {
   ['viewTarget']: AttrValue;
   ['zoomAndPan']: AttrValue;
 }
-interface SvgElements {
+interface GlintSvgElementAttributesMap {
   ['SVGAElement']: SVGAElementAttributes;
   ['SVGAnimateElement']: SVGAnimateElementAttributes;
   ['SVGAnimateMotionElement']: SVGAnimateMotionElementAttributes;

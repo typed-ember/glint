@@ -1,4 +1,4 @@
-import { HtmlElementAttributes, SvgElementAttributes } from './elements';
+import './elements';
 import { AttrValue } from '../index';
 import { GlintSymbol } from './lib.dom.augmentation';
 
@@ -28,10 +28,10 @@ type WithDataAttributes<T> = T & Record<`data-${string}`, AttrValue>;
 export type AttributesForElement<
   Elem extends Element,
   K = Elem extends { [GlintSymbol]: string } ? Elem[typeof GlintSymbol] : never,
-> = K extends keyof HtmlElementAttributes.HtmlElements
-  ? WithDataAttributes<HtmlElementAttributes.HtmlElements[K]>
-  : K extends keyof SvgElementAttributes.SvgElements
-    ? WithDataAttributes<SvgElementAttributes.SvgElements[K]>
-    : K extends keyof SvgElementAttributes.SvgElements
-      ? WithDataAttributes<SvgElementAttributes.SvgElements[K]>
+> = K extends keyof GlintHtmlElementAttributesMap
+  ? WithDataAttributes<GlintHtmlElementAttributesMap[K]>
+  : K extends keyof GlintSvgElementAttributesMap
+    ? WithDataAttributes<GlintSvgElementAttributesMap[K]>
+    : K extends keyof GlintSvgElementAttributesMap
+      ? WithDataAttributes<GlintSvgElementAttributesMap[K]>
       : Record<string, AttrValue>;

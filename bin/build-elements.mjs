@@ -1,3 +1,6 @@
+/**
+ * Ideally TS would provide this information to us, but it does not.
+ */
 import { htmlElementAttributes } from 'html-element-attributes';
 import { svgElementAttributes } from 'svg-element-attributes';
 import { ariaAttributes } from 'aria-attributes';
@@ -62,11 +65,12 @@ traverse(ast, {
 function createHtmlElementsAttributesMap() {
   let htmlElementsContent = `
 import { AttrValue } from '../index';
-export declare namespace HtmlElementAttributes {
+
+declare global {
 `;
   const processed = new Set();
 
-  let mergedHtmlElements = 'interface HtmlElements {\n';
+  let mergedHtmlElements = 'interface GlintHtmlElementAttributesMap {\n';
   Object.entries(htmlElementAttributes).forEach(([name, keys]) => {
     if (name === '*') {
       name = 'GenericAttributes';
@@ -109,11 +113,10 @@ export declare namespace HtmlElementAttributes {
 
 function createSvgElementAttributesMap() {
   let svgElementsContent = `
-export declare namespace SvgElementAttributes {
-  type GenericAttributes = HtmlElementAttributes.GenericAttributes;
+declare global {
 `;
   const processed = new Set();
-  let mergedSvgElements = 'interface SvgElements {\n';
+  let mergedSvgElements = 'interface GlintSvgElementAttributesMap {\n';
   Object.entries(svgElementAttributes).forEach(([name, keys]) => {
     if (name === '*') {
       name = 'GenericAttributes';
