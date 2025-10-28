@@ -73,14 +73,14 @@ declare global {
   let mergedHtmlElements = 'interface GlintHtmlElementAttributesMap {\n';
   Object.entries(htmlElementAttributes).forEach(([name, keys]) => {
     if (name === '*') {
-      name = 'GenericAttributes';
-      htmlElementsMap.set(name, 'Generic');
+      name = 'GlobalAttributes';
+      htmlElementsMap.set(name, 'Global');
     }
     const type = htmlElementsMap.get(name);
     if (!type || processed.has(type)) return;
     processed.add(type);
     const interfaceName = type + 'Attributes';
-    const extend = name === 'GenericAttributes' ? '' : 'extends GenericAttributes';
+    const extend = name === 'GlobalAttributes' ? '' : 'extends GlobalAttributes';
     htmlElementsContent += `interface ${interfaceName} ${extend} {\n`;
     keys.forEach((k) => {
       htmlElementsContent += `  ['${k}']: AttrValue;\n`;
@@ -93,7 +93,7 @@ declare global {
       });
     }
 
-    if (name === 'GenericAttributes') {
+    if (name === 'GlobalAttributes') {
       ariaAttributes.forEach((k) => {
         htmlElementsContent += `  ['${k}']: AttrValue;\n`;
       });
@@ -102,6 +102,10 @@ declare global {
       });
     }
     htmlElementsContent += '}\n';
+
+    // Global is not an element, so it doesn't belong in the merged map
+    if (type === 'Global') return;
+
     mergedHtmlElements += `  ['${type}']: ${interfaceName};\n`;
   });
 
@@ -119,7 +123,7 @@ declare global {
   let mergedSvgElements = 'interface GlintSvgElementAttributesMap {\n';
   Object.entries(svgElementAttributes).forEach(([name, keys]) => {
     if (name === '*') {
-      name = 'GenericAttributes';
+      name = 'GlobalAttributes';
     }
     const type = svgElementsMap.get(name);
     if (!type || processed.has(type)) {
@@ -127,7 +131,7 @@ declare global {
     }
     processed.add(type);
     const interfaceName = type + 'Attributes';
-    const extend = name === 'GenericAttributes' ? '' : 'extends GenericAttributes';
+    const extend = name === 'GlobalAttributes' ? '' : 'extends GlobalAttributes';
     svgElementsContent += `interface ${interfaceName} ${extend} {\n`;
     keys.forEach((k) => {
       svgElementsContent += `  ['${k}']: AttrValue;\n`;
@@ -140,7 +144,7 @@ declare global {
       });
     }
 
-    if (name === 'GenericAttributes') {
+    if (name === 'GlobalAttributes') {
       svgEventAttributes.forEach((k) => {
         svgElementsContent += `  ['${k}']: AttrValue;\n`;
       });
