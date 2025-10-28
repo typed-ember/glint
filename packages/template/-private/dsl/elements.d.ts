@@ -4,7 +4,7 @@
 import { AttrValue } from '../index';
 
 declare global {
-interface GlobalAttributes  {
+interface GlobalHTMLAttributes  {
   ['accesskey']: AttrValue;
   ['autocapitalize']: AttrValue;
   ['autocorrect']: AttrValue;
@@ -632,6 +632,7 @@ interface HTMLElementAttributes extends GlobalHTMLAttributes {
  * @private - not for use outside of Glint
  */
 interface GlintHtmlElementAttributesMap {
+  ['GlobalHTML']: GlobalHTMLAttributes;
   ['HTMLAnchorElement']: HTMLAnchorElementAttributes;
   ['HTMLAreaElement']: HTMLAreaElementAttributes;
   ['HTMLAudioElement']: HTMLAudioElementAttributes;

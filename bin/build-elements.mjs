@@ -122,7 +122,7 @@ interface GlintHtmlElementAttributesMap {\n`;
   Object.entries(htmlElementAttributes).forEach(([name, keys]) => {
     if (name === '*') {
       name = 'GlobalHTMLAttributes';
-      htmlElementsMap.set(name, 'Global');
+      htmlElementsMap.set(name, 'GlobalHTML');
     }
     if (SKIP.has(name)) return
     const type = htmlElementsMap.get(name);
