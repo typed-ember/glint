@@ -196,3 +196,14 @@ allows use of
 
 </style>
 ```
+
+If you wish to add attributes to _all_ elements, you may _declaration merge_ the `GlobalAttributes` interface:
+```ts
+import '@glint/template';
+
+declare global {
+  interface GlobalAttributes {
+    ['color-scheme']: 'dark' | 'light' | 'synth';
+  }
+}
+```
