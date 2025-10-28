@@ -32,7 +32,7 @@
     "execa": "^9.5.2",
     "glint-monorepo-test-utils": "workspace:*",
     "glob": "^10.2.4",
-    "html-element-attributes": "^3.3.0",
+    "html-element-attributes": "^3.5.0",
     "html-event-attributes": "^2.2.0",
     "mkdirp": "^3.0.1",
     "prettier": "^3.3.2",

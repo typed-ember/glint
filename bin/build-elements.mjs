@@ -21,9 +21,17 @@ const ast = parse(source, {
   plugins: [['typescript', { dts: true }]],
 });
 
+/**
+ * These elements are not specifyable by userland ember/glimmer and don't need typing
+ */
+const SKIP = new Set(['html', 'body']);
+
 // Ember allow setting both attributes and properties for HTML elements, {html,svg}-element-attributes only provides
 // attributes.
 const htmlElementProperties = new Map([
+  [
+    'HTMLElement', new Map(),
+  ],
   [
     'HTMLSelectElement',
     new Map([
@@ -36,9 +44,10 @@ const htmlElementProperties = new Map([
   ['SVGSVGElement', new Map([['xmlns', 'AttrValue']])],
 ]);
 
-const htmlElementsMap = new Map();
+const htmlElementsMap = new Map([['GlobalHTMLAttributes', 'HTMLElement']]);
 const svgElementsMap = new Map();
 const mathmlElementsMap = new Map();
+
 traverse(ast, {
   TSInterfaceDeclaration: function (path) {
     if (path.node.id.name === 'HTMLElementTagNameMap') {
@@ -70,17 +79,18 @@ declare global {
 `;
   const processed = new Set();
 
-  let mergedHtmlElements = 'interface GlintHtmlElementAttributesMap {\n';
-  Object.entries(htmlElementAttributes).forEach(([name, keys]) => {
-    if (name === '*') {
-      name = 'GlobalAttributes';
-      htmlElementsMap.set(name, 'Global');
-    }
-    const type = htmlElementsMap.get(name);
+  let mergedHtmlElements = `
+/**
+ * @internal
+ * @private - not for use outside of Glint
+ */
+interface GlintHtmlElementAttributesMap {\n`;
+
+  function processHTML(type, keys, name) {
     if (!type || processed.has(type)) return;
     processed.add(type);
     const interfaceName = type + 'Attributes';
-    const extend = name === 'GlobalAttributes' ? '' : 'extends GlobalAttributes';
+    const extend = name === 'GlobalHTMLAttributes' ? '' : 'extends GlobalHTMLAttributes';
     htmlElementsContent += `interface ${interfaceName} ${extend} {\n`;
     keys.forEach((k) => {
       htmlElementsContent += `  ['${k}']: AttrValue;\n`;
@@ -93,7 +103,7 @@ declare global {
       });
     }
 
-    if (name === 'GlobalAttributes') {
+    if (name === 'GlobalHTMLAttributes') {
       ariaAttributes.forEach((k) => {
         htmlElementsContent += `  ['${k}']: AttrValue;\n`;
       });
@@ -107,7 +117,19 @@ declare global {
     if (type === 'Global') return;
 
     mergedHtmlElements += `  ['${type}']: ${interfaceName};\n`;
+  }
+
+  Object.entries(htmlElementAttributes).forEach(([name, keys]) => {
+    if (name === '*') {
+      name = 'GlobalHTMLAttributes';
+      htmlElementsMap.set(name, 'Global');
+    }
+    if (SKIP.has(name)) return
+    const type = htmlElementsMap.get(name);
+
+    processHTML(type, keys, name);
   });
+  processHTML('HTMLElement', [], 'HTMLElement')
 
   mergedHtmlElements += `}\n`;
 
@@ -120,10 +142,16 @@ function createSvgElementAttributesMap() {
 declare global {
 `;
   const processed = new Set();
-  let mergedSvgElements = 'interface GlintSvgElementAttributesMap {\n';
+  let mergedSvgElements = `
+
+/**
+ * @internal
+ * @private - not for use outside of Glint
+ */
+interface GlintSvgElementAttributesMap {\n`;
   Object.entries(svgElementAttributes).forEach(([name, keys]) => {
     if (name === '*') {
-      name = 'GlobalAttributes';
+      name = 'GlobalSVGAttributes';
     }
     const type = svgElementsMap.get(name);
     if (!type || processed.has(type)) {
@@ -131,7 +159,7 @@ declare global {
     }
     processed.add(type);
     const interfaceName = type + 'Attributes';
-    const extend = name === 'GlobalAttributes' ? '' : 'extends GlobalAttributes';
+    const extend = name === 'GlobalSVGAttributes' ? '' : 'extends GlobalSVGAttributes';
     svgElementsContent += `interface ${interfaceName} ${extend} {\n`;
     keys.forEach((k) => {
       svgElementsContent += `  ['${k}']: AttrValue;\n`;
@@ -144,7 +172,7 @@ declare global {
       });
     }
 
-    if (name === 'GlobalAttributes') {
+    if (name === 'GlobalSVGAttributes') {
       svgEventAttributes.forEach((k) => {
         svgElementsContent += `  ['${k}']: AttrValue;\n`;
       });

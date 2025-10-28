@@ -7,12 +7,14 @@ declare global {
 interface GlobalAttributes  {
   ['accesskey']: AttrValue;
   ['autocapitalize']: AttrValue;
+  ['autocorrect']: AttrValue;
   ['autofocus']: AttrValue;
   ['class']: AttrValue;
   ['contenteditable']: AttrValue;
   ['dir']: AttrValue;
   ['draggable']: AttrValue;
   ['enterkeyhint']: AttrValue;
+  ['exportparts']: AttrValue;
   ['hidden']: AttrValue;
   ['id']: AttrValue;
   ['inert']: AttrValue;
@@ -25,6 +27,7 @@ interface GlobalAttributes  {
   ['itemtype']: AttrValue;
   ['lang']: AttrValue;
   ['nonce']: AttrValue;
+  ['part']: AttrValue;
   ['popover']: AttrValue;
   ['slot']: AttrValue;
   ['spellcheck']: AttrValue;
@@ -169,7 +172,7 @@ interface GlobalAttributes  {
   ['onwaiting']: AttrValue;
   ['onwheel']: AttrValue;
 }
-interface HTMLAnchorElementAttributes extends GlobalAttributes {
+interface HTMLAnchorElementAttributes extends GlobalHTMLAttributes {
   ['charset']: AttrValue;
   ['coords']: AttrValue;
   ['download']: AttrValue;
@@ -184,7 +187,7 @@ interface HTMLAnchorElementAttributes extends GlobalAttributes {
   ['target']: AttrValue;
   ['type']: AttrValue;
 }
-interface HTMLAreaElementAttributes extends GlobalAttributes {
+interface HTMLAreaElementAttributes extends GlobalHTMLAttributes {
   ['alt']: AttrValue;
   ['coords']: AttrValue;
   ['download']: AttrValue;
@@ -198,7 +201,7 @@ interface HTMLAreaElementAttributes extends GlobalAttributes {
   ['target']: AttrValue;
   ['type']: AttrValue;
 }
-interface HTMLAudioElementAttributes extends GlobalAttributes {
+interface HTMLAudioElementAttributes extends GlobalHTMLAttributes {
   ['autoplay']: AttrValue;
   ['controls']: AttrValue;
   ['crossorigin']: AttrValue;
@@ -207,25 +210,19 @@ interface HTMLAudioElementAttributes extends GlobalAttributes {
   ['preload']: AttrValue;
   ['src']: AttrValue;
 }
-interface HTMLBaseElementAttributes extends GlobalAttributes {
+interface HTMLBaseElementAttributes extends GlobalHTMLAttributes {
   ['href']: AttrValue;
   ['target']: AttrValue;
 }
-interface HTMLQuoteElementAttributes extends GlobalAttributes {
+interface HTMLQuoteElementAttributes extends GlobalHTMLAttributes {
   ['cite']: AttrValue;
 }
-interface HTMLBodyElementAttributes extends GlobalAttributes {
-  ['alink']: AttrValue;
-  ['background']: AttrValue;
-  ['bgcolor']: AttrValue;
-  ['link']: AttrValue;
-  ['text']: AttrValue;
-  ['vlink']: AttrValue;
-}
-interface HTMLBRElementAttributes extends GlobalAttributes {
+interface HTMLBRElementAttributes extends GlobalHTMLAttributes {
   ['clear']: AttrValue;
 }
-interface HTMLButtonElementAttributes extends GlobalAttributes {
+interface HTMLButtonElementAttributes extends GlobalHTMLAttributes {
+  ['command']: AttrValue;
+  ['commandfor']: AttrValue;
   ['disabled']: AttrValue;
   ['form']: AttrValue;
   ['formaction']: AttrValue;
@@ -239,14 +236,14 @@ interface HTMLButtonElementAttributes extends GlobalAttributes {
   ['type']: AttrValue;
   ['value']: AttrValue;
 }
-interface HTMLCanvasElementAttributes extends GlobalAttributes {
+interface HTMLCanvasElementAttributes extends GlobalHTMLAttributes {
   ['height']: AttrValue;
   ['width']: AttrValue;
 }
-interface HTMLTableCaptionElementAttributes extends GlobalAttributes {
+interface HTMLTableCaptionElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
 }
-interface HTMLTableColElementAttributes extends GlobalAttributes {
+interface HTMLTableColElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
   ['char']: AttrValue;
   ['charoff']: AttrValue;
@@ -254,38 +251,39 @@ interface HTMLTableColElementAttributes extends GlobalAttributes {
   ['valign']: AttrValue;
   ['width']: AttrValue;
 }
-interface HTMLDataElementAttributes extends GlobalAttributes {
+interface HTMLDataElementAttributes extends GlobalHTMLAttributes {
   ['value']: AttrValue;
 }
-interface HTMLModElementAttributes extends GlobalAttributes {
+interface HTMLModElementAttributes extends GlobalHTMLAttributes {
   ['cite']: AttrValue;
   ['datetime']: AttrValue;
 }
-interface HTMLDetailsElementAttributes extends GlobalAttributes {
+interface HTMLDetailsElementAttributes extends GlobalHTMLAttributes {
   ['name']: AttrValue;
   ['open']: AttrValue;
 }
-interface HTMLDialogElementAttributes extends GlobalAttributes {
+interface HTMLDialogElementAttributes extends GlobalHTMLAttributes {
+  ['closedby']: AttrValue;
   ['open']: AttrValue;
 }
-interface HTMLDivElementAttributes extends GlobalAttributes {
+interface HTMLDivElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
 }
-interface HTMLDListElementAttributes extends GlobalAttributes {
+interface HTMLDListElementAttributes extends GlobalHTMLAttributes {
   ['compact']: AttrValue;
 }
-interface HTMLEmbedElementAttributes extends GlobalAttributes {
+interface HTMLEmbedElementAttributes extends GlobalHTMLAttributes {
   ['height']: AttrValue;
   ['src']: AttrValue;
   ['type']: AttrValue;
   ['width']: AttrValue;
 }
-interface HTMLFieldSetElementAttributes extends GlobalAttributes {
+interface HTMLFieldSetElementAttributes extends GlobalHTMLAttributes {
   ['disabled']: AttrValue;
   ['form']: AttrValue;
   ['name']: AttrValue;
 }
-interface HTMLFormElementAttributes extends GlobalAttributes {
+interface HTMLFormElementAttributes extends GlobalHTMLAttributes {
   ['accept']: AttrValue;
   ['accept-charset']: AttrValue;
   ['action']: AttrValue;
@@ -296,23 +294,19 @@ interface HTMLFormElementAttributes extends GlobalAttributes {
   ['novalidate']: AttrValue;
   ['target']: AttrValue;
 }
-interface HTMLHeadingElementAttributes extends GlobalAttributes {
+interface HTMLHeadingElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
 }
-interface HTMLHeadElementAttributes extends GlobalAttributes {
+interface HTMLHeadElementAttributes extends GlobalHTMLAttributes {
   ['profile']: AttrValue;
 }
-interface HTMLHRElementAttributes extends GlobalAttributes {
+interface HTMLHRElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
   ['noshade']: AttrValue;
   ['size']: AttrValue;
   ['width']: AttrValue;
 }
-interface HTMLHtmlElementAttributes extends GlobalAttributes {
-  ['manifest']: AttrValue;
-  ['version']: AttrValue;
-}
-interface HTMLIFrameElementAttributes extends GlobalAttributes {
+interface HTMLIFrameElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
   ['allow']: AttrValue;
   ['allowfullscreen']: AttrValue;
@@ -332,7 +326,7 @@ interface HTMLIFrameElementAttributes extends GlobalAttributes {
   ['srcdoc']: AttrValue;
   ['width']: AttrValue;
 }
-interface HTMLImageElementAttributes extends GlobalAttributes {
+interface HTMLImageElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
   ['alt']: AttrValue;
   ['border']: AttrValue;
@@ -353,12 +347,14 @@ interface HTMLImageElementAttributes extends GlobalAttributes {
   ['vspace']: AttrValue;
   ['width']: AttrValue;
 }
-interface HTMLInputElementAttributes extends GlobalAttributes {
+interface HTMLInputElementAttributes extends GlobalHTMLAttributes {
   ['accept']: AttrValue;
   ['align']: AttrValue;
+  ['alpha']: AttrValue;
   ['alt']: AttrValue;
   ['autocomplete']: AttrValue;
   ['checked']: AttrValue;
+  ['colorspace']: AttrValue;
   ['dirname']: AttrValue;
   ['disabled']: AttrValue;
   ['form']: AttrValue;
@@ -391,18 +387,18 @@ interface HTMLInputElementAttributes extends GlobalAttributes {
   ['width']: AttrValue;
   ['indeterminate']: boolean;
 }
-interface HTMLLabelElementAttributes extends GlobalAttributes {
+interface HTMLLabelElementAttributes extends GlobalHTMLAttributes {
   ['for']: AttrValue;
   ['form']: AttrValue;
 }
-interface HTMLLegendElementAttributes extends GlobalAttributes {
+interface HTMLLegendElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
 }
-interface HTMLLIElementAttributes extends GlobalAttributes {
+interface HTMLLIElementAttributes extends GlobalHTMLAttributes {
   ['type']: AttrValue;
   ['value']: AttrValue;
 }
-interface HTMLLinkElementAttributes extends GlobalAttributes {
+interface HTMLLinkElementAttributes extends GlobalHTMLAttributes {
   ['as']: AttrValue;
   ['blocking']: AttrValue;
   ['charset']: AttrValue;
@@ -423,13 +419,13 @@ interface HTMLLinkElementAttributes extends GlobalAttributes {
   ['target']: AttrValue;
   ['type']: AttrValue;
 }
-interface HTMLMapElementAttributes extends GlobalAttributes {
+interface HTMLMapElementAttributes extends GlobalHTMLAttributes {
   ['name']: AttrValue;
 }
-interface HTMLMenuElementAttributes extends GlobalAttributes {
+interface HTMLMenuElementAttributes extends GlobalHTMLAttributes {
   ['compact']: AttrValue;
 }
-interface HTMLMetaElementAttributes extends GlobalAttributes {
+interface HTMLMetaElementAttributes extends GlobalHTMLAttributes {
   ['charset']: AttrValue;
   ['content']: AttrValue;
   ['http-equiv']: AttrValue;
@@ -437,7 +433,7 @@ interface HTMLMetaElementAttributes extends GlobalAttributes {
   ['name']: AttrValue;
   ['scheme']: AttrValue;
 }
-interface HTMLMeterElementAttributes extends GlobalAttributes {
+interface HTMLMeterElementAttributes extends GlobalHTMLAttributes {
   ['high']: AttrValue;
   ['low']: AttrValue;
   ['max']: AttrValue;
@@ -445,7 +441,7 @@ interface HTMLMeterElementAttributes extends GlobalAttributes {
   ['optimum']: AttrValue;
   ['value']: AttrValue;
 }
-interface HTMLObjectElementAttributes extends GlobalAttributes {
+interface HTMLObjectElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
   ['archive']: AttrValue;
   ['border']: AttrValue;
@@ -465,38 +461,38 @@ interface HTMLObjectElementAttributes extends GlobalAttributes {
   ['vspace']: AttrValue;
   ['width']: AttrValue;
 }
-interface HTMLOListElementAttributes extends GlobalAttributes {
+interface HTMLOListElementAttributes extends GlobalHTMLAttributes {
   ['compact']: AttrValue;
   ['reversed']: AttrValue;
   ['start']: AttrValue;
   ['type']: AttrValue;
 }
-interface HTMLOptGroupElementAttributes extends GlobalAttributes {
+interface HTMLOptGroupElementAttributes extends GlobalHTMLAttributes {
   ['disabled']: AttrValue;
   ['label']: AttrValue;
 }
-interface HTMLOptionElementAttributes extends GlobalAttributes {
+interface HTMLOptionElementAttributes extends GlobalHTMLAttributes {
   ['disabled']: AttrValue;
   ['label']: AttrValue;
   ['selected']: AttrValue;
   ['value']: AttrValue;
 }
-interface HTMLOutputElementAttributes extends GlobalAttributes {
+interface HTMLOutputElementAttributes extends GlobalHTMLAttributes {
   ['for']: AttrValue;
   ['form']: AttrValue;
   ['name']: AttrValue;
 }
-interface HTMLParagraphElementAttributes extends GlobalAttributes {
+interface HTMLParagraphElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
 }
-interface HTMLPreElementAttributes extends GlobalAttributes {
+interface HTMLPreElementAttributes extends GlobalHTMLAttributes {
   ['width']: AttrValue;
 }
-interface HTMLProgressElementAttributes extends GlobalAttributes {
+interface HTMLProgressElementAttributes extends GlobalHTMLAttributes {
   ['max']: AttrValue;
   ['value']: AttrValue;
 }
-interface HTMLScriptElementAttributes extends GlobalAttributes {
+interface HTMLScriptElementAttributes extends GlobalHTMLAttributes {
   ['async']: AttrValue;
   ['blocking']: AttrValue;
   ['charset']: AttrValue;
@@ -510,7 +506,7 @@ interface HTMLScriptElementAttributes extends GlobalAttributes {
   ['src']: AttrValue;
   ['type']: AttrValue;
 }
-interface HTMLSelectElementAttributes extends GlobalAttributes {
+interface HTMLSelectElementAttributes extends GlobalHTMLAttributes {
   ['autocomplete']: AttrValue;
   ['disabled']: AttrValue;
   ['form']: AttrValue;
@@ -521,10 +517,10 @@ interface HTMLSelectElementAttributes extends GlobalAttributes {
   ['length']: number;
   ['value']: AttrValue;
 }
-interface HTMLSlotElementAttributes extends GlobalAttributes {
+interface HTMLSlotElementAttributes extends GlobalHTMLAttributes {
   ['name']: AttrValue;
 }
-interface HTMLSourceElementAttributes extends GlobalAttributes {
+interface HTMLSourceElementAttributes extends GlobalHTMLAttributes {
   ['height']: AttrValue;
   ['media']: AttrValue;
   ['sizes']: AttrValue;
@@ -533,12 +529,12 @@ interface HTMLSourceElementAttributes extends GlobalAttributes {
   ['type']: AttrValue;
   ['width']: AttrValue;
 }
-interface HTMLStyleElementAttributes extends GlobalAttributes {
+interface HTMLStyleElementAttributes extends GlobalHTMLAttributes {
   ['blocking']: AttrValue;
   ['media']: AttrValue;
   ['type']: AttrValue;
 }
-interface HTMLTableElementAttributes extends GlobalAttributes {
+interface HTMLTableElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
   ['bgcolor']: AttrValue;
   ['border']: AttrValue;
@@ -549,13 +545,13 @@ interface HTMLTableElementAttributes extends GlobalAttributes {
   ['summary']: AttrValue;
   ['width']: AttrValue;
 }
-interface HTMLTableSectionElementAttributes extends GlobalAttributes {
+interface HTMLTableSectionElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
   ['char']: AttrValue;
   ['charoff']: AttrValue;
   ['valign']: AttrValue;
 }
-interface HTMLTableCellElementAttributes extends GlobalAttributes {
+interface HTMLTableCellElementAttributes extends GlobalHTMLAttributes {
   ['abbr']: AttrValue;
   ['align']: AttrValue;
   ['axis']: AttrValue;
@@ -571,12 +567,14 @@ interface HTMLTableCellElementAttributes extends GlobalAttributes {
   ['valign']: AttrValue;
   ['width']: AttrValue;
 }
-interface HTMLTemplateElementAttributes extends GlobalAttributes {
+interface HTMLTemplateElementAttributes extends GlobalHTMLAttributes {
   ['shadowrootclonable']: AttrValue;
+  ['shadowrootcustomelementregistry']: AttrValue;
   ['shadowrootdelegatesfocus']: AttrValue;
   ['shadowrootmode']: AttrValue;
+  ['shadowrootserializable']: AttrValue;
 }
-interface HTMLTextAreaElementAttributes extends GlobalAttributes {
+interface HTMLTextAreaElementAttributes extends GlobalHTMLAttributes {
   ['autocomplete']: AttrValue;
   ['cols']: AttrValue;
   ['dirname']: AttrValue;
@@ -592,28 +590,28 @@ interface HTMLTextAreaElementAttributes extends GlobalAttributes {
   ['wrap']: AttrValue;
   ['value']: AttrValue;
 }
-interface HTMLTimeElementAttributes extends GlobalAttributes {
+interface HTMLTimeElementAttributes extends GlobalHTMLAttributes {
   ['datetime']: AttrValue;
 }
-interface HTMLTableRowElementAttributes extends GlobalAttributes {
+interface HTMLTableRowElementAttributes extends GlobalHTMLAttributes {
   ['align']: AttrValue;
   ['bgcolor']: AttrValue;
   ['char']: AttrValue;
   ['charoff']: AttrValue;
   ['valign']: AttrValue;
 }
-interface HTMLTrackElementAttributes extends GlobalAttributes {
+interface HTMLTrackElementAttributes extends GlobalHTMLAttributes {
   ['default']: AttrValue;
   ['kind']: AttrValue;
   ['label']: AttrValue;
   ['src']: AttrValue;
   ['srclang']: AttrValue;
 }
-interface HTMLUListElementAttributes extends GlobalAttributes {
+interface HTMLUListElementAttributes extends GlobalHTMLAttributes {
   ['compact']: AttrValue;
   ['type']: AttrValue;
 }
-interface HTMLVideoElementAttributes extends GlobalAttributes {
+interface HTMLVideoElementAttributes extends GlobalHTMLAttributes {
   ['autoplay']: AttrValue;
   ['controls']: AttrValue;
   ['crossorigin']: AttrValue;
@@ -626,13 +624,19 @@ interface HTMLVideoElementAttributes extends GlobalAttributes {
   ['src']: AttrValue;
   ['width']: AttrValue;
 }
+interface HTMLElementAttributes extends GlobalHTMLAttributes {
+}
+
+/**
+ * @internal
+ * @private - not for use outside of Glint
+ */
 interface GlintHtmlElementAttributesMap {
   ['HTMLAnchorElement']: HTMLAnchorElementAttributes;
   ['HTMLAreaElement']: HTMLAreaElementAttributes;
   ['HTMLAudioElement']: HTMLAudioElementAttributes;
   ['HTMLBaseElement']: HTMLBaseElementAttributes;
   ['HTMLQuoteElement']: HTMLQuoteElementAttributes;
-  ['HTMLBodyElement']: HTMLBodyElementAttributes;
   ['HTMLBRElement']: HTMLBRElementAttributes;
   ['HTMLButtonElement']: HTMLButtonElementAttributes;
   ['HTMLCanvasElement']: HTMLCanvasElementAttributes;
@@ -650,7 +654,6 @@ interface GlintHtmlElementAttributesMap {
   ['HTMLHeadingElement']: HTMLHeadingElementAttributes;
   ['HTMLHeadElement']: HTMLHeadElementAttributes;
   ['HTMLHRElement']: HTMLHRElementAttributes;
-  ['HTMLHtmlElement']: HTMLHtmlElementAttributes;
   ['HTMLIFrameElement']: HTMLIFrameElementAttributes;
   ['HTMLImageElement']: HTMLImageElementAttributes;
   ['HTMLInputElement']: HTMLInputElementAttributes;
@@ -685,11 +688,12 @@ interface GlintHtmlElementAttributesMap {
   ['HTMLTrackElement']: HTMLTrackElementAttributes;
   ['HTMLUListElement']: HTMLUListElementAttributes;
   ['HTMLVideoElement']: HTMLVideoElementAttributes;
+  ['HTMLElement']: HTMLElementAttributes;
 }
 }
 
 declare global {
-interface SVGAElementAttributes extends GlobalAttributes {
+interface SVGAElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -776,7 +780,7 @@ interface SVGAElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGAnimateElementAttributes extends GlobalAttributes {
+interface SVGAnimateElementAttributes extends GlobalSVGAttributes {
   ['accumulate']: AttrValue;
   ['additive']: AttrValue;
   ['alignment-baseline']: AttrValue;
@@ -863,7 +867,7 @@ interface SVGAnimateElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGAnimateMotionElementAttributes extends GlobalAttributes {
+interface SVGAnimateMotionElementAttributes extends GlobalSVGAttributes {
   ['accumulate']: AttrValue;
   ['additive']: AttrValue;
   ['begin']: AttrValue;
@@ -894,7 +898,7 @@ interface SVGAnimateMotionElementAttributes extends GlobalAttributes {
   ['to']: AttrValue;
   ['values']: AttrValue;
 }
-interface SVGAnimateTransformElementAttributes extends GlobalAttributes {
+interface SVGAnimateTransformElementAttributes extends GlobalSVGAttributes {
   ['accumulate']: AttrValue;
   ['additive']: AttrValue;
   ['attributeName']: AttrValue;
@@ -924,7 +928,7 @@ interface SVGAnimateTransformElementAttributes extends GlobalAttributes {
   ['type']: AttrValue;
   ['values']: AttrValue;
 }
-interface SVGCircleElementAttributes extends GlobalAttributes {
+interface SVGCircleElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1008,7 +1012,7 @@ interface SVGCircleElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGClipPathElementAttributes extends GlobalAttributes {
+interface SVGClipPathElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1075,7 +1079,7 @@ interface SVGClipPathElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGDefsElementAttributes extends GlobalAttributes {
+interface SVGDefsElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1141,14 +1145,14 @@ interface SVGDefsElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGDescElementAttributes extends GlobalAttributes {
+interface SVGDescElementAttributes extends GlobalSVGAttributes {
   ['requiredExtensions']: AttrValue;
   ['requiredFeatures']: AttrValue;
   ['requiredFonts']: AttrValue;
   ['requiredFormats']: AttrValue;
   ['systemLanguage']: AttrValue;
 }
-interface SVGEllipseElementAttributes extends GlobalAttributes {
+interface SVGEllipseElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1233,7 +1237,7 @@ interface SVGEllipseElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGFEBlendElementAttributes extends GlobalAttributes {
+interface SVGFEBlendElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1302,7 +1306,7 @@ interface SVGFEBlendElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEColorMatrixElementAttributes extends GlobalAttributes {
+interface SVGFEColorMatrixElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1371,7 +1375,7 @@ interface SVGFEColorMatrixElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEComponentTransferElementAttributes extends GlobalAttributes {
+interface SVGFEComponentTransferElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1438,7 +1442,7 @@ interface SVGFEComponentTransferElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFECompositeElementAttributes extends GlobalAttributes {
+interface SVGFECompositeElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1511,7 +1515,7 @@ interface SVGFECompositeElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEConvolveMatrixElementAttributes extends GlobalAttributes {
+interface SVGFEConvolveMatrixElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['bias']: AttrValue;
@@ -1587,7 +1591,7 @@ interface SVGFEConvolveMatrixElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEDiffuseLightingElementAttributes extends GlobalAttributes {
+interface SVGFEDiffuseLightingElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1657,7 +1661,7 @@ interface SVGFEDiffuseLightingElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEDisplacementMapElementAttributes extends GlobalAttributes {
+interface SVGFEDisplacementMapElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1728,11 +1732,11 @@ interface SVGFEDisplacementMapElementAttributes extends GlobalAttributes {
   ['y']: AttrValue;
   ['yChannelSelector']: AttrValue;
 }
-interface SVGFEDistantLightElementAttributes extends GlobalAttributes {
+interface SVGFEDistantLightElementAttributes extends GlobalSVGAttributes {
   ['azimuth']: AttrValue;
   ['elevation']: AttrValue;
 }
-interface SVGFEDropShadowElementAttributes extends GlobalAttributes {
+interface SVGFEDropShadowElementAttributes extends GlobalSVGAttributes {
   ['dx']: AttrValue;
   ['dy']: AttrValue;
   ['height']: AttrValue;
@@ -1743,7 +1747,7 @@ interface SVGFEDropShadowElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEFloodElementAttributes extends GlobalAttributes {
+interface SVGFEFloodElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1809,7 +1813,7 @@ interface SVGFEFloodElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEFuncAElementAttributes extends GlobalAttributes {
+interface SVGFEFuncAElementAttributes extends GlobalSVGAttributes {
   ['amplitude']: AttrValue;
   ['exponent']: AttrValue;
   ['intercept']: AttrValue;
@@ -1818,7 +1822,7 @@ interface SVGFEFuncAElementAttributes extends GlobalAttributes {
   ['tableValues']: AttrValue;
   ['type']: AttrValue;
 }
-interface SVGFEFuncBElementAttributes extends GlobalAttributes {
+interface SVGFEFuncBElementAttributes extends GlobalSVGAttributes {
   ['amplitude']: AttrValue;
   ['exponent']: AttrValue;
   ['intercept']: AttrValue;
@@ -1827,7 +1831,7 @@ interface SVGFEFuncBElementAttributes extends GlobalAttributes {
   ['tableValues']: AttrValue;
   ['type']: AttrValue;
 }
-interface SVGFEFuncGElementAttributes extends GlobalAttributes {
+interface SVGFEFuncGElementAttributes extends GlobalSVGAttributes {
   ['amplitude']: AttrValue;
   ['exponent']: AttrValue;
   ['intercept']: AttrValue;
@@ -1836,7 +1840,7 @@ interface SVGFEFuncGElementAttributes extends GlobalAttributes {
   ['tableValues']: AttrValue;
   ['type']: AttrValue;
 }
-interface SVGFEFuncRElementAttributes extends GlobalAttributes {
+interface SVGFEFuncRElementAttributes extends GlobalSVGAttributes {
   ['amplitude']: AttrValue;
   ['exponent']: AttrValue;
   ['intercept']: AttrValue;
@@ -1845,7 +1849,7 @@ interface SVGFEFuncRElementAttributes extends GlobalAttributes {
   ['tableValues']: AttrValue;
   ['type']: AttrValue;
 }
-interface SVGFEGaussianBlurElementAttributes extends GlobalAttributes {
+interface SVGFEGaussianBlurElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1914,7 +1918,7 @@ interface SVGFEGaussianBlurElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEImageElementAttributes extends GlobalAttributes {
+interface SVGFEImageElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -1984,7 +1988,7 @@ interface SVGFEImageElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEMergeElementAttributes extends GlobalAttributes {
+interface SVGFEMergeElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2050,10 +2054,10 @@ interface SVGFEMergeElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEMergeNodeElementAttributes extends GlobalAttributes {
+interface SVGFEMergeNodeElementAttributes extends GlobalSVGAttributes {
   ['in']: AttrValue;
 }
-interface SVGFEMorphologyElementAttributes extends GlobalAttributes {
+interface SVGFEMorphologyElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2122,7 +2126,7 @@ interface SVGFEMorphologyElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEOffsetElementAttributes extends GlobalAttributes {
+interface SVGFEOffsetElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2191,12 +2195,12 @@ interface SVGFEOffsetElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFEPointLightElementAttributes extends GlobalAttributes {
+interface SVGFEPointLightElementAttributes extends GlobalSVGAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
   ['z']: AttrValue;
 }
-interface SVGFESpecularLightingElementAttributes extends GlobalAttributes {
+interface SVGFESpecularLightingElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2267,7 +2271,7 @@ interface SVGFESpecularLightingElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFESpotLightElementAttributes extends GlobalAttributes {
+interface SVGFESpotLightElementAttributes extends GlobalSVGAttributes {
   ['limitingConeAngle']: AttrValue;
   ['pointsAtX']: AttrValue;
   ['pointsAtY']: AttrValue;
@@ -2277,7 +2281,7 @@ interface SVGFESpotLightElementAttributes extends GlobalAttributes {
   ['y']: AttrValue;
   ['z']: AttrValue;
 }
-interface SVGFETileElementAttributes extends GlobalAttributes {
+interface SVGFETileElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2344,7 +2348,7 @@ interface SVGFETileElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFETurbulenceElementAttributes extends GlobalAttributes {
+interface SVGFETurbulenceElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseFrequency']: AttrValue;
   ['baseline-shift']: AttrValue;
@@ -2415,7 +2419,7 @@ interface SVGFETurbulenceElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGFilterElementAttributes extends GlobalAttributes {
+interface SVGFilterElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2484,7 +2488,7 @@ interface SVGFilterElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGForeignObjectElementAttributes extends GlobalAttributes {
+interface SVGForeignObjectElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2568,7 +2572,7 @@ interface SVGForeignObjectElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGGElementAttributes extends GlobalAttributes {
+interface SVGGElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2648,7 +2652,7 @@ interface SVGGElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGImageElementAttributes extends GlobalAttributes {
+interface SVGImageElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2736,7 +2740,7 @@ interface SVGImageElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGLineElementAttributes extends GlobalAttributes {
+interface SVGLineElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2821,7 +2825,7 @@ interface SVGLineElementAttributes extends GlobalAttributes {
   ['y1']: AttrValue;
   ['y2']: AttrValue;
 }
-interface SVGLinearGradientElementAttributes extends GlobalAttributes {
+interface SVGLinearGradientElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2891,7 +2895,7 @@ interface SVGLinearGradientElementAttributes extends GlobalAttributes {
   ['y1']: AttrValue;
   ['y2']: AttrValue;
 }
-interface SVGMarkerElementAttributes extends GlobalAttributes {
+interface SVGMarkerElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -2961,7 +2965,7 @@ interface SVGMarkerElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGMaskElementAttributes extends GlobalAttributes {
+interface SVGMaskElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -3032,18 +3036,18 @@ interface SVGMaskElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGMetadataElementAttributes extends GlobalAttributes {
+interface SVGMetadataElementAttributes extends GlobalSVGAttributes {
   ['requiredExtensions']: AttrValue;
   ['requiredFeatures']: AttrValue;
   ['requiredFonts']: AttrValue;
   ['requiredFormats']: AttrValue;
   ['systemLanguage']: AttrValue;
 }
-interface SVGMPathElementAttributes extends GlobalAttributes {
+interface SVGMPathElementAttributes extends GlobalSVGAttributes {
   ['externalResourcesRequired']: AttrValue;
   ['href']: AttrValue;
 }
-interface SVGPathElementAttributes extends GlobalAttributes {
+interface SVGPathElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -3125,7 +3129,7 @@ interface SVGPathElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGPatternElementAttributes extends GlobalAttributes {
+interface SVGPatternElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -3200,7 +3204,7 @@ interface SVGPatternElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGPolygonElementAttributes extends GlobalAttributes {
+interface SVGPolygonElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -3282,7 +3286,7 @@ interface SVGPolygonElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGPolylineElementAttributes extends GlobalAttributes {
+interface SVGPolylineElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -3364,7 +3368,7 @@ interface SVGPolylineElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGRadialGradientElementAttributes extends GlobalAttributes {
+interface SVGRadialGradientElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -3436,7 +3440,7 @@ interface SVGRadialGradientElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGRectElementAttributes extends GlobalAttributes {
+interface SVGRectElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -3523,13 +3527,13 @@ interface SVGRectElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGScriptElementAttributes extends GlobalAttributes {
+interface SVGScriptElementAttributes extends GlobalSVGAttributes {
   ['crossorigin']: AttrValue;
   ['externalResourcesRequired']: AttrValue;
   ['href']: AttrValue;
   ['type']: AttrValue;
 }
-interface SVGSetElementAttributes extends GlobalAttributes {
+interface SVGSetElementAttributes extends GlobalSVGAttributes {
   ['attributeName']: AttrValue;
   ['attributeType']: AttrValue;
   ['begin']: AttrValue;
@@ -3550,7 +3554,7 @@ interface SVGSetElementAttributes extends GlobalAttributes {
   ['systemLanguage']: AttrValue;
   ['to']: AttrValue;
 }
-interface SVGStopElementAttributes extends GlobalAttributes {
+interface SVGStopElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -3612,12 +3616,12 @@ interface SVGStopElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGStyleElementAttributes extends GlobalAttributes {
+interface SVGStyleElementAttributes extends GlobalSVGAttributes {
   ['media']: AttrValue;
   ['title']: AttrValue;
   ['type']: AttrValue;
 }
-interface SVGSVGElementAttributes extends GlobalAttributes {
+interface SVGSVGElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseProfile']: AttrValue;
   ['baseline-shift']: AttrValue;
@@ -3714,7 +3718,7 @@ interface SVGSVGElementAttributes extends GlobalAttributes {
   ['zoomAndPan']: AttrValue;
   ['xmlns']: AttrValue;
 }
-interface SVGSwitchElementAttributes extends GlobalAttributes {
+interface SVGSwitchElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -3794,7 +3798,7 @@ interface SVGSwitchElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGSymbolElementAttributes extends GlobalAttributes {
+interface SVGSymbolElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -3864,7 +3868,7 @@ interface SVGSymbolElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGTextElementAttributes extends GlobalAttributes {
+interface SVGTextElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -3952,7 +3956,7 @@ interface SVGTextElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGTextPathElementAttributes extends GlobalAttributes {
+interface SVGTextPathElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -4025,14 +4029,14 @@ interface SVGTextPathElementAttributes extends GlobalAttributes {
   ['word-spacing']: AttrValue;
   ['writing-mode']: AttrValue;
 }
-interface SVGTitleElementAttributes extends GlobalAttributes {
+interface SVGTitleElementAttributes extends GlobalSVGAttributes {
   ['requiredExtensions']: AttrValue;
   ['requiredFeatures']: AttrValue;
   ['requiredFonts']: AttrValue;
   ['requiredFormats']: AttrValue;
   ['systemLanguage']: AttrValue;
 }
-interface SVGTSpanElementAttributes extends GlobalAttributes {
+interface SVGTSpanElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -4118,7 +4122,7 @@ interface SVGTSpanElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGUseElementAttributes extends GlobalAttributes {
+interface SVGUseElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
   ['clip']: AttrValue;
@@ -4203,13 +4207,19 @@ interface SVGUseElementAttributes extends GlobalAttributes {
   ['x']: AttrValue;
   ['y']: AttrValue;
 }
-interface SVGViewElementAttributes extends GlobalAttributes {
+interface SVGViewElementAttributes extends GlobalSVGAttributes {
   ['externalResourcesRequired']: AttrValue;
   ['preserveAspectRatio']: AttrValue;
   ['viewBox']: AttrValue;
   ['viewTarget']: AttrValue;
   ['zoomAndPan']: AttrValue;
 }
+
+
+/**
+ * @internal
+ * @private - not for use outside of Glint
+ */
 interface GlintSvgElementAttributesMap {
   ['SVGAElement']: SVGAElementAttributes;
   ['SVGAnimateElement']: SVGAnimateElementAttributes;

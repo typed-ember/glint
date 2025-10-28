@@ -202,7 +202,7 @@ If you wish to add attributes to _all_ elements, you may _declaration merge_ the
 import '@glint/template';
 
 declare global {
-  interface GlobalAttributes {
+  interface GlobalHTMLAttributes {
     ['color-scheme']: 'dark' | 'light' | 'synth';
   }
 }
