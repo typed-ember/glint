@@ -632,32 +632,45 @@ interface HTMLElementAttributes extends GlobalHTMLAttributes {
  * @private - not for use outside of Glint
  */
 interface GlintHtmlElementAttributesMap {
-  ['GlobalHTML']: GlobalHTMLAttributes;
   ['HTMLAnchorElement']: HTMLAnchorElementAttributes;
+  ['undefined']: undefinedAttributes;
   ['HTMLAreaElement']: HTMLAreaElementAttributes;
   ['HTMLAudioElement']: HTMLAudioElementAttributes;
   ['HTMLBaseElement']: HTMLBaseElementAttributes;
+  ['undefined']: undefinedAttributes;
   ['HTMLQuoteElement']: HTMLQuoteElementAttributes;
   ['HTMLBRElement']: HTMLBRElementAttributes;
   ['HTMLButtonElement']: HTMLButtonElementAttributes;
   ['HTMLCanvasElement']: HTMLCanvasElementAttributes;
   ['HTMLTableCaptionElement']: HTMLTableCaptionElementAttributes;
   ['HTMLTableColElement']: HTMLTableColElementAttributes;
+  ['HTMLTableColElement']: HTMLTableColElementAttributes;
   ['HTMLDataElement']: HTMLDataElementAttributes;
   ['HTMLModElement']: HTMLModElementAttributes;
   ['HTMLDetailsElement']: HTMLDetailsElementAttributes;
   ['HTMLDialogElement']: HTMLDialogElementAttributes;
+  ['undefined']: undefinedAttributes;
   ['HTMLDivElement']: HTMLDivElementAttributes;
   ['HTMLDListElement']: HTMLDListElementAttributes;
   ['HTMLEmbedElement']: HTMLEmbedElementAttributes;
   ['HTMLFieldSetElement']: HTMLFieldSetElementAttributes;
+  ['undefined']: undefinedAttributes;
   ['HTMLFormElement']: HTMLFormElementAttributes;
+  ['undefined']: undefinedAttributes;
+  ['undefined']: undefinedAttributes;
+  ['HTMLHeadingElement']: HTMLHeadingElementAttributes;
+  ['HTMLHeadingElement']: HTMLHeadingElementAttributes;
+  ['HTMLHeadingElement']: HTMLHeadingElementAttributes;
+  ['HTMLHeadingElement']: HTMLHeadingElementAttributes;
+  ['HTMLHeadingElement']: HTMLHeadingElementAttributes;
   ['HTMLHeadingElement']: HTMLHeadingElementAttributes;
   ['HTMLHeadElement']: HTMLHeadElementAttributes;
   ['HTMLHRElement']: HTMLHRElementAttributes;
   ['HTMLIFrameElement']: HTMLIFrameElementAttributes;
   ['HTMLImageElement']: HTMLImageElementAttributes;
   ['HTMLInputElement']: HTMLInputElementAttributes;
+  ['HTMLModElement']: HTMLModElementAttributes;
+  ['undefined']: undefinedAttributes;
   ['HTMLLabelElement']: HTMLLabelElementAttributes;
   ['HTMLLegendElement']: HTMLLegendElementAttributes;
   ['HTMLLIElement']: HTMLLIElementAttributes;
@@ -672,8 +685,10 @@ interface GlintHtmlElementAttributesMap {
   ['HTMLOptionElement']: HTMLOptionElementAttributes;
   ['HTMLOutputElement']: HTMLOutputElementAttributes;
   ['HTMLParagraphElement']: HTMLParagraphElementAttributes;
+  ['undefined']: undefinedAttributes;
   ['HTMLPreElement']: HTMLPreElementAttributes;
   ['HTMLProgressElement']: HTMLProgressElementAttributes;
+  ['HTMLQuoteElement']: HTMLQuoteElementAttributes;
   ['HTMLScriptElement']: HTMLScriptElementAttributes;
   ['HTMLSelectElement']: HTMLSelectElementAttributes;
   ['HTMLSlotElement']: HTMLSlotElementAttributes;
@@ -684,16 +699,113 @@ interface GlintHtmlElementAttributesMap {
   ['HTMLTableCellElement']: HTMLTableCellElementAttributes;
   ['HTMLTemplateElement']: HTMLTemplateElementAttributes;
   ['HTMLTextAreaElement']: HTMLTextAreaElementAttributes;
+  ['HTMLTableSectionElement']: HTMLTableSectionElementAttributes;
+  ['HTMLTableCellElement']: HTMLTableCellElementAttributes;
+  ['HTMLTableSectionElement']: HTMLTableSectionElementAttributes;
   ['HTMLTimeElement']: HTMLTimeElementAttributes;
   ['HTMLTableRowElement']: HTMLTableRowElementAttributes;
   ['HTMLTrackElement']: HTMLTrackElementAttributes;
   ['HTMLUListElement']: HTMLUListElementAttributes;
   ['HTMLVideoElement']: HTMLVideoElementAttributes;
-  ['HTMLElement']: HTMLElementAttributes;
+  ['HTMLElement']: GlobalHTMLAttributes;
 }
 }
 
 declare global {
+interface GlobalSVGAttributes  {
+  ['about']: AttrValue;
+  ['class']: AttrValue;
+  ['content']: AttrValue;
+  ['datatype']: AttrValue;
+  ['id']: AttrValue;
+  ['lang']: AttrValue;
+  ['property']: AttrValue;
+  ['rel']: AttrValue;
+  ['resource']: AttrValue;
+  ['rev']: AttrValue;
+  ['style']: AttrValue;
+  ['tabindex']: AttrValue;
+  ['typeof']: AttrValue;
+  ['onabort']: AttrValue;
+  ['onactivate']: AttrValue;
+  ['onafterprint']: AttrValue;
+  ['onbeforeprint']: AttrValue;
+  ['onbegin']: AttrValue;
+  ['oncancel']: AttrValue;
+  ['oncanplay']: AttrValue;
+  ['oncanplaythrough']: AttrValue;
+  ['onchange']: AttrValue;
+  ['onclick']: AttrValue;
+  ['onclose']: AttrValue;
+  ['oncopy']: AttrValue;
+  ['oncuechange']: AttrValue;
+  ['oncut']: AttrValue;
+  ['ondblclick']: AttrValue;
+  ['ondrag']: AttrValue;
+  ['ondragend']: AttrValue;
+  ['ondragenter']: AttrValue;
+  ['ondragexit']: AttrValue;
+  ['ondragleave']: AttrValue;
+  ['ondragover']: AttrValue;
+  ['ondragstart']: AttrValue;
+  ['ondrop']: AttrValue;
+  ['ondurationchange']: AttrValue;
+  ['onemptied']: AttrValue;
+  ['onend']: AttrValue;
+  ['onended']: AttrValue;
+  ['onerror']: AttrValue;
+  ['onfocus']: AttrValue;
+  ['onfocusin']: AttrValue;
+  ['onfocusout']: AttrValue;
+  ['onhashchange']: AttrValue;
+  ['oninput']: AttrValue;
+  ['oninvalid']: AttrValue;
+  ['onkeydown']: AttrValue;
+  ['onkeypress']: AttrValue;
+  ['onkeyup']: AttrValue;
+  ['onload']: AttrValue;
+  ['onloadeddata']: AttrValue;
+  ['onloadedmetadata']: AttrValue;
+  ['onloadstart']: AttrValue;
+  ['onmessage']: AttrValue;
+  ['onmousedown']: AttrValue;
+  ['onmouseenter']: AttrValue;
+  ['onmouseleave']: AttrValue;
+  ['onmousemove']: AttrValue;
+  ['onmouseout']: AttrValue;
+  ['onmouseover']: AttrValue;
+  ['onmouseup']: AttrValue;
+  ['onmousewheel']: AttrValue;
+  ['onoffline']: AttrValue;
+  ['ononline']: AttrValue;
+  ['onpagehide']: AttrValue;
+  ['onpageshow']: AttrValue;
+  ['onpaste']: AttrValue;
+  ['onpause']: AttrValue;
+  ['onplay']: AttrValue;
+  ['onplaying']: AttrValue;
+  ['onpopstate']: AttrValue;
+  ['onprogress']: AttrValue;
+  ['onratechange']: AttrValue;
+  ['onrepeat']: AttrValue;
+  ['onreset']: AttrValue;
+  ['onresize']: AttrValue;
+  ['onscroll']: AttrValue;
+  ['onseeked']: AttrValue;
+  ['onseeking']: AttrValue;
+  ['onselect']: AttrValue;
+  ['onshow']: AttrValue;
+  ['onstalled']: AttrValue;
+  ['onstorage']: AttrValue;
+  ['onsubmit']: AttrValue;
+  ['onsuspend']: AttrValue;
+  ['ontimeupdate']: AttrValue;
+  ['ontoggle']: AttrValue;
+  ['onunload']: AttrValue;
+  ['onvolumechange']: AttrValue;
+  ['onwaiting']: AttrValue;
+  ['onzoom']: AttrValue;
+}
 interface SVGAElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
   ['baseline-shift']: AttrValue;
@@ -4215,6 +4327,8 @@ interface SVGViewElementAttributes extends GlobalSVGAttributes {
   ['viewTarget']: AttrValue;
   ['zoomAndPan']: AttrValue;
 }
+interface SVGElementAttributes extends GlobalSVGAttributes {
+}
 
 
 /**
@@ -4285,5 +4399,6 @@ interface GlintSvgElementAttributesMap {
   ['SVGTSpanElement']: SVGTSpanElementAttributes;
   ['SVGUseElement']: SVGUseElementAttributes;
   ['SVGViewElement']: SVGViewElementAttributes;
+  ['SVGElement']: GlobalSVGAttributes;
 }
 }

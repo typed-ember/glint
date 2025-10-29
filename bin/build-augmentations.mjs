@@ -13,7 +13,7 @@ const ast = parse(source, {
   plugins: [['typescript', { dts: true }]],
 });
 
-const elements = new Set();
+const elements = new Set(['SVGElement']);
 traverse(ast, {
   TSInterfaceDeclaration: function (path) {
     if (path.node.id.name === 'HTMLElementTagNameMap') {
@@ -33,8 +33,6 @@ traverse(ast, {
 
 let augmentations = [];
 for (const element of elements) {
-  if (element === 'HTMLElement') continue;
-
   augmentations.push(`
   interface ${element} {
     [GlintSymbol]: '${element}';

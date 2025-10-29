@@ -6,8 +6,18 @@ export const GlintSymbol: unique symbol;
 
 declare global {
 
+  interface SVGElement {
+    [GlintSymbol]: 'SVGElement';
+  }
+
+
   interface HTMLAnchorElement {
     [GlintSymbol]: 'HTMLAnchorElement';
+  }
+
+
+  interface HTMLElement {
+    [GlintSymbol]: 'HTMLElement';
   }
 
 

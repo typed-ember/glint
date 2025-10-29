@@ -27,11 +27,16 @@ type WithDataAttributes<T> = T & Record<`data-${string}`, AttrValue>;
 
 export type AttributesForElement<
   Elem extends Element,
-  K = Elem extends { [GlintSymbol]: string } ? Elem[typeof GlintSymbol] : never,
-> = K extends keyof GlintHtmlElementAttributesMap
-  ? WithDataAttributes<GlintHtmlElementAttributesMap[K]>
-  : K extends keyof GlintSvgElementAttributesMap
-    ? WithDataAttributes<GlintSvgElementAttributesMap[K]>
-    : K extends keyof GlintSvgElementAttributesMap
+  K = Elem extends { [GlintSymbol]: string }
+    ? Elem[typeof GlintSymbol]
+    : 'Could not determine element type',
+> =
+  // Is K in the HTML attributes map?
+  K extends keyof GlintHtmlElementAttributesMap
+    ? WithDataAttributes<GlintHtmlElementAttributesMap[K]>
+    : // Or is K in the SVG attributes map?
+      K extends keyof GlintSvgElementAttributesMap
       ? WithDataAttributes<GlintSvgElementAttributesMap[K]>
-      : Record<string, AttrValue>;
+      : // If the element can't be found: fallback to just allow general AttrValue
+        // NOTE: MathML has no attributes
+        Record<string, AttrValue>;
