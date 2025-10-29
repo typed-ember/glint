@@ -6,23 +6,22 @@ type Registry = GlintElementRegistry;
 
 /**
  * This doesn't generate _totally_ unique mappings, but they all have the same attributes.
- * 
+ *
  * For example, given T = HTMLDivElement,
  * we get back:
  *   - "HTMLTableCaptionElement"
  *     | "HTMLDivElement"
  *     | "HTMLHeadingElement"
  *     | "HTMLParagraphElement"
- * 
+ *
  * And for the purposes of attribute lookup, that's good enough.
  */
 type Lookup<T> = {
-  [K in keyof Registry]:
-    [Registry[K]] extends [T]        // check assignability in one direction
-      ? [T] extends [Registry[K]]    // and in the other
-        ? K                          // if both true, exact match
-        : never
+  [K in keyof Registry]: [Registry[K]] extends [T] // check assignability in one direction
+    ? [T] extends [Registry[K]] // and in the other
+      ? K // if both true, exact match
       : never
+    : never;
 }[keyof Registry];
 
 /**
@@ -48,10 +47,7 @@ export type MathMlElementForTagName<Name extends string> =
 
 type WithDataAttributes<T> = T & Record<`data-${string}`, AttrValue>;
 
-export type AttributesForElement<
-  Elem extends Element,
-  K = Lookup<Elem>
-> =
+export type AttributesForElement<Elem extends Element, K = Lookup<Elem>> =
   // Is K in the HTML attributes map?
   K extends keyof GlintHtmlElementAttributesMap
     ? WithDataAttributes<GlintHtmlElementAttributesMap[K]>
