@@ -3,10 +3,12 @@ import {
   requestLanguageServerDiagnostics,
   requestTsserverDiagnostics,
   teardownSharedTestWorkspaceAfterEach,
+  ensureNoOpenDocuments,
 } from 'glint-monorepo-test-utils';
-import { afterEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
 describe('Language Server: Diagnostics (ts plugin)', () => {
+  beforeEach(ensureNoOpenDocuments);
   afterEach(teardownSharedTestWorkspaceAfterEach);
 
   test('reports diagnostics for an inline template type error', async () => {
@@ -811,7 +813,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "original": {},
             "pluginIndex": 3,
             "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/test-packages/ts-template-imports-app/src/empty-fixture.gts",
-            "version": 1,
+            "version": 0,
           },
           "message": "Unexpected token \`<lexing error: Error { error: (Span { lo: BytePos(142), hi: BytePos(142), ctxt: #0 }, Eof) }>\`. Expected content tag
 
@@ -902,7 +904,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "line": 27,
             "offset": 25,
           },
-          "text": "Object literal may only specify known properties, and 'foo' does not exist in type 'Partial<WithDataAttributes<HTMLDivElementAttributes>>'.",
+          "text": "Object literal may only specify known properties, and 'foo' does not exist in type 'Partial<AttributesForElement<HTMLDivElement>>'.",
         },
       ]
     `);

@@ -1,3 +1,6 @@
+/**
+ * Ideally TS would provide this information to us, but it does not.
+ */
 import { htmlElementAttributes } from 'html-element-attributes';
 import { svgElementAttributes } from 'svg-element-attributes';
 import { ariaAttributes } from 'aria-attributes';
@@ -18,9 +21,15 @@ const ast = parse(source, {
   plugins: [['typescript', { dts: true }]],
 });
 
+/**
+ * These elements are not specifyable by userland ember/glimmer and don't need typing
+ */
+const SKIP = new Set(['html', 'body']);
+
 // Ember allow setting both attributes and properties for HTML elements, {html,svg}-element-attributes only provides
 // attributes.
-const htmlElementProperties = new Map([
+const runtimeAdditionalProperties = new Map([
+  ['HTMLElement', new Map()],
   [
     'HTMLSelectElement',
     new Map([
@@ -33,9 +42,12 @@ const htmlElementProperties = new Map([
   ['SVGSVGElement', new Map([['xmlns', 'AttrValue']])],
 ]);
 
-const htmlElementsMap = new Map();
-const svgElementsMap = new Map();
+const GLOBAL_HTML_ATTRIBUTES_NAME = 'GlobalHTMLAttributes';
+const GLOBAL_SVG_ATTRIBUTES_NAME = 'GlobalSVGAttributes';
+const htmlElementsMap = new Map([[GLOBAL_HTML_ATTRIBUTES_NAME, 'HTMLElement']]);
+const svgElementsMap = new Map([[GLOBAL_SVG_ATTRIBUTES_NAME, 'SVGElement']]);
 const mathmlElementsMap = new Map();
+
 traverse(ast, {
   TSInterfaceDeclaration: function (path) {
     if (path.node.id.name === 'HTMLElementTagNameMap') {
@@ -62,34 +74,37 @@ traverse(ast, {
 function createHtmlElementsAttributesMap() {
   let htmlElementsContent = `
 import { AttrValue } from '../index';
-export declare namespace HtmlElementAttributes {
+
+declare global {
 `;
   const processed = new Set();
 
-  let mergedHtmlElements = 'interface HtmlElements {\n';
-  Object.entries(htmlElementAttributes).forEach(([name, keys]) => {
-    if (name === '*') {
-      name = 'GenericAttributes';
-      htmlElementsMap.set(name, 'Generic');
-    }
-    const type = htmlElementsMap.get(name);
+  let mergedHtmlElements = `
+/**
+ * @internal
+ * @private - not for use outside of Glint
+ */
+interface GlintHtmlElementAttributesMap {\n`;
+
+  function emitAttributeInterface(type, keys, name) {
     if (!type || processed.has(type)) return;
     processed.add(type);
     const interfaceName = type + 'Attributes';
-    const extend = name === 'GenericAttributes' ? '' : 'extends GenericAttributes';
+    const extend =
+      name === GLOBAL_HTML_ATTRIBUTES_NAME ? '' : `extends ${GLOBAL_HTML_ATTRIBUTES_NAME}`;
     htmlElementsContent += `interface ${interfaceName} ${extend} {\n`;
     keys.forEach((k) => {
       htmlElementsContent += `  ['${k}']: AttrValue;\n`;
     });
 
-    const properties = htmlElementProperties.get(type);
+    const properties = runtimeAdditionalProperties.get(type);
     if (properties) {
       properties.forEach((value, property) => {
         htmlElementsContent += `  ['${property}']: ${value};\n`;
       });
     }
 
-    if (name === 'GenericAttributes') {
+    if (name === GLOBAL_HTML_ATTRIBUTES_NAME) {
       ariaAttributes.forEach((k) => {
         htmlElementsContent += `  ['${k}']: AttrValue;\n`;
       });
@@ -98,8 +113,33 @@ export declare namespace HtmlElementAttributes {
       });
     }
     htmlElementsContent += '}\n';
+  }
+
+  function addMapEntry(type) {
+    const interfaceName =
+      type === 'HTMLElement' ? GLOBAL_HTML_ATTRIBUTES_NAME : type + 'Attributes';
     mergedHtmlElements += `  ['${type}']: ${interfaceName};\n`;
+  }
+
+  Object.entries(htmlElementAttributes).forEach(([name, keys]) => {
+    if (name === '*') {
+      name = GLOBAL_HTML_ATTRIBUTES_NAME;
+      htmlElementsMap.set(name, 'GlobalHTML');
+    }
+    if (SKIP.has(name)) return;
+    const type = htmlElementsMap.get(name);
+
+    if (!type) return;
+
+    emitAttributeInterface(type, keys, name);
+
+    // Not an element, but we use this prefix for attributes
+    if (type === 'GlobalHTML') return;
+
+    addMapEntry(type);
   });
+  emitAttributeInterface('HTMLElement', [], 'HTMLElement');
+  addMapEntry('HTMLElement');
 
   mergedHtmlElements += `}\n`;
 
@@ -109,42 +149,64 @@ export declare namespace HtmlElementAttributes {
 
 function createSvgElementAttributesMap() {
   let svgElementsContent = `
-export declare namespace SvgElementAttributes {
-  type GenericAttributes = HtmlElementAttributes.GenericAttributes;
+declare global {
 `;
-  const processed = new Set();
-  let mergedSvgElements = 'interface SvgElements {\n';
-  Object.entries(svgElementAttributes).forEach(([name, keys]) => {
-    if (name === '*') {
-      name = 'GenericAttributes';
-    }
-    const type = svgElementsMap.get(name);
-    if (!type || processed.has(type)) {
-      return;
-    }
-    processed.add(type);
+  let mergedSvgElements = `
+
+/**
+ * @internal
+ * @private - not for use outside of Glint
+ */
+interface GlintSvgElementAttributesMap {\n`;
+
+  function emitAttributeInterface(type, keys, name) {
     const interfaceName = type + 'Attributes';
-    const extend = name === 'GenericAttributes' ? '' : 'extends GenericAttributes';
+    const extend =
+      name === GLOBAL_SVG_ATTRIBUTES_NAME ? '' : `extends ${GLOBAL_SVG_ATTRIBUTES_NAME}`;
     svgElementsContent += `interface ${interfaceName} ${extend} {\n`;
     keys.forEach((k) => {
       svgElementsContent += `  ['${k}']: AttrValue;\n`;
     });
 
-    const properties = htmlElementProperties.get(type);
+    const properties = runtimeAdditionalProperties.get(type);
     if (properties) {
       properties.forEach((value, property) => {
         svgElementsContent += `  ['${property}']: ${value};\n`;
       });
     }
 
-    if (name === 'GenericAttributes') {
+    if (name === GLOBAL_SVG_ATTRIBUTES_NAME) {
       svgEventAttributes.forEach((k) => {
         svgElementsContent += `  ['${k}']: AttrValue;\n`;
       });
     }
-    mergedSvgElements += `  ['${type}']: ${interfaceName};\n`;
     svgElementsContent += `}\n`;
+  }
+
+  function addMapEntry(type) {
+    const interfaceName = type === 'SVGElement' ? GLOBAL_SVG_ATTRIBUTES_NAME : type + 'Attributes';
+
+    mergedSvgElements += `  ['${type}']: ${interfaceName};\n`;
+  }
+
+  Object.entries(svgElementAttributes).forEach(([name, keys]) => {
+    if (name === '*') {
+      name = GLOBAL_SVG_ATTRIBUTES_NAME;
+      svgElementsMap.set(name, 'GlobalSVG');
+    }
+    const type = svgElementsMap.get(name);
+
+    if (!type) return;
+
+    emitAttributeInterface(type, keys, name);
+
+    // Not an element, but we use this prefix for attributes
+    if (type === 'GlobalSVG') return;
+
+    addMapEntry(type);
   });
+  emitAttributeInterface('SVGElement', [], 'SVGElement');
+  addMapEntry('SVGElement');
 
   mergedSvgElements += `}\n`;
   svgElementsContent += mergedSvgElements + '}\n';

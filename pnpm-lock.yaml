@@ -46,8 +46,8 @@ importers:
         specifier: ^10.2.4
         version: 10.4.5
       html-element-attributes:
-        specifier: ^3.3.0
-        version: 3.4.0
+        specifier: ^3.5.0
+        version: 3.5.0
       html-event-attributes:
         specifier: ^2.2.0
         version: 2.2.0
@@ -5336,6 +5336,9 @@ packages:
 
   html-element-attributes@3.4.0:
     resolution: {integrity: sha512-u76G07278nacmHiSKs1yxbB2se0aiuQH8uJidyDMc6har3HRpFAR/sDKrZR426p03vu7QuvPAcaLMhp4kWcRbg==}
+
+  html-element-attributes@3.5.0:
+    resolution: {integrity: sha512-rU2BFhp0kQla9sqPBI46C+zbP6PFOtD7z6XNAJ6as+cGecCDXLx0W3aIs6XdPLmBBG/Fy1meRi/n65Exofz4Qw==}
 
   html-encoding-sniffer@4.0.0:
     resolution: {integrity: sha512-Y22oTqIU4uuPgEemfz7NDJz6OeKf12Lsu+QC+s3BVpda64lTiMYCyGwg5ki4vFxkMwQdeZDl2adZoqUgdFuTgQ==}
@@ -15172,6 +15175,8 @@ snapshots:
       lru-cache: 10.4.3
 
   html-element-attributes@3.4.0: {}
+
+  html-element-attributes@3.5.0: {}
 
   html-encoding-sniffer@4.0.0:
     dependencies:

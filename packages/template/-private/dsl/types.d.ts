@@ -1,6 +1,28 @@
-import { HtmlElementAttributes, SvgElementAttributes } from './elements';
+import './elements';
 import { AttrValue } from '../index';
-import { GlintSymbol } from './lib.dom.augmentation';
+import { GlintElementRegistry } from './lib.dom.augmentation';
+
+type Registry = GlintElementRegistry;
+
+/**
+ * This doesn't generate _totally_ unique mappings, but they all have the same attributes.
+ *
+ * For example, given T = HTMLDivElement,
+ * we get back:
+ *   - "HTMLTableCaptionElement"
+ *     | "HTMLDivElement"
+ *     | "HTMLHeadingElement"
+ *     | "HTMLParagraphElement"
+ *
+ * And for the purposes of attribute lookup, that's good enough.
+ */
+type Lookup<T> = {
+  [K in keyof Registry]: [Registry[K]] extends [T] // check assignability in one direction
+    ? [T] extends [Registry[K]] // and in the other
+      ? K // if both true, exact match
+      : never
+    : never;
+}[keyof Registry];
 
 /**
  * A utility for constructing the type of an environment's `resolveOrReturn` from
@@ -25,13 +47,13 @@ export type MathMlElementForTagName<Name extends string> =
 
 type WithDataAttributes<T> = T & Record<`data-${string}`, AttrValue>;
 
-export type AttributesForElement<
-  Elem extends Element,
-  K = Elem extends { [GlintSymbol]: string } ? Elem[typeof GlintSymbol] : never,
-> = K extends keyof HtmlElementAttributes.HtmlElements
-  ? WithDataAttributes<HtmlElementAttributes.HtmlElements[K]>
-  : K extends keyof SvgElementAttributes.SvgElements
-    ? WithDataAttributes<SvgElementAttributes.SvgElements[K]>
-    : K extends keyof SvgElementAttributes.SvgElements
-      ? WithDataAttributes<SvgElementAttributes.SvgElements[K]>
-      : Record<string, AttrValue>;
+export type AttributesForElement<Elem extends Element, K = Lookup<Elem>> =
+  // Is K in the HTML attributes map?
+  K extends keyof GlintHtmlElementAttributesMap
+    ? WithDataAttributes<GlintHtmlElementAttributesMap[K]>
+    : // Or is K in the SVG attributes map?
+      K extends keyof GlintSvgElementAttributesMap
+      ? WithDataAttributes<GlintSvgElementAttributesMap[K]>
+      : // If the element can't be found: fallback to just allow general AttrValue
+        // NOTE: MathML has no attributes
+        Record<string, AttrValue>;
