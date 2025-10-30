@@ -1,0 +1,11 @@
+{
+  "extends": "@tsconfig/ember",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["ember-source/types"]
+  },
+  "include": ["src", "types"],
+  "glint": {
+    "additionalGlobals": ["t"]
+  }
+}
