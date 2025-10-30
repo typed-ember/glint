@@ -1,7 +1,7 @@
 import '@glint/template';
 
 declare global {
-    interface HTMLStyleAttributes {
+    interface HTMLStyleElementAttributes {
         scoped: '';
         inline: '';
     }
