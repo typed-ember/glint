@@ -4,38 +4,7 @@
 import { AttrValue } from '../index';
 
 declare global {
-interface GlobalHTMLAttributes  {
-  ['accesskey']: AttrValue;
-  ['autocapitalize']: AttrValue;
-  ['autocorrect']: AttrValue;
-  ['autofocus']: AttrValue;
-  ['class']: AttrValue;
-  ['contenteditable']: AttrValue;
-  ['dir']: AttrValue;
-  ['draggable']: AttrValue;
-  ['enterkeyhint']: AttrValue;
-  ['exportparts']: AttrValue;
-  ['hidden']: AttrValue;
-  ['id']: AttrValue;
-  ['inert']: AttrValue;
-  ['inputmode']: AttrValue;
-  ['is']: AttrValue;
-  ['itemid']: AttrValue;
-  ['itemprop']: AttrValue;
-  ['itemref']: AttrValue;
-  ['itemscope']: AttrValue;
-  ['itemtype']: AttrValue;
-  ['lang']: AttrValue;
-  ['nonce']: AttrValue;
-  ['part']: AttrValue;
-  ['popover']: AttrValue;
-  ['slot']: AttrValue;
-  ['spellcheck']: AttrValue;
-  ['style']: AttrValue;
-  ['tabindex']: AttrValue;
-  ['title']: AttrValue;
-  ['translate']: AttrValue;
-  ['writingsuggestions']: AttrValue;
+interface GlobalAriaAttributes {
   ['aria-activedescendant']: AttrValue;
   ['aria-atomic']: AttrValue;
   ['aria-autocomplete']: AttrValue;
@@ -85,6 +54,39 @@ interface GlobalHTMLAttributes  {
   ['aria-valuenow']: AttrValue;
   ['aria-valuetext']: AttrValue;
   ['role']: AttrValue;
+}
+interface GlobalHTMLAttributes extends GlobalAriaAttributes {
+  ['accesskey']: AttrValue;
+  ['autocapitalize']: AttrValue;
+  ['autocorrect']: AttrValue;
+  ['autofocus']: AttrValue;
+  ['class']: AttrValue;
+  ['contenteditable']: AttrValue;
+  ['dir']: AttrValue;
+  ['draggable']: AttrValue;
+  ['enterkeyhint']: AttrValue;
+  ['exportparts']: AttrValue;
+  ['hidden']: AttrValue;
+  ['id']: AttrValue;
+  ['inert']: AttrValue;
+  ['inputmode']: AttrValue;
+  ['is']: AttrValue;
+  ['itemid']: AttrValue;
+  ['itemprop']: AttrValue;
+  ['itemref']: AttrValue;
+  ['itemscope']: AttrValue;
+  ['itemtype']: AttrValue;
+  ['lang']: AttrValue;
+  ['nonce']: AttrValue;
+  ['part']: AttrValue;
+  ['popover']: AttrValue;
+  ['slot']: AttrValue;
+  ['spellcheck']: AttrValue;
+  ['style']: AttrValue;
+  ['tabindex']: AttrValue;
+  ['title']: AttrValue;
+  ['translate']: AttrValue;
+  ['writingsuggestions']: AttrValue;
   ['onabort']: AttrValue;
   ['onafterprint']: AttrValue;
   ['onauxclick']: AttrValue;
@@ -704,7 +706,7 @@ interface GlintHtmlElementAttributesMap {
 }
 
 declare global {
-interface GlobalSVGAttributes  {
+interface GlobalSVGAttributes extends GlobalAriaAttributes {
   ['about']: AttrValue;
   ['class']: AttrValue;
   ['content']: AttrValue;
@@ -718,55 +720,6 @@ interface GlobalSVGAttributes  {
   ['style']: AttrValue;
   ['tabindex']: AttrValue;
   ['typeof']: AttrValue;
-  ['aria-activedescendant']: AttrValue;
-  ['aria-atomic']: AttrValue;
-  ['aria-autocomplete']: AttrValue;
-  ['aria-busy']: AttrValue;
-  ['aria-checked']: AttrValue;
-  ['aria-colcount']: AttrValue;
-  ['aria-colindex']: AttrValue;
-  ['aria-colspan']: AttrValue;
-  ['aria-controls']: AttrValue;
-  ['aria-current']: AttrValue;
-  ['aria-describedby']: AttrValue;
-  ['aria-details']: AttrValue;
-  ['aria-disabled']: AttrValue;
-  ['aria-dropeffect']: AttrValue;
-  ['aria-errormessage']: AttrValue;
-  ['aria-expanded']: AttrValue;
-  ['aria-flowto']: AttrValue;
-  ['aria-grabbed']: AttrValue;
-  ['aria-haspopup']: AttrValue;
-  ['aria-hidden']: AttrValue;
-  ['aria-invalid']: AttrValue;
-  ['aria-keyshortcuts']: AttrValue;
-  ['aria-label']: AttrValue;
-  ['aria-labelledby']: AttrValue;
-  ['aria-level']: AttrValue;
-  ['aria-live']: AttrValue;
-  ['aria-modal']: AttrValue;
-  ['aria-multiline']: AttrValue;
-  ['aria-multiselectable']: AttrValue;
-  ['aria-orientation']: AttrValue;
-  ['aria-owns']: AttrValue;
-  ['aria-placeholder']: AttrValue;
-  ['aria-posinset']: AttrValue;
-  ['aria-pressed']: AttrValue;
-  ['aria-readonly']: AttrValue;
-  ['aria-relevant']: AttrValue;
-  ['aria-required']: AttrValue;
-  ['aria-roledescription']: AttrValue;
-  ['aria-rowcount']: AttrValue;
-  ['aria-rowindex']: AttrValue;
-  ['aria-rowspan']: AttrValue;
-  ['aria-selected']: AttrValue;
-  ['aria-setsize']: AttrValue;
-  ['aria-sort']: AttrValue;
-  ['aria-valuemax']: AttrValue;
-  ['aria-valuemin']: AttrValue;
-  ['aria-valuenow']: AttrValue;
-  ['aria-valuetext']: AttrValue;
-  ['role']: AttrValue;
   ['onabort']: AttrValue;
   ['onactivate']: AttrValue;
   ['onafterprint']: AttrValue;
