@@ -255,3 +255,9 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
     xmlns: 'ok',
   });
 }
+
+{
+  applyAttributes(new SVGSVGElement(), {
+    role: 'presentation',
+  });
+}

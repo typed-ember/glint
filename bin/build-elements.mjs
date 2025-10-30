@@ -176,6 +176,9 @@ interface GlintSvgElementAttributesMap {\n`;
     }
 
     if (name === GLOBAL_SVG_ATTRIBUTES_NAME) {
+      ariaAttributes.forEach((k) => {
+        svgElementsContent += `  ['${k}']: AttrValue;\n`;
+      });
       svgEventAttributes.forEach((k) => {
         svgElementsContent += `  ['${k}']: AttrValue;\n`;
       });
