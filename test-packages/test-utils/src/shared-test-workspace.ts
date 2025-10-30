@@ -161,13 +161,43 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
 
 const openedDocuments: TextDocument[] = [];
 
-export async function teardownSharedTestWorkspaceAfterEach(): Promise<void> {
-  const server = await getSharedTestWorkspaceHelper();
-  for (const document of openedDocuments) {
-    await server.close(document.uri);
+export async function ensureNoOpenDocuments(): Promise<void> {
+  if (!serverHandle) {
+    return;
   }
+
+  for (const document of openedDocuments) {
+    await serverHandle.closeTextDocument(document.uri);
+  }
+
   openedDocuments.length = 0;
+}
+
+export async function teardownSharedTestWorkspaceAfterEach(): Promise<void> {
+  if (serverHandle) {
+    ensureNoOpenDocuments();
+
+    // Shut down the language server to reset its internal state (including document versions)
+    await serverHandle.shutdown();
+    serverHandle.connection.dispose();
+    serverHandle.process.kill();
+
+    // Clear the server handle so a fresh one is created next time
+    serverHandle = undefined;
+  }
+
+  // Reset event handler
   eventHandler = undefined;
+
+  // Reset sequence counter for tsserver
+  seq = 1;
+
+  // Terminate and clear tsserver
+  if (tsserver) {
+    tsserver.kill();
+    // @ts-expect-error - reset for next test
+    tsserver = undefined;
+  }
 }
 
 export async function prepareDocument(
