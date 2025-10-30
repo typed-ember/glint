@@ -102,7 +102,9 @@ interface GlintHtmlElementAttributesMap {\n`;
     processed.add(type);
     const interfaceName = type + 'Attributes';
     const extend =
-      name === GLOBAL_HTML_ATTRIBUTES_NAME ? 'extends GlobalAriaAttributes' : `extends ${GLOBAL_HTML_ATTRIBUTES_NAME}`;
+      name === GLOBAL_HTML_ATTRIBUTES_NAME
+        ? 'extends GlobalAriaAttributes'
+        : `extends ${GLOBAL_HTML_ATTRIBUTES_NAME}`;
     htmlElementsContent += `interface ${interfaceName} ${extend} {\n`;
     keys.forEach((k) => {
       htmlElementsContent += `  ['${k}']: AttrValue;\n`;
@@ -170,7 +172,9 @@ interface GlintSvgElementAttributesMap {\n`;
   function emitAttributeInterface(type, keys, name) {
     const interfaceName = type + 'Attributes';
     const extend =
-      name === GLOBAL_SVG_ATTRIBUTES_NAME ? 'extends GlobalAriaAttributes' : `extends ${GLOBAL_SVG_ATTRIBUTES_NAME}`;
+      name === GLOBAL_SVG_ATTRIBUTES_NAME
+        ? 'extends GlobalAriaAttributes'
+        : `extends ${GLOBAL_SVG_ATTRIBUTES_NAME}`;
     svgElementsContent += `interface ${interfaceName} ${extend} {\n`;
     keys.forEach((k) => {
       svgElementsContent += `  ['${k}']: AttrValue;\n`;
