@@ -129,6 +129,8 @@ interface GlintHtmlElementAttributesMap {\n`;
     if (SKIP.has(name)) return;
     const type = htmlElementsMap.get(name);
 
+    if (!type) return;
+
     emitAttributeInterface(type, keys, name);
 
     // Not an element, but we use this prefix for attributes

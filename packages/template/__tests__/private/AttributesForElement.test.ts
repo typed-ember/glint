@@ -1,5 +1,21 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { expectTypeOf } from 'expect-type';
 import type { AttributesForElement } from '../../-private/dsl';
+
+/**
+ * Protect against accidental undefined showing up in the generated maps
+ */
+{
+  // This can happen if we mess up the "type" in bin/build-elements.mjs
+  // @ts-expect-error
+  type X = GlintHtmlElementAttributesMap['undefined'];
+
+  // This can happen if we mess up the "type" in bin/build-elements.mjs
+  // @ts-expect-error
+  type Y = GlintSvgElementAttributesMap['undefined'];
+}
 
 /**
  * HTMLElement
