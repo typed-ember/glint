@@ -46,11 +46,11 @@ Glint V2 extension is provided as a sibling extension rather than an upgrade to 
 
 NOTE: you must only enable Glint V1 (which has a blue icon) or Glint V2 (orange icon) within a VSCode (or Cursor) workspace. If Glint V2 extension detects that V1 extension is enabled, it'll fail on a startup with a helpful message.
 
-Many teams that still depend on Handlebars templates but increasingly use .gts/.gjs my find it a suitable workflow to use Glint V2 VSCode extension while continuing to rely on V1 `glint` within CI to ensure that nothing was broken within Handlebars templates (but all teams are encouraged to use automated tooling and codemods to migrate to .gts / .gjs as soon as possible).
+Many teams that still depend on Handlebars templates but increasingly use .gts/.gjs may find it a suitable workflow to use Glint V2 VSCode extension while continuing to rely on V1 `glint` within CI to ensure that nothing was broken within Handlebars templates (but all teams are encouraged to use automated tooling and codemods to migrate to .gts / .gjs as soon as possible).
 
 # Removing V1 Glint
 
-## Step 1: remove v1 dependencies
+## Step 1: Remove v1 dependencies
 
 The following package dependencies can be removed
 
@@ -60,7 +60,7 @@ The following package dependencies can be removed
 
 Also, search your codebase and remove any ambient imports from the above environment packages.
 
-## Step 2: remove or adjust the `"glint"` configuartion in `tsconfig.json`
+## Step 2: Remove or adjust the `"glint"` configuration in `tsconfig.json`
 
 Glint V2 actually does NOT require a `"glint"` config object in `tsconfig.json`.
 
@@ -77,7 +77,7 @@ If your `"glint"` config looks something like
 
 then you can remove the entire `"glint"` config object.
 
-However, if your `"glint"` config lookgs like this
+However, if your `"glint"` config looks like this
 ```
 {
   "compilerOptions": { ... },
