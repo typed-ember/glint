@@ -1,5 +1,28 @@
 # Changelog
 
+## Release (2025-10-30)
+
+* @glint/ember-tsc 1.0.5 (patch)
+* @glint/template 1.7.0 (minor)
+* @glint/tsserver-plugin 2.0.5 (patch)
+
+#### :rocket: Enhancement
+* `@glint/template`
+  * [#1005](https://github.com/typed-ember/glint/pull/1005) Make element attributes extensible, fix unneeded element-type branding ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#1005](https://github.com/typed-ember/glint/pull/1005) Make element attributes extensible, fix unneeded element-type branding ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :memo: Documentation
+* [#1006](https://github.com/typed-ember/glint/pull/1006) Fix typos and formatting in v2-upgrade.md ([@evoactivity](https://github.com/evoactivity))
+* [#1003](https://github.com/typed-ember/glint/pull/1003) fix README.md glint v2 docs link ([@vlascik](https://github.com/vlascik))
+
+#### Committers: 3
+- Liam Potter ([@evoactivity](https://github.com/evoactivity))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+- [@vlascik](https://github.com/vlascik)
+
 ## Release (2025-10-17)
 
 * @glint/ember-tsc 1.0.4 (patch)
