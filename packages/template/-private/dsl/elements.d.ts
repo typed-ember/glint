@@ -633,11 +633,9 @@ interface HTMLElementAttributes extends GlobalHTMLAttributes {
  */
 interface GlintHtmlElementAttributesMap {
   ['HTMLAnchorElement']: HTMLAnchorElementAttributes;
-  ['undefined']: undefinedAttributes;
   ['HTMLAreaElement']: HTMLAreaElementAttributes;
   ['HTMLAudioElement']: HTMLAudioElementAttributes;
   ['HTMLBaseElement']: HTMLBaseElementAttributes;
-  ['undefined']: undefinedAttributes;
   ['HTMLQuoteElement']: HTMLQuoteElementAttributes;
   ['HTMLBRElement']: HTMLBRElementAttributes;
   ['HTMLButtonElement']: HTMLButtonElementAttributes;
@@ -649,15 +647,11 @@ interface GlintHtmlElementAttributesMap {
   ['HTMLModElement']: HTMLModElementAttributes;
   ['HTMLDetailsElement']: HTMLDetailsElementAttributes;
   ['HTMLDialogElement']: HTMLDialogElementAttributes;
-  ['undefined']: undefinedAttributes;
   ['HTMLDivElement']: HTMLDivElementAttributes;
   ['HTMLDListElement']: HTMLDListElementAttributes;
   ['HTMLEmbedElement']: HTMLEmbedElementAttributes;
   ['HTMLFieldSetElement']: HTMLFieldSetElementAttributes;
-  ['undefined']: undefinedAttributes;
   ['HTMLFormElement']: HTMLFormElementAttributes;
-  ['undefined']: undefinedAttributes;
-  ['undefined']: undefinedAttributes;
   ['HTMLHeadingElement']: HTMLHeadingElementAttributes;
   ['HTMLHeadingElement']: HTMLHeadingElementAttributes;
   ['HTMLHeadingElement']: HTMLHeadingElementAttributes;
@@ -670,7 +664,6 @@ interface GlintHtmlElementAttributesMap {
   ['HTMLImageElement']: HTMLImageElementAttributes;
   ['HTMLInputElement']: HTMLInputElementAttributes;
   ['HTMLModElement']: HTMLModElementAttributes;
-  ['undefined']: undefinedAttributes;
   ['HTMLLabelElement']: HTMLLabelElementAttributes;
   ['HTMLLegendElement']: HTMLLegendElementAttributes;
   ['HTMLLIElement']: HTMLLIElementAttributes;
@@ -685,7 +678,6 @@ interface GlintHtmlElementAttributesMap {
   ['HTMLOptionElement']: HTMLOptionElementAttributes;
   ['HTMLOutputElement']: HTMLOutputElementAttributes;
   ['HTMLParagraphElement']: HTMLParagraphElementAttributes;
-  ['undefined']: undefinedAttributes;
   ['HTMLPreElement']: HTMLPreElementAttributes;
   ['HTMLProgressElement']: HTMLProgressElementAttributes;
   ['HTMLQuoteElement']: HTMLQuoteElementAttributes;
