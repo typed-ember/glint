@@ -1,5 +1,3 @@
-//import './dsl/types';
-
 import {
   ComponentReturn,
   AnyFunction,
