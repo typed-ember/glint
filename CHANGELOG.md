@@ -2,6 +2,19 @@
 
 ## Release (2025-10-31)
 
+* @glint/ember-tsc 1.0.7 (patch)
+* @glint/template 1.7.2 (patch)
+* @glint/tsserver-plugin 2.0.7 (patch)
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#1013](https://github.com/typed-ember/glint/pull/1013) Changed GlobalSVGAttributes to extend GlobalHTMLAttributes instead of just GlobalAriaAttributes ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- [@johanrd](https://github.com/johanrd)
+
+## Release (2025-10-31)
+
 * @glint/ember-tsc 1.0.6 (patch)
 * @glint/template 1.7.1 (patch)
 * @glint/tsserver-plugin 2.0.6 (patch)

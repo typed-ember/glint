@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.0.5",
-      "newVersion": "1.0.6",
+      "oldVersion": "1.0.6",
+      "newVersion": "1.0.7",
       "tagName": "latest",
       "constraints": [
         {
@@ -15,8 +15,8 @@
     },
     "@glint/template": {
       "impact": "patch",
-      "oldVersion": "1.7.0",
-      "newVersion": "1.7.1",
+      "oldVersion": "1.7.1",
+      "newVersion": "1.7.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -28,8 +28,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.0.5",
-      "newVersion": "2.0.6",
+      "oldVersion": "2.0.6",
+      "newVersion": "2.0.7",
       "tagName": "latest",
       "constraints": [
         {
@@ -46,5 +46,5 @@
       "oldVersion": "0.0.1"
     }
   },
-  "description": "## Release (2025-10-31)\n\n* @glint/ember-tsc 1.0.6 (patch)\n* @glint/template 1.7.1 (patch)\n* @glint/tsserver-plugin 2.0.6 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1011](https://github.com/typed-ember/glint/pull/1011) fix regression where ariaAttributes were lost from SVGSVGElementAttributes ([@johanrd](https://github.com/johanrd))\n\n#### :house: Internal\n* [#1007](https://github.com/typed-ember/glint/pull/1007) Test Attributes extension the way a consumer would ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 2\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n- [@johanrd](https://github.com/johanrd)\n"
+  "description": "## Release (2025-10-31)\n\n* @glint/ember-tsc 1.0.7 (patch)\n* @glint/template 1.7.2 (patch)\n* @glint/tsserver-plugin 2.0.7 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1013](https://github.com/typed-ember/glint/pull/1013) Changed GlobalSVGAttributes to extend GlobalHTMLAttributes instead of just GlobalAriaAttributes ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- [@johanrd](https://github.com/johanrd)\n"
 }
