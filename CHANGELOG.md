@@ -1,5 +1,22 @@
 # Changelog
 
+## Release (2025-10-31)
+
+* @glint/ember-tsc 1.0.6 (patch)
+* @glint/template 1.7.1 (patch)
+* @glint/tsserver-plugin 2.0.6 (patch)
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#1011](https://github.com/typed-ember/glint/pull/1011) fix regression where ariaAttributes were lost from SVGSVGElementAttributes ([@johanrd](https://github.com/johanrd))
+
+#### :house: Internal
+* [#1007](https://github.com/typed-ember/glint/pull/1007) Test Attributes extension the way a consumer would ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 2
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+- [@johanrd](https://github.com/johanrd)
+
 ## Release (2025-10-30)
 
 * @glint/ember-tsc 1.0.5 (patch)
