@@ -4,38 +4,7 @@
 import { AttrValue } from '../index';
 
 declare global {
-interface GlobalHTMLAttributes  {
-  ['accesskey']: AttrValue;
-  ['autocapitalize']: AttrValue;
-  ['autocorrect']: AttrValue;
-  ['autofocus']: AttrValue;
-  ['class']: AttrValue;
-  ['contenteditable']: AttrValue;
-  ['dir']: AttrValue;
-  ['draggable']: AttrValue;
-  ['enterkeyhint']: AttrValue;
-  ['exportparts']: AttrValue;
-  ['hidden']: AttrValue;
-  ['id']: AttrValue;
-  ['inert']: AttrValue;
-  ['inputmode']: AttrValue;
-  ['is']: AttrValue;
-  ['itemid']: AttrValue;
-  ['itemprop']: AttrValue;
-  ['itemref']: AttrValue;
-  ['itemscope']: AttrValue;
-  ['itemtype']: AttrValue;
-  ['lang']: AttrValue;
-  ['nonce']: AttrValue;
-  ['part']: AttrValue;
-  ['popover']: AttrValue;
-  ['slot']: AttrValue;
-  ['spellcheck']: AttrValue;
-  ['style']: AttrValue;
-  ['tabindex']: AttrValue;
-  ['title']: AttrValue;
-  ['translate']: AttrValue;
-  ['writingsuggestions']: AttrValue;
+interface GlobalAriaAttributes {
   ['aria-activedescendant']: AttrValue;
   ['aria-atomic']: AttrValue;
   ['aria-autocomplete']: AttrValue;
@@ -85,6 +54,39 @@ interface GlobalHTMLAttributes  {
   ['aria-valuenow']: AttrValue;
   ['aria-valuetext']: AttrValue;
   ['role']: AttrValue;
+}
+interface GlobalHTMLAttributes extends GlobalAriaAttributes {
+  ['accesskey']: AttrValue;
+  ['autocapitalize']: AttrValue;
+  ['autocorrect']: AttrValue;
+  ['autofocus']: AttrValue;
+  ['class']: AttrValue;
+  ['contenteditable']: AttrValue;
+  ['dir']: AttrValue;
+  ['draggable']: AttrValue;
+  ['enterkeyhint']: AttrValue;
+  ['exportparts']: AttrValue;
+  ['hidden']: AttrValue;
+  ['id']: AttrValue;
+  ['inert']: AttrValue;
+  ['inputmode']: AttrValue;
+  ['is']: AttrValue;
+  ['itemid']: AttrValue;
+  ['itemprop']: AttrValue;
+  ['itemref']: AttrValue;
+  ['itemscope']: AttrValue;
+  ['itemtype']: AttrValue;
+  ['lang']: AttrValue;
+  ['nonce']: AttrValue;
+  ['part']: AttrValue;
+  ['popover']: AttrValue;
+  ['slot']: AttrValue;
+  ['spellcheck']: AttrValue;
+  ['style']: AttrValue;
+  ['tabindex']: AttrValue;
+  ['title']: AttrValue;
+  ['translate']: AttrValue;
+  ['writingsuggestions']: AttrValue;
   ['onabort']: AttrValue;
   ['onafterprint']: AttrValue;
   ['onauxclick']: AttrValue;
@@ -704,7 +706,7 @@ interface GlintHtmlElementAttributesMap {
 }
 
 declare global {
-interface GlobalSVGAttributes  {
+interface GlobalSVGAttributes extends GlobalAriaAttributes {
   ['about']: AttrValue;
   ['class']: AttrValue;
   ['content']: AttrValue;

@@ -71,6 +71,15 @@ traverse(ast, {
   },
 });
 
+function createAriaAttributesInterface() {
+  let ariaContent = `interface GlobalAriaAttributes {\n`;
+  ariaAttributes.forEach((k) => {
+    ariaContent += `  ['${k}']: AttrValue;\n`;
+  });
+  ariaContent += '}\n';
+  return ariaContent;
+}
+
 function createHtmlElementsAttributesMap() {
   let htmlElementsContent = `
 import { AttrValue } from '../index';
@@ -78,6 +87,8 @@ import { AttrValue } from '../index';
 declare global {
 `;
   const processed = new Set();
+
+  htmlElementsContent += createAriaAttributesInterface();
 
   let mergedHtmlElements = `
 /**
@@ -91,7 +102,9 @@ interface GlintHtmlElementAttributesMap {\n`;
     processed.add(type);
     const interfaceName = type + 'Attributes';
     const extend =
-      name === GLOBAL_HTML_ATTRIBUTES_NAME ? '' : `extends ${GLOBAL_HTML_ATTRIBUTES_NAME}`;
+      name === GLOBAL_HTML_ATTRIBUTES_NAME
+        ? 'extends GlobalAriaAttributes'
+        : `extends ${GLOBAL_HTML_ATTRIBUTES_NAME}`;
     htmlElementsContent += `interface ${interfaceName} ${extend} {\n`;
     keys.forEach((k) => {
       htmlElementsContent += `  ['${k}']: AttrValue;\n`;
@@ -105,9 +118,6 @@ interface GlintHtmlElementAttributesMap {\n`;
     }
 
     if (name === GLOBAL_HTML_ATTRIBUTES_NAME) {
-      ariaAttributes.forEach((k) => {
-        htmlElementsContent += `  ['${k}']: AttrValue;\n`;
-      });
       htmlEventAttributes.forEach((k) => {
         htmlElementsContent += `  ['${k}']: AttrValue;\n`;
       });
@@ -162,7 +172,9 @@ interface GlintSvgElementAttributesMap {\n`;
   function emitAttributeInterface(type, keys, name) {
     const interfaceName = type + 'Attributes';
     const extend =
-      name === GLOBAL_SVG_ATTRIBUTES_NAME ? '' : `extends ${GLOBAL_SVG_ATTRIBUTES_NAME}`;
+      name === GLOBAL_SVG_ATTRIBUTES_NAME
+        ? 'extends GlobalAriaAttributes'
+        : `extends ${GLOBAL_SVG_ATTRIBUTES_NAME}`;
     svgElementsContent += `interface ${interfaceName} ${extend} {\n`;
     keys.forEach((k) => {
       svgElementsContent += `  ['${k}']: AttrValue;\n`;

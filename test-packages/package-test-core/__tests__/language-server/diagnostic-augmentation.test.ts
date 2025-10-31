@@ -155,12 +155,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "message": "The expected type comes from property 'onclick' which is declared here on type 'Partial<AttributesForElement<HTMLDivElement>>'",
               "span": {
                 "end": {
-                  "line": 100,
+                  "line": 102,
                   "offset": 14,
                 },
                 "file": "\${repoRootPath}/packages/template/-private/dsl/elements.d.ts",
                 "start": {
-                  "line": 100,
+                  "line": 102,
                   "offset": 3,
                 },
               },
@@ -229,12 +229,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "message": "The expected type comes from property 'onclick' which is declared here on type 'Partial<AttributesForElement<HTMLDivElement>>'",
               "span": {
                 "end": {
-                  "line": 100,
+                  "line": 102,
                   "offset": 14,
                 },
                 "file": "\${repoRootPath}/packages/template/-private/dsl/elements.d.ts",
                 "start": {
-                  "line": 100,
+                  "line": 102,
                   "offset": 3,
                 },
               },
