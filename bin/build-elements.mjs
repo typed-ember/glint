@@ -173,7 +173,7 @@ interface GlintSvgElementAttributesMap {\n`;
     const interfaceName = type + 'Attributes';
     const extend =
       name === GLOBAL_SVG_ATTRIBUTES_NAME
-        ? 'extends GlobalAriaAttributes'
+        ? 'extends GlobalHTMLAttributes'
         : `extends ${GLOBAL_SVG_ATTRIBUTES_NAME}`;
     svgElementsContent += `interface ${interfaceName} ${extend} {\n`;
     keys.forEach((k) => {

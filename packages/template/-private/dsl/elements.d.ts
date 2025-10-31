@@ -706,7 +706,7 @@ interface GlintHtmlElementAttributesMap {
 }
 
 declare global {
-interface GlobalSVGAttributes extends GlobalAriaAttributes {
+interface GlobalSVGAttributes extends GlobalHTMLAttributes {
   ['about']: AttrValue;
   ['class']: AttrValue;
   ['content']: AttrValue;

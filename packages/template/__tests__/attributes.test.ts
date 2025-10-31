@@ -261,3 +261,17 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
     role: 'presentation',
   });
 }
+
+{
+  applyAttributes(new SVGSVGElement(), {
+    title: 'My Icon',
+  });
+}
+
+{
+  applyAttributes(new SVGSVGElement(), {
+    title: 'Icon',
+    role: 'img',
+    tabindex: '0',
+  });
+}
