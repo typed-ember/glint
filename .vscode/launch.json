@@ -1,10 +1,10 @@
 {
   "version": "0.2.0",
   "configurations": [
-    {
+      {
       // For this to work, make sure you're running `tsc --build --watch` at the root, AND
       // `pnpm bundle:watch` from within vscode directory.
-      "name": "Debug Extension (TS Plugin, .gts)",
+      "name": "Debug Extension (TS Plugin, .gts, ember-app)",
       "type": "extensionHost",
       "request": "launch",
       // "preLaunchTask": "npm: build",
@@ -22,6 +22,29 @@
         // comment to activate your local extensions
         "--disable-extensions",
         "${workspaceFolder}/packages/vscode/__fixtures__/ember-app"
+      ]
+    },
+    {
+      // For this to work, make sure you're running `tsc --build --watch` at the root, AND
+      // `pnpm bundle:watch` from within vscode directory.
+      "name": "Debug Extension (TS Plugin, .gts, ts-template-imports-app)",
+      "type": "extensionHost",
+      "request": "launch",
+      // "preLaunchTask": "npm: build",
+      "autoAttachChildProcesses": true,
+      "runtimeExecutable": "${execPath}",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js",
+        "!**/node_modules/**"
+      ],
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+        // Disable v1 vscode glint
+        "--disable-extension",
+        "typed-ember.glint-vscode",
+        // comment to activate your local extensions
+        // "--disable-extensions",
+        "${workspaceFolder}/test-packages/ts-template-imports-app"
       ]
     },
     {

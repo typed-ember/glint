@@ -48,6 +48,16 @@ const htmlElementsMap = new Map([[GLOBAL_HTML_ATTRIBUTES_NAME, 'HTMLElement']]);
 const svgElementsMap = new Map([[GLOBAL_SVG_ATTRIBUTES_NAME, 'SVGElement']]);
 const mathmlElementsMap = new Map();
 
+const tagNameAttributesMap = [];
+
+function addTagNameAttributesMapEntry(name, interfaceName) {
+  if (name === 'GlobalHTMLAttributes' || name === 'GlobalSVGAttributes') {
+    return;
+  }
+
+  tagNameAttributesMap.push(`  ['${name}']: ${interfaceName};`);
+}
+
 traverse(ast, {
   TSInterfaceDeclaration(path) {
     switch (path.node.id.name) {
@@ -125,6 +135,7 @@ function createHtmlElementsAttributesMap() {
       });
     }
     htmlElementsContent += '}\n';
+    addTagNameAttributesMapEntry(name, interfaceName);
   }
 
   let elementToAttributes = new Map();
@@ -216,6 +227,7 @@ function createSvgElementAttributesMap() {
     }
 
     svgElementsContent += `}\n`;
+    addTagNameAttributesMapEntry(name, interfaceName);
   }
 
   let elementToAttributes = new Map();
@@ -270,6 +282,7 @@ const filePath = resolve(
   fileURLToPath(import.meta.url),
   '../../packages/template/-private/dsl/elements.d.ts',
 );
+<<<<<<< HEAD
 
 writeFileSync(
   filePath,
@@ -281,3 +294,28 @@ writeFileSync(
     createSvgElementAttributesMap(),
   ].join('\n'),
 );
+||||||| parent of 3e835a67 (Support for typed custom-elements and web-components)
+const content = prefix + createHtmlElementsAttributesMap() + createSvgElementAttributesMap();
+writeFileSync(filePath, content);
+=======
+
+function defineTagNameAttributesMap(contents) {
+  return [
+    '',
+    `global {`,
+    `/* These are not all the elements, but they are the ones with types of their own, beyond HTMLElement/SVGElement */`,
+    `interface GlintTagNameAttributesMap {`,
+    contents.join('\n'),
+    `}`,
+    `}`,
+    `\n`,
+  ].join('\n');
+}
+
+const content =
+  prefix +
+  createHtmlElementsAttributesMap() +
+  createSvgElementAttributesMap() +
+  defineTagNameAttributesMap(tagNameAttributesMap);
+writeFileSync(filePath, content);
+>>>>>>> 3e835a67 (Support for typed custom-elements and web-components)

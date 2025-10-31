@@ -13,3 +13,21 @@ declare module '@glint/ember-tsc/globals' {
     }>;
   }
 }
+
+class MyCustomElement extends HTMLElement {
+  propNum!: number;
+  propStr!: string;
+}
+
+declare global {
+  interface GlintCustomElementsMap {
+    'my-custom-element': typeof MyCustomElement;
+  }
+
+  interface GlintTagNameAttributesMap {
+    'my-custom-element': {
+      'prop-num': number;
+      'prop-str': string;
+    };
+  }
+}

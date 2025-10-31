@@ -139,7 +139,7 @@ describe('Transform: rewriteModule', () => {
     });
   });
 
-  describe({}, () => {
+  describe('with loaded environment', () => {
     test('in class extends', () => {
       let customEnv = GlintEnvironment.load({});
       let script = {
