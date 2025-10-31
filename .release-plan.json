@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.0.4",
-      "newVersion": "1.0.5",
+      "oldVersion": "1.0.5",
+      "newVersion": "1.0.6",
       "tagName": "latest",
       "constraints": [
         {
@@ -14,15 +14,11 @@
       "pkgJSONPath": "./packages/core/package.json"
     },
     "@glint/template": {
-      "impact": "minor",
-      "oldVersion": "1.6.2",
-      "newVersion": "1.7.0",
+      "impact": "patch",
+      "oldVersion": "1.7.0",
+      "newVersion": "1.7.1",
       "tagName": "latest",
       "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
@@ -32,8 +28,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.0.4",
-      "newVersion": "2.0.5",
+      "oldVersion": "2.0.5",
+      "newVersion": "2.0.6",
       "tagName": "latest",
       "constraints": [
         {
@@ -50,5 +46,5 @@
       "oldVersion": "0.0.1"
     }
   },
-  "description": "## Release (2025-10-30)\n\n* @glint/ember-tsc 1.0.5 (patch)\n* @glint/template 1.7.0 (minor)\n* @glint/tsserver-plugin 2.0.5 (patch)\n\n#### :rocket: Enhancement\n* `@glint/template`\n  * [#1005](https://github.com/typed-ember/glint/pull/1005) Make element attributes extensible, fix unneeded element-type branding ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1005](https://github.com/typed-ember/glint/pull/1005) Make element attributes extensible, fix unneeded element-type branding ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :memo: Documentation\n* [#1006](https://github.com/typed-ember/glint/pull/1006) Fix typos and formatting in v2-upgrade.md ([@evoactivity](https://github.com/evoactivity))\n* [#1003](https://github.com/typed-ember/glint/pull/1003) fix README.md glint v2 docs link ([@vlascik](https://github.com/vlascik))\n\n#### Committers: 3\n- Liam Potter ([@evoactivity](https://github.com/evoactivity))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n- [@vlascik](https://github.com/vlascik)\n"
+  "description": "## Release (2025-10-31)\n\n* @glint/ember-tsc 1.0.6 (patch)\n* @glint/template 1.7.1 (patch)\n* @glint/tsserver-plugin 2.0.6 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1011](https://github.com/typed-ember/glint/pull/1011) fix regression where ariaAttributes were lost from SVGSVGElementAttributes ([@johanrd](https://github.com/johanrd))\n\n#### :house: Internal\n* [#1007](https://github.com/typed-ember/glint/pull/1007) Test Attributes extension the way a consumer would ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 2\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n- [@johanrd](https://github.com/johanrd)\n"
 }
