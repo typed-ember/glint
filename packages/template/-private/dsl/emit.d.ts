@@ -1,4 +1,4 @@
-import { AttrValue, ContentValue } from '..';
+import { ContentValue } from '..';
 import {
   ComponentReturn,
   AnyContext,

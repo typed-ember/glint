@@ -1,3 +1,4 @@
+import '@glint/template';
 import { htmlSafe } from '@ember/template';
 import { expectTypeOf } from 'expect-type';
 import {
@@ -59,6 +60,28 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 {
   const el = emitElement('customelement');
   expectTypeOf(el).toEqualTypeOf<{ element: Element }>();
+}
+
+class RegisteredCustomElement extends HTMLElement {}
+interface RegisteredCustomElementAttributes {
+  propNum: number;
+  propStr: string;
+}
+
+
+declare global {
+  interface GlintCustomElements {
+    'registered-custom-element': RegisteredCustomElement;
+  }
+
+  interface GlintHtmlElementAttributesMap {
+      'registered-custom-element': RegisteredCustomElementAttributes;
+  }
+}
+
+{
+  const el = emitElement('registered-custom-element');
+  expectTypeOf(el).toEqualTypeOf<{ element: RegisteredCustomElement }>();
 }
 
 /**

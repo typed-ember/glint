@@ -22,6 +22,7 @@
         // comment to activate your local extensions
         "--disable-extensions",
         "${workspaceFolder}/packages/vscode/__fixtures__/ember-app"
+
       ]
     },
     {

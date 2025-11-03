@@ -36,7 +36,9 @@ export type ResolveOrReturn<T> = T & (<U>(item: U) => () => U);
  */
 export type ElementForTagName<Name extends string> = Name extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[Name]
-  : Element;
+  : Name extends keyof GlintCustomElements 
+    ? GlintCustomElements[Name]
+    : Element;
 
 export type SVGElementForTagName<Name extends string> = Name extends keyof SVGElementTagNameMap
   ? SVGElementTagNameMap[Name]
