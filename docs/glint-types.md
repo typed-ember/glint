@@ -207,3 +207,48 @@ declare global {
   }
 }
 ```
+
+### Custom Elements / WebComponent types
+
+To add custom elements, you can augment a global interface like so:
+```ts
+import '@glint/template';
+
+import type { MyCustomElementClass } from './wherever.ts';
+
+declare global {
+  interface GlintCustomElements {
+    'my-custom-element': MyCustomElementClass;
+  }
+}
+```
+
+When doing this, you'll also want your props and attributes to be typed, and that is configured
+through a separate declaration, `GlintHtmlElementAttributesMap`
+
+```ts
+declare global {
+  interface GlintHtmlElementAttributesMap {
+    'my-custom-element': {
+      propNum: number;
+      propStr: string;
+    };
+  }
+}
+```
+
+And they can be combined, if desired:
+```ts
+import '@glint/template';
+
+import type { MyCustomElementClass, MyCustomElementProps } from './wherever.ts';
+
+declare global {
+  interface GlintCustomElements {
+    'my-custom-element': MyCustomElementClass;
+  }
+  interface GlintHtmlElementAttributesMap {
+    'my-custom-element': MyCustomElementProps;
+  }
+}
+```

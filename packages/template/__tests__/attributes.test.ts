@@ -68,14 +68,13 @@ interface RegisteredCustomElementAttributes {
   propStr: string;
 }
 
-
 declare global {
   interface GlintCustomElements {
     'registered-custom-element': RegisteredCustomElement;
   }
 
   interface GlintHtmlElementAttributesMap {
-      'registered-custom-element': RegisteredCustomElementAttributes;
+    'registered-custom-element': RegisteredCustomElementAttributes;
   }
 }
 
