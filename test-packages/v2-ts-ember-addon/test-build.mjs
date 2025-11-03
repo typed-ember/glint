@@ -19,14 +19,19 @@ assertReady();
 
 for await (const entry of glob('{dist,declarations}/**/*.{js,d.ts}')) {
   console.log(`Checking ${entry}`);
-  let buffer = readFile(entry);
+  let buffer = await readFile(entry);
   let content = buffer.toString();
 
-  let hasForbiddenExtensions = content.match(/\.gts/);
+  let hasGts = content.match(/\.gts/g);
+  let hasGjs = content.match(/\.gjs/g);
 
   check(
-    !hasForbiddenExtensions,
+    !hasGts,
     `Expected ${entry} to not have the .gts extension anywhere in the file`,
+  );
+  check(
+    !hasGjs,
+    `Expected ${entry} to not have the .gjs extension anywhere in the file`,
   );
 }
 
@@ -59,6 +64,8 @@ function assertReady() {
 }
 
 function assertDone() {
+  console.log('\n\n');
+
   assertReady();
 
   console.info(`No issues were found.`);
