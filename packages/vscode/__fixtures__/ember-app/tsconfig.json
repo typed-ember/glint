@@ -1,6 +1,9 @@
 {
   "extends": "../../../../tsconfig.compileroptions.json",
   "compilerOptions": {
-    "baseUrl": "."
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "baseUrl": ".",
+    "types": ["ember-source/types"]
   }
 }

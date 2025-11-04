@@ -1,7 +1,8 @@
 import './elements';
+import './lib.dom.augmentation'
 import { AttrValue } from '../index';
-import { GlintElementRegistry } from './lib.dom.augmentation';
 
+// Defined in lib.dom.augmentation.d.ts
 type Registry = GlintElementRegistry;
 
 /**
