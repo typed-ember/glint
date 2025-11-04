@@ -65,14 +65,16 @@ Glint transforms template code into TypeScript code so that it can be type-check
 
 To inspect the transformed code in VSCode:
 
-1. Install the "Volar Labs" extension from the VSCode marketplace
-2. Open a .gts file in your editor
-3. Use the Volar Labs extension to inspect the VirtualCode tree of embedded documents
-4. You can see the transformed TypeScript representation of the GTS file
-5. Hover over source GTS code and transformed TypeScript code to see the mapped regions between them
-6. The Volar Labs plugin might not display diagnostic errors _within_ the transformed/generated .ts code; if you are debugging, for instance, an issue where Glint is unexpectedly showing `any` as the type of some value within your `<template>` tag, try copying the transformed TS contents to a new file ending in `.ts`, which may reveal the underlying issue.
+1. Make sure "@glint/ember-tsc" is installed in your root package.json if you're working within a monorepo.
+2. Install the "Volar Labs" extension from the VSCode marketplace, then fully reload your current VSCode window.
+3. Open a .gts file in your editor
+4. Use the Volar Labs extension to inspect the VirtualCode tree of embedded documents
+5. You can see the transformed TypeScript representation of the GTS file
+6. Hover over source GTS code and transformed TypeScript code to see the mapped regions between them
 
 This provides a visual way to understand how your template code is being transformed and helps with debugging type issues.
+
+NOTE: The Volar Labs plugin might not display diagnostic errors _within_ the transformed/generated .ts code; if you are debugging, for instance, an issue where Glint is unexpectedly showing `any` as the type of some value within your `<template>` tag, try copying the transformed TS contents to a new file ending in `.ts`, which may reveal the underlying issue.
 
 ## How to link all the packages to an external project?
 
