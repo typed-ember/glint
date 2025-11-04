@@ -1,5 +1,16 @@
 # Changelog
 
+## Release (2025-11-04)
+
+
+
+#### :memo: Documentation
+* [#1019](https://github.com/typed-ember/glint/pull/1019) CONTRIBUTING: additional note about ember-tsc ([@machty](https://github.com/machty))
+* [#1017](https://github.com/typed-ember/glint/pull/1017) CONTRIBUTING: add note about Volar Labs transformed files ([@machty](https://github.com/machty))
+
+#### Committers: 1
+- Alex Matchneer ([@machty](https://github.com/machty))
+
 ## Release (2025-10-31)
 
 * @glint/ember-tsc 1.0.7 (patch)
