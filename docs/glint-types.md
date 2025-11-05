@@ -210,34 +210,14 @@ declare global {
 
 ### Custom Elements / WebComponent types
 
-To add custom elements, you can augment a global interface like so:
-```ts
-import '@glint/template';
+To add custom elements, there are 3 global interfaces you must merge with to register the custom element:
+ - The Invocation Registry, `GlintCustomElements` -- this is how Glint translates element names in HTML into types.
+ - The Type Registry, `GlintElementRegistry` -- this is how Glint converts the name of your custom element to the actual element type
+ - The Attribute Registry, `GlintHtmlElementAttributesMap` -- this is how Glint type-checks your props and attributes passed to your custom element.
 
-import type { MyCustomElementClass } from './wherever.ts';
 
-declare global {
-  interface GlintCustomElements {
-    'my-custom-element': MyCustomElementClass;
-  }
-}
-```
-
-When doing this, you'll also want your props and attributes to be typed, and that is configured
-through a separate declaration, `GlintHtmlElementAttributesMap`
-
-```ts
-declare global {
-  interface GlintHtmlElementAttributesMap {
-    'my-custom-element': {
-      propNum: number;
-      propStr: string;
-    };
-  }
-}
-```
-
-And they can be combined, if desired:
+ To specify all 3, it would look something like this:
+ 
 ```ts
 import '@glint/template';
 
@@ -245,10 +225,18 @@ import type { MyCustomElementClass, MyCustomElementProps } from './wherever.ts';
 
 declare global {
   interface GlintCustomElements {
-    'my-custom-element': MyCustomElementClass;
+    'my-custom-element-emit-element': MyCustomElement;
   }
+
+  interface GlintElementRegistry {
+    MyCustomElement: MyCustomElement;
+  }
+
   interface GlintHtmlElementAttributesMap {
-    'my-custom-element': MyCustomElementProps;
+    MyCustomElement: {
+      propNum: number;
+      propStr: string;
+    };
   }
 }
 ```
