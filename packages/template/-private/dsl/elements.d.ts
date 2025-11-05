@@ -4,6 +4,10 @@
 import { AttrValue } from '../index';
 
 declare global {
+  interface GlintCustomElementRegistry {
+    // e.g.:
+    // 'my-button': MyButtonElement;
+  }
 interface GlobalAriaAttributes {
   ['aria-activedescendant']: AttrValue;
   ['aria-atomic']: AttrValue;

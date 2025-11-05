@@ -7,8 +7,8 @@
 // but it does not provide unique types for each element, and the technique
 // we use for looking up the type-string for each element does not work with the built in types.
 
-
-declare interface GlintElementRegistry {
+declare global {
+interface GlintElementRegistry {
   'SVGElement': SVGElement;
   'HTMLAnchorElement': HTMLAnchorElement;
   'HTMLElement': HTMLElement;
@@ -136,4 +136,5 @@ declare interface GlintElementRegistry {
   'SVGTSpanElement': SVGTSpanElement;
   'SVGUseElement': SVGUseElement;
   'SVGViewElement': SVGViewElement;
+}
 }

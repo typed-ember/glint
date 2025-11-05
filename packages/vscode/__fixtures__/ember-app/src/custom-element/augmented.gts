@@ -1,8 +1,11 @@
-/**
- * Tests for these things are used elsewhere, to ensure that we don't have to declaration merge in the file we use custom elements in
- */
 import '@glint/template';
 
+declare global {
+    interface HTMLStyleElementAttributes {
+        scoped: '';
+        inline: '';
+    }
+}
 class MyCustomElement extends HTMLElement {
   propNum!: number;
   propStr!: string;
@@ -11,7 +14,7 @@ class MyCustomElement extends HTMLElement {
 declare global {
   interface GlintCustomElementRegistry {
     MyCustomElement: MyCustomElement;
-    'my-custom-element-emit-element': MyCustomElement;
+    'my-custom-element': MyCustomElement;
   }
 
   interface GlintHtmlElementAttributesMap {
@@ -21,3 +24,11 @@ declare global {
     };
   }
 }
+
+
+<template>
+  <p>hi</p>
+  <style scoped inline>
+    p { color: red; }
+  </style>
+</template>
