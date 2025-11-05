@@ -1,11 +1,4 @@
 {
   "name": "ember-app",
-  "private": true,
-  "devDependencies": {
-    "@glint/ember-tsc": "workspace:*",
-    "@glint/template": "workspace:*",
-    "@glint/tsserver-plugin": "workspace:*",
-    "ember-source": "6.8.1",
-    "typescript": "^"
-  }
+  "private": true
 }

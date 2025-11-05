@@ -1,7 +1,6 @@
 packages:
   - packages/*
   - test-packages/*
-  - packages/vscode/__fixtures__/ember-app
 onlyBuiltDependencies:
   - '@vscode/vsce-sign'
   - core-js
