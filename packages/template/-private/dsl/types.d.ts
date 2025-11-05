@@ -1,5 +1,5 @@
 import './elements';
-import './lib.dom.augmentation'
+import './lib.dom.augmentation';
 import { AttrValue } from '../index';
 
 // Defined in lib.dom.augmentation.d.ts

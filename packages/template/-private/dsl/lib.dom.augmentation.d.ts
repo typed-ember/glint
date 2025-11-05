@@ -136,4 +136,4 @@ declare interface GlintElementRegistry {
   'SVGTSpanElement': SVGTSpanElement;
   'SVGUseElement': SVGUseElement;
   'SVGViewElement': SVGViewElement;
-} 
+}

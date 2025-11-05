@@ -54,5 +54,5 @@ let content = prefix;
 content += '\n';
 content += `declare interface GlintElementRegistry {\n`;
 content += registry.join('\n') + '\n';
-content += `} \n`;
+content += `}\n`;
 writeFileSync(filePath, content);
