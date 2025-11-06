@@ -4,7 +4,7 @@
 import { AttrValue } from '../index';
 
 declare global {
-  interface GlintCustomElementRegistry {
+  interface GlintCustomElementMap {
     // e.g.:
     // 'my-button': MyButtonElement;
   }

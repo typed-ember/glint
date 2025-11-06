@@ -4,12 +4,15 @@ import { expectTypeOf } from 'expect-type';
 import type { ElementForTagName } from '../../-private/dsl/types';
 
 class MyCustomElement extends HTMLElement {
-  propNum!: number;
-  propStr!: string;
+  declare propNum: number;
+  declare propStr: string;
+  declare propBool: boolean;
+
+  declare static readonly __brand: unique symbol;
 }
 
 declare global {
-  interface GlintCustomElementRegistry {
+  interface GlintCustomElementMap {
     'my-custom-element-element-for-tag-name': MyCustomElement;
   }
 }
@@ -20,6 +23,7 @@ declare global {
   expectTypeOf<X>().toEqualTypeOf<MyCustomElement>();
   expectTypeOf<X['propNum']>().toEqualTypeOf<number>();
   expectTypeOf<X['propStr']>().toEqualTypeOf<string>();
+  expectTypeOf<X['propBool']>().toEqualTypeOf<boolean>();
 
   expectTypeOf<X['propNum']>().not.toEqualTypeOf<string>();
 }

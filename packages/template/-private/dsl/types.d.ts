@@ -2,8 +2,6 @@ import './elements';
 import { AttrValue } from '../index';
 import { GlintElementRegistry } from './lib.dom.augmentation';
 
-type Registry = GlintElementRegistry;
-
 /**
  * This doesn't generate _totally_ unique mappings, but they all have the same attributes.
  *
@@ -16,13 +14,13 @@ type Registry = GlintElementRegistry;
  *
  * And for the purposes of attribute lookup, that's good enough.
  */
-type Lookup<T> = {
-  [K in keyof Registry]: [Registry[K]] extends [T] // check assignability in one direction
-    ? [T] extends [Registry[K]] // and in the other
+export type Lookup<T> = {
+  [K in keyof GlintElementRegistry]: [GlintElementRegistry[K]] extends [T] // check assignability in one direction
+    ? [T] extends [GlintElementRegistry[K]] // and in the other
       ? K // if both true, exact match
       : never
     : never;
-}[keyof Registry];
+}[keyof GlintElementRegistry];
 
 /**
  * A utility for constructing the type of an environment's `resolveOrReturn` from
@@ -36,7 +34,11 @@ export type ResolveOrReturn<T> = T & (<U>(item: U) => () => U);
  */
 export type ElementForTagName<Name extends string> = Name extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[Name]
-  : Element;
+  // By default, the GlintCustomElementMap is empty
+  : Name extends keyof GlintCustomElementMap
+    ? GlintCustomElementMap[Name]
+    // If there is no match, we can fallback to the originating ancestor Element type
+    : Element;
 
 export type SVGElementForTagName<Name extends string> = Name extends keyof SVGElementTagNameMap
   ? SVGElementTagNameMap[Name]

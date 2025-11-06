@@ -62,20 +62,15 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   expectTypeOf(el).toEqualTypeOf<{ element: Element }>();
 }
 
-class RegisteredCustomElement extends HTMLElement {}
-interface RegisteredCustomElementAttributes {
-  propNum: number;
-  propStr: string;
+class RegisteredCustomElement extends HTMLElement {
+  declare propNum: number;
+  declare propStr: string;
 }
 
 declare global {
-  interface GlintCustomElementRegistry {
+  interface GlintCustomElementMap {
     'registered-custom-element': RegisteredCustomElement;
   }
-
-  // interface GlintHtmlElementAttributesMap {
-  //   'registered-custom-element': RegisteredCustomElementAttributes;
-  // }
 }
 
 {

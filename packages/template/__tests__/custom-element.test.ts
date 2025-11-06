@@ -26,8 +26,8 @@ import { AttrValue } from '../-private';
  * (yes)
  */
 {
-  expectTypeOf<GlintCustomElementRegistry>().toHaveProperty('AugmentedCustomElement');
-  expectTypeOf<GlintCustomElementRegistry>().toHaveProperty('augmented-custom-element');
+  expectTypeOf<GlintCustomElementMap>().toHaveProperty('AugmentedCustomElement');
+  expectTypeOf<GlintCustomElementMap>().toHaveProperty('augmented-custom-element');
   expectTypeOf<GlintHtmlElementAttributesMap>().toHaveProperty('AugmentedCustomElement');
 
   const custom = emitElement('augmented-custom-element');

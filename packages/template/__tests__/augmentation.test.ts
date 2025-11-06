@@ -5,21 +5,14 @@ import '@glint/template';
 
 
 class AugmentedCustomElement extends HTMLElement {
-  propNum!: number;
-  propStr!: string;
+  declare propNum: number;
+  declare propStr: string;
  declare static readonly __brand: unique symbol;
 }
 
 declare global {
-  interface GlintCustomElementRegistry {
+  interface GlintCustomElementMap {
     AugmentedCustomElement: AugmentedCustomElement;
     'augmented-custom-element': AugmentedCustomElement;
   }
-
-  // interface GlintHtmlElementAttributesMap {
-  //   AugmentedCustomElement: {
-  //     propNum: number;
-  //     propStr: string;
-  //   };
-  // }
 }

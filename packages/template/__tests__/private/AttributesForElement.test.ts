@@ -31,6 +31,7 @@ import type { AttributesForElement } from '../../-private/dsl';
   expectTypeOf<'version' | 'fill'>().toExtend<AttributeKeys>();
 }
 
+
 {
   type Attributes = keyof AttributesForElement<HTMLImageElement>;
   expectTypeOf<Attributes>().toEqualTypeOf<`data-${string}` | keyof HTMLImageElementAttributes>();
@@ -38,6 +39,11 @@ import type { AttributesForElement } from '../../-private/dsl';
   type AttributeKeys = keyof HTMLImageElementAttributes & string;
   expectTypeOf<AttributeKeys>().toBeString();
   expectTypeOf<'alt' | 'src'>().toExtend<AttributeKeys>();
+}
+{
+  type AttributeMap = AttributesForElement<HTMLSelectElement>;
+  expectTypeOf<AttributeMap['length']>().not.toEqualTypeOf<string>();
+  expectTypeOf<AttributeMap['length']>().toEqualTypeOf<number>();
 }
 
 {
