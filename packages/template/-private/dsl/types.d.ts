@@ -2,6 +2,8 @@ import './elements';
 import { AttrValue } from '../index';
 import { GlintElementRegistry } from './lib.dom.augmentation';
 
+type Registry = GlintElementRegistry;
+
 /**
  * This doesn't generate _totally_ unique mappings, but they all have the same attributes.
  *
@@ -14,24 +16,13 @@ import { GlintElementRegistry } from './lib.dom.augmentation';
  *
  * And for the purposes of attribute lookup, that's good enough.
  */
-export type Lookup<T> = {
-  [K in keyof GlintElementRegistry]: [GlintElementRegistry[K]] extends [T] // check assignability in one direction
-    ? [T] extends [GlintElementRegistry[K]] // and in the other
+type Lookup<T> = {
+  [K in keyof Registry]: [Registry[K]] extends [T] // check assignability in one direction
+    ? [T] extends [Registry[K]] // and in the other
       ? K // if both true, exact match
       : never
     : never;
-}[keyof GlintElementRegistry];
-
-/**
- * Same thing, but for CustomElements
- */
-export type CustomElementLookup<T> = {
-  [K in keyof GlintCustomElementRegistry]: [GlintCustomElementRegistry[K]] extends [T] // check assignability in one direction
-    ? [T] extends [GlintCustomElementRegistry[K]] // and in the other
-      ? K // if both true, exact match
-      : never
-    : never;
-}[keyof GlintCustomElementRegistry];
+}[keyof Registry];
 
 /**
  * A utility for constructing the type of an environment's `resolveOrReturn` from
@@ -45,9 +36,7 @@ export type ResolveOrReturn<T> = T & (<U>(item: U) => () => U);
  */
 export type ElementForTagName<Name extends string> = Name extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[Name]
-  // : Name extends keyof GlintCustomElementRegistry
-  //   ? GlintCustomElementRegistry[Name]
-    : Element;
+  : Element;
 
 export type SVGElementForTagName<Name extends string> = Name extends keyof SVGElementTagNameMap
   ? SVGElementTagNameMap[Name]
@@ -65,8 +54,6 @@ export type AttributesForElement<Elem extends Element, K = Lookup<Elem>> =
     : // Or is K in the SVG attributes map?
       K extends keyof GlintSvgElementAttributesMap
       ? WithDataAttributes<GlintSvgElementAttributesMap[K]>
-      // : K extends keyof GlintCustomElementRegistry
-      //   ? WithDataAttributes<GlintHtmlElementAttributesMap[K]>
-        : // If the element can't be found: fallback to just allow general AttrValue
-          // NOTE: MathML has no attributes
-          Record<string, AttrValue>;
+      : // If the element can't be found: fallback to just allow general AttrValue
+        // NOTE: MathML has no attributes
+        Record<string, AttrValue>;
