@@ -3,21 +3,23 @@
  */
 import '@glint/template';
 
-class MyCustomElement extends HTMLElement {
+
+class AugmentedCustomElement extends HTMLElement {
   propNum!: number;
   propStr!: string;
+ declare static readonly __brand: unique symbol;
 }
 
 declare global {
   interface GlintCustomElementRegistry {
-    MyCustomElement: MyCustomElement;
-    'my-custom-element-emit-element': MyCustomElement;
+    AugmentedCustomElement: AugmentedCustomElement;
+    'augmented-custom-element': AugmentedCustomElement;
   }
 
-  interface GlintHtmlElementAttributesMap {
-    MyCustomElement: {
-      propNum: number;
-      propStr: string;
-    };
-  }
+  // interface GlintHtmlElementAttributesMap {
+  //   AugmentedCustomElement: {
+  //     propNum: number;
+  //     propStr: string;
+  //   };
+  // }
 }

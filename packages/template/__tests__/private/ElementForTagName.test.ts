@@ -9,7 +9,7 @@ class MyCustomElement extends HTMLElement {
 }
 
 declare global {
-  interface GlintCustomElements {
+  interface GlintCustomElementRegistry {
     'my-custom-element-element-for-tag-name': MyCustomElement;
   }
 }

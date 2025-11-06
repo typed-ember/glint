@@ -6,7 +6,7 @@ declare global {
    * augment it in your own project like so:
    * ```ts
    * declare global {
-   *  interface GlintCustomElements {
+   *  interface GlintCustomElementRegistry {
    *    'my-custom-element': MyCustomElementClass;
    *  }
    * }
@@ -27,7 +27,7 @@ declare global {
    * }
    * ```
    */
-  interface GlintCustomElements {
+  interface GlintCustomElementRegistry {
     /* intentionally empty, as there are no custom elements by default */
   }
 }

@@ -45,8 +45,8 @@ export type ResolveOrReturn<T> = T & (<U>(item: U) => () => U);
  */
 export type ElementForTagName<Name extends string> = Name extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[Name]
-  : Name extends keyof GlintCustomElementRegistry
-    ? GlintCustomElementRegistry[Name]
+  // : Name extends keyof GlintCustomElementRegistry
+  //   ? GlintCustomElementRegistry[Name]
     : Element;
 
 export type SVGElementForTagName<Name extends string> = Name extends keyof SVGElementTagNameMap
@@ -65,8 +65,8 @@ export type AttributesForElement<Elem extends Element, K = Lookup<Elem>> =
     : // Or is K in the SVG attributes map?
       K extends keyof GlintSvgElementAttributesMap
       ? WithDataAttributes<GlintSvgElementAttributesMap[K]>
-      : K extends keyof GlintCustomElementRegistry
-        ? WithDataAttributes<GlintHtmlElementAttributesMap[K]>
+      // : K extends keyof GlintCustomElementRegistry
+      //   ? WithDataAttributes<GlintHtmlElementAttributesMap[K]>
         : // If the element can't be found: fallback to just allow general AttrValue
           // NOTE: MathML has no attributes
           Record<string, AttrValue>;

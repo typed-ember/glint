@@ -17,12 +17,12 @@ declare global {
     'my-custom-element': MyCustomElement;
   }
 
-  interface GlintHtmlElementAttributesMap {
-    MyCustomElement: {
-      propNum: number;
-      propStr: string;
-    };
-  }
+  // interface GlintHtmlElementAttributesMap {
+  //   MyCustomElement: {
+  //     propNum: number;
+  //     propStr: string;
+  //   };
+  // }
 }
 
 

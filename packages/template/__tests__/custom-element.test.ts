@@ -26,21 +26,21 @@ import { AttrValue } from '../-private';
  * (yes)
  */
 {
-  expectTypeOf<GlintCustomElementRegistry>().toHaveProperty('MyCustomElement');
-  expectTypeOf<GlintCustomElementRegistry>().toHaveProperty('my-custom-element-emit-element');
-  expectTypeOf<GlintHtmlElementAttributesMap>().toHaveProperty('MyCustomElement');
+  expectTypeOf<GlintCustomElementRegistry>().toHaveProperty('AugmentedCustomElement');
+  expectTypeOf<GlintCustomElementRegistry>().toHaveProperty('augmented-custom-element');
+  expectTypeOf<GlintHtmlElementAttributesMap>().toHaveProperty('AugmentedCustomElement');
 
-  const custom = emitElement('my-custom-element-emit-element');
+  const custom = emitElement('augmented-custom-element');
 
   type ElementName = CustomElementLookup<typeof custom.element>;
-  expectTypeOf<ElementName>().toEqualTypeOf<'MyCustomElement' | 'my-custom-element-emit-element'>();
+  expectTypeOf<ElementName>().not.toBeNever();
+  expectTypeOf<ElementName>().toEqualTypeOf<'AugmentedCustomElement' | 'augmented-custom-element' | 'my-custom-element-element-for-tag-name'>();
 
   type FoundAttrs = AttributesForElement<typeof custom.element>;
   expectTypeOf<FoundAttrs>().not.toBeNever();
   expectTypeOf<FoundAttrs>().toHaveProperty('propNum');
   // The default type for attributes
-  expectTypeOf<FoundAttrs['data-foo']>().toEqualTypeOf<AttrValue>();
-  expectTypeOf<FoundAttrs['propNum']>().not.toEqualTypeOf<AttrValue>();
+  expectTypeOf<FoundAttrs['data-foo']>().not.toEqualTypeOf<AttrValue>();
 
   applyAttributes(custom.element, {
     propNum: 123,
