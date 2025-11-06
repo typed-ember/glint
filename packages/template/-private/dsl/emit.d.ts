@@ -10,7 +10,7 @@ import {
   NamedArgs,
 } from '../integration';
 import {
-  AttributesForElement,
+  AttributeRecord,
   ElementForTagName,
   MathMlElementForTagName,
   SVGElementForTagName,
@@ -155,7 +155,7 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
-export declare function applyAttributes<Elem extends Element, T extends { element: Elem, attributes: any }>(
+export declare function applyAttributes<T extends { element: unknown, attributes: unknown }>(
   element: T['element'],
   attrs: Partial<T['attributes']>,
 ): void;

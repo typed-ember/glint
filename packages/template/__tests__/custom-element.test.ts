@@ -7,7 +7,7 @@ import {
   AttributesForTagName,
 } from '../-private/dsl';
 import { AttrValue } from '../-private';
-import { AugmentedCustomElement } from './augmentation.test';
+import { AugmentedCustomElement, AugmentedCustomElementAttributes } from './augmentation.test';
 
 /**
  * Baseline
@@ -37,11 +37,12 @@ import { AugmentedCustomElement } from './augmentation.test';
   type L = CustomElementLookup<typeof custom.element>;
   expectTypeOf<L>().toEqualTypeOf<'augmented-custom-element'>();
 
-  expectTypeOf<AttributesForTagName<`augmented-custom-element`>>().toEqualTypeOf<typeof AugmentedCustomElement>();
+  type Attrs = AttributesForTagName<`augmented-custom-element`>;
+  expectTypeOf<keyof Attrs & string>().toEqualTypeOf<keyof AugmentedCustomElementAttributes>();
+
+  expectTypeOf<AttributesForTagName<`augmented-custom-element`>>().toEqualTypeOf<AugmentedCustomElementAttributes>();
   expectTypeOf(custom.element).toEqualTypeOf<typeof AugmentedCustomElement>();
-  expectTypeOf(custom.attributes).toEqualTypeOf<WithDataAttributes<HTMLElementAttributes>>();
-  type X = keyof typeof custom.attributes;
-  expectTypeOf<X>().toEqualTypeOf<`propNum` | `propStr`>();
+  expectTypeOf(custom.attributes).toEqualTypeOf<WithDataAttributes<AugmentedCustomElementAttributes>>();
 
   applyAttributes(custom, {
     propNum: 123,

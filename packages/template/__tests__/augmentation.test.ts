@@ -11,11 +11,16 @@ export class AugmentedCustomElement extends HTMLElement {
   declare static readonly [BRAND]: unique symbol;
 }
 
+export interface AugmentedCustomElementAttributes {
+  propNum: number;
+  propStr: string;
+}
+
 declare global {
   interface GlintCustomElementMap {
     'augmented-custom-element': typeof AugmentedCustomElement;
   }
   interface GlintTagNameAttributesMap {
-    'augmented-custom-element': typeof AugmentedCustomElement;
+    'augmented-custom-element': AugmentedCustomElementAttributes;
   }
 }
