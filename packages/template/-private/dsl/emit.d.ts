@@ -10,7 +10,6 @@ import {
   NamedArgs,
 } from '../integration';
 import {
-  AttributeRecord,
   ElementForTagName,
   MathMlElementForTagName,
   SVGElementForTagName,
@@ -52,6 +51,7 @@ export declare function emitContent(value: ContentValue): void;
 export declare function emitElement<Name extends string | 'math' | 'svg'>(
   name: Name,
 ): {
+  name: Name;
   element: Name extends 'math'
     ? MathMlElementForTagName<'math'>
     : Name extends 'svg'
@@ -155,9 +155,9 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
-export declare function applyAttributes<T extends { element: unknown, attributes: unknown }>(
-  element: T['element'],
-  attrs: Partial<T['attributes']>,
+export declare function applyAttributes<T extends { name: string; element: infer Elem, attributes: infer Attrs }>(
+  element: Elem,
+  attrs: Partial<AttributesForTagName<T['name']>>,
 ): void;
 
 /*

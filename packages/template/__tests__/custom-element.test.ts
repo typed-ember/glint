@@ -47,6 +47,8 @@ import { AugmentedCustomElement, AugmentedCustomElementAttributes } from './augm
   applyAttributes(custom, {
     propNum: 123,
     propStr: 'hello',
+    // @ts-expect-error propNope does not exist
+    propNope: 'wrong', 
   });
 
   applyAttributes(custom, {
