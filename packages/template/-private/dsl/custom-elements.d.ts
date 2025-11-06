@@ -12,22 +12,34 @@ declare global {
    * }
    * ```
    *
-   * When doing this, you'll also want your props and attributes to be typed, and that is configured
-   * through a separate declaration merge as TypeScript doesn't have a way of accessing which attributes/props
-   * are valid for a given element type.
-   *
+   */
+  interface GlintCustomElementMap {
+    /* intentionally empty, as there are no custom elements by default */
+  }
+  /**
+   * Map of custom element class names to their attributes type.
+   * 
+   * This is a separate interface, because there isn't a TypeScript mechanism 
+   * to get the list of attributes and properties assignable to a given element type.
+   * 
+   * You _could_ set loose values such as `typeof YourELement`, but then you'll have things 
+   * that don't make sense to assign in the template, such as methods (toString, etc)
+   *    
    * ```ts
    * declare global {
-   *  interface GlintHtmlElementAttributesMap {
-   *    'my-custom-element': {
+   *  interface GlintCustomElementAttributesMap {
+   *    // ok, with caveats, easiest.
+   *    'MyCustomElementClass': typeof MyCustomElementClass;
+   *    // better, but more verbose
+   *    'MyCustomElementClass': {
    *      propNum: number;
    *      propStr: string;
-   *    };
+   *      // etc
    *  }
    * }
    * ```
    */
-  interface GlintCustomElementRegistry {
+  interface GlintCustomElementAttributesMap {
     /* intentionally empty, as there are no custom elements by default */
   }
 }

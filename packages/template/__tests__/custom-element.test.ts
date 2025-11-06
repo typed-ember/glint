@@ -2,18 +2,21 @@ import { expectTypeOf } from 'expect-type';
 import {
   emitElement,
   applyAttributes,
-  AttributesForElement,
   CustomElementLookup,
+  WithDataAttributes,
+  AttributesForTagName,
 } from '../-private/dsl';
 import { AttrValue } from '../-private';
+import { AugmentedCustomElement } from './augmentation.test';
 
 /**
  * Baseline
  */
 {
   const div = emitElement('div');
-  expectTypeOf(div).toEqualTypeOf<{ element: HTMLDivElement }>();
-  expectTypeOf<typeof div.element>().toEqualTypeOf<HTMLDivElement>();
+  expectTypeOf<AttributesForTagName<`div`>>().toEqualTypeOf<HTMLDivElementAttributes>();
+  expectTypeOf(div.element).toEqualTypeOf<HTMLDivElement>();
+  expectTypeOf(div.attributes).toEqualTypeOf<WithDataAttributes<HTMLDivElementAttributes>>();
 
   applyAttributes(div.element, {
     'data-foo': 123,
@@ -26,28 +29,26 @@ import { AttrValue } from '../-private';
  * (yes)
  */
 {
-  expectTypeOf<GlintCustomElementMap>().toHaveProperty('AugmentedCustomElement');
+  // expectTypeOf<GlintCustomElementMap>().toHaveProperty('AugmentedCustomElement');
   expectTypeOf<GlintCustomElementMap>().toHaveProperty('augmented-custom-element');
-  expectTypeOf<GlintHtmlElementAttributesMap>().toHaveProperty('AugmentedCustomElement');
 
   const custom = emitElement('augmented-custom-element');
 
-  type ElementName = CustomElementLookup<typeof custom.element>;
-  expectTypeOf<ElementName>().not.toBeNever();
-  expectTypeOf<ElementName>().toEqualTypeOf<'AugmentedCustomElement' | 'augmented-custom-element' | 'my-custom-element-element-for-tag-name'>();
+  type L = CustomElementLookup<typeof custom.element>;
+  expectTypeOf<L>().toEqualTypeOf<'augmented-custom-element'>();
 
-  type FoundAttrs = AttributesForElement<typeof custom.element>;
-  expectTypeOf<FoundAttrs>().not.toBeNever();
-  expectTypeOf<FoundAttrs>().toHaveProperty('propNum');
-  // The default type for attributes
-  expectTypeOf<FoundAttrs['data-foo']>().not.toEqualTypeOf<AttrValue>();
+  expectTypeOf<AttributesForTagName<`augmented-custom-element`>>().toEqualTypeOf<typeof AugmentedCustomElement>();
+  expectTypeOf(custom.element).toEqualTypeOf<typeof AugmentedCustomElement>();
+  expectTypeOf(custom.attributes).toEqualTypeOf<WithDataAttributes<HTMLElementAttributes>>();
+  type X = keyof typeof custom.attributes;
+  expectTypeOf<X>().toEqualTypeOf<`propNum` | `propStr`>();
 
-  applyAttributes(custom.element, {
+  applyAttributes(custom, {
     propNum: 123,
     propStr: 'hello',
   });
 
-  applyAttributes(custom.element, {
+  applyAttributes(custom, {
     // @ts-expect-error propNum expects a number, and I gave it a string to test that an error occurs
     propNum: 'wrong',
     // @ts-expect-error propStr expects a string, and I gave it a number to test that an error occurs

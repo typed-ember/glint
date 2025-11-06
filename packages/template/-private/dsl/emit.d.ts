@@ -57,6 +57,7 @@ export declare function emitElement<Name extends string | 'math' | 'svg'>(
     : Name extends 'svg'
       ? SVGElementForTagName<'svg'>
       : ElementForTagName<Name>;
+  attributes: AttributesForTagName<Name>;
 };
 
 export declare function emitSVGElement<Name extends keyof SVGElementTagNameMap>(
@@ -154,9 +155,9 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
-export declare function applyAttributes<T extends Element>(
-  element: T,
-  attrs: Partial<AttributesForElement<T>>,
+export declare function applyAttributes<Elem extends Element, T extends { element: Elem, attributes: any }>(
+  element: T['element'],
+  attrs: Partial<T['attributes']>,
 ): void;
 
 /*

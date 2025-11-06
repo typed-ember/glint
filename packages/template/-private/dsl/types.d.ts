@@ -1,4 +1,5 @@
 import './elements';
+import './custom-elements';
 import { AttrValue } from '../index';
 import { GlintElementRegistry } from './lib.dom.augmentation';
 
@@ -22,6 +23,14 @@ export type Lookup<T> = {
     : never;
 }[keyof GlintElementRegistry];
 
+export type CustomElementLookup<T> = {
+  [K in keyof GlintCustomElementMap]: [GlintCustomElementMap[K]] extends [T]
+    ? [T] extends [GlintCustomElementMap[K]]
+      ? K
+      : never
+    : never;
+}[keyof GlintCustomElementMap];
+
 /**
  * A utility for constructing the type of an environment's `resolveOrReturn` from
  * the type of its `resolve` function.
@@ -34,11 +43,11 @@ export type ResolveOrReturn<T> = T & (<U>(item: U) => () => U);
  */
 export type ElementForTagName<Name extends string> = Name extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[Name]
-  // By default, the GlintCustomElementMap is empty
-  : Name extends keyof GlintCustomElementMap
+  : // By default, the GlintCustomElementMap is empty
+    Name extends keyof GlintCustomElementMap
     ? GlintCustomElementMap[Name]
-    // If there is no match, we can fallback to the originating ancestor Element type
-    : Element;
+    : // If there is no match, we can fallback to the originating ancestor Element type
+      Element;
 
 export type SVGElementForTagName<Name extends string> = Name extends keyof SVGElementTagNameMap
   ? SVGElementTagNameMap[Name]
@@ -49,7 +58,20 @@ export type MathMlElementForTagName<Name extends string> =
 
 type WithDataAttributes<T> = T & Record<`data-${string}`, AttrValue>;
 
-export type AttributesForElement<Elem extends Element, K = Lookup<Elem>> =
+export type AttributesForKeyInMap<K extends string, M> = K extends keyof M
+  ? WithDataAttributes<M[K]>
+  : K extends never
+    ? `Invalid key passed (never)`
+    : `key "${K}" not found in map`;
+
+export type AttributesForCustomElement<
+  Elem extends Element,
+  K = CustomElementLookup<Elem>,
+> = keyof Elem & K extends keyof GlintCustomElementAttributesMap
+  ? AttributesForKeyInMap<K, GlintCustomElementAttributesMap>
+  : 'Could not find custom element';
+
+export type AttributesForStandardElement<Elem extends Element, K = Lookup<Elem>> =
   // Is K in the HTML attributes map?
   K extends keyof GlintHtmlElementAttributesMap
     ? WithDataAttributes<GlintHtmlElementAttributesMap[K]>
@@ -59,3 +81,12 @@ export type AttributesForElement<Elem extends Element, K = Lookup<Elem>> =
       : // If the element can't be found: fallback to just allow general AttrValue
         // NOTE: MathML has no attributes
         Record<string, AttrValue>;
+
+export type AttributesForElement<
+  Elem extends Element,
+  K = Lookup<Elem>,
+> = AttributesForStandardElement<Elem, K>; // | AttributesForCustomElement<Elem, K>;
+
+export type AttributesForTagName<Name extends string> = Name extends keyof GlintTagNameAttributesMap
+  ? GlintTagNameAttributesMap[Name]
+  : GlintTagNameAttributesMap['HTMLElement'];

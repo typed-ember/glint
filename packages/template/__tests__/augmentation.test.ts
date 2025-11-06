@@ -3,16 +3,19 @@
  */
 import '@glint/template';
 
+const BRAND = Symbol('AugmentedCustomElement brand');
 
-class AugmentedCustomElement extends HTMLElement {
+export class AugmentedCustomElement extends HTMLElement {
   declare propNum: number;
   declare propStr: string;
- declare static readonly __brand: unique symbol;
+  declare static readonly [BRAND]: unique symbol;
 }
 
 declare global {
   interface GlintCustomElementMap {
-    AugmentedCustomElement: AugmentedCustomElement;
-    'augmented-custom-element': AugmentedCustomElement;
+    'augmented-custom-element': typeof AugmentedCustomElement;
+  }
+  interface GlintTagNameAttributesMap {
+    'augmented-custom-element': typeof AugmentedCustomElement;
   }
 }

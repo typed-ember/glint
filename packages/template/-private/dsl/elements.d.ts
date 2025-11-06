@@ -4,10 +4,6 @@
 import { AttrValue } from '../index';
 
 declare global {
-  interface GlintCustomElementMap {
-    // e.g.:
-    // 'my-button': MyButtonElement;
-  }
 interface GlobalAriaAttributes {
   ['aria-activedescendant']: AttrValue;
   ['aria-atomic']: AttrValue;
@@ -4400,3 +4396,131 @@ interface GlintSvgElementAttributesMap {
   ['SVGElement']: GlobalSVGAttributes;
 }
 }
+
+global {
+/* These are not all the elements, but they are the ones with types of their own, beyond HTMLElement/SVGElement */
+interface GlintTagNameAttributesMap {
+  ['a']: HTMLAnchorElementAttributes;
+  ['area']: HTMLAreaElementAttributes;
+  ['audio']: HTMLAudioElementAttributes;
+  ['base']: HTMLBaseElementAttributes;
+  ['blockquote']: HTMLQuoteElementAttributes;
+  ['br']: HTMLBRElementAttributes;
+  ['button']: HTMLButtonElementAttributes;
+  ['canvas']: HTMLCanvasElementAttributes;
+  ['caption']: HTMLTableCaptionElementAttributes;
+  ['col']: HTMLTableColElementAttributes;
+  ['data']: HTMLDataElementAttributes;
+  ['del']: HTMLModElementAttributes;
+  ['details']: HTMLDetailsElementAttributes;
+  ['dialog']: HTMLDialogElementAttributes;
+  ['div']: HTMLDivElementAttributes;
+  ['dl']: HTMLDListElementAttributes;
+  ['embed']: HTMLEmbedElementAttributes;
+  ['fieldset']: HTMLFieldSetElementAttributes;
+  ['form']: HTMLFormElementAttributes;
+  ['h1']: HTMLHeadingElementAttributes;
+  ['head']: HTMLHeadElementAttributes;
+  ['hr']: HTMLHRElementAttributes;
+  ['iframe']: HTMLIFrameElementAttributes;
+  ['img']: HTMLImageElementAttributes;
+  ['input']: HTMLInputElementAttributes;
+  ['label']: HTMLLabelElementAttributes;
+  ['legend']: HTMLLegendElementAttributes;
+  ['li']: HTMLLIElementAttributes;
+  ['link']: HTMLLinkElementAttributes;
+  ['map']: HTMLMapElementAttributes;
+  ['menu']: HTMLMenuElementAttributes;
+  ['meta']: HTMLMetaElementAttributes;
+  ['meter']: HTMLMeterElementAttributes;
+  ['object']: HTMLObjectElementAttributes;
+  ['ol']: HTMLOListElementAttributes;
+  ['optgroup']: HTMLOptGroupElementAttributes;
+  ['option']: HTMLOptionElementAttributes;
+  ['output']: HTMLOutputElementAttributes;
+  ['p']: HTMLParagraphElementAttributes;
+  ['pre']: HTMLPreElementAttributes;
+  ['progress']: HTMLProgressElementAttributes;
+  ['script']: HTMLScriptElementAttributes;
+  ['select']: HTMLSelectElementAttributes;
+  ['slot']: HTMLSlotElementAttributes;
+  ['source']: HTMLSourceElementAttributes;
+  ['style']: HTMLStyleElementAttributes;
+  ['table']: HTMLTableElementAttributes;
+  ['tbody']: HTMLTableSectionElementAttributes;
+  ['td']: HTMLTableCellElementAttributes;
+  ['template']: HTMLTemplateElementAttributes;
+  ['textarea']: HTMLTextAreaElementAttributes;
+  ['time']: HTMLTimeElementAttributes;
+  ['tr']: HTMLTableRowElementAttributes;
+  ['track']: HTMLTrackElementAttributes;
+  ['ul']: HTMLUListElementAttributes;
+  ['video']: HTMLVideoElementAttributes;
+  ['HTMLElement']: HTMLElementAttributes;
+  ['a']: SVGAElementAttributes;
+  ['animate']: SVGAnimateElementAttributes;
+  ['animateMotion']: SVGAnimateMotionElementAttributes;
+  ['animateTransform']: SVGAnimateTransformElementAttributes;
+  ['circle']: SVGCircleElementAttributes;
+  ['clipPath']: SVGClipPathElementAttributes;
+  ['defs']: SVGDefsElementAttributes;
+  ['desc']: SVGDescElementAttributes;
+  ['ellipse']: SVGEllipseElementAttributes;
+  ['feBlend']: SVGFEBlendElementAttributes;
+  ['feColorMatrix']: SVGFEColorMatrixElementAttributes;
+  ['feComponentTransfer']: SVGFEComponentTransferElementAttributes;
+  ['feComposite']: SVGFECompositeElementAttributes;
+  ['feConvolveMatrix']: SVGFEConvolveMatrixElementAttributes;
+  ['feDiffuseLighting']: SVGFEDiffuseLightingElementAttributes;
+  ['feDisplacementMap']: SVGFEDisplacementMapElementAttributes;
+  ['feDistantLight']: SVGFEDistantLightElementAttributes;
+  ['feDropShadow']: SVGFEDropShadowElementAttributes;
+  ['feFlood']: SVGFEFloodElementAttributes;
+  ['feFuncA']: SVGFEFuncAElementAttributes;
+  ['feFuncB']: SVGFEFuncBElementAttributes;
+  ['feFuncG']: SVGFEFuncGElementAttributes;
+  ['feFuncR']: SVGFEFuncRElementAttributes;
+  ['feGaussianBlur']: SVGFEGaussianBlurElementAttributes;
+  ['feImage']: SVGFEImageElementAttributes;
+  ['feMerge']: SVGFEMergeElementAttributes;
+  ['feMergeNode']: SVGFEMergeNodeElementAttributes;
+  ['feMorphology']: SVGFEMorphologyElementAttributes;
+  ['feOffset']: SVGFEOffsetElementAttributes;
+  ['fePointLight']: SVGFEPointLightElementAttributes;
+  ['feSpecularLighting']: SVGFESpecularLightingElementAttributes;
+  ['feSpotLight']: SVGFESpotLightElementAttributes;
+  ['feTile']: SVGFETileElementAttributes;
+  ['feTurbulence']: SVGFETurbulenceElementAttributes;
+  ['filter']: SVGFilterElementAttributes;
+  ['foreignObject']: SVGForeignObjectElementAttributes;
+  ['g']: SVGGElementAttributes;
+  ['image']: SVGImageElementAttributes;
+  ['line']: SVGLineElementAttributes;
+  ['linearGradient']: SVGLinearGradientElementAttributes;
+  ['marker']: SVGMarkerElementAttributes;
+  ['mask']: SVGMaskElementAttributes;
+  ['metadata']: SVGMetadataElementAttributes;
+  ['mpath']: SVGMPathElementAttributes;
+  ['path']: SVGPathElementAttributes;
+  ['pattern']: SVGPatternElementAttributes;
+  ['polygon']: SVGPolygonElementAttributes;
+  ['polyline']: SVGPolylineElementAttributes;
+  ['radialGradient']: SVGRadialGradientElementAttributes;
+  ['rect']: SVGRectElementAttributes;
+  ['script']: SVGScriptElementAttributes;
+  ['set']: SVGSetElementAttributes;
+  ['stop']: SVGStopElementAttributes;
+  ['style']: SVGStyleElementAttributes;
+  ['svg']: SVGSVGElementAttributes;
+  ['switch']: SVGSwitchElementAttributes;
+  ['symbol']: SVGSymbolElementAttributes;
+  ['text']: SVGTextElementAttributes;
+  ['textPath']: SVGTextPathElementAttributes;
+  ['title']: SVGTitleElementAttributes;
+  ['tspan']: SVGTSpanElementAttributes;
+  ['use']: SVGUseElementAttributes;
+  ['view']: SVGViewElementAttributes;
+  ['SVGElement']: SVGElementAttributes;
+}
+}
+

@@ -48,6 +48,17 @@ const htmlElementsMap = new Map([[GLOBAL_HTML_ATTRIBUTES_NAME, 'HTMLElement']]);
 const svgElementsMap = new Map([[GLOBAL_SVG_ATTRIBUTES_NAME, 'SVGElement']]);
 const mathmlElementsMap = new Map();
 
+const tagNameAttributesMap = [];
+
+function addTagNameAttributesMapEntry(name, interfaceName) {
+  if (name === 'GlobalHTMLAttributes' || name === 'GlobalSVGAttributes') {
+
+    return;
+  }
+
+  tagNameAttributesMap.push(`  ['${name}']: ${interfaceName};`);
+}
+
 traverse(ast, {
   TSInterfaceDeclaration: function (path) {
     if (path.node.id.name === 'HTMLElementTagNameMap') {
@@ -85,10 +96,6 @@ function createHtmlElementsAttributesMap() {
 import { AttrValue } from '../index';
 
 declare global {
-  interface GlintCustomElementRegistry {
-    // e.g.:
-    // 'my-button': MyButtonElement;
-  }
 `;
   const processed = new Set();
 
@@ -127,6 +134,7 @@ interface GlintHtmlElementAttributesMap {\n`;
       });
     }
     htmlElementsContent += '}\n';
+    addTagNameAttributesMapEntry(name, interfaceName);
   }
 
   function addMapEntry(type) {
@@ -197,6 +205,7 @@ interface GlintSvgElementAttributesMap {\n`;
       });
     }
     svgElementsContent += `}\n`;
+    addTagNameAttributesMapEntry(name, interfaceName);
   }
 
   function addMapEntry(type) {
@@ -236,5 +245,23 @@ const filePath = resolve(
   fileURLToPath(import.meta.url),
   '../../packages/template/-private/dsl/elements.d.ts',
 );
-const content = prefix + createHtmlElementsAttributesMap() + createSvgElementAttributesMap();
+
+function defineTagNameAttributesMap(contents) {
+  return [
+    '',
+    `global {`,
+    `/* These are not all the elements, but they are the ones with types of their own, beyond HTMLElement/SVGElement */`,
+    `interface GlintTagNameAttributesMap {`,
+    contents.join('\n'),
+    `}`,
+    `}`,
+    `\n`,
+  ].join('\n');
+}
+
+const content =
+  prefix +
+  createHtmlElementsAttributesMap() +
+  createSvgElementAttributesMap() +
+  defineTagNameAttributesMap(tagNameAttributesMap);
 writeFileSync(filePath, content);
