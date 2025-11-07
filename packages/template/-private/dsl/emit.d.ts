@@ -10,6 +10,7 @@ import {
   NamedArgs,
 } from '../integration';
 import {
+  AttributesForTagName,
   ElementForTagName,
   MathMlElementForTagName,
   SVGElementForTagName,
@@ -62,11 +63,11 @@ export declare function emitElement<Name extends string | 'math' | 'svg'>(
 
 export declare function emitSVGElement<Name extends keyof SVGElementTagNameMap>(
   name: Name,
-): { element: SVGElementForTagName<Name> };
+): { name: Name; element: SVGElementForTagName<Name> };
 
 export declare function emitMathMlElement<Name extends keyof MathMLElementTagNameMap>(
   name: Name,
-): { element: MathMlElementForTagName<Name> };
+): { name: Name; element: MathMlElementForTagName<Name> };
 
 /*
  * Emits the given value as an entity that expects to receive blocks
@@ -155,9 +156,9 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
-export declare function applyAttributes<T extends { name: string; element: infer Elem, attributes: infer Attrs }>(
-  element: Elem,
-  attrs: Partial<AttributesForTagName<T['name']>>,
+export declare function applyAttributes<T extends { name: string; element: unknown, attributes: unknown }>(
+  invoked: T,
+  attrs: T['attributes'],
 ): void;
 
 /*

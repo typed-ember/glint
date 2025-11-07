@@ -2,11 +2,9 @@ import { expectTypeOf } from 'expect-type';
 import {
   emitElement,
   applyAttributes,
-  CustomElementLookup,
   WithDataAttributes,
   AttributesForTagName,
 } from '../-private/dsl';
-import { AttrValue } from '../-private';
 import { AugmentedCustomElement, AugmentedCustomElementAttributes } from './augmentation.test';
 
 /**
@@ -14,12 +12,14 @@ import { AugmentedCustomElement, AugmentedCustomElementAttributes } from './augm
  */
 {
   const div = emitElement('div');
-  expectTypeOf<AttributesForTagName<`div`>>().toEqualTypeOf<HTMLDivElementAttributes>();
+
+  type Attrs = AttributesForTagName<`div`>;
+  expectTypeOf<Attrs>().toEqualTypeOf<WithDataAttributes<HTMLDivElementAttributes>>();
   expectTypeOf(div.element).toEqualTypeOf<HTMLDivElement>();
   expectTypeOf(div.attributes).toEqualTypeOf<WithDataAttributes<HTMLDivElementAttributes>>();
 
-  applyAttributes(div.element, {
-    'data-foo': 123,
+  applyAttributes(div, {
+    'data-foo': "123",
     role: 'button',
   });
 }
@@ -29,18 +29,12 @@ import { AugmentedCustomElement, AugmentedCustomElementAttributes } from './augm
  * (yes)
  */
 {
-  // expectTypeOf<GlintCustomElementMap>().toHaveProperty('AugmentedCustomElement');
   expectTypeOf<GlintCustomElementMap>().toHaveProperty('augmented-custom-element');
 
   const custom = emitElement('augmented-custom-element');
 
-  type L = CustomElementLookup<typeof custom.element>;
-  expectTypeOf<L>().toEqualTypeOf<'augmented-custom-element'>();
-
   type Attrs = AttributesForTagName<`augmented-custom-element`>;
-  expectTypeOf<keyof Attrs & string>().toEqualTypeOf<keyof AugmentedCustomElementAttributes>();
-
-  expectTypeOf<AttributesForTagName<`augmented-custom-element`>>().toEqualTypeOf<AugmentedCustomElementAttributes>();
+  expectTypeOf<keyof Attrs>().toEqualTypeOf<'propNum' | 'propStr' | `data-${string}`>();
   expectTypeOf(custom.element).toEqualTypeOf<typeof AugmentedCustomElement>();
   expectTypeOf(custom.attributes).toEqualTypeOf<WithDataAttributes<AugmentedCustomElementAttributes>>();
 

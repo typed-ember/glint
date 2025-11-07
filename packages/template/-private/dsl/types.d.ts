@@ -88,8 +88,8 @@ export type AttributesForElement<
 > = AttributesForStandardElement<Elem, K>; // | AttributesForCustomElement<Elem, K>;
 
 export type AttributesForTagName<Name extends string> = Name extends keyof GlintTagNameAttributesMap
-  ? GlintTagNameAttributesMap[Name]
-  : GlintTagNameAttributesMap['HTMLElement'];
+  ? WithDataAttributes<GlintTagNameAttributesMap[Name]>
+  : WithDataAttributes<GlintTagNameAttributesMap['HTMLElement']>;
 
   export type AttributeRecord<RecordType> = {
     [K in (keyof RecordType)]: RecordType[K];
