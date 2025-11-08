@@ -145,7 +145,9 @@ declare global {
  */
 {
   const ctx = emitElement('a');
-  expectTypeOf(ctx).toEqualTypeOf<{ element: HTMLAnchorElement }>();
+  expectTypeOf(ctx.element).toEqualTypeOf<HTMLAnchorElement>();
+  expectTypeOf(ctx.name).toEqualTypeOf<'a'>();
+  expectTypeOf(ctx.attributes).toEqualTypeOf<WithDataAttributes<HTMLAnchorElementAttributes>>();
   applyModifier(resolve(anchorModifier)(ctx.element));
 }
 
