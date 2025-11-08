@@ -158,14 +158,12 @@ export declare function applySplattributes<
  *     <AnotherComponent foo={{bar}} />
  */
 export declare function applyAttributes<
-T extends Element | { name: string; element: unknown, attributes: unknown }, 
-Attrs = T extends Element 
-  ? Partial<AttributesForElement<T>> 
-  : Partial<T['attributes']>
-  >
-(
+  T extends Element | { name: string; element: unknown; attributes: unknown }
+>(
   invoked: T,
-  attrs: Attrs,
+  attrs: T extends Element
+    ? { [K in string & keyof AttributesForElement<T>]?: AttributesForElement<T>[K] }
+    : { [K in string & keyof T['attributes']]?: T['attributes'][K] }
 ): void;
 
 /*
