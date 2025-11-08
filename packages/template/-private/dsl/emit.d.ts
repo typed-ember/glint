@@ -158,7 +158,7 @@ export declare function applySplattributes<
  */
 export declare function applyAttributes<T extends { name: string; element: unknown, attributes: unknown }>(
   invoked: T,
-  attrs: T['attributes'],
+  attrs: Partial<T['attributes']>,
 ): void;
 
 /*
