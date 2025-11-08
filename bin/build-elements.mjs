@@ -52,7 +52,6 @@ const tagNameAttributesMap = [];
 
 function addTagNameAttributesMapEntry(name, interfaceName) {
   if (name === 'GlobalHTMLAttributes' || name === 'GlobalSVGAttributes') {
-
     return;
   }
 

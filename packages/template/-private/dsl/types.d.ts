@@ -91,13 +91,12 @@ export type AttributesForTagName<Name extends string> = Name extends keyof Glint
   ? WithDataAttributes<GlintTagNameAttributesMap[Name]>
   : WithDataAttributes<GlintTagNameAttributesMap['HTMLElement']>;
 
-  export type AttributeRecord<RecordType> = {
-    [K in (keyof RecordType)]: RecordType[K];
-  }
-
+export type AttributeRecord<RecordType> = {
+  [K in keyof RecordType]: RecordType[K];
+};
 
 export type ElementInfoForElementType<ElemType extends Element> = {
   element: ElemType;
   attributes: AttributesForElement<ElemType>;
-  name: 'unknown'
-}
+  name: 'unknown';
+};

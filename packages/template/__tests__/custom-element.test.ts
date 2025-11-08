@@ -19,7 +19,7 @@ import { AugmentedCustomElement, AugmentedCustomElementAttributes } from './augm
   expectTypeOf(div.attributes).toEqualTypeOf<WithDataAttributes<HTMLDivElementAttributes>>();
 
   applyAttributes(div, {
-    'data-foo': "123",
+    'data-foo': '123',
     role: 'button',
   });
 }
@@ -36,13 +36,15 @@ import { AugmentedCustomElement, AugmentedCustomElementAttributes } from './augm
   type Attrs = AttributesForTagName<`augmented-custom-element`>;
   expectTypeOf<keyof Attrs>().toEqualTypeOf<'propNum' | 'propStr' | `data-${string}`>();
   expectTypeOf(custom.element).toEqualTypeOf<typeof AugmentedCustomElement>();
-  expectTypeOf(custom.attributes).toEqualTypeOf<WithDataAttributes<AugmentedCustomElementAttributes>>();
+  expectTypeOf(custom.attributes).toEqualTypeOf<
+    WithDataAttributes<AugmentedCustomElementAttributes>
+  >();
 
   applyAttributes(custom, {
     propNum: 123,
     propStr: 'hello',
     // @ts-expect-error propNope does not exist
-    propNope: 'wrong', 
+    propNope: 'wrong',
   });
 
   applyAttributes(custom, {

@@ -31,7 +31,6 @@ import type { AttributesForElement } from '../../-private/dsl';
   expectTypeOf<'version' | 'fill'>().toExtend<AttributeKeys>();
 }
 
-
 {
   type Attributes = keyof AttributesForElement<HTMLImageElement>;
   expectTypeOf<Attributes>().toEqualTypeOf<`data-${string}` | keyof HTMLImageElementAttributes>();

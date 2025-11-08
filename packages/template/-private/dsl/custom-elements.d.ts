@@ -18,13 +18,13 @@ declare global {
   }
   /**
    * Map of custom element class names to their attributes type.
-   * 
-   * This is a separate interface, because there isn't a TypeScript mechanism 
+   *
+   * This is a separate interface, because there isn't a TypeScript mechanism
    * to get the list of attributes and properties assignable to a given element type.
-   * 
-   * You _could_ set loose values such as `typeof YourELement`, but then you'll have things 
+   *
+   * You _could_ set loose values such as `typeof YourELement`, but then you'll have things
    * that don't make sense to assign in the template, such as methods (toString, etc)
-   *    
+   *
    * ```ts
    * declare global {
    *  interface GlintCustomElementAttributesMap {
