@@ -5,10 +5,12 @@ import {
   applyAttributes,
   applyModifier,
   applySplattributes,
+  AttributesForTagName,
   emitComponent,
   emitElement,
   resolve,
   templateForBackingValue,
+  WithDataAttributes,
 } from '../-private/dsl';
 import { ModifierLike } from '../-private/index';
 import TestComponent from './test-component';
@@ -54,12 +56,16 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 // `emitElement` type resolution
 {
   const el = emitElement('img');
-  expectTypeOf(el).toEqualTypeOf<{ element: HTMLImageElement }>();
+  expectTypeOf(el.element).toEqualTypeOf<HTMLImageElement>();
+  expectTypeOf(el.name).toEqualTypeOf<'img'>();
+  expectTypeOf(el.attributes).toEqualTypeOf<AttributesForTagName<`img`>>();
 }
 
 {
   const el = emitElement('customelement');
-  expectTypeOf(el).toEqualTypeOf<{ element: Element }>();
+  expectTypeOf(el.element).toEqualTypeOf<Element>();
+  expectTypeOf(el.name).toEqualTypeOf<'customelement'>();
+  expectTypeOf(el.attributes).toEqualTypeOf<WithDataAttributes<HTMLElementAttributes>>();
 }
 
 class RegisteredCustomElement extends HTMLElement {
@@ -70,12 +76,25 @@ class RegisteredCustomElement extends HTMLElement {
 declare global {
   interface GlintCustomElementMap {
     'registered-custom-element': RegisteredCustomElement;
+    'explicit-attributes': RegisteredCustomElement;
+  }
+  interface GlintTagNameAttributesMap {
+    'explicit-attributes': { propNum: number; propStr: string };
   }
 }
 
 {
   const el = emitElement('registered-custom-element');
-  expectTypeOf(el).toEqualTypeOf<{ element: RegisteredCustomElement }>();
+  expectTypeOf(el.element).toEqualTypeOf<RegisteredCustomElement>();
+  expectTypeOf(el.name).toEqualTypeOf<'registered-custom-element'>();
+  expectTypeOf(el.attributes).toEqualTypeOf<WithDataAttributes<HTMLElementAttributes>>();
+
+  const el2 = emitElement('explicit-attributes');
+  expectTypeOf(el2.element).toEqualTypeOf<RegisteredCustomElement>();
+  expectTypeOf(el2.name).toEqualTypeOf<'explicit-attributes'>();
+  expectTypeOf(el2.attributes).toEqualTypeOf<
+    WithDataAttributes<{ propNum: number; propStr: string }>
+  >();
 }
 
 /**
