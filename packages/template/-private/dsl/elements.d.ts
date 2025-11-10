@@ -4398,7 +4398,6 @@ interface GlintSvgElementAttributesMap {
 }
 
 global {
-/* These are not all the elements, but they are the ones with types of their own, beyond HTMLElement/SVGElement */
 interface GlintTagNameAttributesMap {
   ['a']: HTMLAnchorElementAttributes;
   ['area']: HTMLAreaElementAttributes;
@@ -4456,7 +4455,6 @@ interface GlintTagNameAttributesMap {
   ['track']: HTMLTrackElementAttributes;
   ['ul']: HTMLUListElementAttributes;
   ['video']: HTMLVideoElementAttributes;
-  ['HTMLElement']: HTMLElementAttributes;
   ['a']: SVGAElementAttributes;
   ['animate']: SVGAnimateElementAttributes;
   ['animateMotion']: SVGAnimateMotionElementAttributes;
@@ -4520,7 +4518,6 @@ interface GlintTagNameAttributesMap {
   ['tspan']: SVGTSpanElementAttributes;
   ['use']: SVGUseElementAttributes;
   ['view']: SVGViewElementAttributes;
-  ['SVGElement']: SVGElementAttributes;
 }
 }
 

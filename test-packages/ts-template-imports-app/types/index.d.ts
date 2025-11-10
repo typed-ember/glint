@@ -20,18 +20,14 @@ class MyCustomElement extends HTMLElement {
 }
 
 declare global {
-  interface GlintCustomElements {
-    'my-custom-element': MyCustomElement;
+  interface GlintCustomElementsMap {
+    'my-custom-element': typeof MyCustomElement;
   }
 
-  interface GlintElementRegistry {
-    MyCustomElement: MyCustomElement;
+  interface GlintTagNameAttributesMap {
+    'my-custom-element': {
+      'prop-num': number;
+      'prop-str': string;
+    };
   }
-
-  // interface GlintHtmlElementAttributesMap {
-  //   'my-custom-element': {
-  //     propNum: number;
-  //     propStr: string;
-  //   };
-  // }
 }

@@ -1,7 +1,7 @@
 const two = 2;
 const str = "hello";
 
-type X = GlintCustomElements['my-custom-element'];
+type X = GlintCustomElementsMap['my-custom-element'];
 
 export const UsesCustomElement = <template>
   {{! defined in types/index.d.ts via Globals}}

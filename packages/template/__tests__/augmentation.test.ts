@@ -3,12 +3,9 @@
  */
 import '@glint/template';
 
-const BRAND = Symbol('AugmentedCustomElement brand');
-
 export class AugmentedCustomElement extends HTMLElement {
   declare propNum: number;
   declare propStr: string;
-  //declare static readonly [BRAND]: unique symbol;
 }
 
 export interface AugmentedCustomElementAttributes {
