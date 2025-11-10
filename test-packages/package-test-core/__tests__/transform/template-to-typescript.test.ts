@@ -1009,7 +1009,7 @@ describe('Transform: rewriteTemplate', () => {
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
         const __glintY__ = __glintDSL__.emitElement("my-custom-element");
-        __glintDSL__.applyAttributes(__glintY__.element, {
+        __glintDSL__.applyAttributes(__glintY__, {
         "prop-num": __glintDSL__.resolveOrReturn(__glintDSL__.Globals["str"])(),
 
         "prop-str": __glintDSL__.resolveOrReturn(__glintDSL__.Globals["two"])(),
