@@ -984,6 +984,49 @@ describe('Transform: rewriteTemplate', () => {
     });
   });
 
+  describe('custom elements', () => {
+    test('with programmatic contents', () => {
+      let template = '<my-element>{{@foo}}</my-element>';
+
+      expect(templateBody(template)).toMatchInlineSnapshot(`
+        "{
+        const __glintY__ = __glintDSL__.emitElement("my-element");
+        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.foo)());
+        }"
+      `);
+    });
+
+    test('with attributes', () => {
+      let template = stripIndent`
+        <my-custom-element 
+          {{!@glint-expect-error: swapped props}}
+          prop-num={{str}} 
+          {{!@glint-expect-error: swapped props}}
+          prop-str={{two}}
+        ></my-custom-element>
+      `;
+
+      expect(templateBody(template)).toMatchInlineSnapshot(`
+        "{
+        const __glintY__ = __glintDSL__.emitElement("my-custom-element");
+        __glintDSL__.applyAttributes(__glintY__, {
+        "prop-num": __glintDSL__.resolveOrReturn(__glintDSL__.Globals["str"])(),
+
+        "prop-str": __glintDSL__.resolveOrReturn(__glintDSL__.Globals["two"])(),
+
+
+        });
+        }
+        __glintRef__; __glintDSL__;
+        // begin directive placeholders
+        // @ts-expect-error expect-error
+        ;
+        // @ts-expect-error expect-error
+        ;"
+      `);
+    });
+  });
+
   describe('angle bracket components', () => {
     test('self-closing', () => {
       let template = `<Foo @bar="hello" />`;

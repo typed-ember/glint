@@ -877,11 +877,11 @@ export function templateToTypescript(
 
             mapper.text('__glintDSL__.applyAttributes(');
 
-            // We map the `__glintY__.element` arg to the first attribute node, which has the effect
+            // We map the `__glintY__` arg to the first attribute node, which has the effect
             // such that diagnostics due to passing attributes to invalid elements will show up
             // on the attribute, rather than on the whole element.
             mapper.forNode(attr, () => {
-              mapper.text('__glintY__.element');
+              mapper.text('__glintY__');
             });
 
             mapper.text(', {');
