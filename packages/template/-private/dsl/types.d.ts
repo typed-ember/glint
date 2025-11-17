@@ -53,11 +53,8 @@ type SVGElementLookup<T> = {
 
 type WithDataAttributes<T> = T & Record<`data-${string}`, AttrValue>;
 
-export type AttributesForElement<
-  T extends Element,
-  K = HTMLElementLookup<T> | SVGElementLookup<T>,
-> = K extends keyof GlintHtmlElementAttributesMap
-  ? WithDataAttributes<GlintHtmlElementAttributesMap[K]>
-  : K extends keyof GlintSvgElementAttributesMap
-    ? WithDataAttributes<GlintSvgElementAttributesMap[K]>
+export type AttributesForElement<T extends Element> = T extends HTMLElement
+  ? WithDataAttributes<GlintHtmlElementAttributesMap[HTMLElementLookup<T>]>
+  : T extends SVGElement
+    ? WithDataAttributes<GlintSvgElementAttributesMap[SVGElementLookup<T>]>
     : Record<string, AttrValue>;
