@@ -7,8 +7,7 @@
 // but it does not provide unique types for each element, and the technique
 // we use for looking up the type-string for each element does not work with the built in types.
 
-export interface GlintElementRegistry {
-  'SVGElement': SVGElement;
+export type HTMLElementMap = {
   'HTMLAnchorElement': HTMLAnchorElement;
   'HTMLElement': HTMLElement;
   'HTMLAreaElement': HTMLAreaElement;
@@ -72,6 +71,9 @@ export interface GlintElementRegistry {
   'HTMLTrackElement': HTMLTrackElement;
   'HTMLUListElement': HTMLUListElement;
   'HTMLVideoElement': HTMLVideoElement;
+};
+
+export type SVGElementMap = {
   'SVGAElement': SVGAElement;
   'SVGAnimateElement': SVGAnimateElement;
   'SVGAnimateMotionElement': SVGAnimateMotionElement;
@@ -80,6 +82,7 @@ export interface GlintElementRegistry {
   'SVGClipPathElement': SVGClipPathElement;
   'SVGDefsElement': SVGDefsElement;
   'SVGDescElement': SVGDescElement;
+  'SVGElement': SVGElement;
   'SVGEllipseElement': SVGEllipseElement;
   'SVGFEBlendElement': SVGFEBlendElement;
   'SVGFEColorMatrixElement': SVGFEColorMatrixElement;
@@ -135,4 +138,4 @@ export interface GlintElementRegistry {
   'SVGTSpanElement': SVGTSpanElement;
   'SVGUseElement': SVGUseElement;
   'SVGViewElement': SVGViewElement;
-}
+};
