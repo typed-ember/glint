@@ -691,6 +691,12 @@ interface GlintHtmlElementAttributesMap {
   ['HTMLUListElement']: HTMLUListElementAttributes;
   ['HTMLVideoElement']: HTMLVideoElementAttributes;
   ['HTMLElement']: GlobalHTMLAttributes;
+  ['HTMLBodyElement']: GlobalHTMLAttributes; 
+  ['HTMLDataListElement']: GlobalHTMLAttributes;
+  ['HTMLHtmlElement']: GlobalHTMLAttributes;
+  ['HTMLPictureElement']: GlobalHTMLAttributes;
+  ['HTMLSpanElement']: GlobalHTMLAttributes;
+  ['HTMLTitleElement']: GlobalHTMLAttributes;
 }
 }
 
