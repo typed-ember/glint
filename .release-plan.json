@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.0.6",
-      "newVersion": "1.0.7",
+      "oldVersion": "1.0.7",
+      "newVersion": "1.0.8",
       "tagName": "latest",
       "constraints": [
         {
@@ -15,8 +15,8 @@
     },
     "@glint/template": {
       "impact": "patch",
-      "oldVersion": "1.7.1",
-      "newVersion": "1.7.2",
+      "oldVersion": "1.7.2",
+      "newVersion": "1.7.3",
       "tagName": "latest",
       "constraints": [
         {
@@ -28,8 +28,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.0.6",
-      "newVersion": "2.0.7",
+      "oldVersion": "2.0.7",
+      "newVersion": "2.0.8",
       "tagName": "latest",
       "constraints": [
         {
@@ -46,5 +46,5 @@
       "oldVersion": "0.0.1"
     }
   },
-  "description": "## Release (2025-10-31)\n\n* @glint/ember-tsc 1.0.7 (patch)\n* @glint/template 1.7.2 (patch)\n* @glint/tsserver-plugin 2.0.7 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1013](https://github.com/typed-ember/glint/pull/1013) Changed GlobalSVGAttributes to extend GlobalHTMLAttributes instead of just GlobalAriaAttributes ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- [@johanrd](https://github.com/johanrd)\n"
+  "description": "## Release (2025-11-17)\n\n* @glint/ember-tsc 1.0.8 (patch)\n* @glint/template 1.7.3 (patch)\n* @glint/tsserver-plugin 2.0.8 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1023](https://github.com/typed-ember/glint/pull/1023) Optimized computations ([@ijlee2](https://github.com/ijlee2))\n\n#### :memo: Documentation\n* [#1019](https://github.com/typed-ember/glint/pull/1019) CONTRIBUTING: additional note about ember-tsc ([@machty](https://github.com/machty))\n* [#1017](https://github.com/typed-ember/glint/pull/1017) CONTRIBUTING: add note about Volar Labs transformed files ([@machty](https://github.com/machty))\n\n#### Committers: 2\n- Alex Matchneer ([@machty](https://github.com/machty))\n- Isaac Lee ([@ijlee2](https://github.com/ijlee2))\n"
 }

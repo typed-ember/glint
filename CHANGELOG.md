@@ -1,5 +1,23 @@
 # Changelog
 
+## Release (2025-11-17)
+
+* @glint/ember-tsc 1.0.8 (patch)
+* @glint/template 1.7.3 (patch)
+* @glint/tsserver-plugin 2.0.8 (patch)
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#1023](https://github.com/typed-ember/glint/pull/1023) Optimized computations ([@ijlee2](https://github.com/ijlee2))
+
+#### :memo: Documentation
+* [#1019](https://github.com/typed-ember/glint/pull/1019) CONTRIBUTING: additional note about ember-tsc ([@machty](https://github.com/machty))
+* [#1017](https://github.com/typed-ember/glint/pull/1017) CONTRIBUTING: add note about Volar Labs transformed files ([@machty](https://github.com/machty))
+
+#### Committers: 2
+- Alex Matchneer ([@machty](https://github.com/machty))
+- Isaac Lee ([@ijlee2](https://github.com/ijlee2))
+
 ## Release (2025-10-31)
 
 * @glint/ember-tsc 1.0.7 (patch)
