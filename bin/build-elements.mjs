@@ -49,23 +49,30 @@ const svgElementsMap = new Map([[GLOBAL_SVG_ATTRIBUTES_NAME, 'SVGElement']]);
 const mathmlElementsMap = new Map();
 
 traverse(ast, {
-  TSInterfaceDeclaration: function (path) {
-    if (path.node.id.name === 'HTMLElementTagNameMap') {
-      const items = path.node.body.body;
-      for (const item of items) {
-        htmlElementsMap.set(item.key.value, item.typeAnnotation.typeAnnotation.typeName.name);
+  TSInterfaceDeclaration(path) {
+    switch (path.node.id.name) {
+      case 'HTMLElementTagNameMap': {
+        path.node.body.body.forEach(({ key, typeAnnotation }) => {
+          htmlElementsMap.set(key.value, typeAnnotation.typeAnnotation.typeName.name);
+        });
+
+        break;
       }
-    }
-    if (path.node.id.name === 'SVGElementTagNameMap') {
-      const items = path.node.body.body;
-      for (const item of items) {
-        svgElementsMap.set(item.key.value, item.typeAnnotation.typeAnnotation.typeName.name);
+
+      case 'MathMLElementTagNameMap': {
+        path.node.body.body.forEach(({ key, typeAnnotation }) => {
+          mathmlElementsMap.set(key.value, typeAnnotation.typeAnnotation.typeName.name);
+        });
+
+        break;
       }
-    }
-    if (path.node.id.name === 'MathMLElementTagNameMap') {
-      const items = path.node.body.body;
-      for (const item of items) {
-        mathmlElementsMap.set(item.key.value, item.typeAnnotation.typeAnnotation.typeName.name);
+
+      case 'SVGElementTagNameMap': {
+        path.node.body.body.forEach(({ key, typeAnnotation }) => {
+          svgElementsMap.set(key.value, typeAnnotation.typeAnnotation.typeName.name);
+        });
+
+        break;
       }
     }
   },
@@ -81,21 +88,16 @@ function createAriaAttributesInterface() {
 }
 
 function createHtmlElementsAttributesMap() {
-  let htmlElementsContent = `
-import { AttrValue } from '../index';
+  let htmlElementsContent = [
+    `import { AttrValue } from '../index';`,
+    ``,
+    `declare global {`,
+    ``,
+  ].join('\n');
 
-declare global {
-`;
   const processed = new Set();
 
   htmlElementsContent += createAriaAttributesInterface();
-
-  let mergedHtmlElements = `
-/**
- * @internal
- * @private - not for use outside of Glint
- */
-interface GlintHtmlElementAttributesMap {\n`;
 
   function emitAttributeInterface(type, keys, name) {
     if (!type || processed.has(type)) return;
@@ -125,49 +127,69 @@ interface GlintHtmlElementAttributesMap {\n`;
     htmlElementsContent += '}\n';
   }
 
-  function addMapEntry(type) {
-    const interfaceName =
-      type === 'HTMLElement' ? GLOBAL_HTML_ATTRIBUTES_NAME : type + 'Attributes';
-    mergedHtmlElements += `  ['${type}']: ${interfaceName};\n`;
-  }
+  let elementToAttributes = new Map();
 
-  Object.entries(htmlElementAttributes).forEach(([name, keys]) => {
-    if (name === '*') {
-      name = GLOBAL_HTML_ATTRIBUTES_NAME;
-      htmlElementsMap.set(name, 'GlobalHTML');
+  Object.entries(htmlElementAttributes).forEach(([elementName, keys]) => {
+    if (elementName === '*') {
+      elementName = GLOBAL_HTML_ATTRIBUTES_NAME;
+      htmlElementsMap.set(elementName, 'GlobalHTML');
     }
-    if (SKIP.has(name)) return;
-    const type = htmlElementsMap.get(name);
 
-    if (!type) return;
+    if (SKIP.has(elementName)) {
+      return;
+    }
 
-    emitAttributeInterface(type, keys, name);
+    const elementType = htmlElementsMap.get(elementName);
+
+    if (!elementType) {
+      return;
+    }
+
+    emitAttributeInterface(elementType, keys, elementName);
 
     // Not an element, but we use this prefix for attributes
-    if (type === 'GlobalHTML') return;
+    if (elementType === 'GlobalHTML') {
+      return;
+    }
 
-    addMapEntry(type);
+    elementToAttributes.set(elementType, `${elementType}Attributes`);
   });
+
   emitAttributeInterface('HTMLElement', [], 'HTMLElement');
-  addMapEntry('HTMLElement');
+  elementToAttributes.set('HTMLElement', GLOBAL_HTML_ATTRIBUTES_NAME);
 
-  mergedHtmlElements += `}\n`;
+  // Manually add entries
+  elementToAttributes.set('HTMLBodyElement', GLOBAL_HTML_ATTRIBUTES_NAME);
+  elementToAttributes.set('HTMLDataListElement', GLOBAL_HTML_ATTRIBUTES_NAME);
+  elementToAttributes.set('HTMLHtmlElement', GLOBAL_HTML_ATTRIBUTES_NAME);
+  elementToAttributes.set('HTMLPictureElement', GLOBAL_HTML_ATTRIBUTES_NAME);
+  elementToAttributes.set('HTMLSpanElement', GLOBAL_HTML_ATTRIBUTES_NAME);
+  elementToAttributes.set('HTMLTitleElement', GLOBAL_HTML_ATTRIBUTES_NAME);
 
-  htmlElementsContent += mergedHtmlElements + '}\n';
+  // Sort by element type
+  elementToAttributes = new Map([...elementToAttributes].sort());
+
+  htmlElementsContent += [
+    `/**`,
+    ` * @internal`,
+    ` * @private - not for use outside of Glint`,
+    ` */`,
+    `interface GlintHtmlElementAttributesMap {`,
+    ...Array.from(elementToAttributes.entries()).map(([elementType, attributesType]) => {
+      return `  ['${elementType}']: ${attributesType};`;
+    }),
+    `}`,
+    ``,
+  ].join('\n');
+
+  // Closing brace for `declare global`
+  htmlElementsContent += '}\n';
+
   return htmlElementsContent;
 }
 
 function createSvgElementAttributesMap() {
-  let svgElementsContent = `
-declare global {
-`;
-  let mergedSvgElements = `
-
-/**
- * @internal
- * @private - not for use outside of Glint
- */
-interface GlintSvgElementAttributesMap {\n`;
+  let svgElementsContent = [`declare global {`, ``].join('\n');
 
   function emitAttributeInterface(type, keys, name) {
     const interfaceName = type + 'Attributes';
@@ -192,45 +214,70 @@ interface GlintSvgElementAttributesMap {\n`;
         svgElementsContent += `  ['${k}']: AttrValue;\n`;
       });
     }
+
     svgElementsContent += `}\n`;
   }
 
-  function addMapEntry(type) {
-    const interfaceName = type === 'SVGElement' ? GLOBAL_SVG_ATTRIBUTES_NAME : type + 'Attributes';
+  let elementToAttributes = new Map();
 
-    mergedSvgElements += `  ['${type}']: ${interfaceName};\n`;
-  }
-
-  Object.entries(svgElementAttributes).forEach(([name, keys]) => {
-    if (name === '*') {
-      name = GLOBAL_SVG_ATTRIBUTES_NAME;
-      svgElementsMap.set(name, 'GlobalSVG');
+  Object.entries(svgElementAttributes).forEach(([elementName, keys]) => {
+    if (elementName === '*') {
+      elementName = GLOBAL_SVG_ATTRIBUTES_NAME;
+      svgElementsMap.set(elementName, 'GlobalSVG');
     }
-    const type = svgElementsMap.get(name);
 
-    if (!type) return;
+    const elementType = svgElementsMap.get(elementName);
 
-    emitAttributeInterface(type, keys, name);
+    if (!elementType) {
+      return;
+    }
+
+    emitAttributeInterface(elementType, keys, elementName);
 
     // Not an element, but we use this prefix for attributes
-    if (type === 'GlobalSVG') return;
+    if (elementType === 'GlobalSVG') {
+      return;
+    }
 
-    addMapEntry(type);
+    elementToAttributes.set(elementType, `${elementType}Attributes`);
   });
-  emitAttributeInterface('SVGElement', [], 'SVGElement');
-  addMapEntry('SVGElement');
 
-  mergedSvgElements += `}\n`;
-  svgElementsContent += mergedSvgElements + '}\n';
+  emitAttributeInterface('SVGElement', [], 'SVGElement');
+  elementToAttributes.set('SVGElement', GLOBAL_SVG_ATTRIBUTES_NAME);
+
+  elementToAttributes = new Map([...elementToAttributes].sort());
+
+  svgElementsContent += [
+    `/**`,
+    ` * @internal`,
+    ` * @private - not for use outside of Glint`,
+    ` */`,
+    `interface GlintSvgElementAttributesMap {`,
+    ...Array.from(elementToAttributes.entries()).map(([elementType, attributesType]) => {
+      return `  ['${elementType}']: ${attributesType};`;
+    }),
+    `}`,
+    ``,
+  ].join('\n');
+
+  // Closing brace for `declare global`
+  svgElementsContent += '}\n';
+
   return svgElementsContent;
 }
 
-const prefix = `//generated by scrips/build-elements.mjs
-// this server to provide the html attributes for each element
-`;
 const filePath = resolve(
   fileURLToPath(import.meta.url),
   '../../packages/template/-private/dsl/elements.d.ts',
 );
-const content = prefix + createHtmlElementsAttributesMap() + createSvgElementAttributesMap();
-writeFileSync(filePath, content);
+
+writeFileSync(
+  filePath,
+  [
+    '// Auto-generated by bin/build-elements.mjs',
+    '// this server to provide the html attributes for each element',
+    '',
+    createHtmlElementsAttributesMap(),
+    createSvgElementAttributesMap(),
+  ].join('\n'),
+);

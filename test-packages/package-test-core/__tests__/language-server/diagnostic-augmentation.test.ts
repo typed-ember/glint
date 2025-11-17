@@ -152,7 +152,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             {
               "category": "message",
               "code": 6500,
-              "message": "The expected type comes from property 'onclick' which is declared here on type 'Partial<AttributesForElement<HTMLDivElement>>'",
+              "message": "The expected type comes from property 'onclick' which is declared here on type 'Partial<WithDataAttributes<HTMLDivElementAttributes | HTMLHeadingElementAttributes | HTMLParagraphElementAttributes | HTMLTableCaptionElementAttributes>>'",
               "span": {
                 "end": {
                   "line": 102,
@@ -226,7 +226,7 @@ describe('Language Server: Diagnostic Augmentation', () => {
             {
               "category": "message",
               "code": 6500,
-              "message": "The expected type comes from property 'onclick' which is declared here on type 'Partial<AttributesForElement<HTMLDivElement>>'",
+              "message": "The expected type comes from property 'onclick' which is declared here on type 'Partial<WithDataAttributes<HTMLDivElementAttributes | HTMLHeadingElementAttributes | HTMLParagraphElementAttributes | HTMLTableCaptionElementAttributes>>'",
               "span": {
                 "end": {
                   "line": 102,
