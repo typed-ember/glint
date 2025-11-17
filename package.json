@@ -31,7 +31,7 @@
     "eslint": "^8.27.0",
     "execa": "^9.5.2",
     "glint-monorepo-test-utils": "workspace:*",
-    "glob": "^10.2.4",
+    "glob": "^11.1.0",
     "html-element-attributes": "^3.5.0",
     "html-event-attributes": "^2.2.0",
     "mkdirp": "^3.0.1",
