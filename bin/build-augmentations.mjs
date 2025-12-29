@@ -70,6 +70,5 @@ writeFileSync(
     }),
     `};`,
     ``,
-    'export type GlintElementRegistry = HTMLElementMap & SVGElementMap;',
   ].join('\n'),
 );
