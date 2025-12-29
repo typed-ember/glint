@@ -1,7 +1,9 @@
 import './elements';
 import './custom-elements';
 import { AttrValue } from '../index';
-import type { HTMLElementMap, SVGElementMap, GlintElementRegistry } from './lib.dom.augmentation';
+import type { HTMLElementMap, SVGElementMap } from './lib.dom.augmentation';
+
+export type GlintElementRegistry = HTMLElementMap & SVGElementMap;
 
 /**
  * This doesn't generate _totally_ unique mappings, but they all have the same attributes.
@@ -103,13 +105,6 @@ export type AttributesForKeyInMap<K extends string, M> = K extends keyof M
     ? `Invalid key passed (never)`
     : `key "${K}" not found in map`;
 
-export type AttributesForCustomElement<
-  Elem extends Element,
-  K = CustomElementLookup<Elem>,
-> = keyof Elem & K extends keyof GlintCustomElementAttributesMap
-  ? AttributesForKeyInMap<K, GlintCustomElementAttributesMap>
-  : 'Could not find custom element';
-
 export type AttributesForStandardElement<Elem extends Element, K = Lookup<Elem>> =
   // Is K in the HTML attributes map?
   K extends keyof GlintHtmlElementAttributesMap
@@ -124,7 +119,7 @@ export type AttributesForStandardElement<Elem extends Element, K = Lookup<Elem>>
 export type AttributesForElement<
   Elem extends Element,
   K = Lookup<Elem>,
-> = AttributesForStandardElement<Elem, K>; // | AttributesForCustomElement<Elem, K>;
+> = AttributesForStandardElement<Elem, K>;
 
 export type AttributesForTagName<Name extends string> = Name extends keyof GlintTagNameAttributesMap
   ? WithDataAttributes<GlintTagNameAttributesMap[Name]>
