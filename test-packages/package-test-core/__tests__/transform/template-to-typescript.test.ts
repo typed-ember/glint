@@ -639,7 +639,7 @@ describe('Transform: rewriteTemplate', () => {
           expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
             "{
             const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Foo)());
-            __glintDSL__.applyAttributes(__glintY__.element, {
+            __glintDSL__.applyAttributes(__glintY__, {
             "data-bar": __glintDSL__.resolve(helper)({ param: true , ...__glintDSL__.NamedArgsMarker }),
 
 
@@ -675,7 +675,7 @@ describe('Transform: rewriteTemplate', () => {
           expect(templateBody(template)).toMatchInlineSnapshot(`
             "{
             const __glintY__ = __glintDSL__.emitElement("div");
-            __glintDSL__.applyAttributes(__glintY__.element, {
+            __glintDSL__.applyAttributes(__glintY__, {
             "data-attr": __glintDSL__.resolveOrReturn(__glintRef__.args.input)(),
 
 
@@ -690,7 +690,7 @@ describe('Transform: rewriteTemplate', () => {
           expect(templateBody(template)).toMatchInlineSnapshot(`
             "{
             const __glintY__ = __glintDSL__.emitElement("div");
-            __glintDSL__.applyAttributes(__glintY__.element, {
+            __glintDSL__.applyAttributes(__glintY__, {
             "data-attr": \`\${__glintDSL__.resolveOrReturn(__glintRef__.args.input)()}\`,
 
 
@@ -846,7 +846,7 @@ describe('Transform: rewriteTemplate', () => {
       expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
         const __glintY__ = __glintDSL__.emitElement("div");
-        __glintDSL__.applyAttributes(__glintY__.element, {
+        __glintDSL__.applyAttributes(__glintY__, {
         "data-attr": __glintDSL__.resolve(concat)(__glintDSL__.resolve(foo)(1), __glintDSL__.resolve(foo)(true)),
 
 
@@ -948,7 +948,7 @@ describe('Transform: rewriteTemplate', () => {
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
         const __glintY__ = __glintDSL__.emitElement("div");
-        __glintDSL__.applyAttributes(__glintY__.element, {
+        __glintDSL__.applyAttributes(__glintY__, {
         "data-foo": __glintDSL__.resolveOrReturn(__glintRef__.args.foo)(),
 
 
@@ -963,7 +963,7 @@ describe('Transform: rewriteTemplate', () => {
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
         const __glintY__ = __glintDSL__.emitElement("div");
-        __glintDSL__.applyAttributes(__glintY__.element, {
+        __glintDSL__.applyAttributes(__glintY__, {
         "data-foo": \`\${__glintDSL__.resolveOrReturn(__glintRef__.args.foo)()}\${__glintDSL__.resolveOrReturn(__glintRef__.args.bar)()}\`,
 
 
@@ -1179,7 +1179,7 @@ describe('Transform: rewriteTemplate', () => {
         const [NS] = __glintY__.blockParams["default"];
         {
         const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(NS?.Nested?.Custom)());
-        __glintDSL__.applyAttributes(__glintY__.element, {
+        __glintDSL__.applyAttributes(__glintY__, {
         class: "foo",
 
 
