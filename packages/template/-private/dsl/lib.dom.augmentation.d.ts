@@ -139,3 +139,5 @@ export type SVGElementMap = {
   'SVGUseElement': SVGUseElement;
   'SVGViewElement': SVGViewElement;
 };
+
+export type GlintElementRegistry = HTMLElementMap & SVGElementMap;
