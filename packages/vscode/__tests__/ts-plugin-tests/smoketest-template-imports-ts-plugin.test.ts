@@ -99,7 +99,22 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
           new Range(new Position(10, 9), new Position(10, 9)),
         );
 
-        expect(fixes.length).toBe(5);
+        if (process.env['GLINT_DEBUG_CODEACTIONS']) {
+          // eslint-disable-next-line no-console
+          console.log(
+            '[debug] codeactions args:',
+            fixes.map((fix) => ({
+              title: fix.title,
+              kind: fix.kind,
+              sources: fix.diagnostics?.map((d) => d.source),
+              codes: fix.diagnostics?.map((d) => d.code),
+            })),
+          );
+        }
+
+        // VSCode changes caused this
+        const nonCopilotFixes = fixes.filter((fix) => !fix.kind?.value?.includes('copilot'));
+        expect(nonCopilotFixes.length).toBe(5);
 
         const fix = fixes.find((fix) => fix.title === "Declare property 'undocumentedProperty'");
 
@@ -138,7 +153,21 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
           new Range(new Position(10, 12), new Position(10, 12)),
         );
 
-        expect(fixes.length).toBe(5);
+        if (process.env['GLINT_DEBUG_CODEACTIONS']) {
+          // eslint-disable-next-line no-console
+          console.log(
+            '[debug] codeactions locals:',
+            fixes.map((fix) => ({
+              title: fix.title,
+              kind: fix.kind,
+              sources: fix.diagnostics?.map((d) => d.source),
+              codes: fix.diagnostics?.map((d) => d.code),
+            })),
+          );
+        }
+
+        const nonCopilotFixes = fixes.filter((fix) => !fix.kind?.value?.includes('copilot'));
+        expect(nonCopilotFixes.length).toBe(5);
 
         const fix = fixes.find((fix) => fix.title === "Declare property 'localProp'");
 

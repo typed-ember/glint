@@ -891,7 +891,10 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "offset": 27,
           },
           "text": "An Element must be specified in the component signature in order to pass in HTML attributes.
-      Argument of type 'unknown' is not assignable to parameter of type 'Element'.",
+      Argument of type '{ element: unknown; blockParams: Required<FlattenBlockParams<{}>>; }' is not assignable to parameter of type 'Element | { element: Element; }'.
+        Type '{ element: unknown; blockParams: Required<FlattenBlockParams<{}>>; }' is not assignable to type '{ element: Element; }'.
+          Types of property 'element' are incompatible.
+            Type 'unknown' is not assignable to type 'Element'.",
         },
         {
           "category": "error",
@@ -904,7 +907,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "line": 27,
             "offset": 25,
           },
-          "text": "Object literal may only specify known properties, and 'foo' does not exist in type 'Partial<WithDataAttributes<HTMLDivElementAttributes | HTMLHeadingElementAttributes | HTMLParagraphElementAttributes | HTMLTableCaptionElementAttributes>>'.",
+          "text": "Object literal may only specify known properties, and 'foo' does not exist in type 'Partial<AttributesForElement<HTMLDivElement>>'.",
         },
       ]
     `);

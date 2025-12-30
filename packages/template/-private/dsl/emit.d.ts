@@ -1,4 +1,4 @@
-import { AttrValue, ContentValue } from '..';
+import { ContentValue } from '..';
 import {
   ComponentReturn,
   AnyContext,
@@ -11,6 +11,7 @@ import {
 } from '../integration';
 import {
   AttributesForElement,
+  AttributesForTagName,
   ElementForTagName,
   MathMlElementForTagName,
   SVGElementForTagName,
@@ -52,20 +53,22 @@ export declare function emitContent(value: ContentValue): void;
 export declare function emitElement<Name extends string | 'math' | 'svg'>(
   name: Name,
 ): {
+  name: Name;
   element: Name extends 'math'
     ? MathMlElementForTagName<'math'>
     : Name extends 'svg'
       ? SVGElementForTagName<'svg'>
       : ElementForTagName<Name>;
+  attributes: AttributesForTagName<Name>;
 };
 
 export declare function emitSVGElement<Name extends keyof SVGElementTagNameMap>(
   name: Name,
-): { element: SVGElementForTagName<Name> };
+): { name: Name; element: SVGElementForTagName<Name> };
 
 export declare function emitMathMlElement<Name extends keyof MathMLElementTagNameMap>(
   name: Name,
-): { element: MathMlElementForTagName<Name> };
+): { name: Name; element: MathMlElementForTagName<Name> };
 
 /*
  * Emits the given value as an entity that expects to receive blocks
@@ -154,9 +157,13 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
-export declare function applyAttributes<T extends Element>(
-  element: T,
-  attrs: Partial<AttributesForElement<T>>,
+export declare function applyAttributes<
+  T extends Element | { element: Element },
+>(
+  invoked: T,
+  attrs: T extends Element
+    ? Partial<AttributesForElement<T>>
+    : Partial<AttributesForElement<T['element']>>,
 ): void;
 
 /*

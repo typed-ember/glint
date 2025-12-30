@@ -23,6 +23,7 @@
     "@babel/core": "^7.26.10",
     "@babel/parser": "^7.27.0",
     "@glimmer/component": "^2.0.0",
+    "@glint/ember-tsc": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",

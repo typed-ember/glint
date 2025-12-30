@@ -9,6 +9,7 @@ import {
   templateForBackingValue,
   yieldToBlock,
   NamedArgsMarker,
+  WithDataAttributes,
 } from '../-private/dsl';
 import TestComponent, { globals } from './test-component';
 
@@ -46,7 +47,11 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
 
       {
         const __glintY__ = emitElement('div');
-        expectTypeOf(__glintY__).toEqualTypeOf<{ element: HTMLDivElement }>();
+        expectTypeOf(__glintY__.element).toEqualTypeOf<HTMLDivElement>();
+        expectTypeOf(__glintY__.name).toEqualTypeOf<'div'>();
+        expectTypeOf(__glintY__.attributes).toEqualTypeOf<
+          WithDataAttributes<HTMLDivElementAttributes>
+        >();
         applyModifier(
           resolve(globals.on)(__glintY__.element, 'click', __glintRef__.this.wrapperClicked),
         );
