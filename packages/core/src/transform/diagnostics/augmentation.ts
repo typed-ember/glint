@@ -1,7 +1,11 @@
-import type ts from 'typescript';
+import ts from 'typescript';
 import GlimmerASTMappingTree, { MappingSource } from '../template/glimmer-ast-mapping-tree.js';
 import TransformedModule from '../template/transformed-module.js';
 import { Diagnostic } from './index.js';
+
+function flattenMessageText(messageText: ts.Diagnostic['messageText']): string {
+  return ts.flattenDiagnosticMessageText(messageText, '\n');
+}
 
 export function augmentDiagnostics<T extends Diagnostic>(
   transformedModule: TransformedModule,
@@ -79,10 +83,7 @@ function checkGlintLibImports(
   diagnostic: Diagnostic,
   _mapping: GlimmerASTMappingTree,
 ): Diagnostic | undefined {
-  let messageText =
-    typeof diagnostic.messageText === 'string'
-      ? diagnostic.messageText
-      : diagnostic.messageText.messageText;
+  let messageText = flattenMessageText(diagnostic.messageText);
 
   const typesModules = '@glint/ember-tsc/-private/dsl';
 
@@ -138,12 +139,21 @@ function checkAssignabilityError(
     parentNode.type === 'ElementNode' &&
     !/^(@|\.)/.test(node.name)
   ) {
-    // If the assignability issue is on an attribute name and it's not an `@arg`
-    // or `...attributes`, then it's an HTML attribute type issue.
-    return addGlintDetails(
-      diagnostic,
-      'An Element must be specified in the component signature in order to pass in HTML attributes.',
-    );
+    // This particular error generally indicates an elementless component invocation.
+    // Avoid adding this message for other TS2345 cases (e.g. unknown attrs) so we
+    // don't obscure the underlying TypeScript diagnostic.
+    let message = flattenMessageText(diagnostic.messageText);
+    if (
+      message.includes("Argument of type 'unknown' is not assignable to parameter of type 'Element'.") ||
+      message.includes("Type 'unknown' is not assignable to type 'Element'.")
+    ) {
+      return addGlintDetails(
+        diagnostic,
+        'An Element must be specified in the component signature in order to pass in HTML attributes.',
+      );
+    }
+
+    return;
   } else if (
     node.type === 'MustacheStatement' &&
     (parentNode.type === 'Template' ||
@@ -213,7 +223,7 @@ function noteNamedArgsAffectArity(
 
     return {
       ...diagnostic,
-      messageText: `${diagnostic.messageText} ${note}`,
+      messageText: `${flattenMessageText(diagnostic.messageText)} ${note}`,
     };
   }
 }
@@ -313,7 +323,7 @@ function checkIndexAccessError(
 function addGlintDetails(diagnostic: Diagnostic, details: string): Diagnostic {
   return {
     ...diagnostic,
-    messageText: `${details}\n${diagnostic.messageText}`,
+    messageText: `${details}\n${flattenMessageText(diagnostic.messageText)}`,
   };
 }
 
