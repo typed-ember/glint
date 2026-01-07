@@ -1,21 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import '@glint/ember-tsc/types';
 import Component from '@glimmer/component';
 
 import { expectTypeOf } from 'expect-type';
 import {
-  applyModifier,
   emitComponent,
-  emitElement,
-  emitContent,
   resolve,
-  resolveOrReturn,
-  templateForBackingValue,
-  yieldToBlock,
   NamedArgsMarker,
-  templateExpression,
   applyAttributes,
+  emitElement,
+  applyModifier,
 } from '../-private/dsl';
-import TestComponent, { globals } from './test-component';
+import { ModifierLike } from '../-private';
 
 {
   /**
@@ -137,5 +133,73 @@ import TestComponent, { globals } from './test-component';
       // @ts-expect-error: not valid on textarea
       alt: 'an alt tag',
     });
+  }
+}
+
+/**
+ * Modifiers *cannot* choose their element, based on args,
+ * but the element can choose which args are available
+ */
+{
+  type ImageModifier<Named> = Named extends { src: string }
+    ? {
+        Element: HTMLImageElement;
+        Args: {
+          Named: { src: string; alt?: string };
+        };
+      }
+    : {
+        Element: HTMLCanvasElement;
+        Args: {
+          Named: { width: number; height: number };
+        };
+      };
+
+  interface DefaultSignature {
+    Element: Element;
+  }
+
+  interface BaseClass<T> extends InstanceType<ModifierLike<T>> {}
+  class BaseClass<T = DefaultSignature> {
+    constructor(args: T) {}
+  }
+  /**
+   * We have to fake a class modifier, so that we can pass along the
+   * generic argument, or maybe rather enable TS to be able to infer
+   */
+  class ImageModifierClass<Named> extends BaseClass<ModifierLike<ImageModifier<Named>>> {}
+
+  {
+    const img = emitElement('img');
+    const div = emitElement('div');
+    const canvas = emitElement('canvas');
+
+    expectTypeOf(img.element).toEqualTypeOf<HTMLImageElement>();
+
+    applyModifier(
+      resolve(ImageModifierClass)(img.element, {
+        // Correct: no error expected because the img element has a src attribute
+        src: 'bar',
+        ...NamedArgsMarker,
+      }),
+    );
+
+    applyModifier(
+      resolve(ImageModifierClass)(canvas.element, {
+        // Correct: no error expected because the canvas element has width and height attributes
+        width: 200,
+        height: 100,
+        // @ts-expect-error: error expected because canvas element does not have a src attribute
+        src: 'bar',
+        ...NamedArgsMarker,
+      }),
+    );
+
+    applyModifier(
+      resolve(ImageModifierClass)(
+        // @ts-expect-error: wrong element type, expects image or canvas
+        div.element,
+      ),
+    );
   }
 }
