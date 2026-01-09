@@ -45,7 +45,7 @@ export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, pat
     );
     let templateContentSegmentString = templateContentSegment.toString();
     let escapedTemplateContentSegment = templateContentSegmentString
-      .replaceAll('$', '\\$')
+      .replaceAll('${{', '\\${{')
       .replaceAll('`', '\\`');
     deltaBytes += templateContentSegmentString.length - escapedTemplateContentSegment.length;
 

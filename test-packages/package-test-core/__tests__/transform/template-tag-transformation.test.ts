@@ -54,6 +54,24 @@ describe('Environment: ETI', () => {
         expect(result.contents).toMatchInlineSnapshot('"[___T`\\${{dollarAmount}}`];"');
       });
 
+      test('foo.$foo', () => {
+        let source = [
+          'const foo = {',
+          "  $foo: 'bar',",
+          '}',
+          '<template>{{foo.$foo}}</template>;',
+        ].join('\n');
+
+        let result = preprocess(source, 'index.gts');
+
+        expect(result.contents).toMatchInlineSnapshot(`
+          "const foo = {
+            $foo: 'bar',
+          }
+          [___T\`{{foo.$foo}}\`];"
+        `);
+      });
+
       test('`', () => {
         let source = '<template>`code`</template>;';
 
@@ -230,6 +248,44 @@ describe('Environment: ETI', () => {
 [___T\`\\\${{foo}}\`]
 "
 `);
+      });
+
+      test('foo.$foo', () => {
+        let source = [
+          'const foo = {',
+          "  $foo: 'bar',",
+          '}',
+          '<template>{{foo.$foo}}</template>;',
+        ].join('\n');
+
+        let result = applyTransform(source);
+
+        expect(result.sourceFile.text).toMatchInlineSnapshot(`
+          "const foo = {
+            $foo: 'bar',
+          }
+          [___T\`{{foo.$foo}}\`];"
+        `);
+      });
+
+      test('this.$foo', () => {
+        let source = [
+          'class MyClass {',
+          "  $foo: string = 'bar';",
+          '',
+          '  <template>{{this.$foo}}</template>;',
+          '}',
+        ].join('\n');
+
+        let result = applyTransform(source);
+
+        expect(result.sourceFile.text).toMatchInlineSnapshot(`
+          "class MyClass {
+            $foo: string = 'bar';
+
+            [___T\`{{this.$foo}}\`];
+          }"
+        `);
       });
 
       test('`', () => {
