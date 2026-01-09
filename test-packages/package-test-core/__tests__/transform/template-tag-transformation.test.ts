@@ -68,7 +68,7 @@ describe('Environment: ETI', () => {
           "const foo = {
             $foo: 'bar',
           }
-          [___T\`{{foo.\\$foo}}\`];"
+          [___T\`{{foo.$foo}}\`];"
         `);
       });
 
