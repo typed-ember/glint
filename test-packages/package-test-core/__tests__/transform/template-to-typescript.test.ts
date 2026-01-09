@@ -957,7 +957,6 @@ describe('Transform: rewriteTemplate', () => {
           }
           }"
         `);
-
       });
     });
     test('with programmatic contents', () => {
