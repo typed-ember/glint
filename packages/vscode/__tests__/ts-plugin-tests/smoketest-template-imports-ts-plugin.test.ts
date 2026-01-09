@@ -99,7 +99,8 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
           new Range(new Position(10, 9), new Position(10, 9)),
         );
 
-        expect(fixes.length).toBe(5);
+        expect(fixes.length).toBe(7);
+        // Fixes include: "Declare method", "Declare property", "Add index signature", "Move to file", "Move to a new file", "Fix", "Explain"
 
         const fix = fixes.find((fix) => fix.title === "Declare property 'undocumentedProperty'");
 
@@ -138,7 +139,8 @@ describe('Smoke test: ETI Environment (TS Plugin Mode)', () => {
           new Range(new Position(10, 12), new Position(10, 12)),
         );
 
-        expect(fixes.length).toBe(5);
+        expect(fixes.length).toBe(7);
+        // Fixes include: "Declare method", "Declare property", "Add index signature", "Move to file", "Move to a new file", "Fix", "Explain"
 
         const fix = fixes.find((fix) => fix.title === "Declare property 'localProp'");
 
