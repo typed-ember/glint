@@ -13,6 +13,7 @@ import {
   applyAttributes,
   emitElement,
   applyModifier,
+  emitSVGElement,
 } from '../-private/dsl';
 import { ModifierLike } from '../-private';
 import {
@@ -376,7 +377,7 @@ import {
     };
   }
   interface DefaultSignature {
-    Element: Element;
+    Element: 'default boo!';
   }
   interface Modifier<T> extends InstanceType<ModifierLike<T>> {}
   class Modifier<T = DefaultSignature> {
@@ -385,7 +386,13 @@ import {
 
   class D3Area<V> extends Modifier<D3AreaSignature<V>> {}
 
-  let svgPath = emitElement('path');
+  let svgPath = emitSVGElement('path');
+
+  expectTypeOf(svgPath.element).not.toBeAny();
+  expectTypeOf(svgPath.element).not.toBeUnknown();
+  expectTypeOf(svgPath.element).not.toEqualTypeOf<string>();
+  expectTypeOf(svgPath.element).not.toEqualTypeOf<Element>();
+  expectTypeOf(svgPath.element).toEqualTypeOf<SVGPathElement>();
 
   let resolved = resolve(D3Area);
   let withElement = resolved(svgPath.element, { area: 42 }, [1, 2, 3]);
