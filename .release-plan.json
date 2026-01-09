@@ -2,21 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.0.7",
-      "newVersion": "1.0.8",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:*` on @glint/template"
-        }
-      ],
-      "pkgJSONPath": "./packages/core/package.json"
-    },
-    "@glint/template": {
-      "impact": "patch",
-      "oldVersion": "1.7.2",
-      "newVersion": "1.7.3",
+      "oldVersion": "1.0.8",
+      "newVersion": "1.0.9",
       "tagName": "latest",
       "constraints": [
         {
@@ -24,12 +11,15 @@
           "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
-      "pkgJSONPath": "./packages/template/package.json"
+      "pkgJSONPath": "./packages/core/package.json"
+    },
+    "@glint/template": {
+      "oldVersion": "1.7.3"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.0.7",
-      "newVersion": "2.0.8",
+      "oldVersion": "2.0.8",
+      "newVersion": "2.0.9",
       "tagName": "latest",
       "constraints": [
         {
@@ -46,5 +36,5 @@
       "oldVersion": "0.0.1"
     }
   },
-  "description": "## Release (2025-11-17)\n\n* @glint/ember-tsc 1.0.8 (patch)\n* @glint/template 1.7.3 (patch)\n* @glint/tsserver-plugin 2.0.8 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1023](https://github.com/typed-ember/glint/pull/1023) Optimized computations ([@ijlee2](https://github.com/ijlee2))\n\n#### :memo: Documentation\n* [#1019](https://github.com/typed-ember/glint/pull/1019) CONTRIBUTING: additional note about ember-tsc ([@machty](https://github.com/machty))\n* [#1017](https://github.com/typed-ember/glint/pull/1017) CONTRIBUTING: add note about Volar Labs transformed files ([@machty](https://github.com/machty))\n\n#### Committers: 2\n- Alex Matchneer ([@machty](https://github.com/machty))\n- Isaac Lee ([@ijlee2](https://github.com/ijlee2))\n"
+  "description": "## Release (2026-01-09)\n\n* @glint/ember-tsc 1.0.9 (patch)\n* @glint/tsserver-plugin 2.0.9 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1031](https://github.com/typed-ember/glint/pull/1031) Fix parsing of `obj.$prop` by not over-escaping the `$` character ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* [#1032](https://github.com/typed-ember/glint/pull/1032) Update test assertions to account for AI features in vscode ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }

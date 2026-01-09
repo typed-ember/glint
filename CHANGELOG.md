@@ -1,5 +1,20 @@
 # Changelog
 
+## Release (2026-01-09)
+
+* @glint/ember-tsc 1.0.9 (patch)
+* @glint/tsserver-plugin 2.0.9 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1031](https://github.com/typed-ember/glint/pull/1031) Fix parsing of `obj.$prop` by not over-escaping the `$` character ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :house: Internal
+* [#1032](https://github.com/typed-ember/glint/pull/1032) Update test assertions to account for AI features in vscode ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2025-11-17)
 
 * @glint/ember-tsc 1.0.8 (patch)
