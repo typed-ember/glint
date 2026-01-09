@@ -596,7 +596,9 @@ describe('Transform: rewriteTemplate', () => {
         test('chained path with a $ as the first character of a property', () => {
           let template = '{{obj.$foo.baz}}';
 
-          expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(obj?.$foo?.baz)());"`);
+          expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(obj?.$foo?.baz)());"`,
+          );
         });
 
         test('`this` path', () => {
