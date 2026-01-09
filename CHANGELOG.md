@@ -1,5 +1,10 @@
 # Changelog
 
+
+
+
+
+
 ## Release (2026-01-09)
 
 * @glint/ember-tsc 1.0.9 (patch)

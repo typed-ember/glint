@@ -1,33 +1,13 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "patch",
-      "oldVersion": "1.0.8",
-      "newVersion": "1.0.9",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
-        }
-      ],
-      "pkgJSONPath": "./packages/core/package.json"
+      "oldVersion": "1.0.9"
     },
     "@glint/template": {
       "oldVersion": "1.7.3"
     },
     "@glint/tsserver-plugin": {
-      "impact": "patch",
-      "oldVersion": "2.0.8",
-      "newVersion": "2.0.9",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
-        }
-      ],
-      "pkgJSONPath": "./packages/tsserver-plugin/package.json"
+      "oldVersion": "2.0.9"
     },
     "@glint/type-test": {
       "oldVersion": "2.0.0"
@@ -36,5 +16,5 @@
       "oldVersion": "0.0.1"
     }
   },
-  "description": "## Release (2026-01-09)\n\n* @glint/ember-tsc 1.0.9 (patch)\n* @glint/tsserver-plugin 2.0.9 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1031](https://github.com/typed-ember/glint/pull/1031) Fix parsing of `obj.$prop` by not over-escaping the `$` character ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* [#1032](https://github.com/typed-ember/glint/pull/1032) Update test assertions to account for AI features in vscode ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "\n\n\n\n"
 }
