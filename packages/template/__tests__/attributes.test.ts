@@ -206,9 +206,8 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   const component = emitComponent(resolve(Missing)());
 
   applyAttributes(
-    // @ts-expect-error: Trying to apply attributes to a component with no root element
     component.element,
-    { foo: 'bar' },
+    { foo: 'bar', 'data-foo': 0 },
   );
 }
 
