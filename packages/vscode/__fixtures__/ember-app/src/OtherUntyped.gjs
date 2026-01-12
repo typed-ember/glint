@@ -6,7 +6,7 @@ export default class Other extends Component {
   message = 'Hello';
 
   <template>
-    <Greeting @target="World" />
+    <Greeting @target="World" data-test-whatever data-test="value" />
     <Colocated @target="World" />
   </template>
 }
