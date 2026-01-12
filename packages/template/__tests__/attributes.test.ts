@@ -202,6 +202,18 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 }
 
 {
+  const Missing= 0 as any;
+  const component = emitComponent(resolve(Missing)());
+
+  applyAttributes(
+    // @ts-expect-error: Trying to apply attributes to a component with no root element
+    component.element,
+    { foo: 'bar' },
+  );
+}
+
+
+{
   applyAttributes(document.createElement('div'), {
     dir: 'ok',
     name: htmlSafe('ok'),
