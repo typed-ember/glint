@@ -202,6 +202,13 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 }
 
 {
+  const Missing = 0 as any;
+  const component = emitComponent(resolve(Missing)());
+
+  applyAttributes(component.element, { foo: 'bar', 'data-foo': 0 });
+}
+
+{
   applyAttributes(document.createElement('div'), {
     dir: 'ok',
     name: htmlSafe('ok'),

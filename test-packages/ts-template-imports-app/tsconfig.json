@@ -1,6 +1,7 @@
 {
   "extends": "@tsconfig/ember",
   "compilerOptions": {
+    "noEmit": true,
     "baseUrl": ".",
     "types": ["ember-source/types"]
   },
