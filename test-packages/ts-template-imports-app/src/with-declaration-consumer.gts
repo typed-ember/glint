@@ -1,7 +1,8 @@
-import { Foo } from './with-declaration';
+import { Foo } from './with-declaration.gjs';
 
 
 export default <template>
+  {{! @glint-expect-error argument is required }}
   <Foo />
 
   {{! @glint-expect-error wrong argument type }}
@@ -13,5 +14,5 @@ export default <template>
     greetings
   </Foo>
 
-  <Foo data-test data-foo="test" />
+  <Foo @foo="hello" data-test data-foo="test" />
 </template>;
