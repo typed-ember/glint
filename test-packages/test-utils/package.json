@@ -17,13 +17,13 @@
   "main": "./lib/index.js",
   "dependencies": {
     "@glint/ember-tsc": "workspace:*",
-    "@typescript/server-harness": "^0.3.5",
     "@glint/template": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
     "@types/node": "^20.17.24",
-    "@volar/language-server": "2.4.23",
-    "@volar/language-service": "2.4.23",
-    "@volar/test-utils": "2.4.23",
+    "@typescript/server-harness": "^0.3.5",
+    "@volar/language-server": "~2.4.27",
+    "@volar/language-service": "~2.4.27",
+    "@volar/test-utils": "~2.4.27",
     "execa": "^7.1.1",
     "vscode-uri": "^3.0.8"
   },
