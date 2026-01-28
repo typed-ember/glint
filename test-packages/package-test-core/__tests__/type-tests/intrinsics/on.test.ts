@@ -24,7 +24,7 @@ on(el, 'unknown', (event) => {
 });
 
 on(el, 'click', (event) => {
-  expectTypeOf(event).toEqualTypeOf<MouseEvent>();
+  expectTypeOf(event).toEqualTypeOf<PointerEvent>();
 });
 
 on(el, 'keyup', (event) => {

@@ -21,14 +21,14 @@
   },
   "devDependencies": {
     "@glimmer/component": "^2.0.0",
-    "@glint/template": "workspace:*",
     "@glint/ember-tsc": "workspace:*",
-    "@types/rsvp": "^4.0.9",
+    "@glint/template": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
     "@tsconfig/ember": "^3.0.9",
+    "@types/rsvp": "^4.0.9",
     "ember-modifier": "^4.0.0",
     "ember-source": "^6.2.0",
-    "typescript": ">=5.6.0"
+    "typescript": "^5.9.3"
   },
   "volta": {
     "extends": "../../package.json"

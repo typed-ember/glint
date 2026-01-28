@@ -97,7 +97,7 @@
     "execa": "^4.0.1",
     "glint-monorepo-test-utils": "workspace:*",
     "strip-ansi": "^6.0.0",
-    "typescript": ">=5.6.0"
+    "typescript": "^5.9.3"
   },
   "publishConfig": {
     "access": "public"
