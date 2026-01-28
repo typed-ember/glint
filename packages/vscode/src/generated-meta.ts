@@ -12,11 +12,11 @@ export const extensionId = `${publisher}.${name}`
 /**
  * Type union of all commands
  */
-export type CommandKey = 
+export type CommandKey =
   | "glint2.restart-language-server"
 
 /**
- * Commands map registed by `typed-ember.glint2-vscode`
+ * Commands map registered by `typed-ember.glint2-vscode`
  */
 export const commands = {
   /**
@@ -27,9 +27,24 @@ export const commands = {
 } satisfies Record<string, CommandKey>
 
 /**
+ * Type union of all languages
+ */
+export type LanguageKey =
+  | "glimmer-js"
+  | "glimmer-ts"
+
+/**
+ * Languages map registed by `typed-ember.glint2-vscode`
+ */
+export const languages = {
+  glimmerJs: "glimmer-js",
+  glimmerTs: "glimmer-ts",
+} satisfies Record<string, LanguageKey>
+
+/**
  * Type union of all configs
  */
-export type ConfigKey = 
+export type ConfigKey =
   | "glint2.libraryPath"
   | "glint2.trace.server"
 
@@ -59,7 +74,7 @@ export interface ConfigItem<T extends keyof ConfigKeyTypeMap> {
  */
 export const configs = {
   /**
-   * 
+   *
    * @key `glint2.libraryPath`
    * @default `undefined`
    * @type `string`
