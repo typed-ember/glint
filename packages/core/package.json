@@ -61,7 +61,7 @@
     "typescript": ">=5.6.0"
   },
   "dependencies": {
-    "@glimmer/syntax": ">= 0.95.0",
+    "@glimmer/syntax": "^0.95.0",
     "@glint/template": "workspace:*",
     "@volar/kit": "~2.4.27",
     "@volar/language-core": "~2.4.27",
@@ -70,18 +70,13 @@
     "@volar/source-map": "~2.4.27",
     "@volar/test-utils": "~2.4.27",
     "@volar/typescript": "~2.4.27",
-    "computeds": "^0.0.1",
     "content-tag": "^3.1.2",
-    "escape-string-regexp": "^4.0.0",
-    "semver": "^7.5.2",
     "silent-error": "^1.1.1",
-    "uuid": "^8.3.2",
     "volar-service-html": "~0.0.68",
     "volar-service-typescript": "~0.0.68",
     "vscode-languageserver-protocol": "^3.17.5",
-    "vscode-languageserver-textdocument": "^1.0.5",
-    "vscode-uri": "^3.0.8",
-    "yargs": "^17.5.1"
+    "vscode-languageserver-textdocument": "^1.0.12",
+    "vscode-uri": "^3.1.0"
   },
   "devDependencies": {
     "@glimmer/component": "^2.0.0",
