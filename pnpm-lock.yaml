@@ -79,7 +79,7 @@ importers:
   packages/core:
     dependencies:
       '@glimmer/syntax':
-        specifier: '>= 0.95.0'
+        specifier: ^0.95.0
         version: 0.95.0
       '@glint/template':
         specifier: workspace:*
@@ -105,24 +105,12 @@ importers:
       '@volar/typescript':
         specifier: ~2.4.27
         version: 2.4.27
-      computeds:
-        specifier: ^0.0.1
-        version: 0.0.1
       content-tag:
         specifier: ^3.1.2
         version: 3.1.2
-      escape-string-regexp:
-        specifier: ^4.0.0
-        version: 4.0.0
-      semver:
-        specifier: ^7.5.2
-        version: 7.7.1
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
-      uuid:
-        specifier: ^8.3.2
-        version: 8.3.2
       volar-service-html:
         specifier: ~0.0.68
         version: 0.0.68(@volar/language-service@2.4.27)
@@ -133,14 +121,11 @@ importers:
         specifier: ^3.17.5
         version: 3.17.5
       vscode-languageserver-textdocument:
-        specifier: ^1.0.5
+        specifier: ^1.0.12
         version: 1.0.12
       vscode-uri:
-        specifier: ^3.0.8
+        specifier: ^3.1.0
         version: 3.1.0
-      yargs:
-        specifier: ^17.5.1
-        version: 17.7.2
     devDependencies:
       '@glimmer/component':
         specifier: ^2.0.0
@@ -230,8 +215,8 @@ importers:
         specifier: ~2.4.27
         version: 2.4.27
       jiti:
-        specifier: ~2.4.2
-        version: 2.4.2
+        specifier: ~2.6.1
+        version: 2.6.1
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -318,8 +303,8 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       vscode-ext-gen:
-        specifier: ^0.5.0
-        version: 0.5.5
+        specifier: ^1.5.1
+        version: 1.5.1
 
   test-packages/package-test-core:
     devDependencies:
@@ -390,7 +375,7 @@ importers:
         specifier: ~3.0.9
         version: 3.0.9(@types/node@18.19.81)(@vitest/ui@1.0.4)
       vscode-uri:
-        specifier: ^3.0.8
+        specifier: ^3.1.0
         version: 3.1.0
 
   test-packages/package-test-template:
@@ -456,7 +441,7 @@ importers:
         specifier: ~3.0.9
         version: 3.0.9(@types/node@18.19.81)(@vitest/ui@1.0.4)
       vscode-uri:
-        specifier: ^3.0.8
+        specifier: ^3.1.0
         version: 3.1.0
 
   test-packages/test-utils:
@@ -489,7 +474,7 @@ importers:
         specifier: ^7.1.1
         version: 7.2.0
       vscode-uri:
-        specifier: ^3.0.8
+        specifier: ^3.1.0
         version: 3.1.0
     devDependencies:
       typescript:
@@ -1550,6 +1535,10 @@ packages:
     resolution: {integrity: sha512-gcJuHiXgnrzaU8NyU+2bMbtS6PNOr5v5B8OXBqaBvTCsMpXLvKo8OBOQFCoUN0rPX2J6VaFqrbi/371sMvzZug==}
     engines: {node: 12.* || 14.* || >= 16}
 
+  '@embroider/addon-shim@1.10.2':
+    resolution: {integrity: sha512-EfI9cJ5/3QSUJtwm7x1MXrx3TEa2p7RNgSHefy7fvGm8/DP1xUFL25nST1NaHbHcqR1UhMlrTtv5iUIDoVzeQQ==}
+    engines: {node: 12.* || 14.* || >= 16}
+
   '@embroider/addon-shim@1.9.0':
     resolution: {integrity: sha512-fMzayl/licUL8VRAy4qXROKcYvHwUbV8aTh4m97L5/MRuVpxbcAy92DGGTqx5OBKCSQN3gMg+sUKeE6AviefpQ==}
     engines: {node: 12.* || 14.* || >= 16}
@@ -1582,6 +1571,10 @@ packages:
 
   '@embroider/shared-internals@3.0.1':
     resolution: {integrity: sha512-d7RQwDwqqHo7YvjE9t1rtIrCCYtbSoO0uRq2ikVhRh4hGS5OojZNu2ZtS0Wqrg+V72CRtMFr/hibTvHNsRM2Lg==}
+    engines: {node: 12.* || 14.* || >= 16}
+
+  '@embroider/shared-internals@3.0.2':
+    resolution: {integrity: sha512-/SusdG+zgosc3t+9sPFVKSFOYyiSgLfXOT6lYNWoG1YtnhWDxlK4S8leZ0jhcVjemdaHln5rTyxCnq8oFLxqpQ==}
     engines: {node: 12.* || 14.* || >= 16}
 
   '@embroider/vite@1.3.2':
@@ -2254,8 +2247,8 @@ packages:
   '@handlebars/parser@2.0.0':
     resolution: {integrity: sha512-EP9uEDZv/L5Qh9IWuMUGJRfwhXJ4h1dqKTT4/3+tY0eu7sPis7xh23j61SYUnNF4vqCQvvUXpDo9Bh/+q1zASA==}
 
-  '@handlebars/parser@2.2.1':
-    resolution: {integrity: sha512-D76vKOZFEGA9v6g0rZTYTQDUXNopCblW1Zeas3EEVrbdeh8gWrCEO9/goocKmcgtqAwv1Md76p58UQp7HeFTEw==}
+  '@handlebars/parser@2.2.2':
+    resolution: {integrity: sha512-n/SZW+12rwikx/f8YcSv9JCi5p9vn1Bnts9ZtVvfErG4h0gbjHI1H1ZMhVUnaOC7yzFc6PtsCKIK8XeTnL90Gw==}
     engines: {node: ^18 || ^20 || ^22 || >=24}
 
   '@humanfs/core@0.19.1':
@@ -3851,9 +3844,6 @@ packages:
   compression@1.8.1:
     resolution: {integrity: sha512-9mAqGPHLakhCLeNyxPkK4xVo746zQ/czLH1Ky+vkitMnWfWZps8r0qXuwhwizagCRttsL4lfG4pIOvaWLpAP0w==}
     engines: {node: '>= 0.8.0'}
-
-  computeds@0.0.1:
-    resolution: {integrity: sha512-7CEBgcMjVmitjYo5q8JTJVra6X5mQ20uTThdK+0kR7UEaDrAWEQcRiBtWJzga4eRpP6afNwwLsX2SET2JhVB1Q==}
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -5801,6 +5791,10 @@ packages:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
 
+  jiti@2.6.1:
+    resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
+    hasBin: true
+
   jju@1.4.0:
     resolution: {integrity: sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==}
 
@@ -6039,6 +6033,9 @@ packages:
 
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+
+  lodash@4.17.23:
+    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
 
   log-symbols@2.2.0:
     resolution: {integrity: sha512-VeIAFslyIerEJLXHziedo2basKbMKtTw3vfn5IzG0XTjhAVEJyNHnL2p7vc+wBDSdQuUpNw3M2u6xb9QsAY5Eg==}
@@ -7237,9 +7234,6 @@ packages:
     resolution: {integrity: sha512-Gf9qqc58SpCA/xdziiHz35F4GNIWYWZrEshUc/G/r5BnLph6xpKuLeoJoQuj5WfBIx/eQLf+hmVPYHaxJu7V2g==}
     engines: {node: '>= 10.13.0'}
 
-  scule@1.3.0:
-    resolution: {integrity: sha512-6FtHJEvt+pVMIB9IBY+IcCJ6Z5f1iQnytgyfKMhDKgmzYG+TeH/wx1y3l27rshSbLiSanrR9ffZDrEsmjlQF2g==}
-
   semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
     hasBin: true
@@ -8150,8 +8144,8 @@ packages:
       '@volar/language-service':
         optional: true
 
-  vscode-ext-gen@0.5.5:
-    resolution: {integrity: sha512-wTwcPvGF9xZ0fN7sPgdUPESH+Aw20Tk1vvgbYnKzWT4sFOqRP54qcpxjPUMdDoDGfiVIoXW87TNxn0yKXq3djw==}
+  vscode-ext-gen@1.5.1:
+    resolution: {integrity: sha512-FI8XbZBDu8K6hj5PXRMBd+E+k1r2gmJV7QHmEsVRaDbGjk5qREMDQpFamBEQLfWj96R3JiYujC+mobUNGJYu1Q==}
     hasBin: true
 
   vscode-html-languageservice@5.6.1:
@@ -10064,6 +10058,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@embroider/addon-shim@1.10.2':
+    dependencies:
+      '@embroider/shared-internals': 3.0.2
+      broccoli-funnel: 3.0.8
+      common-ancestor-path: 1.0.1
+      semver: 7.7.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@embroider/addon-shim@1.9.0':
     dependencies:
       '@embroider/shared-internals': 2.9.0
@@ -10236,6 +10239,24 @@ snapshots:
       is-subdir: 1.2.0
       js-string-escape: 1.0.1
       lodash: 4.17.21
+      minimatch: 3.1.2
+      pkg-entry-points: 1.1.1
+      resolve-package-path: 4.0.3
+      resolve.exports: 2.0.3
+      semver: 7.7.3
+      typescript-memoize: 1.1.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@embroider/shared-internals@3.0.2':
+    dependencies:
+      babel-import-util: 3.0.1
+      debug: 4.4.3
+      ember-rfc176-data: 0.3.18
+      fs-extra: 9.1.0
+      is-subdir: 1.2.0
+      js-string-escape: 1.0.1
+      lodash: 4.17.23
       minimatch: 3.1.2
       pkg-entry-points: 1.1.1
       resolve-package-path: 4.0.3
@@ -10611,7 +10632,7 @@ snapshots:
 
   '@glimmer/component@2.0.0':
     dependencies:
-      '@embroider/addon-shim': 1.10.0
+      '@embroider/addon-shim': 1.10.2
       '@glimmer/env': 0.1.7
     transitivePeerDependencies:
       - supports-color
@@ -10818,7 +10839,7 @@ snapshots:
       '@glimmer/interfaces': 0.94.6
       '@glimmer/util': 0.94.8
       '@glimmer/wire-format': 0.94.8
-      '@handlebars/parser': 2.2.1
+      '@handlebars/parser': 2.2.2
       simple-html-tokenizer: 0.5.11
 
   '@glimmer/util@0.84.3':
@@ -10889,19 +10910,14 @@ snapshots:
       '@volar/source-map': 2.4.27
       '@volar/test-utils': 2.4.27
       '@volar/typescript': 2.4.27
-      computeds: 0.0.1
       content-tag: 3.1.2
-      escape-string-regexp: 4.0.0
-      semver: 7.7.1
       silent-error: 1.1.1
       typescript: 5.9.3
-      uuid: 8.3.2
       volar-service-html: 0.0.68(@volar/language-service@2.4.27)
       volar-service-typescript: 0.0.68(@volar/language-service@2.4.27)
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
-      yargs: 17.7.2
     transitivePeerDependencies:
       - supports-color
 
@@ -10917,7 +10933,7 @@ snapshots:
 
   '@handlebars/parser@2.0.0': {}
 
-  '@handlebars/parser@2.2.1': {}
+  '@handlebars/parser@2.2.2': {}
 
   '@humanfs/core@0.19.1': {}
 
@@ -12873,8 +12889,6 @@ snapshots:
       vary: 1.1.2
     transitivePeerDependencies:
       - supports-color
-
-  computeds@0.0.1: {}
 
   concat-map@0.0.1: {}
 
@@ -15625,6 +15639,8 @@ snapshots:
 
   jiti@2.4.2: {}
 
+  jiti@2.6.1: {}
+
   jju@1.4.0: {}
 
   js-string-escape@1.0.1: {}
@@ -15902,6 +15918,8 @@ snapshots:
   lodash.uniq@4.5.0: {}
 
   lodash@4.17.21: {}
+
+  lodash@4.17.23: {}
 
   log-symbols@2.2.0:
     dependencies:
@@ -17199,8 +17217,6 @@ snapshots:
       ajv-formats: 2.1.1
       ajv-keywords: 5.1.0(ajv@8.17.1)
 
-  scule@1.3.0: {}
-
   semver@5.7.2: {}
 
   semver@6.3.1: {}
@@ -18258,11 +18274,10 @@ snapshots:
     optionalDependencies:
       '@volar/language-service': 2.4.27
 
-  vscode-ext-gen@0.5.5:
+  vscode-ext-gen@1.5.1:
     dependencies:
       cac: 6.7.14
-      scule: 1.3.0
-      yargs: 17.7.2
+      tinyglobby: 0.2.15
 
   vscode-html-languageservice@5.6.1:
     dependencies:

@@ -25,7 +25,7 @@
     "@volar/language-service": "~2.4.27",
     "@volar/test-utils": "~2.4.27",
     "execa": "^7.1.1",
-    "vscode-uri": "^3.0.8"
+    "vscode-uri": "^3.1.0"
   },
   "scripts": {
     "test": "true",

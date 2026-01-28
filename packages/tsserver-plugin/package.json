@@ -24,7 +24,7 @@
     "@glint/ember-tsc": "workspace:*",
     "@volar/language-core": "~2.4.27",
     "@volar/typescript": "~2.4.27",
-    "jiti": "~2.4.2",
+    "jiti": "~2.6.1",
     "typescript": "^5.9.3"
   },
   "publishConfig": {
