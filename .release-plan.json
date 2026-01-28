@@ -1,40 +1,63 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "patch",
-      "oldVersion": "1.0.8",
-      "newVersion": "1.0.9",
+      "impact": "minor",
+      "oldVersion": "1.0.9",
+      "newVersion": "1.1.0",
       "tagName": "latest",
       "constraints": [
         {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
           "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
+          "reason": "Has dependency `workspace:*` on @glint/template"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/core/package.json"
     },
     "@glint/template": {
-      "oldVersion": "1.7.3"
+      "impact": "patch",
+      "oldVersion": "1.7.3",
+      "newVersion": "1.7.4",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
+        }
+      ],
+      "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
-      "impact": "patch",
-      "oldVersion": "2.0.8",
-      "newVersion": "2.0.9",
+      "impact": "minor",
+      "oldVersion": "2.0.9",
+      "newVersion": "2.1.0",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
     },
     "@glint/type-test": {
       "oldVersion": "2.0.0"
-    },
-    "v2-ts-ember-addon": {
-      "oldVersion": "0.0.1"
     }
   },
-  "description": "## Release (2026-01-09)\n\n* @glint/ember-tsc 1.0.9 (patch)\n* @glint/tsserver-plugin 2.0.9 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1031](https://github.com/typed-ember/glint/pull/1031) Fix parsing of `obj.$prop` by not over-escaping the `$` character ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* [#1032](https://github.com/typed-ember/glint/pull/1032) Update test assertions to account for AI features in vscode ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-01-28)\n\n* @glint/ember-tsc 1.1.0 (minor)\n* @glint/template 1.7.4 (patch)\n* @glint/tsserver-plugin 2.1.0 (minor)\n\n#### :rocket: Enhancement\n* Other\n  * [#1042](https://github.com/typed-ember/glint/pull/1042) Upgrade VSCode dependencies ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1039](https://github.com/typed-ember/glint/pull/1039) Update direct dependencies and removed unused dependencies  ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#1037](https://github.com/typed-ember/glint/pull/1037) Upgrade all volar-related dependencies ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* Other\n  * [#1043](https://github.com/typed-ember/glint/pull/1043) Make v2-ts-ember-addon private ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/template`\n  * [#1041](https://github.com/typed-ember/glint/pull/1041) Update HTML Attributes ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#1036](https://github.com/typed-ember/glint/pull/1036) Untyped components should allow any attributes ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1040](https://github.com/typed-ember/glint/pull/1040) Update linting dependencies ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`\n  * [#1038](https://github.com/typed-ember/glint/pull/1038) Upgrade TypeScript ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
