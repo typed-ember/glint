@@ -22,8 +22,8 @@
   },
   "dependencies": {
     "@glint/ember-tsc": "workspace:*",
-    "@volar/language-core": "2.4.23",
-    "@volar/typescript": "2.4.23",
+    "@volar/language-core": "2.4.27",
+    "@volar/typescript": "2.4.27",
     "jiti": "~2.4.2",
     "typescript": ">=5.6.0"
   },
