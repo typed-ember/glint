@@ -989,9 +989,9 @@ export function templateToTypescript(
     function isGlobal(path: AST.Expression): boolean {
       return Boolean(
         path.type === 'PathExpression' &&
-          path.head.type === 'VarHead' &&
-          globals?.includes(path.head.name) &&
-          !scope.hasBinding(path.head.name),
+        path.head.type === 'VarHead' &&
+        globals?.includes(path.head.name) &&
+        !scope.hasBinding(path.head.name),
       );
     }
 
