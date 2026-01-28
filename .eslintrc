@@ -54,6 +54,38 @@
         // and `unknown` in all the right places
         "@typescript-eslint/no-explicit-any": "off"
       }
+    },
+    // New rules adopted with linting upgrades 
+    {
+      "files": ["**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-require-imports": "off"
+      }
+    },
+    {
+      "files": ["packages/tsserver-plugin/src/typescript-server-plugin.ts"],
+      "rules": {
+        "@typescript-eslint/no-unsafe-function-type": "off"
+      }
+    },
+    // Violated in tests that are checking type errors, not usedness
+    {
+      "files": ["**/*.d.ts"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-empty-object-type": "off"
+      }
+    },
+    {
+      "files": ["**/__tests__/**", "test-packages/**", "./packages/type-test/**"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-require-imports": "off",
+        "@typescript-eslint/no-unused-expressions": "off",
+        "@typescript-eslint/no-unsafe-declaration-merging": "off",
+        "@typescript-eslint/no-empty-object-type": "off"
+      }
     }
   ]
 }

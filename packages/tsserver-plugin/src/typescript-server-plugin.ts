@@ -179,7 +179,9 @@ function proxyLanguageServiceForGlint<T>(
   languageService: ts.LanguageService,
   asScriptId: (fileName: string) => T,
 ): ts.LanguageService {
+  // eslint-lint-disable-next-line @typescript-eslint/no-unsafe-function-type
   const proxyCache = new Map<string | symbol, Function | undefined>();
+  // eslint-lint-disable-next-line @typescript-eslint/no-unsafe-function-type
   const getProxyMethod = (target: ts.LanguageService, p: string | symbol): Function | undefined => {
     switch (p) {
       case 'getCompletionsAtPosition':
