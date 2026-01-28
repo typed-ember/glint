@@ -297,8 +297,8 @@ importers:
         specifier: ^10.2.0
         version: 10.8.2
       reactive-vscode:
-        specifier: 1.0.0-beta.2
-        version: 1.0.0-beta.2(@types/vscode@1.108.1)
+        specifier: 0.4.1
+        version: 0.4.1(@types/vscode@1.108.1)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -2485,8 +2485,8 @@ packages:
   '@polka/url@1.0.0-next.28':
     resolution: {integrity: sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==}
 
-  '@reactive-vscode/reactivity@1.0.0-beta.2':
-    resolution: {integrity: sha512-sVddfw2Fq285HMG/hGiOFyCGOMhtIBw7n0y1QG58W1CGdMBSUtJ7gXvQJuQz2qO3c9M6zY/BNYRmWCQHFbzemg==}
+  '@reactive-vscode/reactivity@0.4.1':
+    resolution: {integrity: sha512-ThNXTkTNK9LHvdlBcyzqSywlfF61FIQDlVDqv12+rkRQCCUjWsD+oilbIYYi5uAJkQ2h/yLyowx3f0YVEY1bxQ==}
 
   '@rollup/plugin-babel@6.0.4':
     resolution: {integrity: sha512-YF7Y52kFdFT/xVSuVdjkV5ZdX/3YtmX0QulG+x0taQOtJdHYzVU61aSSkAgVJ7NOv6qPkIYiJSgSWWN/DM5sGw==}
@@ -7039,8 +7039,8 @@ packages:
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  reactive-vscode@1.0.0-beta.2:
-    resolution: {integrity: sha512-Er94+XaRhRuJEpSRSCuvXW9pyta53R+VEGxdIG+X/hjruT+rg2HTDZDV0RbtQjwI1yWPflDTB903MkiQOn3w5Q==}
+  reactive-vscode@0.4.1:
+    resolution: {integrity: sha512-meh1p9cF3A0kRKQARo84PASHwa27cFMD3bLWfV7DypERf51678f420my8btKAyMHl3P6pI7LcivrrwbfrIgmNg==}
     peerDependencies:
       '@types/vscode': ^1.101.0
 
@@ -11378,7 +11378,7 @@ snapshots:
 
   '@polka/url@1.0.0-next.28': {}
 
-  '@reactive-vscode/reactivity@1.0.0-beta.2': {}
+  '@reactive-vscode/reactivity@0.4.1': {}
 
   '@rollup/plugin-babel@6.0.4(@babel/core@7.28.6)(rollup@4.52.4)':
     dependencies:
@@ -17191,9 +17191,9 @@ snapshots:
 
   react-is@18.3.1: {}
 
-  reactive-vscode@1.0.0-beta.2(@types/vscode@1.108.1):
+  reactive-vscode@0.4.1(@types/vscode@1.108.1):
     dependencies:
-      '@reactive-vscode/reactivity': 1.0.0-beta.2
+      '@reactive-vscode/reactivity': 0.4.1
       '@types/vscode': 1.108.1
 
   read-pkg@9.0.1:
