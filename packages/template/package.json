@@ -29,7 +29,7 @@
     "aria-attributes": "^2.0.1",
     "ember-source": "^6.2.0",
     "expect-type": "^1.2.1",
-    "html-element-attributes": "^3.3.0",
+    "html-element-attributes": "^3.5.0",
     "html-event-attributes": "^2.2.0",
     "sums-up": "^2.1.0",
     "svg-element-attributes": "^2.1.0",
