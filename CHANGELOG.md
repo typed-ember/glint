@@ -1,5 +1,32 @@
 # Changelog
 
+## Release (2026-01-28)
+
+* @glint/ember-tsc 1.1.0 (minor)
+* @glint/template 1.7.4 (patch)
+* @glint/tsserver-plugin 2.1.0 (minor)
+
+#### :rocket: Enhancement
+* Other
+  * [#1042](https://github.com/typed-ember/glint/pull/1042) Upgrade VSCode dependencies ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* `@glint/ember-tsc`, `@glint/tsserver-plugin`
+  * [#1039](https://github.com/typed-ember/glint/pull/1039) Update direct dependencies and removed unused dependencies  ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+  * [#1037](https://github.com/typed-ember/glint/pull/1037) Upgrade all volar-related dependencies ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :house: Internal
+* Other
+  * [#1043](https://github.com/typed-ember/glint/pull/1043) Make v2-ts-ember-addon private ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* `@glint/template`
+  * [#1041](https://github.com/typed-ember/glint/pull/1041) Update HTML Attributes ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+  * [#1036](https://github.com/typed-ember/glint/pull/1036) Untyped components should allow any attributes ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* `@glint/ember-tsc`, `@glint/tsserver-plugin`
+  * [#1040](https://github.com/typed-ember/glint/pull/1040) Update linting dependencies ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`
+  * [#1038](https://github.com/typed-ember/glint/pull/1038) Upgrade TypeScript ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-01-09)
 
 * @glint/ember-tsc 1.0.9 (patch)
