@@ -4,7 +4,7 @@
 // Meta info
 export const publisher = "typed-ember"
 export const name = "glint2-vscode"
-export const version = "1.0.0"
+export const version = "1.0.1"
 export const displayName = "Glint V2"
 export const description = "Volar.js-powered Ember.js language server and TS Plugin for VS Code"
 export const extensionId = `${publisher}.${name}`
