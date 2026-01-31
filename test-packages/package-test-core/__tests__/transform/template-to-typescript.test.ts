@@ -939,6 +939,26 @@ describe('Transform: rewriteTemplate', () => {
   });
 
   describe('plain elements', () => {
+    describe('MathML', () => {
+      test('with static contents', () => {
+        let template = '<math><mi>x</mi><mo>=</mo><mi>y</mi></math>';
+
+        expect(templateBody(template)).toMatchInlineSnapshot(`
+          "{
+          const __glintY__ = __glintDSL__.emitMathMlElement("math");
+          {
+          const __glintY__ = __glintDSL__.emitMathMlElement("mi");
+          }
+          {
+          const __glintY__ = __glintDSL__.emitMathMlElement("mo");
+          }
+          {
+          const __glintY__ = __glintDSL__.emitMathMlElement("mi");
+          }
+          }"
+        `);
+      });
+    });
     test('with programmatic contents', () => {
       let template = '<div>{{@foo}}</div>';
 
