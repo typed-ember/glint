@@ -20,7 +20,7 @@
     "@types/yargs": "^17.0.10",
     "@typescript/server-harness": "latest",
     "@vitest/ui": "~1.0.0",
-    "@volar/language-server": "~2.4.27",
+    "@volar/language-server": "~2.4.28",
     "common-tags": "^1.8.0",
     "ember-source": "^6.2.0",
     "execa": "^4.0.1",
