@@ -1,5 +1,20 @@
 # Changelog
 
+## Release (2026-02-03)
+
+* @glint/ember-tsc 1.1.1 (patch)
+* @glint/tsserver-plugin 2.1.1 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`, `@glint/tsserver-plugin`
+  * [#1047](https://github.com/typed-ember/glint/pull/1047) Upgrade @volar/* dependencies ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :house: Internal
+* [#1044](https://github.com/typed-ember/glint/pull/1044) Update vscode meta, and extension publishing instructions ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-01-28)
 
 * @glint/ember-tsc 1.1.0 (minor)
