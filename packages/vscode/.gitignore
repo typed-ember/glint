@@ -1,6 +1,7 @@
 node_modules
 .vscode-test/
 *.vsix
+*.tgz
 lib/
 dist/
 tsconfig.tsbuildinfo
