@@ -7,7 +7,8 @@ but first, the prep
     1. bump the version in package.json (packages/vscode/package.json)
     1. run `pnpm build`
     1. run `pnpm bundle`
-    1. run `pnpm pack` - this creates the `*.vsix` file that we publish
+    1. run `pnpm run pack` - this creates the `*.vsix` file that we publish
+3. commit everything and open an `internal` PR -- wait for CI pass before proceeding
 
 ## VS Code Marketplace
 
