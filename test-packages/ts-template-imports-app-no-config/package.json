@@ -1,0 +1,28 @@
+{
+  "name": "ts-template-imports-app-no-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "dependenciesMeta": {
+    "@glint/template": {
+      "injected": true
+    },
+    "@glint/ember-tsc": {
+      "injected": true
+    },
+    "@glint/tsserver-plugin": {
+      "injected": true
+    }
+  },
+  "devDependencies": {
+    "@glimmer/component": "^2.0.0",
+    "@glint/ember-tsc": "workspace:*",
+    "@glint/template": "workspace:*",
+    "@glint/tsserver-plugin": "workspace:*",
+    "ember-source": "^6.2.0",
+    "typescript": "^5.9.3"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

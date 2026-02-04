@@ -7,3 +7,4 @@ tsserver.log
 dist/
 .log/
 .cursor
+.DS_Store
