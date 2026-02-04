@@ -124,6 +124,8 @@ const plugin = createLanguageServicePlugin(
   ): { languagePlugins: unknown[]; setup?: (language: any) => void } => {
     const logger = info.project.projectService.logger;
     const logInfo = (message: string): void => logger.info(`[Glint] ${message}`);
+    const formatError = (error: unknown): string =>
+      error instanceof Error ? (error.stack ?? error.message) : String(error);
     const config = info.config ?? {};
     const emberTscSource = normalizeEmberTscSource((config as any).emberTscSource);
     const workspaceRoot =
@@ -171,91 +173,133 @@ const plugin = createLanguageServicePlugin(
 
     logInfo(`Using ${resolved.source} ember-tsc from ${resolved.resolvedPath}.`);
 
-    const { findConfig, createEmberLanguagePlugin } = emberTsc;
-    const cwd = info.languageServiceHost.getCurrentDirectory();
-    const glintConfig = findConfig(cwd);
+    const { findConfig, createEmberLanguagePlugin, createDynamicEmberLanguagePlugin } = emberTsc;
 
-    if (glintConfig) {
-      const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig, {
-        clientId: 'tsserver-plugin',
-      });
-      return {
-        languagePlugins: [gtsLanguagePlugin],
-        setup: (language: any) => {
-          // project2Service.set(info.project, [
-          //   language,
-          //   info.languageServiceHost,
-          //   info.languageService,
-          // ]);
+    try {
+      const glintConfig = findConfigForProject(info, findConfig, logInfo);
 
-          info.languageService = proxyLanguageServiceForGlint(
-            ts,
-            language,
-            info.languageService,
-            (fileName) => fileName,
+      const compilerOptions = info.project.getCompilerOptions();
+      if (compilerOptions.moduleResolution == null) {
+        info.project.setCompilerOptions({
+          ...compilerOptions,
+          moduleResolution: ts.ModuleResolutionKind.Bundler,
+          module: compilerOptions.module ?? ts.ModuleKind.ESNext,
+        });
+      }
+
+      if (glintConfig) {
+        let gtsLanguagePlugin: unknown;
+        try {
+          gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig, {
+            clientId: 'tsserver-plugin',
+          });
+        } catch (error) {
+          logInfo(
+            `Failed to create Ember language plugin from Glint config: ${formatError(error)}`,
           );
+          throw error;
+        }
 
-          const resolveModuleNameLiterals =
-            info.languageServiceHost.resolveModuleNameLiterals?.bind(info.languageServiceHost);
+        return {
+          languagePlugins: [gtsLanguagePlugin],
+          setup: (language: any) => {
+            // project2Service.set(info.project, [
+            //   language,
+            //   info.languageServiceHost,
+            //   info.languageService,
+            // ]);
 
-          if (resolveModuleNameLiterals) {
-            // TS isn't aware of our custom .gts/.gjs extensions by default which causes
-            // issues with resolving imports that omit extensions. We hackishly "teach"
-            // TS about these extensions by overriding `resolveModuleNameLiterals` to
-            // inject non-existent imports that cause TS to consider the extensions when
-            // resolving.
-            //
-            // Origin of this hack:
-            // https://github.com/typed-ember/glint/issues/806#issuecomment-2758616327
-            info.languageServiceHost.resolveModuleNameLiterals = (
-              moduleLiterals,
-              containingFile,
-              redirectedReference,
-              options,
-              ...rest
-            ) => {
-              let fakeImportNodes: any = [];
-              if (moduleLiterals.length > 0) {
-                fakeImportNodes.push({
-                  ...moduleLiterals[0],
-                  text: './__NONEXISTENT_GLINT_HACK__.gts',
-                });
-                fakeImportNodes.push({
-                  ...moduleLiterals[0],
-                  text: './__NONEXISTENT_GLINT_HACK__.gjs',
-                });
-              }
+            info.languageService = proxyLanguageServiceForGlint(
+              ts,
+              language,
+              info.languageService,
+              (fileName) => fileName,
+            );
 
-              const result = resolveModuleNameLiterals(
-                [...fakeImportNodes, ...moduleLiterals],
+            const resolveModuleNameLiterals =
+              info.languageServiceHost.resolveModuleNameLiterals?.bind(info.languageServiceHost);
+
+            if (resolveModuleNameLiterals) {
+              // TS isn't aware of our custom .gts/.gjs extensions by default which causes
+              // issues with resolving imports that omit extensions. We hackishly "teach"
+              // TS about these extensions by overriding `resolveModuleNameLiterals` to
+              // inject non-existent imports that cause TS to consider the extensions when
+              // resolving.
+              //
+              // Origin of this hack:
+              // https://github.com/typed-ember/glint/issues/806#issuecomment-2758616327
+              info.languageServiceHost.resolveModuleNameLiterals = (
+                moduleLiterals,
                 containingFile,
                 redirectedReference,
                 options,
-                ...rest,
-              );
+                ...rest
+              ) => {
+                let fakeImportNodes: any = [];
+                if (moduleLiterals.length > 0) {
+                  fakeImportNodes.push({
+                    ...moduleLiterals[0],
+                    text: './__NONEXISTENT_GLINT_HACK__.gts',
+                  });
+                  fakeImportNodes.push({
+                    ...moduleLiterals[0],
+                    text: './__NONEXISTENT_GLINT_HACK__.gjs',
+                  });
+                }
 
-              return result.slice(fakeImportNodes.length);
-            };
-          }
+                const result = resolveModuleNameLiterals(
+                  [...fakeImportNodes, ...moduleLiterals],
+                  containingFile,
+                  redirectedReference,
+                  options,
+                  ...rest,
+                );
 
-          // Add Glint-specific protocol handlers for tsserver communication
-          addGlintCommands();
+                return result.slice(fakeImportNodes.length);
+              };
+            }
 
-          // #3963
-          // const timer = setInterval(() => {
-          //   if (info.project['program']) {
-          //     clearInterval(timer);
-          //     info.project['program'].__glint__ = { language };
-          //   }
-          // }, 50);
-        },
-      };
-    } else {
-      logInfo('Glint TS Plugin is not running: no Glint config was found.');
+            // Add Glint-specific protocol handlers for tsserver communication
+            addGlintCommands();
 
-      return {
-        languagePlugins: [],
-      };
+            // #3963
+            // const timer = setInterval(() => {
+            //   if (info.project['program']) {
+            //     clearInterval(timer);
+            //     info.project['program'].__glint__ = { language };
+            //   }
+            // }, 50);
+          },
+        };
+      } else {
+        logInfo('Glint TS Plugin did not find a Glint config at init; using dynamic activation.');
+
+        let gtsLanguagePlugin: unknown;
+        try {
+          gtsLanguagePlugin = createDynamicEmberLanguagePlugin(findConfig, {
+            clientId: 'tsserver-plugin',
+            getCurrentDirectory: () => info.languageServiceHost.getCurrentDirectory(),
+          });
+        } catch (error) {
+          logInfo(`Failed to create dynamic Ember language plugin: ${formatError(error)}`);
+          throw error;
+        }
+
+        return {
+          languagePlugins: [gtsLanguagePlugin],
+          setup: (language: any) => {
+            info.languageService = proxyLanguageServiceForGlint(
+              ts,
+              language,
+              info.languageService,
+              (fileName) => fileName,
+            );
+          },
+        };
+      }
+    } catch (error) {
+      logInfo(`Glint TS Plugin failed to initialize: ${formatError(error)}`);
+      throw error;
     }
 
     // https://github.com/JetBrains/intellij-plugins/blob/6435723ad88fa296b41144162ebe3b8513f4949b/Angular/src-js/angular-service/src/index.ts#L69
@@ -302,6 +346,68 @@ const plugin = createLanguageServicePlugin(
 );
 
 export = plugin;
+
+function findConfigForProject(
+  info: ts.server.PluginCreateInfo,
+  findConfig: (from: string) => any,
+  log?: (message: string) => void,
+): any {
+  const candidateDirs: string[] = [];
+  const projectCurrentDirectory =
+    typeof (info.project as any).getCurrentDirectory === 'function'
+      ? (info.project as any).getCurrentDirectory()
+      : undefined;
+
+  if (projectCurrentDirectory) {
+    candidateDirs.push(projectCurrentDirectory);
+  }
+
+  candidateDirs.push(info.languageServiceHost.getCurrentDirectory());
+
+  const scriptFileNames = info.project.getScriptFileNames();
+  const gtsLikeFiles = scriptFileNames.filter(
+    (fileName) => fileName.endsWith('.gts') || fileName.endsWith('.gjs'),
+  );
+  for (const fileName of gtsLikeFiles) {
+    if (fileName.endsWith('.gts') || fileName.endsWith('.gjs')) {
+      candidateDirs.push(path.dirname(fileName));
+    }
+  }
+
+  for (const fileName of scriptFileNames) {
+    candidateDirs.push(path.dirname(fileName));
+  }
+
+  const checkedDirs = new Set<string>();
+  for (const dir of candidateDirs) {
+    if (checkedDirs.has(dir)) {
+      continue;
+    }
+    checkedDirs.add(dir);
+
+    const config = findConfig(dir);
+    if (config) {
+      return config;
+    }
+  }
+
+  if (log) {
+    const checkedList = Array.from(checkedDirs);
+    const shownDirs = checkedList.slice(0, 8);
+    const suffix =
+      checkedList.length > shownDirs.length
+        ? ` (showing ${shownDirs.length} of ${checkedList.length})`
+        : '';
+    log(
+      `Glint TS Plugin did not find a Glint config. ` +
+        `Checked ${checkedList.length} directories${suffix}. ` +
+        `Found ${gtsLikeFiles.length} .gts/.gjs files in the project. ` +
+        `Directories: ${shownDirs.join(', ') || '(none)'}`,
+    );
+  }
+
+  return null;
+}
 
 function proxyLanguageServiceForGlint<T>(
   ts: typeof import('typescript'),

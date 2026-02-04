@@ -306,6 +306,25 @@ importers:
         specifier: ^1.5.1
         version: 1.5.1
 
+  test-packages/no-config-app:
+    dependenciesMeta:
+      '@glint/ember-tsc':
+        injected: true
+      '@glint/template':
+        injected: true
+      '@glint/tsserver-plugin':
+        injected: true
+    devDependencies:
+      '@glimmer/component':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@glint/template':
+        specifier: workspace:*
+        version: file:packages/template
+      ember-source:
+        specifier: ^6.2.0
+        version: 6.7.0(@glimmer/component@2.0.0)
+
   test-packages/package-test-core:
     devDependencies:
       '@glimmer/component':
@@ -545,6 +564,34 @@ importers:
       ember-source:
         specifier: ^6.2.0
         version: 6.2.0(0b9f6e15b31a343ef2b629c667cc9f7d)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  test-packages/ts-template-imports-app-no-config:
+    dependenciesMeta:
+      '@glint/ember-tsc':
+        injected: true
+      '@glint/template':
+        injected: true
+      '@glint/tsserver-plugin':
+        injected: true
+    devDependencies:
+      '@glimmer/component':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@glint/ember-tsc':
+        specifier: workspace:*
+        version: file:packages/core(typescript@5.9.3)
+      '@glint/template':
+        specifier: workspace:*
+        version: file:packages/template
+      '@glint/tsserver-plugin':
+        specifier: workspace:*
+        version: file:packages/tsserver-plugin
+      ember-source:
+        specifier: ^6.2.0
+        version: 6.7.0(@glimmer/component@2.0.0)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
