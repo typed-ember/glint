@@ -76,6 +76,40 @@ This provides a visual way to understand how your template code is being transfo
 
 NOTE: The Volar Labs plugin might not display diagnostic errors _within_ the transformed/generated .ts code; if you are debugging, for instance, an issue where Glint is unexpectedly showing `any` as the type of some value within your `<template>` tag, try copying the transformed TS contents to a new file ending in `.ts`, which may reveal the underlying issue.
 
+## How to test the Glint experience in the matrix of supported environment?
+
+If you wish to manually test things for a full e2e type situation:
+
+### For VSCode
+
+1. run `pnpm build` at the monorepo root
+1. generate the VSCode extension (instructions above, and in packages/vscode/README)
+1. generate a project
+1. open VSCode in your new project and either uninstall glint or use a blank profile
+1. install the built vsix
+
+### For neovim
+
+1. run `pnpm build` at the monorepo root
+1. generate a project
+1. link the deps
+1. make sure your neovim configuration is using the local `@glint/ember-tsc` instead of a global one
+
+### Scenarios
+
+> [!NOTE]
+> We should convert these to smoke tests so that they run in CI
+
+app in javascript
+```bash
+pnpm dlx ember-cli@latest new my-js-app --pnpm
+```
+
+app in typescript
+```bash
+pnpm dlx ember-cli@latest new my-js-app --pnpm --typescript
+```
+
 ## How to link all the packages to an external project?
 
 Set up the links for all the `@glint/*` packages:
@@ -90,4 +124,5 @@ Then in your project that you want to test out local copies of `@glint/*` in:
 2. `node ../path/to/glint/bin/link-install.mjs`
 
 The local copies of `@glint/*` packages will now be installed in your external project.
+
 

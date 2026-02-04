@@ -1,5 +1,5 @@
-import type { TransformedModule } from '@glint/ember-tsc/lib/transform';
 import { createRequire } from 'node:module';
+import { TransformedModule } from '@glint/ember-tsc/lib/transform';
 import * as path from 'node:path';
 
 const { createJiti } = require('jiti');
@@ -171,9 +171,17 @@ const plugin = createLanguageServicePlugin(
 
     logInfo(`Using ${resolved.source} ember-tsc from ${resolved.resolvedPath}.`);
 
-    const { findConfig, createEmberLanguagePlugin } = emberTsc;
-    const cwd = info.languageServiceHost.getCurrentDirectory();
-    const glintConfig = findConfig(cwd);
+    const { findConfig, createDynamicEmberLanguagePlugin, createEmberLanguagePlugin } = emberTsc;
+    const glintConfig = findConfigForProject(info, findConfig);
+
+    const compilerOptions = info.project.getCompilerOptions();
+    if (compilerOptions.moduleResolution == null) {
+      info.project.setCompilerOptions({
+        ...compilerOptions,
+        moduleResolution: ts.ModuleResolutionKind.Bundler,
+        module: compilerOptions.module ?? ts.ModuleKind.ESNext,
+      });
+    }
 
     if (glintConfig) {
       const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig, {
@@ -251,10 +259,22 @@ const plugin = createLanguageServicePlugin(
         },
       };
     } else {
-      logInfo('Glint TS Plugin is not running: no Glint config was found.');
+      logInfo('Glint TS Plugin did not find config at init; using dynamic activation.');
 
+      const gtsLanguagePlugin = createDynamicEmberLanguagePlugin(findConfig, {
+        clientId: 'tsserver-plugin',
+        getCurrentDirectory: () => info.languageServiceHost.getCurrentDirectory(),
+      });
       return {
-        languagePlugins: [],
+        languagePlugins: [gtsLanguagePlugin],
+        setup: (language: any) => {
+          info.languageService = proxyLanguageServiceForGlint(
+            ts,
+            language,
+            info.languageService,
+            (fileName) => fileName,
+          );
+        },
       };
     }
 
@@ -302,6 +322,43 @@ const plugin = createLanguageServicePlugin(
 );
 
 export = plugin;
+
+function findConfigForProject(
+  info: ts.server.PluginCreateInfo,
+  findConfig: (from: string) => any,
+): any {
+  const candidateDirs: string[] = [];
+  const projectCurrentDirectory =
+    typeof (info.project as any).getCurrentDirectory === 'function'
+      ? (info.project as any).getCurrentDirectory()
+      : undefined;
+
+  if (projectCurrentDirectory) {
+    candidateDirs.push(projectCurrentDirectory);
+  }
+
+  candidateDirs.push(info.languageServiceHost.getCurrentDirectory());
+
+  const scriptFileNames = info.project.getScriptFileNames();
+  for (const fileName of scriptFileNames) {
+    if (fileName.endsWith('.gts') || fileName.endsWith('.gjs')) {
+      candidateDirs.push(path.dirname(fileName));
+    }
+  }
+
+  for (const fileName of scriptFileNames) {
+    candidateDirs.push(path.dirname(fileName));
+  }
+
+  for (const dir of candidateDirs) {
+    const config = findConfig(dir);
+    if (config) {
+      return config;
+    }
+  }
+
+  return null;
+}
 
 function proxyLanguageServiceForGlint<T>(
   ts: typeof import('typescript'),

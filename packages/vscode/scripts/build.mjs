@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createRequire } from 'node:module';
-import { copyFile, mkdir } from 'node:fs/promises';
+import { copyFile, cp, mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -22,6 +22,7 @@ const ctx = await context({
     'node_modules/glint-ember-tsc-pack/index': '../core/lib/index.js',
     'node_modules/glint-ember-tsc-pack/bin/glint-language-server':
       '../core/bin/glint-language-server.js',
+    'node_modules/glint-ember-tsc-pack/language-server': '../core/lib/volar/language-server.js',
   },
   external: ['vscode'],
   logLevel: 'info',
@@ -76,15 +77,82 @@ async function copyWasmFile() {
   }
 }
 
+async function copyHtmlLanguageService() {
+  try {
+    // Find vscode-html-languageservice dynamically in pnpm store
+    const workspaceRoot = join(__dirname, '../../../');
+    const pnpmDir = join(workspaceRoot, 'node_modules/.pnpm');
+    
+    // Find the vscode-html-languageservice directory
+    const fs = await import('node:fs/promises');
+    const files = await fs.readdir(pnpmDir);
+    const htmlServiceDir = files.find(f => f.startsWith('vscode-html-languageservice@'));
+    
+    if (!htmlServiceDir) {
+      console.warn('vscode-html-languageservice not found in pnpm store');
+      return;
+    }
+    
+    // Copy the entire vscode-html-languageservice package with its node_modules dependencies
+    // Use dereference: true to follow symlinks and avoid circular reference issues with pnpm
+    const sourceDir = join(pnpmDir, htmlServiceDir, 'node_modules');
+    const targetDir = join(__dirname, '../node_modules/glint-ember-tsc-pack/node_modules');
+
+    // Remove target directory if it exists to avoid symlink conflicts
+    try {
+      await fs.rm(targetDir, { recursive: true, force: true });
+    } catch (e) {
+      // Ignore if directory doesn't exist
+    }
+
+    await mkdir(targetDir, { recursive: true });
+    await cp(sourceDir, targetDir, { recursive: true, dereference: true });
+    console.log('Copied vscode-html-languageservice and its dependencies to glint-ember-tsc-pack');
+  } catch (error) {
+    console.error('Failed to copy vscode-html-languageservice files:', error);
+  }
+}
+
+async function copyTypeScript() {
+  try {
+    // Find TypeScript dynamically in pnpm store
+    const workspaceRoot = join(__dirname, '../../../');
+    const pnpmDir = join(workspaceRoot, 'node_modules/.pnpm');
+    
+    const fs = await import('node:fs/promises');
+    const files = await fs.readdir(pnpmDir);
+    const tsDir = files.find(f => f.startsWith('typescript@'));
+    
+    if (!tsDir) {
+      console.warn('TypeScript not found in pnpm store');
+      return;
+    }
+    
+    // Copy the entire TypeScript package with its dependencies
+    const sourceDir = join(pnpmDir, tsDir, 'node_modules');
+    const targetDir = join(__dirname, '../node_modules/glint-ember-tsc-pack/node_modules');
+
+    await mkdir(targetDir, { recursive: true });
+    await cp(sourceDir, targetDir, { recursive: true, dereference: true });
+    console.log('Copied TypeScript to glint-ember-tsc-pack');
+  } catch (error) {
+    console.error('Failed to copy TypeScript files:', error);
+  }
+}
+
 if (watch) {
   // Start watch mode
   await ctx.watch();
   await copyWasmFile();
+  await copyHtmlLanguageService();
+  await copyTypeScript();
   console.log('Watching for changes...');
 } else {
   // Do a single build
   await ctx.rebuild();
   await copyWasmFile();
+  await copyHtmlLanguageService();
+  await copyTypeScript();
   await ctx.dispose();
 }
 

@@ -139,12 +139,15 @@ export class VirtualGtsCode implements VirtualCode {
     const filename = isJavascript ? 'root.gjs' : 'root.gts';
     let script = { filename, contents };
 
-    const transformedModule = rewriteModule(
-      this.glintConfig.ts,
-      { script },
-      this.glintConfig.environment,
-      this.clientId,
-    );
+    const transformedModule =
+      this.glintConfig.ts !== null
+        ? rewriteModule(
+            this.glintConfig.ts,
+            { script },
+            this.glintConfig.environment,
+            this.clientId,
+          )
+        : null;
 
     this.transformedModule = transformedModule;
 
