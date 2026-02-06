@@ -37,6 +37,15 @@ const plugin = createLanguageServicePlugin(
 
     const glintConfig = findConfigForProject(info, findConfig);
 
+    const compilerOptions = info.project.getCompilerOptions();
+    if (compilerOptions.moduleResolution == null) {
+      info.project.setCompilerOptions({
+        ...compilerOptions,
+        moduleResolution: ts.ModuleResolutionKind.Bundler,
+        module: compilerOptions.module ?? ts.ModuleKind.ESNext,
+      });
+    }
+
     // Uncomment as a smoke test to see if the plugin is running
     const enableLogging = false;
 

@@ -63,16 +63,12 @@ export class ConfigLoader {
 
     // If config has no glint configuration, check for package.json dependencies
     // from the ORIGINAL search directory, not the config directory
-    const hasNonEnvironmentConfig =
-      configInput && Object.keys(configInput).some((key) => key !== 'environment');
-
-    if (
+    const shouldUseSyntheticConfig =
       !configInput ||
       !configInput.environment ||
-      (Array.isArray(configInput.environment) &&
-        configInput.environment.length === 0 &&
-        !hasNonEnvironmentConfig)
-    ) {
+      (Array.isArray(configInput.environment) && configInput.environment.length === 0);
+
+    if (shouldUseSyntheticConfig) {
       if (hasGlintRelatedDependencies(directory)) {
         // Package has Glint dependencies but the found tsconfig has no glint config.
         // Create a synthetic config for this specific directory rather than using the parent tsconfig.
@@ -80,7 +76,11 @@ export class ConfigLoader {
         let syntheticExisting = this.configs.get(syntheticConfigPath);
         if (syntheticExisting !== undefined) return syntheticExisting;
 
-        const syntheticConfig = new GlintConfig(ts, syntheticConfigPath, { environment: [] });
+        const syntheticConfig = new GlintConfig(
+          ts,
+          syntheticConfigPath,
+          configInput ?? { environment: [] },
+        );
         this.configs.set(syntheticConfigPath, syntheticConfig);
         return syntheticConfig;
       }

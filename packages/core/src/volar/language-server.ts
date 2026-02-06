@@ -54,13 +54,22 @@ connection.onInitialize((params) => {
         if (uri.scheme === 'file') {
           // Use tsserver to find the tsconfig governing this file.
           const fileName = uri.fsPath.replace(/\\/g, '/');
-          const projectInfo = await sendTsServerRequest<ts.server.protocol.ProjectInfo>(
+          let projectInfo = await sendTsServerRequest<ts.server.protocol.ProjectInfo>(
             '_glint:' + ts.server.protocol.CommandTypes.ProjectInfo,
             {
               file: fileName,
               needFileNameList: false,
             } satisfies ts.server.protocol.ProjectInfoRequestArgs,
           );
+          if (!projectInfo) {
+            projectInfo = await sendTsServerRequest<ts.server.protocol.ProjectInfo>(
+              ts.server.protocol.CommandTypes.ProjectInfo,
+              {
+                file: fileName,
+                needFileNameList: false,
+              } satisfies ts.server.protocol.ProjectInfoRequestArgs,
+            );
+          }
           if (projectInfo) {
             const { configFileName } = projectInfo;
             let ls = tsconfigProjects.get(URI.file(configFileName));
