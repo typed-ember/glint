@@ -1,5 +1,4 @@
 import { TransformedModule } from '@glint/ember-tsc/lib/transform';
-import { LanguagePlugin } from '@volar/language-core';
 import * as path from 'node:path';
 
 const { createJiti } = require('jiti');
@@ -33,7 +32,7 @@ const { VirtualGtsCode, augmentDiagnostics } = emberTsc;
 
 const plugin = createLanguageServicePlugin(
   (ts: typeof import('typescript'), info: ts.server.PluginCreateInfo) => {
-    const { findConfig, createEmberLanguagePlugin } = emberTsc;
+    const { findConfig, createDynamicEmberLanguagePlugin, createEmberLanguagePlugin } = emberTsc;
 
     const glintConfig = findConfigForProject(info, findConfig);
 
@@ -232,95 +231,6 @@ function findConfigForProject(
   }
 
   return null;
-}
-
-function createDynamicEmberLanguagePlugin(
-  findConfig: (from: string) => any,
-  { clientId, getCurrentDirectory }: { clientId?: string; getCurrentDirectory: () => string },
-): LanguagePlugin<string> {
-  return {
-    getLanguageId(fileNameOrUri: any) {
-      if (String(fileNameOrUri).endsWith('.gts')) {
-        return 'glimmer-ts';
-      }
-      if (String(fileNameOrUri).endsWith('.gjs')) {
-        return 'glimmer-js';
-      }
-    },
-
-    createVirtualCode(scriptId: any, languageId: any, snapshot: any) {
-      const scriptIdStr = String(scriptId);
-      let fileName = scriptIdStr;
-      if (scriptIdStr.startsWith('file://')) {
-        try {
-          const { fileURLToPath } = require('node:url');
-          fileName = fileURLToPath(scriptIdStr);
-        } catch {
-          try {
-            fileName = decodeURIComponent(new URL(scriptIdStr).pathname);
-          } catch {
-            fileName = scriptIdStr;
-          }
-        }
-      }
-
-      if (!path.isAbsolute(fileName)) {
-        fileName = path.resolve(getCurrentDirectory(), fileName);
-      }
-
-      const inferredLanguageId =
-        languageId ??
-        (fileName.endsWith('.gts')
-          ? 'glimmer-ts'
-          : fileName.endsWith('.gjs')
-            ? 'glimmer-js'
-            : undefined);
-
-      if (
-        inferredLanguageId === 'glimmer-ts' ||
-        inferredLanguageId === 'glimmer-js' ||
-        inferredLanguageId === 'typescript.glimmer' ||
-        inferredLanguageId === 'javascript.glimmer'
-      ) {
-        const glintConfig = findConfig(path.dirname(fileName));
-        if (!glintConfig) {
-          return;
-        }
-        return new VirtualGtsCode(glintConfig, snapshot, inferredLanguageId, clientId);
-      }
-    },
-
-    typescript: {
-      extraFileExtensions: [
-        { extension: 'gts', isMixedContent: true, scriptKind: 7 },
-        { extension: 'gjs', isMixedContent: true, scriptKind: 7 },
-      ],
-      resolveHiddenExtensions: true,
-      getServiceScript(rootVirtualCode: any) {
-        const transformedCode = rootVirtualCode.embeddedCodes?.[0];
-        if (!transformedCode) {
-          return;
-        }
-
-        switch (rootVirtualCode.languageId) {
-          case 'glimmer-ts':
-          case 'typescript.glimmer':
-            return {
-              code: transformedCode,
-              extension: '.ts',
-              scriptKind: 3,
-            };
-          case 'glimmer-js':
-          case 'javascript.glimmer':
-            return {
-              code: transformedCode,
-              extension: '.js',
-              scriptKind: 1,
-            };
-        }
-      },
-    },
-  };
 }
 
 function proxyLanguageServiceForGlint<T>(
