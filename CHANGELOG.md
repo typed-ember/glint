@@ -1,5 +1,24 @@
 # Changelog
 
+## Release (2026-02-07)
+
+* @glint/ember-tsc 1.1.2 (patch)
+* @glint/tsserver-plugin 2.2.0 (minor)
+
+#### :rocket: Enhancement
+* `@glint/tsserver-plugin`
+  * [#1053](https://github.com/typed-ember/glint/pull/1053) Allow ember-tsc to be choosable from the VSCode UI in preparation for using the bundled version of ember-tsc for JS projects ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1054](https://github.com/typed-ember/glint/pull/1054) Add activation logging when starting up to the glint 2 output channel ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :house: Internal
+* [#1048](https://github.com/typed-ember/glint/pull/1048) Bump VSCode for glint2 @ 1.0.2 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-02-03)
 
 * @glint/ember-tsc 1.1.1 (patch)
