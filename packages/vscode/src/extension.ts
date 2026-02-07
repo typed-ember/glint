@@ -69,6 +69,7 @@ export const { activate, deactivate } = defineExtension(() => {
   const visibleTextEditors = useVisibleTextEditors();
   const outputChannel = useOutputChannel('Glint2 Language Server');
   let pendingRestart = false;
+  let lastActivationReason: string | undefined;
 
   const emberTscStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   emberTscStatus.command = SELECT_EMBER_TSC_COMMAND;
@@ -208,6 +209,13 @@ export const { activate, deactivate } = defineExtension(() => {
     }),
   );
 
+  const logActivationDecision = (reason: string): void => {
+    if (reason !== lastActivationReason) {
+      outputChannel.appendLine(`[Activation] ${reason}`);
+      lastActivationReason = reason;
+    }
+  };
+
   const { stop } = watch(
     activeTextEditor,
     () => {
@@ -215,6 +223,7 @@ export const { activate, deactivate } = defineExtension(() => {
       if (
         !visibleTextEditors.value.some((editor) => languageIds.includes(editor.document.languageId))
       ) {
+        logActivationDecision('Waiting for a Glint-supported file to become visible.');
         return;
       }
 
@@ -223,6 +232,9 @@ export const { activate, deactivate } = defineExtension(() => {
 
       // Handle remote environment activation issues
       if (needRestart) {
+        logActivationDecision(
+          'Detected remote environment; activation requires extension host restart.',
+        );
         vscode.window
           .showInformationMessage(
             'Please restart the extension host to activate Glint support in remote environments.',
@@ -238,6 +250,8 @@ export const { activate, deactivate } = defineExtension(() => {
           });
         return;
       }
+
+      logActivationDecision('Activating Glint language server (Glint file detected).');
 
       // Setup typescript.js in production mode (Vue does this for performance)
       if (fs.existsSync(path.join(__dirname, 'language-server.js'))) {
@@ -255,6 +269,8 @@ export const { activate, deactivate } = defineExtension(() => {
         client = launched.client;
         volarLabs.addLanguageClient(client);
         updateEmberTscStatus(launched.resolution);
+      } else {
+        logActivationDecision('Activation skipped: unable to resolve ember-tsc server.');
       }
 
       if (client) {
@@ -321,6 +337,7 @@ function launch(
   // Try to find the language server in the workspace
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
   if (!workspaceFolder) {
+    outputChannel.appendLine('[Activation] No workspace folder available; not launching Glint.');
     return undefined;
   }
 

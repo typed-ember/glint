@@ -17,6 +17,14 @@ const connection = createConnection();
 const server = createServer(connection);
 const tsserverRequestHandlers = new Map<number, (res: any) => void>();
 
+const logInfo = (message: string): void => {
+  connection.console.info(`[Glint] ${message}`);
+};
+
+const logWarn = (message: string): void => {
+  connection.console.warn(`[Glint] ${message}`);
+};
+
 let tsserverRequestId = 0;
 
 connection.listen();
@@ -32,6 +40,16 @@ connection.onNotification('tsserver/response', ([id, res]) => {
  * other initialization params needed by the server.
  */
 connection.onInitialize((params) => {
+  logInfo('Language server initializing.');
+  if (params.workspaceFolders && params.workspaceFolders.length > 0) {
+    const folders = params.workspaceFolders.map((folder) => folder.uri).join(', ');
+    logInfo(`Workspace folders: ${folders}`);
+  } else if (params.rootUri) {
+    logInfo(`Workspace root: ${params.rootUri}`);
+  } else {
+    logWarn('No workspace folder or root URI provided by client.');
+  }
+
   const tsconfigProjects = createUriMap<LanguageService>();
 
   server.fileWatcher.onDidChangeWatchedFiles((obj: any) => {
@@ -45,6 +63,8 @@ connection.onInitialize((params) => {
   });
 
   let simpleLs: LanguageService | undefined;
+  let warnedMissingProjectInfo = false;
+  let warnedSimpleLs = false;
 
   return server.initialize(
     params,
@@ -69,10 +89,17 @@ connection.onInitialize((params) => {
               tsconfigProjects.set(URI.file(configFileName), ls);
             }
             return ls;
+          } else if (!warnedMissingProjectInfo) {
+            warnedMissingProjectInfo = true;
+            logWarn(`No tsserver project info for ${fileName}; falling back to simple LS.`);
           }
         }
         // TODO: this branch is hit when running Volar Labs and currently breaks. Figure out
         // how to reinstate a "simple" LS without a tsconfig.
+        if (!warnedSimpleLs) {
+          warnedSimpleLs = true;
+          logWarn('Using simple language service without a tsconfig/jsconfig.');
+        }
         return (simpleLs ??= createLanguageServiceHelper(server, undefined));
       },
       getExistingLanguageServices() {
@@ -120,12 +147,17 @@ connection.onInitialize((params) => {
     ];
 
     if (tsconfigFileName) {
-      const configLoader = new ConfigLoader();
+      const configLoader = new ConfigLoader(logInfo);
       const glintConfig = configLoader.configForFile(tsconfigFileName);
       if (glintConfig) {
+        logInfo(`Glint config active for ${tsconfigFileName}.`);
         const emberLanguagePlugin = createEmberLanguagePlugin(glintConfig);
         languagePlugins.push(emberLanguagePlugin);
+      } else {
+        logWarn(`Glint config not found for ${tsconfigFileName}; Glint features disabled.`);
       }
+    } else {
+      logWarn('No tsconfig/jsconfig provided; Glint config cannot be resolved.');
     }
 
     const language = createLanguage<URI>(languagePlugins, createUriMap(), (uri) => {
