@@ -94,7 +94,7 @@ export const { activate, deactivate } = defineExtension(() => {
         : 'Workspace'
       : 'Missing';
     const fallback = resolution.usedFallback ? ' (fallback)' : '';
-    emberTscStatus.text = `Glint: Ember TSC (${label}${fallback})`;
+    emberTscStatus.text = `Ember TSC (${label}${fallback})`;
     emberTscStatus.tooltip =
       `Configured: ${resolution.configuredSource}\n` +
       `Resolved: ${resolution.path ?? 'Not found'}\n` +
