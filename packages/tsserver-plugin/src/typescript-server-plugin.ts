@@ -1,4 +1,6 @@
-import { TransformedModule } from '@glint/ember-tsc/lib/transform';
+import type { TransformedModule } from '@glint/ember-tsc/lib/transform';
+import { createRequire } from 'node:module';
+import * as path from 'node:path';
 
 const { createJiti } = require('jiti');
 const jiti = createJiti(__filename);
@@ -18,32 +20,120 @@ const {
  * modules from CJS which lets us avoid a ton of hacks and complexity we (or Volar)
  * would otherwise have to write to bridge the sync/async APIs.
  */
-let emberTscPath = '@glint/ember-tsc';
-try {
-  // @ts-expect-error esbuild define
-  emberTscPath = EMBER_TSC_PATH;
-} catch {
-  // Ignore; must not be running in esbuild context
-}
-const emberTsc = jiti(emberTscPath);
+type EmberTscSource = 'auto' | 'workspace' | 'bundled';
 
-const { VirtualGtsCode, augmentDiagnostics } = emberTsc;
+let emberTsc: any;
+let VirtualGtsCode: any;
+let augmentDiagnostics: any;
+
+function normalizeEmberTscSource(value: unknown): EmberTscSource {
+  if (value === 'workspace' || value === 'bundled' || value === 'auto') {
+    return value;
+  }
+  return 'auto';
+}
+
+function getBundledEmberTscPath(): string | undefined {
+  try {
+    // @ts-expect-error esbuild define
+    return EMBER_TSC_PATH;
+  } catch {
+    return undefined;
+  }
+}
+
+function loadEmberTscFromWorkspace(resolutionDir: string, logInfo: (message: string) => void) {
+  try {
+    const requireFrom = createRequire(path.join(resolutionDir, 'package.json'));
+    const resolvedPath = requireFrom.resolve('@glint/ember-tsc');
+    const workspaceJiti = createJiti(path.join(resolutionDir, 'package.json'));
+    return { module: workspaceJiti(resolvedPath), resolvedPath };
+  } catch (error) {
+    logInfo(
+      `Unable to resolve @glint/ember-tsc from ${resolutionDir}: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+    return null;
+  }
+}
+
+function loadEmberTscFromBundled(bundledPath: string | undefined, logInfo: (message: string) => void) {
+  if (!bundledPath) {
+    logInfo('Bundled ember-tsc path was not provided by the build.');
+    return null;
+  }
+
+  try {
+    return { module: jiti(bundledPath), resolvedPath: bundledPath };
+  } catch (error) {
+    logInfo(
+      `Unable to load bundled ember-tsc at ${bundledPath}: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+    return null;
+  }
+}
 
 const plugin = createLanguageServicePlugin(
   (ts: typeof import('typescript'), info: ts.server.PluginCreateInfo) => {
-    const { findConfig, createEmberLanguagePlugin } = emberTsc;
+    const logger = info.project.projectService.logger;
+    const logInfo = (message: string) => logger.info(`[Glint] ${message}`);
+    const config = info.config ?? {};
+    const emberTscSource = normalizeEmberTscSource((config as any).emberTscSource);
+    const workspaceRoot =
+      typeof (config as any).workspaceRoot === 'string'
+        ? (config as any).workspaceRoot
+        : info.languageServiceHost.getCurrentDirectory();
+    const libraryPath =
+      typeof (config as any).libraryPath === 'string' ? (config as any).libraryPath : '.';
+    const resolutionDir = path.resolve(workspaceRoot, libraryPath);
 
+    let resolved = null as
+      | { module: any; resolvedPath: string; source: EmberTscSource }
+      | null;
+
+    if (emberTscSource === 'bundled') {
+      const bundled = loadEmberTscFromBundled(getBundledEmberTscPath(), logInfo);
+      if (bundled) {
+        resolved = { ...bundled, source: 'bundled' };
+      } else {
+        const workspace = loadEmberTscFromWorkspace(resolutionDir, logInfo);
+        if (workspace) {
+          logInfo('Bundled ember-tsc unavailable; falling back to workspace package.');
+          resolved = { ...workspace, source: 'workspace' };
+        }
+      }
+    } else {
+      const workspace = loadEmberTscFromWorkspace(resolutionDir, logInfo);
+      if (workspace) {
+        resolved = { ...workspace, source: 'workspace' };
+      } else {
+        const bundled = loadEmberTscFromBundled(getBundledEmberTscPath(), logInfo);
+        if (bundled) {
+          logInfo('Workspace ember-tsc not found; falling back to bundled package.');
+          resolved = { ...bundled, source: 'bundled' };
+        }
+      }
+    }
+
+    if (!resolved) {
+      logInfo('Unable to load ember-tsc; Glint TS Plugin will not start.');
+      return { languagePlugins: [] };
+    }
+
+    emberTsc = resolved.module;
+    VirtualGtsCode = emberTsc.VirtualGtsCode;
+    augmentDiagnostics = emberTsc.augmentDiagnostics;
+
+    logInfo(`Using ${resolved.source} ember-tsc from ${resolved.resolvedPath}.`);
+
+    const { findConfig, createEmberLanguagePlugin } = emberTsc;
     const cwd = info.languageServiceHost.getCurrentDirectory();
     const glintConfig = findConfig(cwd);
 
-    // Uncomment as a smoke test to see if the plugin is running
-    const enableLogging = false;
-
     if (glintConfig) {
-      if (enableLogging) {
-        info.project.projectService.logger.info('Glint TS Plugin is running!');
-      }
-
       const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig, {
         clientId: 'tsserver-plugin',
       });
@@ -119,9 +209,7 @@ const plugin = createLanguageServicePlugin(
         },
       };
     } else {
-      if (enableLogging) {
-        info.project.projectService.logger.info('Glint TS Plugin is NOT running!');
-      }
+      logInfo('Glint TS Plugin is not running: no Glint config was found.');
 
       return {
         languagePlugins: [],
@@ -269,6 +357,10 @@ function getSemanticDiagnostics<T>(
 ): ts.LanguageService['getSemanticDiagnostics'] {
   return (fileName) => {
     const tsDiagnostics = getSemanticDiagnostics(fileName);
+
+    if (!VirtualGtsCode || !augmentDiagnostics) {
+      return tsDiagnostics;
+    }
 
     const program = languageService.getProgram()!;
     const sourceScript = language.scripts.get(asScriptId(fileName));

@@ -19,6 +19,8 @@ tsconfig.tsbuildinfo
 node_modules/**/
 !node_modules/glint-tsserver-plugin-pack/index.js
 !node_modules/glint-ember-tsc-pack/index.js
+!node_modules/glint-ember-tsc-pack/bin/glint-language-server.js
 !node_modules/glint-ember-tsc-pack/content_tag_bg.wasm
+!node_modules/glint-ember-tsc-pack/bin/content_tag_bg.wasm
 
 scripts/

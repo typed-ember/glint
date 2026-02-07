@@ -14,6 +14,7 @@ export const extensionId = `${publisher}.${name}`
  */
 export type CommandKey =
   | "glint2.restart-language-server"
+  | "glint2.select-ember-tsc-source"
 
 /**
  * Commands map registered by `typed-ember.glint2-vscode`
@@ -24,6 +25,11 @@ export const commands = {
    * @value `glint2.restart-language-server`
    */
   restartLanguageServer: "glint2.restart-language-server",
+  /**
+   * Glint V2: Select Ember TSC Source
+   * @value `glint2.select-ember-tsc-source`
+   */
+  selectEmberTscSource: "glint2.select-ember-tsc-source",
 } satisfies Record<string, CommandKey>
 
 /**
@@ -46,20 +52,24 @@ export const languages = {
  */
 export type ConfigKey =
   | "glint2.libraryPath"
+  | "glint2.emberTscSource"
   | "glint2.trace.server"
 
 export interface ConfigKeyTypeMap {
   "glint2.libraryPath": (string | undefined),
+  "glint2.emberTscSource": ("auto" | "workspace" | "bundled"),
   "glint2.trace.server": ("off" | "messages" | "verbose"),
 }
 
 export interface ConfigShorthandMap {
   libraryPath: "glint2.libraryPath",
+  emberTscSource: "glint2.emberTscSource",
   traceServer: "glint2.trace.server",
 }
 
 export interface ConfigShorthandTypeMap {
   libraryPath: (string | undefined),
+  emberTscSource: ("auto" | "workspace" | "bundled"),
   traceServer: ("off" | "messages" | "verbose"),
 }
 
@@ -84,6 +94,16 @@ export const configs = {
     default: undefined,
   } as ConfigItem<"glint2.libraryPath">,
   /**
+   *
+   * @key `glint2.emberTscSource`
+   * @default `"auto"`
+   * @type `string`
+   */
+  emberTscSource: {
+    key: "glint2.emberTscSource",
+    default: "auto",
+  } as ConfigItem<"glint2.emberTscSource">,
+  /**
    * Traces communication between VS Code and the Glint language server.
    * @key `glint2.trace.server`
    * @default `"off"`
@@ -97,6 +117,7 @@ export const configs = {
 
 export interface ScopedConfigKeyTypeMap {
   "libraryPath": (string | undefined),
+  "emberTscSource": ("auto" | "workspace" | "bundled"),
   "trace.server": ("off" | "messages" | "verbose"),
 }
 
@@ -104,6 +125,7 @@ export const scopedConfigs = {
   scope: "glint2",
   defaults: {
     "libraryPath": undefined,
+    "emberTscSource": "auto",
     "trace.server": "off",
   } satisfies ScopedConfigKeyTypeMap,
 }
@@ -111,6 +133,7 @@ export const scopedConfigs = {
 export interface NestedConfigs {
   "glint2": {
     "libraryPath": (string | undefined),
+    "emberTscSource": ("auto" | "workspace" | "bundled"),
     "trace": {
       "server": ("off" | "messages" | "verbose"),
     },
@@ -119,6 +142,7 @@ export interface NestedConfigs {
 
 export interface NestedScopedConfigs {
   "libraryPath": (string | undefined),
+  "emberTscSource": ("auto" | "workspace" | "bundled"),
   "trace": {
     "server": ("off" | "messages" | "verbose"),
   },

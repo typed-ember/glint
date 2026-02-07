@@ -20,9 +20,12 @@ const ctx = await context({
     'node_modules/glint-tsserver-plugin-pack/index':
       '../tsserver-plugin/lib/typescript-server-plugin.js',
     'node_modules/glint-ember-tsc-pack/index': '../core/lib/index.js',
+    'node_modules/glint-ember-tsc-pack/bin/glint-language-server':
+      '../core/bin/glint-language-server.js',
   },
   external: ['vscode'],
   logLevel: 'info',
+  mainFields: ['module', 'main'],
   minify: !debug,
   outdir: fileURLToPath(new URL('../', import.meta.url)),
   platform: 'node',
@@ -59,10 +62,14 @@ async function copyWasmFile() {
   );
   const targetDir = join(__dirname, '../node_modules/glint-ember-tsc-pack');
   const targetWasm = join(targetDir, 'content_tag_bg.wasm');
+  const targetBinDir = join(targetDir, 'bin');
+  const targetBinWasm = join(targetBinDir, 'content_tag_bg.wasm');
 
   try {
     await mkdir(targetDir, { recursive: true });
+    await mkdir(targetBinDir, { recursive: true });
     await copyFile(sourceWasm, targetWasm);
+    await copyFile(sourceWasm, targetBinWasm);
     console.log('Copied WASM file to glint-ember-tsc-pack');
   } catch (error) {
     console.error('Failed to copy WASM file:', error);

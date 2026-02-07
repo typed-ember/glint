@@ -96,6 +96,10 @@
       {
         "title": "Glint V2: Restart Glint V2 Server",
         "command": "glint2.restart-language-server"
+      },
+      {
+        "title": "Glint V2: Select Ember TSC Source",
+        "command": "glint2.select-ember-tsc-source"
       }
     ],
     "configuration": [
@@ -107,6 +111,17 @@
             "markdownDescription": "The path, relative to your workspace folder root, from which to resolve `ember-tsc`. Defaults to `'.'`.",
             "order": 1,
             "type": "string"
+          },
+          "glint2.emberTscSource": {
+            "markdownDescription": "Which ember-tsc to use: `auto` prefers the workspace package and falls back to the bundled version when missing.",
+            "order": 2,
+            "type": "string",
+            "default": "auto",
+            "enum": [
+              "auto",
+              "workspace",
+              "bundled"
+            ]
           },
           "glint2.trace.server": {
             "description": "Traces communication between VS Code and the Glint language server.",

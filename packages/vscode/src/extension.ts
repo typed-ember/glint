@@ -7,6 +7,7 @@ import {
 } from '@volar/vscode';
 import * as lsp from '@volar/vscode/node';
 import * as fs from 'node:fs';
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import {
   defineExtension,
@@ -51,6 +52,11 @@ let client: lsp.BaseLanguageClient | undefined;
 let needRestart = false;
 
 const languageIds = ['glimmer-js', 'glimmer-ts'];
+const TS_PLUGIN_NAME = 'glint-tsserver-plugin-pack';
+const EMBER_TSC_SOURCE_SETTING = 'glint2.emberTscSource';
+const SELECT_EMBER_TSC_COMMAND = 'glint2.select-ember-tsc-source';
+
+type EmberTscSource = 'auto' | 'workspace' | 'bundled';
 
 export const { activate, deactivate } = defineExtension(() => {
   if (v1ExtensionPresent) {
@@ -61,6 +67,131 @@ export const { activate, deactivate } = defineExtension(() => {
   const volarLabs = createLabsInfo(languageServerProtocol);
   const activeTextEditor = useActiveTextEditor();
   const visibleTextEditors = useVisibleTextEditors();
+  const outputChannel = useOutputChannel('Glint2 Language Server');
+
+  const emberTscStatus = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    100,
+  );
+  emberTscStatus.command = SELECT_EMBER_TSC_COMMAND;
+  context.subscriptions.push(emberTscStatus);
+
+  const updateEmberTscStatus = (resolution?: EmberTscResolution) => {
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
+      emberTscStatus.hide();
+      return resolution;
+    }
+
+    resolution ??= (() => {
+      const emberTscSource = getEmberTscSourceSetting();
+      const libraryPath = getLibraryPathSetting();
+      return resolveEmberTscServerPath(workspaceFolder, emberTscSource, libraryPath);
+    })();
+
+    const label = resolution.path
+      ? resolution.source === 'bundled'
+        ? 'Bundled'
+        : 'Workspace'
+      : 'Missing';
+    const fallback = resolution.usedFallback ? ' (fallback)' : '';
+    emberTscStatus.text = `Glint: Ember TSC (${label}${fallback})`;
+    emberTscStatus.tooltip =
+      `Configured: ${resolution.configuredSource}\n` +
+      `Resolved: ${resolution.path ?? 'Not found'}\n` +
+      `Resolution dir: ${resolution.resolutionDir}`;
+    emberTscStatus.show();
+
+    return resolution;
+  };
+
+  const configureTsserverPlugin = async () => {
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
+      return;
+    }
+
+    const emberTscSource = getEmberTscSourceSetting();
+    const libraryPath = getLibraryPathSetting();
+    const configuration = {
+      emberTscSource,
+      workspaceRoot: workspaceFolder.uri.fsPath,
+      libraryPath,
+    };
+
+    try {
+      await vscode.commands.executeCommand('typescript.configurePlugin', TS_PLUGIN_NAME, configuration);
+    } catch (error) {
+      outputChannel.appendLine(
+        `typescript.configurePlugin not available; falling back to tsserver request. ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      await vscode.commands.executeCommand(
+        'typescript.tsserverRequest',
+        'configurePlugin',
+        { pluginName: TS_PLUGIN_NAME, configuration },
+        { isAsync: true, lowPriority: true },
+      );
+    }
+  };
+
+  const restartLanguageServer = async () => {
+    await executeCommand('typescript.restartTsServer');
+    if (!client) {
+      return;
+    }
+
+    if (client.state === lsp.State.Starting) {
+      const maybeOnReady = (client as { onReady?: () => Promise<void> }).onReady;
+      if (maybeOnReady) {
+        try {
+          await maybeOnReady();
+        } catch {
+          return;
+        }
+      } else {
+        return;
+      }
+    }
+
+    if (client.state === lsp.State.Running) {
+      await client.stop();
+    }
+
+    client.outputChannel.clear();
+    await client.start();
+  };
+
+  const updateEmberTscState = async (restartServers: boolean) => {
+    const resolution = updateEmberTscStatus();
+    await configureTsserverPlugin();
+
+    if (resolution?.usedFallback) {
+      outputChannel.appendLine(
+        `Workspace ember-tsc not found; using bundled ember-tsc from ${
+          resolution.path ?? '(missing)'
+        }`,
+      );
+    }
+
+    if (restartServers) {
+      await restartLanguageServer();
+    }
+  };
+
+  void updateEmberTscState(false);
+
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (
+        event.affectsConfiguration('glint2.libraryPath') ||
+        event.affectsConfiguration(EMBER_TSC_SOURCE_SETTING)
+      ) {
+        void updateEmberTscState(true);
+      }
+    }),
+  );
 
   const { stop } = watch(
     activeTextEditor,
@@ -104,10 +235,11 @@ export const { activate, deactivate } = defineExtension(() => {
         );
       }
 
-      const launchedClient = launch(context);
-      if (launchedClient) {
-        client = launchedClient;
+      const launched = launch(context, outputChannel);
+      if (launched) {
+        client = launched.client;
         volarLabs.addLanguageClient(client);
+        updateEmberTscStatus(launched.resolution);
       }
 
       if (client) {
@@ -118,11 +250,46 @@ export const { activate, deactivate } = defineExtension(() => {
     { immediate: true },
   );
 
-  useCommand('glint2.restart-language-server', async () => {
-    await executeCommand('typescript.restartTsServer');
-    await client?.stop();
-    client?.outputChannel.clear();
-    await client?.start();
+  useCommand('glint2.restart-language-server', restartLanguageServer);
+
+  useCommand(SELECT_EMBER_TSC_COMMAND, async () => {
+    const options: Array<{ label: string; description: string; value: EmberTscSource }> = [
+      {
+        label: 'Auto',
+        description: 'Use workspace ember-tsc if available; otherwise use bundled.',
+        value: 'auto',
+      },
+      {
+        label: 'Workspace',
+        description: 'Prefer the workspace ember-tsc (falls back to bundled if missing).',
+        value: 'workspace',
+      },
+      {
+        label: 'Bundled',
+        description: 'Always use the ember-tsc bundled with the extension.',
+        value: 'bundled',
+      },
+    ];
+
+    const selected = await vscode.window.showQuickPick(options, {
+      title: 'Select Ember TSC Source',
+      placeHolder: 'Choose which ember-tsc Glint should use',
+    });
+
+    if (!selected) {
+      return;
+    }
+
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    const target = workspaceFolder
+      ? vscode.ConfigurationTarget.Workspace
+      : vscode.ConfigurationTarget.Global;
+
+    await vscode.workspace
+      .getConfiguration()
+      .update(EMBER_TSC_SOURCE_SETTING, selected.value, target);
+
+    await updateEmberTscState(true);
   });
 
   onDeactivate(async () => {
@@ -132,34 +299,41 @@ export const { activate, deactivate } = defineExtension(() => {
   return volarLabs.extensionExports;
 });
 
-function launch(_context: vscode.ExtensionContext): lsp.LanguageClient | undefined {
+function launch(
+  _context: vscode.ExtensionContext,
+  outputChannel: vscode.OutputChannel,
+): { client: lsp.LanguageClient; resolution: EmberTscResolution } | undefined {
   // Try to find the language server in the workspace
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
   if (!workspaceFolder) {
     return undefined;
   }
 
-  const outputChannel = useOutputChannel('Glint2 Language Server');
+  const emberTscSource = getEmberTscSourceSetting();
+  const libraryPath = getLibraryPathSetting();
+  const resolution = resolveEmberTscServerPath(workspaceFolder, emberTscSource, libraryPath);
 
-  let userLibraryPath = vscode.workspace.getConfiguration().get('glint2.libraryPath', '.');
-  let resolutionDir = path.resolve(workspaceFolder.uri.fsPath, userLibraryPath);
-  let serverPath: string;
-
-  try {
-    const { createRequire } = require('node:module') as typeof import('node:module');
-    const customRequire = createRequire(path.join(resolutionDir, 'package.json'));
-    serverPath = customRequire.resolve('@glint/ember-tsc/bin/glint-language-server');
-  } catch {
-    // Many workspaces with `tsconfig` files won't be Glint projects, so it's totally fine for us to
-    // just bail out if we don't see `@glint/ember-tsc`. If someone IS expecting Glint to run for this
-    // project, though, we leave a message in our channel explaining why we didn't launch.
+  if (!resolution.path) {
     outputChannel.appendLine(
-      `Unable to resolve @glint/ember-tsc from ${resolutionDir} — not launching Glint.\n` +
+      `Unable to resolve ember-tsc (source: ${resolution.configuredSource}) from ${resolution.resolutionDir} — not launching Glint.\n` +
+        `If you're using bundled mode, please ensure the extension was properly built with pnpm build.\n` +
         `If Glint is installed in a child directory, you may wish to set the 'glint2.libraryPath' option ` +
         `in your workspace settings for the Glint VS Code extension.`,
     );
     return undefined;
   }
+
+  if (resolution.usedFallback) {
+    outputChannel.appendLine(
+      `Workspace ember-tsc not found (source: ${resolution.configuredSource}); using bundled ember-tsc from ${resolution.path}`,
+    );
+  } else {
+    outputChannel.appendLine(
+      `Using ${resolution.source} ember-tsc from ${resolution.path}`,
+    );
+  }
+
+  const serverPath = resolution.path;
 
   const client = new lsp.LanguageClient(
     'glint',
@@ -209,7 +383,96 @@ function launch(_context: vscode.ExtensionContext): lsp.LanguageClient | undefin
 
   client.start();
 
-  return client;
+  return { client, resolution };
+}
+
+interface EmberTscResolution {
+  path?: string;
+  source: EmberTscSource;
+  configuredSource: EmberTscSource;
+  usedFallback: boolean;
+  resolutionDir: string;
+}
+
+function normalizeEmberTscSource(value: unknown): EmberTscSource {
+  if (value === 'workspace' || value === 'bundled' || value === 'auto') {
+    return value;
+  }
+  return 'auto';
+}
+
+function getLibraryPathSetting(): string {
+  return vscode.workspace.getConfiguration().get('glint2.libraryPath', '.');
+}
+
+function getEmberTscSourceSetting(): EmberTscSource {
+  const value = vscode.workspace.getConfiguration().get(EMBER_TSC_SOURCE_SETTING, 'auto');
+  return normalizeEmberTscSource(value);
+}
+
+function resolveEmberTscServerPath(
+  workspaceFolder: vscode.WorkspaceFolder,
+  emberTscSource: EmberTscSource,
+  libraryPath: string,
+): EmberTscResolution {
+  const resolutionDir = path.resolve(workspaceFolder.uri.fsPath, libraryPath);
+  const workspacePath = resolveWorkspaceEmberTscServerPath(resolutionDir);
+  const bundledPath = resolveBundledEmberTscServerPath();
+
+  if (emberTscSource === 'bundled') {
+    return {
+      path: bundledPath,
+      source: 'bundled',
+      configuredSource: 'bundled',
+      usedFallback: false,
+      resolutionDir,
+    };
+  }
+
+  if (workspacePath) {
+    return {
+      path: workspacePath,
+      source: 'workspace',
+      configuredSource: emberTscSource,
+      usedFallback: false,
+      resolutionDir,
+    };
+  }
+
+  return {
+    path: bundledPath,
+    source: 'bundled',
+    configuredSource: emberTscSource,
+    usedFallback: true,
+    resolutionDir,
+  };
+}
+
+function resolveWorkspaceEmberTscServerPath(resolutionDir: string): string | undefined {
+  try {
+    const customRequire = createRequire(path.join(resolutionDir, 'package.json'));
+    return customRequire.resolve('@glint/ember-tsc/bin/glint-language-server');
+  } catch {
+    return undefined;
+  }
+}
+
+function resolveBundledEmberTscServerPath(): string | undefined {
+  try {
+    const glintExtension = vscode.extensions.getExtension('typed-ember.glint2-vscode');
+    if (!glintExtension) {
+      return undefined;
+    }
+
+    const bundledPath = path.join(
+      glintExtension.extensionPath,
+      'node_modules/glint-ember-tsc-pack/bin/glint-language-server.js',
+    );
+
+    return fs.existsSync(bundledPath) ? bundledPath : undefined;
+  } catch (error) {
+    return undefined;
+  }
 }
 
 // We need to activate the default VSCode TypeScript extension so that our
