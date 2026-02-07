@@ -23,6 +23,15 @@ type TypeScript = typeof TS;
  */
 export class ConfigLoader {
   private configs = new Map<string, GlintConfig | null>();
+  private logInfo?: (message: string) => void;
+
+  constructor(logInfo?: (message: string) => void) {
+    this.logInfo = logInfo;
+  }
+
+  private log(message: string): void {
+    this.logInfo?.(message);
+  }
 
   public configForFile(filePath: string): GlintConfig | null {
     return this.configForDirectory(path.dirname(filePath));
@@ -30,16 +39,27 @@ export class ConfigLoader {
 
   public configForDirectory(directory: string): GlintConfig | null {
     let ts = findTypeScript(directory);
-    if (!ts) return null;
+    if (!ts) {
+      this.log(`No TypeScript installation found from ${directory}.`);
+      return null;
+    }
 
     let configPath = findNearestConfigFile(ts, directory);
-    if (!configPath) return null;
+    if (!configPath) {
+      this.log(`No tsconfig.json or jsconfig.json found from ${directory}.`);
+      return null;
+    }
 
     let existing = this.configs.get(configPath);
-    if (existing !== undefined) return existing;
+    if (existing !== undefined) {
+      this.log(`Using cached Glint config from ${configPath}.`);
+      return existing;
+    }
 
     let configInput = loadConfigInput(ts, configPath);
     let config = new GlintConfig(ts, configPath, configInput || { environment: [] });
+
+    this.log(`Loaded Glint config from ${configPath}.`);
 
     this.configs.set(configPath, config);
 
