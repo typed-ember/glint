@@ -5,7 +5,7 @@
     "outDir": "lib",
 
     // ts server plugins need to be cjs
-    "module": "preserve",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "types": ["@types/node"]
   },
