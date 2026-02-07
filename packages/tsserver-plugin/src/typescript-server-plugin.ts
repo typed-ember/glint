@@ -42,7 +42,10 @@ function getBundledEmberTscPath(): string | undefined {
   }
 }
 
-function loadEmberTscFromWorkspace(resolutionDir: string, logInfo: (message: string) => void) {
+function loadEmberTscFromWorkspace(
+  resolutionDir: string,
+  logInfo: (message: string) => void,
+): { module: any; resolvedPath: string } | null {
   try {
     const requireFrom = createRequire(path.join(resolutionDir, 'package.json'));
     const resolvedPath = requireFrom.resolve('@glint/ember-tsc');
@@ -58,7 +61,10 @@ function loadEmberTscFromWorkspace(resolutionDir: string, logInfo: (message: str
   }
 }
 
-function loadEmberTscFromBundled(bundledPath: string | undefined, logInfo: (message: string) => void) {
+function loadEmberTscFromBundled(
+  bundledPath: string | undefined,
+  logInfo: (message: string) => void,
+): { module: any; resolvedPath: string } | null {
   if (!bundledPath) {
     logInfo('Bundled ember-tsc path was not provided by the build.');
     return null;
@@ -77,9 +83,12 @@ function loadEmberTscFromBundled(bundledPath: string | undefined, logInfo: (mess
 }
 
 const plugin = createLanguageServicePlugin(
-  (ts: typeof import('typescript'), info: ts.server.PluginCreateInfo) => {
+  (
+    ts: typeof import('typescript'),
+    info: ts.server.PluginCreateInfo,
+  ): { languagePlugins: unknown[]; setup?: (language: any) => void } => {
     const logger = info.project.projectService.logger;
-    const logInfo = (message: string) => logger.info(`[Glint] ${message}`);
+    const logInfo = (message: string): void => logger.info(`[Glint] ${message}`);
     const config = info.config ?? {};
     const emberTscSource = normalizeEmberTscSource((config as any).emberTscSource);
     const workspaceRoot =
@@ -90,9 +99,7 @@ const plugin = createLanguageServicePlugin(
       typeof (config as any).libraryPath === 'string' ? (config as any).libraryPath : '.';
     const resolutionDir = path.resolve(workspaceRoot, libraryPath);
 
-    let resolved = null as
-      | { module: any; resolvedPath: string; source: EmberTscSource }
-      | null;
+    let resolved = null as { module: any; resolvedPath: string; source: EmberTscSource } | null;
 
     if (emberTscSource === 'bundled') {
       const bundled = loadEmberTscFromBundled(getBundledEmberTscPath(), logInfo);

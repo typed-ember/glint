@@ -69,14 +69,13 @@ export const { activate, deactivate } = defineExtension(() => {
   const visibleTextEditors = useVisibleTextEditors();
   const outputChannel = useOutputChannel('Glint2 Language Server');
 
-  const emberTscStatus = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    100,
-  );
+  const emberTscStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   emberTscStatus.command = SELECT_EMBER_TSC_COMMAND;
   context.subscriptions.push(emberTscStatus);
 
-  const updateEmberTscStatus = (resolution?: EmberTscResolution) => {
+  const updateEmberTscStatus = (
+    resolution?: EmberTscResolution,
+  ): EmberTscResolution | undefined => {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (!workspaceFolder) {
       emberTscStatus.hide();
@@ -105,7 +104,7 @@ export const { activate, deactivate } = defineExtension(() => {
     return resolution;
   };
 
-  const configureTsserverPlugin = async () => {
+  const configureTsserverPlugin = async (): Promise<void> => {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (!workspaceFolder) {
       return;
@@ -120,7 +119,11 @@ export const { activate, deactivate } = defineExtension(() => {
     };
 
     try {
-      await vscode.commands.executeCommand('typescript.configurePlugin', TS_PLUGIN_NAME, configuration);
+      await vscode.commands.executeCommand(
+        'typescript.configurePlugin',
+        TS_PLUGIN_NAME,
+        configuration,
+      );
     } catch (error) {
       outputChannel.appendLine(
         `typescript.configurePlugin not available; falling back to tsserver request. ${
@@ -136,7 +139,7 @@ export const { activate, deactivate } = defineExtension(() => {
     }
   };
 
-  const restartLanguageServer = async () => {
+  const restartLanguageServer = async (): Promise<void> => {
     await executeCommand('typescript.restartTsServer');
     if (!client) {
       return;
@@ -163,7 +166,7 @@ export const { activate, deactivate } = defineExtension(() => {
     await client.start();
   };
 
-  const updateEmberTscState = async (restartServers: boolean) => {
+  const updateEmberTscState = async (restartServers: boolean): Promise<void> => {
     const resolution = updateEmberTscStatus();
     await configureTsserverPlugin();
 
@@ -328,9 +331,7 @@ function launch(
       `Workspace ember-tsc not found (source: ${resolution.configuredSource}); using bundled ember-tsc from ${resolution.path}`,
     );
   } else {
-    outputChannel.appendLine(
-      `Using ${resolution.source} ember-tsc from ${resolution.path}`,
-    );
+    outputChannel.appendLine(`Using ${resolution.source} ember-tsc from ${resolution.path}`);
   }
 
   const serverPath = resolution.path;
