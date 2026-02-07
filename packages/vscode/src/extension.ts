@@ -68,6 +68,7 @@ export const { activate, deactivate } = defineExtension(() => {
   const activeTextEditor = useActiveTextEditor();
   const visibleTextEditors = useVisibleTextEditors();
   const outputChannel = useOutputChannel('Glint2 Language Server');
+  let pendingRestart = false;
 
   const emberTscStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   emberTscStatus.command = SELECT_EMBER_TSC_COMMAND;
@@ -142,6 +143,17 @@ export const { activate, deactivate } = defineExtension(() => {
   const restartLanguageServer = async (): Promise<void> => {
     await executeCommand('typescript.restartTsServer');
     if (!client) {
+      return;
+    }
+
+    if (client.state !== lsp.State.Running && client.state !== lsp.State.Starting) {
+      if (!pendingRestart) {
+        pendingRestart = true;
+        setTimeout(() => {
+          pendingRestart = false;
+          void restartLanguageServer();
+        }, 200);
+      }
       return;
     }
 
