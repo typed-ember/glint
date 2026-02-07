@@ -82,6 +82,41 @@ function loadEmberTscFromBundled(
   }
 }
 
+function loadEmberTscFromWorkspaceDirs(
+  resolutionDirs: string[],
+  logInfo: (message: string) => void,
+): { module: any; resolvedPath: string } | null {
+  for (const resolutionDir of resolutionDirs) {
+    const resolved = loadEmberTscFromWorkspace(resolutionDir, logInfo);
+    if (resolved) {
+      return resolved;
+    }
+  }
+  return null;
+}
+
+function getWorkspaceResolutionDirs(
+  workspaceRoot: string,
+  libraryPath: string,
+  info: ts.server.PluginCreateInfo,
+): string[] {
+  const candidates: string[] = [path.resolve(workspaceRoot, libraryPath)];
+  const project = info.project as unknown as {
+    getProjectName?: () => string;
+    getCurrentDirectory?: () => string;
+  };
+  const projectName = project.getProjectName?.();
+  if (typeof projectName === 'string' && path.isAbsolute(projectName)) {
+    const projectDir = projectName.endsWith('.json') ? path.dirname(projectName) : projectName;
+    candidates.push(path.resolve(projectDir, libraryPath));
+  }
+  const projectDir = project.getCurrentDirectory?.();
+  if (typeof projectDir === 'string' && path.isAbsolute(projectDir)) {
+    candidates.push(path.resolve(projectDir, libraryPath));
+  }
+  return Array.from(new Set(candidates));
+}
+
 const plugin = createLanguageServicePlugin(
   (
     ts: typeof import('typescript'),
@@ -97,7 +132,7 @@ const plugin = createLanguageServicePlugin(
         : info.languageServiceHost.getCurrentDirectory();
     const libraryPath =
       typeof (config as any).libraryPath === 'string' ? (config as any).libraryPath : '.';
-    const resolutionDir = path.resolve(workspaceRoot, libraryPath);
+    const resolutionDirs = getWorkspaceResolutionDirs(workspaceRoot, libraryPath, info);
 
     let resolved = null as { module: any; resolvedPath: string; source: EmberTscSource } | null;
 
@@ -106,14 +141,14 @@ const plugin = createLanguageServicePlugin(
       if (bundled) {
         resolved = { ...bundled, source: 'bundled' };
       } else {
-        const workspace = loadEmberTscFromWorkspace(resolutionDir, logInfo);
+        const workspace = loadEmberTscFromWorkspaceDirs(resolutionDirs, logInfo);
         if (workspace) {
           logInfo('Bundled ember-tsc unavailable; falling back to workspace package.');
           resolved = { ...workspace, source: 'workspace' };
         }
       }
     } else {
-      const workspace = loadEmberTscFromWorkspace(resolutionDir, logInfo);
+      const workspace = loadEmberTscFromWorkspaceDirs(resolutionDirs, logInfo);
       if (workspace) {
         resolved = { ...workspace, source: 'workspace' };
       } else {
