@@ -1,6 +1,6 @@
 {
   "name": "@glint/ember-tsc",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "repository": "typed-ember/glint",
   "description": "A CLI for performing typechecking on Glimmer templates",
   "license": "MIT",
