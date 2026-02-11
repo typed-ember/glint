@@ -79,12 +79,7 @@ function createEmberLanguagePluginInternal<T extends URI | string>(
      * extension.
      */
     getLanguageId(fileNameOrUri) {
-      if (String(fileNameOrUri).endsWith('.gts')) {
-        return 'glimmer-ts';
-      }
-      if (String(fileNameOrUri).endsWith('.gjs')) {
-        return 'glimmer-js';
-      }
+      return getLanguageIdForFileName(fileNameOrUri.toString());
     },
 
     createVirtualCode(scriptId: URI | string, languageId, snapshot) {
