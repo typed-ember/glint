@@ -2,7 +2,7 @@
   "name": "glint2-vscode",
   "displayName": "Glint V2",
   "description": "Volar.js-powered Ember.js language server and TS Plugin for VS Code",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "publisher": "typed-ember",
   "private": true,
   "author": "James C. Davis (https://github.com/jamescdavis)",
