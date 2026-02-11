@@ -1,5 +1,15 @@
 # Changelog
 
+## Release (2026-02-11)
+
+
+
+#### :house: Internal
+* [#1056](https://github.com/typed-ember/glint/pull/1056) Update meta for vscode package ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-02-07)
 
 * @glint/ember-tsc 1.1.2 (patch)

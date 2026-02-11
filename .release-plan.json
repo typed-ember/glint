@@ -1,41 +1,17 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "patch",
-      "oldVersion": "1.1.1",
-      "newVersion": "1.1.2",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
-        }
-      ],
-      "pkgJSONPath": "./packages/core/package.json"
+      "oldVersion": "1.1.2"
     },
     "@glint/template": {
       "oldVersion": "1.7.4"
     },
     "@glint/tsserver-plugin": {
-      "impact": "minor",
-      "oldVersion": "2.1.1",
-      "newVersion": "2.2.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
-        }
-      ],
-      "pkgJSONPath": "./packages/tsserver-plugin/package.json"
+      "oldVersion": "2.2.0"
     },
     "@glint/type-test": {
       "oldVersion": "2.0.0"
     }
   },
-  "description": "## Release (2026-02-07)\n\n* @glint/ember-tsc 1.1.2 (patch)\n* @glint/tsserver-plugin 2.2.0 (minor)\n\n#### :rocket: Enhancement\n* `@glint/tsserver-plugin`\n  * [#1053](https://github.com/typed-ember/glint/pull/1053) Allow ember-tsc to be choosable from the VSCode UI in preparation for using the bundled version of ember-tsc for JS projects ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1054](https://github.com/typed-ember/glint/pull/1054) Add activation logging when starting up to the glint 2 output channel ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* [#1048](https://github.com/typed-ember/glint/pull/1048) Bump VSCode for glint2 @ 1.0.2 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-02-11)\n\n\n\n#### :house: Internal\n* [#1056](https://github.com/typed-ember/glint/pull/1056) Update meta for vscode package ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
