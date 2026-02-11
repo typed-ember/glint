@@ -45,7 +45,8 @@ export type ComponentSignatureBlocks<S> = S extends { Blocks: infer Blocks }
 
 /** Given a component signature `S`, get back the `Element` type. */
 export type ComponentSignatureElement<S> = S extends { Element: infer Element }
-  ? NonNullable<Element> extends never
+  ? NonNullable<Element> extends never 
+// ? Element extends null
     ? unknown
     : Element
   : unknown;
