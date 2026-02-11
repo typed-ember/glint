@@ -44,9 +44,40 @@ export class ConfigLoader {
       return null;
     }
 
+    // Log TypeScript resolution for synthetic/special paths to aid debugging
+    if (directory === '/dev/null' || directory.includes('/dev/null')) {
+      this.log(
+        `Resolved TypeScript for inferred project (${directory}) using fallback resolution.`,
+      );
+    }
+
     let configPath = findNearestConfigFile(ts, directory);
+
+    // If no tsconfig/jsconfig found, create a default config if the project has
+    // glint-related dependencies (e.g. ember-source, @glint/template). This allows
+    // the tsserver plugin and language server to still transform .gts/.gjs files
+    // in projects that don't use a tsconfig/jsconfig.
     if (!configPath) {
       this.log(`No tsconfig.json or jsconfig.json found from ${directory}.`);
+
+      if (hasGlintRelatedDependencies(directory)) {
+        // Use a synthetic config path so GlintConfig can determine rootDir.
+        // Find the nearest package.json directory to use as root.
+        const rootDir = findNearestPackageJsonDir(directory) || directory;
+        const syntheticConfigPath = path.join(rootDir, 'tsconfig.json');
+
+        let existing = this.configs.get(syntheticConfigPath);
+        if (existing !== undefined) {
+          this.log(`Using cached default Glint config for ${rootDir}.`);
+          return existing;
+        }
+
+        let config = new GlintConfig(ts, syntheticConfigPath, { environment: [] });
+        this.log(`Created default Glint config for ${rootDir} (no tsconfig/jsconfig).`);
+        this.configs.set(syntheticConfigPath, config);
+        return config;
+      }
+
       return null;
     }
 
@@ -68,11 +99,27 @@ export class ConfigLoader {
 }
 
 export function findTypeScript(fromDir: string): TypeScript | null {
-  let requireFrom = path.resolve(fromDir, 'package.json');
-  return (
-    tryResolve(() => createRequire(requireFrom)('typescript')) ??
-    tryResolve(() => require('typescript'))
+  // Handle synthetic paths (like /dev/null from inferred projects) or non-existent directories
+  // by trying alternative resolution strategies
+  const isSyntheticPath = fromDir === '/dev/null' || fromDir.includes('/dev/null');
+  const dirExists = !isSyntheticPath && fs.existsSync(fromDir);
+
+  if (dirExists) {
+    // Try to resolve from the given directory first
+    const requireFrom = path.resolve(fromDir, 'package.json');
+    const ts = tryResolve(() => createRequire(requireFrom)('typescript'));
+    if (ts) return ts;
+  }
+
+  // Fallback strategies:
+  // 1. Try from current working directory (useful for VS Code workspace context)
+  const cwdTs = tryResolve(() =>
+    createRequire(path.resolve(process.cwd(), 'package.json'))('typescript'),
   );
+  if (cwdTs) return cwdTs;
+
+  // 2. Try from the Glint module itself (will find VS Code's bundled TypeScript or workspace TypeScript)
+  return tryResolve(() => require('typescript'));
 }
 
 function tryResolve<T>(load: () => T): T | null {
@@ -137,6 +184,78 @@ function findNearestConfigFile(ts: TypeScript, searchFrom: string): string {
     .sort((a, b) => b.length - a.length);
 
   return configCandidates[0];
+}
+
+/**
+ * Finds the nearest directory containing a package.json, searching upward
+ * from the given directory.
+ */
+function findNearestPackageJsonDir(searchFrom: string): string | null {
+  let currentDir = searchFrom;
+  const root = path.parse(currentDir).root;
+
+  while (currentDir !== root) {
+    if (fs.existsSync(path.join(currentDir, 'package.json'))) {
+      return currentDir;
+    }
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) break;
+    currentDir = parentDir;
+  }
+
+  return null;
+}
+
+/**
+ * Checks if @glint/template or ember-source is present in the package.json
+ * of the given directory or any parent directory.
+ */
+function hasGlintRelatedDependencies(searchFrom: string): boolean {
+  // Handle synthetic paths (like /dev/null from inferred projects)
+  // by searching from the current working directory instead
+  if (
+    searchFrom === '/dev/null' ||
+    searchFrom.includes('/dev/null') ||
+    !fs.existsSync(searchFrom)
+  ) {
+    searchFrom = process.cwd();
+  }
+
+  let currentDir = searchFrom;
+  const root = path.parse(currentDir).root;
+
+  while (currentDir !== root) {
+    const packageJsonPath = path.join(currentDir, 'package.json');
+
+    if (fs.existsSync(packageJsonPath)) {
+      try {
+        const content = fs.readFileSync(packageJsonPath, 'utf-8');
+        const packageJson = JSON.parse(content);
+
+        const allDependencies = {
+          ...packageJson.dependencies,
+          ...packageJson.devDependencies,
+          ...packageJson.peerDependencies,
+          ...packageJson.optionalDependencies,
+        };
+
+        if (allDependencies['@glint/template'] || allDependencies['ember-source']) {
+          return true;
+        }
+      } catch {
+        // Ignore parsing errors and continue searching
+      }
+    }
+
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) {
+      // Reached filesystem root
+      break;
+    }
+    currentDir = parentDir;
+  }
+
+  return false;
 }
 
 function validateConfigInput(input: Record<string, unknown>): GlintConfigInput | null {

@@ -73,6 +73,28 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
+  test('activates without tsconfig when package.json has Glint deps', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class Application extends Component {
+        private message = 'Hello';
+
+        <template>
+          {{this.message}}
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app-no-config/src/empty-fixture.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
+
   test('honors @glint-expect-error / ignore shared test throws error', async () => {
     const componentA = stripIndent`
       import Component from '@glimmer/component';

@@ -1,0 +1,20 @@
+{
+  "name": "no-config-app",
+  "private": true,
+  "devDependencies": {
+    "@glimmer/component": "^2.0.0",
+    "@glint/template": "workspace:*",
+    "ember-source": "^6.2.0"
+  },
+  "dependenciesMeta": {
+    "@glint/template": {
+      "injected": true
+    },
+    "@glint/ember-tsc": {
+      "injected": true
+    },
+    "@glint/tsserver-plugin": {
+      "injected": true
+    }
+  }
+}

@@ -4,10 +4,12 @@ import { createLanguageServiceEnvironment } from '@volar/language-server/lib/pro
 import { createConnection, createServer } from '@volar/language-server/node.js';
 import type { LanguageServiceContext, LanguageServicePlugin } from '@volar/language-service';
 import { createLanguageService, createUriMap, LanguageService } from '@volar/language-service';
+import * as path from 'node:path';
 import * as ts from 'typescript';
 import { create as createHtmlSyntacticPlugin } from 'volar-service-html';
 import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic.js';
 import { URI } from 'vscode-uri';
+import { GlintConfig } from '../config/config.js';
 import { ConfigLoader } from '../config/loader.js';
 import { create as createCompilerErrorsPlugin } from '../plugins/g-compiler-errors.js';
 import { create as createTemplateTagSymbolsPlugin } from '../plugins/g-template-tag-symbols.js';
@@ -74,13 +76,22 @@ connection.onInitialize((params) => {
         if (uri.scheme === 'file') {
           // Use tsserver to find the tsconfig governing this file.
           const fileName = uri.fsPath.replace(/\\/g, '/');
-          const projectInfo = await sendTsServerRequest<ts.server.protocol.ProjectInfo>(
+          let projectInfo = await sendTsServerRequest<ts.server.protocol.ProjectInfo>(
             '_glint:' + ts.server.protocol.CommandTypes.ProjectInfo,
             {
               file: fileName,
               needFileNameList: false,
             } satisfies ts.server.protocol.ProjectInfoRequestArgs,
           );
+          if (!projectInfo) {
+            projectInfo = await sendTsServerRequest<ts.server.protocol.ProjectInfo>(
+              ts.server.protocol.CommandTypes.ProjectInfo,
+              {
+                file: fileName,
+                needFileNameList: false,
+              } satisfies ts.server.protocol.ProjectInfoRequestArgs,
+            );
+          }
           if (projectInfo) {
             const { configFileName } = projectInfo;
             let ls = tsconfigProjects.get(URI.file(configFileName));
@@ -94,8 +105,9 @@ connection.onInitialize((params) => {
             logWarn(`No tsserver project info for ${fileName}; falling back to simple LS.`);
           }
         }
-        // TODO: this branch is hit when running Volar Labs and currently breaks. Figure out
-        // how to reinstate a "simple" LS without a tsconfig.
+        // This branch is hit when there's no tsconfig/jsconfig project (e.g. Volar Labs
+        // or projects without config files). We create a "simple" LS with a default GlintConfig
+        // so that .gts/.gjs template parsing still works.
         if (!warnedSimpleLs) {
           warnedSimpleLs = true;
           logWarn('Using simple language service without a tsconfig/jsconfig.');
@@ -157,7 +169,22 @@ connection.onInitialize((params) => {
         logWarn(`Glint config not found for ${tsconfigFileName}; Glint features disabled.`);
       }
     } else {
-      logWarn('No tsconfig/jsconfig provided; Glint config cannot be resolved.');
+      logWarn('No tsconfig/jsconfig provided; creating Glint config with defaults.');
+
+      // Even without a tsconfig/jsconfig, we can still provide template parsing
+      // and language features for .gts/.gjs files by creating a default GlintConfig
+      // rooted at the first workspace folder.
+      // We use the already-imported `ts` module rather than trying to resolve TypeScript
+      // from the workspace, since the language server already has it available.
+      const workspaceFolders = [...server.workspaceFolders.all];
+      const workspaceRoot =
+        workspaceFolders.length > 0 ? workspaceFolders[0].fsPath : process.cwd();
+
+      const syntheticConfigPath = path.join(workspaceRoot, 'tsconfig.json');
+      const glintConfig = new GlintConfig(ts, syntheticConfigPath, { environment: [] });
+      const emberLanguagePlugin = createEmberLanguagePlugin(glintConfig);
+      languagePlugins.push(emberLanguagePlugin);
+      logInfo(`Glint config active for workspace root ${workspaceRoot} (no tsconfig).`);
     }
 
     const language = createLanguage<URI>(languagePlugins, createUriMap(), (uri) => {
