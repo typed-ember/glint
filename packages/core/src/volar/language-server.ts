@@ -2,11 +2,13 @@ import { createLanguage } from '@volar/language-core';
 import type { LanguagePlugin, LanguageServer } from '@volar/language-server';
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject.js';
 import { createConnection, createServer } from '@volar/language-server/node.js';
+import { createTypeScriptProject } from '@volar/language-server/lib/project/typescriptProject.js';
 import type { LanguageServiceContext, LanguageServicePlugin } from '@volar/language-service';
 import { createLanguageService, createUriMap, LanguageService } from '@volar/language-service';
 import * as ts from 'typescript';
 import { create as createHtmlSyntacticPlugin } from 'volar-service-html';
 import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic.js';
+import { create as createTypeScriptSemanticPlugin } from 'volar-service-typescript/lib/plugins/semantic.js';
 import { URI } from 'vscode-uri';
 import { ConfigLoader } from '../config/loader.js';
 import { create as createCompilerErrorsPlugin } from '../plugins/g-compiler-errors.js';
@@ -50,6 +52,33 @@ connection.onInitialize((params) => {
     logWarn('No workspace folder or root URI provided by client.');
   }
 
+  const fullSemanticMode = !!(params.initializationOptions as any)?.fullSemanticMode;
+
+  if (fullSemanticMode) {
+    logInfo('Using full semantic mode (createTypeScriptProject).');
+    return server.initialize(
+      params,
+      createTypeScriptProject(ts, undefined, async ({ configFileName }) => {
+        const languagePlugins = [];
+        if (configFileName) {
+          const configLoader = new ConfigLoader(logInfo);
+          const glintConfig = configLoader.configForFile(configFileName);
+          if (glintConfig) {
+            logInfo(`Glint config active for ${configFileName}.`);
+            languagePlugins.push(createEmberLanguagePlugin(glintConfig));
+          } else {
+            logWarn(`Glint config not found for ${configFileName}; Glint features disabled.`);
+          }
+        } else {
+          logWarn('No tsconfig/jsconfig provided; Glint config cannot be resolved.');
+        }
+        return { languagePlugins };
+      }),
+      getLanguageServicePluginsForLanguageServer(),
+    );
+  }
+
+  logInfo('Using hybrid mode (tsserver delegation).');
   const tsconfigProjects = createUriMap<LanguageService>();
 
   server.fileWatcher.onDidChangeWatchedFiles((obj: any) => {
@@ -181,6 +210,18 @@ connection.onInitialized(server.initialized);
 
 connection.onShutdown(server.shutdown);
 
+function getLanguageServicePluginsForLanguageServer(): LanguageServicePlugin[] {
+  return [
+    // Lightweight syntax-only TS Language Service. Provides Symbols (e.g. Outline view) and other features.
+    createTypeScriptSyntacticPlugin(ts),
+    createHtmlSyntacticPlugin(),
+    // Full TypeScript semantic language service for diagnostics, completions, etc.
+    createTypeScriptSemanticPlugin(ts),
+    createTemplateTagSymbolsPlugin(),
+    createCompilerErrorsPlugin(),
+  ];
+}
+
 function getHybridModeLanguageServicePluginsForLanguageServer(
   tsPluginClient: any = {}, // Glint's equivalent to Vue's tsPluginClient
 ): LanguageServicePlugin<any>[] {
@@ -201,82 +242,5 @@ function getCommonLanguageServicePluginsForLanguageServer(
   getTsPluginClient: (context: LanguageServiceContext) => any,
   // ) => import('@glint/tsserver/lib/requests').Requests | undefined,
 ): LanguageServicePlugin[] {
-  return [
-    createTemplateTagSymbolsPlugin(),
-    createCompilerErrorsPlugin(),
-    // createTypeScriptTwoslashQueriesPlugin(ts),
-    // createCssPlugin(),
-    // createPugFormatPlugin(),
-    // createJsonPlugin(),
-    // createVueTemplatePlugin('html', getTsPluginClient),
-    // createVueTemplatePlugin('pug', getTsPluginClient),
-    // createVueMissingPropsHintsPlugin(getTsPluginClient),
-    // createVueCompilerDomErrorsPlugin(),
-    // createVueSfcPlugin(),
-    // createVueTwoslashQueriesPlugin(getTsPluginClient),
-    // createVueDocumentLinksPlugin(),
-    // createVueDocumentDropPlugin(ts, getTsPluginClient),
-    // createVueCompleteDefineAssignmentPlugin(),
-    // createVueAutoDotValuePlugin(ts, getTsPluginClient),
-    // createVueAutoAddSpacePlugin(),
-    // createVueInlayHintsPlugin(ts),
-    // createVueDirectiveCommentsPlugin(),
-    // createVueExtractFilePlugin(ts, getTsPluginClient),
-    // createEmmetPlugin({
-    // 	mappedLanguages: {
-    // 		'vue-root-tags': 'html',
-    // 		'postcss': 'scss',
-    // 	},
-    // }),
-    // {
-    // 	name: 'vue-parse-sfc',
-    // 	capabilities: {
-    // 		executeCommandProvider: {
-    // 			commands: [commands.parseSfc],
-    // 		},
-    // 	},
-    // 	create() {
-    // 		return {
-    // 			executeCommand(_command, [source]) {
-    // 				return parse(source);
-    // 			},
-    // 		};
-    // 	},
-    // },
-    // {
-    // 	name: 'vue-name-casing',
-    // 	capabilities: {
-    // 		executeCommandProvider: {
-    // 			commands: [
-    // 				commands.detectNameCasing,
-    // 				commands.convertTagsToKebabCase,
-    // 				commands.convertTagsToPascalCase,
-    // 				commands.convertPropsToKebabCase,
-    // 				commands.convertPropsToCamelCase,
-    // 			],
-    // 		}
-    // 	},
-    // 	create(context) {
-    // 		return {
-    // 			executeCommand(command, [uri]) {
-    // 				if (command === commands.detectNameCasing) {
-    // 					return detect(context, URI.parse(uri));
-    // 				}
-    // 				else if (command === commands.convertTagsToKebabCase) {
-    // 					return convertTagName(context, URI.parse(uri), TagNameCasing.Kebab, getTsPluginClient(context));
-    // 				}
-    // 				else if (command === commands.convertTagsToPascalCase) {
-    // 					return convertTagName(context, URI.parse(uri), TagNameCasing.Pascal, getTsPluginClient(context));
-    // 				}
-    // 				else if (command === commands.convertPropsToKebabCase) {
-    // 					return convertAttrName(context, URI.parse(uri), AttrNameCasing.Kebab, getTsPluginClient(context));
-    // 				}
-    // 				else if (command === commands.convertPropsToCamelCase) {
-    // 					return convertAttrName(context, URI.parse(uri), AttrNameCasing.Camel, getTsPluginClient(context));
-    // 				}
-    // 			},
-    // 		};
-    // 	},
-    // }
-  ];
+  return [createTemplateTagSymbolsPlugin(), createCompilerErrorsPlugin()];
 }
