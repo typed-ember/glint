@@ -3,11 +3,13 @@ import { createLanguage } from '@volar/language-core';
 import type { LanguagePlugin, LanguageServer } from '@volar/language-server';
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject.js';
 import { createConnection, createServer } from '@volar/language-server/node.js';
+import { createTypeScriptProject } from '@volar/language-server/lib/project/typescriptProject.js';
 import type { LanguageServiceContext, LanguageServicePlugin } from '@volar/language-service';
 import { createLanguageService, createUriMap, LanguageService } from '@volar/language-service';
 import * as ts from 'typescript';
 import { create as createHtmlSyntacticPlugin } from 'volar-service-html';
 import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic.js';
+import { create as createTypeScriptSemanticPlugin } from 'volar-service-typescript/lib/plugins/semantic.js';
 import { URI } from 'vscode-uri';
 import { ConfigLoader } from '../config/loader.js';
 import { createDefaultConfig } from '../config/index.js';
@@ -54,6 +56,33 @@ connection.onInitialize((params) => {
     logWarn('No workspace folder or root URI provided by client.');
   }
 
+  const fullSemanticMode = !!(params.initializationOptions as any)?.fullSemanticMode;
+
+  if (fullSemanticMode) {
+    logInfo('Using full semantic mode (createTypeScriptProject).');
+    return server.initialize(
+      params,
+      createTypeScriptProject(ts, undefined, async ({ configFileName }) => {
+        const languagePlugins = [];
+        if (configFileName) {
+          const configLoader = new ConfigLoader(logInfo);
+          const glintConfig = configLoader.configForFile(configFileName);
+          if (glintConfig) {
+            logInfo(`Glint config active for ${configFileName}.`);
+            languagePlugins.push(createEmberLanguagePlugin(glintConfig));
+          } else {
+            logWarn(`Glint config not found for ${configFileName}; Glint features disabled.`);
+          }
+        } else {
+          logWarn('No tsconfig/jsconfig provided; Glint config cannot be resolved.');
+        }
+        return { languagePlugins };
+      }),
+      getLanguageServicePluginsForLanguageServer(),
+    );
+  }
+
+  logInfo('Using hybrid mode (tsserver delegation).');
   const tsconfigProjects = createUriMap<LanguageService>();
 
   server.fileWatcher.onDidChangeWatchedFiles((obj: any) => {
@@ -189,6 +218,18 @@ connection.onInitialize((params) => {
 connection.onInitialized(server.initialized);
 
 connection.onShutdown(server.shutdown);
+
+function getLanguageServicePluginsForLanguageServer(): LanguageServicePlugin[] {
+  return [
+    // Lightweight syntax-only TS Language Service. Provides Symbols (e.g. Outline view) and other features.
+    createTypeScriptSyntacticPlugin(ts),
+    createHtmlSyntacticPlugin(),
+    // Full TypeScript semantic language service for diagnostics, completions, etc.
+    createTypeScriptSemanticPlugin(ts),
+    createTemplateTagSymbolsPlugin(),
+    createCompilerErrorsPlugin(),
+  ];
+}
 
 function getHybridModeLanguageServicePluginsForLanguageServer(
   tsPluginClient: TsPluginClient,
