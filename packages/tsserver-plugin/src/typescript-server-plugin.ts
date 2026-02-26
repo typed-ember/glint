@@ -189,12 +189,34 @@ const plugin = createLanguageServicePlugin(
     // a config file we need to enable them explicitly.
     if ((compilerOptions as any).configFilePath === undefined) {
       const updatedOptions = info.project.getCompilerOptions();
-      if (!updatedOptions.allowJs || !updatedOptions.checkJs) {
-        info.project.setCompilerOptions({
+      const needsUpdate = !updatedOptions.allowJs || !updatedOptions.checkJs || !updatedOptions.types;
+      if (needsUpdate) {
+        const newOptions: any = {
           ...updatedOptions,
           allowJs: true,
           checkJs: true,
-        });
+        };
+
+        // Include ember-source/types so that ambient Ember type declarations
+        // (e.g. @glimmer/component) are visible for import suggestions.
+        // A jsconfig.json normally specifies this in compilerOptions.types.
+        if (!updatedOptions.types) {
+          const projectDir = info.languageServiceHost.getCurrentDirectory();
+          const types: string[] = [];
+          try {
+            const req = createRequire(path.join(projectDir, 'package.json'));
+            req.resolve('ember-source/types');
+            types.push('ember-source/types');
+          } catch {
+            // ember-source not installed; skip
+          }
+          if (types.length > 0) {
+            newOptions.types = types;
+            logInfo(`Inferred types for no-config project: ${types.join(', ')}`);
+          }
+        }
+
+        info.project.setCompilerOptions(newOptions);
       }
     }
 

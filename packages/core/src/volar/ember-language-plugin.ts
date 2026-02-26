@@ -1,4 +1,6 @@
 import { LanguagePlugin } from '@volar/language-core';
+import * as fs from 'node:fs';
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type ts from 'typescript';
@@ -56,6 +58,23 @@ function normalizeFileName(scriptIdStr: string, getCurrentDirectory?: () => stri
   }
 
   return fileName;
+}
+
+/**
+ * Check if ember-source is installed in the given directory and return
+ * the appropriate `compilerOptions.types` entries so that Ember's
+ * ambient type declarations are visible for import suggestions.
+ */
+function inferEmberTypes(projectDir: string): string[] {
+  const types: string[] = [];
+  try {
+    const req = createRequire(path.join(projectDir, 'package.json'));
+    req.resolve('ember-source/types');
+    types.push('ember-source/types');
+  } catch {
+    // ember-source not installed; skip
+  }
+  return types;
 }
 
 function createEmberLanguagePluginInternal<T extends URI | string>(
@@ -182,6 +201,17 @@ function createEmberLanguagePluginInternal<T extends URI | string>(
                     // moduleResolution defaults to 'node', but 'bundler' is more appropriate for bundler-based projects
                     if (!('moduleResolution' in baseSettings)) {
                       settings.moduleResolution = 100; // ts.ModuleResolutionKind.Bundler
+                    }
+                    // Include ember-source/types so that ambient Ember type
+                    // declarations (e.g. @glimmer/component) are visible for
+                    // import suggestions. A jsconfig.json normally specifies
+                    // this in compilerOptions.types.
+                    if (!('types' in baseSettings)) {
+                      const projectDir = host.getCurrentDirectory?.() ?? getCurrentDirectory?.() ?? process.cwd();
+                      const inferredTypes = inferEmberTypes(projectDir);
+                      if (inferredTypes.length > 0) {
+                        settings.types = inferredTypes;
+                      }
                     }
                   }
 
