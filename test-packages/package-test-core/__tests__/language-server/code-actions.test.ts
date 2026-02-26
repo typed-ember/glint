@@ -452,10 +452,7 @@ function findAction(
  * Apply a set of text edits to source text, processing from bottom to top
  * to preserve offsets.
  */
-function applyEdits(
-  text: string,
-  edits: { range: Range; newText: string }[],
-): string {
+function applyEdits(text: string, edits: { range: Range; newText: string }[]): string {
   // Sort edits from bottom to top to avoid offset issues
   const sorted = [...edits].sort((a, b) => {
     if (a.range.start.line !== b.range.start.line) {

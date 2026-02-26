@@ -54,7 +54,11 @@ export function create(): LanguageServicePlugin {
             const classInfo = findEnclosingClassComponent(text, templateStart);
             const templateOnlyInfo = findTemplateOnlyComponent(text, templateStart, templateEnd);
 
-            if (classInfo && cursorOffset >= classInfo.fullStart && cursorOffset <= classInfo.fullEnd) {
+            if (
+              classInfo &&
+              cursorOffset >= classInfo.fullStart &&
+              cursorOffset <= classInfo.fullEnd
+            ) {
               // Cursor is in a class component — offer conversion to template-only
               const action = buildClassToTemplateOnlyAction(
                 document,
@@ -238,7 +242,10 @@ function findEnclosingClassComponent(
 
   // Determine if the class body has other members besides <template>
   const classBodyText = text.slice(classBodyOpenIndex + 1, classBodyCloseIndex);
-  const otherMembersText = removeTemplateFromClassBody(classBodyText, templateStart - classBodyOpenIndex - 1);
+  const otherMembersText = removeTemplateFromClassBody(
+    classBodyText,
+    templateStart - classBodyOpenIndex - 1,
+  );
   const hasOtherMembers = otherMembersText.trim().length > 0;
 
   return {
@@ -296,7 +303,8 @@ function findTemplateOnlyComponent(
   }
 
   // Pattern 2: `[export] const Foo[: TOC<Sig>] = <template>...</template>`
-  const constPattern = /(?:^|\n)\s*((?:export\s+)?const\s+(\w+)\s*(?::\s*TOC<([\s\S]*?)>)?\s*=)\s*$/;
+  const constPattern =
+    /(?:^|\n)\s*((?:export\s+)?const\s+(\w+)\s*(?::\s*TOC<([\s\S]*?)>)?\s*=)\s*$/;
   const constMatch = textBefore.match(constPattern);
 
   if (constMatch) {
@@ -418,11 +426,7 @@ function buildClassToTemplateOnlyAction(
   // Handle import changes:
   // 1. Remove the Component import if no longer used
   // 2. Add TOC import if we're using it (non-default-export with signature)
-  const importEdits = buildImportEditsForClassToTemplateOnly(
-    document,
-    text,
-    classInfo,
-  );
+  const importEdits = buildImportEditsForClassToTemplateOnly(document, text, classInfo);
   edits.push(...importEdits);
 
   return {
@@ -448,9 +452,7 @@ function buildTemplateOnlyToClassAction(
 
   // Determine class name
   const className = templateOnlyInfo.variableName ?? 'MyComponent';
-  const signaturePart = templateOnlyInfo.signatureType
-    ? `<${templateOnlyInfo.signatureType}>`
-    : '';
+  const signaturePart = templateOnlyInfo.signatureType ? `<${templateOnlyInfo.signatureType}>` : '';
 
   // Build class replacement
   let replacement: string;
@@ -458,7 +460,10 @@ function buildTemplateOnlyToClassAction(
   // Determine indentation for the template inside the class
   const indentedTemplate = indentBlock(templateContent, '  ');
 
-  if (templateOnlyInfo.isDefaultExport || (!templateOnlyInfo.variableName && !templateOnlyInfo.isNamedExport)) {
+  if (
+    templateOnlyInfo.isDefaultExport ||
+    (!templateOnlyInfo.variableName && !templateOnlyInfo.isNamedExport)
+  ) {
     // `export default <template>...</template>`
     // or bare `<template>...</template>`
     // → `export default class ClassName extends Component<Sig> { <template>...</template> }`
@@ -484,11 +489,7 @@ function buildTemplateOnlyToClassAction(
   // Handle import changes:
   // 1. Add Component import if not present
   // 2. Remove TOC import if no longer used
-  const importEdits = buildImportEditsForTemplateOnlyToClass(
-    document,
-    text,
-    templateOnlyInfo,
-  );
+  const importEdits = buildImportEditsForTemplateOnlyToClass(document, text, templateOnlyInfo);
   edits.push(...importEdits);
 
   return {
