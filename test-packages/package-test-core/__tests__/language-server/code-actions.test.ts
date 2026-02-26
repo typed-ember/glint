@@ -88,7 +88,7 @@ describe('Language Server: Code Actions - Component Transformations', () => {
       expect(newText).toMatchInlineSnapshot(`
         "
         import type { ComponentLike } from '@glint/template';
-        
+
         interface MySignature {
           Args: { name: string };
         }
@@ -356,6 +356,205 @@ describe('Language Server: Code Actions - Component Transformations', () => {
             Just a bare template
           </template>
         }"
+      `);
+    });
+  });
+
+  describe('multi-component files', () => {
+    test('convert class component to template-only, leaving sibling template-only untouched', async () => {
+      const code = stripIndent`
+        import Component from '@glimmer/component';
+        import type { TOC } from '@ember/component/template-only';
+
+        const Sidebar: TOC<{ Args: { title: string } }> = <template>
+          <aside>{{@title}}</aside>
+        </template>;
+
+        export default class Main extends Component {
+          <template>
+            <Sidebar @title="Nav" />
+            Main content
+          </template>
+        }
+      `;
+
+      const document = await prepareDocument(
+        'ts-template-imports-app/src/empty-fixture.gts',
+        'glimmer-ts',
+        code,
+      );
+
+      // Cursor on the class component (Main), not on Sidebar
+      const actions = await requestCodeActions(document, {
+        start: { line: 8, character: 0 },
+        end: { line: 8, character: 0 },
+      });
+
+      const convertAction = findAction(actions, 'Convert to template-only component');
+      expect(convertAction).toBeDefined();
+      expect(convertAction!.edit).toBeDefined();
+
+      const edits = convertAction!.edit!.changes!;
+      const documentEdits = Object.values(edits)[0]!;
+      const newText = applyEdits(code, documentEdits);
+
+      expect(newText).toMatchInlineSnapshot(`
+        "import type { TOC } from '@ember/component/template-only';
+
+        const Sidebar: TOC<{ Args: { title: string } }> = <template>
+          <aside>{{@title}}</aside>
+        </template>;
+
+        export default <template>
+            <Sidebar @title="Nav" />
+            Main content
+          </template>"
+      `);
+    });
+
+    test('convert template-only to class, leaving sibling class component untouched', async () => {
+      const code = stripIndent`
+        import Component from '@glimmer/component';
+
+        export default class Page extends Component {
+          <template>
+            <Banner />
+            Page content
+          </template>
+        }
+
+        const Banner = <template>
+          <header>Welcome!</header>
+        </template>;
+      `;
+
+      const document = await prepareDocument(
+        'ts-template-imports-app/src/empty-fixture.gts',
+        'glimmer-ts',
+        code,
+      );
+
+      // Cursor on Banner (the template-only component)
+      const actions = await requestCodeActions(document, {
+        start: { line: 9, character: 16 },
+        end: { line: 9, character: 16 },
+      });
+
+      const convertAction = findAction(actions, 'Convert to class component');
+      expect(convertAction).toBeDefined();
+      expect(convertAction!.edit).toBeDefined();
+
+      const edits = convertAction!.edit!.changes!;
+      const documentEdits = Object.values(edits)[0]!;
+      const newText = applyEdits(code, documentEdits);
+
+      // Page class component should remain untouched
+      expect(newText).toMatchInlineSnapshot(`
+        "import Component from '@glimmer/component';
+
+        export default class Page extends Component {
+          <template>
+            <Banner />
+            Page content
+          </template>
+        }
+
+        class Banner extends Component {
+          <template>
+            <header>Welcome!</header>
+          </template>
+        }"
+      `);
+    });
+
+    test('only offers action for component under cursor, not sibling', async () => {
+      const code = stripIndent`
+        import Component from '@glimmer/component';
+
+        export default class App extends Component {
+          <template>
+            Hello from App
+          </template>
+        }
+
+        const Footer = <template>
+          <footer>Footer</footer>
+        </template>;
+      `;
+
+      const document = await prepareDocument(
+        'ts-template-imports-app/src/empty-fixture.gts',
+        'glimmer-ts',
+        code,
+      );
+
+      // Cursor on App (class component) — should only get "Convert to template-only"
+      const appActions = await requestCodeActions(document, {
+        start: { line: 3, character: 4 },
+        end: { line: 3, character: 4 },
+      });
+      expect(findAction(appActions, 'Convert to template-only component')).toBeDefined();
+      expect(findAction(appActions, 'Convert to class component')).toBeUndefined();
+
+      // Cursor on Footer (template-only) — should only get "Convert to class component"
+      const footerActions = await requestCodeActions(document, {
+        start: { line: 8, character: 16 },
+        end: { line: 8, character: 16 },
+      });
+      expect(findAction(footerActions, 'Convert to class component')).toBeDefined();
+      expect(findAction(footerActions, 'Convert to template-only component')).toBeUndefined();
+    });
+
+    test('multiple template-only components, convert only one', async () => {
+      const code = stripIndent`
+        const First = <template>
+          first
+        </template>;
+
+        const Second = <template>
+          second
+        </template>;
+
+        const Third = <template>
+          third
+        </template>;
+      `;
+
+      const document = await prepareDocument(
+        'ts-template-imports-app/src/empty-fixture.gts',
+        'glimmer-ts',
+        code,
+      );
+
+      // Cursor on Second
+      const actions = await requestCodeActions(document, {
+        start: { line: 4, character: 16 },
+        end: { line: 4, character: 16 },
+      });
+
+      const convertAction = findAction(actions, 'Convert to class component');
+      expect(convertAction).toBeDefined();
+
+      const edits = convertAction!.edit!.changes!;
+      const documentEdits = Object.values(edits)[0]!;
+      const newText = applyEdits(code, documentEdits);
+
+      // First and Third should remain as template-only
+      expect(newText).toMatchInlineSnapshot(`
+        "import Component from '@glimmer/component';
+        const First = <template>
+          first
+        </template>;
+
+        class Second extends Component {
+          <template>
+            second
+          </template>
+        }
+
+        const Third = <template>
+          third
+        </template>;"
       `);
     });
   });
