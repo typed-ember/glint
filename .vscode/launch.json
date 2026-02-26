@@ -25,6 +25,29 @@
       ]
     },
     {
+      // For this to work, make sure you're running `tsc --build --watch` at the root, AND
+      // `pnpm bundle:watch` from within vscode directory.
+      "name": "Debug Extension (TS Plugin, no config)",
+      "type": "extensionHost",
+      "request": "launch",
+      // "preLaunchTask": "npm: build",
+      "autoAttachChildProcesses": true,
+      "runtimeExecutable": "${execPath}",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js",
+        "!**/node_modules/**"
+      ],
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+        // Disable v1 vscode glint
+        "--disable-extension",
+        "typed-ember.glint-vscode",
+        // comment to activate your local extensions
+        "--disable-extensions",
+        "${workspaceFolder}/packages/vscode/__fixtures__/ember-app-no-config"
+      ]
+    },
+    {
       "name": "Attach to TS Server",
       "type": "node",
       "request": "attach",

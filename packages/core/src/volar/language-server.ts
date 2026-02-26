@@ -11,7 +11,20 @@ import { URI } from 'vscode-uri';
 import { ConfigLoader } from '../config/loader.js';
 import { create as createCompilerErrorsPlugin } from '../plugins/g-compiler-errors.js';
 import { create as createTemplateTagSymbolsPlugin } from '../plugins/g-template-tag-symbols.js';
-import { createEmberLanguagePlugin } from './ember-language-plugin.js';
+import {
+  createDynamicEmberLanguagePlugin,
+  createEmberLanguagePlugin,
+} from './ember-language-plugin.js';
+
+/**
+ * Detect inferred project paths returned by tsserver for files
+ * not governed by any tsconfig.json or jsconfig.json.
+ * On Unix these look like `/dev/null/inferredProject1*`,
+ * on Windows like `/dev/null/inferredProject1*` as well (tsserver normalizes).
+ */
+function isInferredProject(configFileName: string): boolean {
+  return configFileName.includes('/dev/null/') || configFileName.includes('inferredProject');
+}
 
 const connection = createConnection();
 const server = createServer(connection);
@@ -65,6 +78,7 @@ connection.onInitialize((params) => {
   let simpleLs: LanguageService | undefined;
   let warnedMissingProjectInfo = false;
   let warnedSimpleLs = false;
+  let warnedInferredProject = false;
 
   return server.initialize(
     params,
@@ -74,21 +88,39 @@ connection.onInitialize((params) => {
         if (uri.scheme === 'file') {
           // Use tsserver to find the tsconfig governing this file.
           const fileName = uri.fsPath.replace(/\\/g, '/');
-          const projectInfo = await sendTsServerRequest<ts.server.protocol.ProjectInfo>(
+          let projectInfo = await sendTsServerRequest<ts.server.protocol.ProjectInfo>(
             '_glint:' + ts.server.protocol.CommandTypes.ProjectInfo,
             {
               file: fileName,
               needFileNameList: false,
             } satisfies ts.server.protocol.ProjectInfoRequestArgs,
           );
+          if (!projectInfo) {
+            projectInfo = await sendTsServerRequest<ts.server.protocol.ProjectInfo>(
+              ts.server.protocol.CommandTypes.ProjectInfo,
+              {
+                file: fileName,
+                needFileNameList: false,
+              } satisfies ts.server.protocol.ProjectInfoRequestArgs,
+            );
+          }
           if (projectInfo) {
             const { configFileName } = projectInfo;
-            let ls = tsconfigProjects.get(URI.file(configFileName));
-            if (!ls) {
-              ls = createLanguageServiceHelper(server, configFileName);
-              tsconfigProjects.set(URI.file(configFileName), ls);
+            if (!isInferredProject(configFileName)) {
+              let ls = tsconfigProjects.get(URI.file(configFileName));
+              if (!ls) {
+                ls = createLanguageServiceHelper(server, configFileName);
+                tsconfigProjects.set(URI.file(configFileName), ls);
+              }
+              return ls;
+            } else {
+              if (!warnedInferredProject) {
+                warnedInferredProject = true;
+                logInfo(
+                  `Inferred project detected for ${fileName} (${configFileName}); using simple LS.`,
+                );
+              }
             }
-            return ls;
           } else if (!warnedMissingProjectInfo) {
             warnedMissingProjectInfo = true;
             logWarn(`No tsserver project info for ${fileName}; falling back to simple LS.`);
@@ -146,8 +178,9 @@ connection.onInitialize((params) => {
       },
     ];
 
+    const configLoader = new ConfigLoader(logInfo);
+
     if (tsconfigFileName) {
-      const configLoader = new ConfigLoader(logInfo);
       const glintConfig = configLoader.configForFile(tsconfigFileName);
       if (glintConfig) {
         logInfo(`Glint config active for ${tsconfigFileName}.`);
@@ -157,7 +190,18 @@ connection.onInitialize((params) => {
         logWarn(`Glint config not found for ${tsconfigFileName}; Glint features disabled.`);
       }
     } else {
-      logWarn('No tsconfig/jsconfig provided; Glint config cannot be resolved.');
+      logInfo('No tsconfig/jsconfig; using dynamic Glint config resolution.');
+      const emberLanguagePlugin = createDynamicEmberLanguagePlugin(
+        (from: string) => configLoader.configForDirectory(from),
+        {
+          clientId: 'language-server',
+          getCurrentDirectory: () => {
+            const folders = [...server.workspaceFolders.all];
+            return folders.length > 0 ? URI.parse(folders[0].toString()).fsPath : process.cwd();
+          },
+        },
+      );
+      languagePlugins.push(emberLanguagePlugin);
     }
 
     const language = createLanguage<URI>(languagePlugins, createUriMap(), (uri) => {

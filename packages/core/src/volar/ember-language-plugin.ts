@@ -1,18 +1,98 @@
 import { LanguagePlugin } from '@volar/language-core';
+import * as fs from 'node:fs';
+import { createRequire } from 'node:module';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type ts from 'typescript';
 import { URI } from 'vscode-uri';
 import { GlintConfig } from '../index.js';
 import { VirtualGtsCode } from './gts-virtual-code.js';
 export type TS = typeof ts;
 
+type EmberLanguagePluginOptions = {
+  clientId?: string;
+  getCurrentDirectory?: () => string;
+  allowJs?: boolean;
+  throwOnUnexpectedLanguageId?: boolean;
+};
+
+function getLanguageIdForFileName(fileName: string): 'glimmer-ts' | 'glimmer-js' | undefined {
+  if (fileName.endsWith('.gts')) {
+    return 'glimmer-ts';
+  }
+  if (fileName.endsWith('.gjs')) {
+    return 'glimmer-js';
+  }
+}
+
+function isGlimmerLanguageId(
+  languageId: string | undefined,
+): languageId is 'glimmer-ts' | 'glimmer-js' | 'typescript.glimmer' | 'javascript.glimmer' {
+  return (
+    languageId === 'glimmer-ts' ||
+    languageId === 'glimmer-js' ||
+    languageId === 'typescript.glimmer' ||
+    languageId === 'javascript.glimmer'
+  );
+}
+
+function normalizeFileName(scriptIdStr: string, getCurrentDirectory?: () => string): string {
+  let fileName = scriptIdStr;
+  if (scriptIdStr.startsWith('file://')) {
+    try {
+      fileName = fileURLToPath(scriptIdStr);
+    } catch {
+      try {
+        fileName = decodeURIComponent(new URL(scriptIdStr).pathname);
+      } catch {
+        fileName = scriptIdStr;
+      }
+    }
+  }
+
+  if (!path.isAbsolute(fileName)) {
+    const baseDir = getCurrentDirectory?.();
+    if (baseDir) {
+      fileName = path.resolve(baseDir, fileName);
+    }
+  }
+
+  return fileName;
+}
+
 /**
- * Create a [Volar](https://volarjs.dev) language plugin to support
+ * Resolve the absolute path to ember-source's ambient types entry point.
  *
- * - .gts/.gjs files (the `ember-template-imports` environment)
+ * ember-source's package.json exports `./types` with a `types`-only condition,
+ * which means `require.resolve('ember-source/types')` fails (Node's CJS resolver
+ * doesn't honour the `types` condition) and `compilerOptions.types` doesn't work
+ * because TS type-reference-directive resolution only checks `@types/` directories.
+ *
+ * Instead, we resolve `ember-source/package.json` (which IS exported) and
+ * construct the known path to `types/stable/index.d.ts`.
  */
-export function createEmberLanguagePlugin<T extends URI | string>(
-  glintConfig: GlintConfig,
-  { clientId }: { clientId?: string } = {},
+function resolveEmberSourceTypesFile(projectDir: string): string | null {
+  try {
+    const req = createRequire(path.join(projectDir, 'package.json'));
+    const pkgJsonPath = req.resolve('ember-source/package.json');
+    const typesFile = path.join(path.dirname(pkgJsonPath), 'types', 'stable', 'index.d.ts');
+    if (fs.existsSync(typesFile)) {
+      return typesFile;
+    }
+  } catch {
+    // ember-source not installed; skip
+  }
+  return null;
+}
+
+function createEmberLanguagePluginInternal<T extends URI | string>(
+  getGlintConfig: (fileName: string) => GlintConfig | null,
+  {
+    clientId,
+    getCurrentDirectory,
+    allowJs = false,
+    throwOnUnexpectedLanguageId = false,
+  }: EmberLanguagePluginOptions = {},
 ): LanguagePlugin<T> {
   return {
     /**
@@ -34,17 +114,21 @@ export function createEmberLanguagePlugin<T extends URI | string>(
       }
     },
 
-    createVirtualCode(scriptId: URI | string, languageId, snapshot, codegenContext) {
+    createVirtualCode(scriptId: URI | string, languageId, snapshot) {
       const scriptIdStr = String(scriptId);
+      const fileName = normalizeFileName(scriptIdStr, getCurrentDirectory);
+      const inferredLanguageId = languageId ?? getLanguageIdForFileName(fileName);
 
-      if (
-        languageId === 'glimmer-ts' ||
-        languageId === 'glimmer-js' ||
-        languageId === 'typescript.glimmer' ||
-        languageId === 'javascript.glimmer'
-      ) {
-        return new VirtualGtsCode(glintConfig, snapshot, languageId, clientId);
+      if (!isGlimmerLanguageId(inferredLanguageId)) {
+        return;
       }
+
+      const glintConfig = getGlintConfig(fileName);
+      if (!glintConfig) {
+        return;
+      }
+
+      return new VirtualGtsCode(glintConfig, snapshot, inferredLanguageId, clientId);
     },
 
     typescript: {
@@ -89,20 +173,99 @@ export function createEmberLanguagePlugin<T extends URI | string>(
               scriptKind: 1 satisfies ts.ScriptKind.JS,
             };
           default:
-            throw new Error(`getScript: Unexpected languageId: ${rootVirtualCode.languageId}`);
+            if (throwOnUnexpectedLanguageId) {
+              throw new Error(`getScript: Unexpected languageId: ${rootVirtualCode.languageId}`);
+            }
         }
       },
 
-      resolveLanguageServiceHost(host) {
-        return {
-          ...host,
-          getCompilationSettings: () => ({
-            ...host.getCompilationSettings(),
-            // Always allow JS for type checking.
-            allowJs: true,
-          }),
-        };
-      },
+      ...(allowJs
+        ? {
+            resolveLanguageServiceHost(host) {
+              // Resolve ember-source types file once, outside the hot path.
+              let emberTypesFile: string | null | undefined;
+
+              return {
+                ...host,
+                getCompilationSettings: () => {
+                  const baseSettings = host.getCompilationSettings();
+                  const settings: any = {
+                    ...baseSettings,
+                    // Always allow JS for type checking.
+                    allowJs: true,
+                  };
+
+                  // Set sensible defaults for inferred/implicit projects
+                  // (projects without a tsconfig.json or jsconfig.json)
+                  if (baseSettings['configFilePath'] === undefined) {
+                    // checkJs defaults to false, but should be true so that .gjs
+                    // files (which become .js) get semantic diagnostics.
+                    // jsconfig.json implicitly sets checkJs: true; without a config
+                    // file we need to enable it explicitly.
+                    if (!('checkJs' in baseSettings)) {
+                      settings.checkJs = true;
+                    }
+                    // module defaults to CommonJS, but ESNext is more appropriate for modern projects
+                    if (!('module' in baseSettings)) {
+                      settings.module = 99; // ts.ModuleKind.ESNext
+                    }
+                    // moduleResolution defaults to 'node', but 'bundler' is more appropriate for bundler-based projects
+                    if (!('moduleResolution' in baseSettings)) {
+                      settings.moduleResolution = 100; // ts.ModuleResolutionKind.Bundler
+                    }
+                  }
+
+                  return settings;
+                },
+                getScriptFileNames: () => {
+                  const files = host.getScriptFileNames();
+                  const baseSettings = host.getCompilationSettings();
+
+                  // For inferred projects, inject ember-source ambient types
+                  // so that @glimmer/tracking, @ember/modifier, etc. are visible
+                  // for import suggestions and Quick Fix code actions.
+                  if (baseSettings['configFilePath'] === undefined) {
+                    if (emberTypesFile === undefined) {
+                      const projectDir = host.getCurrentDirectory?.() ?? getCurrentDirectory?.() ?? process.cwd();
+                      emberTypesFile = resolveEmberSourceTypesFile(projectDir);
+                    }
+                    if (emberTypesFile && !files.includes(emberTypesFile)) {
+                      return [...files, emberTypesFile];
+                    }
+                  }
+                  return files;
+                },
+              };
+            },
+          }
+        : {}),
     },
   };
+}
+
+/**
+ * Create a [Volar](https://volarjs.dev) language plugin to support
+ *
+ * - .gts/.gjs files (the `ember-template-imports` environment)
+ */
+export function createEmberLanguagePlugin<T extends URI | string>(
+  glintConfig: GlintConfig,
+  { clientId }: { clientId?: string } = {},
+): LanguagePlugin<T> {
+  return createEmberLanguagePluginInternal(() => glintConfig, {
+    clientId,
+    allowJs: true,
+    throwOnUnexpectedLanguageId: true,
+  });
+}
+
+export function createDynamicEmberLanguagePlugin<T extends URI | string>(
+  findConfig: (from: string) => GlintConfig | null,
+  { clientId, getCurrentDirectory }: { clientId?: string; getCurrentDirectory: () => string },
+): LanguagePlugin<T> {
+  return createEmberLanguagePluginInternal((fileName) => findConfig(path.dirname(fileName)), {
+    clientId,
+    getCurrentDirectory,
+    allowJs: true,
+  });
 }

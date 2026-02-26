@@ -24,6 +24,8 @@ type TypeScript = typeof TS;
 export class ConfigLoader {
   private configs = new Map<string, GlintConfig | null>();
   private logInfo?: (message: string) => void;
+  private loggedNoConfig = new Set<string>();
+  private loggedCachedConfig = new Set<string>();
 
   constructor(logInfo?: (message: string) => void) {
     this.logInfo = logInfo;
@@ -41,27 +43,31 @@ export class ConfigLoader {
     let ts = findTypeScript(directory);
     if (!ts) {
       this.log(`No TypeScript installation found from ${directory}.`);
-      return null;
     }
 
     let configPath = findNearestConfigFile(ts, directory);
-    if (!configPath) {
+    let cacheKey = configPath ?? directory;
+
+    if (!configPath && !this.loggedNoConfig.has(cacheKey)) {
       this.log(`No tsconfig.json or jsconfig.json found from ${directory}.`);
-      return null;
+      this.loggedNoConfig.add(cacheKey);
     }
 
-    let existing = this.configs.get(configPath);
+    let existing = this.configs.get(cacheKey);
     if (existing !== undefined) {
-      this.log(`Using cached Glint config from ${configPath}.`);
+      if (!this.loggedCachedConfig.has(cacheKey)) {
+        this.log(`Using cached Glint config from ${cacheKey}.`);
+        this.loggedCachedConfig.add(cacheKey);
+      }
       return existing;
     }
 
-    let configInput = loadConfigInput(ts, configPath);
-    let config = new GlintConfig(ts, configPath, configInput || { environment: [] });
+    let configInput = configPath ? loadConfigInput(ts, configPath) : null;
+    let config = new GlintConfig(ts, configPath, configInput || { environment: [] }, directory);
 
-    this.log(`Loaded Glint config from ${configPath}.`);
+    this.log(`Loaded Glint config from ${cacheKey}.`);
 
-    this.configs.set(configPath, config);
+    this.configs.set(cacheKey, config);
 
     return config;
   }
@@ -88,11 +94,15 @@ function tryResolve<T>(load: () => T): T | null {
 }
 
 function parseConfigInput(
-  ts: TypeScript,
+  ts: TypeScript | null,
   entryPath: string,
   currentPath: string,
   fullGlintConfig: Record<string, unknown>,
 ): Record<string, unknown> {
+  if (!ts) {
+    return fullGlintConfig;
+  }
+
   let currentContents: any = ts.readConfigFile(currentPath, ts.sys.readFile).config;
   let currentGlintConfig = currentContents.glint ?? {};
 
@@ -122,11 +132,39 @@ function parseConfigInput(
   return { ...fullGlintConfig, ...currentGlintConfig };
 }
 
-export function loadConfigInput(ts: TypeScript, entryPath: string): GlintConfigInput | null {
+export function loadConfigInput(ts: TypeScript | null, entryPath: string): GlintConfigInput | null {
   return validateConfigInput(parseConfigInput(ts, entryPath, entryPath, {}));
 }
 
-function findNearestConfigFile(ts: TypeScript, searchFrom: string): string {
+function findNearestConfigFile(ts: TypeScript | null, searchFrom: string): string | undefined {
+  if (!ts) {
+    // Fallback: manually search for config files without TypeScript's help
+    let configCandidates: (string | undefined)[] = [];
+    let currentDir = searchFrom;
+    const root = path.parse(currentDir).root;
+
+    while (currentDir !== root) {
+      const tsconfigPath = path.join(currentDir, 'tsconfig.json');
+      const jsconfigPath = path.join(currentDir, 'jsconfig.json');
+
+      if (fs.existsSync(tsconfigPath)) {
+        return tsconfigPath;
+      }
+
+      if (fs.existsSync(jsconfigPath)) {
+        return jsconfigPath;
+      }
+
+      const parentDir = path.dirname(currentDir);
+      if (parentDir === currentDir) {
+        break;
+      }
+      currentDir = parentDir;
+    }
+
+    return undefined;
+  }
+
   // Assume that the longest path is the most relevant one in the case that
   // multiple config files exist at or above our current directory.
   let configCandidates = [
@@ -137,6 +175,48 @@ function findNearestConfigFile(ts: TypeScript, searchFrom: string): string {
     .sort((a, b) => b.length - a.length);
 
   return configCandidates[0];
+}
+
+/**
+ * Checks if @glint/template or ember-source is present in the package.json
+ * of the given directory or any parent directory.
+ */
+function hasGlintRelatedDependencies(searchFrom: string): boolean {
+  let currentDir = searchFrom;
+  const root = path.parse(currentDir).root;
+
+  while (currentDir !== root) {
+    const packageJsonPath = path.join(currentDir, 'package.json');
+
+    if (fs.existsSync(packageJsonPath)) {
+      try {
+        const content = fs.readFileSync(packageJsonPath, 'utf-8');
+        const packageJson = JSON.parse(content);
+
+        const allDependencies = {
+          ...packageJson.dependencies,
+          ...packageJson.devDependencies,
+          ...packageJson.peerDependencies,
+          ...packageJson.optionalDependencies,
+        };
+
+        if (allDependencies['@glint/template'] || allDependencies['ember-source']) {
+          return true;
+        }
+      } catch {
+        // Ignore parsing errors and continue searching
+      }
+    }
+
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) {
+      // Reached filesystem root
+      break;
+    }
+    currentDir = parentDir;
+  }
+
+  return false;
 }
 
 function validateConfigInput(input: Record<string, unknown>): GlintConfigInput | null {

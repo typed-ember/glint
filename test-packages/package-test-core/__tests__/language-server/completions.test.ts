@@ -311,6 +311,38 @@ describe('Language Server: Completions (ts plugin)', () => {
       await requestCompletion('ts-template-imports-app/src/index.gts', 'typescript', code),
     ).toMatchInlineSnapshot();
   });
+
+  test('import suggestions available without tsconfig (.gjs)', async () => {
+    const completions = await requestCompletion(
+      'ts-template-imports-app-no-config/src/empty-fixture.gjs',
+      'glimmer-js',
+      stripIndent`
+        import Component from '%';
+      `,
+    );
+
+    const glimmerComponent = completions.find(
+      (item: any) => item.name === '@glimmer/component',
+    );
+
+    expect(glimmerComponent).toBeDefined();
+  });
+
+  test('import suggestions available without tsconfig (.gts)', async () => {
+    const completions = await requestCompletion(
+      'ts-template-imports-app-no-config/src/empty-fixture.gts',
+      'glimmer-ts',
+      stripIndent`
+        import Component from '%';
+      `,
+    );
+
+    const glimmerComponent = completions.find(
+      (item: any) => item.name === '@glimmer/component',
+    );
+
+    expect(glimmerComponent).toBeDefined();
+  });
 });
 
 async function requestCompletionItem(

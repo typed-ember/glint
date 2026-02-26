@@ -73,6 +73,73 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
+  test('activates without tsconfig when package.json has Glint deps (.gts)', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class Application extends Component {
+        private message = 'Hello';
+
+        <template>
+          {{this.message}}
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app-no-config/src/empty-fixture.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
+
+  test('activates without tsconfig when package.json has Glint deps (.gjs)', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class Application extends Component {
+        message = 'Hello';
+
+        <template>
+          {{this.message}}
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app-no-config/src/empty-fixture.gjs',
+      'glimmer-js',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
+
+  test('reports diagnostics in .gjs without tsconfig', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class Application extends Component {
+        message = 'Hello';
+
+        <template>
+          {{this.messag}}
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app-no-config/src/empty-fixture.gjs',
+      'glimmer-js',
+      code,
+    );
+
+    expect(diagnostics.length).toBeGreaterThan(0);
+    expect(diagnostics[0].code).toBe(2551);
+  });
+
   test('honors @glint-expect-error / ignore shared test throws error', async () => {
     const componentA = stripIndent`
       import Component from '@glimmer/component';

@@ -9,6 +9,36 @@ import { afterEach, describe, expect, test } from 'vitest';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 
+describe('Language Server: Hover (ts plugin) - no config', () => {
+  afterEach(teardownSharedTestWorkspaceAfterEach);
+
+  test('activates without tsconfig when package.json has Glint deps', async () => {
+    const [offset, content] = extractCursor(stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class Application extends Component {
+        private message = 'Hello';
+
+        <template>
+          {{this.mess%age}}
+        </template>
+      }
+    `);
+
+    const doc = await prepareDocument(
+      'ts-template-imports-app-no-config/src/empty-fixture.gts',
+      'glimmer-ts',
+      content,
+    );
+
+    const hoverInfo = await performHoverRequest(doc, offset);
+
+    expect(hoverInfo).toBeDefined();
+    expect(hoverInfo.displayString).toContain('message');
+    expect(hoverInfo.displayString).toContain('string');
+  });
+});
+
 // skipped because giving more complicated displayString and documentation exposing my local file paths.
 describe.skip('Language Server: Hover (ts plugin)', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);

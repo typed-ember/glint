@@ -7,19 +7,20 @@ import { GlintEnvironment } from './environment.js';
  * with methods for interrogating project configuration based on its contents.
  */
 export class GlintConfig {
-  declare public readonly ts: typeof import('typescript');
+  declare public readonly ts: typeof import('typescript') | null;
   public readonly rootDir: string;
-  public readonly configPath: string;
+  public readonly configPath: string | undefined;
   public readonly environment: GlintEnvironment;
 
   public constructor(
-    ts: typeof import('typescript'),
-    configPath: string,
+    ts: typeof import('typescript') | null,
+    configPath: string | undefined,
     config: GlintConfigInput,
+    rootDir?: string,
   ) {
     Object.defineProperty(this, 'ts', { value: ts });
-    this.configPath = normalizePath(configPath);
-    this.rootDir = path.dirname(configPath);
+    this.configPath = configPath ? normalizePath(configPath) : undefined;
+    this.rootDir = rootDir ?? (configPath ? path.dirname(configPath) : process.cwd());
     this.environment = GlintEnvironment.load(config);
   }
 }

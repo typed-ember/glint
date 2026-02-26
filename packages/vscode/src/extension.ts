@@ -496,7 +496,7 @@ function resolveBundledEmberTscServerPath(): string | undefined {
 
     const bundledPath = path.join(
       glintExtension.extensionPath,
-      'node_modules/glint-ember-tsc-pack/bin/glint-language-server.js',
+      'node_modules/glint-ember-tsc-pack/language-server.js',
     );
 
     return fs.existsSync(bundledPath) ? bundledPath : undefined;
