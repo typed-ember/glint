@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { existsSync } from 'node:fs';
 import { TransformedModule } from '@glint/ember-tsc/lib/transform';
 import * as path from 'node:path';
 
@@ -189,34 +190,42 @@ const plugin = createLanguageServicePlugin(
     // a config file we need to enable them explicitly.
     if ((compilerOptions as any).configFilePath === undefined) {
       const updatedOptions = info.project.getCompilerOptions();
-      const needsUpdate = !updatedOptions.allowJs || !updatedOptions.checkJs || !updatedOptions.types;
+      const needsUpdate = !updatedOptions.allowJs || !updatedOptions.checkJs;
       if (needsUpdate) {
         const newOptions: any = {
           ...updatedOptions,
           allowJs: true,
           checkJs: true,
         };
-
-        // Include ember-source/types so that ambient Ember type declarations
-        // (e.g. @glimmer/component) are visible for import suggestions.
-        // A jsconfig.json normally specifies this in compilerOptions.types.
-        if (!updatedOptions.types) {
-          const projectDir = info.languageServiceHost.getCurrentDirectory();
-          const types: string[] = [];
-          try {
-            const req = createRequire(path.join(projectDir, 'package.json'));
-            req.resolve('ember-source/types');
-            types.push('ember-source/types');
-          } catch {
-            // ember-source not installed; skip
-          }
-          if (types.length > 0) {
-            newOptions.types = types;
-            logInfo(`Inferred types for no-config project: ${types.join(', ')}`);
-          }
-        }
-
         info.project.setCompilerOptions(newOptions);
+      }
+
+      // Include ember-source/types so that ambient Ember type declarations
+      // (e.g. @glimmer/tracking, @ember/modifier) are visible for import
+      // suggestions and Quick Fix code actions.
+      //
+      // We can't use compilerOptions.types because TS type reference directive
+      // resolution only looks in @types/ directories and won't resolve sub-path
+      // exports like "ember-source/types". We also can't use require.resolve()
+      // because the export only has a "types" condition (no "require"/"default").
+      //
+      // Instead, we resolve the package root via package.json and inject the
+      // types file directly into the project's script file list.
+      const emberTypesFile = resolveEmberSourceTypesFile(
+        info.languageServiceHost.getCurrentDirectory(),
+      );
+      if (emberTypesFile) {
+        logInfo(`Injecting ember-source types from: ${emberTypesFile}`);
+        const origGetScriptFileNames = info.languageServiceHost.getScriptFileNames.bind(
+          info.languageServiceHost,
+        );
+        info.languageServiceHost.getScriptFileNames = () => {
+          const files = origGetScriptFileNames();
+          if (!files.includes(emberTypesFile)) {
+            return [...files, emberTypesFile];
+          }
+          return files;
+        };
       }
     }
 
@@ -360,6 +369,32 @@ const plugin = createLanguageServicePlugin(
 
 export = plugin;
 
+/**
+ * Resolve the absolute path to the ember-source ambient types entry point.
+ *
+ * ember-source's package.json exports `./types` with a `types`-only condition,
+ * which means `require.resolve('ember-source/types')` fails because Node's CJS
+ * resolver doesn't honour the `types` condition. It also means that
+ * `compilerOptions.types: ["ember-source/types"]` doesn't work because TS
+ * type-reference-directive resolution only checks `@types/` directories.
+ *
+ * Instead, we resolve `ember-source/package.json` (which IS exported) and
+ * construct the known path to `types/stable/index.d.ts`.
+ */
+function resolveEmberSourceTypesFile(projectDir: string): string | null {
+  try {
+    const req = createRequire(path.join(projectDir, 'package.json'));
+    const pkgJsonPath = req.resolve('ember-source/package.json');
+    const typesFile = path.join(path.dirname(pkgJsonPath), 'types', 'stable', 'index.d.ts');
+    if (existsSync(typesFile)) {
+      return typesFile;
+    }
+  } catch {
+    // ember-source not installed; skip
+  }
+  return null;
+}
+
 function findConfigForProject(
   info: ts.server.PluginCreateInfo,
   findConfig: (from: string) => any,
@@ -411,7 +446,8 @@ function proxyLanguageServiceForGlint<T>(
       case 'getCompletionsAtPosition':
         return getCompletionsAtPosition(ts, language, languageService, asScriptId, target[p]);
       // case 'getCompletionEntryDetails': return getCompletionEntryDetails(language, asScriptId, target[p]);
-      // case 'getCodeFixesAtPosition': return getCodeFixesAtPosition(target[p]);
+      case 'getCodeFixesAtPosition':
+        return getCodeFixesAtPositionProxy(ts, language, languageService, asScriptId, target[p]);
       // case 'getDefinitionAndBoundSpan': return getDefinitionAndBoundSpan(ts, language, languageService, glintOptions, asScriptId, target[p]);
       // case 'getQuickInfoAtPosition': return getQuickInfoAtPosition(ts, target, target[p]);
       // TS plugin only
@@ -526,6 +562,127 @@ function getSemanticDiagnostics<T>(
 }
 
 const windowsPathReg = /\\/g;
+
+/**
+ * Well-known Ember import mappings for identifiers whose export names
+ * differ from their conventional import aliases (e.g. `Component` is
+ * conventionally imported from `@glimmer/component` but the package's
+ * default export is actually named `GlimmerComponent`).
+ *
+ * Each entry maps an identifier name to the module specifier and whether
+ * it is a default or named import.
+ */
+const EMBER_IMPORT_MAP: Record<
+  string,
+  { module: string; isDefault: boolean }
+> = {
+  // GlimmerComponent's default export is named `GlimmerComponent`, not `Component`,
+  // so TS's native fixMissingImport can't match the conventional `Component` alias.
+  Component: { module: '@glimmer/component', isDefault: true },
+};
+
+/**
+ * Error codes for "Cannot find name" diagnostics that may be fixable
+ * by adding an import.
+ */
+const MISSING_NAME_ERROR_CODES = [
+  2304, // Cannot find name '{0}'.
+  2552, // Cannot find name '{0}'. Did you mean '{1}'?
+];
+
+/**
+ * Augment TypeScript's code fixes to inject well-known Ember import
+ * suggestions when TS doesn't natively offer them (e.g. because the
+ * export name differs from the conventional import alias).
+ */
+function getCodeFixesAtPositionProxy<T>(
+  ts: typeof import('typescript'),
+  language: any,
+  languageService: ts.LanguageService,
+  asScriptId: (fileName: string) => T,
+  original: ts.LanguageService['getCodeFixesAtPosition'],
+): ts.LanguageService['getCodeFixesAtPosition'] {
+  return (fileName, start, end, errorCodes, formatOptions, preferences) => {
+    const fixes = original(fileName, start, end, errorCodes, formatOptions, preferences);
+
+    // Only augment for "Cannot find name" errors.
+    if (!errorCodes.some((code) => MISSING_NAME_ERROR_CODES.includes(code))) {
+      return fixes;
+    }
+
+    // Use Volar's language.scripts API to get the file content.
+    // We cannot use program.getSourceFile(fileName) because for .gjs/.gts files,
+    // Volar maps filenames to virtual files, so the original name won't match.
+    const sourceScript = language.scripts.get(asScriptId(fileName));
+    const snapshot = sourceScript?.snapshot;
+    if (!snapshot) {
+      return fixes;
+    }
+
+    // Extract the identifier text at the error span.
+    const identifierText = snapshot.getText(start, end).trim();
+    const mapping = EMBER_IMPORT_MAP[identifierText];
+    if (!mapping) {
+      return fixes;
+    }
+
+    // Check if any existing fix already references the correct module.
+    const alreadySuggested = fixes.some(
+      (fix) =>
+        fix.fixName === 'import' &&
+        fix.changes.some((change) =>
+          change.textChanges.some((tc) => tc.newText.includes(mapping.module)),
+        ),
+    );
+
+    if (alreadySuggested) {
+      return fixes;
+    }
+
+    // Build the import statement.
+    const importText = mapping.isDefault
+      ? `import ${identifierText} from '${mapping.module}';\n`
+      : `import { ${identifierText} } from '${mapping.module}';\n`;
+
+    // Find the insert position: after the last import statement, or at the
+    // start of the file. We scan the file text for import lines.
+    const fileText = snapshot.getText(0, snapshot.getLength());
+    let insertPosition = 0;
+    // Simple regex to find the end of the last import statement.
+    const importRegex = /^import\s.+$/gm;
+    let match;
+    while ((match = importRegex.exec(fileText)) !== null) {
+      const lineEnd = match.index + match[0].length;
+      // Move past the trailing newline if present.
+      if (lineEnd < fileText.length && fileText.charCodeAt(lineEnd) === 10) {
+        insertPosition = lineEnd + 1;
+      } else {
+        insertPosition = lineEnd;
+      }
+    }
+
+    const emberFix: ts.CodeFixAction = {
+      fixName: 'import',
+      description: `Add import from "${mapping.module}"`,
+      changes: [
+        {
+          fileName,
+          textChanges: [
+            {
+              span: { start: insertPosition, length: 0 },
+              newText: importText,
+            },
+          ],
+        },
+      ],
+      fixId: 'fixMissingImport',
+      fixAllDescription: 'Add all missing imports',
+    };
+
+    // Prepend so it appears first in the Quick Fix menu.
+    return [emberFix, ...fixes];
+  };
+}
 
 /**
  * Return semantic tokens for semantic highlighting:

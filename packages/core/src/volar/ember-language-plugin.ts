@@ -61,20 +61,28 @@ function normalizeFileName(scriptIdStr: string, getCurrentDirectory?: () => stri
 }
 
 /**
- * Check if ember-source is installed in the given directory and return
- * the appropriate `compilerOptions.types` entries so that Ember's
- * ambient type declarations are visible for import suggestions.
+ * Resolve the absolute path to ember-source's ambient types entry point.
+ *
+ * ember-source's package.json exports `./types` with a `types`-only condition,
+ * which means `require.resolve('ember-source/types')` fails (Node's CJS resolver
+ * doesn't honour the `types` condition) and `compilerOptions.types` doesn't work
+ * because TS type-reference-directive resolution only checks `@types/` directories.
+ *
+ * Instead, we resolve `ember-source/package.json` (which IS exported) and
+ * construct the known path to `types/stable/index.d.ts`.
  */
-function inferEmberTypes(projectDir: string): string[] {
-  const types: string[] = [];
+function resolveEmberSourceTypesFile(projectDir: string): string | null {
   try {
     const req = createRequire(path.join(projectDir, 'package.json'));
-    req.resolve('ember-source/types');
-    types.push('ember-source/types');
+    const pkgJsonPath = req.resolve('ember-source/package.json');
+    const typesFile = path.join(path.dirname(pkgJsonPath), 'types', 'stable', 'index.d.ts');
+    if (fs.existsSync(typesFile)) {
+      return typesFile;
+    }
   } catch {
     // ember-source not installed; skip
   }
-  return types;
+  return null;
 }
 
 function createEmberLanguagePluginInternal<T extends URI | string>(
@@ -174,6 +182,9 @@ function createEmberLanguagePluginInternal<T extends URI | string>(
       ...(allowJs
         ? {
             resolveLanguageServiceHost(host) {
+              // Resolve ember-source types file once, outside the hot path.
+              let emberTypesFile: string | null | undefined;
+
               return {
                 ...host,
                 getCompilationSettings: () => {
@@ -202,20 +213,27 @@ function createEmberLanguagePluginInternal<T extends URI | string>(
                     if (!('moduleResolution' in baseSettings)) {
                       settings.moduleResolution = 100; // ts.ModuleResolutionKind.Bundler
                     }
-                    // Include ember-source/types so that ambient Ember type
-                    // declarations (e.g. @glimmer/component) are visible for
-                    // import suggestions. A jsconfig.json normally specifies
-                    // this in compilerOptions.types.
-                    if (!('types' in baseSettings)) {
-                      const projectDir = host.getCurrentDirectory?.() ?? getCurrentDirectory?.() ?? process.cwd();
-                      const inferredTypes = inferEmberTypes(projectDir);
-                      if (inferredTypes.length > 0) {
-                        settings.types = inferredTypes;
-                      }
-                    }
                   }
 
                   return settings;
+                },
+                getScriptFileNames: () => {
+                  const files = host.getScriptFileNames();
+                  const baseSettings = host.getCompilationSettings();
+
+                  // For inferred projects, inject ember-source ambient types
+                  // so that @glimmer/tracking, @ember/modifier, etc. are visible
+                  // for import suggestions and Quick Fix code actions.
+                  if (baseSettings['configFilePath'] === undefined) {
+                    if (emberTypesFile === undefined) {
+                      const projectDir = host.getCurrentDirectory?.() ?? getCurrentDirectory?.() ?? process.cwd();
+                      emberTypesFile = resolveEmberSourceTypesFile(projectDir);
+                    }
+                    if (emberTypesFile && !files.includes(emberTypesFile)) {
+                      return [...files, emberTypesFile];
+                    }
+                  }
+                  return files;
                 },
               };
             },
