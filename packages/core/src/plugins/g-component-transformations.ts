@@ -382,8 +382,13 @@ function buildClassToTemplateOnlyAction(
 
   if (classInfo.isDefaultExport) {
     // `export default class Foo extends Component<Sig> { <template>...</template> }`
-    // → `export default <template>...</template>`
-    replacement = `export default ${templateContent}`;
+    // → `export default <template>...</template>` (no sig)
+    // → `export default <template>...</template> as ComponentLike<Sig>;` (with sig)
+    if (classInfo.signatureType) {
+      replacement = `export default ${templateContent} as ComponentLike<${classInfo.signatureType}>;`;
+    } else {
+      replacement = `export default ${templateContent}`;
+    }
   } else if (classInfo.isNamedExport) {
     // `export class Foo extends Component<Sig> { <template>...</template> }`
     // → `export const Foo = <template>...</template>;`
@@ -608,20 +613,35 @@ function buildImportEditsForClassToTemplateOnly(
     }
   }
 
-  // Add TOC import if needed (when we're using TOC<Sig> syntax)
-  const needsTocImport = !classInfo.isDefaultExport && classInfo.signatureType;
-  if (needsTocImport) {
-    const existingTocImport = findImportStatement(text, 'TOC');
-    if (!existingTocImport) {
-      // Add TOC import at the top of the file (after any existing imports)
-      const insertPosition = findImportInsertPosition(text);
-      edits.push({
-        range: {
-          start: document.positionAt(insertPosition),
-          end: document.positionAt(insertPosition),
-        },
-        newText: "import type { TOC } from '@ember/component/template-only';\n",
-      });
+  // Add type import if needed for the signature
+  if (classInfo.signatureType) {
+    if (classInfo.isDefaultExport) {
+      // Default export with signature uses `as ComponentLike<Sig>`
+      const existingImport = findImportStatement(text, 'ComponentLike');
+      if (!existingImport) {
+        const insertPosition = findImportInsertPosition(text);
+        edits.push({
+          range: {
+            start: document.positionAt(insertPosition),
+            end: document.positionAt(insertPosition),
+          },
+          // Leading \n preserves blank-line separation when the old Component import is removed
+          newText: "\nimport type { ComponentLike } from '@glint/template';\n",
+        });
+      }
+    } else {
+      // Named/non-exported uses TOC<Sig> annotation
+      const existingTocImport = findImportStatement(text, 'TOC');
+      if (!existingTocImport) {
+        const insertPosition = findImportInsertPosition(text);
+        edits.push({
+          range: {
+            start: document.positionAt(insertPosition),
+            end: document.positionAt(insertPosition),
+          },
+          newText: "import type { TOC } from '@ember/component/template-only';\n",
+        });
+      }
     }
   }
 

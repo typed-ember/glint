@@ -374,6 +374,9 @@ importers:
       vitest:
         specifier: ~3.0.9
         version: 3.0.9(@types/node@18.19.81)(@vitest/ui@1.0.4)
+      vscode-languageserver-textdocument:
+        specifier: ^1.0.12
+        version: 1.0.12
       vscode-uri:
         specifier: ^3.1.0
         version: 3.1.0
