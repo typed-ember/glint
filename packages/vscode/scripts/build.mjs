@@ -82,17 +82,17 @@ async function copyHtmlLanguageService() {
     // Find vscode-html-languageservice dynamically in pnpm store
     const workspaceRoot = join(__dirname, '../../../');
     const pnpmDir = join(workspaceRoot, 'node_modules/.pnpm');
-    
+
     // Find the vscode-html-languageservice directory
     const fs = await import('node:fs/promises');
     const files = await fs.readdir(pnpmDir);
-    const htmlServiceDir = files.find(f => f.startsWith('vscode-html-languageservice@'));
-    
+    const htmlServiceDir = files.find((f) => f.startsWith('vscode-html-languageservice@'));
+
     if (!htmlServiceDir) {
       console.warn('vscode-html-languageservice not found in pnpm store');
       return;
     }
-    
+
     // Copy the entire vscode-html-languageservice package with its node_modules dependencies
     // Use dereference: true to follow symlinks and avoid circular reference issues with pnpm
     const sourceDir = join(pnpmDir, htmlServiceDir, 'node_modules');
@@ -118,16 +118,16 @@ async function copyTypeScript() {
     // Find TypeScript dynamically in pnpm store
     const workspaceRoot = join(__dirname, '../../../');
     const pnpmDir = join(workspaceRoot, 'node_modules/.pnpm');
-    
+
     const fs = await import('node:fs/promises');
     const files = await fs.readdir(pnpmDir);
-    const tsDir = files.find(f => f.startsWith('typescript@'));
-    
+    const tsDir = files.find((f) => f.startsWith('typescript@'));
+
     if (!tsDir) {
       console.warn('TypeScript not found in pnpm store');
       return;
     }
-    
+
     // Copy the entire TypeScript package with its dependencies
     const sourceDir = join(pnpmDir, tsDir, 'node_modules');
     const targetDir = join(__dirname, '../node_modules/glint-ember-tsc-pack/node_modules');

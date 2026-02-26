@@ -168,6 +168,13 @@ function createEmberLanguagePluginInternal<T extends URI | string>(
                   // Set sensible defaults for inferred/implicit projects
                   // (projects without a tsconfig.json or jsconfig.json)
                   if (baseSettings['configFilePath'] === undefined) {
+                    // checkJs defaults to false, but should be true so that .gjs
+                    // files (which become .js) get semantic diagnostics.
+                    // jsconfig.json implicitly sets checkJs: true; without a config
+                    // file we need to enable it explicitly.
+                    if (!('checkJs' in baseSettings)) {
+                      settings.checkJs = true;
+                    }
                     // module defaults to CommonJS, but ESNext is more appropriate for modern projects
                     if (!('module' in baseSettings)) {
                       settings.module = 99; // ts.ModuleKind.ESNext
@@ -211,5 +218,6 @@ export function createDynamicEmberLanguagePlugin<T extends URI | string>(
   return createEmberLanguagePluginInternal((fileName) => findConfig(path.dirname(fileName)), {
     clientId,
     getCurrentDirectory,
+    allowJs: true,
   });
 }

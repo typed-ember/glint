@@ -24,6 +24,8 @@ type TypeScript = typeof TS;
 export class ConfigLoader {
   private configs = new Map<string, GlintConfig | null>();
   private logInfo?: (message: string) => void;
+  private loggedNoConfig = new Set<string>();
+  private loggedCachedConfig = new Set<string>();
 
   constructor(logInfo?: (message: string) => void) {
     this.logInfo = logInfo;
@@ -44,14 +46,19 @@ export class ConfigLoader {
     }
 
     let configPath = findNearestConfigFile(ts, directory);
-    if (!configPath) {
+    let cacheKey = configPath ?? directory;
+
+    if (!configPath && !this.loggedNoConfig.has(cacheKey)) {
       this.log(`No tsconfig.json or jsconfig.json found from ${directory}.`);
+      this.loggedNoConfig.add(cacheKey);
     }
 
-    let cacheKey = configPath ?? directory;
     let existing = this.configs.get(cacheKey);
     if (existing !== undefined) {
-      this.log(`Using cached Glint config from ${cacheKey}.`);
+      if (!this.loggedCachedConfig.has(cacheKey)) {
+        this.log(`Using cached Glint config from ${cacheKey}.`);
+        this.loggedCachedConfig.add(cacheKey);
+      }
       return existing;
     }
 

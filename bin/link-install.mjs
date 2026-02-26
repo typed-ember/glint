@@ -65,7 +65,7 @@ const link = packageJsonPaths.map(async (packageJsonPath) => {
 
         packageJson.pnpm ||= {};
         packageJson.pnpm.overrides ||= {};
-        Object.assign(packageJson.pnpm.overrides, {});
+        packageJson.pnpm.overrides[dep] = relativeTarPath;
       }
     }
 

@@ -183,6 +183,21 @@ const plugin = createLanguageServicePlugin(
       });
     }
 
+    // For inferred projects (no tsconfig/jsconfig), enable allowJs and checkJs
+    // so that .gjs files (which become .js via Glint's transformation) get
+    // semantic diagnostics. jsconfig.json implicitly sets these, but without
+    // a config file we need to enable them explicitly.
+    if ((compilerOptions as any).configFilePath === undefined) {
+      const updatedOptions = info.project.getCompilerOptions();
+      if (!updatedOptions.allowJs || !updatedOptions.checkJs) {
+        info.project.setCompilerOptions({
+          ...updatedOptions,
+          allowJs: true,
+          checkJs: true,
+        });
+      }
+    }
+
     if (glintConfig) {
       const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig, {
         clientId: 'tsserver-plugin',
