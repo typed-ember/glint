@@ -1,6 +1,9 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
+import { Preprocessor } from 'content-tag';
 import type * as vscode from 'vscode-languageserver-protocol';
 import { getEmbeddedInfo } from './utils.js';
+
+const contentTag = new Preprocessor();
 
 /**
  * Provides code actions for transforming between class components and template-only components
@@ -10,6 +13,9 @@ import { getEmbeddedInfo } from './utils.js';
  *   - Convert a class component (e.g. `class Foo extends Component<Sig> { <template>...</template> }`)
  *     to a template-only component (`<template>...</template>` or `const Foo: TOC<Sig> = <template>...</template>`)
  *   - Convert a template-only component to a class component
+ *
+ * Uses `content-tag` to safely parse `<template>` regions rather than relying on
+ * fragile string/regex-based detection.
  *
  * @GLINT_FEATURE_CODE_ACTIONS
  * @GLINT_FEATURE_CODE_ACTIONS_COMPONENT_TRANSFORMATIONS
@@ -30,61 +36,73 @@ export function create(): LanguageServicePlugin {
             return;
           }
 
-          const virtualCode = info.root;
           const text = document.getText();
-          const transformedModule = virtualCode.transformedModule;
 
-          if (!transformedModule) {
+          // Use content-tag to safely parse all <template> regions
+          let parsedTemplates: ReturnType<Preprocessor['parse']>;
+          try {
+            parsedTemplates = contentTag.parse(text);
+          } catch {
+            // If content-tag can't parse the file (e.g. syntax errors), bail out
+            return;
+          }
+
+          if (parsedTemplates.length === 0) {
             return;
           }
 
           const cursorOffset = document.offsetAt(range.start);
           const actions: vscode.CodeAction[] = [];
 
-          // Find all template regions
-          const templateSpans = transformedModule.correlatedSpans.filter(
-            (span) => span.glimmerAstMapping,
-          );
+          for (const parsed of parsedTemplates) {
+            const templateStart = parsed.range.start;
+            const templateEnd = parsed.range.end;
 
-          for (const span of templateSpans) {
-            const templateStart = span.originalStart;
-            const templateEnd = span.originalStart + span.originalLength;
-
-            // Check if cursor is within or near this template's component
-            const classInfo = findEnclosingClassComponent(text, templateStart);
-            const templateOnlyInfo = findTemplateOnlyComponent(text, templateStart, templateEnd);
-
-            if (
-              classInfo &&
-              cursorOffset >= classInfo.fullStart &&
-              cursorOffset <= classInfo.fullEnd
-            ) {
-              // Cursor is in a class component — offer conversion to template-only
-              const action = buildClassToTemplateOnlyAction(
-                document,
+            if (parsed.type === 'class-member') {
+              // Template is inside a class body — content-tag tells us this directly
+              const classInfo = findEnclosingClassComponent(
                 text,
-                classInfo,
                 templateStart,
                 templateEnd,
               );
-              if (action) {
-                actions.push(action);
+              if (
+                classInfo &&
+                cursorOffset >= classInfo.fullStart &&
+                cursorOffset <= classInfo.fullEnd
+              ) {
+                const action = buildClassToTemplateOnlyAction(
+                  document,
+                  text,
+                  classInfo,
+                  templateStart,
+                  templateEnd,
+                );
+                if (action) {
+                  actions.push(action);
+                }
               }
-            } else if (
-              templateOnlyInfo &&
-              cursorOffset >= templateOnlyInfo.fullStart &&
-              cursorOffset <= templateOnlyInfo.fullEnd
-            ) {
-              // Cursor is in a template-only component — offer conversion to class
-              const action = buildTemplateOnlyToClassAction(
-                document,
+            } else {
+              // Template is a standalone expression (template-only component)
+              const templateOnlyInfo = findTemplateOnlyComponent(
                 text,
-                templateOnlyInfo,
                 templateStart,
                 templateEnd,
               );
-              if (action) {
-                actions.push(action);
+              if (
+                templateOnlyInfo &&
+                cursorOffset >= templateOnlyInfo.fullStart &&
+                cursorOffset <= templateOnlyInfo.fullEnd
+              ) {
+                const action = buildTemplateOnlyToClassAction(
+                  document,
+                  text,
+                  templateOnlyInfo,
+                  templateStart,
+                  templateEnd,
+                );
+                if (action) {
+                  actions.push(action);
+                }
               }
             }
           }
@@ -119,8 +137,6 @@ interface ClassComponentInfo {
   baseClassImport: string | null;
   /** Whether the class body contains members other than `<template>` */
   hasOtherMembers: boolean;
-  /** The text of the class body between opening `{` and closing `}`, trimmed of the template */
-  otherMembersText: string;
 }
 
 interface TemplateOnlyComponentInfo {
@@ -139,16 +155,16 @@ interface TemplateOnlyComponentInfo {
 }
 
 /**
- * Given the full text and the start offset of a `<template>` tag, determines if it is
- * inside a class that extends Component (or a similar base class). Returns info about
- * the enclosing class or `null` if the template is not inside a class.
+ * Given the full text and the start/end offsets of a `<template>` tag that content-tag
+ * identified as a `class-member`, determines the enclosing class declaration. Uses
+ * content-tag's classification to know we're inside a class, then parses the class header.
  */
 function findEnclosingClassComponent(
   text: string,
   templateStart: number,
+  templateEnd: number,
 ): ClassComponentInfo | null {
-  // Work backwards from the template to find the enclosing class declaration.
-  // We look for a pattern like: [export [default]] class Foo extends Component[<Sig>] {
+  // Walk backwards from the template to find the class body opening brace.
   const textBefore = text.slice(0, templateStart);
 
   // Find the nearest opening brace that could be a class body.
@@ -240,13 +256,15 @@ function findEnclosingClassComponent(
   // Determine base class import
   const baseClassImport = findImportSource(text, baseClass);
 
-  // Determine if the class body has other members besides <template>
+  // Determine if the class body has other members besides <template>.
+  // We use the content-tag–provided template range to cleanly excise it.
   const classBodyText = text.slice(classBodyOpenIndex + 1, classBodyCloseIndex);
-  const otherMembersText = removeTemplateFromClassBody(
-    classBodyText,
-    templateStart - classBodyOpenIndex - 1,
-  );
-  const hasOtherMembers = otherMembersText.trim().length > 0;
+  const relativeTemplateStart = templateStart - (classBodyOpenIndex + 1);
+  const relativeTemplateEnd = templateEnd - (classBodyOpenIndex + 1);
+  const otherMembersText = (
+    classBodyText.slice(0, relativeTemplateStart) + classBodyText.slice(relativeTemplateEnd)
+  ).trim();
+  const hasOtherMembers = otherMembersText.length > 0;
 
   return {
     fullStart,
@@ -258,25 +276,19 @@ function findEnclosingClassComponent(
     baseClass,
     baseClassImport,
     hasOtherMembers,
-    otherMembersText,
   };
 }
 
 /**
- * Given the full text and the start/end offset of a `<template>` tag, determines if it is
- * a standalone template-only component (not inside a class). Returns info about the
- * template-only component or `null` if the template is inside a class.
+ * Given the full text and the start/end offsets of a `<template>` tag that content-tag
+ * identified as an `expression` (standalone / template-only), determines the surrounding
+ * declaration context (export default, const assignment, or bare).
  */
 function findTemplateOnlyComponent(
   text: string,
   templateStart: number,
   templateEnd: number,
 ): TemplateOnlyComponentInfo | null {
-  // If this template is inside a class, it's not template-only
-  if (findEnclosingClassComponent(text, templateStart)) {
-    return null;
-  }
-
   const textBefore = text.slice(0, templateStart).trimEnd();
 
   // Pattern 1: `export default <template>...</template>`
@@ -333,7 +345,6 @@ function findTemplateOnlyComponent(
   }
 
   // Pattern 3: bare `<template>...</template>` at module level
-  // This is a default export template-only component
   const lineStart = textBefore.lastIndexOf('\n') + 1;
   const lineText = text.slice(lineStart, templateStart).trim();
 
@@ -715,30 +726,6 @@ function findImportInsertPosition(text: string): number {
 // ---------------------------------------------------------------------------
 // Utility helpers
 // ---------------------------------------------------------------------------
-
-/**
- * Remove the <template>...</template> content from a class body text and return
- * the remaining members. `templateOffset` is the offset of the template start
- * relative to the start of the class body (after the opening `{`).
- */
-function removeTemplateFromClassBody(classBody: string, templateOffset: number): string {
-  // Find the <template>...</template> within the class body
-  const templateStart = classBody.indexOf('<template>', Math.max(0, templateOffset - 10));
-  if (templateStart === -1) {
-    return classBody;
-  }
-
-  const templateEndTag = '</template>';
-  const templateEnd = classBody.indexOf(templateEndTag, templateStart);
-  if (templateEnd === -1) {
-    return classBody;
-  }
-
-  const beforeTemplate = classBody.slice(0, templateStart);
-  const afterTemplate = classBody.slice(templateEnd + templateEndTag.length);
-
-  return (beforeTemplate + afterTemplate).trim();
-}
 
 /**
  * Balance angle brackets in a type expression. If the input is the contents between
