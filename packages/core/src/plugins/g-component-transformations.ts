@@ -1,9 +1,7 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
-import { Preprocessor } from 'content-tag';
+import { Transformer } from 'content-tag-utils';
 import type * as vscode from 'vscode-languageserver-protocol';
 import { getEmbeddedInfo } from './utils.js';
-
-const contentTag = new Preprocessor();
 
 /**
  * Provides code actions for transforming between class components and template-only components
@@ -14,7 +12,7 @@ const contentTag = new Preprocessor();
  *     to a template-only component (`<template>...</template>` or `const Foo: TOC<Sig> = <template>...</template>`)
  *   - Convert a template-only component to a class component
  *
- * Uses `content-tag` to safely parse `<template>` regions rather than relying on
+ * Uses `content-tag-utils` to safely parse `<template>` regions rather than relying on
  * fragile string/regex-based detection.
  *
  * @GLINT_FEATURE_CODE_ACTIONS
@@ -38,33 +36,40 @@ export function create(): LanguageServicePlugin {
 
           const text = document.getText();
 
-          // Use content-tag to safely parse all <template> regions
-          let parsedTemplates: ReturnType<Preprocessor['parse']>;
+          // Use content-tag-utils to safely parse all <template> regions.
+          // Transformer handles byte→character index conversion internally.
+          let transformer: Transformer;
           try {
-            parsedTemplates = contentTag.parse(text);
+            transformer = new Transformer(text);
           } catch {
             // If content-tag can't parse the file (e.g. syntax errors), bail out
             return;
           }
 
-          if (parsedTemplates.length === 0) {
+          const { parseResults, stringUtils } = transformer;
+
+          if (parseResults.length === 0) {
             return;
           }
 
           const cursorOffset = document.offsetAt(range.start);
           const actions: vscode.CodeAction[] = [];
 
-          for (const parsed of parsedTemplates) {
-            const templateStart = parsed.range.start;
-            const templateEnd = parsed.range.end;
+          for (const parsed of parseResults) {
+            // Compute character-correct offsets via stringUtils
+            const contentBefore = stringUtils.contentBefore(parsed);
+            const openingTag = stringUtils.openingTag(parsed);
+            const templateContent = stringUtils.originalContentOf(parsed);
+            const closingTag = stringUtils.closingTag(parsed);
+
+            const templateStart = contentBefore.length;
+            const templateEnd =
+              templateStart + openingTag.length + templateContent.length + closingTag.length;
+            const fullTemplateText = openingTag + templateContent + closingTag;
 
             if (parsed.type === 'class-member') {
               // Template is inside a class body — content-tag tells us this directly
-              const classInfo = findEnclosingClassComponent(
-                text,
-                templateStart,
-                templateEnd,
-              );
+              const classInfo = findEnclosingClassComponent(text, templateStart, templateEnd);
               if (
                 classInfo &&
                 cursorOffset >= classInfo.fullStart &&
@@ -74,8 +79,7 @@ export function create(): LanguageServicePlugin {
                   document,
                   text,
                   classInfo,
-                  templateStart,
-                  templateEnd,
+                  fullTemplateText,
                 );
                 if (action) {
                   actions.push(action);
@@ -83,11 +87,7 @@ export function create(): LanguageServicePlugin {
               }
             } else {
               // Template is a standalone expression (template-only component)
-              const templateOnlyInfo = findTemplateOnlyComponent(
-                text,
-                templateStart,
-                templateEnd,
-              );
+              const templateOnlyInfo = findTemplateOnlyComponent(text, templateStart, templateEnd);
               if (
                 templateOnlyInfo &&
                 cursorOffset >= templateOnlyInfo.fullStart &&
@@ -97,8 +97,7 @@ export function create(): LanguageServicePlugin {
                   document,
                   text,
                   templateOnlyInfo,
-                  templateStart,
-                  templateEnd,
+                  fullTemplateText,
                 );
                 if (action) {
                   actions.push(action);
@@ -376,8 +375,7 @@ function buildClassToTemplateOnlyAction(
   document: { uri: string; positionAt(offset: number): vscode.Position },
   text: string,
   classInfo: ClassComponentInfo,
-  templateStart: number,
-  templateEnd: number,
+  templateContent: string,
 ): vscode.CodeAction | null {
   // If the class has other members (properties, methods), we can't safely convert.
   // We still offer the action but mark it as disabled with a reason.
@@ -393,32 +391,23 @@ function buildClassToTemplateOnlyAction(
     };
   }
 
-  const templateContent = text.slice(templateStart, templateEnd);
   const edits: vscode.TextEdit[] = [];
 
-  // Build the replacement text
   let replacement: string;
 
   if (classInfo.isDefaultExport) {
-    // `export default class Foo extends Component<Sig> { <template>...</template> }`
-    // → `export default <template>...</template>` (no sig)
-    // → `export default <template>...</template> as ComponentLike<Sig>;` (with sig)
     if (classInfo.signatureType) {
       replacement = `export default ${templateContent} as ComponentLike<${classInfo.signatureType}>;`;
     } else {
       replacement = `export default ${templateContent}`;
     }
   } else if (classInfo.isNamedExport) {
-    // `export class Foo extends Component<Sig> { <template>...</template> }`
-    // → `export const Foo = <template>...</template>;`
     if (classInfo.signatureType) {
       replacement = `export const ${classInfo.className}: TOC<${classInfo.signatureType}> = ${templateContent};`;
     } else {
       replacement = `export const ${classInfo.className} = ${templateContent};`;
     }
   } else {
-    // `class Foo extends Component<Sig> { <template>...</template> }`
-    // → `const Foo = <template>...</template>;`
     if (classInfo.signatureType) {
       replacement = `const ${classInfo.className}: TOC<${classInfo.signatureType}> = ${templateContent};`;
     } else {
@@ -455,10 +444,8 @@ function buildTemplateOnlyToClassAction(
   document: { uri: string; positionAt(offset: number): vscode.Position },
   text: string,
   templateOnlyInfo: TemplateOnlyComponentInfo,
-  templateStart: number,
-  templateEnd: number,
+  templateContent: string,
 ): vscode.CodeAction | null {
-  const templateContent = text.slice(templateStart, templateEnd);
   const edits: vscode.TextEdit[] = [];
 
   // Determine class name
