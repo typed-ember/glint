@@ -10,6 +10,7 @@ import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescr
 import { URI } from 'vscode-uri';
 import { ConfigLoader } from '../config/loader.js';
 import { create as createCompilerErrorsPlugin } from '../plugins/g-compiler-errors.js';
+import { create as createComponentTransformationsPlugin } from '../plugins/g-component-transformations.js';
 import { create as createTemplateTagSymbolsPlugin } from '../plugins/g-template-tag-symbols.js';
 import { createEmberLanguagePlugin } from './ember-language-plugin.js';
 
@@ -200,5 +201,9 @@ function getHybridModeLanguageServicePluginsForLanguageServer(
 function getCommonLanguageServicePluginsForLanguageServer(
   getTsPluginClient: (context: LanguageServiceContext) => any,
 ): LanguageServicePlugin[] {
-  return [createTemplateTagSymbolsPlugin(), createCompilerErrorsPlugin()];
+  return [
+    createTemplateTagSymbolsPlugin(),
+    createCompilerErrorsPlugin(),
+    createComponentTransformationsPlugin(),
+  ];
 }
