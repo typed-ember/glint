@@ -10,5 +10,5 @@
     "types": ["@types/node"]
   },
   "include": ["src"],
-  "references": [{ "path": "../core" }]
+  "references": [{ "path": "../ember-tsc" }]
 }

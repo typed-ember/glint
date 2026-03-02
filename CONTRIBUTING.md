@@ -29,7 +29,7 @@ If you would like to connect your editor to a locally running version of the Gli
 tsc --build --watch
 ```
 
-Then you can configure your editor to point to the absolute path of the `./packages/core` folder within this repo when launching the language server. For VSCode users, this means opening your user preferences (after having already installed the Glint VSCode extension) and setting "Glint: Library Path" (aka `glint.libraryPath`) to the absolute path of the `packages/core` folder, e.g. `/Users/machty/code/glint/packages/core`.
+Then you can configure your editor to point to the absolute path of the `./packages/ember-tsc` folder within this repo when launching the language server. For VSCode users, this means opening your user preferences (after having already installed the Glint VSCode extension) and setting "Glint: Library Path" (aka `glint.libraryPath`) to the absolute path of the `packages/ember-tsc` folder, e.g. `/Users/machty/code/glint/packages/ember-tsc`.
 
 With the running `tsc --build --watch` command, the language server will rebuild when any source code files change. _Important_: after any source code file change and subsequent rebuild, you will need to restart the language server from within your editor in order for the changes to be reflected in your editor. In VSCode, this means running "Glint: Restart Glint Server" from the Command Palette.
 

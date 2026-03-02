@@ -1,6 +1,6 @@
 {
   "references": [
-    { "path": "./packages/core" },
+    { "path": "./packages/ember-tsc" },
     { "path": "./packages/template" },
     { "path": "./packages/type-test" },
     { "path": "./packages/tsserver-plugin" },

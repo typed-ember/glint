@@ -46,7 +46,7 @@ Volar provides a primitive called a `VirtualCode` which has one core responsibil
 
 Glint implements a VirtualCode to provide Language Tooling for modern Ember paradigms:
 
-- [VirtualGtsCode](https://github.com/typed-ember/glint/blob/main/packages/core/src/volar/gts-virtual-code.ts)
+- [VirtualGtsCode](https://github.com/typed-ember/glint/blob/main/packages/ember-tsc/src/volar/gts-virtual-code.ts)
   - Handles .gts and .gjs files
   - Parses them into a structure of
     - root code (untransformed .gts content)
@@ -106,7 +106,7 @@ In contrast to the above Glint V1 (and old Volar / Vue / Vetur) architecture, th
   - Via some [cleverness](https://github.com/volarjs/volar.js/discussions/188#discussioncomment-9569561), the diagnostic code positions are translated back to valid locations in the source .gts file and displayed properly within the IDE
   - The TS Plugin also augments and transforms the default/original set of diagnostics returned from `tsserver`'s processing of our transformed TS code
     - It does so via the same decoration/proxy pattern described [here](https://github.com/microsoft/TypeScript/wiki/Writing-a-Language-Service-Plugin#decorator-creation)
-- Language Server (`bin/glint-language-server.js` within `@glint/core`)
+- Language Server (`bin/glint-language-server.js` within `@glint/ember-tsc`)
   - Provides all other commands/functionality not related to type-checking
     - At the time of writing, there is practically ZERO functionality provided by the LS
     - We are keeping the LS around for the time being because:
@@ -122,7 +122,7 @@ In short, Glint V2 is composed of a super-charged TS Plugin and a nearly empty s
 
 **Home:** `packages/vscode`.
 
-**Invariants:** Should only depend on `@glint/core`, and only indirectly: via the version supplied by the local code base.
+**Invariants:** Should only depend on `@glint/ember-tsc`, and only indirectly: via the version supplied by the local code base.
 
 The officially-maintained VSCode Plugin provides a smooth, minimal-configuration experience for getting Glint diagnostics, go-to-def, etc, working in the VS Code IDE.
 
@@ -195,9 +195,9 @@ The **environment** also influences elements of the **transform** layer's behavi
 
 **Invariants:** Emits code that consumes types from `@glint/template`, and is never consumed _by_ `@glint/template`.
 
-**Home:** `packages/core`
+**Home:** `packages/ember-tsc`
 
-**Package name:** `@glint/core`
+**Package name:** `@glint/ember-tsc`
 
 #### Subcomponent: Config
 
@@ -205,7 +205,7 @@ The **environment** also influences elements of the **transform** layer's behavi
 
 **Invariants:** should know nothing about the rest of the pipeline; it only needs to understand how to parse a Glint configuration and hand it off to the rest of the pipeline.
 
-**Home:** `packages/core/src/config`
+**Home:** `packages/ember-tsc/src/config`
 
 #### Subcomponent: Transform
 
@@ -215,4 +215,4 @@ The result of this transformation is the only place the DSL actually appears, wh
 
 **Invariants:** This entire layer is purely functional: it accepts the contents of a script and/or template, along with the appropriate **config**, and it returns the resulting TypeScript module and mapping information. It maintains no state and never interacts with the file system or any other part of the outside world.
 
-**Home:** `packages/core/src/transform`
+**Home:** `packages/ember-tsc/src/transform`

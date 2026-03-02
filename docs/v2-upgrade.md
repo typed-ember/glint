@@ -16,7 +16,7 @@ Fortunately, there are a couple of codemods ([@embroider/template-tag-codemod](h
 
 Add `@glint/ember-tsc` to your app/addon package.json `devDependencies`.
 
-`ember-tsc` is the v2 version of the `glint` CLI binary; relative to v1's `glint`, it is a _very simple_ and thin wrapper around `tsc`. As such, if you wish to start using `ember-tsc` right away for type-checking your .ts/.gts/.gjs code, you may need to add a few additional `tsc`-style args that you didn't previously need when running v1's `glint` for type-checking. [See here](https://github.com/typed-ember/glint/blob/main/packages/core/README.md) for usage notes.
+`ember-tsc` is the v2 version of the `glint` CLI binary; relative to v1's `glint`, it is a _very simple_ and thin wrapper around `tsc`. As such, if you wish to start using `ember-tsc` right away for type-checking your .ts/.gts/.gjs code, you may need to add a few additional `tsc`-style args that you didn't previously need when running v1's `glint` for type-checking. [See here](https://github.com/typed-ember/glint/blob/main/packages/ember-tsc/README.md) for usage notes.
 
 ## Step 2: Upgrade `@glint/template` to the latest NPM version
 

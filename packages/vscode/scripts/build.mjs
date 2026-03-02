@@ -19,9 +19,9 @@ const ctx = await context({
     'dist/extension': require.resolve('../lib/src/extension.js'),
     'node_modules/glint-tsserver-plugin-pack/index':
       '../tsserver-plugin/lib/typescript-server-plugin.js',
-    'node_modules/glint-ember-tsc-pack/index': '../core/lib/index.js',
+    'node_modules/glint-ember-tsc-pack/index': '../ember-tsc/lib/index.js',
     'node_modules/glint-ember-tsc-pack/bin/glint-language-server':
-      '../core/bin/glint-language-server.js',
+      '../ember-tsc/bin/glint-language-server.js',
   },
   external: ['vscode'],
   logLevel: 'info',
@@ -44,7 +44,7 @@ const ctx = await context({
     {
       name: 'resolve-share-module',
       setup(build) {
-        build.onResolve({ filter: /^@glint\/core$/ }, () => {
+        build.onResolve({ filter: /^@glint\/ember-tsc$/ }, () => {
           return { path: 'glint-ember-tsc-pack', external: true };
         });
       },
