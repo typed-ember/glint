@@ -4,7 +4,7 @@ Glint is a set of tools to aid in developing modern [Ember.js] applications usin
 
 Glint provdes `ember-tsc` as an Ember-flavored wrapper around TypeScript's `tsc` command, with added support for type-checking `.gts` and `.gjs` files.
 
-See [the README](https://github.com/typed-ember/glint/blob/main/packages/core/README.md) for usage notes.
+See [the README](https://github.com/typed-ember/glint/blob/main/packages/ember-tsc/README.md) for usage notes.
 
 ## Glint Language Server
 

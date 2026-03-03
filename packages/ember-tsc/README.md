@@ -1,4 +1,4 @@
-# `@glint/core`
+# `@glint/ember-tsc`
 
 This package contains core functionality to power template-aware typechecking on a [glint] project. Two binaries are provided:
 

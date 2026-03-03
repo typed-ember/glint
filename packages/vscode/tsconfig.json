@@ -6,5 +6,5 @@
     "moduleResolution": "Node"
   },
   "include": ["src", "__tests__"],
-  "references": [{ "path": "../core" }]
+  "references": [{ "path": "../ember-tsc" }]
 }
