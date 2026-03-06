@@ -549,6 +549,34 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  test-packages/ts-template-imports-app-no-config:
+    dependenciesMeta:
+      '@glint/ember-tsc':
+        injected: true
+      '@glint/template':
+        injected: true
+      '@glint/tsserver-plugin':
+        injected: true
+    devDependencies:
+      '@glimmer/component':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@glint/ember-tsc':
+        specifier: workspace:*
+        version: file:packages/ember-tsc(typescript@5.9.3)
+      '@glint/template':
+        specifier: workspace:*
+        version: file:packages/template
+      '@glint/tsserver-plugin':
+        specifier: workspace:*
+        version: file:packages/tsserver-plugin
+      ember-source:
+        specifier: ^6.2.0
+        version: 6.7.0(@glimmer/component@2.0.0)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   test-packages/unstable-release:
     dependencies:
       execa:
@@ -10243,7 +10271,7 @@ snapshots:
       '@embroider/shared-internals': 2.9.0
       broccoli-funnel: 3.0.8
       common-ancestor-path: 1.0.1
-      semver: 7.7.1
+      semver: 7.7.3
     transitivePeerDependencies:
       - supports-color
 
@@ -13535,7 +13563,7 @@ snapshots:
       pkg-entry-points: 1.1.1
       resolve: 1.22.10
       resolve-package-path: 4.0.3
-      semver: 7.7.1
+      semver: 7.7.3
       style-loader: 2.0.0
       typescript-memoize: 1.1.1
       walk-sync: 3.0.0
@@ -13578,7 +13606,7 @@ snapshots:
       pkg-entry-points: 1.1.1
       resolve: 1.22.10
       resolve-package-path: 4.0.3
-      semver: 7.7.1
+      semver: 7.7.3
       style-loader: 2.0.0
       typescript-memoize: 1.1.1
       walk-sync: 3.0.0
@@ -13621,7 +13649,7 @@ snapshots:
       pkg-entry-points: 1.1.1
       resolve: 1.22.10
       resolve-package-path: 4.0.3
-      semver: 7.7.1
+      semver: 7.7.3
       style-loader: 2.0.0
       typescript-memoize: 1.1.1
       walk-sync: 3.0.0
@@ -13696,7 +13724,7 @@ snapshots:
       ember-cli-version-checker: 5.1.2
       ensure-posix-path: 1.1.1
       resolve-package-path: 4.0.3
-      semver: 7.7.1
+      semver: 7.7.3
     transitivePeerDependencies:
       - supports-color
 
@@ -13729,7 +13757,7 @@ snapshots:
       ember-cli-version-checker: 5.1.2
       ensure-posix-path: 1.1.1
       resolve-package-path: 4.0.3
-      semver: 7.7.1
+      semver: 7.7.3
     transitivePeerDependencies:
       - supports-color
 
@@ -13784,7 +13812,7 @@ snapshots:
   ember-cli-version-checker@5.1.2:
     dependencies:
       resolve-package-path: 3.1.0
-      semver: 7.7.1
+      semver: 7.7.3
       silent-error: 1.1.1
     transitivePeerDependencies:
       - supports-color
@@ -14006,7 +14034,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.6
       '@ember/edition-utils': 1.2.0
-      '@embroider/addon-shim': 1.10.0
+      '@embroider/addon-shim': 1.10.2
       '@glimmer/compiler': 0.94.10
       '@glimmer/component': 2.0.0
       '@glimmer/destroyable': 0.94.8
@@ -14042,7 +14070,7 @@ snapshots:
       inflection: 2.0.1
       route-recognizer: 0.3.4
       router_js: 8.0.6(route-recognizer@0.3.4)
-      semver: 7.7.1
+      semver: 7.7.3
       silent-error: 1.1.1
       simple-html-tokenizer: 0.5.11
     transitivePeerDependencies:
@@ -15660,7 +15688,7 @@ snapshots:
       cli-width: 2.2.1
       external-editor: 3.1.0
       figures: 2.0.0
-      lodash: 4.17.21
+      lodash: 4.17.23
       mute-stream: 0.0.7
       run-async: 2.4.1
       rxjs: 6.6.7
@@ -17327,9 +17355,9 @@ snapshots:
 
   remove-types@1.0.0:
     dependencies:
-      '@babel/core': 7.26.10
-      '@babel/plugin-syntax-decorators': 7.25.9(@babel/core@7.26.10)
-      '@babel/plugin-transform-typescript': 7.28.6(@babel/core@7.26.10)
+      '@babel/core': 7.28.6
+      '@babel/plugin-syntax-decorators': 7.25.9(@babel/core@7.28.6)
+      '@babel/plugin-transform-typescript': 7.28.6(@babel/core@7.28.6)
       prettier: 2.8.8
     transitivePeerDependencies:
       - supports-color

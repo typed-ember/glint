@@ -58,7 +58,7 @@ const ctx = await context({
 async function copyWasmFile() {
   const sourceWasm = join(
     __dirname,
-    '../../core/node_modules/content-tag/pkg/node/content_tag_bg.wasm',
+    '../../ember-tsc/node_modules/content-tag/pkg/node/content_tag_bg.wasm',
   );
   const targetDir = join(__dirname, '../node_modules/glint-ember-tsc-pack');
   const targetWasm = join(targetDir, 'content_tag_bg.wasm');
