@@ -142,9 +142,7 @@ const plugin = createLanguageServicePlugin(
     const config = info.config ?? {};
     const emberTscSource = normalizeEmberTscSource((config as any).emberTscSource);
     const workspaceRoot =
-      typeof (config as any).workspaceRoot === 'string'
-        ? (config as any).workspaceRoot
-        : cwd;
+      typeof (config as any).workspaceRoot === 'string' ? (config as any).workspaceRoot : cwd;
     const libraryPath =
       typeof (config as any).libraryPath === 'string' ? (config as any).libraryPath : '.';
     const resolutionDirs = getWorkspaceResolutionDirs(workspaceRoot, libraryPath, info);
