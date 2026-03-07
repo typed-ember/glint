@@ -42,6 +42,77 @@ describe('Language Server: Completions (ts plugin)', () => {
     ).toMatchInlineSnapshot();
   });
 
+  test('string union arg value suggestions', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class MyComponent extends Component {
+        <template>
+          <Inner @color="re%" />
+        </template>
+      }
+
+      class Inner extends Component<{ Args: { color: 'red' | 'blue' | 'green' } }> {}
+    `;
+
+    expect(await requestCompletion('ts-template-imports-app/src/index.gts', 'glimmer-ts', code))
+      .toMatchInlineSnapshot(`
+      [
+        {
+          "commitCharacters": [],
+          "kind": "string",
+          "kindModifiers": "",
+          "name": "red",
+          "replacementSpan": {
+            "end": {
+              "line": 5,
+              "offset": 22,
+            },
+            "start": {
+              "line": 5,
+              "offset": 20,
+            },
+          },
+          "sortText": "11",
+        },
+        {
+          "commitCharacters": [],
+          "kind": "string",
+          "kindModifiers": "",
+          "name": "blue",
+          "replacementSpan": {
+            "end": {
+              "line": 5,
+              "offset": 22,
+            },
+            "start": {
+              "line": 5,
+              "offset": 20,
+            },
+          },
+          "sortText": "11",
+        },
+        {
+          "commitCharacters": [],
+          "kind": "string",
+          "kindModifiers": "",
+          "name": "green",
+          "replacementSpan": {
+            "end": {
+              "line": 5,
+              "offset": 22,
+            },
+            "start": {
+              "line": 5,
+              "offset": 20,
+            },
+          },
+          "sortText": "11",
+        },
+      ]
+    `);
+  });
+
   test('passing component args', async () => {
     const code = stripIndent`
       import Component from '@glimmer/component';
