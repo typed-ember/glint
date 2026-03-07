@@ -1,5 +1,25 @@
 # Changelog
 
+## Release (2026-03-07)
+
+* @glint/ember-tsc 1.2.0 (minor)
+* @glint/tsserver-plugin 2.2.1 (patch)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`
+  * [#1065](https://github.com/typed-ember/glint/pull/1065) Add completions for string union arg values in templates ([@hlorellium](https://github.com/hlorellium))
+
+#### :house: Internal
+* `@glint/ember-tsc`, `@glint/tsserver-plugin`
+  * [#1062](https://github.com/typed-ember/glint/pull/1062) Rename core to ember-tsc ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* Other
+  * [#1059](https://github.com/typed-ember/glint/pull/1059) Cleanup core's language-server.ts ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+  * [#1056](https://github.com/typed-ember/glint/pull/1056) Update meta for vscode package ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 2
+- Pjotr Anohhin ([@hlorellium](https://github.com/hlorellium))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-02-07)
 
 * @glint/ember-tsc 1.1.2 (patch)
