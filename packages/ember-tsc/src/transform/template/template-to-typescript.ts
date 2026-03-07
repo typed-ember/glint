@@ -562,6 +562,16 @@ export function templateToTypescript(
       }
     }
 
+    function emitQuotedTextNodeValue(node: AST.TextNode): void {
+      mapper.text('"');
+      mapper.identifier(
+        JSON.stringify(node.chars).slice(1, -1),
+        node.loc.getStart().offset! + prefix.length + 1,
+        node.chars.length,
+      );
+      mapper.text('"');
+    }
+
     function emitConcatStatement(node: AST.ConcatStatement): void {
       mapper.forNode(node, () => {
         mapper.text('`');
@@ -671,7 +681,7 @@ export function templateToTypescript(
 
                 switch (attr.value.type) {
                   case 'TextNode':
-                    mapper.text(JSON.stringify(attr.value.chars));
+                    emitQuotedTextNodeValue(attr.value);
                     break;
                   case 'ConcatStatement':
                     emitConcatStatement(attr.value);
