@@ -909,4 +909,58 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       ]
     `);
   });
+
+  test('plugin deactivates for project without glint config (.gts)', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class Application extends Component {
+        private startupTime = new Date().toISOString();
+
+        <template>
+          The current time is {{this.startupTimee}}.
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app-no-config/src/empty-fixture.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    // In a project with Glint config, this would produce error 2551:
+    // "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?"
+    // Without Glint config, the plugin deactivates and no template diagnostics are reported.
+    const templateTypeDiagnostics = diagnostics.filter(
+      (d: any) => d.code === 2551 || d.code === 2339,
+    );
+    expect(templateTypeDiagnostics).toEqual([]);
+  });
+
+  test('plugin deactivates for project without glint config (.gjs)', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class Application extends Component {
+        message = 'Hello';
+
+        <template>
+          {{this.messag}}
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app-no-config/src/empty-fixture.gjs',
+      'glimmer-js',
+      code,
+    );
+
+    // Without Glint config, no template-specific type-checking diagnostics.
+    const templateTypeDiagnostics = diagnostics.filter(
+      (d: any) => d.code === 2551 || d.code === 2339,
+    );
+    expect(templateTypeDiagnostics).toEqual([]);
+  });
 });

@@ -341,6 +341,16 @@ function launch(
     return undefined;
   }
 
+  // Early bail-out: don't launch the Glint language server if there's no
+  // tsconfig.json or jsconfig.json anywhere in the workspace root tree.
+  // This prevents unnecessary overhead for pure JS projects without config.
+  if (!findConfigFileInWorkspace(workspaceFolder.uri.fsPath)) {
+    outputChannel.appendLine(
+      '[Activation] No tsconfig.json or jsconfig.json found in workspace; not launching Glint.',
+    );
+    return undefined;
+  }
+
   const emberTscSource = getEmberTscSourceSetting();
   const libraryPath = getLibraryPathSetting();
   const resolution = resolveEmberTscServerPath(workspaceFolder, emberTscSource, libraryPath);
@@ -503,6 +513,42 @@ function resolveBundledEmberTscServerPath(): string | undefined {
   } catch (error) {
     return undefined;
   }
+}
+
+/**
+ * Check whether a tsconfig.json or jsconfig.json exists anywhere in the
+ * workspace directory tree (searching recursively). Returns the first
+ * matching path found, or undefined if none.
+ */
+function findConfigFileInWorkspace(workspaceRoot: string): string | undefined {
+  // Quick check: look for tsconfig.json / jsconfig.json in the workspace root first.
+  for (const name of ['tsconfig.json', 'jsconfig.json']) {
+    const candidate = path.join(workspaceRoot, name);
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  // Walk immediate sub-directories (1 level deep) to cover monorepo layouts
+  // where the config lives in a child package. We intentionally skip
+  // node_modules and hidden directories to keep this check fast.
+  try {
+    const entries = fs.readdirSync(workspaceRoot, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+      for (const name of ['tsconfig.json', 'jsconfig.json']) {
+        const candidate = path.join(workspaceRoot, entry.name, name);
+        if (fs.existsSync(candidate)) {
+          return candidate;
+        }
+      }
+    }
+  } catch {
+    // If reading the directory fails, fall through to return undefined.
+  }
+
+  return undefined;
 }
 
 // We need to activate the default VSCode TypeScript extension so that our

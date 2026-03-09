@@ -124,12 +124,25 @@ const plugin = createLanguageServicePlugin(
   ): { languagePlugins: unknown[]; setup?: (language: any) => void } => {
     const logger = info.project.projectService.logger;
     const logInfo = (message: string): void => logger.info(`[Glint] ${message}`);
+
+    // Early bail-out: if no tsconfig.json or jsconfig.json exists, don't even
+    // attempt to load ember-tsc. This prevents expensive module loading (jiti,
+    // WASM content-tag, etc.) for projects that have no TypeScript config.
+    const cwd = info.languageServiceHost.getCurrentDirectory();
+    const hasTsConfig = ts.findConfigFile(cwd, ts.sys.fileExists, 'tsconfig.json');
+    const hasJsConfig = ts.findConfigFile(cwd, ts.sys.fileExists, 'jsconfig.json');
+    if (!hasTsConfig && !hasJsConfig) {
+      logInfo(
+        `No tsconfig.json or jsconfig.json found from ${cwd}. ` +
+          'Glint TS Plugin will not activate.',
+      );
+      return { languagePlugins: [] };
+    }
+
     const config = info.config ?? {};
     const emberTscSource = normalizeEmberTscSource((config as any).emberTscSource);
     const workspaceRoot =
-      typeof (config as any).workspaceRoot === 'string'
-        ? (config as any).workspaceRoot
-        : info.languageServiceHost.getCurrentDirectory();
+      typeof (config as any).workspaceRoot === 'string' ? (config as any).workspaceRoot : cwd;
     const libraryPath =
       typeof (config as any).libraryPath === 'string' ? (config as any).libraryPath : '.';
     const resolutionDirs = getWorkspaceResolutionDirs(workspaceRoot, libraryPath, info);
@@ -172,7 +185,6 @@ const plugin = createLanguageServicePlugin(
     logInfo(`Using ${resolved.source} ember-tsc from ${resolved.resolvedPath}.`);
 
     const { findConfig, createEmberLanguagePlugin } = emberTsc;
-    const cwd = info.languageServiceHost.getCurrentDirectory();
     const glintConfig = findConfig(cwd);
 
     if (glintConfig) {
