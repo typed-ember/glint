@@ -15,3 +15,4 @@ install the extension from here: https://open-vsx.org/extension/typed-ember/glin
 ### neovim
 
 This plugin is part of [ember.nvim](https://github.com/NullVoxPopuli/ember.nvim), but can be configured manually via similar setup to [here](https://github.com/NullVoxPopuli/ember.nvim/blob/0cec0eb3641e10df0a32e1e81206efaff22f1974/lua/ember/lsp/typescript.lua#L49)
+

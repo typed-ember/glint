@@ -4,3 +4,4 @@ This package contains type declarations used by other [glint] packages for perfo
 
 [glint]: https://github.com/typed-ember/glint
 
+
