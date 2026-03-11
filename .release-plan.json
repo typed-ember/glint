@@ -1,29 +1,39 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "minor",
-      "oldVersion": "1.1.2",
-      "newVersion": "1.2.0",
+      "impact": "patch",
+      "oldVersion": "1.2.0",
+      "newVersion": "1.2.1",
       "tagName": "latest",
       "constraints": [
         {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
           "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
+          "reason": "Has dependency `workspace:*` on @glint/template"
         }
       ],
       "pkgJSONPath": "./packages/ember-tsc/package.json"
     },
     "@glint/template": {
-      "oldVersion": "1.7.4"
+      "impact": "patch",
+      "oldVersion": "1.7.4",
+      "newVersion": "1.7.5",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :memo: Documentation"
+        }
+      ],
+      "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.2.0",
-      "newVersion": "2.2.1",
+      "oldVersion": "2.2.1",
+      "newVersion": "2.2.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -36,7 +46,7 @@
         },
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
+          "reason": "Appears in changelog section :memo: Documentation"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -45,5 +55,5 @@
       "oldVersion": "2.0.0"
     }
   },
-  "description": "## Release (2026-03-09)\n\n* @glint/ember-tsc 1.2.0 (minor)\n* @glint/tsserver-plugin 2.2.1 (patch)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`\n  * [#1065](https://github.com/typed-ember/glint/pull/1065) Add completions for string union arg values in templates ([@hlorellium](https://github.com/hlorellium))\n\n#### :bug: Bug Fix\n* `@glint/tsserver-plugin`\n  * [#1064](https://github.com/typed-ember/glint/pull/1064) Gracefully turn off glint when no config at all is detected ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1062](https://github.com/typed-ember/glint/pull/1062) Rename core to ember-tsc ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* Other\n  * [#1059](https://github.com/typed-ember/glint/pull/1059) Cleanup core's language-server.ts ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#1056](https://github.com/typed-ember/glint/pull/1056) Update meta for vscode package ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 2\n- Pjotr Anohhin ([@hlorellium](https://github.com/hlorellium))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-03-11)\n\n* @glint/ember-tsc 1.2.1 (patch)\n* @glint/template 1.7.5 (patch)\n* @glint/tsserver-plugin 2.2.2 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`, `@glint/tsserver-plugin`\n  * [#1070](https://github.com/typed-ember/glint/pull/1070) Update docs ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* Other\n  * [#1069](https://github.com/typed-ember/glint/pull/1069) Update release-plan ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :memo: Documentation\n* `@glint/template`, `@glint/tsserver-plugin`\n  * [#1070](https://github.com/typed-ember/glint/pull/1070) Update docs ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* [#1069](https://github.com/typed-ember/glint/pull/1069) Update release-plan ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* [#1066](https://github.com/typed-ember/glint/pull/1066) Prepare for marketplace releases - 1.0.4 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
