@@ -1,5 +1,28 @@
 # Changelog
 
+## Release (2026-03-11)
+
+* @glint/ember-tsc 1.2.1 (patch)
+* @glint/template 1.7.5 (patch)
+* @glint/tsserver-plugin 2.2.2 (patch)
+
+#### :bug: Bug Fix
+* `@glint/template`, `@glint/tsserver-plugin`
+  * [#1070](https://github.com/typed-ember/glint/pull/1070) Update docs ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* Other
+  * [#1069](https://github.com/typed-ember/glint/pull/1069) Update release-plan ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :memo: Documentation
+* `@glint/template`, `@glint/tsserver-plugin`
+  * [#1070](https://github.com/typed-ember/glint/pull/1070) Update docs ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :house: Internal
+* [#1069](https://github.com/typed-ember/glint/pull/1069) Update release-plan ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* [#1066](https://github.com/typed-ember/glint/pull/1066) Prepare for marketplace releases - 1.0.4 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-03-09)
 
 * @glint/ember-tsc 1.2.0 (minor)
