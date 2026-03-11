@@ -2,10 +2,14 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.2.0",
-      "newVersion": "1.2.1",
+      "oldVersion": "1.2.1",
+      "newVersion": "1.2.2",
       "tagName": "latest",
       "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/template"
@@ -15,25 +19,21 @@
     },
     "@glint/template": {
       "impact": "patch",
-      "oldVersion": "1.7.4",
-      "newVersion": "1.7.5",
+      "oldVersion": "1.7.5",
+      "newVersion": "1.7.6",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :memo: Documentation"
         }
       ],
       "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.2.1",
-      "newVersion": "2.2.2",
+      "oldVersion": "2.2.2",
+      "newVersion": "2.2.3",
       "tagName": "latest",
       "constraints": [
         {
@@ -43,17 +43,23 @@
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :memo: Documentation"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
     },
     "@glint/type-test": {
-      "oldVersion": "2.0.0"
+      "impact": "patch",
+      "oldVersion": "2.0.0",
+      "newVersion": "2.0.1",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        }
+      ],
+      "pkgJSONPath": "./packages/type-test/package.json"
     }
   },
-  "description": "## Release (2026-03-11)\n\n* @glint/ember-tsc 1.2.1 (patch)\n* @glint/template 1.7.5 (patch)\n* @glint/tsserver-plugin 2.2.2 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`, `@glint/tsserver-plugin`\n  * [#1070](https://github.com/typed-ember/glint/pull/1070) Update docs ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* Other\n  * [#1069](https://github.com/typed-ember/glint/pull/1069) Update release-plan ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :memo: Documentation\n* `@glint/template`, `@glint/tsserver-plugin`\n  * [#1070](https://github.com/typed-ember/glint/pull/1070) Update docs ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* [#1069](https://github.com/typed-ember/glint/pull/1069) Update release-plan ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* [#1066](https://github.com/typed-ember/glint/pull/1066) Prepare for marketplace releases - 1.0.4 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-03-11)\n\n* @glint/ember-tsc 1.2.2 (patch)\n* @glint/template 1.7.6 (patch)\n* @glint/tsserver-plugin 2.2.3 (patch)\n* @glint/type-test 2.0.1 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#1073](https://github.com/typed-ember/glint/pull/1073) Fix release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* [#1071](https://github.com/typed-ember/glint/pull/1071) Remove unstable publishing infra ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }

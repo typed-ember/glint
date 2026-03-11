@@ -2,6 +2,23 @@
 
 ## Release (2026-03-11)
 
+* @glint/ember-tsc 1.2.2 (patch)
+* @glint/template 1.7.6 (patch)
+* @glint/tsserver-plugin 2.2.3 (patch)
+* @glint/type-test 2.0.1 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`
+  * [#1073](https://github.com/typed-ember/glint/pull/1073) Fix release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :house: Internal
+* [#1071](https://github.com/typed-ember/glint/pull/1071) Remove unstable publishing infra ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
+## Release (2026-03-11)
+
 * @glint/ember-tsc 1.2.1 (patch)
 * @glint/template 1.7.5 (patch)
 * @glint/tsserver-plugin 2.2.2 (patch)
