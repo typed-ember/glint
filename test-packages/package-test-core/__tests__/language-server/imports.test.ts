@@ -99,9 +99,19 @@ describe('Language Server: Imports', () => {
   });
 
   test('support dynamic import with explicit .gts extension', async () => {
+    // Verify that mod.default from a dynamic import has the same type as a normal import.
+    // The type assertion `const _: typeof Colocated = mod.default` would produce a type
+    // error if the types were incompatible. Combined with the 'not any' test below,
+    // this proves mod.default resolves to the correct specific component type.
     const code = stripIndent`
+      import Colocated from './colocated';
       const mod = await import('./colocated/index.gts');
-      export default mod.default;
+
+      const _check: typeof Colocated = mod.default;
+
+      export default <template>
+        <Colocated @target="World" />
+      </template>
     `;
 
     const diagnostics = await requestTsserverDiagnostics(
