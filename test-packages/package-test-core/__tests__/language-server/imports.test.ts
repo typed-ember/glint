@@ -132,7 +132,23 @@ describe('Language Server: Imports', () => {
     );
 
     // If Colocated resolved to `any`, no errors would be reported.
-    // Getting errors here proves the type is known (not `any`).
-    expect(diagnostics.length).toBeGreaterThan(0);
+    // The specific error about 'wrongArg' proves the type is known (not `any`).
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 2353,
+          "end": {
+            "line": 5,
+            "offset": 23,
+          },
+          "start": {
+            "line": 5,
+            "offset": 15,
+          },
+          "text": "Object literal may only specify known properties, and 'wrongArg' does not exist in type 'NamedArgs<{ target: string; }>'.",
+        },
+      ]
+    `);
   });
 });
