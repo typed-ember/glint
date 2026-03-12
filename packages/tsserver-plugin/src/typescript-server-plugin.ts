@@ -238,8 +238,25 @@ const plugin = createLanguageServicePlugin(
                 });
               }
 
+              // Strip explicit .gts/.gjs extensions from module specifiers so that
+              // Volar's resolveHiddenExtensions mechanism can resolve them with proper
+              // TypeScript type information. Without this, TypeScript resolves the .gts
+              // file directly but assigns it `any` type because it doesn't map the
+              // custom extension to a TypeScript extension (.ts/.js).
+              //
+              // e.g. `import('./Foo.gts')` → resolved as `import('./Foo')` so Volar
+              // maps it via the `.d.ts` hidden-extension path to `Foo.gts` with
+              // extension `.ts`, giving TypeScript the type info it needs.
+              const normalizedLiterals = moduleLiterals.map((literal) => {
+                const text = literal.text;
+                if (text.endsWith('.gts') || text.endsWith('.gjs')) {
+                  return { ...literal, text: text.slice(0, -4) };
+                }
+                return literal;
+              });
+
               const result = resolveModuleNameLiterals(
-                [...fakeImportNodes, ...moduleLiterals],
+                [...fakeImportNodes, ...normalizedLiterals],
                 containingFile,
                 redirectedReference,
                 options,
