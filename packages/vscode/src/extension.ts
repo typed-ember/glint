@@ -112,6 +112,12 @@ export const { activate, deactivate } = defineExtension(() => {
       return;
     }
 
+    // Skip if there is no tsconfig.json or jsconfig.json in the workspace –
+    // the Glint language server won't be launched in that case either.
+    if (!findConfigFileInWorkspace(workspaceFolder.uri.fsPath)) {
+      return;
+    }
+
     const emberTscSource = getEmberTscSourceSetting();
     const libraryPath = getLibraryPathSetting();
     const configuration = {
@@ -551,13 +557,23 @@ function findConfigFileInWorkspace(workspaceRoot: string): string | undefined {
   return undefined;
 }
 
+// Only activate and patch the TypeScript extension when a tsconfig.json or
+// jsconfig.json is present in the workspace.  Without a config file (e.g. a
+// plain JS/GJS project) the Glint language server won't launch either, and
+// patching TypeScript to treat .gjs/.gts files as TypeScript-like languages
+// would cause the raw TS parser to report spurious errors for <template> syntax.
+const patchWorkspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+const hasWorkspaceConfig = patchWorkspaceRoot
+  ? !!findConfigFileInWorkspace(patchWorkspaceRoot)
+  : false;
+
 // We need to activate the default VSCode TypeScript extension so that our
 // TS Plugin kicks in. We do this because the TS extension is (obviously) not
 // configured to activate for, say, .gts files:
 // https://github.com/microsoft/vscode/blob/878af07/extensions/typescript-language-features/package.json#L62..L75
 const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features');
 
-if (tsExtension) {
+if (tsExtension && hasWorkspaceConfig) {
   const activationPromise = tsExtension.activate();
   if (activationPromise && typeof activationPromise.then === 'function') {
     activationPromise.then(
@@ -583,7 +599,7 @@ if (tsExtension) {
   }
 }
 
-if (!v1ExtensionPresent) {
+if (!v1ExtensionPresent && hasWorkspaceConfig) {
   // The code below contains hacks lifted from the Vue extension to monkeypatch
   // portions of official VSCode TS extension (vscode.typescript-language-features)
   // to add some missing features that make the tooling more seamless.
