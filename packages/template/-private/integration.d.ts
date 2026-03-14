@@ -36,9 +36,14 @@ export type ModifierReturn = { [Modifier]: true };
  * Denotes that the associated entity may be invoked with the given
  * blocks, yielding params of the appropriate type.
  */
+// The original conditional `El extends Element ? El : null` deferred for
+// generic conditional types like `ElementFromTagName<T>` (#610). Replaced
+// with `El extends null ? unknown : El` which only fires for literal null
+// (not conditional types) and converts null → unknown for ComponentLike
+// equivalence.
 export type ComponentReturn<BlockDefs, El = null> = {
   [Blocks]: BlockDefs;
-  [Element]: El extends Element ? El : null;
+  [Element]: El extends null ? unknown : El;
 };
 
 /**
