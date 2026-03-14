@@ -1,5 +1,6 @@
 import Component from '@glimmer/component';
 import {
+  applySplattributes,
   bindInvokable,
   emitComponent,
   NamedArgsMarker,
@@ -9,6 +10,7 @@ import {
   yieldToBlock,
 } from '@glint/ember-tsc/-private/dsl';
 import { ComponentLike, WithBoundArgs } from '@glint/template';
+import { ComponentSignatureElement } from '@glint/template/-private/signature';
 import { expectTypeOf } from 'expect-type';
 
 {
@@ -167,6 +169,58 @@ import { expectTypeOf } from 'expect-type';
   }
 
   emitComponent(resolve(Picker)({ onSelect: (v: string) => {}, ...NamedArgsMarker }));
+}
+
+// Issue #610: Generic component with conditional Element type.
+// ComponentSignatureElement previously collapsed ElementFromTagName<T>
+// to unknown via a deferred NonNullable check.
+{
+  type ElementFromTagName<T extends string> = T extends keyof HTMLElementTagNameMap
+    ? HTMLElementTagNameMap[T]
+    : Element;
+
+  // ComponentSignatureElement preserves conditional Element types
+  expectTypeOf<
+    ComponentSignatureElement<{ Element: ElementFromTagName<'div'> }>
+  >().toEqualTypeOf<HTMLDivElement>();
+  expectTypeOf<
+    ComponentSignatureElement<{ Element: ElementFromTagName<'custom'> }>
+  >().toEqualTypeOf<Element>();
+  expectTypeOf<ComponentSignatureElement<{ Element: null }>>().toEqualTypeOf<unknown>();
+
+  // End-to-end with concrete T
+  class DynamicElement<T extends string> extends Component<{
+    Args: { tagName: T };
+    Element: ElementFromTagName<T>;
+    Blocks: { default: [] };
+  }> {}
+
+  const comp = emitComponent(resolve(DynamicElement)({ tagName: 'div', ...NamedArgsMarker }));
+  expectTypeOf(comp.element).toEqualTypeOf<HTMLDivElement>();
+
+  // The actual reported issue: <Tag ...attributes> where Tag has the
+  // same conditional Element type as the parent component.
+  class ElementReceiver<T extends string> extends Component<{
+    Element: ElementFromTagName<T>;
+    Args: { tag: ComponentLike<{ Element: ElementFromTagName<T>; Blocks: { default: [] } }> };
+    Blocks: { default: [] };
+  }> {
+    static {
+      templateForBackingValue(this, function (__glintRef__) {
+        const tagComp = emitComponent(resolve(__glintRef__.args.tag)());
+        applySplattributes(__glintRef__.element, tagComp.element);
+      });
+    }
+  }
+  emitComponent(
+    resolve(ElementReceiver)({
+      tag: DynamicElement as unknown as ComponentLike<{
+        Element: ElementFromTagName<'div'>;
+        Blocks: { default: [] };
+      }>,
+      ...NamedArgsMarker,
+    }),
+  );
 }
 
 // Components are `ComponentLike`
