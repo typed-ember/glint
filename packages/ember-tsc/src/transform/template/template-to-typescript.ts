@@ -302,25 +302,9 @@ export function templateToTypescript(
           mapper.text('__glintDSL__.emitContent(');
         }
 
-        if (node.hash.pairs.length > 0) {
-          // Two-stage approach for named args (#1068):
-          // 1. Keyword call with IIFE validates arg types via Named/Return
-          //    decomposition (errors surface on mapped positions). Result discarded.
-          // 2. bindInvokable uses Args/T holistic capture, preserving generic
-          //    type parameters. Result used.
-          mapper.text('(__glintDSL__.resolve(');
-          emitExpression(node.path);
-          mapper.text(')((() => __glintDSL__.resolveForBind(');
-          emitExpression(node.params[0]);
-          mapper.text('))(), ');
-          emitArgs(node.params.slice(1), node.hash);
-          mapper.text('), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(');
-          emitExpression(node.params[0]);
-          mapper.text('), ');
-          emitArgs([], node.hash);
-          mapper.text('))');
-        } else {
-          // No named args — standard keyword call (IIFE for inference isolation)
+        // Emit the keyword call (with IIFE to isolate inference). This
+        // validates arg types via Named/Return decomposition.
+        function emitKeywordCall(): void {
           mapper.text('__glintDSL__.resolve(');
           emitExpression(node.path);
           mapper.text(')((() => __glintDSL__.resolveForBind(');
@@ -328,6 +312,21 @@ export function templateToTypescript(
           mapper.text('))(), ');
           emitArgs(node.params.slice(1), node.hash);
           mapper.text(')');
+        }
+
+        if (node.hash.pairs.length > 0) {
+          // Two-stage comma expression (#1068): the keyword call validates
+          // arg types (result discarded), while bindInvokable preserves
+          // generic type parameters via Args/T holistic capture (result used).
+          mapper.text('(');
+          emitKeywordCall();
+          mapper.text(', __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(');
+          emitExpression(node.params[0]);
+          mapper.text('), ');
+          emitArgs([], node.hash);
+          mapper.text('))');
+        } else {
+          emitKeywordCall();
         }
 
         if (position === 'top-level') {

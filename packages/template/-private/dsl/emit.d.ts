@@ -185,19 +185,16 @@ export declare function noop(value: unknown): void;
  * via a comma expression so errors come from the keyword (mapped) and the
  * result comes from here (T-preserving).
  */
-type BindNamedResult<Args, T, GivenNamed> = Args extends [NamedArgs<infer Named>]
-  ? (
-      ...named: MaybeNamed<
-        PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
-      >
-    ) => T
-  : Args extends [NamedArgs<infer Named>?]
+type BindNamedResult<Args, T, GivenNamed> =
+  // Named-only args (required or optional — handles double-currying)
+  Args extends [(NamedArgs<infer Named>)?]
     ? (
         ...named: MaybeNamed<
           PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
         >
       ) => T
-    : Args extends [...infer Positional, NamedArgs<infer Named>]
+    : // Positional + named args
+      Args extends [...infer Positional, NamedArgs<infer Named>]
       ? (
           ...args: [
             ...Positional,
