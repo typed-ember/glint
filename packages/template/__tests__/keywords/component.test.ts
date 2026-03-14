@@ -1,5 +1,11 @@
 import { expectTypeOf } from 'expect-type';
-import { emitComponent, NamedArgsMarker, resolve, resolveForBind } from '../../-private/dsl';
+import {
+  emitComponent,
+  NamedArgsMarker,
+  resolve,
+  resolveForBind,
+  validateBind,
+} from '../../-private/dsl';
 import { ComponentKeyword } from '../../-private/keywords';
 import TestComponent from '../test-component';
 
@@ -78,21 +84,12 @@ emitComponent(
   }),
 );
 
-// Note: with the generic-preserving named-args overloads (#1068), wrong-type
-// args are no longer caught at curry-time. The error surfaces at invocation
-// time instead — this trade-off enables generic type parameter preservation.
-{
-  const WrongTypeCurried = componentKeyword(resolveForBind(StringComponent), {
-    value: 123,
-    ...NamedArgsMarker,
-  });
-
-  resolve(WrongTypeCurried)({
-    // @ts-expect-error: wrong type for pre-bound value surfaces at invocation
-    value: 123,
-    ...NamedArgsMarker,
-  });
-}
+// validateBind catches wrong-type args (validation side of two-stage approach)
+// @ts-expect-error: Attempting to curry an arg with the wrong type
+validateBind(resolveForBind(StringComponent), {
+  value: 123,
+  ...NamedArgsMarker,
+});
 
 class ParametricComponent<T> extends TestComponent<{
   Args: { values: Array<T>; optional?: string };

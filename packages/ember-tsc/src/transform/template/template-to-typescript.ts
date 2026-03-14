@@ -298,22 +298,21 @@ export function templateToTypescript(
             `{{${formInfo.name} (${formInfo.name} ... posA posB) namedA=true namedB=true}}`,
         );
 
-        // When binding named args, emit a validation call first.
-        // validateBind uses Named/Return decomposition (which erases generic T but
-        // validates arg types), while the keyword uses Args/T holistic capture (which
-        // preserves T but can't validate). Together they provide both validation AND
-        // generic preservation (#1068).
+        if (position === 'top-level') {
+          mapper.text('__glintDSL__.emitContent(');
+        }
+
+        // When binding named args, emit a validation call via comma expression.
+        // validateBind uses Named/Return decomposition (validates arg types, erases
+        // generic T — result discarded via comma operator). The keyword call uses
+        // Args/T holistic capture (preserves generic T). Together they provide both
+        // validation AND generic preservation (#1068).
         if (node.hash.pairs.length > 0) {
-          mapper.text('__glintDSL__.validateBind(__glintDSL__.resolveForBind(');
+          mapper.text('(__glintDSL__.validateBind(__glintDSL__.resolveForBind(');
           emitExpression(node.params[0]);
           mapper.text('), ');
           emitArgs([], node.hash);
-          mapper.text(');');
-          mapper.newline();
-        }
-
-        if (position === 'top-level') {
-          mapper.text('__glintDSL__.emitContent(');
+          mapper.text('), ');
         }
 
         // The keyword call captures Args/T holistically, preserving generic type
@@ -326,6 +325,10 @@ export function templateToTypescript(
         mapper.text('))(), ');
         emitArgs(node.params.slice(1), node.hash);
         mapper.text(')');
+
+        if (node.hash.pairs.length > 0) {
+          mapper.text(')');
+        }
 
         if (position === 'top-level') {
           mapper.text(')');
