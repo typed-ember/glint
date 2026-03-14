@@ -3,10 +3,11 @@ import {
   emitComponent,
   NamedArgsMarker,
   resolve,
+  resolveForBind,
   templateForBackingValue,
   yieldToBlock,
 } from '@glint/ember-tsc/-private/dsl';
-import { ComponentLike } from '@glint/template';
+import { ComponentLike, WithBoundArgs } from '@glint/template';
 import { expectTypeOf } from 'expect-type';
 
 {
@@ -120,6 +121,54 @@ import { expectTypeOf } from 'expect-type';
       expectTypeOf(args).toEqualTypeOf<[]>();
     }
   }
+}
+
+// Issue #1068: {{component}} currying named args on generic class component.
+// The named-args overloads in BindInvokableKeyword decompose the function type
+// into separate Named/Return type params, which erases generic T. The noop
+// overload preserves T (via higher-order inference capturing the whole function
+// type as Args/T). Fix direction: replace the named-args overloads with ones
+// that capture Args/T holistically and use conditional return types for
+// pre-binding (BindNamedResult). Proven to fix #1068 but needs work on
+// double-currying edge case (see -bind-invokable.d.ts).
+{
+  class PickerOption<T> extends Component<{
+    Args: { value: T; onSelect: (value: T) => void };
+    Blocks: { default: [T] };
+  }> {}
+
+  class Picker<T> extends Component<{
+    Args: { onSelect: (value: T) => void };
+    Blocks: { default: [WithBoundArgs<typeof PickerOption, 'onSelect'>] };
+  }> {
+    static {
+      templateForBackingValue(this, function (__glintRef__) {
+        const componentKw =
+          undefined as unknown as import('@glint/template/-private/keywords/component').ComponentKeyword;
+
+        // Noop binding DOES preserve T
+        const noopCurried = resolve(componentKw)(resolveForBind(PickerOption));
+        const component = emitComponent(
+          resolve(noopCurried)({
+            value: 'test',
+            onSelect: (v) => {},
+            ...NamedArgsMarker,
+          }),
+        );
+        expectTypeOf(component.blockParams.default[0]).toEqualTypeOf<string>();
+
+        // Named args binding — with the optional-named-args overload,
+        // T is preserved through the currying.
+        const curried = resolve(componentKw)(resolveForBind(PickerOption), {
+          onSelect: __glintRef__.args.onSelect,
+          ...NamedArgsMarker,
+        });
+        yieldToBlock(__glintRef__, 'default')(curried);
+      });
+    }
+  }
+
+  emitComponent(resolve(Picker)({ onSelect: (v: string) => {}, ...NamedArgsMarker }));
 }
 
 // Components are `ComponentLike`
