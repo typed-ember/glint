@@ -623,6 +623,36 @@ describe('Transform: rewriteModule', () => {
     });
 
     describe('unicode and other special characters', () => {
+      // Issue #756: Files with unicode in a non-last component should not break Glint
+      // (Verified fixed in V2 - multibyte unicode characters are handled correctly)
+      describe('emoji / multibyte unicode', () => {
+        test('GitHub Issue#756 - emoji in non-last template does not break parsing', () => {
+          const env = GlintEnvironment.load({});
+
+          let script = {
+            filename: 'test.gts',
+            contents: [
+              `import type { TOC } from '@ember/component/template-only';`,
+              ``,
+              `const EmojiComp: TOC<{}> =`,
+              `  <template>`,
+              `    🎉 hello`,
+              `  </template>;`,
+              ``,
+              `const AfterEmoji: TOC<{ Args: { name: string } }> =`,
+              `  <template>`,
+              `    <EmojiComp /> {{@name}}`,
+              `  </template>;`,
+            ].join('\n'),
+          };
+
+          let transformedModule = rewriteModule(ts, { script }, env);
+
+          expect.soft(transformedModule?.errors?.length).toBe(0);
+          expect.soft(transformedModule?.errors).toMatchInlineSnapshot(`[]`);
+        });
+      });
+
       describe('$', () => {
         test('GitHub Issue#840 - does not error', () => {
           const env = GlintEnvironment.load({});
