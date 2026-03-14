@@ -302,33 +302,16 @@ export function templateToTypescript(
           mapper.text('__glintDSL__.emitContent(');
         }
 
-        // When binding named args, emit a validation call via comma expression.
-        // validateBind uses Named/Return decomposition (validates arg types, erases
-        // generic T — result discarded via comma operator). The keyword call uses
-        // Args/T holistic capture (preserves generic T). Together they provide both
-        // validation AND generic preservation (#1068).
-        if (node.hash.pairs.length > 0) {
-          mapper.text('(__glintDSL__.validateBind(__glintDSL__.resolveForBind(');
-          emitExpression(node.params[0]);
-          mapper.text('), ');
-          emitArgs([], node.hash);
-          mapper.text('), ');
-        }
-
-        // The keyword call captures Args/T holistically, preserving generic type
-        // params via higher-order inference. The IIFE around resolveForBind prevents
-        // backpressure from named args affecting inference.
+        // Treat the first argument to a bind-invokable expression (`{{component}}`,
+        // `{{helper}}`, etc) as special: we wrap it in a `resolve` call so that the
+        // type machinery for those helpers can always operate against the resolved value.
         mapper.text('__glintDSL__.resolve(');
         emitExpression(node.path);
-        mapper.text(')((() => __glintDSL__.resolveForBind(');
+        mapper.text(')(__glintDSL__.resolveForBind(');
         emitExpression(node.params[0]);
-        mapper.text('))(), ');
+        mapper.text('), ');
         emitArgs(node.params.slice(1), node.hash);
         mapper.text(')');
-
-        if (node.hash.pairs.length > 0) {
-          mapper.text(')');
-        }
 
         if (position === 'top-level') {
           mapper.text(')');

@@ -173,30 +173,3 @@ export declare function applyModifier(boundModifier: ModifierReturn): void;
  * syntax.
  */
 export declare function noop(value: unknown): void;
-
-/*
- * Validates that the given named args are compatible with the invokable's
- * signature. Used by the transform to validate {{component}}/{{helper}}/
- * {{modifier}} named args BEFORE passing through the keyword overloads.
- *
- * This uses the old Named/Return decomposition which validates arg types
- * correctly but erases generic type params — that's fine since the result
- * is discarded. The actual binding uses the keyword's Args/T holistic
- * capture which preserves generics (#1068).
- */
-export declare function validateBind<Named, GivenNamed extends Partial<Named>>(
-  invokable: (named: NamedArgs<Named>) => any,
-  named: NamedArgs<GivenNamed>,
-): void;
-export declare function validateBind<Named, GivenNamed extends Partial<Named>>(
-  invokable: (named?: NamedArgs<Named>) => any,
-  named: NamedArgs<GivenNamed>,
-): void;
-export declare function validateBind<
-  Named,
-  Positional extends unknown[],
-  GivenNamed extends Partial<Named>,
->(
-  invokable: (...args: [...Positional, NamedArgs<Named>]) => any,
-  named: NamedArgs<GivenNamed>,
-): void;
