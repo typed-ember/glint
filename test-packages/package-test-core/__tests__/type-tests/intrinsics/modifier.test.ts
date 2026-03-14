@@ -1,4 +1,4 @@
-import Modifier from 'ember-modifier';
+import Modifier, { modifier } from 'ember-modifier';
 import { hbs } from 'ember-cli-htmlbars';
 import { typeTest } from '@glint/type-test';
 
@@ -68,6 +68,20 @@ typeTest(
       {{! @glint-expect-error: extra positional arg }}
       <canvas {{boundRender (array) "hello"}}></canvas>
     {{/let}}
+  `,
+);
+
+// Issue #812: Conditional modifier with positional args.
+// {{(if @onSelect (modifier custom "click" @onSelect))}} produced TS2589/TS2554.
+typeTest(
+  {
+    custom: modifier((_el: HTMLElement, _positional: [string, (event: Event) => void]) => {}),
+    onSelect: undefined as ((event: Event) => void) | undefined,
+  },
+  hbs`
+    <button {{(if this.onSelect (modifier this.custom "click" this.onSelect))}}>
+      test
+    </button>
   `,
 );
 
