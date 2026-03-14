@@ -298,18 +298,27 @@ export function templateToTypescript(
             `{{${formInfo.name} (${formInfo.name} ... posA posB) namedA=true namedB=true}}`,
         );
 
+        // When binding named args, emit a validation call first.
+        // validateBind uses Named/Return decomposition (which erases generic T but
+        // validates arg types), while the keyword uses Args/T holistic capture (which
+        // preserves T but can't validate). Together they provide both validation AND
+        // generic preservation (#1068).
+        if (node.hash.pairs.length > 0) {
+          mapper.text('__glintDSL__.validateBind(__glintDSL__.resolveForBind(');
+          emitExpression(node.params[0]);
+          mapper.text('), ');
+          emitArgs([], node.hash);
+          mapper.text(');');
+          mapper.newline();
+        }
+
         if (position === 'top-level') {
           mapper.text('__glintDSL__.emitContent(');
         }
 
-        // Treat the first argument to a bind-invokable expression (`{{component}}`,
-        // `{{helper}}`, etc) as special: we wrap it in a `resolve` call so that the
-        // type machinery for those helpers can always operate against the resolved value.
-        // We wrap the `resolveForBind` call in an IIFE to prevent "backpressure" in
-        // type inference from the subsequent arguments that are being passed: the bound
-        // invokable is the source of record for its own type and we don't want inference
-        // from the `resolveForBind` call to be affected by other (potentially incorrect)
-        // parameter types.
+        // The keyword call captures Args/T holistically, preserving generic type
+        // params via higher-order inference. The IIFE around resolveForBind prevents
+        // backpressure from named args affecting inference.
         mapper.text('__glintDSL__.resolve(');
         emitExpression(node.path);
         mapper.text(')((() => __glintDSL__.resolveForBind(');
