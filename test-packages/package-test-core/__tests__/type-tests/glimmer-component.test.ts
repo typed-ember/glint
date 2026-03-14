@@ -125,13 +125,10 @@ import { expectTypeOf } from 'expect-type';
 }
 
 // Issue #1068: {{component}} currying named args on generic class component.
-// The named-args overloads in BindInvokableKeyword decompose the function type
-// into separate Named/Return type params, which erases generic T. The noop
-// overload preserves T (via higher-order inference capturing the whole function
-// type as Args/T). Fix direction: replace the named-args overloads with ones
-// that capture Args/T holistically and use conditional return types for
-// pre-binding (BindNamedResult). Proven to fix #1068 but needs work on
-// double-currying edge case (see -bind-invokable.d.ts).
+// The keyword's Named/Return decomposition erases generic T. Fix: the codegen
+// emits a comma expression — the keyword call validates arg types (errors on
+// mapped positions), while bindInvokable uses Args/T holistic capture to
+// preserve T via BindNamedResult conditional return type.
 {
   class PickerOption<T> extends Component<{
     Args: { value: T; onSelect: (value: T) => void };

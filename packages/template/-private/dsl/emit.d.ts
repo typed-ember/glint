@@ -17,6 +17,7 @@ import {
   MathMlElementForTagName,
   SVGElementForTagName,
 } from './types';
+import { MaybeNamed, PrebindArgs } from '../signature';
 
 /**
  * Used during emit to denote an object literal that corresponds
@@ -186,48 +187,27 @@ export declare function noop(value: unknown): void;
  */
 type BindNamedResult<Args, T, GivenNamed> = Args extends [NamedArgs<infer Named>]
   ? (
-      ...named: import('../signature').MaybeNamed<
-        import('../signature').PrebindArgs<
-          NonNullable<Named>,
-          keyof GivenNamed & keyof UnwrapNamedArgs<Named>
-        >
+      ...named: MaybeNamed<
+        PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
       >
     ) => T
   : Args extends [NamedArgs<infer Named>?]
     ? (
-        ...named: import('../signature').MaybeNamed<
-          import('../signature').PrebindArgs<
-            NonNullable<Named>,
-            keyof GivenNamed & keyof UnwrapNamedArgs<Named>
-          >
+        ...named: MaybeNamed<
+          PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
         >
       ) => T
     : Args extends [...infer Positional, NamedArgs<infer Named>]
       ? (
           ...args: [
             ...Positional,
-            ...import('../signature').MaybeNamed<
-              import('../signature').PrebindArgs<
-                NonNullable<Named>,
-                keyof GivenNamed & keyof UnwrapNamedArgs<Named>
-              >
+            ...MaybeNamed<
+              PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
             >,
           ]
         ) => T
       : (...args: Args extends unknown[] ? Args : never) => T;
 
-export declare function bindInvokable<
-  Args extends unknown[],
-  T extends ComponentReturn<any, any>,
-  GivenNamed,
->(
-  invokable: (...args: Args) => T,
-  named: NamedArgs<GivenNamed>,
-): Invokable<BindNamedResult<Args, T, GivenNamed>>;
-export declare function bindInvokable<Args extends unknown[], T extends ModifierReturn, GivenNamed>(
-  invokable: (...args: Args) => T,
-  named: NamedArgs<GivenNamed>,
-): Invokable<BindNamedResult<Args, T, GivenNamed>>;
 export declare function bindInvokable<Args extends unknown[], T, GivenNamed>(
   invokable: (...args: Args) => T,
   named: NamedArgs<GivenNamed>,
