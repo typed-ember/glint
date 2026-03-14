@@ -1,6 +1,7 @@
 import Modifier from 'ember-modifier';
 import { hbs } from 'ember-cli-htmlbars';
 import { typeTest } from '@glint/type-test';
+import { ModifierLike } from '@glint/template';
 
 class Render3DModelModifier extends Modifier<{
   Element: HTMLCanvasElement;
@@ -67,6 +68,25 @@ typeTest(
 
       {{! @glint-expect-error: extra positional arg }}
       <canvas {{boundRender (array) "hello"}}></canvas>
+    {{/let}}
+  `,
+);
+
+// Issue #886: Modifier with only optional args should work when bound
+// with modifier keyword. Verified fixed — this test passes.
+typeTest(
+  {
+    optMod: undefined as unknown as ModifierLike<{
+      Args: { Named: { value?: string } };
+    }>,
+  },
+  hbs`
+    {{#let (modifier this.optMod value="anything") as |aModifier|}}
+      <div {{aModifier}}></div>
+    {{/let}}
+    {{#let (modifier this.optMod) as |noopMod|}}
+      <div {{noopMod}}></div>
+      <div {{noopMod value="test"}}></div>
     {{/let}}
   `,
 );
