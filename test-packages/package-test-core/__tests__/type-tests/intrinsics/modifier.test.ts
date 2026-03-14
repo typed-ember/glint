@@ -1,6 +1,7 @@
-import Modifier from 'ember-modifier';
+import Modifier, { modifier } from 'ember-modifier';
 import { hbs } from 'ember-cli-htmlbars';
 import { typeTest } from '@glint/type-test';
+import { ModifierLike } from '@glint/template';
 
 class Render3DModelModifier extends Modifier<{
   Element: HTMLCanvasElement;
@@ -70,6 +71,28 @@ typeTest(
     {{/let}}
   `,
 );
+
+// Issue #719: exact repro from the issue — modifier<Signature>(() => {})
+// with optional-only named args inside (if ... (modifier ...)).
+{
+  interface Sig719 {
+    Element: HTMLElement;
+    Args: {
+      Named: {
+        block?: ScrollLogicalPosition;
+      };
+    };
+  }
+
+  typeTest(
+    {
+      mod: modifier<Sig719>(() => {}),
+    },
+    hbs`
+      <div {{(if true (modifier this.mod block="nearest"))}}></div>
+    `,
+  );
+}
 
 // Prebinding args at different locations
 typeTest(
