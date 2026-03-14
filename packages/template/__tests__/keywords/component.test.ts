@@ -78,19 +78,11 @@ emitComponent(
   }),
 );
 
-// With the generic-preserving overloads (#1068), wrong-type args are caught
-// at invocation time rather than curry time.
-{
-  const WrongTypeCurried = componentKeyword(resolveForBind(StringComponent), {
-    value: 123,
-    ...NamedArgsMarker,
-  });
-  resolve(WrongTypeCurried)({
-    // @ts-expect-error: wrong type surfaces at invocation
-    value: 123,
-    ...NamedArgsMarker,
-  });
-}
+componentKeyword(
+  resolveForBind(StringComponent),
+  // @ts-expect-error: Attempting to curry an arg with the wrong type
+  { value: 123, ...NamedArgsMarker },
+);
 
 class ParametricComponent<T> extends TestComponent<{
   Args: { values: Array<T>; optional?: string };

@@ -7,7 +7,9 @@ import {
   HasContext,
   InvokableInstance,
   TemplateContext,
+  Invokable,
   NamedArgs,
+  UnwrapNamedArgs,
 } from '../integration';
 import {
   AttributesForElement,
@@ -173,3 +175,60 @@ export declare function applyModifier(boundModifier: ModifierReturn): void;
  * syntax.
  */
 export declare function noop(value: unknown): void;
+
+/*
+ * Pre-binds named args while preserving generic type parameters (#1068).
+ * Uses Args/T holistic capture instead of Named/Return decomposition.
+ * The keyword's old decomposing overloads validate arg types but erase T;
+ * this function preserves T but doesn't validate. The transform emits both
+ * via a comma expression so errors come from the keyword (mapped) and the
+ * result comes from here (T-preserving).
+ */
+type BindNamedResult<Args, T, GivenNamed> = Args extends [NamedArgs<infer Named>]
+  ? (
+      ...named: import('../signature').MaybeNamed<
+        import('../signature').PrebindArgs<
+          NonNullable<Named>,
+          keyof GivenNamed & keyof UnwrapNamedArgs<Named>
+        >
+      >
+    ) => T
+  : Args extends [NamedArgs<infer Named>?]
+    ? (
+        ...named: import('../signature').MaybeNamed<
+          import('../signature').PrebindArgs<
+            NonNullable<Named>,
+            keyof GivenNamed & keyof UnwrapNamedArgs<Named>
+          >
+        >
+      ) => T
+    : Args extends [...infer Positional, NamedArgs<infer Named>]
+      ? (
+          ...args: [
+            ...Positional,
+            ...import('../signature').MaybeNamed<
+              import('../signature').PrebindArgs<
+                NonNullable<Named>,
+                keyof GivenNamed & keyof UnwrapNamedArgs<Named>
+              >
+            >,
+          ]
+        ) => T
+      : (...args: Args extends unknown[] ? Args : never) => T;
+
+export declare function bindInvokable<
+  Args extends unknown[],
+  T extends ComponentReturn<any, any>,
+  GivenNamed,
+>(
+  invokable: (...args: Args) => T,
+  named: NamedArgs<GivenNamed>,
+): Invokable<BindNamedResult<Args, T, GivenNamed>>;
+export declare function bindInvokable<Args extends unknown[], T extends ModifierReturn, GivenNamed>(
+  invokable: (...args: Args) => T,
+  named: NamedArgs<GivenNamed>,
+): Invokable<BindNamedResult<Args, T, GivenNamed>>;
+export declare function bindInvokable<Args extends unknown[], T, GivenNamed>(
+  invokable: (...args: Args) => T,
+  named: NamedArgs<GivenNamed>,
+): Invokable<BindNamedResult<Args, T, GivenNamed>>;

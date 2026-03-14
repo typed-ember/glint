@@ -302,16 +302,33 @@ export function templateToTypescript(
           mapper.text('__glintDSL__.emitContent(');
         }
 
-        // Treat the first argument to a bind-invokable expression (`{{component}}`,
-        // `{{helper}}`, etc) as special: we wrap it in a `resolve` call so that the
-        // type machinery for those helpers can always operate against the resolved value.
-        mapper.text('__glintDSL__.resolve(');
-        emitExpression(node.path);
-        mapper.text(')(__glintDSL__.resolveForBind(');
-        emitExpression(node.params[0]);
-        mapper.text('), ');
-        emitArgs(node.params.slice(1), node.hash);
-        mapper.text(')');
+        if (node.hash.pairs.length > 0) {
+          // Two-stage approach for named args (#1068):
+          // 1. Keyword call with IIFE validates arg types via Named/Return
+          //    decomposition (errors surface on mapped positions). Result discarded.
+          // 2. bindInvokable uses Args/T holistic capture, preserving generic
+          //    type parameters. Result used.
+          mapper.text('(__glintDSL__.resolve(');
+          emitExpression(node.path);
+          mapper.text(')((() => __glintDSL__.resolveForBind(');
+          emitExpression(node.params[0]);
+          mapper.text('))(), ');
+          emitArgs(node.params.slice(1), node.hash);
+          mapper.text('), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(');
+          emitExpression(node.params[0]);
+          mapper.text('), ');
+          emitArgs([], node.hash);
+          mapper.text('))');
+        } else {
+          // No named args — standard keyword call (IIFE for inference isolation)
+          mapper.text('__glintDSL__.resolve(');
+          emitExpression(node.path);
+          mapper.text(')((() => __glintDSL__.resolveForBind(');
+          emitExpression(node.params[0]);
+          mapper.text('))(), ');
+          emitArgs(node.params.slice(1), node.hash);
+          mapper.text(')');
+        }
 
         if (position === 'top-level') {
           mapper.text(')');

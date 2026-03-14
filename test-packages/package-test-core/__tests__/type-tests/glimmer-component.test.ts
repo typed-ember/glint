@@ -1,5 +1,6 @@
 import Component from '@glimmer/component';
 import {
+  bindInvokable,
   emitComponent,
   NamedArgsMarker,
   resolve,
@@ -157,9 +158,9 @@ import { expectTypeOf } from 'expect-type';
         );
         expectTypeOf(component.blockParams.default[0]).toEqualTypeOf<string>();
 
-        // Named args binding — with the optional-named-args overload,
-        // T is preserved through the currying.
-        const curried = resolve(componentKw)(resolveForBind(PickerOption), {
+        // Named args binding — bindInvokable preserves T via Args/T
+        // holistic capture, while the keyword validates via comma expression.
+        const curried = bindInvokable(resolveForBind(PickerOption), {
           onSelect: __glintRef__.args.onSelect,
           ...NamedArgsMarker,
         });
