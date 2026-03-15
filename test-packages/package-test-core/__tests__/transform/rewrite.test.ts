@@ -206,7 +206,7 @@ describe('Transform: rewriteModule', () => {
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(44:59):   {{this.target}}
-        | | | |  ts(228:284):  __glintDSL__.resolveOrReturn(__glintRef__.this.target)()
+        | | | |  ts(228:282):  __glintDSL__.resolveOrReturn(__glintRef__.this.target)
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(46:57):   this.target
@@ -221,6 +221,10 @@ describe('Transform: rewriteModule', () => {
         | | | | | |  ts(275:281):  target
         | | | | | |
         | | | | |
+        | | | |
+        | | | | Mapping: MustacheStatement
+        | | | |  hbs(44:59):   {{this.target}}
+        | | | |  ts(282:284):  ()
         | | | |
         | | |
         | | | Mapping: TextContent
@@ -268,7 +272,7 @@ describe('Transform: rewriteModule', () => {
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(20:31):   {{@target}}
-        | | | |  ts(201:257):  __glintDSL__.resolveOrReturn(__glintRef__.args.target)()
+        | | | |  ts(201:255):  __glintDSL__.resolveOrReturn(__glintRef__.args.target)
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(22:29):   @target
@@ -279,6 +283,10 @@ describe('Transform: rewriteModule', () => {
         | | | | | |  ts(248:254):  target
         | | | | | |
         | | | | |
+        | | | |
+        | | | | Mapping: MustacheStatement
+        | | | |  hbs(20:31):   {{@target}}
+        | | | |  ts(255:257):  ()
         | | | |
         | | |
         | | | Mapping: TextContent
@@ -326,7 +334,7 @@ describe('Transform: rewriteModule', () => {
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(66:78):   {{@message}}
-        | | | |  ts(242:299):  __glintDSL__.resolveOrReturn(__glintRef__.args.message)()
+        | | | |  ts(242:297):  __glintDSL__.resolveOrReturn(__glintRef__.args.message)
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(68:76):   @message
@@ -337,6 +345,10 @@ describe('Transform: rewriteModule', () => {
         | | | | | |  ts(289:296):  message
         | | | | | |
         | | | | |
+        | | | |
+        | | | | Mapping: MustacheStatement
+        | | | |  hbs(66:78):   {{@message}}
+        | | | |  ts(297:299):  ()
         | | | |
         | | |
         | |
@@ -360,7 +372,7 @@ describe('Transform: rewriteModule', () => {
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(149:163): {{this.title}}
-        | | | |  ts(588:643):  __glintDSL__.resolveOrReturn(__glintRef__.this.title)()
+        | | | |  ts(588:641):  __glintDSL__.resolveOrReturn(__glintRef__.this.title)
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(151:161): this.title
@@ -375,6 +387,10 @@ describe('Transform: rewriteModule', () => {
         | | | | | |  ts(635:640):  title
         | | | | | |
         | | | | |
+        | | | |
+        | | | | Mapping: MustacheStatement
+        | | | |  hbs(149:163): {{this.title}}
+        | | | |  ts(641:643):  ()
         | | | |
         | | |
         | |
@@ -428,7 +444,7 @@ describe('Transform: rewriteModule', () => {
         | | |
         | | | | Mapping: BlockStatement
         | | | |  hbs(104:198): {{#let (arr 1 2) (h red="blue") as |arr h|}}\\n    Array is {{arr}}\\n    Hash is {{h}}\\n  {{/let}}
-        | | | |  ts(282:409):  __glintDSL__.resolve(__glintDSL__.Globals["let"])((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n})))
+        | | | |  ts(282:331):  __glintDSL__.resolve(__glintDSL__.Globals["let"])
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(107:110): let
@@ -439,6 +455,11 @@ describe('Transform: rewriteModule', () => {
         | | | | | |  ts(325:328):  let
         | | | | | |
         | | | | |
+        | | | |
+        | | | | Mapping: BlockStatement
+        | | | |  hbs(104:198): {{#let (arr 1 2) (h red="blue") as |arr h|}}\\n    Array is {{arr}}\\n    Hash is {{h}}\\n  {{/let}}
+        | | | |  ts(331:409):  ((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n})))
+        | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(112:115): arr
         | | | | |  ts(351:354):  arr
@@ -502,7 +523,7 @@ describe('Transform: rewriteModule', () => {
         | | | |
         | | | | | Mapping: MustacheStatement
         | | | | |  hbs(162:169): {{arr}}
-        | | | | |  ts(491:526):  __glintDSL__.resolveOrReturn(arr)()
+        | | | | |  ts(491:524):  __glintDSL__.resolveOrReturn(arr)
         | | | | |
         | | | | | | Mapping: PathExpression
         | | | | | |  hbs(164:167): arr
@@ -513,6 +534,10 @@ describe('Transform: rewriteModule', () => {
         | | | | | | |  ts(520:523):  arr
         | | | | | | |
         | | | | | |
+        | | | | |
+        | | | | | Mapping: MustacheStatement
+        | | | | |  hbs(162:169): {{arr}}
+        | | | | |  ts(524:526):  ()
         | | | | |
         | | | |
         | | | | Mapping: TextContent
@@ -525,7 +550,7 @@ describe('Transform: rewriteModule', () => {
         | | | |
         | | | | | Mapping: MustacheStatement
         | | | | |  hbs(182:187): {{h}}
-        | | | | |  ts(554:587):  __glintDSL__.resolveOrReturn(h)()
+        | | | | |  ts(554:585):  __glintDSL__.resolveOrReturn(h)
         | | | | |
         | | | | | | Mapping: PathExpression
         | | | | | |  hbs(184:185): h
@@ -536,6 +561,10 @@ describe('Transform: rewriteModule', () => {
         | | | | | | |  ts(583:584):  h
         | | | | | | |
         | | | | | |
+        | | | | |
+        | | | | | Mapping: MustacheStatement
+        | | | | |  hbs(182:187): {{h}}
+        | | | | |  ts(585:587):  ()
         | | | | |
         | | | |
         | | | | Mapping: TextContent

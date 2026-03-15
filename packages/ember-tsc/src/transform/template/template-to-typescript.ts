@@ -1283,7 +1283,13 @@ export function templateToTypescript(
         mapper.text(resolveType);
         mapper.text('(');
         emitExpression(node.path);
-        mapper.text(')(');
+        mapper.text(')');
+      });
+      // Map the call arguments separately so diagnostics about argument
+      // count/types (e.g. "Expected 2 arguments, but got 1") surface on
+      // the invocation node in the template.
+      mapper.forNode(node, () => {
+        mapper.text('(');
         emitArgs(node.params, node.hash);
         mapper.text(')');
       });

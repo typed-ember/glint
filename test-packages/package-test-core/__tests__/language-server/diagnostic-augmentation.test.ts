@@ -72,6 +72,37 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "category": "error",
           "code": 2554,
           "end": {
+            "line": 20,
+            "offset": 29,
+          },
+          "relatedInformation": [
+            {
+              "category": "message",
+              "code": 6210,
+              "message": "An argument for 'b' was not provided.",
+              "span": {
+                "end": {
+                  "line": 10,
+                  "offset": 45,
+                },
+                "file": "\${repoRootPath}/test-packages/ts-template-imports-app/src/empty-fixture.gts",
+                "start": {
+                  "line": 10,
+                  "offset": 36,
+                },
+              },
+            },
+          ],
+          "start": {
+            "line": 20,
+            "offset": 5,
+          },
+          "text": "Expected 2 arguments, but got 1.",
+        },
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
             "line": 21,
             "offset": 37,
           },
@@ -93,6 +124,37 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "offset": 30,
           },
           "text": "Expected 2 arguments, but got 3. Note that named args are passed together as a final argument, so they collectively increase the given arg count by 1.",
+        },
+        {
+          "category": "error",
+          "code": 2555,
+          "end": {
+            "line": 23,
+            "offset": 29,
+          },
+          "relatedInformation": [
+            {
+              "category": "message",
+              "code": 6210,
+              "message": "An argument for 'a' was not provided.",
+              "span": {
+                "end": {
+                  "line": 14,
+                  "offset": 40,
+                },
+                "file": "\${repoRootPath}/test-packages/ts-template-imports-app/src/empty-fixture.gts",
+                "start": {
+                  "line": 14,
+                  "offset": 31,
+                },
+              },
+            },
+          ],
+          "start": {
+            "line": 23,
+            "offset": 5,
+          },
+          "text": "Expected at least 1 arguments, but got 0.",
         },
         {
           "category": "error",
