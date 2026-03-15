@@ -963,7 +963,14 @@ export function templateToTypescript(
             mapper.text(')');
           });
 
-          mapper.text('(__glintY__.element, ');
+          mapper.text('(');
+          // Map __glintY__.element to the modifier node so that element
+          // constraint diagnostics (e.g. applying a HTMLCanvasElement modifier
+          // to a <div>) surface on the modifier in the template.
+          mapper.forNode(modifier, () => {
+            mapper.text('__glintY__.element');
+          });
+          mapper.text(', ');
           emitArgs(modifier.params, modifier.hash);
           mapper.text('));');
           mapper.newline();

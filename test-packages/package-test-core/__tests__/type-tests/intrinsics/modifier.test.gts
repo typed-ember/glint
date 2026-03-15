@@ -16,7 +16,7 @@ const NoopBindingTest = <template>
   {{#let (modifier Render3DModelModifier) as |noopRender|}}
     <canvas {{noopRender (array) origin=(hash x=0 y=0)}}></canvas>
 
-    {{! BUG: should error (wrong element type) but doesn't — fixed in next commit }}
+    {{! @glint-expect-error: wrong element type }}
     <div {{noopRender (array) origin=(hash x=0 y=0)}}></div>
   {{/let}}
 </template>;
@@ -26,7 +26,7 @@ const PreBoundPositionalTest = <template>
   {{#let (modifier Render3DModelModifier (array)) as |boundRender|}}
     <canvas {{boundRender origin=(hash x=0 y=0)}}></canvas>
 
-    {{! BUG: should error (wrong element type) but doesn't — fixed in next commit }}
+    {{! @glint-expect-error: wrong element type }}
     <div {{boundRender origin=(hash x=0 y=0)}}></div>
   {{/let}}
 </template>;
