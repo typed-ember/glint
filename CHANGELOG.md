@@ -1,5 +1,21 @@
 # Changelog
 
+## Release (2026-03-15)
+
+* @glint/ember-tsc 1.2.3 (patch)
+* @glint/template 1.7.7 (patch)
+* @glint/tsserver-plugin 2.2.4 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`, `@glint/template`
+  * [#1078](https://github.com/typed-ember/glint/pull/1078) [BUGFIX]: preserve generic type params when currying components with named args (#1068)   ([@johanrd](https://github.com/johanrd))
+
+#### :house: Internal
+* [#1080](https://github.com/typed-ember/glint/pull/1080) test(#719): optional modifier with modifier helper — verified fixed ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- [@johanrd](https://github.com/johanrd)
+
 ## Release (2026-03-11)
 
 * @glint/ember-tsc 1.2.2 (patch)
