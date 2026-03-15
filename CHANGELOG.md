@@ -1,5 +1,29 @@
 # Changelog
 
+## Release (2026-03-15)
+
+* @glint/ember-tsc 1.2.3 (patch)
+* @glint/template 1.7.7 (patch)
+* @glint/tsserver-plugin 2.2.4 (patch)
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#1077](https://github.com/typed-ember/glint/pull/1077) [BUGFIX] preserve conditional Element types in generic component signatures (#610) ([@johanrd](https://github.com/johanrd))
+* `@glint/ember-tsc`
+  * [#1087](https://github.com/typed-ember/glint/pull/1087) Convert intrinsic type tests to .gts, fix modifier element constraint diagnostic ([@johanrd](https://github.com/johanrd))
+* `@glint/ember-tsc`, `@glint/template`
+  * [#1078](https://github.com/typed-ember/glint/pull/1078) [BUGFIX]: preserve generic type params when currying components with named args (#1068)   ([@johanrd](https://github.com/johanrd))
+
+#### :house: Internal
+* `@glint/template`
+  * [#1084](https://github.com/typed-ember/glint/pull/1084) test(#1055): SVG child element types — passing test / verified fixed on v2 ([@johanrd](https://github.com/johanrd))
+* Other
+  * [#1085](https://github.com/typed-ember/glint/pull/1085) test(#756): unicode in non-last template — passing test / verified fixed on v2 ([@johanrd](https://github.com/johanrd))
+  * [#1080](https://github.com/typed-ember/glint/pull/1080) test(#719): optional modifier with modifier helper — verified fixed ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- [@johanrd](https://github.com/johanrd)
+
 ## Release (2026-03-11)
 
 * @glint/ember-tsc 1.2.2 (patch)
