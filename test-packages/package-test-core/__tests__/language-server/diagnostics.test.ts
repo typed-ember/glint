@@ -963,4 +963,32 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     );
     expect(templateTypeDiagnostics).toEqual([]);
   });
+
+  test('generic component with conditional Element type (#610)', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+      import type { ComponentLike } from '@glint/template';
+
+      type ElementFromTagName<T extends string> = T extends keyof HTMLElementTagNameMap
+        ? HTMLElementTagNameMap[T]
+        : Element;
+
+      class ElementReceiver<T extends string> extends Component<{
+        Element: ElementFromTagName<T>;
+        Args: { tag: ComponentLike<{ Element: ElementFromTagName<T> }> };
+      }> {
+        <template>
+          <@tag ...attributes />
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
 });
