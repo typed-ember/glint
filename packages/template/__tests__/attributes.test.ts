@@ -6,6 +6,7 @@ import {
   applySplattributes,
   emitComponent,
   emitElement,
+  emitSVGElement,
   resolve,
   templateForBackingValue,
 } from '../-private/dsl';
@@ -255,6 +256,22 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
     // @ts-expect-error: properties are typed, and indeterminate must be a number
     length: '10',
   });
+}
+
+// Issue #1055: SVG child elements should have correct element types
+// (Verified fixed in V2 - emitSVGElement correctly resolves SVG child element types)
+{
+  const text = emitSVGElement('text');
+  expectTypeOf(text).toEqualTypeOf<{ element: SVGTextElement }>();
+
+  const rect = emitSVGElement('rect');
+  expectTypeOf(rect).toEqualTypeOf<{ element: SVGRectElement }>();
+
+  const circle = emitSVGElement('circle');
+  expectTypeOf(circle).toEqualTypeOf<{ element: SVGCircleElement }>();
+
+  const path = emitSVGElement('path');
+  expectTypeOf(path).toEqualTypeOf<{ element: SVGPathElement }>();
 }
 
 {
