@@ -187,7 +187,7 @@ export declare function noop(value: unknown): void;
  */
 type BindNamedResult<Args, T, GivenNamed> =
   // Named-only args (required or optional — handles double-currying)
-  Args extends [(NamedArgs<infer Named>)?]
+  Args extends [NamedArgs<infer Named>?]
     ? (
         ...named: MaybeNamed<
           PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
