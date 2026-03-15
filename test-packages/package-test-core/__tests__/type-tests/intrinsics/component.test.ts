@@ -174,3 +174,25 @@ typeTest(
     {{/let}}
   `,
 );
+
+// Issue #661: WithBoundArgs with ModifierLike arg — verified fixed.
+// Currying named args including ModifierLike no longer causes TS2589.
+typeTest(
+  {
+    TriggerComponent: class extends Component<{
+      Element: HTMLButtonElement;
+      Args: {
+        menu: { isOpen: boolean };
+        trigger: ModifierLike<{ Element: HTMLButtonElement }>;
+      };
+      Blocks: { default: [] };
+    }> {},
+    menu: { isOpen: false },
+    triggerMod: undefined as unknown as ModifierLike<{ Element: HTMLButtonElement }>,
+  },
+  hbs`
+    {{#let (component this.TriggerComponent menu=this.menu trigger=this.triggerMod) as |Bound|}}
+      <Bound />
+    {{/let}}
+  `,
+);
