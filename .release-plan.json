@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.2.1",
-      "newVersion": "1.2.2",
+      "oldVersion": "1.2.2",
+      "newVersion": "1.2.3",
       "tagName": "latest",
       "constraints": [
         {
@@ -19,8 +19,8 @@
     },
     "@glint/template": {
       "impact": "patch",
-      "oldVersion": "1.7.5",
-      "newVersion": "1.7.6",
+      "oldVersion": "1.7.6",
+      "newVersion": "1.7.7",
       "tagName": "latest",
       "constraints": [
         {
@@ -32,34 +32,20 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.2.2",
-      "newVersion": "2.2.3",
+      "oldVersion": "2.2.3",
+      "newVersion": "2.2.4",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
     },
     "@glint/type-test": {
-      "impact": "patch",
-      "oldVersion": "2.0.0",
-      "newVersion": "2.0.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
-        }
-      ],
-      "pkgJSONPath": "./packages/type-test/package.json"
+      "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-03-11)\n\n* @glint/ember-tsc 1.2.2 (patch)\n* @glint/template 1.7.6 (patch)\n* @glint/tsserver-plugin 2.2.3 (patch)\n* @glint/type-test 2.0.1 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`, `@glint/type-test`\n  * [#1073](https://github.com/typed-ember/glint/pull/1073) Fix release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* [#1071](https://github.com/typed-ember/glint/pull/1071) Remove unstable publishing infra ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-03-15)\n\n* @glint/ember-tsc 1.2.3 (patch)\n* @glint/template 1.7.7 (patch)\n* @glint/tsserver-plugin 2.2.4 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`, `@glint/template`\n  * [#1078](https://github.com/typed-ember/glint/pull/1078) [BUGFIX]: preserve generic type params when currying components with named args (#1068)   ([@johanrd](https://github.com/johanrd))\n\n#### :house: Internal\n* [#1080](https://github.com/typed-ember/glint/pull/1080) test(#719): optional modifier with modifier helper — verified fixed ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- [@johanrd](https://github.com/johanrd)\n"
 }
