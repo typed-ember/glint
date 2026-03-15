@@ -302,21 +302,32 @@ export function templateToTypescript(
           mapper.text('__glintDSL__.emitContent(');
         }
 
-        // Treat the first argument to a bind-invokable expression (`{{component}}`,
-        // `{{helper}}`, etc) as special: we wrap it in a `resolve` call so that the
-        // type machinery for those helpers can always operate against the resolved value.
-        // We wrap the `resolveForBind` call in an IIFE to prevent "backpressure" in
-        // type inference from the subsequent arguments that are being passed: the bound
-        // invokable is the source of record for its own type and we don't want inference
-        // from the `resolveForBind` call to be affected by other (potentially incorrect)
-        // parameter types.
-        mapper.text('__glintDSL__.resolve(');
-        emitExpression(node.path);
-        mapper.text(')((() => __glintDSL__.resolveForBind(');
-        emitExpression(node.params[0]);
-        mapper.text('))(), ');
-        emitArgs(node.params.slice(1), node.hash);
-        mapper.text(')');
+        // Emit the keyword call (with IIFE to isolate inference). This
+        // validates arg types via Named/Return decomposition.
+        function emitKeywordCall(): void {
+          mapper.text('__glintDSL__.resolve(');
+          emitExpression(node.path);
+          mapper.text(')((() => __glintDSL__.resolveForBind(');
+          emitExpression(node.params[0]);
+          mapper.text('))(), ');
+          emitArgs(node.params.slice(1), node.hash);
+          mapper.text(')');
+        }
+
+        if (node.hash.pairs.length > 0) {
+          // Two-stage comma expression (#1068): the keyword call validates
+          // arg types (result discarded), while bindInvokable preserves
+          // generic type parameters via Args/T holistic capture (result used).
+          mapper.text('(');
+          emitKeywordCall();
+          mapper.text(', __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(');
+          emitExpression(node.params[0]);
+          mapper.text('), ');
+          emitArgs([], node.hash);
+          mapper.text('))');
+        } else {
+          emitKeywordCall();
+        }
 
         if (position === 'top-level') {
           mapper.text(')');

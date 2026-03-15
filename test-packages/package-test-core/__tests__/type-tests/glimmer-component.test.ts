@@ -1,12 +1,14 @@
 import Component from '@glimmer/component';
 import {
+  bindInvokable,
   emitComponent,
   NamedArgsMarker,
   resolve,
+  resolveForBind,
   templateForBackingValue,
   yieldToBlock,
 } from '@glint/ember-tsc/-private/dsl';
-import { ComponentLike } from '@glint/template';
+import { ComponentLike, WithBoundArgs } from '@glint/template';
 import { expectTypeOf } from 'expect-type';
 
 {
@@ -120,6 +122,51 @@ import { expectTypeOf } from 'expect-type';
       expectTypeOf(args).toEqualTypeOf<[]>();
     }
   }
+}
+
+// Issue #1068: {{component}} currying named args on generic class component.
+// The keyword's Named/Return decomposition erases generic T. Fix: the codegen
+// emits a comma expression — the keyword call validates arg types (errors on
+// mapped positions), while bindInvokable uses Args/T holistic capture to
+// preserve T via BindNamedResult conditional return type.
+{
+  class PickerOption<T> extends Component<{
+    Args: { value: T; onSelect: (value: T) => void };
+    Blocks: { default: [T] };
+  }> {}
+
+  class Picker<T> extends Component<{
+    Args: { onSelect: (value: T) => void };
+    Blocks: { default: [WithBoundArgs<typeof PickerOption, 'onSelect'>] };
+  }> {
+    static {
+      templateForBackingValue(this, function (__glintRef__) {
+        const componentKw =
+          undefined as unknown as import('@glint/template/-private/keywords/component').ComponentKeyword;
+
+        // Noop binding DOES preserve T
+        const noopCurried = resolve(componentKw)(resolveForBind(PickerOption));
+        const component = emitComponent(
+          resolve(noopCurried)({
+            value: 'test',
+            onSelect: (v) => {},
+            ...NamedArgsMarker,
+          }),
+        );
+        expectTypeOf(component.blockParams.default[0]).toEqualTypeOf<string>();
+
+        // Named args binding — bindInvokable preserves T via Args/T
+        // holistic capture, while the keyword validates via comma expression.
+        const curried = bindInvokable(resolveForBind(PickerOption), {
+          onSelect: __glintRef__.args.onSelect,
+          ...NamedArgsMarker,
+        });
+        yieldToBlock(__glintRef__, 'default')(curried);
+      });
+    }
+  }
+
+  emitComponent(resolve(Picker)({ onSelect: (v: string) => {}, ...NamedArgsMarker }));
 }
 
 // Components are `ComponentLike`

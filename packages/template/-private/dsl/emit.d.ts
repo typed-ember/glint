@@ -7,7 +7,9 @@ import {
   HasContext,
   InvokableInstance,
   TemplateContext,
+  Invokable,
   NamedArgs,
+  UnwrapNamedArgs,
 } from '../integration';
 import {
   AttributesForElement,
@@ -15,6 +17,7 @@ import {
   MathMlElementForTagName,
   SVGElementForTagName,
 } from './types';
+import { MaybeNamed, PrebindArgs } from '../signature';
 
 /**
  * Used during emit to denote an object literal that corresponds
@@ -173,3 +176,36 @@ export declare function applyModifier(boundModifier: ModifierReturn): void;
  * syntax.
  */
 export declare function noop(value: unknown): void;
+
+/*
+ * Pre-binds named args while preserving generic type parameters (#1068).
+ * Uses Args/T holistic capture instead of Named/Return decomposition.
+ * The keyword's old decomposing overloads validate arg types but erase T;
+ * this function preserves T but doesn't validate. The transform emits both
+ * via a comma expression so errors come from the keyword (mapped) and the
+ * result comes from here (T-preserving).
+ */
+type BindNamedResult<Args, T, GivenNamed> =
+  // Named-only args (required or optional — handles double-currying)
+  Args extends [NamedArgs<infer Named>?]
+    ? (
+        ...named: MaybeNamed<
+          PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
+        >
+      ) => T
+    : // Positional + named args
+      Args extends [...infer Positional, NamedArgs<infer Named>]
+      ? (
+          ...args: [
+            ...Positional,
+            ...MaybeNamed<
+              PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
+            >,
+          ]
+        ) => T
+      : (...args: Args extends unknown[] ? Args : never) => T;
+
+export declare function bindInvokable<Args extends unknown[], T, GivenNamed>(
+  invokable: (...args: Args) => T,
+  named: NamedArgs<GivenNamed>,
+): Invokable<BindNamedResult<Args, T, GivenNamed>>;
