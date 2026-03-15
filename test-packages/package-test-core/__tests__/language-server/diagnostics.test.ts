@@ -973,12 +973,28 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
         ? HTMLElementTagNameMap[T]
         : Element;
 
+      class DivTag extends Component<{
+        Element: HTMLDivElement;
+        Blocks: { default: [] };
+      }> {
+        <template><div ...attributes>{{yield}}</div></template>
+      }
+
       class ElementReceiver<T extends string> extends Component<{
         Element: ElementFromTagName<T>;
         Args: { tag: ComponentLike<{ Element: ElementFromTagName<T> }> };
       }> {
         <template>
           <@tag ...attributes />
+        </template>
+      }
+
+      // Consumer uses ElementReceiver and passes HTML attributes.
+      // If Element resolved to unknown (the bug), class="test" would produce
+      // error 2345: "An Element must be specified in the component signature".
+      class Consumer extends Component {
+        <template>
+          <ElementReceiver @tag={{DivTag}} class="test" />
         </template>
       }
     `;
