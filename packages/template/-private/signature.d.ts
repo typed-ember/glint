@@ -44,8 +44,14 @@ export type ComponentSignatureBlocks<S> = S extends { Blocks: infer Blocks }
   : {};
 
 /** Given a component signature `S`, get back the `Element` type. */
+// The original `NonNullable<Element> extends never` check deferred for generic
+// conditional types like ElementFromTagName<T>, collapsing them to unknown
+// (#610). Using `Element extends null` instead only fires for literal null
+// (preserving null → unknown for ComponentLike equivalence) without breaking
+// conditional types — TypeScript can verify the deferred result still extends
+// Element because neither branch of ElementFromTagName<T> is null.
 export type ComponentSignatureElement<S> = S extends { Element: infer Element }
-  ? NonNullable<Element> extends never
+  ? Element extends null
     ? unknown
     : Element
   : unknown;
