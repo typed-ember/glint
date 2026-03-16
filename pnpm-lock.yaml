@@ -111,7 +111,7 @@ importers:
         specifier: ~2.4.28
         version: 2.4.28
       content-tag:
-        specifier: ^4.1.0
+        specifier: 4.1.0
         version: 4.1.0(patch_hash=ae91270931742cc84447be07d44f63ec6717b5679e5bb040411f8e60e00f64a1)
       silent-error:
         specifier: ^1.1.1
