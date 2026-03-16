@@ -10,6 +10,8 @@ import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescr
 import { URI } from 'vscode-uri';
 import { ConfigLoader } from '../config/loader.js';
 import { create as createCompilerErrorsPlugin } from '../plugins/g-compiler-errors.js';
+import { create as createComponentHoverPlugin } from '../plugins/g-component-hover.js';
+import type { ComponentMeta, TsPluginClient } from '../plugins/g-component-hover.js';
 import { create as createTemplateTagSymbolsPlugin } from '../plugins/g-template-tag-symbols.js';
 import { createEmberLanguagePlugin } from './ember-language-plugin.js';
 
@@ -114,18 +116,13 @@ connection.onInitialize((params) => {
       },
     },
     getHybridModeLanguageServicePluginsForLanguageServer({
-      // TODO: Implement Glint-specific tsserver requests similar to Vue
-      // For now, keeping the basic structure ready for future implementation
-      // getQuickInfoAtPosition(...args) {
-      //   return sendTsServerRequest('_glint:quickinfo', args);
-      // },
-      // getDocumentHighlights(...args) {
-      //   return sendTsServerRequest('_glint:documentHighlights-full', args);
-      // },
-      // getEncodedSemanticClassifications(...args) {
-      //   return sendTsServerRequest('_glint:encodedSemanticClassifications-full', args);
-      // },
-    }),
+      async getComponentMeta(fileName: string, tagName: string): Promise<ComponentMeta | null> {
+        return sendTsServerRequest<ComponentMeta | null>('_glint:getComponentMeta', {
+          file: fileName,
+          tagName,
+        });
+      },
+    } satisfies TsPluginClient),
   );
 
   async function sendTsServerRequest<T>(command: string, args: any): Promise<T | null> {
@@ -182,13 +179,13 @@ connection.onInitialized(server.initialized);
 connection.onShutdown(server.shutdown);
 
 function getHybridModeLanguageServicePluginsForLanguageServer(
-  tsPluginClient: any = {}, // Glint's equivalent to Vue's tsPluginClient
+  tsPluginClient: TsPluginClient,
 ): LanguageServicePlugin<any>[] {
   const plugins = [
     // Lightweight syntax-only TS Language Service. Provides Symbols (e.g. Outline view) and other features.
     createTypeScriptSyntacticPlugin(ts),
     createHtmlSyntacticPlugin(),
-    ...getCommonLanguageServicePluginsForLanguageServer(() => tsPluginClient),
+    ...getCommonLanguageServicePluginsForLanguageServer(tsPluginClient),
   ];
   for (const plugin of plugins) {
     // avoid affecting TS plugin
@@ -198,7 +195,11 @@ function getHybridModeLanguageServicePluginsForLanguageServer(
 }
 
 function getCommonLanguageServicePluginsForLanguageServer(
-  getTsPluginClient: (context: LanguageServiceContext) => any,
+  tsPluginClient: TsPluginClient,
 ): LanguageServicePlugin[] {
-  return [createTemplateTagSymbolsPlugin(), createCompilerErrorsPlugin()];
+  return [
+    createTemplateTagSymbolsPlugin(),
+    createCompilerErrorsPlugin(),
+    createComponentHoverPlugin(() => tsPluginClient),
+  ];
 }
