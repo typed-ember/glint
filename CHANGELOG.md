@@ -1,5 +1,23 @@
 # Changelog
 
+## Release (2026-03-16)
+
+* @glint/ember-tsc 1.3.0 (minor)
+* @glint/tsserver-plugin 2.3.0 (minor)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`, `@glint/tsserver-plugin`
+  * [#1088](https://github.com/typed-ember/glint/pull/1088) feat: show component signature on hover (Args, Blocks, Element) ([@johanrd](https://github.com/johanrd))
+* `@glint/ember-tsc`
+  * [#1089](https://github.com/typed-ember/glint/pull/1089) Augment modifier error when component signature is missing Element ([@johanrd](https://github.com/johanrd))
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1090](https://github.com/typed-ember/glint/pull/1090) Fix `...attributes` error when component signature is missing `Element` in Signature ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- [@johanrd](https://github.com/johanrd)
+
 ## Release (2026-03-15)
 
 * @glint/ember-tsc 1.2.3 (patch)
