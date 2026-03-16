@@ -106,19 +106,20 @@ function checkAssignabilityError(
 ): Diagnostic | undefined {
   let node = mapping.sourceNode;
 
-  // When a modifier requires a specific Element type but the component's signature
-  // doesn't specify one, the element type defaults to `unknown`, producing a confusing
-  // "Argument of type 'unknown' is not assignable to parameter of type 'SomeElement'" error.
+  // When a modifier requires a specific Element type (TS2322/TS2345) but the component's
+  // signature doesn't specify one, the element type defaults to `unknown`, producing a
+  // confusing "Argument of type 'unknown' is not assignable to parameter of type
+  // 'SomeElement'" error.
   if (node.type === 'ElementModifierStatement') {
     let messageText =
       typeof diagnostic.messageText === 'string'
         ? diagnostic.messageText
         : diagnostic.messageText.messageText;
     if (messageText.includes("type 'unknown'")) {
-      let expectedType = messageText.match(/type '(HTML\w+|SVG\w+|Element)'/)?.[1] ?? 'Element';
       return addGlintDetails(
         diagnostic,
-        `An Element must be specified in the component signature in order to use modifiers that require a specific element type, e.g. \`interface Signature { Element: ${expectedType}; ... }\`.`,
+        'An Element must be specified in the component signature in order to use modifiers that require a specific element type, ' +
+          'e.g. `interface Signature { Element: HTMLElement; ... }`.',
       );
     }
   }
