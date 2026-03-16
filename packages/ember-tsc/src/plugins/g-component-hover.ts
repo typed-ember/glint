@@ -143,13 +143,16 @@ function formatComponentHover(tagName: string, meta: ComponentMeta): string | nu
     for (const arg of meta.args) {
       const opt = arg.required ? '' : '?';
       const deprecatedTag = arg.tags.find((t) => t.name === 'deprecated');
-      let comment = '';
       if (deprecatedTag) {
-        comment = ` // @deprecated${deprecatedTag.text ? ` ${deprecatedTag.text}` : ''}`;
-      } else if (arg.description) {
-        comment = ` // ${arg.description}`;
+        // Close the code block, render with strikethrough, reopen
+        const reason = deprecatedTag.text ? ` ${deprecatedTag.text}` : '';
+        lines.push('```');
+        lines.push(`&ensp;&ensp;&ensp;&ensp;~~\`${arg.name}${opt}: ${arg.type}\`~~ *@deprecated${reason}*`);
+        lines.push('```typescript');
+      } else {
+        const comment = arg.description ? ` // ${arg.description}` : '';
+        lines.push(`    ${arg.name}${opt}: ${arg.type}${comment}`);
       }
-      lines.push(`    ${arg.name}${opt}: ${arg.type}${comment}`);
     }
     lines.push('  }');
   }
