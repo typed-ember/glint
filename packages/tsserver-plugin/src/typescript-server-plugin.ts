@@ -337,6 +337,7 @@ interface ComponentMeta {
   }>;
   blocks: Array<{ name: string; params: string }>;
   element: string | null;
+  description: string;
 }
 
 function getComponentMetaForTag(
@@ -381,8 +382,16 @@ function extractComponentMeta(
   checker: ts.TypeChecker,
   symbol: ts.Symbol,
 ): ComponentMeta | null {
+  // Resolve through import aliases to find the original declaration's JSDoc.
+  let resolvedSymbol = symbol;
+  while (resolvedSymbol.flags & ts.SymbolFlags.Alias) {
+    resolvedSymbol = checker.getAliasedSymbol(resolvedSymbol);
+  }
+  const description = ts.displayPartsToString(resolvedSymbol.getDocumentationComment(checker));
+
   // Path 1: Class-backed component — e.g. `class Foo extends Component<Sig>`
   // The declared type's base class chain contains the Signature as a type argument.
+  // Don't fall back to the class's own JSDoc here — TypeScript's hover already shows it.
   const declaredType = checker.getDeclaredTypeOfSymbol(symbol);
   const signatureType = findSignatureType(ts, checker, declaredType);
   if (signatureType) {
@@ -403,13 +412,19 @@ function extractComponentMeta(
     const sig = findSignatureType(ts, checker, instanceType);
     if (sig) {
       const meta = buildMeta(ts, checker, sig, SIGNATURE_KEYS);
-      if (meta.args.length > 0 || meta.blocks.length > 0) return meta;
+      if (meta.args.length > 0 || meta.blocks.length > 0) {
+        if (!meta.description) meta.description = description;
+        return meta;
+      }
     }
 
     // The instance may directly have TemplateContext shape (lowercase args/blocks/element)
     if (instanceType.getProperty('args') || instanceType.getProperty('blocks')) {
       const meta = buildMeta(ts, checker, instanceType, CONTEXT_KEYS);
-      if (meta.args.length > 0 || meta.blocks.length > 0) return meta;
+      if (meta.args.length > 0 || meta.blocks.length > 0) {
+        if (!meta.description) meta.description = description;
+        return meta;
+      }
     }
 
     // Or the TemplateContext is behind a [Context] symbol property (from HasContext<Ctx>)
@@ -418,7 +433,24 @@ function extractComponentMeta(
         const contextType = getPropertyType(checker, prop);
         if (contextType && (contextType.getProperty('args') || contextType.getProperty('blocks'))) {
           const meta = buildMeta(ts, checker, contextType, CONTEXT_KEYS);
-          if (meta.args.length > 0 || meta.blocks.length > 0) return meta;
+          if (meta.args.length > 0 || meta.blocks.length > 0) {
+            // For template-only: try to find the Signature interface's JSDoc
+            // via aliasTypeArguments on the ComponentContext type alias
+            if (!meta.description) {
+              const aliasArgs = (contextType as any).aliasTypeArguments as ts.Type[] | undefined;
+              if (aliasArgs) {
+                for (const arg of aliasArgs) {
+                  const argDoc = arg.getSymbol()?.getDocumentationComment(checker);
+                  if (argDoc && argDoc.length > 0) {
+                    meta.description = ts.displayPartsToString(argDoc);
+                    break;
+                  }
+                }
+              }
+            }
+            if (!meta.description) meta.description = description;
+            return meta;
+          }
         }
       }
     }
@@ -483,7 +515,16 @@ function buildMeta(
   type: ts.Type,
   keys: { args: string; blocks: string; element: string },
 ): ComponentMeta {
-  const meta: ComponentMeta = { args: [], blocks: [], element: null };
+  const meta: ComponentMeta = { args: [], blocks: [], element: null, description: '' };
+
+  // Try to get JSDoc from the type's own symbol (e.g. the Signature interface)
+  const typeSymbol = type.getSymbol();
+  if (typeSymbol) {
+    const typeDoc = typeSymbol.getDocumentationComment(checker);
+    if (typeDoc.length > 0) {
+      meta.description = ts.displayPartsToString(typeDoc);
+    }
+  }
 
   // Extract args
   const argsProp = type.getProperty(keys.args);
