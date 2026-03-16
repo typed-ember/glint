@@ -1,0 +1,13 @@
+diff --git a/index.d.cts b/index.d.cts
+index 9d23ff1971705ccda503abe4cfe5b635c0d3bfaa..98f941ee39920f26717a78a1438754a3484f748e 100644
+--- a/index.d.cts
++++ b/index.d.cts
+@@ -8,6 +8,8 @@ interface Range {
+   endByte: number;
+   startChar: number;
+   endChar: number;
++  startUtf16Codepoint: number;
++  endUtf16Codepoint: number;
+ }
+ 
+ interface Parsed {

@@ -56,6 +56,9 @@
         "@babel/core",
         "rsvp"
       ]
+    },
+    "patchedDependencies": {
+      "content-tag@4.1.0": "patches/content-tag@4.1.0.patch"
     }
   },
   "devDependencies:notes": {
