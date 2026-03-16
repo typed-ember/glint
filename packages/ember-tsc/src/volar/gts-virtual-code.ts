@@ -2,7 +2,7 @@ import { CodeInformation, CodeMapping, VirtualCode } from '@volar/language-core'
 import type ts from 'typescript';
 import { IScriptSnapshot } from 'typescript';
 import { GlintConfig } from '../index.js';
-import { Directive, rewriteModule } from '../transform/index.js';
+import { Directive, rewriteModule, type TemplateContext } from '../transform/index.js';
 import { ScriptSnapshot } from './script-snapshot.js';
 export type TS = typeof ts;
 
@@ -78,6 +78,7 @@ export class VirtualGtsCode implements VirtualCode {
   mappings: CodeMapping[] = [];
 
   transformedModule: ReturnType<typeof rewriteModule> | null = null;
+  private templateContexts: TemplateContext[] = [];
 
   constructor(
     private glintConfig: GlintConfig,
@@ -144,6 +145,7 @@ export class VirtualGtsCode implements VirtualCode {
       { script },
       this.glintConfig.environment,
       this.clientId,
+      this.templateContexts,
     );
 
     this.transformedModule = transformedModule;
