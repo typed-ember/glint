@@ -381,7 +381,9 @@ function extractComponentMeta(
 
   // Path 1: Class-backed component — e.g. `class Foo extends Component<Sig>`
   // The declared type's base class chain contains the Signature as a type argument.
-  // Don't fall back to the class's own JSDoc here — TypeScript's hover already shows it.
+  // We don't fall back to the class's own JSDoc (via `description`) because TypeScript's
+  // own hover already shows it — Volar combines both hover results, so it would duplicate.
+  // If the Signature *interface* has JSDoc, buildMeta picks it up via type.getSymbol().
   const declaredType = checker.getDeclaredTypeOfSymbol(symbol);
   const signatureType = findSignatureType(ts, checker, declaredType);
   if (signatureType) {
@@ -454,7 +456,11 @@ function findSignatureType(
   ts: typeof import('typescript'),
   checker: ts.TypeChecker,
   type: ts.Type,
+  visited: Set<ts.Type> = new Set(),
 ): ts.Type | null {
+  if (visited.has(type)) return null;
+  visited.add(type);
+
   // Check if this type itself has Args/Blocks/Element (it IS the signature)
   if (type.getProperty('Args') || type.getProperty('Blocks') || type.getProperty('Element')) {
     return type;
@@ -472,7 +478,7 @@ function findSignatureType(
           }
         }
       }
-      const nested = findSignatureType(ts, checker, base);
+      const nested = findSignatureType(ts, checker, base, visited);
       if (nested) return nested;
     }
   }
