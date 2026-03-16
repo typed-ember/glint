@@ -499,6 +499,40 @@ describe('Language Server: Diagnostic Augmentation', () => {
     expect(mismatch.length).toBeGreaterThan(0);
   });
 
+  test('...attributes on class component without Element in signature', async () => {
+    let diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      stripIndent`
+        import Component from '@glimmer/component';
+
+        interface NoElementSignature {
+          Args: {};
+        }
+
+        class MyComponent extends Component<NoElementSignature> {
+          <template>
+            <div ...attributes>hello</div>
+          </template>
+        }
+      `,
+    );
+
+    let augmented = diagnostics.filter((d: any) =>
+      d.text.includes(
+        'An Element must be specified in the component signature in order to use ...attributes',
+      ),
+    );
+    expect(augmented.length).toBeGreaterThan(0);
+    expect(augmented[0].text).toContain(
+      'e.g. `interface Signature { Element: HTMLDivElement; ... }`.',
+    );
+    // Verify the original TS error is preserved
+    expect(augmented[0].text).toContain(
+      "Argument of type 'unknown' is not assignable to parameter of type 'Element'.",
+    );
+  });
+
   // Not sure why this isn't firing...
   test.skip('`noPropertyAccessFromIndexSignature` violation', async () => {
     let diagnostics = await requestTsserverDiagnostics(

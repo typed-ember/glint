@@ -164,6 +164,24 @@ function checkAssignabilityError(
       'An Element must be specified in the component signature in order to pass in HTML attributes.',
     );
   } else if (
+    node.type === 'AttrNode' &&
+    parentNode.type === 'ElementNode' &&
+    node.name === '...attributes'
+  ) {
+    // When ...attributes is used inside a component whose signature doesn't specify
+    // Element, the element type defaults to `unknown`, producing a confusing error.
+    let messageText =
+      typeof diagnostic.messageText === 'string'
+        ? diagnostic.messageText
+        : diagnostic.messageText.messageText;
+    if (messageText.includes("type 'unknown'")) {
+      return addGlintDetails(
+        diagnostic,
+        'An Element must be specified in the component signature in order to use ...attributes, ' +
+          'e.g. `interface Signature { Element: HTMLDivElement; ... }`.',
+      );
+    }
+  } else if (
     node.type === 'MustacheStatement' &&
     (parentNode.type === 'Template' ||
       parentNode.type === 'BlockStatement' ||

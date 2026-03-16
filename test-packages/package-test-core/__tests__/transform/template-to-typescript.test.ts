@@ -990,6 +990,27 @@ describe('Transform: rewriteTemplate', () => {
         }"
       `);
     });
+
+    test('splattributes: diagnostic on __glintRef__.element maps back to ...attributes', () => {
+      let template = '<div ...attributes></div>';
+      let { result } = templateToTypescript(template, { typesModule: '@glint/template' });
+      let code = result!.code;
+
+      // Find the TS offset of `__glintRef__.element` within applySplattributes(...)
+      let refElementStart = code.indexOf('__glintRef__.element');
+      let refElementEnd = refElementStart + '__glintRef__.element'.length;
+
+      // When TS reports a diagnostic on __glintRef__.element (e.g. "unknown is not
+      // assignable to Element"), the mapping tree should resolve it back to ...attributes
+      let mapping = result!.mapping.narrowestMappingForTransformedRange({
+        start: refElementStart,
+        end: refElementEnd,
+      });
+
+      expect(template.slice(mapping!.originalRange.start, mapping!.originalRange.end)).toBe(
+        '...attributes',
+      );
+    });
   });
 
   describe('angle bracket components', () => {

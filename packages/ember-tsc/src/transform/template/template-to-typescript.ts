@@ -946,7 +946,14 @@ export function templateToTypescript(
       );
 
       mapper.forNode(splattributes, () => {
-        mapper.text('__glintDSL__.applySplattributes(__glintRef__.element, __glintY__.element);');
+        mapper.text('__glintDSL__.applySplattributes(');
+        // Map __glintRef__.element to the splattributes node so that element
+        // constraint diagnostics (e.g. missing Element in the component signature)
+        // surface on ...attributes in the template.
+        mapper.forNode(splattributes, () => {
+          mapper.text('__glintRef__.element');
+        });
+        mapper.text(', __glintY__.element);');
       });
 
       mapper.newline();
