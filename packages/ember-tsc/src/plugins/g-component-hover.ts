@@ -1,6 +1,5 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
 import type TransformedModule from '../transform/template/transformed-module.js';
-import type { CorrelatedSpan } from '../transform/template/transformed-module.js';
 import type GlimmerASTMappingTree from '../transform/template/glimmer-ast-mapping-tree.js';
 import { getEmbeddedInfo } from './utils.js';
 
@@ -17,7 +16,6 @@ export interface ComponentMeta {
     params: string;
   }>;
   element: string | null;
-  description: string;
 }
 
 export type TsPluginClient = {
@@ -95,7 +93,7 @@ function findComponentAtOffset(
     }
 
     const elementStart = span.originalStart + elementNode.originalRange.start;
-    const source = span.originalFile?.contents ?? '';
+    const source = span.originalFile.contents;
     const tagNameIdx = source.indexOf(tagName, elementStart);
     const tagStart = tagNameIdx >= 0 ? tagNameIdx : elementStart;
     const tagEnd = tagStart + tagName.length;
@@ -131,14 +129,9 @@ function formatComponentHover(tagName: string, meta: ComponentMeta): string | nu
   const hasBlocks = meta.blocks.length > 0;
   const hasElement = meta.element && meta.element !== 'unknown' && meta.element !== 'null';
 
-  if (!hasArgs && !hasBlocks && !hasElement && !meta.description) return null;
+  if (!hasArgs && !hasBlocks && !hasElement) return null;
 
   const lines: string[] = [];
-
-  if (meta.description) {
-    lines.push(meta.description);
-    lines.push('');
-  }
 
   lines.push('```typescript');
   lines.push(`interface ${tagName}Signature {`);
@@ -151,9 +144,14 @@ function formatComponentHover(tagName: string, meta: ComponentMeta): string | nu
     lines.push('  Args: {');
     for (const arg of meta.args) {
       const opt = arg.required ? '' : '?';
-      const comment = arg.description ? ` // ${arg.description}` : '';
-      const deprecated = arg.tags.some((t) => t.name === 'deprecated') ? ' @deprecated' : '';
-      lines.push(`    ${arg.name}${opt}: ${arg.type}${comment}${deprecated}`);
+      const deprecatedTag = arg.tags.find((t) => t.name === 'deprecated');
+      let comment = '';
+      if (deprecatedTag) {
+        comment = ` // @deprecated${deprecatedTag.text ? ` ${deprecatedTag.text}` : ''}`;
+      } else if (arg.description) {
+        comment = ` // ${arg.description}`;
+      }
+      lines.push(`    ${arg.name}${opt}: ${arg.type}${comment}`);
     }
     lines.push('  }');
   }

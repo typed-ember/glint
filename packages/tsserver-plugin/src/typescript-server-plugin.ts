@@ -342,7 +342,6 @@ interface ComponentMeta {
   }>;
   blocks: Array<{ name: string; params: string }>;
   element: string | null;
-  description: string;
 }
 
 function getComponentMetaForTag(
@@ -392,7 +391,7 @@ function extractComponentMeta(
   const declaredType = checker.getDeclaredTypeOfSymbol(symbol);
   const signatureType = findSignatureType(ts, checker, declaredType);
   if (signatureType) {
-    return buildMeta(ts, checker, signatureType, symbol, SIGNATURE_KEYS);
+    return buildMeta(ts, checker, signatureType, SIGNATURE_KEYS);
   }
 
   // Path 2: Template-only component — e.g. `<template>...</template> satisfies TOC<Sig>`
@@ -408,13 +407,13 @@ function extractComponentMeta(
     // Some construct signatures may carry a Signature type directly
     const sig = findSignatureType(ts, checker, instanceType);
     if (sig) {
-      const meta = buildMeta(ts, checker, sig, symbol, SIGNATURE_KEYS);
+      const meta = buildMeta(ts, checker, sig, SIGNATURE_KEYS);
       if (meta.args.length > 0 || meta.blocks.length > 0) return meta;
     }
 
     // The instance may directly have TemplateContext shape (lowercase args/blocks/element)
     if (instanceType.getProperty('args') || instanceType.getProperty('blocks')) {
-      const meta = buildMeta(ts, checker, instanceType, symbol, CONTEXT_KEYS);
+      const meta = buildMeta(ts, checker, instanceType, CONTEXT_KEYS);
       if (meta.args.length > 0 || meta.blocks.length > 0) return meta;
     }
 
@@ -423,7 +422,7 @@ function extractComponentMeta(
       if (prop.name.includes('Context')) {
         const contextType = getPropertyType(checker, prop);
         if (contextType && (contextType.getProperty('args') || contextType.getProperty('blocks'))) {
-          const meta = buildMeta(ts, checker, contextType, symbol, CONTEXT_KEYS);
+          const meta = buildMeta(ts, checker, contextType, CONTEXT_KEYS);
           if (meta.args.length > 0 || meta.blocks.length > 0) return meta;
         }
       }
@@ -487,15 +486,9 @@ function buildMeta(
   ts: typeof import('typescript'),
   checker: ts.TypeChecker,
   type: ts.Type,
-  componentSymbol: ts.Symbol,
   keys: { args: string; blocks: string; element: string },
 ): ComponentMeta {
-  const meta: ComponentMeta = { args: [], blocks: [], element: null, description: '' };
-
-  const docComment = componentSymbol.getDocumentationComment(checker);
-  if (docComment.length > 0) {
-    meta.description = ts.displayPartsToString(docComment);
-  }
+  const meta: ComponentMeta = { args: [], blocks: [], element: null };
 
   // Extract args
   const argsProp = type.getProperty(keys.args);
@@ -509,10 +502,9 @@ function buildMeta(
       }
 
       for (const prop of argsType.getProperties()) {
-        const propType = getPropertyType(checker, prop);
         meta.args.push({
           name: prop.name,
-          type: propType ? checker.typeToString(propType) : 'unknown',
+          type: getPropertyTypeString(ts, checker, prop),
           description: ts.displayPartsToString(prop.getDocumentationComment(checker)),
           required: !(prop.flags & ts.SymbolFlags.Optional),
           tags:
@@ -553,6 +545,24 @@ function buildMeta(
   }
 
   return meta;
+}
+
+/**
+ * Get the type string for a property as written in source (preserving the
+ * user's type annotation), rather than the resolved type which adds
+ * `| undefined` to optional properties.
+ */
+function getPropertyTypeString(
+  ts: typeof import('typescript'),
+  checker: ts.TypeChecker,
+  prop: ts.Symbol,
+): string {
+  const decl = prop.declarations?.[0];
+  if (decl && ts.isPropertySignature(decl) && decl.type) {
+    return decl.type.getText();
+  }
+  const propType = getPropertyType(checker, prop);
+  return propType ? checker.typeToString(propType) : 'unknown';
 }
 
 function getPropertyType(checker: ts.TypeChecker, prop: ts.Symbol): ts.Type | undefined {
