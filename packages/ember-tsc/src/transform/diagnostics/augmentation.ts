@@ -213,7 +213,7 @@ function noteNamedArgsAffectArity(
 
     return {
       ...diagnostic,
-      messageText: `${diagnostic.messageText} ${note}`,
+      messageText: `${formatDiagnosticMessageText(diagnostic.messageText)} ${note}`,
     };
   }
 }
@@ -244,6 +244,16 @@ function checkResolveError(
           `missing a registry entry for this name; see the Template Registry page in the Glint ` +
           `documentation for more details.`,
       );
+    } else if (parentNode.hash.pairs.length > 0) {
+      return {
+        ...diagnostic,
+        messageText: `Unable to pre-bind the given args to the given ${kind}. This likely indicates a type mismatch between its signature and the values you're passing.`,
+      };
+    } else if (hasExpectedPropertyRelatedInfo(diagnostic)) {
+      return {
+        ...diagnostic,
+        messageText: formatDiagnosticMessageText(diagnostic.messageText),
+      };
     } else {
       return addGlintDetails(
         diagnostic,
@@ -313,8 +323,36 @@ function checkIndexAccessError(
 function addGlintDetails(diagnostic: Diagnostic, details: string): Diagnostic {
   return {
     ...diagnostic,
-    messageText: `${details}\n${diagnostic.messageText}`,
+    messageText: `${details}\n${formatDiagnosticMessageText(diagnostic.messageText)}`,
   };
+}
+
+function hasExpectedPropertyRelatedInfo(diagnostic: Diagnostic): boolean {
+  return (
+    diagnostic.relatedInformation?.some((related) =>
+      formatDiagnosticMessageText(related.messageText).startsWith(
+        "The expected type comes from property '",
+      ),
+    ) ?? false
+  );
+}
+
+function formatDiagnosticMessageText(
+  messageText: string | ts.DiagnosticMessageChain,
+  indent = 0,
+): string {
+  if (typeof messageText === 'string') {
+    return messageText;
+  }
+
+  let padding = '  '.repeat(indent);
+  let lines = [`${padding}${messageText.messageText}`];
+
+  for (let child of messageText.next ?? []) {
+    lines.push(formatDiagnosticMessageText(child, indent + 1));
+  }
+
+  return lines.join('\n');
 }
 
 // Find the nearest mapping node at or above the given one whose `source` AST node

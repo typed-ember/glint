@@ -7,6 +7,7 @@ import {
   yieldToBlock,
 } from '@glint/ember-tsc/-private/dsl';
 import { ComponentLike } from '@glint/template';
+import type { ComponentKeyword } from '@glint/template/-private/keywords/component';
 import { expectTypeOf } from 'expect-type';
 
 {
@@ -120,6 +121,44 @@ import { expectTypeOf } from 'expect-type';
       expectTypeOf(args).toEqualTypeOf<[]>();
     }
   }
+}
+
+{
+  const componentKeyword = resolve({} as ComponentKeyword);
+
+  class YieldedCurriedChild<T> extends Component<{
+    Args: { value: T; onChange: (v: T) => void };
+    Blocks: { default: [] };
+  }> {
+    static {
+      templateForBackingValue(this, function (__glintRef__) {
+        yieldToBlock(__glintRef__, 'default')();
+      });
+    }
+  }
+
+  class ParentYieldingCurriedChild<T> extends Component<{
+    Args: { onChange: (v: T) => void };
+    Blocks: { default: [ComponentLike<{ Args: { value: T } }>] };
+  }> {
+    static {
+      templateForBackingValue(this, function (__glintRef__) {
+        yieldToBlock(__glintRef__, 'default')(
+          componentKeyword(YieldedCurriedChild, {
+            onChange: __glintRef__.args.onChange,
+            ...NamedArgsMarker,
+          }),
+        );
+      });
+    }
+  }
+
+  emitComponent(
+    resolve(ParentYieldingCurriedChild)({
+      onChange: (value: string) => value,
+      ...NamedArgsMarker,
+    }),
+  );
 }
 
 // Components are `ComponentLike`

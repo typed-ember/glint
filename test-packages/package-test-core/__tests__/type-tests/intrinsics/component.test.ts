@@ -146,6 +146,25 @@ typeTest(
   `,
 );
 
+// Binding named args on an already-curried component should preserve its bound shape
+typeTest(
+  { ParametricComponent, formModifier },
+  hbs`
+    {{#let (component this.ParametricComponent values=(array "hi")) as |RequiredValueCurriedParametricComponent|}}
+      {{#let (component RequiredValueCurriedParametricComponent optional="ok") as |DoubleCurriedComponent|}}
+        <DoubleCurriedComponent />
+        <DoubleCurriedComponent @values={{array "override"}} {{this.formModifier}} as |value index|>
+          {{@expectTypeOf value @to.beString}}
+          {{@expectTypeOf index @to.beNumber}}
+        </DoubleCurriedComponent>
+
+        {{! @glint-expect-error: wrong type for inherited arg }}
+        <DoubleCurriedComponent @values={{array 1 2 3}} />
+      {{/let}}
+    {{/let}}
+  `,
+);
+
 // Binding an optional arg still leaves the required one(s)
 typeTest(
   { ParametricComponent, formModifier },

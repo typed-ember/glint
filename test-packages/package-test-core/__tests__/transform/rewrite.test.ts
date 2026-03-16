@@ -89,6 +89,68 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
+    test('component currying keeps the component class as the first argument', () => {
+      let script = {
+        filename: 'test.gts',
+        contents: stripIndent`
+          import Component from '@glimmer/component';
+
+          class Child<T> extends Component<{
+            Args: { value: T; onChange: (v: T) => void };
+          }> {}
+
+          export default class Parent<T> extends Component<{
+            Args: { onChange: (v: T) => void };
+          }> {
+            <template>
+              {{component Child onChange=@onChange}}
+            </template>
+          }
+        `,
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, env);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import Component from '@glimmer/component';
+
+        class Child<T> extends Component<{
+          Args: { value: T; onChange: (v: T) => void };
+        }> {}
+
+        export default class Parent<T> extends Component<{
+          Args: { onChange: (v: T) => void };
+        }> {
+          static { ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
+        __glintDSL__.emitContent(__glintDSL__.resolve(__glintDSL__.Globals["component"])(Child, { onChange: __glintRef__.args.onChange , ...__glintDSL__.NamedArgsMarker }));
+        __glintRef__; __glintDSL__;
+        }) }
+        }"
+      `);
+    });
+
+    test('string-based component currying keeps resolveForBind', () => {
+      let script = {
+        filename: 'test.gts',
+        contents: stripIndent`
+          export default <template>
+            {{component 'link-to' route='widgets'}}
+          </template>
+        `,
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, env);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
+        __glintDSL__.emitContent(__glintDSL__.resolve(__glintDSL__.Globals["component"])((() => __glintDSL__.resolveForBind("link-to"))(), { route: "widgets" , ...__glintDSL__.NamedArgsMarker }));
+        __glintRef__; __glintDSL__;
+        })"
+      `);
+    });
+
     test('with an anonymous class', () => {
       let script = {
         filename: 'test.gts',

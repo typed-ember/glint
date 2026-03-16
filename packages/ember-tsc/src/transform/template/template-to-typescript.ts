@@ -310,13 +310,34 @@ export function templateToTypescript(
         // invokable is the source of record for its own type and we don't want inference
         // from the `resolveForBind` call to be affected by other (potentially incorrect)
         // parameter types.
-        mapper.text('__glintDSL__.resolve(');
-        emitExpression(node.path);
-        mapper.text(')((() => __glintDSL__.resolveForBind(');
-        emitExpression(node.params[0]);
-        mapper.text('))(), ');
-        emitArgs(node.params.slice(1), node.hash);
-        mapper.text(')');
+        //
+        // `{{component}}` with bound named args is a special case: keeping the original
+        // component class available lets the keyword derive its bound type from the
+        // class's context directly, which avoids the excessively deep type expansion
+        // triggered by the generic `resolveForBind` path.
+        let usesDirectComponentFastPath =
+          formInfo.name === 'component' &&
+          node.params.length === 1 &&
+          node.hash.pairs.length > 0 &&
+          node.params[0].type === 'PathExpression';
+
+        if (usesDirectComponentFastPath) {
+          mapper.text('__glintDSL__.resolve(');
+          emitExpression(node.path);
+          mapper.text(')(');
+          emitExpression(node.params[0]);
+          mapper.text(', ');
+          emitArgs(node.params.slice(1), node.hash);
+          mapper.text(')');
+        } else {
+          mapper.text('__glintDSL__.resolve(');
+          emitExpression(node.path);
+          mapper.text(')((() => __glintDSL__.resolveForBind(');
+          emitExpression(node.params[0]);
+          mapper.text('))(), ');
+          emitArgs(node.params.slice(1), node.hash);
+          mapper.text(')');
+        }
 
         if (position === 'top-level') {
           mapper.text(')');

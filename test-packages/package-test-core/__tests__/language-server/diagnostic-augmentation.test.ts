@@ -319,10 +319,10 @@ describe('Language Server: Diagnostic Augmentation', () => {
       [
         {
           "category": "error",
-          "code": 2345,
+          "code": 2769,
           "end": {
             "line": 9,
-            "offset": 28,
+            "offset": 20,
           },
           "relatedInformation": [
             {
@@ -344,14 +344,9 @@ describe('Language Server: Diagnostic Augmentation', () => {
           ],
           "start": {
             "line": 9,
-            "offset": 21,
+            "offset": 16,
           },
-          "text": "Argument of type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to parameter of type '[] | [NamedArgs<{ foo: string; }>]'.
-        Type '[{ [NamedArgs]: true; foo: number; }]' is not assignable to type '[NamedArgs<{ foo: string; }>]'.
-          Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type 'NamedArgs<{ foo: string; }>'.
-            Type '{ [NamedArgs]: true; foo: number; }' is not assignable to type '{ foo: string; }'.
-              Types of property 'foo' are incompatible.
-                Type 'number' is not assignable to type 'string'.",
+          "text": "Unable to pre-bind the given args to the given component. This likely indicates a type mismatch between its signature and the values you're passing.",
         },
         {
           "category": "error",
