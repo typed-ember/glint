@@ -22,9 +22,7 @@ export type TsPluginClient = {
   getComponentMeta(fileName: string, tagName: string): Promise<ComponentMeta | null>;
 };
 
-export function create(
-  getTsPluginClient: () => TsPluginClient | undefined,
-): LanguageServicePlugin {
+export function create(getTsPluginClient: () => TsPluginClient | undefined): LanguageServicePlugin {
   return {
     name: 'g-component-hover',
     capabilities: {

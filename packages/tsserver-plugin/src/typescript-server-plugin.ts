@@ -310,12 +310,7 @@ const plugin = createLanguageServicePlugin(
 
       session.addProtocolHandler('_glint:getComponentMeta', ({ arguments: args }) => {
         try {
-          const meta = getComponentMetaForTag(
-            ts,
-            info.languageService,
-            args.file,
-            args.tagName,
-          );
+          const meta = getComponentMetaForTag(ts, info.languageService, args.file, args.tagName);
           return { response: meta ?? undefined, responseRequired: true };
         } catch (e) {
           projectService.logger.info(
