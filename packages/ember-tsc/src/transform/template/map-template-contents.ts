@@ -136,8 +136,20 @@ export type EmbeddingSyntax = {
   suffix: string;
 };
 
+/**
+ * Per-template persistent context. Held by the caller (e.g. VirtualGtsCode)
+ * across repeated calls so that unchanged templates can skip expensive work.
+ * One slot per template position — no unbounded growth.
+ */
+export type TemplateContext = {
+  template?: string;
+  ast?: AST.Template;
+  result?: RewriteResult;
+};
+
 export type MapTemplateContentsOptions = {
   embeddingSyntax: EmbeddingSyntax;
+  templateContext?: TemplateContext;
 };
 
 /**
@@ -149,14 +161,22 @@ export type MapTemplateContentsOptions = {
  */
 export function mapTemplateContents(
   template: string,
-  { embeddingSyntax }: MapTemplateContentsOptions,
+  { embeddingSyntax, templateContext }: MapTemplateContentsOptions,
   callback: (ast: AST.Template | null, mapper: Mapper) => void,
 ): RewriteResult {
   let ast: AST.Template | null = null;
   let errors: Array<{ message: string; location: Range | undefined }> = [];
   let lineOffsets = calculateLineOffsets(template, embeddingSyntax.prefix.length);
   try {
-    ast = preprocess(template);
+    if (templateContext && templateContext.template === template && templateContext.ast) {
+      ast = templateContext.ast;
+    } else {
+      ast = preprocess(template);
+      if (templateContext) {
+        templateContext.template = template;
+        templateContext.ast = ast;
+      }
+    }
   } catch (error) {
     let message = getErrorMessage(error);
     let location: Range | undefined;

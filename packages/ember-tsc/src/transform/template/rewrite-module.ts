@@ -6,6 +6,7 @@ import { assert, TSLib } from '../util.js';
 
 import { CorrelatedSpansResult, PartialCorrelatedSpan } from './inlining/index.js';
 import { calculateTaggedTemplateSpans } from './inlining/tagged-strings.js';
+import type { TemplateContext } from './map-template-contents.js';
 import TransformedModule, {
   CorrelatedSpan,
   Directive,
@@ -34,12 +35,14 @@ export function rewriteModule(
   { script }: RewriteInput,
   environment: GlintEnvironment,
   clientId?: string,
+  templateContexts?: TemplateContext[],
 ): TransformedModule | null {
   let { errors, directives, partialSpans } = calculateCorrelatedSpans(
     ts,
     script,
     environment,
     clientId,
+    templateContexts,
   );
 
   if (!partialSpans.length && !errors.length) {
@@ -64,6 +67,7 @@ function calculateCorrelatedSpans(
   script: SourceFile,
   environment: GlintEnvironment,
   clientId?: string,
+  templateContexts?: TemplateContext[],
 ): CorrelatedSpansResult {
   let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
@@ -108,6 +112,11 @@ function calculateCorrelatedSpans(
     return { errors, directives, partialSpans };
   }
 
+  // Index into templateContexts by traversal order. If templates are reordered
+  // in an edit, the string check in mapTemplateContents will miss — cache goes
+  // cold for one cycle, then re-populates correctly.
+  let templateIndex = 0;
+
   ts.transform(ast, [
     (context) =>
       function visit<T extends ts.Node>(node: T): T {
@@ -119,7 +128,19 @@ function calculateCorrelatedSpans(
         // https://discord.com/channels/480462759797063690/717767358743183412/1259061848632721480
         if (ts.isTaggedTemplateExpression(node)) {
           let meta = emitMetadata.get(node);
-          let result = calculateTaggedTemplateSpans(ts, node, meta, script, environment);
+          let templateContext: TemplateContext | undefined;
+          if (templateContexts) {
+            templateContext = templateContexts[templateIndex] ??= {};
+          }
+          templateIndex++;
+          let result = calculateTaggedTemplateSpans(
+            ts,
+            node,
+            meta,
+            script,
+            environment,
+            templateContext,
+          );
 
           directives.push(...result.directives);
           errors.push(...result.errors);
@@ -132,6 +153,10 @@ function calculateCorrelatedSpans(
         return ts.visitEachChild(node, visit, context);
       },
   ]);
+
+  if (templateContexts) {
+    templateContexts.length = templateIndex;
+  }
 
   return { errors, directives, partialSpans };
 }

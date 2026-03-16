@@ -2,6 +2,7 @@ import {
   templateToTypescript,
   TemplateToTypescriptOptions,
 } from '@glint/ember-tsc/transform/template/template-to-typescript';
+import type { TemplateContext } from '@glint/ember-tsc/transform/template/map-template-contents';
 import { stripIndent } from 'common-tags';
 import { describe, expect, test } from 'vitest';
 
@@ -1504,6 +1505,52 @@ describe('Transform: rewriteTemplate', () => {
         each;
         }"
       `);
+    });
+  });
+
+  describe('TemplateContext caching', () => {
+    const opts: TemplateToTypescriptOptions = {
+      typesModule: '@glint/template',
+      globals: ['if'],
+    };
+
+    test('returns cached result when template is unchanged', () => {
+      let ctx: TemplateContext = {};
+      let first = templateToTypescript('<div>{{this.x}}</div>', { ...opts, templateContext: ctx });
+      let second = templateToTypescript('<div>{{this.x}}</div>', { ...opts, templateContext: ctx });
+
+      expect(second).toBe(first);
+    });
+
+    test('returns fresh result when template changes', () => {
+      let ctx: TemplateContext = {};
+      let first = templateToTypescript('<div>{{this.x}}</div>', { ...opts, templateContext: ctx });
+      let second = templateToTypescript('<div>{{this.y}}</div>', { ...opts, templateContext: ctx });
+
+      expect(second).not.toBe(first);
+      expect(ctx.template).toBe('<div>{{this.y}}</div>');
+    });
+
+    test('each slot caches independently', () => {
+      let ctxA: TemplateContext = {};
+      let ctxB: TemplateContext = {};
+
+      let firstA = templateToTypescript('<p>A</p>', { ...opts, templateContext: ctxA });
+      let firstB = templateToTypescript('<p>B</p>', { ...opts, templateContext: ctxB });
+
+      let hitA = templateToTypescript('<p>A</p>', { ...opts, templateContext: ctxA });
+      let hitB = templateToTypescript('<p>B</p>', { ...opts, templateContext: ctxB });
+
+      expect(hitA).toBe(firstA);
+      expect(hitB).toBe(firstB);
+      expect(hitA).not.toBe(hitB);
+    });
+
+    test('no caching without templateContext', () => {
+      let first = templateToTypescript('<div>{{this.x}}</div>', opts);
+      let second = templateToTypescript('<div>{{this.x}}</div>', opts);
+
+      expect(second).not.toBe(first);
     });
   });
 });

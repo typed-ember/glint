@@ -9,6 +9,7 @@ import { GlintEnvironment } from '../../../config/index.js';
 import { assert, TSLib } from '../../util.js';
 import { templateToTypescript } from '../template-to-typescript.js';
 import { Directive, Range, SourceFile, TransformError } from '../transformed-module.js';
+import type { TemplateContext } from '../map-template-contents.js';
 import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from './index.js';
 
 export function calculateTaggedTemplateSpans(
@@ -17,6 +18,7 @@ export function calculateTaggedTemplateSpans(
   meta: GlintEmitMetadata | undefined,
   script: SourceFile,
   environment: GlintEnvironment,
+  templateContext?: TemplateContext,
 ): CorrelatedSpansResult {
   let directives: Array<Directive> = [];
   let errors: Array<TransformError> = [];
@@ -69,6 +71,7 @@ export function calculateTaggedTemplateSpans(
       specialForms,
       backingValue: isEmbeddedInClass(ts, node) ? 'this' : undefined,
       useJsDoc: environment.isUntypedScript(script.filename),
+      templateContext,
     });
 
     for (let { message, location } of transformedTemplate.errors) {
