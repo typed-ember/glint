@@ -1,6 +1,7 @@
 {
   "extends": "../../../../tsconfig.compileroptions.json",
   "compilerOptions": {
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["ember-source/types"]
   }
 }

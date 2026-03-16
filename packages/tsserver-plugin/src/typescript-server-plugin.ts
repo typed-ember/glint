@@ -1,4 +1,5 @@
 import type { TransformedModule } from '@glint/ember-tsc/lib/transform';
+import type { ComponentMeta } from '@glint/ember-tsc/lib/plugins/g-component-hover';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 
@@ -308,12 +309,298 @@ const plugin = createLanguageServicePlugin(
         return (session as any).handlers.get('quickinfo')?.({ arguments: args });
       });
 
+      session.addProtocolHandler('_glint:getComponentMeta', ({ arguments: args }) => {
+        try {
+          const meta = getComponentMetaForTag(ts, info.languageService, args.file, args.tagName);
+          return { response: meta ?? undefined, responseRequired: true };
+        } catch (e) {
+          projectService.logger.info(
+            `Glint: getComponentMeta error: ${e instanceof Error ? e.message : String(e)}`,
+          );
+          return { response: undefined, responseRequired: true };
+        }
+      });
+
       projectService.logger.info('Glint specific commands are successfully added.');
     }
   },
 );
 
 export = plugin;
+
+function getComponentMetaForTag(
+  ts: typeof import('typescript'),
+  languageService: ts.LanguageService,
+  fileName: string,
+  tagName: string,
+): ComponentMeta | null {
+  const program = languageService.getProgram();
+  if (!program) return null;
+
+  const checker = program.getTypeChecker();
+
+  const sourceFile = program.getSourceFile(fileName);
+  if (!sourceFile) return null;
+
+  // Search the generated source for resolve(TagName) to find the component identifier.
+  // indexOf finds only the first occurrence, but all invocations of the same component
+  // resolve to the same symbol, so any match gives us the correct type information.
+  // ts.getTokenAtPosition is not part of the public TS API but is used by Vue language-tools
+  // and other TS plugin implementations for the same purpose.
+  const resolvePattern = `resolve(${tagName})`;
+  const resolveIdx = sourceFile.text.indexOf(resolvePattern);
+  if (resolveIdx < 0) return null;
+
+  const identifierPos = resolveIdx + 'resolve('.length;
+  const node = (ts as any).getTokenAtPosition(sourceFile, identifierPos) as ts.Node | undefined;
+  if (!node) return null;
+
+  const symbol = checker.getSymbolAtLocation(node);
+  if (!symbol) return null;
+
+  return extractComponentMeta(ts, checker, symbol);
+}
+
+// Property names differ between class-backed and template-only components:
+//   Class-backed: Signature type has uppercase Args/Blocks/Element
+//   Template-only: TemplateContext has lowercase args/blocks/element
+const SIGNATURE_KEYS = { args: 'Args', blocks: 'Blocks', element: 'Element' } as const;
+const CONTEXT_KEYS = { args: 'args', blocks: 'blocks', element: 'element' } as const;
+
+function extractComponentMeta(
+  ts: typeof import('typescript'),
+  checker: ts.TypeChecker,
+  symbol: ts.Symbol,
+): ComponentMeta | null {
+  // Resolve through import aliases to find the original declaration's JSDoc.
+  let resolvedSymbol = symbol;
+  while (resolvedSymbol.flags & ts.SymbolFlags.Alias) {
+    resolvedSymbol = checker.getAliasedSymbol(resolvedSymbol);
+  }
+  const description = ts.displayPartsToString(resolvedSymbol.getDocumentationComment(checker));
+
+  // Path 1: Class-backed component — e.g. `class Foo extends Component<Sig>`
+  // The declared type's base class chain contains the Signature as a type argument.
+  // We don't fall back to the class's own JSDoc (via `description`) because TypeScript's
+  // own hover already shows it — Volar combines both hover results, so it would duplicate.
+  // If the Signature *interface* has JSDoc, buildMeta picks it up via type.getSymbol().
+  const declaredType = checker.getDeclaredTypeOfSymbol(symbol);
+  const signatureType = findSignatureType(ts, checker, declaredType);
+  if (signatureType) {
+    return buildMeta(ts, checker, signatureType, SIGNATURE_KEYS);
+  }
+
+  // Path 2: Template-only component — e.g. `<template>...</template> satisfies TOC<Sig>`
+  // The value type is an intersection: TemplateOnlyComponent<never> & (abstract new () => ...)
+  // with two construct signatures. The second returns InvokableInstance & HasContext<TemplateContext>.
+  // We iterate in reverse because the first signature (from TemplateOnlyComponent<never>) is empty.
+  const valueType = checker.getTypeOfSymbol(symbol);
+  const constructSignatures = valueType.getConstructSignatures();
+
+  for (let i = constructSignatures.length - 1; i >= 0; i--) {
+    const instanceType = constructSignatures[i].getReturnType();
+
+    // Some construct signatures may carry a Signature type directly
+    const sig = findSignatureType(ts, checker, instanceType);
+    if (sig) {
+      const meta = buildMeta(ts, checker, sig, SIGNATURE_KEYS);
+      if (meta.args.length > 0 || meta.blocks.length > 0) {
+        if (!meta.description) meta.description = description;
+        return meta;
+      }
+    }
+
+    // The instance may directly have TemplateContext shape (lowercase args/blocks/element)
+    if (instanceType.getProperty('args') || instanceType.getProperty('blocks')) {
+      const meta = buildMeta(ts, checker, instanceType, CONTEXT_KEYS);
+      if (meta.args.length > 0 || meta.blocks.length > 0) {
+        if (!meta.description) meta.description = description;
+        return meta;
+      }
+    }
+
+    // Or the TemplateContext is behind a [Context] symbol property (from HasContext<Ctx>).
+    // The unique symbol [Context] is mangled by TS to __@Context@NNN.
+    for (const prop of instanceType.getProperties()) {
+      if (prop.name.startsWith('__@Context@')) {
+        const contextType = getPropertyType(checker, prop);
+        if (contextType && (contextType.getProperty('args') || contextType.getProperty('blocks'))) {
+          const meta = buildMeta(ts, checker, contextType, CONTEXT_KEYS);
+          if (meta.args.length > 0 || meta.blocks.length > 0) {
+            // For template-only: try to find the Signature interface's JSDoc
+            // via aliasTypeArguments on the ComponentContext type alias
+            if (!meta.description) {
+              const aliasArgs = (contextType as any).aliasTypeArguments as ts.Type[] | undefined;
+              if (aliasArgs) {
+                for (const arg of aliasArgs) {
+                  const argDoc = arg.getSymbol()?.getDocumentationComment(checker);
+                  if (argDoc && argDoc.length > 0) {
+                    meta.description = ts.displayPartsToString(argDoc);
+                    break;
+                  }
+                }
+              }
+            }
+            if (!meta.description) meta.description = description;
+            return meta;
+          }
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+function findSignatureType(
+  ts: typeof import('typescript'),
+  checker: ts.TypeChecker,
+  type: ts.Type,
+  visited: Set<ts.Type> = new Set(),
+): ts.Type | null {
+  if (visited.has(type)) return null;
+  visited.add(type);
+
+  // Check if this type itself has Args/Blocks/Element (it IS the signature)
+  if (type.getProperty('Args') || type.getProperty('Blocks') || type.getProperty('Element')) {
+    return type;
+  }
+
+  // Walk base types to find Component<Sig> and extract Sig
+  const baseTypes = (type as ts.InterfaceType).getBaseTypes?.();
+  if (baseTypes) {
+    for (const base of baseTypes) {
+      const typeArgs = getTypeArguments(checker, base);
+      if (typeArgs) {
+        for (const arg of typeArgs) {
+          if (arg.getProperty('Args') || arg.getProperty('Blocks') || arg.getProperty('Element')) {
+            return arg;
+          }
+        }
+      }
+      const nested = findSignatureType(ts, checker, base, visited);
+      if (nested) return nested;
+    }
+  }
+
+  return null;
+}
+
+function getTypeArguments(checker: ts.TypeChecker, type: ts.Type): readonly ts.Type[] | undefined {
+  try {
+    return checker.getTypeArguments(type as ts.TypeReference);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Build component metadata by extracting args, blocks, and element from a type.
+ * The `keys` parameter maps to the property names on the type — uppercase
+ * (Args/Blocks/Element) for Signature types, lowercase (args/blocks/element)
+ * for TemplateContext types.
+ */
+function buildMeta(
+  ts: typeof import('typescript'),
+  checker: ts.TypeChecker,
+  type: ts.Type,
+  keys: { args: string; blocks: string; element: string },
+): ComponentMeta {
+  const meta: ComponentMeta = { args: [], blocks: [], element: null, description: '' };
+
+  // Try to get JSDoc from the type's own symbol (e.g. the Signature interface)
+  const typeSymbol = type.getSymbol();
+  if (typeSymbol) {
+    const typeDoc = typeSymbol.getDocumentationComment(checker);
+    if (typeDoc.length > 0) {
+      meta.description = ts.displayPartsToString(typeDoc);
+    }
+  }
+
+  // Extract args
+  const argsProp = type.getProperty(keys.args);
+  if (argsProp) {
+    let argsType = getPropertyType(checker, argsProp);
+    if (argsType) {
+      // Handle the case where Args has Named/Positional sub-structure
+      const namedProp = argsType.getProperty('Named');
+      if (namedProp) {
+        argsType = getPropertyType(checker, namedProp) || argsType;
+      }
+
+      for (const prop of argsType.getProperties()) {
+        meta.args.push({
+          name: prop.name,
+          type: getPropertyTypeString(ts, checker, prop),
+          description: ts.displayPartsToString(prop.getDocumentationComment(checker)),
+          required: !(prop.flags & ts.SymbolFlags.Optional),
+          tags:
+            prop.getJsDocTags?.(checker)?.map((t: ts.JSDocTagInfo) => ({
+              name: t.name,
+              text: t.text?.map((p: ts.SymbolDisplayPart) => p.text).join(''),
+            })) || [],
+        });
+      }
+    }
+  }
+
+  // Extract blocks
+  const blocksProp = type.getProperty(keys.blocks);
+  if (blocksProp) {
+    const blocksType = getPropertyType(checker, blocksProp);
+    if (blocksType) {
+      for (const prop of blocksType.getProperties()) {
+        const propType = getPropertyType(checker, prop);
+        meta.blocks.push({
+          name: prop.name,
+          params: propType ? checker.typeToString(propType) : '[]',
+        });
+      }
+    }
+  }
+
+  // Extract element
+  const elementProp = type.getProperty(keys.element);
+  if (elementProp) {
+    const elementType = getPropertyType(checker, elementProp);
+    if (elementType) {
+      const typeStr = checker.typeToString(elementType);
+      if (typeStr !== 'void' && typeStr !== 'unknown') {
+        meta.element = typeStr;
+      }
+    }
+  }
+
+  return meta;
+}
+
+/**
+ * Get the type string for a property as written in source (preserving the
+ * user's type annotation), rather than the resolved type which adds
+ * `| undefined` to optional properties.
+ */
+function getPropertyTypeString(
+  ts: typeof import('typescript'),
+  checker: ts.TypeChecker,
+  prop: ts.Symbol,
+): string {
+  const decl = prop.declarations?.[0];
+  if (decl && ts.isPropertySignature(decl) && decl.type) {
+    return decl.type.getText();
+  }
+  const propType = getPropertyType(checker, prop);
+  return propType ? checker.typeToString(propType) : 'unknown';
+}
+
+function getPropertyType(checker: ts.TypeChecker, prop: ts.Symbol): ts.Type | undefined {
+  const decl = prop.declarations?.[0];
+  if (decl) {
+    return checker.getTypeOfSymbolAtLocation(prop, decl);
+  }
+  // getTypeOfSymbol is a public TypeChecker API that works for synthetic types
+  // without declarations (e.g. mapped/computed type properties)
+  return checker.getTypeOfSymbol(prop);
+}
 
 function proxyLanguageServiceForGlint<T>(
   ts: typeof import('typescript'),
