@@ -1,4 +1,7 @@
 {
   "name": "ember-app",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "ember-source": "^6.11.0"
+  }
 }

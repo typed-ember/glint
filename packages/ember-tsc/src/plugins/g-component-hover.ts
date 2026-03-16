@@ -1,4 +1,7 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
+import type TransformedModule from '../transform/template/transformed-module.js';
+import type { CorrelatedSpan } from '../transform/template/transformed-module.js';
+import type GlimmerASTMappingTree from '../transform/template/glimmer-ast-mapping-tree.js';
 import { getEmbeddedInfo } from './utils.js';
 
 export interface ComponentMeta {
@@ -49,7 +52,7 @@ export function create(
 
           const filePath = info.sourceScript.id.fsPath;
           const meta = await tsPluginClient.getComponentMeta(filePath, componentInfo.tagName);
-          if (!meta || (meta as any).__debug) return;
+          if (!meta) return;
 
           const content = formatComponentHover(componentInfo.tagName, meta);
           if (!content) return;
@@ -71,7 +74,7 @@ export function create(
 }
 
 function findComponentAtOffset(
-  transformedModule: any,
+  transformedModule: TransformedModule,
   offset: number,
 ): { tagName: string; tagStart: number; tagEnd: number } | null {
   for (const span of transformedModule.correlatedSpans) {
@@ -83,7 +86,7 @@ function findComponentAtOffset(
     const elementNode = findElementNodeInTree(span.glimmerAstMapping, relativeOffset);
     if (!elementNode) continue;
 
-    const tagName: string = elementNode.node.sourceNode.tag;
+    const tagName: string = (elementNode.sourceNode as any).tag;
     const firstChar = tagName.charAt(0);
 
     // Components are PascalCase or namespaced (Foo.Bar)
@@ -91,7 +94,7 @@ function findComponentAtOffset(
       return null; // plain element
     }
 
-    const elementStart = span.originalStart + elementNode.node.originalRange.start;
+    const elementStart = span.originalStart + elementNode.originalRange.start;
     const source = span.originalFile?.contents ?? '';
     const tagNameIdx = source.indexOf(tagName, elementStart);
     const tagStart = tagNameIdx >= 0 ? tagNameIdx : elementStart;
@@ -103,21 +106,21 @@ function findComponentAtOffset(
 }
 
 function findElementNodeInTree(
-  tree: any,
+  tree: GlimmerASTMappingTree,
   offset: number,
-): { node: any } | null {
+): GlimmerASTMappingTree | null {
   if (offset < tree.originalRange.start || offset >= tree.originalRange.end) {
     return null;
   }
 
   // Check children first (depth-first, find the deepest ElementNode)
-  for (const child of tree.children || []) {
+  for (const child of tree.children) {
     const result = findElementNodeInTree(child, offset);
     if (result) return result;
   }
 
   if (tree.sourceNode?.type === 'ElementNode') {
-    return { node: tree };
+    return tree;
   }
 
   return null;
