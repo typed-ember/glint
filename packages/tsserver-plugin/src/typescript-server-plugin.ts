@@ -411,18 +411,6 @@ function extractComponentMeta(
   }
 
   return null;
-
-  // Check if the value type itself is a type reference with type arguments (template-only)
-  const typeArgs = (valueType as any).typeArguments || getTypeArguments(checker, valueType);
-  if (typeArgs && typeArgs.length > 0) {
-    for (const arg of typeArgs) {
-      if (arg.getProperty('Args') || arg.getProperty('Blocks') || arg.getProperty('Element')) {
-        return buildMetaFromSignature(ts, checker, arg, symbol);
-      }
-    }
-  }
-
-  return null;
 }
 
 function findSignatureType(
