@@ -151,13 +151,11 @@ function formatComponentHover(tagName: string, meta: ComponentMeta): string | nu
       const opt = arg.required ? '' : '?';
       const deprecatedTag = arg.tags.find((t) => t.name === 'deprecated');
       if (deprecatedTag) {
-        // Close the code block, render with strikethrough, reopen
+        // Strike through only the property name using Unicode combining
+        // strikethrough (U+0336) — keeps the type readable and syntax-highlighted.
         const reason = deprecatedTag.text ? ` ${deprecatedTag.text}` : '';
-        lines.push('```');
-        lines.push(
-          `&ensp;&ensp;&ensp;&ensp;~~\`${arg.name}${opt}: ${arg.type}\`~~ *@deprecated${reason}*`,
-        );
-        lines.push('```typescript');
+        const struckName = arg.name.split('').join('\u0336') + '\u0336';
+        lines.push(`    ${struckName}${opt}: ${arg.type} // @deprecated${reason}`);
       } else {
         const comment = arg.description ? ` // ${arg.description}` : '';
         lines.push(`    ${arg.name}${opt}: ${arg.type}${comment}`);
