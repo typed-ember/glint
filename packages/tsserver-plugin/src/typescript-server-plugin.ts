@@ -1,4 +1,5 @@
 import type { TransformedModule } from '@glint/ember-tsc/lib/transform';
+import type { ComponentMeta } from '@glint/ember-tsc/lib/plugins/g-component-hover';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 
@@ -251,7 +252,7 @@ const plugin = createLanguageServicePlugin(
           }
 
           // Add Glint-specific protocol handlers for tsserver communication
-          addGlintCommands(language);
+          addGlintCommands();
 
           // #3963
           // const timer = setInterval(() => {
@@ -271,7 +272,7 @@ const plugin = createLanguageServicePlugin(
     }
 
     // https://github.com/JetBrains/intellij-plugins/blob/6435723ad88fa296b41144162ebe3b8513f4949b/Angular/src-js/angular-service/src/index.ts#L69
-    function addGlintCommands(language: any): void {
+    function addGlintCommands(): void {
       const projectService = info.project.projectService;
       projectService.logger.info('Glint: called handler processing ' + info.project.projectKind);
 
@@ -327,19 +328,6 @@ const plugin = createLanguageServicePlugin(
 
 export = plugin;
 
-interface ComponentMeta {
-  args: Array<{
-    name: string;
-    type: string;
-    description: string;
-    required: boolean;
-    tags: Array<{ name: string; text?: string }>;
-  }>;
-  blocks: Array<{ name: string; params: string }>;
-  element: string | null;
-  description: string;
-}
-
 function getComponentMetaForTag(
   ts: typeof import('typescript'),
   languageService: ts.LanguageService,
@@ -355,6 +343,8 @@ function getComponentMetaForTag(
   if (!sourceFile) return null;
 
   // Search the generated source for resolve(TagName) to find the component identifier.
+  // indexOf finds only the first occurrence, but all invocations of the same component
+  // resolve to the same symbol, so any match gives us the correct type information.
   // ts.getTokenAtPosition is not part of the public TS API but is used by Vue language-tools
   // and other TS plugin implementations for the same purpose.
   const resolvePattern = `resolve(${tagName})`;
@@ -427,9 +417,10 @@ function extractComponentMeta(
       }
     }
 
-    // Or the TemplateContext is behind a [Context] symbol property (from HasContext<Ctx>)
+    // Or the TemplateContext is behind a [Context] symbol property (from HasContext<Ctx>).
+    // The unique symbol [Context] is mangled by TS to __@Context@NNN.
     for (const prop of instanceType.getProperties()) {
-      if (prop.name.includes('Context')) {
+      if (prop.name.startsWith('__@Context@')) {
         const contextType = getPropertyType(checker, prop);
         if (contextType && (contextType.getProperty('args') || contextType.getProperty('blocks'))) {
           const meta = buildMeta(ts, checker, contextType, CONTEXT_KEYS);
