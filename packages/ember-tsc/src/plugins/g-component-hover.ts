@@ -83,9 +83,8 @@ function findComponentAtOffset(
     const elementNode = findElementNodeInTree(span.glimmerAstMapping, relativeOffset);
     if (!elementNode) continue;
 
-    // MappingSource is a union type; .tag only exists on AST.ElementNode but
-    // the discriminant check happens inside findElementNodeInTree.
-    const tagName: string = (elementNode.sourceNode as any).tag;
+    if (elementNode.sourceNode.type !== 'ElementNode') continue;
+    const tagName: string = elementNode.sourceNode.tag;
     const firstChar = tagName.charAt(0);
 
     // Components are PascalCase or namespaced (Foo.Bar)

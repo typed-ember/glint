@@ -487,12 +487,6 @@ function findSignatureType(
 }
 
 function getTypeArguments(checker: ts.TypeChecker, type: ts.Type): readonly ts.Type[] | undefined {
-  // TypeReference.typeArguments is not part of the public API but is the most
-  // reliable way to get type arguments. checker.getTypeArguments is public but
-  // throws for non-TypeReference types.
-  if ((type as any).typeArguments) {
-    return (type as any).typeArguments;
-  }
   try {
     return checker.getTypeArguments(type as ts.TypeReference);
   } catch {
