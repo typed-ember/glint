@@ -429,6 +429,49 @@ describe('Language Server: Diagnostic Augmentation', () => {
     `);
   });
 
+  test('modifier on component without Element in signature', async () => {
+    let diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      stripIndent`
+        import Component from '@glimmer/component';
+        import type { ModifierLike } from '@glint/template';
+
+        declare const showModal: ModifierLike<{ Element: HTMLDialogElement }>;
+
+        interface NoElementSignature {
+          Args: {};
+        }
+
+        class MyComponent extends Component<NoElementSignature> {
+          <template>
+            hello
+          </template>
+        }
+
+        class Parent extends Component {
+          <template>
+            <MyComponent {{showModal}} />
+          </template>
+        }
+      `,
+    );
+
+    let augmented = diagnostics.filter((d: any) =>
+      d.text.includes(
+        'An Element must be specified in the component signature in order to use modifiers',
+      ),
+    );
+    expect(augmented.length).toBeGreaterThan(0);
+    expect(augmented[0].text).toContain(
+      'An Element must be specified in the component signature in order to use modifiers that require a specific element type, e.g. `interface Signature { Element: HTMLDialogElement; ... }`.',
+    );
+    // Verify the original TS error is preserved after the augmented message
+    expect(augmented[0].text).toContain(
+      "Argument of type 'unknown' is not assignable to parameter of type 'HTMLDialogElement'.",
+    );
+  });
+
   // Not sure why this isn't firing...
   test.skip('`noPropertyAccessFromIndexSignature` violation', async () => {
     let diagnostics = await requestTsserverDiagnostics(
