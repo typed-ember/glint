@@ -41,7 +41,7 @@ import { expectTypeOf } from 'expect-type';
       templateForBackingValue(this, function* (__glintRef__) {
         expectTypeOf(__glintRef__.this.foo).toEqualTypeOf<string>();
         expectTypeOf(__glintRef__.this).toEqualTypeOf<StatefulComponent>();
-        expectTypeOf(__glintRef__.args).toEqualTypeOf<{}>();
+        expectTypeOf(__glintRef__.Args).toEqualTypeOf<{}>();
       });
     }
   }
@@ -76,8 +76,8 @@ import { expectTypeOf } from 'expect-type';
           123,
         );
 
-        if (__glintRef__.args.values.length) {
-          yieldToBlock(__glintRef__, 'default')(__glintRef__.args.values[0]);
+        if (__glintRef__.Args.values.length) {
+          yieldToBlock(__glintRef__, 'default')(__glintRef__.Args.values[0]);
         } else {
           yieldToBlock(__glintRef__, 'else')();
         }
@@ -160,7 +160,7 @@ import { expectTypeOf } from 'expect-type';
         // Named args binding — bindInvokable preserves T via Args/T
         // holistic capture, while the keyword validates via comma expression.
         const curried = bindInvokable(resolveForBind(PickerOption), {
-          onSelect: __glintRef__.args.onSelect,
+          onSelect: __glintRef__.Args.onSelect,
           ...NamedArgsMarker,
         });
         yieldToBlock(__glintRef__, 'default')(curried);
@@ -207,8 +207,8 @@ import { expectTypeOf } from 'expect-type';
   }> {
     static {
       templateForBackingValue(this, function (__glintRef__) {
-        const tagComp = emitComponent(resolve(__glintRef__.args.tag)());
-        applySplattributes(__glintRef__.element, tagComp.element);
+        const tagComp = emitComponent(resolve(__glintRef__.Args.tag)());
+        applySplattributes(__glintRef__.Element, tagComp.element);
       });
     }
   }

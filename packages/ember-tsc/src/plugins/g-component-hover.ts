@@ -4,18 +4,18 @@ import type GlimmerASTMappingTree from '../transform/template/glimmer-ast-mappin
 import { getEmbeddedInfo } from './utils.js';
 
 export interface ComponentMeta {
-  args: Array<{
+  Args: Array<{
     name: string;
     type: string;
     description: string;
     required: boolean;
     tags: Array<{ name: string; text?: string }>;
   }>;
-  blocks: Array<{
+  Blocks: Array<{
     name: string;
     params: string;
   }>;
-  element: string | null;
+  Element: string | null;
   description: string;
 }
 
@@ -125,9 +125,9 @@ function findElementNodeInTree(
 }
 
 function formatComponentHover(tagName: string, meta: ComponentMeta): string | null {
-  const hasArgs = meta.args.length > 0;
-  const hasBlocks = meta.blocks.length > 0;
-  const hasElement = meta.element && meta.element !== 'unknown' && meta.element !== 'null';
+  const hasArgs = meta.Args.length > 0;
+  const hasBlocks = meta.Blocks.length > 0;
+  const hasElement = meta.Element && meta.Element !== 'unknown' && meta.Element !== 'null';
 
   if (!hasArgs && !hasBlocks && !hasElement && !meta.description) return null;
 
@@ -142,12 +142,12 @@ function formatComponentHover(tagName: string, meta: ComponentMeta): string | nu
   lines.push(`interface ${tagName}Signature {`);
 
   if (hasElement) {
-    lines.push(`  Element: ${meta.element}`);
+    lines.push(`  Element: ${meta.Element}`);
   }
 
   if (hasArgs) {
     lines.push('  Args: {');
-    for (const arg of meta.args) {
+    for (const arg of meta.Args) {
       const opt = arg.required ? '' : '?';
       const deprecatedTag = arg.tags.find((t) => t.name === 'deprecated');
       if (deprecatedTag) {
@@ -166,7 +166,7 @@ function formatComponentHover(tagName: string, meta: ComponentMeta): string | nu
 
   if (hasBlocks) {
     lines.push('  Blocks: {');
-    for (const block of meta.blocks) {
+    for (const block of meta.Blocks) {
       lines.push(`    ${block.name}: ${block.params}`);
     }
     lines.push('  }');

@@ -68,9 +68,9 @@ type UnmetExpectation<M, T> = [M, T];
 // in the template it receives.
 type TypeTestTemplate<T> = abstract new () => HasContext<{
   this: T;
-  args: { expectTypeOf: typeof expectTypeOf; to: typeof to };
-  blocks: {};
-  element: unknown;
+  Args: { expectTypeOf: typeof expectTypeOf; to: typeof to };
+  Blocks: {};
+  Element: unknown;
 }>;
 
 type ExpectTypeOf = DirectInvokable<{

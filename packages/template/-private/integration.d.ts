@@ -52,9 +52,9 @@ export type ComponentReturn<BlockDefs, El = null> = {
  */
 export type TemplateContext<This, Args, Blocks, Element> = {
   this: This;
-  args: Args;
-  blocks: Blocks;
-  element: Element;
+  Args: Args;
+  Blocks: Blocks;
+  Element: Element;
 };
 
 /**

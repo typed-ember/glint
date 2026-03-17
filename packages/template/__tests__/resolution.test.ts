@@ -43,7 +43,7 @@ declare function value<T>(): T;
 
           {
             const [isReady] = component.blockParams.default;
-            yieldToBlock(__glintRef__, 'body')(isReady, __glintRef__.args.value);
+            yieldToBlock(__glintRef__, 'body')(isReady, __glintRef__.Args.value);
           }
         }
       });

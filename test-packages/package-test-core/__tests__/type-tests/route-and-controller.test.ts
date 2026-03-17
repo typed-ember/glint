@@ -10,10 +10,10 @@ class TestRoute extends Route {
 }
 
 templateForBackingValue(TestRoute, function (routeContext) {
-  expectTypeOf(routeContext.args).toEqualTypeOf<{ model: { message: string } }>();
-  expectTypeOf(routeContext.element).toBeNull();
+  expectTypeOf(routeContext.Args).toEqualTypeOf<{ model: { message: string } }>();
+  expectTypeOf(routeContext.Element).toBeNull();
   expectTypeOf(routeContext.this).toEqualTypeOf<Controller & { model: { message: string } }>();
-  expectTypeOf(routeContext.blocks).toEqualTypeOf<{}>();
+  expectTypeOf(routeContext.Blocks).toEqualTypeOf<{}>();
 });
 
 class TestController extends Controller {
@@ -25,8 +25,8 @@ class TestController extends Controller {
 }
 
 templateForBackingValue(TestController, function (controllerContext) {
-  expectTypeOf(controllerContext.args).toEqualTypeOf<{ model: { name: string; age: number } }>();
-  expectTypeOf(controllerContext.element).toBeNull();
+  expectTypeOf(controllerContext.Args).toEqualTypeOf<{ model: { name: string; age: number } }>();
+  expectTypeOf(controllerContext.Element).toBeNull();
   expectTypeOf(controllerContext.this).toEqualTypeOf<TestController>();
-  expectTypeOf(controllerContext.blocks).toEqualTypeOf<{}>();
+  expectTypeOf(controllerContext.Blocks).toEqualTypeOf<{}>();
 });

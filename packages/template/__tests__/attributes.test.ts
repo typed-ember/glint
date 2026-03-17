@@ -30,15 +30,15 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
    */
   static {
     templateForBackingValue(this, function (__glintRef__) {
-      expectTypeOf(__glintRef__.element).toEqualTypeOf<HTMLImageElement>();
+      expectTypeOf(__glintRef__.Element).toEqualTypeOf<HTMLImageElement>();
 
       {
         const ctx = emitElement('img');
         expectTypeOf(ctx.element).toEqualTypeOf<HTMLImageElement>();
 
         applyModifier(resolve(imageModifier)(ctx.element));
-        applySplattributes(__glintRef__.element, ctx.element);
-        applyAttributes(__glintRef__.element, {
+        applySplattributes(__glintRef__.Element, ctx.element);
+        applyAttributes(__glintRef__.Element, {
           src: '',
           dir: '',
           'data-test-id': '',

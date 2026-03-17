@@ -947,11 +947,11 @@ export function templateToTypescript(
 
       mapper.forNode(splattributes, () => {
         mapper.text('__glintDSL__.applySplattributes(');
-        // Map __glintRef__.element to the splattributes node so that element
+        // Map __glintRef__.Element to the splattributes node so that element
         // constraint diagnostics (e.g. missing Element in the component signature)
         // surface on ...attributes in the template.
         mapper.forNode(splattributes, () => {
-          mapper.text('__glintRef__.element');
+          mapper.text('__glintRef__.Element');
         });
         mapper.text(', __glintY__.element);');
       });
@@ -1363,7 +1363,7 @@ export function templateToTypescript(
         mapper.identifier('this', thisStart);
         start = template.indexOf('.', thisStart) + 1;
       } else if (kind === 'arg') {
-        mapper.text('__glintRef__.args');
+        mapper.text('__glintRef__.Args');
         start = template.indexOf('@', start) + 1;
       }
 

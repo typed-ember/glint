@@ -29,9 +29,9 @@ import { expectTypeOf } from 'expect-type';
 
   templateForBackingValue(NoArgsComponent, function (__glintRef__) {
     expectTypeOf(__glintRef__.this).toBeNull();
-    expectTypeOf(__glintRef__.args).toEqualTypeOf<{}>();
-    expectTypeOf(__glintRef__.element).toBeUnknown();
-    expectTypeOf(__glintRef__.blocks).toEqualTypeOf<{}>();
+    expectTypeOf(__glintRef__.Args).toEqualTypeOf<{}>();
+    expectTypeOf(__glintRef__.Element).toBeUnknown();
+    expectTypeOf(__glintRef__.Blocks).toEqualTypeOf<{}>();
   });
 }
 
@@ -93,9 +93,9 @@ import { expectTypeOf } from 'expect-type';
 
   templateForBackingValue(YieldingComponent, function (__glintRef__) {
     expectTypeOf(__glintRef__.this).toBeNull();
-    expectTypeOf(__glintRef__.args).toEqualTypeOf<YieldingComponentSignature['Args']>();
-    expectTypeOf(__glintRef__.element).toEqualTypeOf<YieldingComponentSignature['Element']>();
-    expectTypeOf(__glintRef__.blocks).toEqualTypeOf<YieldingComponentSignature['Blocks']>();
+    expectTypeOf(__glintRef__.Args).toEqualTypeOf<YieldingComponentSignature['Args']>();
+    expectTypeOf(__glintRef__.Element).toEqualTypeOf<YieldingComponentSignature['Element']>();
+    expectTypeOf(__glintRef__.Blocks).toEqualTypeOf<YieldingComponentSignature['Blocks']>();
   });
 }
 

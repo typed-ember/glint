@@ -52,13 +52,13 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
         );
       }
 
-      yieldToBlock(__glintRef__, 'body')(isReady, __glintRef__.args.value);
+      yieldToBlock(__glintRef__, 'body')(isReady, __glintRef__.Args.value);
 
       yieldToBlock(
         __glintRef__,
         // @ts-expect-error: bad block
         'bad',
-      )(isReady, __glintRef__.args.value);
+      )(isReady, __glintRef__.Args.value);
 
       // @ts-expect-error: missing params
       yieldToBlock(__glintRef__, 'body')();

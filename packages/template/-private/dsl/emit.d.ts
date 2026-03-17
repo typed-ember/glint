@@ -47,7 +47,7 @@ export declare function emitContent(value: ContentValue): void;
  * Would produce code like:
  *
  *     emitElement('div', (__glintY__) => {
- *       applySplattributes(__glintRef__.element, __glintY__.element);
+ *       applySplattributes(__glintRef__.Element, __glintY__.element);
  *       applyAttributes(__glintY__.element, { class: 'hello' });
  *       applyModifier(__glintY__.element, resolve(on)({}, 'click', this.clicked));
  *     });
@@ -134,10 +134,10 @@ export declare function templateForBackingValue<Args extends unknown[], Context 
  *
  *     yieldToBlock(__glintRef__, 'name')(foo, bar);
  */
-export declare function yieldToBlock<Context extends AnyContext, K extends keyof Context['blocks']>(
+export declare function yieldToBlock<Context extends AnyContext, K extends keyof Context['Blocks']>(
   __glintRef__: Context,
   to: K,
-): (...values: NonNullable<Context['blocks'][K]>) => void;
+): (...values: NonNullable<Context['Blocks'][K]>) => void;
 
 /*
  * Applies `...attributes` that were passed to a component down

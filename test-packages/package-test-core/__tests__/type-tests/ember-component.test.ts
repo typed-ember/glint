@@ -45,7 +45,7 @@ import '@glint/ember-tsc/types';
       templateForBackingValue(this, function* (__glintRef__) {
         expectTypeOf(__glintRef__.this.foo).toEqualTypeOf<string>();
         expectTypeOf(__glintRef__.this).toEqualTypeOf<StatefulComponent>();
-        expectTypeOf(__glintRef__.args).toEqualTypeOf<{}>();
+        expectTypeOf(__glintRef__.Args).toEqualTypeOf<{}>();
       });
     }
   }
@@ -83,8 +83,8 @@ import '@glint/ember-tsc/types';
           123,
         );
 
-        if (__glintRef__.args.values.length) {
-          yieldToBlock(__glintRef__, 'default')(__glintRef__.args.values[0]);
+        if (__glintRef__.Args.values.length) {
+          yieldToBlock(__glintRef__, 'default')(__glintRef__.Args.values[0]);
         } else {
           yieldToBlock(__glintRef__, 'else')();
         }

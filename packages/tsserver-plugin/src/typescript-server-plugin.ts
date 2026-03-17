@@ -361,12 +361,6 @@ function getComponentMetaForTag(
   return extractComponentMeta(ts, checker, symbol);
 }
 
-// Property names differ between class-backed and template-only components:
-//   Class-backed: Signature type has uppercase Args/Blocks/Element
-//   Template-only: TemplateContext has lowercase args/blocks/element
-const SIGNATURE_KEYS = { args: 'Args', blocks: 'Blocks', element: 'Element' } as const;
-const CONTEXT_KEYS = { args: 'args', blocks: 'blocks', element: 'element' } as const;
-
 function extractComponentMeta(
   ts: typeof import('typescript'),
   checker: ts.TypeChecker,
@@ -387,7 +381,7 @@ function extractComponentMeta(
   const declaredType = checker.getDeclaredTypeOfSymbol(symbol);
   const signatureType = findSignatureType(ts, checker, declaredType);
   if (signatureType) {
-    return buildMeta(ts, checker, signatureType, SIGNATURE_KEYS);
+    return buildMeta(ts, checker, signatureType);
   }
 
   // Path 2: Template-only component — e.g. `<template>...</template> satisfies TOC<Sig>`
@@ -400,20 +394,12 @@ function extractComponentMeta(
   for (let i = constructSignatures.length - 1; i >= 0; i--) {
     const instanceType = constructSignatures[i].getReturnType();
 
-    // Some construct signatures may carry a Signature type directly
+    // Check if the instance type (or its base types) carries a Signature/TemplateContext
+    // with Args/Blocks/Element directly.
     const sig = findSignatureType(ts, checker, instanceType);
     if (sig) {
-      const meta = buildMeta(ts, checker, sig, SIGNATURE_KEYS);
-      if (meta.args.length > 0 || meta.blocks.length > 0) {
-        if (!meta.description) meta.description = description;
-        return meta;
-      }
-    }
-
-    // The instance may directly have TemplateContext shape (lowercase args/blocks/element)
-    if (instanceType.getProperty('args') || instanceType.getProperty('blocks')) {
-      const meta = buildMeta(ts, checker, instanceType, CONTEXT_KEYS);
-      if (meta.args.length > 0 || meta.blocks.length > 0) {
+      const meta = buildMeta(ts, checker, sig);
+      if (meta.Args.length > 0 || meta.Blocks.length > 0) {
         if (!meta.description) meta.description = description;
         return meta;
       }
@@ -424,9 +410,9 @@ function extractComponentMeta(
     for (const prop of instanceType.getProperties()) {
       if (prop.name.startsWith('__@Context@')) {
         const contextType = getPropertyType(checker, prop);
-        if (contextType && (contextType.getProperty('args') || contextType.getProperty('blocks'))) {
-          const meta = buildMeta(ts, checker, contextType, CONTEXT_KEYS);
-          if (meta.args.length > 0 || meta.blocks.length > 0) {
+        if (contextType && (contextType.getProperty('Args') || contextType.getProperty('Blocks'))) {
+          const meta = buildMeta(ts, checker, contextType);
+          if (meta.Args.length > 0 || meta.Blocks.length > 0) {
             // For template-only: try to find the Signature interface's JSDoc
             // via aliasTypeArguments on the ComponentContext type alias
             if (!meta.description) {
@@ -495,18 +481,14 @@ function getTypeArguments(checker: ts.TypeChecker, type: ts.Type): readonly ts.T
 }
 
 /**
- * Build component metadata by extracting args, blocks, and element from a type.
- * The `keys` parameter maps to the property names on the type — uppercase
- * (Args/Blocks/Element) for Signature types, lowercase (args/blocks/element)
- * for TemplateContext types.
+ * Build component metadata by extracting Args, Blocks, and Element from a type.
  */
 function buildMeta(
   ts: typeof import('typescript'),
   checker: ts.TypeChecker,
   type: ts.Type,
-  keys: { args: string; blocks: string; element: string },
 ): ComponentMeta {
-  const meta: ComponentMeta = { args: [], blocks: [], element: null, description: '' };
+  const meta: ComponentMeta = { Args: [], Blocks: [], Element: null, description: '' };
 
   // Try to get JSDoc from the type's own symbol (e.g. the Signature interface)
   const typeSymbol = type.getSymbol();
@@ -518,7 +500,7 @@ function buildMeta(
   }
 
   // Extract args
-  const argsProp = type.getProperty(keys.args);
+  const argsProp = type.getProperty('Args');
   if (argsProp) {
     let argsType = getPropertyType(checker, argsProp);
     if (argsType) {
@@ -529,7 +511,7 @@ function buildMeta(
       }
 
       for (const prop of argsType.getProperties()) {
-        meta.args.push({
+        meta.Args.push({
           name: prop.name,
           type: getPropertyTypeString(ts, checker, prop),
           description: ts.displayPartsToString(prop.getDocumentationComment(checker)),
@@ -545,13 +527,13 @@ function buildMeta(
   }
 
   // Extract blocks
-  const blocksProp = type.getProperty(keys.blocks);
+  const blocksProp = type.getProperty('Blocks');
   if (blocksProp) {
     const blocksType = getPropertyType(checker, blocksProp);
     if (blocksType) {
       for (const prop of blocksType.getProperties()) {
         const propType = getPropertyType(checker, prop);
-        meta.blocks.push({
+        meta.Blocks.push({
           name: prop.name,
           params: propType ? checker.typeToString(propType) : '[]',
         });
@@ -560,13 +542,13 @@ function buildMeta(
   }
 
   // Extract element
-  const elementProp = type.getProperty(keys.element);
+  const elementProp = type.getProperty('Element');
   if (elementProp) {
     const elementType = getPropertyType(checker, elementProp);
     if (elementType) {
       const typeStr = checker.typeToString(elementType);
       if (typeStr !== 'void' && typeStr !== 'unknown') {
-        meta.element = typeStr;
+        meta.Element = typeStr;
       }
     }
   }

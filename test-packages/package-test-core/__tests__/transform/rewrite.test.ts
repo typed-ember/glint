@@ -248,7 +248,7 @@ describe('Transform: rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(0:44):    <template>\\n  Hello, {{@target}}!\\n</template>
-        |  ts(0:290):    export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)());\\n__glintRef__; __glintDSL__;\\n})
+        |  ts(0:290):    export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.Args.target)());\\n__glintRef__; __glintDSL__;\\n})
         |
         | | Mapping: Template
         | |  hbs(10:33):   Hello, {{@target}}!
@@ -256,7 +256,7 @@ describe('Transform: rewriteModule', () => {
         | |
         | | Mapping: Template
         | |  hbs(10:33):   Hello, {{@target}}!
-        | |  ts(176:260):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)());
+        | |  ts(176:260):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.Args.target)());
         | |
         | | | Mapping: TextContent
         | | |  hbs(13:19):   Hello,
@@ -264,15 +264,15 @@ describe('Transform: rewriteModule', () => {
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(20:31):   {{@target}}
-        | | |  ts(176:258):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)())
+        | | |  ts(176:258):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.Args.target)())
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(20:31):   {{@target}}
-        | | | |  ts(201:257):  __glintDSL__.resolveOrReturn(__glintRef__.args.target)()
+        | | | |  ts(201:257):  __glintDSL__.resolveOrReturn(__glintRef__.Args.target)()
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(22:29):   @target
-        | | | | |  ts(230:254):  __glintRef__.args.target
+        | | | | |  ts(230:254):  __glintRef__.Args.target
         | | | | |
         | | | | | | Mapping: Identifier
         | | | | | |  hbs(23:29):   target
@@ -310,7 +310,7 @@ describe('Transform: rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(56:89):   <template>{{@message}}</template>
-        |  ts(56:332):   ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)());\\n__glintRef__; __glintDSL__;\\n})
+        |  ts(56:332):   ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.Args.message)());\\n__glintRef__; __glintDSL__;\\n})
         |
         | | Mapping: Template
         | |  hbs(66:78):   {{@message}}
@@ -318,19 +318,19 @@ describe('Transform: rewriteModule', () => {
         | |
         | | Mapping: Template
         | |  hbs(66:78):   {{@message}}
-        | |  ts(217:302):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)());
+        | |  ts(217:302):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.Args.message)());
         | |
         | | | Mapping: MustacheStatement
         | | |  hbs(66:78):   {{@message}}
-        | | |  ts(217:300):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)())
+        | | |  ts(217:300):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.Args.message)())
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(66:78):   {{@message}}
-        | | | |  ts(242:299):  __glintDSL__.resolveOrReturn(__glintRef__.args.message)()
+        | | | |  ts(242:299):  __glintDSL__.resolveOrReturn(__glintRef__.Args.message)()
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(68:76):   @message
-        | | | | |  ts(271:296):  __glintRef__.args.message
+        | | | | |  ts(271:296):  __glintRef__.Args.message
         | | | | |
         | | | | | | Mapping: Identifier
         | | | | | |  hbs(69:76):   message
@@ -606,7 +606,7 @@ describe('Transform: rewriteModule', () => {
 
           const SmolComp = 
             ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
-          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.name)());
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.Args.name)());
           __glintRef__; __glintDSL__;
           }) satisfies TOC<{ Args: { name: string }}>;
 
