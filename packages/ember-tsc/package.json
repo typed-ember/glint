@@ -70,7 +70,7 @@
     "@volar/source-map": "~2.4.28",
     "@volar/test-utils": "~2.4.28",
     "@volar/typescript": "~2.4.28",
-    "content-tag": "^3.1.2",
+    "content-tag": "^4.1.1",
     "silent-error": "^1.1.1",
     "volar-service-html": "~0.0.68",
     "volar-service-typescript": "~0.0.68",
