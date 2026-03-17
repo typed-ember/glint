@@ -1,5 +1,21 @@
 # Changelog
 
+## Release (2026-03-17)
+
+* @glint/ember-tsc 1.4.0 (minor)
+* @glint/tsserver-plugin 2.3.1 (patch)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`
+  * [#1091](https://github.com/typed-ember/glint/pull/1091) Upgrade content-tag to v4 and simplify template preprocessing ([@johanrd](https://github.com/johanrd))
+
+#### :house: Internal
+* `@glint/tsserver-plugin`
+  * [#1095](https://github.com/typed-ember/glint/pull/1095) Cleanup: Alternative to #1094 without touching the template context-casing ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- [@johanrd](https://github.com/johanrd)
+
 ## Release (2026-03-16)
 
 * @glint/ember-tsc 1.3.0 (minor)
