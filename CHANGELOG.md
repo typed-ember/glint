@@ -2,6 +2,16 @@
 
 ## Release (2026-03-17)
 
+
+
+#### :house: Internal
+* [#1097](https://github.com/typed-ember/glint/pull/1097) VSX Release bump ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
+## Release (2026-03-17)
+
 * @glint/ember-tsc 1.4.0 (minor)
 * @glint/tsserver-plugin 2.3.1 (patch)
 
