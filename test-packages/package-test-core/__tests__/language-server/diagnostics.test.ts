@@ -661,6 +661,39 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     expect(diagnostics.length).toBe(0);
   });
 
+  test('mathml does not produce false positives', async () => {
+    let componentA = stripIndent`
+      export const MathMLExample = <template>
+        <span>x</span>
+
+        <math display="block">
+          <mfrac>
+            <mrow>
+              <mi>a</mi>
+              <mo>+</mo>
+              <mn>2</mn>
+            </mrow>
+            <mrow>
+              <mn>3</mn>
+              <mo>−</mo>
+              <mi>b</mi>
+            </mrow>
+          </mfrac>
+        </math>
+
+        <span>x</span>
+      </template>
+      `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app/src/ephemeral-index.gts',
+      'glimmer-ts',
+      componentA,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
+
   test('errors with modifiers are properly reported', async () => {
     const code = stripIndent`
     import Component from '@glimmer/component';
