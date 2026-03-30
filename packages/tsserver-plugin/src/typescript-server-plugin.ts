@@ -189,8 +189,9 @@ const plugin = createLanguageServicePlugin(
           (fileName) => fileName,
         );
 
-        const resolveModuleNameLiterals =
-          info.languageServiceHost.resolveModuleNameLiterals?.bind(info.languageServiceHost);
+        const resolveModuleNameLiterals = info.languageServiceHost.resolveModuleNameLiterals?.bind(
+          info.languageServiceHost,
+        );
 
         if (resolveModuleNameLiterals) {
           // TS isn't aware of our custom .gts/.gjs extensions by default which causes

@@ -147,9 +147,10 @@ connection.onInitialize((params) => {
 
     {
       let glintConfig = null;
-      const isRealConfigFile = tsconfigFileName
-        && !tsconfigFileName.startsWith('/dev/null')
-        && (tsconfigFileName.endsWith('.json'));
+      const isRealConfigFile =
+        tsconfigFileName &&
+        !tsconfigFileName.startsWith('/dev/null') &&
+        tsconfigFileName.endsWith('.json');
       if (isRealConfigFile) {
         const configLoader = new ConfigLoader(logInfo);
         glintConfig = configLoader.configForFile(tsconfigFileName);
@@ -157,9 +158,9 @@ connection.onInitialize((params) => {
       if (!glintConfig) {
         const rootDir = isRealConfigFile
           ? path.dirname(tsconfigFileName!)
-          : (params.workspaceFolders?.[0]
-              ? URI.parse(params.workspaceFolders[0].uri).fsPath
-              : process.cwd());
+          : params.workspaceFolders?.[0]
+            ? URI.parse(params.workspaceFolders[0].uri).fsPath
+            : process.cwd();
         logInfo(`Using default Glint config for ${rootDir}.`);
         glintConfig = createDefaultConfig(ts, rootDir);
       }
