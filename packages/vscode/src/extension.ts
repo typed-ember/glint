@@ -341,16 +341,6 @@ function launch(
     return undefined;
   }
 
-  // Early bail-out: don't launch the Glint language server if there's no
-  // tsconfig.json or jsconfig.json anywhere in the workspace root tree.
-  // This prevents unnecessary overhead for pure JS projects without config.
-  if (!findConfigFileInWorkspace(workspaceFolder.uri.fsPath)) {
-    outputChannel.appendLine(
-      '[Activation] No tsconfig.json or jsconfig.json found in workspace; not launching Glint.',
-    );
-    return undefined;
-  }
-
   const emberTscSource = getEmberTscSourceSetting();
   const libraryPath = getLibraryPathSetting();
   const resolution = resolveEmberTscServerPath(workspaceFolder, emberTscSource, libraryPath);

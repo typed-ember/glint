@@ -1,3 +1,4 @@
+import * as path from 'node:path';
 import { createLanguage } from '@volar/language-core';
 import type { LanguagePlugin, LanguageServer } from '@volar/language-server';
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject.js';
@@ -9,6 +10,7 @@ import { create as createHtmlSyntacticPlugin } from 'volar-service-html';
 import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic.js';
 import { URI } from 'vscode-uri';
 import { ConfigLoader } from '../config/loader.js';
+import { createDefaultConfig } from '../config/index.js';
 import { create as createCompilerErrorsPlugin } from '../plugins/g-compiler-errors.js';
 import { create as createComponentHoverPlugin } from '../plugins/g-component-hover.js';
 import type { ComponentMeta, TsPluginClient } from '../plugins/g-component-hover.js';
@@ -143,18 +145,27 @@ connection.onInitialize((params) => {
       },
     ];
 
-    if (tsconfigFileName) {
-      const configLoader = new ConfigLoader(logInfo);
-      const glintConfig = configLoader.configForFile(tsconfigFileName);
-      if (glintConfig) {
-        logInfo(`Glint config active for ${tsconfigFileName}.`);
-        const emberLanguagePlugin = createEmberLanguagePlugin(glintConfig);
-        languagePlugins.push(emberLanguagePlugin);
-      } else {
-        logWarn(`Glint config not found for ${tsconfigFileName}; Glint features disabled.`);
+    {
+      let glintConfig = null;
+      const isRealConfigFile = tsconfigFileName
+        && !tsconfigFileName.startsWith('/dev/null')
+        && (tsconfigFileName.endsWith('.json'));
+      if (isRealConfigFile) {
+        const configLoader = new ConfigLoader(logInfo);
+        glintConfig = configLoader.configForFile(tsconfigFileName);
       }
-    } else {
-      logWarn('No tsconfig/jsconfig provided; Glint config cannot be resolved.');
+      if (!glintConfig) {
+        const rootDir = isRealConfigFile
+          ? path.dirname(tsconfigFileName!)
+          : (params.workspaceFolders?.[0]
+              ? URI.parse(params.workspaceFolders[0].uri).fsPath
+              : process.cwd());
+        logInfo(`Using default Glint config for ${rootDir}.`);
+        glintConfig = createDefaultConfig(ts, rootDir);
+      }
+      logInfo(`Glint config active for ${tsconfigFileName ?? 'default'}.`);
+      const emberLanguagePlugin = createEmberLanguagePlugin(glintConfig);
+      languagePlugins.push(emberLanguagePlugin);
     }
 
     const language = createLanguage<URI>(languagePlugins, createUriMap(), (uri) => {

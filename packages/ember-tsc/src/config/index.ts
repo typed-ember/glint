@@ -1,4 +1,6 @@
+import * as path from 'node:path';
 import SilentError from 'silent-error';
+import type TS from 'typescript';
 import { GlintConfig } from './config.js';
 import { ConfigLoader } from './loader.js';
 
@@ -27,4 +29,14 @@ export function loadConfig(from: string): GlintConfig {
  */
 export function findConfig(from: string): GlintConfig | null {
   return new ConfigLoader().configForDirectory(from);
+}
+
+/**
+ * Creates a default GlintConfig with ember-template-imports environment
+ * for use when no tsconfig.json or jsconfig.json exists. This enables
+ * Glint to provide IntelliSense in JavaScript-only Ember projects.
+ */
+export function createDefaultConfig(ts: typeof TS, rootDir: string): GlintConfig {
+  const syntheticConfigPath = path.join(rootDir, 'jsconfig.json');
+  return new GlintConfig(ts, syntheticConfigPath, { environment: 'ember-template-imports' });
 }
