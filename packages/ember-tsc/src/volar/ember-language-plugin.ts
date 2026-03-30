@@ -100,6 +100,8 @@ export function createEmberLanguagePlugin<T extends URI | string>(
             ...host.getCompilationSettings(),
             // Always allow JS for type checking.
             allowJs: true,
+            // Ember uses legacy/experimental decorators.
+            experimentalDecorators: true,
           }),
         };
       },
