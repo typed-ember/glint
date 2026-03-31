@@ -8,8 +8,65 @@ A Visual Studio Code extension for Version 2 of the [Glint] language server.
 
 See the [Glint home page] for a more detailed Getting Started guide.
 
+### If you want type-checking
+
 1. Add `@glint/ember-tsc`, `@glint/template` to your project's `devDependencies`.
-2. (Optional) Add a `"glint"` key to your project's `tsconfig.json` or `jsconfig.json` specifying your environment and any other relevant configuration.
+2. Add a `jsconfig.json` or `tsconfig.json`
+
+<details><summary>example jsconfig</summary>
+
+```js
+{
+  "extends": "@ember/app-tsconfig",
+  "compilerOptions": {
+    "strict": false,
+    "checkJs": false,
+    "types": [
+      "ember-source/types",
+      "@embroider/core/virtual",
+      "vite/client",
+      "@glint/ember-tsc/types"
+    ]
+  }
+}
+```
+
+</details>
+<details><summary>example tsconfig</summary>
+
+
+#### for apps
+
+```js
+{
+  "extends": "@ember/app-tsconfig",
+  "compilerOptions": {
+    "types": [
+      "ember-source/types",
+      "@embroider/core/virtual",
+      "vite/client",
+      "@glint/ember-tsc/types"
+    ]
+  }
+}
+```
+
+#### for libraries
+
+```js
+{
+  "extends": "@ember/library-tsconfig",
+  "include": ["./src/**/*", "./unpublished-development-types/**/*"],
+  "compilerOptions": {
+    "allowJs": true,
+    "declarationDir": "declarations",
+    "rootDir": "./src",
+    "types": ["ember-source/types", "@glint/ember-tsc/types"]
+  }
+}
+```
+
+</details>
 
 [glint home page]: https://typed-ember.gitbook.io/glint
 
