@@ -505,42 +505,6 @@ function resolveBundledEmberTscServerPath(): string | undefined {
   }
 }
 
-/**
- * Check whether a tsconfig.json or jsconfig.json exists anywhere in the
- * workspace directory tree (searching recursively). Returns the first
- * matching path found, or undefined if none.
- */
-function findConfigFileInWorkspace(workspaceRoot: string): string | undefined {
-  // Quick check: look for tsconfig.json / jsconfig.json in the workspace root first.
-  for (const name of ['tsconfig.json', 'jsconfig.json']) {
-    const candidate = path.join(workspaceRoot, name);
-    if (fs.existsSync(candidate)) {
-      return candidate;
-    }
-  }
-
-  // Walk immediate sub-directories (1 level deep) to cover monorepo layouts
-  // where the config lives in a child package. We intentionally skip
-  // node_modules and hidden directories to keep this check fast.
-  try {
-    const entries = fs.readdirSync(workspaceRoot, { withFileTypes: true });
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-      if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
-      for (const name of ['tsconfig.json', 'jsconfig.json']) {
-        const candidate = path.join(workspaceRoot, entry.name, name);
-        if (fs.existsSync(candidate)) {
-          return candidate;
-        }
-      }
-    }
-  } catch {
-    // If reading the directory fails, fall through to return undefined.
-  }
-
-  return undefined;
-}
-
 // We need to activate the default VSCode TypeScript extension so that our
 // TS Plugin kicks in. We do this because the TS extension is (obviously) not
 // configured to activate for, say, .gts files:
