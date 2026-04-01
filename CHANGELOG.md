@@ -1,5 +1,21 @@
 # Changelog
 
+## Release (2026-04-01)
+
+* @glint/ember-tsc 1.5.0 (minor)
+* @glint/tsserver-plugin 2.4.0 (minor)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`, `@glint/tsserver-plugin`
+  * [#1102](https://github.com/typed-ember/glint/pull/1102) Support Glint in JS-only Ember projects without tsconfig/jsconfig ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### :house: Internal
+* [#1097](https://github.com/typed-ember/glint/pull/1097) VSX Release bump ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 2
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-03-17)
 
 * @glint/ember-tsc 1.4.0 (minor)
