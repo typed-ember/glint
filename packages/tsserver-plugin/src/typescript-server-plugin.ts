@@ -174,7 +174,7 @@ const plugin = createLanguageServicePlugin(
     logInfo(`Using ${resolved.source} ember-tsc from ${resolved.resolvedPath}.`);
 
     const { findConfig, createDefaultConfig, createEmberLanguagePlugin } = emberTsc;
-    const glintConfig = findConfig(cwd) ?? createDefaultConfig(ts, cwd);
+    const glintConfig = findConfig(cwd, ts) ?? createDefaultConfig(ts, cwd);
 
     const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig, {
       clientId: 'tsserver-plugin',

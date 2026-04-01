@@ -27,8 +27,8 @@ export function loadConfig(from: string): GlintConfig {
  * and searching upwards. Returns `null` if no configuration is
  * found.
  */
-export function findConfig(from: string): GlintConfig | null {
-  return new ConfigLoader().configForDirectory(from);
+export function findConfig(from: string, fallbackTs?: typeof TS): GlintConfig | null {
+  return new ConfigLoader(undefined, fallbackTs).configForDirectory(from);
 }
 
 /**

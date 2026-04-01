@@ -365,6 +365,17 @@ function launch(
 
   const serverPath = resolution.path;
 
+  // Provide VS Code's built-in TypeScript as a fallback for projects that
+  // have @glint/ember-tsc but not typescript as a direct dependency.
+  const builtinTypescriptPath = path.join(
+    vscode.env.appRoot,
+    'extensions/node_modules/typescript/lib/typescript.js',
+  );
+  const serverEnv = {
+    ...process.env,
+    GLINT_TYPESCRIPT_PATH: builtinTypescriptPath,
+  };
+
   const client = new lsp.LanguageClient(
     'glint',
     'Glint',
@@ -372,12 +383,12 @@ function launch(
       run: {
         module: serverPath,
         transport: lsp.TransportKind.ipc,
-        options: {},
+        options: { env: serverEnv },
       },
       debug: {
         module: serverPath,
         transport: lsp.TransportKind.ipc,
-        options: { execArgv: ['--nolazy', '--inspect=' + 6009] },
+        options: { execArgv: ['--nolazy', '--inspect=' + 6009], env: serverEnv },
       },
     },
     {

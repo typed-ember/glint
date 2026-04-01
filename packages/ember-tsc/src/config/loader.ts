@@ -24,9 +24,11 @@ type TypeScript = typeof TS;
 export class ConfigLoader {
   private configs = new Map<string, GlintConfig | null>();
   private logInfo?: (message: string) => void;
+  private fallbackTypeScript?: TypeScript;
 
-  constructor(logInfo?: (message: string) => void) {
+  constructor(logInfo?: (message: string) => void, fallbackTypeScript?: TypeScript) {
     this.logInfo = logInfo;
+    this.fallbackTypeScript = fallbackTypeScript;
   }
 
   private log(message: string): void {
@@ -38,7 +40,7 @@ export class ConfigLoader {
   }
 
   public configForDirectory(directory: string): GlintConfig | null {
-    let ts = findTypeScript(directory);
+    let ts = findTypeScript(directory) ?? this.fallbackTypeScript ?? null;
     if (!ts) {
       this.log(`No TypeScript installation found from ${directory}.`);
       return null;
