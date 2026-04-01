@@ -1,11 +1,12 @@
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
+import type TS from 'typescript';
 import { createLanguage } from '@volar/language-core';
 import type { LanguagePlugin, LanguageServer } from '@volar/language-server';
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject.js';
 import { createConnection, createServer } from '@volar/language-server/node.js';
 import type { LanguageServiceContext, LanguageServicePlugin } from '@volar/language-service';
 import { createLanguageService, createUriMap, LanguageService } from '@volar/language-service';
-import * as ts from 'typescript';
 import { create as createHtmlSyntacticPlugin } from 'volar-service-html';
 import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic.js';
 import { URI } from 'vscode-uri';
@@ -16,6 +17,36 @@ import { create as createComponentHoverPlugin } from '../plugins/g-component-hov
 import type { ComponentMeta, TsPluginClient } from '../plugins/g-component-hover.js';
 import { create as createTemplateTagSymbolsPlugin } from '../plugins/g-template-tag-symbols.js';
 import { createEmberLanguagePlugin } from './ember-language-plugin.js';
+
+const require = createRequire(import.meta.url);
+
+/**
+ * Resolve TypeScript with fallback to a path provided by the host (e.g., VS Code's built-in TypeScript).
+ * This allows the language server to work even when the user's project doesn't have `typescript`
+ * as a direct dependency (only `@glint/ember-tsc` which has it as a peerDep).
+ */
+function resolveTypeScript(): typeof import('typescript') {
+  // Try normal resolution (project's TypeScript or ember-tsc's peer dep)
+  try {
+    return require('typescript');
+  } catch {
+    // ignore
+  }
+
+  // Fall back to TypeScript path provided by the VS Code extension
+  const fallbackPath = process.env['GLINT_TYPESCRIPT_PATH'];
+  if (fallbackPath) {
+    try {
+      return require(fallbackPath);
+    } catch {
+      // ignore
+    }
+  }
+
+  throw new Error('TypeScript could not be resolved. Please install `typescript` as a dependency.');
+}
+
+const ts = resolveTypeScript();
 
 const connection = createConnection();
 const server = createServer(connection);
@@ -78,12 +109,12 @@ connection.onInitialize((params) => {
         if (uri.scheme === 'file') {
           // Use tsserver to find the tsconfig governing this file.
           const fileName = uri.fsPath.replace(/\\/g, '/');
-          const projectInfo = await sendTsServerRequest<ts.server.protocol.ProjectInfo>(
+          const projectInfo = await sendTsServerRequest<TS.server.protocol.ProjectInfo>(
             '_glint:' + ts.server.protocol.CommandTypes.ProjectInfo,
             {
               file: fileName,
               needFileNameList: false,
-            } satisfies ts.server.protocol.ProjectInfoRequestArgs,
+            } satisfies TS.server.protocol.ProjectInfoRequestArgs,
           );
           if (projectInfo) {
             const { configFileName } = projectInfo;
@@ -152,7 +183,7 @@ connection.onInitialize((params) => {
         !tsconfigFileName.startsWith('/dev/null') &&
         tsconfigFileName.endsWith('.json');
       if (isRealConfigFile) {
-        const configLoader = new ConfigLoader(logInfo);
+        const configLoader = new ConfigLoader(logInfo, ts);
         glintConfig = configLoader.configForFile(tsconfigFileName);
       }
       if (!glintConfig) {

@@ -365,6 +365,16 @@ function launch(
 
   const serverPath = resolution.path;
 
+  // Provide VS Code's built-in TypeScript as a fallback for projects that
+  // have @glint/ember-tsc but not typescript as a direct dependency.
+  const builtinTsdkPath = resolveTsdkPath();
+  const serverEnv = {
+    ...process.env,
+    ...(builtinTsdkPath
+      ? { GLINT_TYPESCRIPT_PATH: path.join(builtinTsdkPath, 'typescript.js') }
+      : {}),
+  };
+
   const client = new lsp.LanguageClient(
     'glint',
     'Glint',
@@ -372,12 +382,12 @@ function launch(
       run: {
         module: serverPath,
         transport: lsp.TransportKind.ipc,
-        options: {},
+        options: { env: serverEnv },
       },
       debug: {
         module: serverPath,
         transport: lsp.TransportKind.ipc,
-        options: { execArgv: ['--nolazy', '--inspect=' + 6009] },
+        options: { execArgv: ['--nolazy', '--inspect=' + 6009], env: serverEnv },
       },
     },
     {
@@ -485,6 +495,35 @@ function resolveWorkspaceEmberTscServerPath(resolutionDir: string): string | und
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Resolve the path to the TypeScript SDK lib directory bundled with the editor.
+ * Supports VS Code and Eclipse Theia.
+ */
+function resolveTsdkPath(): string | undefined {
+  const vscodeTsdk = path.join(
+    vscode.env.appRoot,
+    'extensions',
+    'node_modules',
+    'typescript',
+    'lib',
+  );
+  if (fs.existsSync(vscodeTsdk)) {
+    return vscodeTsdk;
+  }
+
+  const tsExt = vscode.extensions.getExtension('vscode.typescript-language-features');
+  if (tsExt) {
+    // Eclipse Theia
+    // see: https://github.com/eclipse-theia/vscode-builtin-extensions/blob/65c70ec636bd879ef9529d0a2da36f4b99139c40/src/package-vsix.js#L71
+    const theiaTsdk = path.join(tsExt.extensionPath, 'deps', 'typescript', 'lib');
+    if (fs.existsSync(theiaTsdk)) {
+      return theiaTsdk;
+    }
+  }
+
+  return undefined;
 }
 
 function resolveBundledEmberTscServerPath(): string | undefined {
