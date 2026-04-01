@@ -2,6 +2,16 @@
 
 ## Release (2026-04-01)
 
+
+
+#### :house: Internal
+* [#1103](https://github.com/typed-ember/glint/pull/1103) VSCode version bump ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
+## Release (2026-04-01)
+
 * @glint/ember-tsc 1.5.0 (minor)
 * @glint/tsserver-plugin 2.4.0 (minor)
 
