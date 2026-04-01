@@ -43,10 +43,7 @@ function resolveTypeScript(): typeof import('typescript') {
     }
   }
 
-  throw new Error(
-    'TypeScript could not be resolved. Install `typescript` as a dependency, ' +
-      'or ensure the Glint VS Code extension provides a fallback TypeScript path.',
-  );
+  throw new Error('TypeScript could not be resolved. Please install `typescript` as a dependency.');
 }
 
 const ts = resolveTypeScript();
