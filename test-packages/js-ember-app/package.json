@@ -1,0 +1,14 @@
+{
+  "name": "js-ember-app",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "devDependencies": {
+    "@glimmer/component": "^2.0.0",
+    "ember-page-title": "^9.0.0",
+    "ember-source": "^6.2.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

@@ -126,19 +126,7 @@ const plugin = createLanguageServicePlugin(
     const logger = info.project.projectService.logger;
     const logInfo = (message: string): void => logger.info(`[Glint] ${message}`);
 
-    // Early bail-out: if no tsconfig.json or jsconfig.json exists, don't even
-    // attempt to load ember-tsc. This prevents expensive module loading (jiti,
-    // WASM content-tag, etc.) for projects that have no TypeScript config.
     const cwd = info.languageServiceHost.getCurrentDirectory();
-    const hasTsConfig = ts.findConfigFile(cwd, ts.sys.fileExists, 'tsconfig.json');
-    const hasJsConfig = ts.findConfigFile(cwd, ts.sys.fileExists, 'jsconfig.json');
-    if (!hasTsConfig && !hasJsConfig) {
-      logInfo(
-        `No tsconfig.json or jsconfig.json found from ${cwd}. ` +
-          'Glint TS Plugin will not activate.',
-      );
-      return { languagePlugins: [] };
-    }
 
     const config = info.config ?? {};
     const emberTscSource = normalizeEmberTscSource((config as any).emberTscSource);
@@ -185,91 +173,70 @@ const plugin = createLanguageServicePlugin(
 
     logInfo(`Using ${resolved.source} ember-tsc from ${resolved.resolvedPath}.`);
 
-    const { findConfig, createEmberLanguagePlugin } = emberTsc;
-    const glintConfig = findConfig(cwd);
+    const { findConfig, createDefaultConfig, createEmberLanguagePlugin } = emberTsc;
+    const glintConfig = findConfig(cwd) ?? createDefaultConfig(ts, cwd);
 
-    if (glintConfig) {
-      const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig, {
-        clientId: 'tsserver-plugin',
-      });
-      return {
-        languagePlugins: [gtsLanguagePlugin],
-        setup: (language: any) => {
-          // project2Service.set(info.project, [
-          //   language,
-          //   info.languageServiceHost,
-          //   info.languageService,
-          // ]);
+    const gtsLanguagePlugin = createEmberLanguagePlugin(glintConfig, {
+      clientId: 'tsserver-plugin',
+    });
+    return {
+      languagePlugins: [gtsLanguagePlugin],
+      setup: (language: any) => {
+        info.languageService = proxyLanguageServiceForGlint(
+          ts,
+          language,
+          info.languageService,
+          (fileName) => fileName,
+        );
 
-          info.languageService = proxyLanguageServiceForGlint(
-            ts,
-            language,
-            info.languageService,
-            (fileName) => fileName,
-          );
+        const resolveModuleNameLiterals = info.languageServiceHost.resolveModuleNameLiterals?.bind(
+          info.languageServiceHost,
+        );
 
-          const resolveModuleNameLiterals =
-            info.languageServiceHost.resolveModuleNameLiterals?.bind(info.languageServiceHost);
+        if (resolveModuleNameLiterals) {
+          // TS isn't aware of our custom .gts/.gjs extensions by default which causes
+          // issues with resolving imports that omit extensions. We hackishly "teach"
+          // TS about these extensions by overriding `resolveModuleNameLiterals` to
+          // inject non-existent imports that cause TS to consider the extensions when
+          // resolving.
+          //
+          // Origin of this hack:
+          // https://github.com/typed-ember/glint/issues/806#issuecomment-2758616327
+          info.languageServiceHost.resolveModuleNameLiterals = (
+            moduleLiterals,
+            containingFile,
+            redirectedReference,
+            options,
+            ...rest
+          ) => {
+            let fakeImportNodes: any = [];
+            if (moduleLiterals.length > 0) {
+              fakeImportNodes.push({
+                ...moduleLiterals[0],
+                text: './__NONEXISTENT_GLINT_HACK__.gts',
+              });
+              fakeImportNodes.push({
+                ...moduleLiterals[0],
+                text: './__NONEXISTENT_GLINT_HACK__.gjs',
+              });
+            }
 
-          if (resolveModuleNameLiterals) {
-            // TS isn't aware of our custom .gts/.gjs extensions by default which causes
-            // issues with resolving imports that omit extensions. We hackishly "teach"
-            // TS about these extensions by overriding `resolveModuleNameLiterals` to
-            // inject non-existent imports that cause TS to consider the extensions when
-            // resolving.
-            //
-            // Origin of this hack:
-            // https://github.com/typed-ember/glint/issues/806#issuecomment-2758616327
-            info.languageServiceHost.resolveModuleNameLiterals = (
-              moduleLiterals,
+            const result = resolveModuleNameLiterals(
+              [...fakeImportNodes, ...moduleLiterals],
               containingFile,
               redirectedReference,
               options,
-              ...rest
-            ) => {
-              let fakeImportNodes: any = [];
-              if (moduleLiterals.length > 0) {
-                fakeImportNodes.push({
-                  ...moduleLiterals[0],
-                  text: './__NONEXISTENT_GLINT_HACK__.gts',
-                });
-                fakeImportNodes.push({
-                  ...moduleLiterals[0],
-                  text: './__NONEXISTENT_GLINT_HACK__.gjs',
-                });
-              }
+              ...rest,
+            );
 
-              const result = resolveModuleNameLiterals(
-                [...fakeImportNodes, ...moduleLiterals],
-                containingFile,
-                redirectedReference,
-                options,
-                ...rest,
-              );
+            return result.slice(fakeImportNodes.length);
+          };
+        }
 
-              return result.slice(fakeImportNodes.length);
-            };
-          }
-
-          // Add Glint-specific protocol handlers for tsserver communication
-          addGlintCommands();
-
-          // #3963
-          // const timer = setInterval(() => {
-          //   if (info.project['program']) {
-          //     clearInterval(timer);
-          //     info.project['program'].__glint__ = { language };
-          //   }
-          // }, 50);
-        },
-      };
-    } else {
-      logInfo('Glint TS Plugin is not running: no Glint config was found.');
-
-      return {
-        languagePlugins: [],
-      };
-    }
+        // Add Glint-specific protocol handlers for tsserver communication
+        addGlintCommands();
+      },
+    };
 
     // https://github.com/JetBrains/intellij-plugins/blob/6435723ad88fa296b41144162ebe3b8513f4949b/Angular/src-js/angular-service/src/index.ts#L69
     function addGlintCommands(): void {
