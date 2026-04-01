@@ -1,41 +1,17 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "minor",
-      "oldVersion": "1.4.0",
-      "newVersion": "1.5.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        }
-      ],
-      "pkgJSONPath": "./packages/ember-tsc/package.json"
+      "oldVersion": "1.5.0"
     },
     "@glint/template": {
       "oldVersion": "1.7.7"
     },
     "@glint/tsserver-plugin": {
-      "impact": "minor",
-      "oldVersion": "2.3.1",
-      "newVersion": "2.4.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
-        },
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        }
-      ],
-      "pkgJSONPath": "./packages/tsserver-plugin/package.json"
+      "oldVersion": "2.4.0"
     },
     "@glint/type-test": {
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-04-01)\n\n* @glint/ember-tsc 1.5.0 (minor)\n* @glint/tsserver-plugin 2.4.0 (minor)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1102](https://github.com/typed-ember/glint/pull/1102) Support Glint in JS-only Ember projects without tsconfig/jsconfig ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### :house: Internal\n* [#1097](https://github.com/typed-ember/glint/pull/1097) VSX Release bump ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 2\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-04-01)\n\n\n\n#### :house: Internal\n* [#1103](https://github.com/typed-ember/glint/pull/1103) VSCode version bump ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
