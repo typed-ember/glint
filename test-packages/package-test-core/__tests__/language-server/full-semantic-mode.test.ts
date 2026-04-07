@@ -8,7 +8,6 @@ import {
 } from 'glint-monorepo-test-utils';
 import { afterEach, describe, expect, test } from 'vitest';
 import { Position } from '@volar/language-server';
-import { URI } from 'vscode-uri';
 
 describe('Language Server: Full Semantic Mode (createTypeScriptProject)', () => {
   // Full semantic mode startup (createTypeScriptProject) takes longer than hybrid mode.
@@ -39,7 +38,8 @@ describe('Language Server: Full Semantic Mode (createTypeScriptProject)', () => 
     const typeError = diagnostics.find((d: any) => d.code === 2551);
     expect(typeError).toBeDefined();
     expect(typeError.message).toContain('startupTimee');
-    expect(typeError.message).toContain('startupTime');
+    // Use "Did you mean" phrasing to avoid false positive: 'startupTime' is a substring of 'startupTimee'
+    expect(typeError.message).toContain("Did you mean 'startupTime'");
   });
 
   test('reports no diagnostics for a valid template', async () => {
@@ -64,8 +64,7 @@ describe('Language Server: Full Semantic Mode (createTypeScriptProject)', () => 
       code,
     );
 
-    const typeErrors = diagnostics.filter((d: any) => d.severity === 1);
-    expect(typeErrors).toHaveLength(0);
+    expect(diagnostics).toHaveLength(0);
   });
 
   test('syntax error in template is reported', async () => {
@@ -96,6 +95,7 @@ describe('Language Server: Full Semantic Mode (createTypeScriptProject)', () => 
 
       export default class Application extends Component {
         private startupTime = new Date().toISOString();
+        private badType: number = 'not a number';
 
         <template>
           The current time is {{this.startupTimee}}.
@@ -112,6 +112,10 @@ describe('Language Server: Full Semantic Mode (createTypeScriptProject)', () => 
     // Without glint config, template type-checking (2551/2339) should not be reported.
     const templateTypeErrors = diagnostics.filter((d: any) => d.code === 2551 || d.code === 2339);
     expect(templateTypeErrors).toHaveLength(0);
+
+    // Plain TS errors should still be reported (TS is active, only glint template-checking is off).
+    const tsTypeError = diagnostics.find((d: any) => d.code === 2322);
+    expect(tsTypeError).toBeDefined();
   });
 
   test('completions are provided in full semantic mode', async () => {
@@ -180,6 +184,8 @@ describe('Language Server: Full Semantic Mode (createTypeScriptProject)', () => 
     expect(hover).not.toBeNull();
     const hoverText = JSON.stringify(hover?.contents ?? '');
     expect(hoverText).toContain('startupTime');
+    // TS type annotation in hover confirms TS analysis is active, not just a text match
+    expect(hoverText).toContain(': string');
   });
 
   test('passing wrong arg to component is an error in full semantic mode', async () => {
@@ -209,6 +215,7 @@ describe('Language Server: Full Semantic Mode (createTypeScriptProject)', () => 
 
     const argError = diagnostics.find((d: any) => d.code === 2561 || d.code === 2353);
     expect(argError).toBeDefined();
-    expect(argError.message).toContain('target2');
+    expect(argError.message).toContain('target2'); // the unknown argument passed
+    expect(argError.message).toMatch(/\btarget\b/); // the expected argument in the type shape
   });
 });
