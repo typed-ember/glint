@@ -161,6 +161,84 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
 
 const openedDocuments: TextDocument[] = [];
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Full Semantic Mode helpers
+// ──────────────────────────────────────────────────────────────────────────────
+
+let fullSemanticServerHandle: LanguageServerHandle | undefined;
+const fullSemanticOpenedDocuments: TextDocument[] = [];
+
+/**
+ * Returns a Glint language server handle initialized in full semantic mode
+ * (`fullSemanticMode: true`). Uses `createTypeScriptProject` instead of the
+ * hybrid tsserver-delegation path. Each call after teardown creates a new
+ * server; within the same test it is reused.
+ */
+export async function getFullSemanticModeWorkspaceHelper(): Promise<LanguageServerHandle> {
+  if (!fullSemanticServerHandle) {
+    const glintLSPath = require.resolve('@glint/ember-tsc/bin/glint-language-server');
+    fullSemanticServerHandle = startLanguageServer(glintLSPath, testWorkspacePath);
+    fullSemanticServerHandle.connection.onNotification(PublishDiagnosticsNotification.type, () => {});
+    fullSemanticServerHandle.connection.onRequest(ConfigurationRequest.type, ({ items }) => {
+      return items.map(({ section }: { section?: string }) => {
+        if (section?.startsWith('glint.inlayHints.')) return true;
+        return null;
+      });
+    });
+
+    await fullSemanticServerHandle.initialize(
+      URI.file(testWorkspacePath).toString(),
+      { fullSemanticMode: true },
+      { workspace: { configuration: true } },
+    );
+  }
+  return fullSemanticServerHandle;
+}
+
+export async function teardownFullSemanticModeWorkspaceAfterEach(): Promise<void> {
+  if (fullSemanticServerHandle) {
+    const handle = fullSemanticServerHandle;
+    // Reset state immediately so subsequent tests don't reuse a dying server.
+    fullSemanticServerHandle = undefined;
+    fullSemanticOpenedDocuments.length = 0;
+
+    // In full semantic mode the TypeScript project keeps running after each
+    // request, so shutdown() can take a long time. Force-kill after 5 s.
+    const shutdownOrTimeout = Promise.race([
+      handle.shutdown().catch(() => {}),
+      new Promise<void>((resolve) => setTimeout(resolve, 5_000)),
+    ]);
+    await shutdownOrTimeout;
+    handle.connection.dispose();
+    handle.process.kill();
+  }
+}
+
+export async function prepareDocumentFullSemanticMode(
+  fileName: string,
+  languageId: string,
+  content: string,
+): Promise<TextDocument> {
+  const server = await getFullSemanticModeWorkspaceHelper();
+  const uri = URI.file(`${testWorkspacePath}/${fileName}`).toString();
+  const document = await server.openInMemoryDocument(uri, languageId, content);
+  if (fullSemanticOpenedDocuments.every((d) => d.uri !== document.uri)) {
+    fullSemanticOpenedDocuments.push(document);
+  }
+  return document;
+}
+
+export async function requestFullSemanticModeDiagnostics(
+  fileName: string,
+  languageId: string,
+  content: string,
+): Promise<any[]> {
+  const server = await getFullSemanticModeWorkspaceHelper();
+  const document = await prepareDocumentFullSemanticMode(fileName, languageId, content);
+  const report = (await server.sendDocumentDiagnosticRequest(document.uri)) as FullDocumentDiagnosticReport;
+  return report.items ?? [];
+}
+
 export async function ensureNoOpenDocuments(): Promise<void> {
   if (!serverHandle) {
     return;
