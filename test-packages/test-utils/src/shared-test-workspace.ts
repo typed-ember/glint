@@ -178,7 +178,10 @@ export async function getFullSemanticModeWorkspaceHelper(): Promise<LanguageServ
   if (!fullSemanticServerHandle) {
     const glintLSPath = require.resolve('@glint/ember-tsc/bin/glint-language-server');
     fullSemanticServerHandle = startLanguageServer(glintLSPath, testWorkspacePath);
-    fullSemanticServerHandle.connection.onNotification(PublishDiagnosticsNotification.type, () => {});
+    fullSemanticServerHandle.connection.onNotification(
+      PublishDiagnosticsNotification.type,
+      () => {},
+    );
     fullSemanticServerHandle.connection.onRequest(ConfigurationRequest.type, ({ items }) => {
       return items.map(({ section }: { section?: string }) => {
         if (section?.startsWith('glint.inlayHints.')) return true;
@@ -235,7 +238,9 @@ export async function requestFullSemanticModeDiagnostics(
 ): Promise<any[]> {
   const server = await getFullSemanticModeWorkspaceHelper();
   const document = await prepareDocumentFullSemanticMode(fileName, languageId, content);
-  const report = (await server.sendDocumentDiagnosticRequest(document.uri)) as FullDocumentDiagnosticReport;
+  const report = (await server.sendDocumentDiagnosticRequest(
+    document.uri,
+  )) as FullDocumentDiagnosticReport;
   return report.items ?? [];
 }
 

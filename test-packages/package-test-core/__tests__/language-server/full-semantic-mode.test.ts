@@ -110,9 +110,7 @@ describe('Language Server: Full Semantic Mode (createTypeScriptProject)', () => 
     );
 
     // Without glint config, template type-checking (2551/2339) should not be reported.
-    const templateTypeErrors = diagnostics.filter(
-      (d: any) => d.code === 2551 || d.code === 2339,
-    );
+    const templateTypeErrors = diagnostics.filter((d: any) => d.code === 2551 || d.code === 2339);
     expect(templateTypeErrors).toHaveLength(0);
   });
 
