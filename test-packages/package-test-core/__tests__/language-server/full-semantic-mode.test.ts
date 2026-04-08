@@ -90,12 +90,11 @@ describe('Language Server: Full Semantic Mode (createTypeScriptProject)', () => 
   });
 
   test('plugin deactivates for project without glint config', async () => {
-    const code = stripIndent`
+    const gtsCode = stripIndent`
       import Component from '@glimmer/component';
 
       export default class Application extends Component {
         private startupTime = new Date().toISOString();
-        private badType: number = 'not a number';
 
         <template>
           The current time is {{this.startupTimee}}.
@@ -103,18 +102,27 @@ describe('Language Server: Full Semantic Mode (createTypeScriptProject)', () => 
       }
     `;
 
-    const diagnostics = await requestFullSemanticModeDiagnostics(
+    const gtsDiagnostics = await requestFullSemanticModeDiagnostics(
       'ts-template-imports-app-no-config/src/empty-fixture.gts',
       'glimmer-ts',
-      code,
+      gtsCode,
     );
 
-    // Without glint config, template type-checking (2551/2339) should not be reported.
-    const templateTypeErrors = diagnostics.filter((d: any) => d.code === 2551 || d.code === 2339);
+    // Without glint config, the ember language plugin is not registered, so TypeScript
+    // cannot process .gts files (no extraFileExtensions for .gts). Template type-checking
+    // errors (2551/2339) should not be reported.
+    const templateTypeErrors = gtsDiagnostics.filter((d: any) => d.code === 2551 || d.code === 2339);
     expect(templateTypeErrors).toHaveLength(0);
 
-    // Plain TS errors should still be reported (TS is active, only glint template-checking is off).
-    const tsTypeError = diagnostics.find((d: any) => d.code === 2322);
+    // Verify TypeScript is still active for plain .ts files even when glint is deactivated.
+    // We check a .ts file (not .gts) because without the ember plugin, TypeScript cannot
+    // process .gts files at all — but it still handles .ts files via its native project support.
+    const tsDiagnostics = await requestFullSemanticModeDiagnostics(
+      'ts-template-imports-app-no-config/src/type-error.ts',
+      'typescript',
+      `const x: number = 'not a number';`,
+    );
+    const tsTypeError = tsDiagnostics.find((d: any) => d.code === 2322);
     expect(tsTypeError).toBeDefined();
   });
 
