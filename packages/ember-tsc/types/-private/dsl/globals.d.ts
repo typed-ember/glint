@@ -3,19 +3,54 @@ import Globals from '../../globals';
 import * as VM from '@glint/template/-private/keywords';
 
 import { ActionKeyword } from '../intrinsics/action';
+import { ArrayHelper, HashHelper } from '../intrinsics/array-hash';
+import {
+  EqHelper,
+  GtHelper,
+  GteHelper,
+  LtHelper,
+  LteHelper,
+  NeqHelper,
+} from '../intrinsics/comparison';
 import { EachKeyword } from '../intrinsics/each';
 import { EachInKeyword } from '../intrinsics/each-in';
+import { ElementHelper } from '../intrinsics/element';
+import { FnHelper } from '../intrinsics/fn';
 import { LogHelper } from '../intrinsics/log';
 import { MountKeyword } from '../intrinsics/mount';
 import { MutKeyword } from '../intrinsics/mut';
+import { OnModifier } from '../intrinsics/on';
 import { OutletKeyword } from '../intrinsics/outlet';
+import { AndHelper, NotHelper, OrHelper } from '../intrinsics/truth-helpers';
 import { UnboundKeyword } from '../intrinsics/unbound';
 import { UniqueIdHelper } from '../intrinsics/unique-id';
+
+// ---- ember-source 7.1 detection -------------------------------------------
+//
+// The keywords introduced by RFCs 562, 470, 997, 998, 999, 1000, 560, 561 and
+// 389 are only available at runtime when consumers are on ember-source >= 7.1.
+// We probe for the `EqHelper` re-export added by RFC 561 to decide whether to
+// expose the new keyword types. On older versions the probe collapses to the
+// empty type, so referencing e.g. `{{eq}}` falls back to whatever the user
+// has imported (or surfaces as an "unknown identifier" diagnostic), keeping
+// behaviour identical to today.
+//
+// `@ember/helper` is an optional peer dependency at the type level: the
+// `@ts-ignore` ensures Glint still type-checks in environments that haven't
+// installed it.
+//
+// @ts-ignore — `@ember/helper` is an optional peer dependency
+type EmberHelperExports = typeof import('@ember/helper');
+
+type HasEmber71BuiltIns = [EmberHelperExports] extends [{ EqHelper: unknown }] ? true : false;
+
+/** Resolves to `T` only when ember-source >= 7.1 ships the new keyword set. */
+type Ember71Only<T> = HasEmber71BuiltIns extends true ? T : never;
 
 // The keyword vs global breakdown here is loosely matched with
 // the listing in http://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html
 
-interface Keywords {
+interface KeywordsForEmber {
   /**
     The {{action}} helper provides a way to pass triggers for behavior (usually just a function)
     between components, and into components from controllers.
@@ -200,5 +235,280 @@ interface Keywords {
   // `{{yield}}` is implemented directly in `ember-tsc`
   yield: void;
 }
+
+/**
+ * Built-in template keywords introduced by ember-source 7.1
+ * (RFCs 389, 470, 560, 561, 562, 997, 998, 999, 1000). Each entry is gated by
+ * `Ember71Only<T>` so the keyword resolves to `never` (and is therefore
+ * effectively absent) when the consumer is on ember-source < 7.1. See the
+ * `HasEmber71BuiltIns` probe at the top of this file.
+ */
+interface KeywordsForEmber71 {
+  /**
+   * The `{{and}}` helper evaluates arguments left to right, returning the first
+   * falsy value (using Handlebars truthiness) or the right-most value if all
+   * are truthy. Requires at least two arguments.
+   *
+   * ```gjs
+   * <template>
+   *   {{if (and @isAdmin @isLoggedIn) "Welcome, admin!" "Access denied"}}
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `and` is available as a keyword
+   * and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/and
+   */
+  and: Ember71Only<AndHelper>;
+
+  /**
+   * Using the `{{array}}` helper, you can pass arrays directly from the
+   * template as an argument to your components.
+   *
+   * ```gjs
+   * <template>
+   *   <ul>
+   *     {{#each (array "Tom Dale" "Yehuda Katz" @anotherPerson) as |person|}}
+   *       <li>{{person}}</li>
+   *     {{/each}}
+   *   </ul>
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `array` is available as a
+   * keyword and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/array
+   */
+  array: Ember71Only<ArrayHelper>;
+
+  /**
+   * The `{{element}}` helper lets you dynamically set the tag name of an
+   * element.
+   *
+   * ```gjs
+   * <template>
+   *   {{#let (element @tagName) as |Tag|}}
+   *     <Tag class="my-element">Hello</Tag>
+   *   {{/let}}
+   * </template>
+   * ```
+   *
+   * When `@tagName` is `"h1"`, this renders `<h1 class="my-element">Hello</h1>`.
+   * When `@tagName` is an empty string, the block content is rendered without
+   * a wrapping element. When `@tagName` is `null` or `undefined`, nothing is
+   * rendered.
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `element` is available as a
+   * keyword and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/element
+   */
+  element: Ember71Only<ElementHelper>;
+
+  /**
+   * The `{{eq}}` helper returns `true` if its two arguments are strictly equal
+   * (`===`). Takes exactly two arguments.
+   *
+   * ```gjs
+   * <template>
+   *   {{if (eq @status "active") "Active" "Inactive"}}
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `eq` is available as a keyword
+   * and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/eq
+   */
+  eq: Ember71Only<EqHelper>;
+
+  /**
+   * `{{fn}}` is a helper that receives a function and some arguments, and
+   * returns a new function that combines them. This allows you to pass
+   * parameters along to functions in your templates:
+   *
+   * ```gjs
+   * function showAlert(message) {
+   *   alert(`The message is: '${message}'`);
+   * }
+   *
+   * <template>
+   *   <button type="button" {{on "click" (fn showAlert "Hello!")}}>
+   *     Click me!
+   *   </button>
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `fn` is available as a keyword
+   * and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/fn
+   */
+  fn: Ember71Only<FnHelper>;
+
+  /**
+   * The `{{gt}}` helper returns `true` if the first argument is greater than
+   * the second argument.
+   *
+   * ```gjs
+   * <template>
+   *   {{if (gt @score 100) "High score!" "Keep trying"}}
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `gt` is available as a keyword
+   * and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/gt
+   */
+  gt: Ember71Only<GtHelper>;
+
+  /**
+   * The `{{gte}}` helper returns `true` if the first argument is greater than
+   * or equal to the second argument.
+   *
+   * ```gjs
+   * <template>
+   *   {{if (gte @age 18) "Adult" "Minor"}}
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `gte` is available as a keyword
+   * and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/gte
+   */
+  gte: Ember71Only<GteHelper>;
+
+  /**
+   * Using the `{{hash}}` helper, you can pass objects directly from the
+   * template as an argument to your components.
+   *
+   * ```gjs
+   * <template>
+   *   {{#each-in (hash givenName="Jen" familyName="Weber") as |key value|}}
+   *     <p>{{key}}: {{value}}</p>
+   *   {{/each-in}}
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `hash` is available as a
+   * keyword and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/hash
+   */
+  hash: Ember71Only<HashHelper>;
+
+  /**
+   * The `{{lt}}` helper returns `true` if the first argument is less than the
+   * second argument.
+   *
+   * ```gjs
+   * <template>
+   *   {{if (lt @temperature 0) "Freezing" "Above zero"}}
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `lt` is available as a keyword
+   * and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/lt
+   */
+  lt: Ember71Only<LtHelper>;
+
+  /**
+   * The `{{lte}}` helper returns `true` if the first argument is less than or
+   * equal to the second argument.
+   *
+   * ```gjs
+   * <template>
+   *   {{if (lte @count 0) "Empty" "Has items"}}
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `lte` is available as a keyword
+   * and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/lte
+   */
+  lte: Ember71Only<LteHelper>;
+
+  /**
+   * The `{{neq}}` helper returns `true` if its two arguments are strictly not
+   * equal (`!==`). Takes exactly two arguments.
+   *
+   * ```gjs
+   * <template>
+   *   {{if (neq @status "active") "Not active" "Active"}}
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `neq` is available as a keyword
+   * and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/neq
+   */
+  neq: Ember71Only<NeqHelper>;
+
+  /**
+   * The `{{not}}` helper returns the logical negation of its argument using
+   * Handlebars truthiness. Takes exactly one argument.
+   *
+   * ```gjs
+   * <template>
+   *   {{if (not @isDisabled) "Enabled" "Disabled"}}
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `not` is available as a keyword
+   * and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/not
+   */
+  not: Ember71Only<NotHelper>;
+
+  /**
+   * The `{{on}}` element modifier attaches an event listener to an element.
+   *
+   * ```gjs
+   * <template>
+   *   <button type="button" {{on "click" this.handleClick}}>
+   *     Click me!
+   *   </button>
+   * </template>
+   * ```
+   *
+   * It accepts the same options as `addEventListener` via named arguments
+   * (`capture`, `once`, `passive`).
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `on` is available as a keyword
+   * and does not need to be imported from `@ember/modifier`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fmodifier/on
+   */
+  on: Ember71Only<OnModifier>;
+
+  /**
+   * The `{{or}}` helper evaluates arguments left to right, returning the first
+   * truthy value (using Handlebars truthiness) or the right-most value if all
+   * are falsy. Requires at least two arguments.
+   *
+   * ```gjs
+   * <template>
+   *   {{if (or @hasAccess @isAdmin) "Welcome!" "No access"}}
+   * </template>
+   * ```
+   *
+   * In strict-mode (`.gjs`/`.gts`) templates, `or` is available as a keyword
+   * and does not need to be imported from `@ember/helper`.
+   *
+   * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/or
+   */
+  or: Ember71Only<OrHelper>;
+}
+
+interface Keywords extends KeywordsForEmber, KeywordsForEmber71 {}
 
 export const Globals: Keywords & Globals;
