@@ -358,7 +358,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
                   "line": 29,
                   "offset": 49,
                 },
-                "file": "\${repoRootPath}/node_modules/.pnpm/@glint+_193768a42105c4ff75ce3b97bababe34/node_modules/@glint/ember-tsc/types/-private/dsl/index.d.ts",
+                "file": "\${repoRootPath}/node_modules/.pnpm/@glint+_613915052ef8d5bca99f4a5a07a55bb0/node_modules/@glint/ember-tsc/types/-private/dsl/index.d.ts",
                 "start": {
                   "line": 29,
                   "offset": 5,
