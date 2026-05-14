@@ -23,6 +23,7 @@
     "@glimmer/component": "^2.0.0",
     "@glint/ember-tsc": "workspace:*",
     "@glint/template": "workspace:*",
+    "@glint/type-test": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
     "@tsconfig/ember": "^3.0.9",
     "@types/rsvp": "^4.0.9",
