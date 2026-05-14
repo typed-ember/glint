@@ -1,11 +1,11 @@
 {
-  "name": "ts-template-imports-app",
+  "name": "ts-gts-7-1-app",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
   "scripts": {
     "test": "echo 'no standalone test within this project'",
-    "test:typecheck": "ember-tsc",
+    "test:typecheck": "ember-tsc --noEmit",
     "test:tsc": "echo 'no standalone tsc within this project'"
   },
   "dependenciesMeta": {
@@ -23,12 +23,9 @@
     "@glimmer/component": "^2.0.0",
     "@glint/ember-tsc": "workspace:*",
     "@glint/template": "workspace:*",
-    "@glint/type-test": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
     "@tsconfig/ember": "^3.0.9",
-    "@types/rsvp": "^4.0.9",
-    "ember-modifier": "^4.0.0",
-    "ember-source": "^6.2.0",
+    "ember-source": "~7.1.0-beta.1",
     "typescript": "^5.9.3"
   },
   "volta": {

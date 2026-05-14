@@ -24,9 +24,12 @@
     "./types": "./types/-private/dsl/integration-declarations.d.ts",
     "./-private/dsl/globals": "./types/-private/dsl/globals.d.ts",
     "./-private/intrinsics/action": "./types/-private/intrinsics/action.d.ts",
+    "./-private/intrinsics/array-hash": "./types/-private/intrinsics/array-hash.d.ts",
+    "./-private/intrinsics/comparison": "./types/-private/intrinsics/comparison.d.ts",
     "./-private/intrinsics/concat": "./types/-private/intrinsics/concat.d.ts",
     "./-private/intrinsics/each": "./types/-private/intrinsics/each.d.ts",
     "./-private/intrinsics/each-in": "./types/-private/intrinsics/each-in.d.ts",
+    "./-private/intrinsics/element": "./types/-private/intrinsics/element.d.ts",
     "./-private/intrinsics/fn": "./types/-private/intrinsics/fn.d.ts",
     "./-private/intrinsics/get": "./types/-private/intrinsics/get.d.ts",
     "./-private/intrinsics/log": "./types/-private/intrinsics/log.d.ts",
@@ -34,6 +37,8 @@
     "./-private/intrinsics/mut": "./types/-private/intrinsics/mut.d.ts",
     "./-private/intrinsics/on": "./types/-private/intrinsics/on.d.ts",
     "./-private/intrinsics/outlet": "./types/-private/intrinsics/outlet.d.ts",
+    "./-private/intrinsics/truth-convert": "./types/-private/intrinsics/truth-convert.d.ts",
+    "./-private/intrinsics/truth-helpers": "./types/-private/intrinsics/truth-helpers.d.ts",
     "./-private/intrinsics/unbound": "./types/-private/intrinsics/unbound.d.ts",
     "./-private/intrinsics/unique-id": "./types/-private/intrinsics/unique-id.d.ts",
     "./*": {
@@ -58,7 +63,13 @@
     "prepack": "pnpm build"
   },
   "peerDependencies": {
+    "ember-source": ">=7.1.0",
     "typescript": ">=5.6.0"
+  },
+  "peerDependenciesMeta": {
+    "ember-source": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@glimmer/syntax": "^0.95.0",

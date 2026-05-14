@@ -16,6 +16,52 @@ export default function emberTemplateImportsEnvironment(
     ? options['additionalGlobals']
     : [];
 
+  const globalsForEmber = [
+    'action',
+    'component',
+    'debugger',
+    'each',
+    'each-in',
+    'has-block',
+    'has-block-params',
+    'helper',
+    'if',
+    'in-element',
+    'let',
+    'log',
+    'modifier',
+    'mount',
+    'mut',
+    'outlet',
+    'unbound',
+    'unless',
+    'with',
+    'yield',
+  ];
+
+  /*
+    Ember 7.1+ built-in keywords (RFCs 389, 470, 560, 561, 562, 997, 998, 999,
+    1000). Their template-side signatures live in `KeywordsForEmber71` in
+    `types/-private/dsl/globals.d.ts` and are gated on `ember-source >= 7.1.0`
+    via the `HasEmber71BuiltIns` probe.
+  */
+  const globalsForEmber71 = [
+    'and',
+    'array',
+    'element',
+    'eq',
+    'fn',
+    'gt',
+    'gte',
+    'hash',
+    'lt',
+    'lte',
+    'neq',
+    'not',
+    'on',
+    'or',
+  ];
+
   return {
     tags: {
       '@glint/ember-tsc/environment-ember-template-imports/-private/tag': {
@@ -41,26 +87,8 @@ export default function emberTemplateImportsEnvironment(
             },
           },
           globals: [
-            'action',
-            'component',
-            'debugger',
-            'each',
-            'each-in',
-            'has-block',
-            'has-block-params',
-            'helper',
-            'if',
-            'in-element',
-            'let',
-            'log',
-            'modifier',
-            'mount',
-            'mut',
-            'outlet',
-            'unbound',
-            'unless',
-            'with',
-            'yield',
+            ...globalsForEmber,
+            ...globalsForEmber71,
             ...Object.keys(additionalGlobalSpecialForms),
             ...additionalGlobals,
           ],
