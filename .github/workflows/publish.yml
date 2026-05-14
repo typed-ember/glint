@@ -10,7 +10,7 @@ on:
       - main
       - master
     paths:
-      - '.release-plan.json'
+      - ".release-plan.json"
 
 concurrency:
   group: publish-${{ github.head_ref || github.ref }}
@@ -31,9 +31,10 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm build
       - name: Publish to NPM
         run: NPM_CONFIG_PROVENANCE=true pnpm release-plan publish
         env:

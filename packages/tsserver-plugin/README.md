@@ -1,5 +1,6 @@
 # @glint/tsserver-plugin
 
+
 The TypeScript server plugin that performs type-checking. Uses Volar.
 
 ## Setup
