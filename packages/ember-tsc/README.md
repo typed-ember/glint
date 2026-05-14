@@ -1,5 +1,6 @@
 # `@glint/ember-tsc`
 
+
 This package contains core functionality to power template-aware typechecking on a [glint] project. Two binaries are provided:
 
 - `glint-language-server` - the Language Server that the VSCode (and other IDE) extension communicates with
