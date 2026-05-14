@@ -1,0 +1,34 @@
+{
+  "name": "ts-gts-7-1-app",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "echo 'no standalone test within this project'",
+    "test:typecheck": "ember-tsc",
+    "test:tsc": "echo 'no standalone tsc within this project'"
+  },
+  "dependenciesMeta": {
+    "@glint/template": {
+      "injected": true
+    },
+    "@glint/ember-tsc": {
+      "injected": true
+    },
+    "@glint/tsserver-plugin": {
+      "injected": true
+    }
+  },
+  "devDependencies": {
+    "@glimmer/component": "^2.0.0",
+    "@glint/ember-tsc": "workspace:*",
+    "@glint/template": "workspace:*",
+    "@glint/tsserver-plugin": "workspace:*",
+    "@tsconfig/ember": "^3.0.9",
+    "ember-source": "~7.1.0-beta.1",
+    "typescript": "^5.9.3"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

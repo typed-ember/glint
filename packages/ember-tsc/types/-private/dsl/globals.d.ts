@@ -29,11 +29,16 @@ import { UniqueIdHelper } from '../intrinsics/unique-id';
 //
 // The keywords introduced by RFCs 562, 470, 997, 998, 999, 1000, 560, 561 and
 // 389 are only available at runtime when consumers are on ember-source >= 7.1.
-// We probe for the `EqHelper` re-export added by RFC 561 to decide whether to
+// We probe for the `eq` value re-export added by RFC 561 to decide whether to
 // expose the new keyword types. On older versions the probe collapses to the
 // empty type, so referencing e.g. `{{eq}}` falls back to whatever the user
 // has imported (or surfaces as an "unknown identifier" diagnostic), keeping
 // behaviour identical to today.
+//
+// We probe a value export (`eq`) rather than the matching `EqHelper`
+// interface because `typeof import(...)` only surfaces the module's value
+// exports; type-only exports never appear as keys, so an interface probe
+// would always collapse to `false`.
 //
 // `@ember/helper` is an optional peer dependency at the type level: the
 // `@ts-ignore` ensures Glint still type-checks in environments that haven't
@@ -42,7 +47,7 @@ import { UniqueIdHelper } from '../intrinsics/unique-id';
 // @ts-ignore — `@ember/helper` is an optional peer dependency
 type EmberHelperExports = typeof import('@ember/helper');
 
-type HasEmber71BuiltIns = [EmberHelperExports] extends [{ EqHelper: unknown }] ? true : false;
+type HasEmber71BuiltIns = [EmberHelperExports] extends [{ eq: unknown }] ? true : false;
 
 /** Resolves to `T` only when ember-source >= 7.1 ships the new keyword set. */
 type Ember71Only<T> = HasEmber71BuiltIns extends true ? T : never;
