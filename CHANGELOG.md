@@ -1,5 +1,27 @@
 # Changelog
 
+## Release (2026-05-14)
+
+* @glint/ember-tsc 1.6.0 (minor)
+* @glint/tsserver-plugin 2.4.1 (patch)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`
+  * [#1109](https://github.com/typed-ember/glint/pull/1109) feat(ember-tsc): support Ember 7.1 built-in keywords ([@aklkv](https://github.com/aklkv))
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * Diagnostics occasionally mention the transformed name of a module ([@dfreeman](https://github.com/dfreeman))
+
+#### :house: Internal
+* [#1110](https://github.com/typed-ember/glint/pull/1110) pnpm dlx create-release-plan-setup@latest --update ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* [#1103](https://github.com/typed-ember/glint/pull/1103) VSCode version bump ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 3
+- Alexey Kulakov ([@aklkv](https://github.com/aklkv))
+- Dan Freeman ([@dfreeman](https://github.com/dfreeman))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-04-01)
 
 * @glint/ember-tsc 1.5.0 (minor)
