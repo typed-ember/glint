@@ -23,6 +23,7 @@ void greet;
 <template>
   {{! ---- (RFC 562) on modifier ---- }}
   <button {{on "click" handler}} type="button">click</button>
+  <button {{on "click"}} type="button">click</button>
 
   {{! ---- (RFC 470) fn helper composes nicely with on ---- }}
   <button {{on "click" (fn handler)}} type="button">noop</button>
@@ -39,7 +40,16 @@ void greet;
 
   {{! ---- (RFC 560) and / or / not ---- }}
   {{#if (and true "kept")}}and{{/if}}
+  {{and true true 2 "ignored" "kept"}}
+  {{and true}}
+  {{#if (and false)}}
+    unreachable
+  {{/if}}
+
   {{#if (or false "kept")}}or{{/if}}
+  {{#if (or false)}}or{{/if}}
+  {{or false 0 undefined (array) "kept"}}
+
   {{#if (not false)}}not{{/if}}
 
   {{! ---- (RFC 561) eq / neq / lt / lte / gt / gte ---- }}
