@@ -21,11 +21,7 @@ const greet = (name: string, exclamation: string): string =>
 void greet;
 
 <template>
-  {{! ---- (RFC 562) on modifier ---- }}
-  <button {{on "click" handler}} type="button">click</button>
-  <button {{on "click"}} type="button">click</button>
-
-  {{! ---- (RFC 470) fn helper composes nicely with on ---- }}
+  {{! ---- (RFC 470) fn helper---- }}
   <button {{on "click" (fn handler)}} type="button">noop</button>
 
   {{! ---- (RFC 1000) array ---- }}
