@@ -2,6 +2,18 @@
 
 ## Release (2026-05-14)
 
+* @glint/ember-tsc 1.6.1 (patch)
+* @glint/tsserver-plugin 2.4.2 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`, `@glint/tsserver-plugin`
+  * [#1111](https://github.com/typed-ember/glint/pull/1111) fix release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
+## Release (2026-05-14)
+
 * @glint/ember-tsc 1.6.0 (minor)
 * @glint/tsserver-plugin 2.4.1 (patch)
 

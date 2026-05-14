@@ -1,15 +1,11 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "minor",
-      "oldVersion": "1.5.0",
-      "newVersion": "1.6.0",
+      "impact": "patch",
+      "oldVersion": "1.6.0",
+      "newVersion": "1.6.1",
       "tagName": "latest",
       "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
@@ -22,13 +18,17 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.4.0",
-      "newVersion": "2.4.1",
+      "oldVersion": "2.4.1",
+      "newVersion": "2.4.2",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -37,5 +37,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-05-14)\n\n* @glint/ember-tsc 1.6.0 (minor)\n* @glint/tsserver-plugin 2.4.1 (patch)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`\n  * [#1109](https://github.com/typed-ember/glint/pull/1109) feat(ember-tsc): support Ember 7.1 built-in keywords ([@aklkv](https://github.com/aklkv))\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * Diagnostics occasionally mention the transformed name of a module ([@dfreeman](https://github.com/dfreeman))\n\n#### :house: Internal\n* [#1110](https://github.com/typed-ember/glint/pull/1110) pnpm dlx create-release-plan-setup@latest --update ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* [#1103](https://github.com/typed-ember/glint/pull/1103) VSCode version bump ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 3\n- Alexey Kulakov ([@aklkv](https://github.com/aklkv))\n- Dan Freeman ([@dfreeman](https://github.com/dfreeman))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-05-14)\n\n* @glint/ember-tsc 1.6.1 (patch)\n* @glint/tsserver-plugin 2.4.2 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1111](https://github.com/typed-ember/glint/pull/1111) fix release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
