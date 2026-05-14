@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "test": "echo 'no standalone test within this project'",
-    "test:typecheck": "ember-tsc",
+    "test:typecheck": "ember-tsc --noEmit",
     "test:tsc": "echo 'no standalone tsc within this project'"
   },
   "dependenciesMeta": {

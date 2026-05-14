@@ -3,7 +3,6 @@
   "compilerOptions": {
     "noEmit": true,
     "baseUrl": ".",
-    "types": ["ember-source/types"]
-  },
-  "include": ["src", "types"]
+    "types": ["ember-source/types", "@glint/ember-tsc/types"]
+  }
 }
