@@ -36,6 +36,19 @@ export function calculateTaggedTemplateSpans(
     );
 
     let { typesModule, globals } = info.tagConfig;
+
+    // If the user has imported a binding with the same name as one of the
+    // template's configured globals (e.g. `import { on } from '@ember/modifier'`
+    // when `on` is also listed in the Ember 7.1+ built-in keywords), prefer
+    // the local import. Without this filter the template transform would
+    // silently shadow the user's import by routing the path through
+    // `__glintDSL__.Globals[<name>]`, which is a regression for projects on
+    // ember-source < 7.1 where the corresponding `Globals` entry resolves to
+    // `never` (typed-ember/glint#1113).
+    if (globals) {
+      globals = globals.filter((name) => !importedBindings[name]);
+    }
+
     let template = node.template.rawText ?? node.template.text;
 
     // environment-specific transforms may emit templateLocation in meta, in
