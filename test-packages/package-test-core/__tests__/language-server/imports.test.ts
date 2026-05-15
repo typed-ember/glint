@@ -57,4 +57,33 @@ describe('Language Server: Imports', () => {
 
     expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
+
+  // Regression: typed-ember/glint#1113 — invoking an imported `on` modifier
+  // from `@ember/modifier` against an ember-source < 7.1 host should resolve
+  // to the augmented modifier type, not to `never` (which surfaces as
+  // `TS2349: Type 'never' has no call signatures.`).
+  test('imported `on` modifier from @ember/modifier is callable in template', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+      import { on } from '@ember/modifier';
+
+      export default class ImportedModifier extends Component {
+        handleChange = (event: Event): void => {
+          void event;
+        };
+
+        <template>
+          <button {{on "click" this.handleChange}} type="button">click</button>
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
 });
