@@ -4,9 +4,10 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "test": "echo 'no standalone test within this project'",
+    "test": "vitest run",
     "test:typecheck": "ember-tsc",
-    "test:tsc": "echo 'no standalone tsc within this project'"
+    "test:tsc": "echo 'no standalone tsc within this project'",
+    "test:watch": "vitest watch"
   },
   "dependenciesMeta": {
     "@glint/template": {
@@ -26,10 +27,14 @@
     "@glint/type-test": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
     "@tsconfig/ember": "^3.0.9",
+    "@types/node": "^18.11.5",
     "@types/rsvp": "^4.0.9",
     "ember-modifier": "^4.0.0",
     "ember-source": "^6.2.0",
-    "typescript": "^5.9.3"
+    "execa": "^9.6.0",
+    "strip-ansi": "^7.1.0",
+    "typescript": "^5.9.3",
+    "vitest": "~3.0.9"
   },
   "volta": {
     "extends": "../../package.json"

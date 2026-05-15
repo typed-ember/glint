@@ -7,5 +7,6 @@
     "strict": true,
     "experimentalDecorators": true,
     "types": ["ember-source/types", "@glint/ember-tsc/types"]
-  }
+  },
+  "exclude": ["__tests__", "vitest.config.ts", "node_modules"]
 }
