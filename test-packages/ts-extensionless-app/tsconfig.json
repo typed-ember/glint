@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "strict": true,
+    "experimentalDecorators": true,
+    "types": ["ember-source/types", "@glint/ember-tsc/types"]
+  }
+}
