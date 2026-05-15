@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.6.0",
-      "newVersion": "1.6.1",
+      "oldVersion": "1.6.1",
+      "newVersion": "1.6.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -18,17 +18,13 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.4.1",
-      "newVersion": "2.4.2",
+      "oldVersion": "2.4.2",
+      "newVersion": "2.4.3",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -37,5 +33,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-05-14)\n\n* @glint/ember-tsc 1.6.1 (patch)\n* @glint/tsserver-plugin 2.4.2 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1111](https://github.com/typed-ember/glint/pull/1111) fix release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-05-15)\n\n* @glint/ember-tsc 1.6.2 (patch)\n* @glint/tsserver-plugin 2.4.3 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1121](https://github.com/typed-ember/glint/pull/1121) Closes [#1113](https://github.com/typed-ember/glint/issues/1113) - new globals are not overridable with locals like runtime allows ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#1116](https://github.com/typed-ember/glint/pull/1116) Widen peer range, fixes peer regression in 1.6.1 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
