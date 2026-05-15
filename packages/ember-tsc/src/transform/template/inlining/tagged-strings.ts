@@ -60,11 +60,31 @@ export function calculateTaggedTemplateSpans(
     }
 
     let specialForms = collectSpecialForms(importedBindings, info.tagConfig.specialForms ?? {});
+
+    // A lexical import should win over the environment's global keyword list,
+    // because the import is the canonical reference to the value (and is
+    // typed accordingly) while the global entry is a same-named alias.
+    // Concretely: `import { on } from '@ember/modifier'` followed by
+    // `{{on ...}}` must resolve to the imported `OnModifier`, not to the
+    // `Globals.on` entry (typed as `never` on ember-source < 7.1 by the
+    // `Ember71Only<...>` probe). Without this we surface
+    // `TS2349: Type 'never' has no call signatures.` See typed-ember/glint#1113.
+    //
+    // Keyword-style globals (`if`, `unless`, `yield`, `component`, `modifier`,
+    // `helper`) are deliberately exempt: their semantics are baked into the
+    // template language, not derivable from an import. Even if a user imports
+    // a same-named value, `{{(modifier ...)}}` still has to dispatch to the
+    // `bind-invokable` special form (which routes through `Globals.modifier`).
+    let keywordSpecialForms = info.tagConfig.specialForms?.globals ?? {};
+    let effectiveGlobals = globals?.filter(
+      (name) => name in keywordSpecialForms || !(name in importedBindings),
+    );
+
     let transformedTemplate = templateToTypescript(template, {
       typesModule: typesModule,
       meta,
       preamble,
-      globals,
+      globals: effectiveGlobals,
       embeddingSyntax,
       specialForms,
       backingValue: isEmbeddedInClass(ts, node) ? 'this' : undefined,
