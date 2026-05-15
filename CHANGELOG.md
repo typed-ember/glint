@@ -1,5 +1,18 @@
 # Changelog
 
+## Release (2026-05-15)
+
+* @glint/ember-tsc 1.6.2 (patch)
+* @glint/tsserver-plugin 2.4.3 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1121](https://github.com/typed-ember/glint/pull/1121) Closes [#1113](https://github.com/typed-ember/glint/issues/1113) - new globals are not overridable with locals like runtime allows ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+  * [#1116](https://github.com/typed-ember/glint/pull/1116) Widen peer range, fixes peer regression in 1.6.1 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-05-14)
 
 * @glint/ember-tsc 1.6.1 (patch)
