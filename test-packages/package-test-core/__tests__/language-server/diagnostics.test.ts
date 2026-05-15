@@ -815,18 +815,18 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/test-packages/ts-template-imports-app/src/empty-fixture.gts",
             "version": 0,
           },
-          "message": "Unexpected token \`<lexing error: Error { error: (Span { lo: BytePos(142), hi: BytePos(142), ctxt: #0 }, Eof) }>\`. Expected content tag
+          "message": "Unexpected token \`<lexing error>\`. Expected content tag
 
        6 │   </template
        7 │ }
          ╰────",
           "range": {
             "end": {
-              "character": 8,
+              "character": 9,
               "line": 5,
             },
             "start": {
-              "character": 7,
+              "character": 8,
               "line": 5,
             },
           },
