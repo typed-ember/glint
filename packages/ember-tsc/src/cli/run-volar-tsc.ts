@@ -87,7 +87,5 @@ function applyProxyPatches(source: string): string {
     );
   }
 
-  return source
-    .replace(literalsPattern, `$1${guard}$2`)
-    .replace(namesPattern, `$1${guard}$2`);
+  return source.replace(literalsPattern, `$1${guard}$2`).replace(namesPattern, `$1${guard}$2`);
 }
