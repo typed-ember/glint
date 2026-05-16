@@ -137,6 +137,36 @@ describe('Transform: rewriteModule', () => {
         }"
       `);
     });
+
+    test('with a content-tag parse error, blanks transformed contents so TS sees an empty file', () => {
+      let script = {
+        filename: 'test.gts',
+        contents: stripIndent`
+          import Component from '@glimmer/component';
+          export default class MyComponent extends Component {
+            <template>
+              <div></div>
+            </template
+          }
+        `,
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, env);
+
+      // Exactly one error — the content-tag parse failure — is reported on the
+      // transformed module. The Volar `g-compiler-errors` language service
+      // plugin reads from this array to surface the error as a diagnostic.
+      expect(transformedModule?.errors.length).toBe(1);
+      expect(transformedModule?.errors[0]?.isContentTagError).toBe(true);
+
+      // The transformed source is whitespace-only (preserving line structure)
+      // so TypeScript will treat it as an empty file rather than producing a
+      // cascade of misleading errors against the still-unparsed `<template>` tags.
+      const transformed = transformedModule?.transformedContents ?? '';
+      expect(transformed.length).toBeGreaterThan(0);
+      expect(/\S/.test(transformed)).toBe(false);
+      expect(transformed.split('\n').length).toBe(script.contents.split('\n').length);
+    });
   });
 
   describe({}, () => {

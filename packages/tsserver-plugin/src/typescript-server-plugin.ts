@@ -26,6 +26,7 @@ type EmberTscSource = 'auto' | 'workspace' | 'bundled';
 let emberTsc: any;
 let VirtualGtsCode: any;
 let augmentDiagnostics: any;
+let getTransformErrorDiagnostics: any;
 
 function normalizeEmberTscSource(value: unknown): EmberTscSource {
   if (value === 'workspace' || value === 'bundled' || value === 'auto') {
@@ -170,6 +171,7 @@ const plugin = createLanguageServicePlugin(
     emberTsc = resolved.module;
     VirtualGtsCode = emberTsc.VirtualGtsCode;
     augmentDiagnostics = emberTsc.augmentDiagnostics;
+    getTransformErrorDiagnostics = emberTsc.getTransformErrorDiagnostics;
 
     logInfo(`Using ${resolved.source} ember-tsc from ${resolved.resolvedPath}.`);
 
@@ -680,7 +682,17 @@ function getSemanticDiagnostics<T>(
 
     const augmentedTsDiagnostics = augmentDiagnostics(transformedModule, tsDiagnostics);
 
-    return augmentedTsDiagnostics;
+    // Surface content-tag parse errors directly through the tsserver path so
+    // consumers that don't run the Volar language server still see the actual
+    // error (rather than the silence produced by blanking the transformed
+    // output in `rewriteModule`).
+    const transformErrorDiagnostics = getTransformErrorDiagnostics
+      ? getTransformErrorDiagnostics(transformedModule, sourceFile)
+      : [];
+
+    return transformErrorDiagnostics.length
+      ? [...transformErrorDiagnostics, ...augmentedTsDiagnostics]
+      : augmentedTsDiagnostics;
   };
 }
 

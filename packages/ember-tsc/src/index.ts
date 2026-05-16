@@ -3,6 +3,7 @@ import { createEmberLanguagePlugin } from './volar/ember-language-plugin.js';
 
 import { VirtualGtsCode } from './volar/gts-virtual-code.js';
 import { augmentDiagnostics } from './transform/diagnostics/augmentation.js';
+import { getTransformErrorDiagnostics } from './transform/diagnostics/transform-errors.js';
 
 export {
   loadConfig,
@@ -11,6 +12,7 @@ export {
   createEmberLanguagePlugin,
   VirtualGtsCode,
   augmentDiagnostics,
+  getTransformErrorDiagnostics,
 };
 
 export type { GlintConfig };
