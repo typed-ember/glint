@@ -1,5 +1,19 @@
 # Changelog
 
+## Release (2026-05-16)
+
+* @glint/ember-tsc 1.7.0 (minor)
+* @glint/tsserver-plugin 2.5.0 (minor)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`, `@glint/tsserver-plugin`
+  * [#1123](https://github.com/typed-ember/glint/pull/1123) Give better error when gjs/gts content-tag mismatch/parse-error ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* `@glint/ember-tsc`
+  * [#1120](https://github.com/typed-ember/glint/pull/1120) Upgrade content-tag ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-05-15)
 
 * @glint/ember-tsc 1.6.2 (patch)
