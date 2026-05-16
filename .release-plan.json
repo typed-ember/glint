@@ -1,14 +1,14 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "patch",
-      "oldVersion": "1.6.1",
-      "newVersion": "1.6.2",
+      "impact": "minor",
+      "oldVersion": "1.6.2",
+      "newVersion": "1.7.0",
       "tagName": "latest",
       "constraints": [
         {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
         }
       ],
       "pkgJSONPath": "./packages/ember-tsc/package.json"
@@ -17,14 +17,18 @@
       "oldVersion": "1.7.7"
     },
     "@glint/tsserver-plugin": {
-      "impact": "patch",
-      "oldVersion": "2.4.2",
-      "newVersion": "2.4.3",
+      "impact": "minor",
+      "oldVersion": "2.4.3",
+      "newVersion": "2.5.0",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -33,5 +37,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-05-15)\n\n* @glint/ember-tsc 1.6.2 (patch)\n* @glint/tsserver-plugin 2.4.3 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1121](https://github.com/typed-ember/glint/pull/1121) Closes [#1113](https://github.com/typed-ember/glint/issues/1113) - new globals are not overridable with locals like runtime allows ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#1116](https://github.com/typed-ember/glint/pull/1116) Widen peer range, fixes peer regression in 1.6.1 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-05-16)\n\n* @glint/ember-tsc 1.7.0 (minor)\n* @glint/tsserver-plugin 2.5.0 (minor)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1123](https://github.com/typed-ember/glint/pull/1123) Give better error when gjs/gts content-tag mismatch/parse-error ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/ember-tsc`\n  * [#1120](https://github.com/typed-ember/glint/pull/1120) Upgrade content-tag ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
