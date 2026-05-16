@@ -2,6 +2,18 @@
 
 ## Release (2026-05-16)
 
+* @glint/ember-tsc 1.7.1 (patch)
+* @glint/tsserver-plugin 2.5.1 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1119](https://github.com/typed-ember/glint/pull/1119) Fix watch mode reporting different errors than non-watch mode for extensionless imports specifically ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
+## Release (2026-05-16)
+
 * @glint/ember-tsc 1.7.0 (minor)
 * @glint/tsserver-plugin 2.5.0 (minor)
 
