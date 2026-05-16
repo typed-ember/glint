@@ -837,13 +837,13 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
-  test('content-tag parse errors do not produce spurious tsserver diagnostics', async () => {
+  test('content-tag parse errors are surfaced through tsserver as the sole diagnostic', async () => {
     // When content-tag fails to parse the .gts (here: the closing `</template`
-    // is missing its `>`), the actual error is surfaced as a single, useful
-    // diagnostic by the language server (see the test above). The tsserver
-    // path should stay quiet — otherwise the user would see a flood of
-    // misleading TS syntax errors against the still-unparsed `<template>`
-    // tags on top of the real error.
+    // is missing its `>`), we surface the actual parse error as a single
+    // diagnostic from the tsserver path — without the flood of misleading TS
+    // syntax errors that would otherwise come from feeding the unparsed
+    // `<template>` tags to TypeScript. (The Volar language server's
+    // `g-compiler-errors` plugin also reports it; see the test above.)
     const code = stripIndent`
       import Component from '@glimmer/component';
 
@@ -860,7 +860,28 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       code,
     );
 
-    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 0,
+          "end": {
+            "line": 6,
+            "offset": 10,
+          },
+          "source": "glint",
+          "start": {
+            "line": 6,
+            "offset": 9,
+          },
+          "text": "Unexpected token \`<lexing error>\`. Expected content tag
+
+       6 │   </template
+       7 │ }
+         ╰────",
+        },
+      ]
+    `);
   });
 
   test('HTML attribute type-checking', async () => {
