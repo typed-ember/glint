@@ -11137,7 +11137,7 @@ snapshots:
       '@volar/source-map': 2.4.28
       '@volar/test-utils': 2.4.28
       '@volar/typescript': 2.4.28
-      content-tag: 4.1.1
+      content-tag: 4.2.0
       silent-error: 1.1.1
       typescript: 5.9.3
       volar-service-html: 0.0.68(@volar/language-service@2.4.28)
