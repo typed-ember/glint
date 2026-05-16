@@ -837,6 +837,32 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
+  test('content-tag parse errors do not produce spurious tsserver diagnostics', async () => {
+    // When content-tag fails to parse the .gts (here: the closing `</template`
+    // is missing its `>`), the actual error is surfaced as a single, useful
+    // diagnostic by the language server (see the test above). The tsserver
+    // path should stay quiet — otherwise the user would see a flood of
+    // misleading TS syntax errors against the still-unparsed `<template>`
+    // tags on top of the real error.
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      export default class MyComponent extends Component {
+        <template>
+          <div></div>
+        </template
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
+
   test('HTML attribute type-checking', async () => {
     const code = stripIndent`
       import Component from '@glimmer/component';

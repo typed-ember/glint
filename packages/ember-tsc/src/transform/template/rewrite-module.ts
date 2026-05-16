@@ -49,7 +49,29 @@ export function rewriteModule(
   let sparseSpans = completeCorrelatedSpans(partialSpans);
   let { contents, correlatedSpans } = calculateTransformedSource(script, sparseSpans, directives);
 
+  if (errors.some((error) => error.isContentTagError)) {
+    // content-tag failed to parse the .gts/.gjs source, which means the
+    // "transformed" output above is just the raw source (still containing
+    // `<template>` tags etc.). Feeding that to TypeScript would produce a
+    // flood of misleading syntax/type errors on top of the underlying
+    // parse failure. Blank the transformed output to whitespace so TS sees
+    // an effectively empty file and stays quiet. The content-tag error
+    // itself is preserved on `errors` and surfaced as the sole diagnostic
+    // by the `g-compiler-errors` language service plugin.
+    contents = blankNonNewlineChars(contents);
+    correlatedSpans = correlatedSpans.map((span) => ({
+      ...span,
+      transformedSource: blankNonNewlineChars(span.transformedSource),
+    }));
+  }
+
   return new TransformedModule(contents, errors, directives, correlatedSpans, script.filename);
+}
+
+function blankNonNewlineChars(value: string): string {
+  // Preserve newlines so that line/column tracking still works for any
+  // remaining offset-mapping queries; replace everything else with spaces.
+  return value.replace(/[^\n]/g, ' ');
 }
 
 /**
