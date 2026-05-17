@@ -7,6 +7,12 @@ import ScopeStack from './scope-stack.js';
 
 const SPLATTRIBUTES = '...attributes';
 
+// Matches names that are safe to emit as a JS PropertyAccessExpression
+// (e.g. `foo`, `_bar`, `$baz0`). Used by `emitIdentifierReference` to decide
+// between `Globals.NAME` (which preserves JSDoc on hover/completions) and
+// the bracket-string fallback `Globals["NAME"]` for hyphenated keywords.
+const VALID_JS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+
 export type TemplateToTypescriptOptions = {
   typesModule: string;
   meta?: GlintEmitMetadata | undefined;
@@ -599,9 +605,20 @@ export function templateToTypescript(
 
     function emitIdentifierReference(name: string, hbsOffset: number): void {
       if (treatAsGlobal(name)) {
-        mapper.text('__glintDSL__.Globals["');
-        mapper.identifier(JSON.stringify(name).slice(1, -1), hbsOffset, name.length);
-        mapper.text('"]');
+        // Emit dotted property access (e.g. `__glintDSL__.Globals.eq`) when
+        // `name` is a valid JS identifier so the TS language service surfaces
+        // JSDoc, go-to-definition, and completions for the underlying member
+        // of `Globals`. Fall back to bracket-string access for hyphenated
+        // keywords like `each-in` or `in-element`, which cannot be expressed
+        // as a dotted property and so do not benefit from this code path.
+        if (VALID_JS_IDENTIFIER.test(name)) {
+          mapper.text('__glintDSL__.Globals.');
+          mapper.identifier(name, hbsOffset, name.length);
+        } else {
+          mapper.text('__glintDSL__.Globals["');
+          mapper.identifier(JSON.stringify(name).slice(1, -1), hbsOffset, name.length);
+          mapper.text('"]');
+        }
       } else {
         mapper.identifier(makeJSSafe(name), hbsOffset, name.length);
       }

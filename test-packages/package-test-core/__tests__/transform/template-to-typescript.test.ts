@@ -284,7 +284,7 @@ describe('Transform: rewriteTemplate', () => {
           __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.ok)());
           } else {
           {
-          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["doAThing"])());
+          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.doAThing)());
           {
           const [ok] = __glintY__.blockParams["default"];
           __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(ok)());
@@ -293,7 +293,7 @@ describe('Transform: rewriteTemplate', () => {
           const [] = __glintY__.blockParams["else"];
           __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.nevermind)());
           }
-          __glintDSL__.Globals["doAThing"];
+          __glintDSL__.Globals.doAThing;
           }
           }"
         `);
@@ -565,7 +565,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{message}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintDSL__.Globals["message"])());"`,
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintDSL__.Globals.message)());"`,
           );
         });
 
@@ -725,7 +725,7 @@ describe('Transform: rewriteTemplate', () => {
             expect(templateBody(template, { globals: ['foo'] })).toMatchInlineSnapshot(`
               "{
               const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Greet)({ 
-              message: __glintDSL__.resolveOrReturn(__glintDSL__.Globals["foo"])(), ...__glintDSL__.NamedArgsMarker }));
+              message: __glintDSL__.resolveOrReturn(__glintDSL__.Globals.foo)(), ...__glintDSL__.NamedArgsMarker }));
               }"
             `);
           });
@@ -746,7 +746,7 @@ describe('Transform: rewriteTemplate', () => {
 
             expect(templateBody(template, { globals: ['let', 'foo'] })).toMatchInlineSnapshot(`
               "{
-              const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["let"])(__glintDSL__.Globals["foo"]));
+              const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)(__glintDSL__.Globals.foo));
               {
               const [bar] = __glintY__.blockParams["default"];
               {
@@ -754,7 +754,7 @@ describe('Transform: rewriteTemplate', () => {
               message: bar, ...__glintDSL__.NamedArgsMarker }));
               }
               }
-              __glintDSL__.Globals["let"];
+              __glintDSL__.Globals.let;
               }"
             `);
           });
@@ -874,13 +874,13 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["foo"])());
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.foo)());
         {
         const [bar, baz] = __glintY__.blockParams["default"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(bar)());
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(baz)());
         }
-        __glintDSL__.Globals["foo"];
+        __glintDSL__.Globals.foo;
         }"
       `);
     });
@@ -896,7 +896,7 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["foo"])());
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.foo)());
         {
         const [bar, baz] = __glintY__.blockParams["default"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(bar)());
@@ -906,7 +906,7 @@ describe('Transform: rewriteTemplate', () => {
         const [] = __glintY__.blockParams["else"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.oh)());
         }
-        __glintDSL__.Globals["foo"];
+        __glintDSL__.Globals.foo;
         }"
       `);
     });
@@ -922,7 +922,7 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["foo"])());
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.foo)());
         {
         const [bar, baz] = __glintY__.blockParams["default"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(bar)());
@@ -932,7 +932,7 @@ describe('Transform: rewriteTemplate', () => {
         const [] = __glintY__.blockParams["else"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.oh)());
         }
-        __glintDSL__.Globals["foo"];
+        __glintDSL__.Globals.foo;
         }"
       `);
     });
@@ -1019,7 +1019,7 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["Foo"])({ 
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.Foo)({ 
         bar: "hello", ...__glintDSL__.NamedArgsMarker }));
         }"
       `);
@@ -1034,7 +1034,7 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["Foo"])());
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.Foo)());
         {
         const [bar] = __glintY__.blockParams["default"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(bar)());
@@ -1059,7 +1059,7 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template, { globals: ['let'] })).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["let"])("div"));
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)("div"));
         {
         const [div] = __glintY__.blockParams["default"];
         {
@@ -1069,7 +1069,7 @@ describe('Transform: rewriteTemplate', () => {
         }
         }
         }
-        __glintDSL__.Globals["let"];
+        __glintDSL__.Globals.let;
         }"
       `);
     });
@@ -1122,7 +1122,7 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["Foo"])());
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.Foo)());
         {
         const [h] = __glintY__.blockParams["head"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(h)());
@@ -1160,7 +1160,7 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["Foo"])());
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.Foo)());
         {
         const [NS] = __glintY__.blockParams["default"];
         {
@@ -1185,7 +1185,7 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["Foo"])());
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.Foo)());
         {
         const [__switch] = __glintY__.blockParams["default"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__switch)());
@@ -1515,7 +1515,7 @@ describe('Transform: rewriteTemplate', () => {
         {{/each}}`;
 
       expect(templateBody(template, { globals: ['action'] })).toMatchInlineSnapshot(`
-        "__glintDSL__.emitContent(__glintDSL__.resolve(__glintDSL__.Globals["action"])("action"));
+        "__glintDSL__.emitContent(__glintDSL__.resolve(__glintDSL__.Globals.action)("action"));
         {
         const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(each)(actions));
         {
@@ -1523,6 +1523,39 @@ describe('Transform: rewriteTemplate', () => {
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(action)());
         }
         each;
+        }"
+      `);
+    });
+
+    test('emits dotted property access for identifier-safe global names', () => {
+      // Dotted access on the `Globals` interface preserves JSDoc, go-to-definition,
+      // and completions in the TypeScript language service for the underlying
+      // keyword (e.g. `eq` → `KeywordsForEmber71.eq`).
+      let template = `{{eq 1 1}}`;
+
+      expect(templateBody(template, { globals: ['eq'] })).toMatchInlineSnapshot(
+        `"__glintDSL__.emitContent(__glintDSL__.resolve(__glintDSL__.Globals.eq)(1, 1));"`,
+      );
+    });
+
+    test('falls back to bracket-string access for hyphenated global names', () => {
+      // Hyphenated keywords (e.g. `each-in`, `in-element`) cannot be expressed as
+      // a JS PropertyAccessExpression, so they must be emitted via bracket-string
+      // access. JSDoc on hover is not surfaced for this form by TS, by design.
+      let template = `
+        {{#each-in items as |k v|}}
+          {{k}}: {{v}}
+        {{/each-in}}`;
+
+      expect(templateBody(template, { globals: ['each-in'] })).toMatchInlineSnapshot(`
+        "{
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["each-in"])(items));
+        {
+        const [k, v] = __glintY__.blockParams["default"];
+        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(k)());
+        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(v)());
+        }
+        __glintDSL__.Globals["each-in"];
         }"
       `);
     });
