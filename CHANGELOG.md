@@ -1,5 +1,17 @@
 # Changelog
 
+## Release (2026-05-17)
+
+* @glint/ember-tsc 1.7.2 (patch)
+* @glint/tsserver-plugin 2.5.2 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1125](https://github.com/typed-ember/glint/pull/1125) fix(ember-tsc): emit dotted property access for identifier-safe template globals ([@aklkv](https://github.com/aklkv))
+
+#### Committers: 1
+- Alexey Kulakov ([@aklkv](https://github.com/aklkv))
+
 ## Release (2026-05-16)
 
 * @glint/ember-tsc 1.7.1 (patch)
