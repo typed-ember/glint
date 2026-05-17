@@ -514,6 +514,68 @@ interface KeywordsForEmber71 {
   or: Ember71Only<OrHelper>;
 }
 
-interface Keywords extends KeywordsForEmber, KeywordsForEmber71 {}
+/**
+ * Identifier-safe aliases for hyphenated members of `KeywordsForEmber`.
+ *
+ * The Glint template-to-TypeScript transform emits hyphenated template
+ * keywords (e.g. `{{each-in}}`, `{{in-element}}`) as dotted property accesses
+ * on `Globals` using these snake_case aliases (`each_in`, `in_element`, ...).
+ * Dotted access preserves JSDoc, go-to-definition and completions on hover,
+ * which the bracket-string fallback (`Globals["each-in"]`) does not.
+ *
+ * Each alias intentionally has the SAME character length as its hyphenated
+ * counterpart so that the Volar source-to-TypeScript character mapping for
+ * the keyword stays balanced.
+ */
+interface KeywordAliasesForEmber {
+  /**
+    The `{{each-in}}` helper loops over properties on an object.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/each-in?anchor=each-in
+  */
+  each_in: EachInKeyword;
+
+  /**
+    `{{has-block}}` indicates if the component was invoked with a block.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/hasBlock?anchor=hasBlock
+  */
+  has_block: VM.HasBlockKeyword;
+
+  /**
+    `{{has-block-params}}` indicates if the component was invoked with block params.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/hasBlockParams?anchor=hasBlockParams
+  */
+  has_block_params: VM.HasBlockParamsKeyword;
+
+  /**
+    The `{{in-element}}` helper renders its block content outside of the regular flow,
+    into a DOM element given by its `destinationElement` positional argument.
+
+    See [the API documentation] for further details.
+
+    [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/in-element?anchor=in-element
+  */
+  in_element: VM.InElementKeyword;
+
+  /**
+  Use the `{{unique-id}}` helper to generate a unique ID string suitable for use as an ID
+  attribute in the DOM.
+ 
+  See [the API documentation] for further details.
+
+  [the API documentation]: https://api.emberjs.com/ember/release/classes/Ember.Templates.helpers/methods/unique-id?anchor=unique-id
+   */
+  unique_id: UniqueIdHelper;
+}
+
+interface Keywords extends KeywordsForEmber, KeywordsForEmber71, KeywordAliasesForEmber {}
 
 export const Globals: Keywords & Globals;

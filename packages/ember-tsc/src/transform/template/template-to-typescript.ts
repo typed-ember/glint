@@ -13,6 +13,20 @@ const SPLATTRIBUTES = '...attributes';
 // the bracket-string fallback `Globals["NAME"]` for hyphenated keywords.
 const VALID_JS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
+// Hyphenated globals translated to identifier-safe aliases declared on the
+// `Globals` interface (see `KeywordAliasesForEmber` in
+// `types/-private/dsl/globals.d.ts`). Aliases substitute `-` with `_` so the
+// emitted identifier has the SAME length as the source keyword, which keeps
+// the Volar source-to-TS character mapping balanced and lets hover surface
+// JSDoc within the keyword token.
+const HYPHENATED_GLOBAL_ALIASES: Record<string, string> = {
+  'each-in': 'each_in',
+  'has-block': 'has_block',
+  'has-block-params': 'has_block_params',
+  'in-element': 'in_element',
+  'unique-id': 'unique_id',
+};
+
 export type TemplateToTypescriptOptions = {
   typesModule: string;
   meta?: GlintEmitMetadata | undefined;
@@ -608,12 +622,19 @@ export function templateToTypescript(
         // Emit dotted property access (e.g. `__glintDSL__.Globals.eq`) when
         // `name` is a valid JS identifier so the TS language service surfaces
         // JSDoc, go-to-definition, and completions for the underlying member
-        // of `Globals`. Fall back to bracket-string access for hyphenated
-        // keywords like `each-in` or `in-element`, which cannot be expressed
-        // as a dotted property and so do not benefit from this code path.
+        // of `Globals`. For known hyphenated keywords, translate to an
+        // identifier-safe alias declared on the `Globals` interface so JSDoc
+        // still surfaces; fall back to bracket-string access otherwise.
         if (VALID_JS_IDENTIFIER.test(name)) {
           mapper.text('__glintDSL__.Globals.');
           mapper.identifier(name, hbsOffset, name.length);
+        } else if (Object.prototype.hasOwnProperty.call(HYPHENATED_GLOBAL_ALIASES, name)) {
+          // The mapper still receives the original `name.length` so source
+          // positions continue to point at the HBS keyword token, and the
+          // alias has the same character length as the source keyword so the
+          // per-character source-to-TS mapping stays balanced.
+          mapper.text('__glintDSL__.Globals.');
+          mapper.identifier(HYPHENATED_GLOBAL_ALIASES[name], hbsOffset, name.length);
         } else {
           mapper.text('__glintDSL__.Globals["');
           mapper.identifier(JSON.stringify(name).slice(1, -1), hbsOffset, name.length);

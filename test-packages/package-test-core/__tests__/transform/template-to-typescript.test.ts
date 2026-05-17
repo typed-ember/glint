@@ -1538,10 +1538,12 @@ describe('Transform: rewriteTemplate', () => {
       );
     });
 
-    test('falls back to bracket-string access for hyphenated global names', () => {
-      // Hyphenated keywords (e.g. `each-in`, `in-element`) cannot be expressed as
-      // a JS PropertyAccessExpression, so they must be emitted via bracket-string
-      // access. JSDoc on hover is not surfaced for this form by TS, by design.
+    test('emits dotted access via snake_case alias for known hyphenated global names', () => {
+      // Known hyphenated keywords (e.g. `each-in`, `in-element`) are translated
+      // to identifier-safe aliases declared on the `Globals` interface so JSDoc,
+      // go-to-definition, and completions still surface on hover. The alias has
+      // the same character length as the source keyword so the per-character
+      // source-to-TS mapping stays balanced.
       let template = `
         {{#each-in items as |k v|}}
           {{k}}: {{v}}
@@ -1549,15 +1551,27 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template, { globals: ['each-in'] })).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals["each-in"])(items));
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.each_in)(items));
         {
         const [k, v] = __glintY__.blockParams["default"];
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(k)());
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(v)());
         }
-        __glintDSL__.Globals["each-in"];
+        __glintDSL__.Globals.each_in;
         }"
       `);
+    });
+
+    test('falls back to bracket-string access for unknown hyphenated global names', () => {
+      // Hyphenated names that are not part of the known alias map (e.g. user
+      // helpers) cannot be expressed as a JS PropertyAccessExpression, so they
+      // are emitted via bracket-string access. JSDoc on hover is not surfaced
+      // for this form by TS, by design.
+      let template = `{{some-helper 1 2}}`;
+
+      expect(templateBody(template, { globals: ['some-helper'] })).toMatchInlineSnapshot(
+        `"__glintDSL__.emitContent(__glintDSL__.resolve(__glintDSL__.Globals["some-helper"])(1, 2));"`,
+      );
     });
   });
 });
