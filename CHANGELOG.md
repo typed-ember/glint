@@ -2,6 +2,18 @@
 
 ## Release (2026-05-17)
 
+* @glint/ember-tsc 1.7.3 (patch)
+* @glint/tsserver-plugin 2.5.3 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1127](https://github.com/typed-ember/glint/pull/1127) fix(ember-tsc): emit dotted alias for hyphenated template globals ([@aklkv](https://github.com/aklkv))
+
+#### Committers: 1
+- Alexey Kulakov ([@aklkv](https://github.com/aklkv))
+
+## Release (2026-05-17)
+
 * @glint/ember-tsc 1.7.2 (patch)
 * @glint/tsserver-plugin 2.5.2 (patch)
 
