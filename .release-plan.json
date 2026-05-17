@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.7.0",
-      "newVersion": "1.7.1",
+      "oldVersion": "1.7.1",
+      "newVersion": "1.7.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -18,8 +18,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.5.0",
-      "newVersion": "2.5.1",
+      "oldVersion": "2.5.1",
+      "newVersion": "2.5.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -33,5 +33,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-05-16)\n\n* @glint/ember-tsc 1.7.1 (patch)\n* @glint/tsserver-plugin 2.5.1 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1119](https://github.com/typed-ember/glint/pull/1119) Fix watch mode reporting different errors than non-watch mode for extensionless imports specifically ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-05-17)\n\n* @glint/ember-tsc 1.7.2 (patch)\n* @glint/tsserver-plugin 2.5.2 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1125](https://github.com/typed-ember/glint/pull/1125) fix(ember-tsc): emit dotted property access for identifier-safe template globals ([@aklkv](https://github.com/aklkv))\n\n#### Committers: 1\n- Alexey Kulakov ([@aklkv](https://github.com/aklkv))\n"
 }
