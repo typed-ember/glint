@@ -36,7 +36,19 @@ export function calculateTaggedTemplateSpans(
     );
 
     let { typesModule, globals } = info.tagConfig;
-    let template = node.template.rawText ?? node.template.text;
+    // Use the cooked text (`text`) rather than `rawText`. For .gts files, the
+    // gts preprocessor (see `environment-ember-template-imports/-private/
+    // environment/preprocess.ts`) escapes backticks and `${{` sequences inside
+    // template content so the wrapped chunk parses as a valid JS template
+    // literal. `rawText` preserves those backslash-escapes as literal
+    // characters, which inflates the template length by 1 per escape and
+    // shifts every downstream source-map offset by the same amount (manifests
+    // as hover/go-to-definition spans landing past the start of any identifier
+    // that follows an escaped backtick or `${{` in the same template, e.g.
+    // hyphenated keywords used after backtick-quoted text in a comment). The
+    // cooked `text` reverses those escapes, restoring 1:1 correspondence with
+    // the original source.
+    let template = node.template.text;
 
     // environment-specific transforms may emit templateLocation in meta, in
     // which case we use that. Otherwise we use the reported location from the

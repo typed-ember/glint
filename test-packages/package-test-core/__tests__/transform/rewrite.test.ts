@@ -65,6 +65,51 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
+    test('source-map offsets are stable after a ` character earlier in the template', () => {
+      // Regression test: the .gts preprocessor escapes backticks inside
+      // template content so the wrapped chunk parses as a valid JS template
+      // literal. Previously the transform used `node.template.rawText`, which
+      // preserves those backslash-escapes verbatim and inflated the template
+      // length by 1 per escape — shifting every downstream source-map offset
+      // by the same amount. The visible symptom was cmd-hover / go-to-def
+      // underlines landing past the start of identifiers (most noticeable
+      // for hyphenated keywords like `in-element`) when a backtick appeared
+      // earlier in the same template (e.g. inside a `{{! ... }}` comment).
+      let script = {
+        filename: 'test.gts',
+        contents: stripIndent`
+          import Component from '@glimmer/component';
+          export default class MyComponent extends Component<{ Args: { dest: Element } }> {
+            <template>
+              {{! Renders into \`dest\`. }}
+              {{#in-element @dest}}hello{{/in-element}}
+            </template>
+          }
+        `,
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, env);
+
+      expect(transformedModule?.errors).toEqual([]);
+
+      // The transform emits `in_element` (identifier-safe) for the hyphenated
+      // `in-element` keyword. Map that identifier back to the original .gts
+      // and confirm it lands exactly on `in-element` rather than +N chars past.
+      let transformed = transformedModule!.transformedContents;
+      let transformedStart = transformed.indexOf('Globals.in_element');
+      expect(transformedStart).toBeGreaterThan(-1);
+      let identifierStart = transformedStart + 'Globals.'.length;
+      let identifierEnd = identifierStart + 'in_element'.length;
+
+      let originalRange = transformedModule!.getOriginalRange(identifierStart, identifierEnd);
+      let originalStart = script.contents.indexOf('in-element');
+
+      expect(originalRange.start).toBe(originalStart);
+      expect(
+        script.contents.slice(originalRange.start, originalRange.start + 'in-element'.length),
+      ).toBe('in-element');
+    });
+
     test('with a class with type parameters', () => {
       let script = {
         filename: 'test.gts',
