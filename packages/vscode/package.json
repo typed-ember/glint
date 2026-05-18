@@ -24,7 +24,8 @@
     "Linters"
   ],
   "scripts": {
-    "test": "pnpm build && pnpm test-ts-plugin",
+    "test": "pnpm build && pnpm test:unit && pnpm test-ts-plugin",
+    "test:unit": "pnpm compile && node --test lib/__tests__/resolve-ember-tsc.test.js",
     "test-ts-plugin": "node lib/__tests__/support/launch-from-cli.mjs",
     "test:typecheck": "echo 'no standalone typecheck within this project'",
     "test:tsc": "echo 'no standalone tsc within this project'",
@@ -108,13 +109,15 @@
         "title": "Glint V2",
         "properties": {
           "glint2.libraryPath": {
-            "markdownDescription": "The path, relative to your workspace folder root, from which to resolve `ember-tsc`. Defaults to `'.'`.",
+            "markdownDescription": "The path, relative to your workspace folder root, from which to resolve `ember-tsc`. Defaults to `'.'`. When unset and `#glint2.emberTscSource#` is `auto`, the extension walks up from the active `.gts`/`.gjs` file to find the nearest `@glint/ember-tsc` install (useful for monorepos).",
             "order": 1,
+            "scope": "resource",
             "type": "string"
           },
           "glint2.emberTscSource": {
-            "markdownDescription": "Which ember-tsc to use: `auto` prefers the workspace package and falls back to the bundled version when missing.",
+            "markdownDescription": "Which ember-tsc to use: `auto` prefers a workspace install (auto-discovered from the active file's directory if `#glint2.libraryPath#` is unset) and falls back to the bundled version when missing.",
             "order": 2,
+            "scope": "resource",
             "type": "string",
             "default": "auto",
             "enum": [
