@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.7.3",
-      "newVersion": "1.7.4",
+      "oldVersion": "1.7.4",
+      "newVersion": "1.7.5",
       "tagName": "latest",
       "constraints": [
         {
@@ -18,8 +18,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.5.3",
-      "newVersion": "2.5.4",
+      "oldVersion": "2.5.4",
+      "newVersion": "2.5.5",
       "tagName": "latest",
       "constraints": [
         {
@@ -33,5 +33,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-05-18)\n\n* @glint/ember-tsc 1.7.4 (patch)\n* @glint/tsserver-plugin 2.5.4 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1129](https://github.com/typed-ember/glint/pull/1129) fix(ember-tsc): use cooked text for tagged template content to keep `gts` source-map offsets aligned ([@aklkv](https://github.com/aklkv))\n\n#### Committers: 1\n- Alexey Kulakov ([@aklkv](https://github.com/aklkv))\n"
+  "description": "## Release (2026-05-18)\n\n* @glint/ember-tsc 1.7.5 (patch)\n* @glint/tsserver-plugin 2.5.5 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1131](https://github.com/typed-ember/glint/pull/1131) fix(ember-tsc): gate g-component-hover plugin to the component tag-name range ([@aklkv](https://github.com/aklkv))\n\n#### Committers: 1\n- Alexey Kulakov ([@aklkv](https://github.com/aklkv))\n"
 }

@@ -2,6 +2,18 @@
 
 ## Release (2026-05-18)
 
+* @glint/ember-tsc 1.7.5 (patch)
+* @glint/tsserver-plugin 2.5.5 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1131](https://github.com/typed-ember/glint/pull/1131) fix(ember-tsc): gate g-component-hover plugin to the component tag-name range ([@aklkv](https://github.com/aklkv))
+
+#### Committers: 1
+- Alexey Kulakov ([@aklkv](https://github.com/aklkv))
+
+## Release (2026-05-18)
+
 * @glint/ember-tsc 1.7.4 (patch)
 * @glint/tsserver-plugin 2.5.4 (patch)
 
