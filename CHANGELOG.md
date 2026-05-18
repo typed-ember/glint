@@ -1,5 +1,17 @@
 # Changelog
 
+## Release (2026-05-18)
+
+* @glint/ember-tsc 1.7.4 (patch)
+* @glint/tsserver-plugin 2.5.4 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1129](https://github.com/typed-ember/glint/pull/1129) fix(ember-tsc): use cooked text for tagged template content to keep `gts` source-map offsets aligned ([@aklkv](https://github.com/aklkv))
+
+#### Committers: 1
+- Alexey Kulakov ([@aklkv](https://github.com/aklkv))
+
 ## Release (2026-05-17)
 
 * @glint/ember-tsc 1.7.3 (patch)
