@@ -93,11 +93,36 @@ function findComponentAtOffset(
     }
 
     const elementStart = span.originalStart + elementNode.originalRange.start;
+    const elementEnd = span.originalStart + elementNode.originalRange.end;
     const source = span.originalFile.contents;
-    const tagNameIdx = source.indexOf(tagName, elementStart);
-    const tagStart = tagNameIdx >= 0 ? tagNameIdx : elementStart;
+    const openIdx = source.indexOf(tagName, elementStart);
+    const tagStart = openIdx >= 0 ? openIdx : elementStart;
     const tagEnd = tagStart + tagName.length;
 
+    // Also look for the closing tag (`</Foo>`) so hover works there too. The
+    // search is bounded by `elementEnd`; `lastIndexOf` returns -1 for a
+    // self-closing element (which has no `</Foo>`) or any index <= `tagStart`
+    // we treat as "no closing tag" so the closing-tag check is a no-op.
+    const closeMarker = `</${tagName}`;
+    const closeMarkerIdx = source.lastIndexOf(closeMarker, elementEnd);
+    const closeStart = closeMarkerIdx > tagStart ? closeMarkerIdx + 2 : -1;
+    const closeEnd = closeStart >= 0 ? closeStart + tagName.length : -1;
+
+    // Only contribute a component-signature hover when the cursor is on the
+    // tag name itself (opening OR closing). Without this gate the plugin
+    // returns a hit for any offset inside the element's source range (args,
+    // attributes, content), and the language client concatenates the
+    // synthesized `interface XSignature { ... }` block with the TS hover for
+    // whatever symbol the user is actually pointing at (e.g. `@size`),
+    // producing a confusing two-part tooltip.
+    const onOpen = offset >= tagStart && offset < tagEnd;
+    const onClose = closeStart >= 0 && offset >= closeStart && offset < closeEnd;
+    if (!onOpen && !onClose) {
+      return null;
+    }
+    if (onClose) {
+      return { tagName, tagStart: closeStart, tagEnd: closeEnd };
+    }
     return { tagName, tagStart, tagEnd };
   }
   return null;
