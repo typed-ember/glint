@@ -10,12 +10,18 @@ export type EventForName<Name extends string> = Name extends keyof HTMLElementEv
   ? HTMLElementEventMap[Name]
   : Event;
 
-export type OnModifier = abstract new <Name extends string>() => InstanceType<
+export type OnModifier = abstract new <
+  Name extends string,
+  El extends Element = Element,
+>() => InstanceType<
   ModifierLike<{
-    Element: Element;
+    Element: El;
     Args: {
       Named: OnModifierArgs;
-      Positional: [name: Name, callback: (event: EventForName<Name>) => void];
+      Positional: [
+        name: Name,
+        callback: (event: EventForName<Name> & { currentTarget: El }) => void,
+      ];
     };
   }>
 >;
