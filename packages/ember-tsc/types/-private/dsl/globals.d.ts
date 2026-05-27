@@ -31,9 +31,12 @@ import { UniqueIdHelper } from '../intrinsics/unique-id';
 // 389 are only available at runtime when consumers are on ember-source >= 7.1.
 // We probe for the `eq` value re-export added by RFC 561 to decide whether to
 // expose the new keyword types. On older versions the probe collapses to the
-// empty type, so referencing e.g. `{{eq}}` falls back to whatever the user
-// has imported (or surfaces as an "unknown identifier" diagnostic), keeping
-// behaviour identical to today.
+// empty type, so the 7.1 keyword members are entirely absent from `Globals` —
+// referencing e.g. `{{eq}}` then surfaces TypeScript's standard
+// "Property 'eq' does not exist on type 'Globals'" diagnostic, which triggers
+// auto-import quick-fixes (`import { eq } from 'ember-truth-helpers'`) and
+// lets user-scoped imports flow through completion and hover without being
+// shadowed by a `never`-typed builtin.
 //
 // We probe a value export (`eq`) rather than the matching `EqHelper`
 // interface because `typeof import(...)` only surfaces the module's value
@@ -48,9 +51,6 @@ import { UniqueIdHelper } from '../intrinsics/unique-id';
 type EmberHelperExports = typeof import('@ember/helper');
 
 type HasEmber71BuiltIns = [EmberHelperExports] extends [{ eq: unknown }] ? true : false;
-
-/** Resolves to `T` only when ember-source >= 7.1 ships the new keyword set. */
-type Ember71Only<T> = HasEmber71BuiltIns extends true ? T : never;
 
 // The keyword vs global breakdown here is loosely matched with
 // the listing in http://emberjs.github.io/rfcs/0496-handlebars-strict-mode.html
@@ -243,12 +243,16 @@ interface KeywordsForEmber {
 
 /**
  * Built-in template keywords introduced by ember-source 7.1
- * (RFCs 389, 470, 560, 561, 562, 997, 998, 999, 1000). Each entry is gated by
- * `Ember71Only<T>` so the keyword resolves to `never` (and is therefore
- * effectively absent) when the consumer is on ember-source < 7.1. See the
- * `HasEmber71BuiltIns` probe at the top of this file.
+ * (RFCs 389, 470, 560, 561, 562, 997, 998, 999, 1000). The whole member set is
+ * gated by `HasEmber71BuiltIns` at the `Globals` intersection below, so when
+ * the consumer is on ember-source < 7.1 these property keys are absent from
+ * `Globals` entirely (rather than present as `never`). That lets TypeScript
+ * report `{{eq}}` / `{{and}}` / etc. as unknown properties and offer the
+ * "Add import from 'ember-truth-helpers'" / `@ember/helper` quick-fix, and
+ * keeps user-imported helpers from being shadowed by a `never`-typed builtin
+ * in completion and hover.
  */
-interface KeywordsForEmber71 {
+interface KeywordsForEmber71Members {
   /**
    * The `{{and}}` helper evaluates arguments left to right, returning the first
    * falsy value (using Handlebars truthiness) or the right-most value if all
@@ -265,7 +269,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/and
    */
-  and: Ember71Only<AndHelper>;
+  and: AndHelper;
 
   /**
    * Using the `{{array}}` helper, you can pass arrays directly from the
@@ -286,7 +290,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/array
    */
-  array: Ember71Only<ArrayHelper>;
+  array: ArrayHelper;
 
   /**
    * The `{{element}}` helper lets you dynamically set the tag name of an
@@ -310,7 +314,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/element
    */
-  element: Ember71Only<ElementHelper>;
+  element: ElementHelper;
 
   /**
    * The `{{eq}}` helper returns `true` if its two arguments are strictly equal
@@ -327,7 +331,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/eq
    */
-  eq: Ember71Only<EqHelper>;
+  eq: EqHelper;
 
   /**
    * `{{fn}}` is a helper that receives a function and some arguments, and
@@ -351,7 +355,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/fn
    */
-  fn: Ember71Only<FnHelper>;
+  fn: FnHelper;
 
   /**
    * The `{{gt}}` helper returns `true` if the first argument is greater than
@@ -368,7 +372,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/gt
    */
-  gt: Ember71Only<GtHelper>;
+  gt: GtHelper;
 
   /**
    * The `{{gte}}` helper returns `true` if the first argument is greater than
@@ -385,7 +389,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/gte
    */
-  gte: Ember71Only<GteHelper>;
+  gte: GteHelper;
 
   /**
    * Using the `{{hash}}` helper, you can pass objects directly from the
@@ -404,7 +408,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/hash
    */
-  hash: Ember71Only<HashHelper>;
+  hash: HashHelper;
 
   /**
    * The `{{lt}}` helper returns `true` if the first argument is less than the
@@ -421,7 +425,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/lt
    */
-  lt: Ember71Only<LtHelper>;
+  lt: LtHelper;
 
   /**
    * The `{{lte}}` helper returns `true` if the first argument is less than or
@@ -438,7 +442,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/lte
    */
-  lte: Ember71Only<LteHelper>;
+  lte: LteHelper;
 
   /**
    * The `{{neq}}` helper returns `true` if its two arguments are strictly not
@@ -455,7 +459,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/neq
    */
-  neq: Ember71Only<NeqHelper>;
+  neq: NeqHelper;
 
   /**
    * The `{{not}}` helper returns the logical negation of its argument using
@@ -472,7 +476,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/not
    */
-  not: Ember71Only<NotHelper>;
+  not: NotHelper;
 
   /**
    * The `{{on}}` element modifier attaches an event listener to an element.
@@ -493,7 +497,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fmodifier/on
    */
-  on: Ember71Only<OnModifier>;
+  on: OnModifier;
 
   /**
    * The `{{or}}` helper evaluates arguments left to right, returning the first
@@ -511,7 +515,7 @@ interface KeywordsForEmber71 {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/or
    */
-  or: Ember71Only<OrHelper>;
+  or: OrHelper;
 }
 
 /**
@@ -576,6 +580,12 @@ interface KeywordAliasesForEmber {
   unique_id: UniqueIdHelper;
 }
 
-interface Keywords extends KeywordsForEmber, KeywordsForEmber71, KeywordAliasesForEmber {}
+interface Keywords extends KeywordsForEmber, KeywordAliasesForEmber {}
 
-export const Globals: Keywords & Globals;
+// When `HasEmber71BuiltIns` is `true`, the 7.1 keyword members are included on
+// `Globals`; otherwise the conditional collapses to `{}` and the keys are
+// absent so TypeScript surfaces "unknown identifier" diagnostics / auto-import
+// quick-fixes for `{{and}}`, `{{eq}}`, etc.
+type KeywordsForEmber71 = HasEmber71BuiltIns extends true ? KeywordsForEmber71Members : {};
+
+export const Globals: Keywords & KeywordsForEmber71 & Globals;
