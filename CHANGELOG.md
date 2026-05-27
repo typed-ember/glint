@@ -1,5 +1,26 @@
 # Changelog
 
+## Release (2026-05-27)
+
+* @glint/ember-tsc 1.8.0 (minor)
+* @glint/tsserver-plugin 2.5.6 (patch)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`
+  * [#1137](https://github.com/typed-ember/glint/pull/1137) feat(on): allow narrowing event.currentTarget to match the modifier element ([@johanrd](https://github.com/johanrd))
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1139](https://github.com/typed-ember/glint/pull/1139) fix(ember-tsc): omit 7.1 keywords from Globals on ember-source < 7.1 ([@aklkv](https://github.com/aklkv))
+
+#### :house: Internal
+* [#1135](https://github.com/typed-ember/glint/pull/1135) Bump version for extensions' release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 3
+- Alexey Kulakov ([@aklkv](https://github.com/aklkv))
+- Johan Røed ([@johanrd](https://github.com/johanrd))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-05-18)
 
 * @glint/ember-tsc 1.7.5 (patch)
