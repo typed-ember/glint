@@ -32,7 +32,7 @@
     "glint-monorepo-test-utils": "workspace:*",
     "strip-ansi": "^6.0.0",
     "typescript": "^5.9.3",
-    "vitest": "~3.0.9",
+    "vitest": "~4.1.0",
     "vscode-uri": "^3.1.0"
   },
   "publishConfig": {
