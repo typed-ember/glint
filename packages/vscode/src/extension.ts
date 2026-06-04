@@ -567,27 +567,40 @@ if (!v1ExtensionPresent) {
       if (args[0] === extensionJsPath) {
         let text = readFileSync(...args) as string;
 
+        const concatLanguageIds = `.concat(${languageIds.map((lang) => `'${lang}'`).join(',')})`;
+
         // patch jsTsLanguageModes - this makes VSCode recognize our custom language IDs
-        // as valid TypeScript-like languages for features like refactoring
+        // as valid TypeScript-like languages for features like refactoring.
+        //
+        // VSCode 1.110 minified this differently: the array is no longer assigned to a
+        // `jsTsLanguageModes` property but to a local var preceded by the `"javascriptreact"`
+        // literal, e.g. `"javascriptreact",kh=[Ya,Va,Cl,Rs]`. Match either form (the
+        // identifiers are minified and change between releases) and append `.concat(...)`
+        // to the language-mode array. (See vuejs/language-tools for the same approach.)
         text = text.replace(
-          't.jsTsLanguageModes=[t.javascript,t.javascriptreact,t.typescript,t.typescriptreact]',
-          (s) => s + `.concat(${languageIds.map((lang) => `'${lang}'`).join(',')})`,
+          /t\.jsTsLanguageModes=\[t\.javascript,t\.javascriptreact,t\.typescript,t\.typescriptreact\]|"javascriptreact",[\w$]+=\[[\w$]+,[\w$]+,[\w$]+,[\w$]+\]/,
+          (s) => s + concatLanguageIds,
         );
 
         // patch isSupportedLanguageMode - this enables features like "Find All References"
-        // and "Go to Definition" to work across .gts/.gjs files
+        // and "Go to Definition" to work across .gts/.gjs files. Pre-1.110 the args were
+        // `t.typescript,...`; 1.110+ uses minified identifiers, e.g. `[Cl,Rs,Ya,Va]`.
         text = text.replace(
-          '.languages.match([t.typescript,t.typescriptreact,t.javascript,t.javascriptreact]',
-          (s) => s + `.concat(${languageIds.map((lang) => `'${lang}'`).join(',')})`,
+          /\.languages\.match\(\[(?:t\.typescript,t\.typescriptreact,t\.javascript,t\.javascriptreact|[\w$]+,[\w$]+,[\w$]+,[\w$]+)\]/,
+          (s) => s + concatLanguageIds,
         );
 
-        // Sort plugins to prioritize glint plugin (for compatibility with other TS plugins)
+        // Sort plugins to prioritize glint plugin (for compatibility with other TS plugins).
+        // Both pre-1.110 (`"--globalPlugins",i.plugins`) and 1.110+
+        // (`"--globalPlugins",o.plugins.map(m=>m.name).join(",")`) start with
+        // `"--globalPlugins",<ident>.plugins`; inserting `.slice().sort(...)` there works
+        // for both — the array is sorted before it is either passed through or mapped.
         const glintPluginName = '@glint/tsserver-plugin-pack';
         text = text.replace(
-          '"--globalPlugins",i.plugins',
+          /"--globalPlugins",[\w$]+\.plugins/,
           (s) =>
             s +
-            `.sort((a,b)=>(b.name==="${glintPluginName}"?-1:0)-(a.name==="${glintPluginName}"?-1:0))`,
+            `.slice().sort((a,b)=>(b.name==="${glintPluginName}"?-1:0)-(a.name==="${glintPluginName}"?-1:0))`,
         );
 
         return text;
