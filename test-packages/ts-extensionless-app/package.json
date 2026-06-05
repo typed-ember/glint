@@ -34,7 +34,7 @@
     "execa": "^9.6.0",
     "strip-ansi": "^7.1.0",
     "typescript": "^5.9.3",
-    "vitest": "~3.0.9"
+    "vitest": "~4.1.0"
   },
   "volta": {
     "extends": "../../package.json"
