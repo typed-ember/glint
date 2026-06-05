@@ -1,5 +1,17 @@
 # Changelog
 
+## Release (2026-06-05)
+
+
+
+#### :house: Internal
+* [#1143](https://github.com/typed-ember/glint/pull/1143) Release 1.3.1 to the VSCode Marketplaces ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* [#1142](https://github.com/typed-ember/glint/pull/1142) fix(vscode): make TS-extension patches resilient to VSCode 1.110+ minification ([@wagenet](https://github.com/wagenet))
+
+#### Committers: 2
+- Peter Wagenet ([@wagenet](https://github.com/wagenet))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-05-27)
 
 * @glint/ember-tsc 1.8.0 (minor)
