@@ -170,6 +170,11 @@ const OptionalArgCurriedTest = <template>
     {{#let (component UnionArgsComponent value="not a date") as |C|}}
       <C />
     {{/let}}
+
+    {{! @glint-expect-error: attempting to curry args from both union constituents }}
+    {{#let (component UnionArgsComponent value=someDate range=someRange) as |C|}}
+      <C />
+    {{/let}}
   </template>;
 }
 

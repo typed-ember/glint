@@ -124,6 +124,12 @@ class UnionArgsComponent extends TestComponent<{
     // @ts-expect-error: attempting to curry an arg with the wrong type
     { value: 'not a date', ...NamedArgsMarker },
   );
+
+  componentKeyword(
+    resolveForBind(UnionArgsComponent),
+    // @ts-expect-error: attempting to curry args from both union constituents
+    { value: someDate, range: [someDate, someDate] as [Date, Date], ...NamedArgsMarker },
+  );
 }
 
 // A union without `?: never` on the "other" keys — `keyof`/`Omit` over such a
