@@ -156,7 +156,7 @@
     "@volar/vscode": "~2.4.28",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.7.1",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.28.1",
     "expect": "^29.5.0",
     "glob": "^10.5.0",
     "mocha": "^10.2.0",
