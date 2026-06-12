@@ -84,6 +84,48 @@ componentKeyword(
   { value: 123, ...NamedArgsMarker },
 );
 
+// Issue #1144: pre-binding a named arg on a component whose `Args` type is a
+// union of all-optional constituents
+class UnionArgsComponent extends TestComponent<{
+  Args: { value?: Date; range?: never } | { value?: never; range?: [Date, Date] };
+}> {}
+
+{
+  const someDate = new Date();
+
+  const NoopCurriedUnionArgsComponent = componentKeyword(resolveForBind(UnionArgsComponent));
+
+  // Invoking the noop-curried component with either side of the union, or neither
+  emitComponent(resolve(NoopCurriedUnionArgsComponent)({ value: someDate, ...NamedArgsMarker }));
+  emitComponent(
+    resolve(NoopCurriedUnionArgsComponent)({ range: [someDate, someDate], ...NamedArgsMarker }),
+  );
+  emitComponent(resolve(NoopCurriedUnionArgsComponent)());
+
+  // Currying an arg from one constituent of the union
+  const ValueCurriedUnionArgsComponent = componentKeyword(resolveForBind(UnionArgsComponent), {
+    value: someDate,
+    ...NamedArgsMarker,
+  });
+
+  emitComponent(resolve(ValueCurriedUnionArgsComponent)({ ...NamedArgsMarker }));
+  emitComponent(resolve(ValueCurriedUnionArgsComponent)());
+
+  // Currying an arg from the other constituent
+  const RangeCurriedUnionArgsComponent = componentKeyword(resolveForBind(UnionArgsComponent), {
+    range: [someDate, someDate] as [Date, Date],
+    ...NamedArgsMarker,
+  });
+
+  emitComponent(resolve(RangeCurriedUnionArgsComponent)({ ...NamedArgsMarker }));
+
+  componentKeyword(
+    resolveForBind(UnionArgsComponent),
+    // @ts-expect-error: attempting to curry an arg with the wrong type
+    { value: 'not a date', ...NamedArgsMarker },
+  );
+}
+
 class ParametricComponent<T> extends TestComponent<{
   Args: { values: Array<T>; optional?: string };
   Blocks: { default?: [T, number] };

@@ -60,13 +60,23 @@ export type PrebindArgs<T, Args extends keyof UnwrapNamedArgs<T>> = NamedArgs<
   Omit<UnwrapNamedArgs<T>, Args> & Partial<Pick<UnwrapNamedArgs<T>, Args>>
 >;
 
-export type MaybeNamed<T> = T extends any
-  ? {} extends UnwrapNamedArgs<T>
-    ? keyof UnwrapNamedArgs<T> extends never
+// Keys across all constituents of a (possibly union) named-args type. Plain
+// `keyof UnwrapNamedArgs<T>` would only see keys common to every constituent.
+type UnionKeysOf<T> = T extends any ? keyof UnwrapNamedArgs<T> : never;
+
+// Note: this must produce a single parameter tuple rather than distributing a
+// union `T` into a union of tuples. A union of tuples breaks contravariant
+// assignability against the `(named: NamedArgs<Named>)` patterns used by
+// `{{component}}`/`{{helper}}`/`{{modifier}}` to pre-bind named args (#1144).
+// The checks below are still union-aware: `{} extends A | B` holds when any
+// constituent accepts an empty hash, and `UnionKeysOf` collects keys from all
+// constituents.
+export type MaybeNamed<T> =
+  {} extends UnwrapNamedArgs<T>
+    ? [UnionKeysOf<T>] extends [never]
       ? []
       : [named?: T]
-    : [named: T]
-  : never;
+    : [named: T];
 
 export type Get<T, K, Otherwise = unknown> = K extends keyof T ? T[K] : Otherwise;
 export type Constrain<T, Constraint, Otherwise = Constraint> = T extends Constraint ? T : Otherwise;

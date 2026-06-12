@@ -3,6 +3,7 @@ import { expectTypeOf, to } from '@glint/type-test';
 import { array } from '@ember/helper';
 import { hash } from '@ember/helper';
 import type { WithBoundArgs, ModifierLike } from '@glint/template';
+import type { TOC } from '@ember/component/template-only';
 
 declare const formModifier: ModifierLike<{ Element: HTMLFormElement }>;
 
@@ -135,6 +136,42 @@ const OptionalArgCurriedTest = <template>
     </OptionalCurried>
   {{/let}}
 </template>;
+
+// Issue #1144: pre-binding an arg on a component whose `Args` is a union of
+// all-optional constituents picked the wrong union member and reported TS2769.
+{
+  const UnionArgsComponent: TOC<{
+    Args: { value?: Date; range?: never } | { value?: never; range?: [Date, Date] };
+  }> = <template></template>;
+
+  const someDate = new Date();
+  const someRange = [someDate, someDate] as [Date, Date];
+
+  const UnionArgsPrebindTest = <template>
+    {{#let (component UnionArgsComponent) as |C|}}
+      <C @value={{someDate}} />
+      <C @range={{someRange}} />
+      <C />
+
+      {{! @glint-expect-error: can't mix args from both union constituents }}
+      <C @value={{someDate}} @range={{someRange}} />
+    {{/let}}
+
+    {{#let (component UnionArgsComponent value=someDate) as |C|}}
+      <C />
+      <C @value={{someDate}} />
+    {{/let}}
+
+    {{#let (component UnionArgsComponent range=someRange) as |C|}}
+      <C />
+    {{/let}}
+
+    {{! @glint-expect-error: attempting to curry an arg with the wrong type }}
+    {{#let (component UnionArgsComponent value="not a date") as |C|}}
+      <C />
+    {{/let}}
+  </template>;
+}
 
 // Issue #661: WithBoundArgs with ModifierLike arg — verified fixed.
 // Currying named args including ModifierLike no longer causes TS2589.
