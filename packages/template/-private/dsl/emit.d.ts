@@ -9,7 +9,6 @@ import {
   TemplateContext,
   Invokable,
   NamedArgs,
-  UnwrapNamedArgs,
 } from '../integration';
 import {
   AttributesForElement,
@@ -17,7 +16,7 @@ import {
   MathMlElementForTagName,
   SVGElementForTagName,
 } from './types';
-import { MaybeNamed, PrebindArgs } from '../signature';
+import { MaybeNamed, PrebindArgs, UnionKeysOf } from '../signature';
 
 /**
  * Used during emit to denote an object literal that corresponds
@@ -189,18 +188,14 @@ type BindNamedResult<Args, T, GivenNamed> =
   // Named-only args (required or optional — handles double-currying)
   Args extends [NamedArgs<infer Named>?]
     ? (
-        ...named: MaybeNamed<
-          PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
-        >
+        ...named: MaybeNamed<PrebindArgs<NonNullable<Named>, keyof GivenNamed & UnionKeysOf<Named>>>
       ) => T
     : // Positional + named args
       Args extends [...infer Positional, NamedArgs<infer Named>]
       ? (
           ...args: [
             ...Positional,
-            ...MaybeNamed<
-              PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
-            >,
+            ...MaybeNamed<PrebindArgs<NonNullable<Named>, keyof GivenNamed & UnionKeysOf<Named>>>,
           ]
         ) => T
       : (...args: Args extends unknown[] ? Args : never) => T;
