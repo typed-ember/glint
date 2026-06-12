@@ -3,7 +3,7 @@ import { expectTypeOf, to } from '@glint/type-test';
 import { array } from '@ember/helper';
 import { hash } from '@ember/helper';
 import type { WithBoundArgs, ModifierLike } from '@glint/template';
-import type { TOC } from '@ember/component/template-only';
+import type { TOC, TemplateOnlyComponent } from '@ember/component/template-only';
 
 declare const formModifier: ModifierLike<{ Element: HTMLFormElement }>;
 
@@ -171,6 +171,70 @@ const OptionalArgCurriedTest = <template>
       <C />
     {{/let}}
   </template>;
+}
+
+// Issue #1144 (cont.): a union without `?: never` on the "other" keys. `keyof`
+// and `Omit` over such a union only see common keys (here: none), so the
+// curried component's remaining args used to collapse to `{}`.
+{
+  const LooseUnionComponent: TOC<{
+    Args: { value?: Date } | { range?: [Date, Date] };
+  }> = <template></template>;
+
+  const someDate = new Date();
+
+  const LooseUnionPrebindTest = <template>
+    {{#let (component LooseUnionComponent value=someDate) as |C|}}
+      <C />
+      <C @value={{someDate}} />
+    {{/let}}
+  </template>;
+}
+
+// Issue #1144 (cont.): a union of constituents intersected with common args,
+// yielded out as a WithBoundArgs-typed block param.
+{
+  const IntersectedUnionComponent: TOC<{
+    Args: (
+      | { value?: Date; onChange?: (date: Date) => void }
+      | { range?: [Date, Date]; onRangeChange?: (range: [Date, Date]) => void }
+    ) & {
+      otherArgument: boolean;
+    };
+  }> = <template></template>;
+
+  const someDate = new Date();
+
+  function onChange(date: Date): void {}
+
+  const IntersectedUnionPrebindTest = <template>
+    {{#let
+      (component IntersectedUnionComponent otherArgument=true value=someDate onChange=onChange)
+      as |C|
+    }}
+      <C />
+      {{yield (hash SomeComponent=C)}}
+    {{/let}}
+
+    {{! currying only a constituent-specific arg leaves the common arg required }}
+    {{#let (component IntersectedUnionComponent value=someDate) as |C|}}
+      <C @otherArgument={{false}} />
+
+      {{! @glint-expect-error: missing required arg `otherArgument` }}
+      <C />
+    {{/let}}
+  </template> satisfies TemplateOnlyComponent<{
+    Blocks: {
+      default: [
+        {
+          SomeComponent: WithBoundArgs<
+            typeof IntersectedUnionComponent,
+            'value' | 'onChange' | 'otherArgument'
+          >;
+        },
+      ];
+    };
+  }>;
 }
 
 // Issue #661: WithBoundArgs with ModifierLike arg — verified fixed.
