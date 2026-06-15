@@ -84,6 +84,111 @@ componentKeyword(
   { value: 123, ...NamedArgsMarker },
 );
 
+// Issue #1144: pre-binding a named arg on a component whose `Args` type is a
+// union of all-optional constituents
+class UnionArgsComponent extends TestComponent<{
+  Args: { value?: Date; range?: never } | { value?: never; range?: [Date, Date] };
+}> {}
+
+{
+  const someDate = new Date();
+
+  const NoopCurriedUnionArgsComponent = componentKeyword(resolveForBind(UnionArgsComponent));
+
+  // Invoking the noop-curried component with either side of the union, or neither
+  emitComponent(resolve(NoopCurriedUnionArgsComponent)({ value: someDate, ...NamedArgsMarker }));
+  emitComponent(
+    resolve(NoopCurriedUnionArgsComponent)({ range: [someDate, someDate], ...NamedArgsMarker }),
+  );
+  emitComponent(resolve(NoopCurriedUnionArgsComponent)());
+
+  // Currying an arg from one constituent of the union
+  const ValueCurriedUnionArgsComponent = componentKeyword(resolveForBind(UnionArgsComponent), {
+    value: someDate,
+    ...NamedArgsMarker,
+  });
+
+  emitComponent(resolve(ValueCurriedUnionArgsComponent)({ ...NamedArgsMarker }));
+  emitComponent(resolve(ValueCurriedUnionArgsComponent)());
+
+  // Currying an arg from the other constituent
+  const RangeCurriedUnionArgsComponent = componentKeyword(resolveForBind(UnionArgsComponent), {
+    range: [someDate, someDate] as [Date, Date],
+    ...NamedArgsMarker,
+  });
+
+  emitComponent(resolve(RangeCurriedUnionArgsComponent)({ ...NamedArgsMarker }));
+
+  componentKeyword(
+    resolveForBind(UnionArgsComponent),
+    // @ts-expect-error: attempting to curry an arg with the wrong type
+    { value: 'not a date', ...NamedArgsMarker },
+  );
+
+  componentKeyword(
+    resolveForBind(UnionArgsComponent),
+    // @ts-expect-error: attempting to curry args from both union constituents
+    { value: someDate, range: [someDate, someDate] as [Date, Date], ...NamedArgsMarker },
+  );
+}
+
+// A union without `?: never` on the "other" keys — `keyof`/`Omit` over such a
+// union only see common keys (here: none), so a non-distributive `PrebindArgs`
+// collapsed the curried component's args to `{}`.
+class LooseUnionArgsComponent extends TestComponent<{
+  Args: { value?: Date } | { range?: [Date, Date] };
+}> {}
+
+{
+  const someDate = new Date();
+
+  const ValueCurriedLooseUnionComponent = componentKeyword(
+    resolveForBind(LooseUnionArgsComponent),
+    { value: someDate, ...NamedArgsMarker },
+  );
+
+  emitComponent(resolve(ValueCurriedLooseUnionComponent)({ ...NamedArgsMarker }));
+  emitComponent(resolve(ValueCurriedLooseUnionComponent)());
+  emitComponent(resolve(ValueCurriedLooseUnionComponent)({ value: someDate, ...NamedArgsMarker }));
+}
+
+// A union of constituents intersected with args common to both
+class IntersectedUnionArgsComponent extends TestComponent<{
+  Args: (
+    | { value?: Date; onChange?: (date: Date) => void }
+    | { range?: [Date, Date]; onRangeChange?: (range: [Date, Date]) => void }
+  ) & { otherArgument: boolean };
+}> {}
+
+{
+  const someDate = new Date();
+  const onChange = (_date: Date): void => {};
+
+  // Currying args from one constituent along with a common arg
+  const FullyCurriedIntersectedComponent = componentKeyword(
+    resolveForBind(IntersectedUnionArgsComponent),
+    { otherArgument: true, value: someDate, onChange, ...NamedArgsMarker },
+  );
+
+  emitComponent(resolve(FullyCurriedIntersectedComponent)({ ...NamedArgsMarker }));
+  emitComponent(resolve(FullyCurriedIntersectedComponent)());
+
+  // Currying only a constituent-specific arg leaves the common arg required
+  const ValueCurriedIntersectedComponent = componentKeyword(
+    resolveForBind(IntersectedUnionArgsComponent),
+    { value: someDate, ...NamedArgsMarker },
+  );
+
+  emitComponent(
+    resolve(ValueCurriedIntersectedComponent)({ otherArgument: false, ...NamedArgsMarker }),
+  );
+
+  resolve(ValueCurriedIntersectedComponent)(
+    // @ts-expect-error: missing required arg `otherArgument`
+    { ...NamedArgsMarker },
+  );
+}
+
 class ParametricComponent<T> extends TestComponent<{
   Args: { values: Array<T>; optional?: string };
   Blocks: { default?: [T, number] };

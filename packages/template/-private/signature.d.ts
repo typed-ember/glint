@@ -56,17 +56,34 @@ export type ComponentSignatureElement<S> = S extends { Element: infer Element }
     : Element
   : unknown;
 
-export type PrebindArgs<T, Args extends keyof UnwrapNamedArgs<T>> = NamedArgs<
-  Omit<UnwrapNamedArgs<T>, Args> & Partial<Pick<UnwrapNamedArgs<T>, Args>>
+// This distributes over union `T` so that each constituent only has the bound
+// keys it actually declares omitted/made-optional. A non-distributive
+// `Omit<A | B, ...>` would collapse the union to its common keys, losing the
+// per-constituent shape (#1144).
+export type PrebindArgs<T, Args extends UnionKeysOf<T>> = NamedArgs<
+  T extends any
+    ? Omit<UnwrapNamedArgs<T>, Args & keyof UnwrapNamedArgs<T>> &
+        Partial<Pick<UnwrapNamedArgs<T>, Args & keyof UnwrapNamedArgs<T>>>
+    : never
 >;
 
-export type MaybeNamed<T> = T extends any
-  ? {} extends UnwrapNamedArgs<T>
-    ? keyof UnwrapNamedArgs<T> extends never
+// Keys across all constituents of a (possibly union) named-args type. Plain
+// `keyof UnwrapNamedArgs<T>` would only see keys common to every constituent.
+export type UnionKeysOf<T> = T extends any ? keyof UnwrapNamedArgs<T> : never;
+
+// Note: this must produce a single parameter tuple rather than distributing a
+// union `T` into a union of tuples. A union of tuples breaks contravariant
+// assignability against the `(named: NamedArgs<Named>)` patterns used by
+// `{{component}}`/`{{helper}}`/`{{modifier}}` to pre-bind named args (#1144).
+// The checks below are still union-aware: `{} extends A | B` holds when any
+// constituent accepts an empty hash, and `UnionKeysOf` collects keys from all
+// constituents.
+export type MaybeNamed<T> =
+  {} extends UnwrapNamedArgs<T>
+    ? [UnionKeysOf<T>] extends [never]
       ? []
       : [named?: T]
-    : [named: T]
-  : never;
+    : [named: T];
 
 export type Get<T, K, Otherwise = unknown> = K extends keyof T ? T[K] : Otherwise;
 export type Constrain<T, Constraint, Otherwise = Constraint> = T extends Constraint ? T : Otherwise;

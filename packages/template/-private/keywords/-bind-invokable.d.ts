@@ -1,5 +1,5 @@
-import { DirectInvokable, Invokable, NamedArgs, UnwrapNamedArgs } from '../integration';
-import { MaybeNamed, PrebindArgs, SliceFrom, SliceTo } from '../signature';
+import { DirectInvokable, Invokable, NamedArgs } from '../integration';
+import { MaybeNamed, PrebindArgs, SliceFrom, SliceTo, UnionKeysOf } from '../signature';
 
 type PrefixOf<T extends unknown[]> = T extends [arg: infer Arg, ...rest: infer Rest]
   ? [] | [Arg, ...PrefixOf<Rest>]
@@ -19,9 +19,7 @@ export type BindInvokableKeyword<Prefix extends number, Kind> = DirectInvokable<
     named: NamedArgs<Partial<Named> & GivenNamed>,
   ): Invokable<
     (
-      ...named: MaybeNamed<
-        PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
-      >
+      ...named: MaybeNamed<PrebindArgs<NonNullable<Named>, keyof GivenNamed & UnionKeysOf<Named>>>
     ) => Return
   >;
   <Named, Return extends Kind, GivenNamed>(
@@ -29,9 +27,7 @@ export type BindInvokableKeyword<Prefix extends number, Kind> = DirectInvokable<
     named: NamedArgs<Partial<Named> & GivenNamed>,
   ): null | Invokable<
     (
-      ...named: MaybeNamed<
-        PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
-      >
+      ...named: MaybeNamed<PrebindArgs<NonNullable<Named>, keyof GivenNamed & UnionKeysOf<Named>>>
     ) => Return
   >;
   // {{bind invokableWithNamedAndPositionalArgs name="foo"}}
@@ -42,9 +38,7 @@ export type BindInvokableKeyword<Prefix extends number, Kind> = DirectInvokable<
     (
       ...args: [
         ...Positional,
-        ...MaybeNamed<
-          PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
-        >,
+        ...MaybeNamed<PrebindArgs<NonNullable<Named>, keyof GivenNamed & UnionKeysOf<Named>>>,
       ]
     ) => Return
   >;
@@ -55,9 +49,7 @@ export type BindInvokableKeyword<Prefix extends number, Kind> = DirectInvokable<
     (
       ...args: [
         ...Positional,
-        ...MaybeNamed<
-          PrebindArgs<NonNullable<Named>, keyof GivenNamed & keyof UnwrapNamedArgs<Named>>
-        >,
+        ...MaybeNamed<PrebindArgs<NonNullable<Named>, keyof GivenNamed & UnionKeysOf<Named>>>,
       ]
     ) => Return
   >;

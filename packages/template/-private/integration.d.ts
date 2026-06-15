@@ -74,10 +74,14 @@ export interface NamedArgsMarker {
   [NamedArgs]: true;
 }
 
+// Distributes so that a union type yields the keys of every constituent;
+// plain `keyof` over a union only sees keys common to all constituents.
+type KeysOfConstituents<T> = T extends unknown ? keyof T : never;
+
 export type NamedArgNames<T extends Invokable<AnyFunction>> =
   T extends Invokable<(...args: infer A) => any>
     ? A extends [...positional: infer _, named?: infer N]
-      ? Exclude<keyof NonNullable<N>, typeof NamedArgs>
+      ? Exclude<KeysOfConstituents<NonNullable<N>>, typeof NamedArgs>
       : never
     : never;
 

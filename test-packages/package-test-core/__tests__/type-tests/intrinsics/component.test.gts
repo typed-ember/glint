@@ -3,6 +3,7 @@ import { expectTypeOf, to } from '@glint/type-test';
 import { array } from '@ember/helper';
 import { hash } from '@ember/helper';
 import type { WithBoundArgs, ModifierLike } from '@glint/template';
+import type { TOC, TemplateOnlyComponent } from '@ember/component/template-only';
 
 declare const formModifier: ModifierLike<{ Element: HTMLFormElement }>;
 
@@ -135,6 +136,111 @@ const OptionalArgCurriedTest = <template>
     </OptionalCurried>
   {{/let}}
 </template>;
+
+// Issue #1144: pre-binding an arg on a component whose `Args` is a union of
+// all-optional constituents picked the wrong union member and reported TS2769.
+{
+  const UnionArgsComponent: TOC<{
+    Args: { value?: Date; range?: never } | { value?: never; range?: [Date, Date] };
+  }> = <template></template>;
+
+  const someDate = new Date();
+  const someRange = [someDate, someDate] as [Date, Date];
+
+  const UnionArgsPrebindTest = <template>
+    {{#let (component UnionArgsComponent) as |C|}}
+      <C @value={{someDate}} />
+      <C @range={{someRange}} />
+      <C />
+
+      {{! @glint-expect-error: can't mix args from both union constituents }}
+      <C @value={{someDate}} @range={{someRange}} />
+    {{/let}}
+
+    {{#let (component UnionArgsComponent value=someDate) as |C|}}
+      <C />
+      <C @value={{someDate}} />
+    {{/let}}
+
+    {{#let (component UnionArgsComponent range=someRange) as |C|}}
+      <C />
+    {{/let}}
+
+    {{! @glint-expect-error: attempting to curry an arg with the wrong type }}
+    {{#let (component UnionArgsComponent value="not a date") as |C|}}
+      <C />
+    {{/let}}
+
+    {{! @glint-expect-error: attempting to curry args from both union constituents }}
+    {{#let (component UnionArgsComponent value=someDate range=someRange) as |C|}}
+      <C />
+    {{/let}}
+  </template>;
+}
+
+// Issue #1144 (cont.): a union without `?: never` on the "other" keys. `keyof`
+// and `Omit` over such a union only see common keys (here: none), so the
+// curried component's remaining args used to collapse to `{}`.
+{
+  const LooseUnionComponent: TOC<{
+    Args: { value?: Date } | { range?: [Date, Date] };
+  }> = <template></template>;
+
+  const someDate = new Date();
+
+  const LooseUnionPrebindTest = <template>
+    {{#let (component LooseUnionComponent value=someDate) as |C|}}
+      <C />
+      <C @value={{someDate}} />
+    {{/let}}
+  </template>;
+}
+
+// Issue #1144 (cont.): a union of constituents intersected with common args,
+// yielded out as a WithBoundArgs-typed block param.
+{
+  const IntersectedUnionComponent: TOC<{
+    Args: (
+      | { value?: Date; onChange?: (date: Date) => void }
+      | { range?: [Date, Date]; onRangeChange?: (range: [Date, Date]) => void }
+    ) & {
+      otherArgument: boolean;
+    };
+  }> = <template></template>;
+
+  const someDate = new Date();
+
+  function onChange(date: Date): void {}
+
+  const IntersectedUnionPrebindTest = <template>
+    {{#let
+      (component IntersectedUnionComponent otherArgument=true value=someDate onChange=onChange)
+      as |C|
+    }}
+      <C />
+      {{yield (hash SomeComponent=C)}}
+    {{/let}}
+
+    {{! currying only a constituent-specific arg leaves the common arg required }}
+    {{#let (component IntersectedUnionComponent value=someDate) as |C|}}
+      <C @otherArgument={{false}} />
+
+      {{! @glint-expect-error: missing required arg `otherArgument` }}
+      <C />
+    {{/let}}
+  </template> satisfies TemplateOnlyComponent<{
+    Blocks: {
+      default: [
+        {
+          SomeComponent: WithBoundArgs<
+            typeof IntersectedUnionComponent,
+            'value' | 'onChange' | 'otherArgument'
+          >;
+        },
+      ];
+    };
+  }>;
+}
 
 // Issue #661: WithBoundArgs with ModifierLike arg — verified fixed.
 // Currying named args including ModifierLike no longer causes TS2589.
