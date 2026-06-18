@@ -815,11 +815,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/test-packages/ts-template-imports-app/src/empty-fixture.gts",
             "version": 0,
           },
-          "message": "Unexpected token \`<lexing error>\`. Expected content tag
-
-       6 │   </template
-       7 │ }
-         ╰────",
+          "message": "Unexpected token \`<lexing error>\`. Expected content tag",
           "range": {
             "end": {
               "character": 9,
@@ -874,11 +870,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "line": 6,
             "offset": 9,
           },
-          "text": "Unexpected token \`<lexing error>\`. Expected content tag
-
-       6 │   </template
-       7 │ }
-         ╰────",
+          "text": "Unexpected token \`<lexing error>\`. Expected content tag",
         },
       ]
     `);
