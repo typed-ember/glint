@@ -125,13 +125,44 @@ function patchVolarDecorateProgramForContentTagErrors(): void {
 }
 
 function injectContentTagDiagnostics(language: unknown, program: ts.Program): void {
+  // Loaded lazily so the runtime `ts` namespace is available without changing
+  // the existing `import type ts` style at the top of the file.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const tsRuntime = require('typescript') as typeof ts;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lang = language as { scripts: { get(id: string): any } };
+
+  // Cache of synthetic SourceFiles built from the original .gts/.gjs text,
+  // keyed by file name. We need our own SourceFile here because the one TS
+  // gives us via `program.getSourceFile` was built from the *transformed*
+  // (whitespace-blanked, on parse failure) text — so `--pretty` rendering
+  // would print an empty source line under the diagnostic header (see
+  // https://github.com/typed-ember/glint/pull/1149#discussion_r... for the
+  // bug report). The original text lives on volar's `sourceScript.snapshot`.
+  const originalSourceFiles = new Map<string, ts.SourceFile>();
+
+  const getOriginalSourceFile = (fileName: string): ts.SourceFile | undefined => {
+    const cached = originalSourceFiles.get(fileName);
+    if (cached) return cached;
+    const sourceScript = lang.scripts.get(fileName);
+    const snapshot = sourceScript?.snapshot as ts.IScriptSnapshot | undefined;
+    if (!snapshot) return undefined;
+    const text = snapshot.getText(0, snapshot.getLength());
+    const sf = tsRuntime.createSourceFile(
+      fileName,
+      text,
+      tsRuntime.ScriptTarget.Latest,
+      /* setParentNodes */ false,
+    );
+    originalSourceFiles.set(fileName, sf);
+    return sf;
+  };
 
   // Returns the synthesized content-tag diagnostics for a given source file (or
   // for every .gts/.gjs source file in the program when `sourceFile` is
   // omitted). Diagnostic offsets are in original .gts/.gjs coordinates, which
-  // already match the source file TypeScript hands back via `program.getSourceFile`.
+  // already match the synthetic SourceFile we attach.
   const collectExtras = (sourceFile?: ts.SourceFile): ts.Diagnostic[] => {
     if (!sourceFile) {
       const extras: ts.Diagnostic[] = [];
@@ -149,7 +180,11 @@ function injectContentTagDiagnostics(language: unknown, program: ts.Program): vo
     if (!transformedModule) {
       return [];
     }
-    return getTransformErrorDiagnostics(transformedModule, sourceFile);
+    // Render against the original .gts/.gjs text (not the SourceFile TS
+    // hands back, which holds the blanked transformed contents) so
+    // `tsc --pretty` prints the actual offending source line.
+    const originalSourceFile = getOriginalSourceFile(sourceFile.fileName) ?? sourceFile;
+    return getTransformErrorDiagnostics(transformedModule, originalSourceFile);
   };
 
   const wrapPerFileDiagnostics = <K extends 'getSyntacticDiagnostics' | 'getSemanticDiagnostics'>(
