@@ -1,5 +1,36 @@
 # Changelog
 
+## Release (2026-06-18)
+
+* @glint/ember-tsc 1.8.1 (patch)
+* @glint/template 1.7.8 (patch)
+* @glint/tsserver-plugin 2.5.7 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1149](https://github.com/typed-ember/glint/pull/1149) fix(ember-tsc): surface content-tag parse errors in the CLI ([@Copilot](https://github.com/apps/copilot-swe-agent))
+* `@glint/template`
+  * [#1145](https://github.com/typed-ember/glint/pull/1145) Fix pre-binding named args on components whose Args is a union ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### :house: Internal
+* [#1153](https://github.com/typed-ember/glint/pull/1153) Fetch more history so release-plan can calculate the release ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* [#1152](https://github.com/typed-ember/glint/pull/1152) Inline plan-release due to https://github.com/release-plan/actions/issues/13 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* [#1151](https://github.com/typed-ember/glint/pull/1151) Have plan-release use our local release-plan ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* [#1150](https://github.com/typed-ember/glint/pull/1150) Patch additional updates, because 521a4949's prepare-release has a ghost contribution that github-changelog can't identify ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* [#1143](https://github.com/typed-ember/glint/pull/1143) Release 1.3.1 to the VSCode Marketplaces ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* [#1142](https://github.com/typed-ember/glint/pull/1142) fix(vscode): make TS-extension patches resilient to VSCode 1.110+ minification ([@wagenet](https://github.com/wagenet))
+
+#### :present: Additional updates
+* `@glint/template`
+  * Type inference error in `(component)` helper when pre-binding optional union arguments ([@BoussonKarel](https://github.com/BoussonKarel))
+
+#### Committers: 5
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+- Copilot [Bot] ([@copilot-swe-agent](https://github.com/apps/copilot-swe-agent))
+- Peter Wagenet ([@wagenet](https://github.com/wagenet))
+- [@BoussonKarel](https://github.com/BoussonKarel)
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-05-27)
 
 * @glint/ember-tsc 1.8.0 (minor)
