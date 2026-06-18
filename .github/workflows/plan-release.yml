@@ -43,13 +43,34 @@ jobs:
         with:
           cache: "pnpm"
       - run: pnpm install
-      - uses: release-plan/actions/prepare@v1
-        name: Run release-plan prepare
-        with:
-          ref: "main"
+      - name: "Generate Explanation and Prep Changelogs"
+        id: explanation
         env:
           GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
-        id: explanation
+        run: |
+          echo "::group::Running release-plan prepare"
+          set +e
+          pnpm release-plan prepare 2> >(tee -a release-plan-stderr.txt >&2)
+
+          if [ $? -ne 0 ]; then
+            release_plan_output=$(cat release-plan-stderr.txt)
+            echo "::error::Failed to run release-plan prepare $release_plan_output"
+          else
+            release_plan_output=$(jq .description .release-plan.json -r)
+            rm release-plan-stderr.txt
+
+            if [ $(jq '.solution | length' .release-plan.json) -eq 1 ]; then
+              new_version=$(jq -r '.solution[].newVersion' .release-plan.json)
+              echo "Outputs new-version: $new_version"
+              echo "new_version=v$new_version" >> $GITHUB_OUTPUT
+            else 
+              echo "Outputs new-version: More than one package, so no new-version"
+            fi
+          fi
+          echo 'text<<EOF' >> $GITHUB_OUTPUT
+          echo "$release_plan_output" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+          echo "::endgroup::"
 
       - uses: peter-evans/create-pull-request@v8
         name: Create Prepare Release PR
