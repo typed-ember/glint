@@ -167,7 +167,11 @@ function injectContentTagDiagnostics(language: unknown, program: ts.Program): vo
       sourceFile?: ts.SourceFile,
       cancellationToken?: ts.CancellationToken,
     ): readonly ts.Diagnostic[] => {
-      const original$ = original.call(program, sourceFile, cancellationToken) as readonly ts.Diagnostic[];
+      const original$ = original.call(
+        program,
+        sourceFile,
+        cancellationToken,
+      ) as readonly ts.Diagnostic[];
       const extras = collectExtras(sourceFile);
       return extras.length ? [...original$, ...extras] : original$;
     };
@@ -177,16 +181,12 @@ function injectContentTagDiagnostics(language: unknown, program: ts.Program): vo
   wrapPerFileDiagnostics('getSemanticDiagnostics');
   // `getBindAndCheckDiagnostics` is used by `tsc --noEmit --watch`; it has the
   // same signature as the methods above but is not part of the public types.
-  wrapPerFileDiagnostics(
-    'getBindAndCheckDiagnostics' as unknown as 'getSyntacticDiagnostics',
-  );
+  wrapPerFileDiagnostics('getBindAndCheckDiagnostics' as unknown as 'getSyntacticDiagnostics');
 
   const originalEmit = program.emit;
   program.emit = (...args) => {
     const result = originalEmit.apply(program, args);
     const extras = collectExtras();
-    return extras.length
-      ? { ...result, diagnostics: [...result.diagnostics, ...extras] }
-      : result;
+    return extras.length ? { ...result, diagnostics: [...result.diagnostics, ...extras] } : result;
   };
 }
