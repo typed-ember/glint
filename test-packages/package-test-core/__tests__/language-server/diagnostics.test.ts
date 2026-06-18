@@ -818,12 +818,12 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
           "message": "Unexpected token \`<lexing error>\`. Expected content tag",
           "range": {
             "end": {
-              "character": 9,
-              "line": 5,
+              "character": 1,
+              "line": 6,
             },
             "start": {
-              "character": 8,
-              "line": 5,
+              "character": 0,
+              "line": 6,
             },
           },
           "severity": 1,
@@ -862,13 +862,13 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
           "category": "error",
           "code": 0,
           "end": {
-            "line": 6,
-            "offset": 10,
+            "line": 7,
+            "offset": 2,
           },
           "source": "glint",
           "start": {
-            "line": 6,
-            "offset": 9,
+            "line": 7,
+            "offset": 1,
           },
           "text": "Unexpected token \`<lexing error>\`. Expected content tag",
         },
