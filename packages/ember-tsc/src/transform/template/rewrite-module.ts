@@ -106,17 +106,44 @@ function calculateCorrelatedSpans(
         source: script,
       });
     } else if ('isContentTagError' in error && error.isContentTagError) {
-      // these lines exclude the line with the error, because
-      // adding the column offset will get us on to the line with the error
-      let lines = script.contents.split('\n').slice(0, error.line);
-      let start = lines.reduce((sum, line) => sum + line.length, 0) + error.column - 1;
-      let end = start + 1;
+      // Translate content-tag's 1-based (line, column) into an absolute
+      // offset in the original source. We use the line/column verbatim
+      // (rather than shifting back a line) so the diagnostic lands exactly
+      // where content-tag's own snippet points — including for cases like
+      // `Unexpected eof` where the report sits at the end of a broken
+      // closing tag. The previous implementation summed the first
+      // `error.line` lines' lengths *without* their newlines, which by
+      // coincidence landed on the line above for some inputs and pointed
+      // at a blank line (or past EOF) for others (e.g. a `.gts` ending in
+      // `</templat\n`, which would render an empty source snippet).
+      let lines = script.contents.split('\n');
+      let lineIdx = Math.max(0, Math.min(error.line - 1, lines.length - 1));
+      let lineStart = 0;
+      for (let i = 0; i < lineIdx; i++) {
+        lineStart += lines[i].length + 1; // +1 for the consumed `\n`
+      }
+      let lineLength = lines[lineIdx]?.length ?? 0;
+      // Clamp the column to the last *character* of the line, not the
+      // newline that follows it. Otherwise a 1-char-wide diagnostic at
+      // (line N, col past EOL) would span across the `\n` into line N+1
+      // and TS would render two source-snippet lines (the second one
+      // empty) instead of just the offending one.
+      let col = lineLength === 0 ? 0 : Math.max(0, Math.min(error.column - 1, lineLength - 1));
+      let start = lineStart + col;
+      let end = Math.min(start + 1, script.contents.length);
 
       errors.push({
         isContentTagError: true,
-        // we have to show the "help" because content-tag has different line numbers
-        // than we are able to discern ourselves.
-        message: error.message + '\n\n' + error.help,
+        // Use only `error.message` here. `error.help` is content-tag's pretty-
+        // printed source snippet with its own (1-based, post-error-line) line
+        // numbers, which conflict with the line/column the surrounding
+        // diagnostic surface (tsc, tsserver, LSP) reports for `location`.
+        // Including both produced output like
+        //   src/Foo.gts(6,11): error TS0: Unexpected token ...
+        //
+        //    7 │ }
+        // where the two line numbers disagree and confuse readers.
+        message: error.message,
         source: script,
         location: {
           start,

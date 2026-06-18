@@ -1,6 +1,9 @@
 import { runTsc } from '@volar/typescript/lib/quickstart/runTsc.js';
+import type ts from 'typescript';
 import { createEmberLanguagePlugin } from '../volar/ember-language-plugin.js';
 import { findConfig } from '../config/index.js';
+import { VirtualGtsCode } from '../volar/gts-virtual-code.js';
+import { getTransformErrorDiagnostics } from '../transform/diagnostics/transform-errors.js';
 
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -11,6 +14,7 @@ const fs = require('node:fs') as typeof import('node:fs');
 
 export function run(): void {
   patchVolarProxyForExtensionlessImports();
+  patchVolarDecorateProgramForContentTagErrors();
 
   let cwd = process.cwd();
 
@@ -88,4 +92,136 @@ function applyProxyPatches(source: string): string {
   }
 
   return source.replace(literalsPattern, `$1${guard}$2`).replace(namesPattern, `$1${guard}$2`);
+}
+
+// Volar's `runTsc` does not surface the content-tag parse errors that we attach
+// to `TransformedModule.errors` when content-tag fails to parse a .gts/.gjs
+// file. The transformed source is intentionally blanked to whitespace in that
+// case (see `rewriteModule`) so TypeScript does not emit a flood of misleading
+// errors against the still-unparsed `<template>` tags; the trade-off is that
+// the underlying parse failure is silently dropped.
+//
+// In language-server / tsserver-plugin contexts that silence is fine because
+// the parse error is re-surfaced by separate diagnostic providers. But the
+// `ember-tsc` CLI runs `tsc` via volar's `runTsc` (the Program path), which has
+// no such provider — so `ember-tsc --noEmit` would report no errors at all on
+// a broken template tag.
+//
+// We bridge that gap here by hot-patching `decorateProgram` from
+// `@volar/typescript`: every time volar decorates a freshly created Program,
+// we wrap its diagnostic methods to also include the synthesized content-tag
+// diagnostics for any `.gts`/`.gjs` source files involved.
+function patchVolarDecorateProgramForContentTagErrors(): void {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
+  const decorateModule = require('@volar/typescript/lib/node/decorateProgram.js') as {
+    decorateProgram: (language: unknown, program: ts.Program) => void;
+  };
+  const originalDecorateProgram = decorateModule.decorateProgram;
+
+  decorateModule.decorateProgram = (language, program) => {
+    originalDecorateProgram(language, program);
+    injectContentTagDiagnostics(language, program);
+  };
+}
+
+function injectContentTagDiagnostics(language: unknown, program: ts.Program): void {
+  // Loaded lazily so the runtime `ts` namespace is available without changing
+  // the existing `import type ts` style at the top of the file.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const tsRuntime = require('typescript') as typeof ts;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const lang = language as { scripts: { get(id: string): any } };
+
+  // Cache of synthetic SourceFiles built from the original .gts/.gjs text,
+  // keyed by file name. We need our own SourceFile here because the one TS
+  // gives us via `program.getSourceFile` was built from the *transformed*
+  // (whitespace-blanked, on parse failure) text — so `--pretty` rendering
+  // would print an empty source line under the diagnostic header (see
+  // https://github.com/typed-ember/glint/pull/1149#discussion_r... for the
+  // bug report). The original text lives on volar's `sourceScript.snapshot`.
+  const originalSourceFiles = new Map<string, ts.SourceFile>();
+
+  const getOriginalSourceFile = (fileName: string): ts.SourceFile | undefined => {
+    const cached = originalSourceFiles.get(fileName);
+    if (cached) return cached;
+    const sourceScript = lang.scripts.get(fileName);
+    const snapshot = sourceScript?.snapshot as ts.IScriptSnapshot | undefined;
+    if (!snapshot) return undefined;
+    const text = snapshot.getText(0, snapshot.getLength());
+    const sf = tsRuntime.createSourceFile(
+      fileName,
+      text,
+      tsRuntime.ScriptTarget.Latest,
+      /* setParentNodes */ false,
+    );
+    originalSourceFiles.set(fileName, sf);
+    return sf;
+  };
+
+  // Returns the synthesized content-tag diagnostics for a given source file (or
+  // for every .gts/.gjs source file in the program when `sourceFile` is
+  // omitted). Diagnostic offsets are in original .gts/.gjs coordinates, which
+  // already match the synthetic SourceFile we attach.
+  const collectExtras = (sourceFile?: ts.SourceFile): ts.Diagnostic[] => {
+    if (!sourceFile) {
+      const extras: ts.Diagnostic[] = [];
+      for (const sf of program.getSourceFiles()) {
+        extras.push(...collectExtras(sf));
+      }
+      return extras;
+    }
+    const sourceScript = lang.scripts.get(sourceFile.fileName);
+    const root = sourceScript?.generated?.root;
+    if (!(root instanceof VirtualGtsCode)) {
+      return [];
+    }
+    const transformedModule = root.transformedModule;
+    if (!transformedModule) {
+      return [];
+    }
+    // Render against the original .gts/.gjs text (not the SourceFile TS
+    // hands back, which holds the blanked transformed contents) so
+    // `tsc --pretty` prints the actual offending source line.
+    const originalSourceFile = getOriginalSourceFile(sourceFile.fileName) ?? sourceFile;
+    return getTransformErrorDiagnostics(transformedModule, originalSourceFile);
+  };
+
+  const wrapPerFileDiagnostics = <K extends 'getSyntacticDiagnostics' | 'getSemanticDiagnostics'>(
+    key: K,
+  ): void => {
+    // `getBindAndCheckDiagnostics` is the watch-mode counterpart and is also
+    // wrapped below via the same helper through a cast.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const original = (program as any)[key];
+    if (typeof original !== 'function') {
+      return;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (program as any)[key] = (
+      sourceFile?: ts.SourceFile,
+      cancellationToken?: ts.CancellationToken,
+    ): readonly ts.Diagnostic[] => {
+      const original$ = original.call(
+        program,
+        sourceFile,
+        cancellationToken,
+      ) as readonly ts.Diagnostic[];
+      const extras = collectExtras(sourceFile);
+      return extras.length ? [...original$, ...extras] : original$;
+    };
+  };
+
+  wrapPerFileDiagnostics('getSyntacticDiagnostics');
+  wrapPerFileDiagnostics('getSemanticDiagnostics');
+  // `getBindAndCheckDiagnostics` is used by `tsc --noEmit --watch`; it has the
+  // same signature as the methods above but is not part of the public types.
+  wrapPerFileDiagnostics('getBindAndCheckDiagnostics' as unknown as 'getSyntacticDiagnostics');
+
+  const originalEmit = program.emit;
+  program.emit = (...args) => {
+    const result = originalEmit.apply(program, args);
+    const extras = collectExtras();
+    return extras.length ? { ...result, diagnostics: [...result.diagnostics, ...extras] } : result;
+  };
 }
