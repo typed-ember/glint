@@ -1,0 +1,26 @@
+diff --git a/dist/change-parser.js b/dist/change-parser.js
+index ead1a05eab30cd52cb368618ef67828cf281596f..f18c386455c52d53c368c60aae049151f3a5b71d 100644
+--- a/dist/change-parser.js
++++ b/dist/change-parser.js
+@@ -18,7 +18,7 @@ const knownSections = {
+         unlabeled: true,
+     },
+     ':present: Additional updates': {
+-        unlabeled: true,
++        impact: 'patch',
+     },
+ };
+ const ignoredSections = [/Committers: \d+/];
+diff --git a/src/change-parser.ts b/src/change-parser.ts
+index d070787df7a5445c1c93104e7b42b8684838ec5c..625e77ac696e8f492898e1e49ecef7cb2e12df06 100644
+--- a/src/change-parser.ts
++++ b/src/change-parser.ts
+@@ -31,7 +31,7 @@ const knownSections: Record<string, { impact: Impact } | { unlabeled: true }> =
+       unlabeled: true,
+     },
+     ':present: Additional updates': {
+-      unlabeled: true,
++      impact: 'patch',
+     },
+   };
+ 
