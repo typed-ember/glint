@@ -6,6 +6,22 @@ import { resolve } from 'node:path';
 
 const PROJECT_ROOT = resolve(__dirname, '..');
 const SRC_DIR = resolve(PROJECT_ROOT, 'src');
+// Invoke the binary directly with `node` rather than going through `pnpm
+// ember-tsc`. The `pnpm` wrapper can prepend deprecation warnings or other
+// noise to stdout, which previously forced us to keep only lines mentioning
+// the target file — that positive-include filter risked hiding real
+// diagnostic output (additional errors, the trailing `Found N error...`
+// summary, etc.). Running the bin directly gives us the unfiltered output
+// `ember-tsc` itself produces, so the snapshot is exhaustive.
+const EMBER_TSC_BIN = resolve(
+  PROJECT_ROOT,
+  '..',
+  '..',
+  'packages',
+  'ember-tsc',
+  'bin',
+  'ember-tsc.js',
+);
 
 // Regression test for https://github.com/typed-ember/glint/issues/1148.
 // `ember-tsc` (volar's `runTsc`) used to silently drop content-tag parse
@@ -40,18 +56,13 @@ describe('ember-tsc surfaces content-tag parse errors', () => {
       ].join('\n'),
     );
 
-    const result = await execa('pnpm', ['ember-tsc', '--noEmit'], {
+    const result = await execa('node', [EMBER_TSC_BIN, '--noEmit'], {
       cwd: PROJECT_ROOT,
       reject: false,
       all: true,
     });
 
-    // Drop the pnpm/node deprecation noise so the snapshot covers only the
-    // diagnostic output we actually care about.
-    const diagnostic = stripAnsi(result.all ?? '')
-      .split('\n')
-      .filter((line) => line.includes('_broken_template.gts'))
-      .join('\n');
+    const diagnostic = stripAnsi(result.all ?? '').trimEnd();
 
     expect(result.exitCode, `output:\n${result.all}`).not.toBe(0);
     // Snapshot the formatted diagnostic line. This guards against the
@@ -86,7 +97,7 @@ describe('ember-tsc surfaces content-tag parse errors', () => {
       ].join('\n'),
     );
 
-    const result = await execa('pnpm', ['ember-tsc', '--noEmit', '--pretty'], {
+    const result = await execa('node', [EMBER_TSC_BIN, '--noEmit', '--pretty'], {
       cwd: PROJECT_ROOT,
       reject: false,
       all: true,
@@ -94,14 +105,9 @@ describe('ember-tsc surfaces content-tag parse errors', () => {
 
     expect(result.exitCode, `output:\n${result.all}`).not.toBe(0);
 
-    // Strip ANSI and pnpm/node noise; keep only lines from the
-    // diagnostic block (header, blank, source-snippet, blank, footer).
-    const lines = stripAnsi(result.all ?? '').split('\n');
-    const headerIdx = lines.findIndex((l) => l.includes('_broken_template_pretty.gts:'));
-    expect(headerIdx, `output:\n${result.all}`).toBeGreaterThanOrEqual(0);
-    // Take the header through the "Found N error..." footer.
-    const footerIdx = lines.findIndex((l, i) => i > headerIdx && /^Found \d+ error/.test(l));
-    const block = lines.slice(headerIdx, footerIdx >= 0 ? footerIdx + 1 : headerIdx + 7).join('\n');
+    // Snapshot the full (ansi-stripped) output. Because we invoke the bin
+    // directly there is no wrapper noise to filter around.
+    const block = stripAnsi(result.all ?? '').trimEnd();
 
     // Regression guard: previously this block printed an empty source line
     // (because the diagnostic was attached to the SourceFile holding
