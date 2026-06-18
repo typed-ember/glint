@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: release-plan/actions/should-prepare-release@v1
         with:
-          ref: 'main'
+          ref: "main"
         id: should-prepare
 
   create-prepare-release-pr:
@@ -37,10 +37,16 @@ jobs:
       pull-requests: write
     if: needs.should-run-release-plan-prepare.outputs.should-prepare == 'true'
     steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+      - run: pnpm install
       - uses: release-plan/actions/prepare@v1
         name: Run release-plan prepare
         with:
-          ref: 'main'
+          ref: "main"
         env:
           GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
         id: explanation
