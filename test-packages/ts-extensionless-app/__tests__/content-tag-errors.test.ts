@@ -46,12 +46,26 @@ describe('ember-tsc surfaces content-tag parse errors', () => {
       all: true,
     });
 
-    const output = stripAnsi(result.all ?? '');
+    // Drop the pnpm/node deprecation noise so the snapshot covers only the
+    // diagnostic output we actually care about.
+    const diagnostic = stripAnsi(result.all ?? '')
+      .split('\n')
+      .filter((line) => line.includes('_broken_template.gts'))
+      .join('\n');
 
-    expect(result.exitCode, `output:\n${output}`).not.toBe(0);
-    expect(output).toContain('_broken_template.gts');
-    // content-tag's lexing failure for `</template` (missing `>`) ends up as
-    // an "Unexpected token" parse error.
-    expect(output).toMatch(/Unexpected token|Expected content tag/);
+    expect(result.exitCode, `output:\n${result.all}`).not.toBe(0);
+    // Snapshot the formatted diagnostic line. This guards against the
+    // previous bug where content-tag's `help` text (with its own line
+    // numbers) was concatenated into the message, producing output with
+    // two conflicting line numbers — e.g.:
+    //   src/_broken_template.gts(6,11): error TS0: Unexpected token ...
+    //
+    //    7 │ }
+    //      ╰────
+    // The diagnostic should report a single line/column, matching the
+    // location TypeScript itself emits in the header.
+    expect(diagnostic).toMatchInlineSnapshot(
+      `"src/_broken_template.gts(6,11): error TS0: Unexpected token \`<lexing error>\`. Expected content tag"`,
+    );
   });
 });

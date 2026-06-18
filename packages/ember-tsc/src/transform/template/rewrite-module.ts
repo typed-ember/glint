@@ -114,9 +114,16 @@ function calculateCorrelatedSpans(
 
       errors.push({
         isContentTagError: true,
-        // we have to show the "help" because content-tag has different line numbers
-        // than we are able to discern ourselves.
-        message: error.message + '\n\n' + error.help,
+        // Use only `error.message` here. `error.help` is content-tag's pretty-
+        // printed source snippet with its own (1-based, post-error-line) line
+        // numbers, which conflict with the line/column the surrounding
+        // diagnostic surface (tsc, tsserver, LSP) reports for `location`.
+        // Including both produced output like
+        //   src/Foo.gts(6,11): error TS0: Unexpected token ...
+        //
+        //    7 │ }
+        // where the two line numbers disagree and confuse readers.
+        message: error.message,
         source: script,
         location: {
           start,
