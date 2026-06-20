@@ -12,7 +12,15 @@ export const transform: GlintExtensionTransform<PreprocessData> = (
   let { templateLocations } = data;
   if (!templateLocations.length) return (sf) => sf;
 
+  // TypeScript 6 changed `getStart()` to require the source file when the node's
+  // parent chain is not yet intact. During transformation, `repairAncestry` runs
+  // *after* `transformNode`, so parent pointers are not set up at the point where
+  // `findTemplateLocation` calls `node.getStart()`. We capture the source file as
+  // we enter it so we can pass it explicitly.
+  let currentSourceFile: ts.SourceFile | undefined;
+
   return function visit(node: ts.Node): ts.Node {
+    if (ts.isSourceFile(node)) currentSourceFile = node;
     let visitedNode = ts.visitEachChild(node, visit, context);
     let transformedNode = transformNode(visitedNode);
     return repairAncestry(transformedNode);
@@ -20,8 +28,29 @@ export const transform: GlintExtensionTransform<PreprocessData> = (
 
   function transformNode(node: ts.Node): ts.Node {
     if (ts.isSourceFile(node)) {
-      // Add `import { hbs as __T } from 'ember-template-imports'` to the file
+      // Prepend a synthetic `import { hbs as ___T } from '...'` so the emitted
+      // `___T`...`` literals have a tag binding. Downstream `resolveTagInfo`
+      // recognizes them as the built-in `<template>` form precisely because
+      // this import is compiler-synthesized (it has no source position); their
+      // types come from the environment's `getTemplateConfig()`. This is not —
+      // and must not be confused with — the unsupported
+      // `ember-template-imports` `hbs`.
       return addTagImport(f, node);
+    } else if (isETITemplateLiteral(ts, node)) {
+      // Correlate every glint tag literal (`___T`...``) back to its original
+      // `<template>` source span. This is the only consumer of the location
+      // table; it is keyed on the literal's exact start offset, so it matches
+      // each real template once and never a surrounding array or expression.
+      let location = findTemplateLocation(templateLocations, node, currentSourceFile);
+      setEmitMetadata(node, {
+        templateLocation: {
+          start: location.startTagOffset,
+          end: location.endTagOffset + location.endTagLength,
+          contentStart: location.startTagOffset + location.startTagLength,
+          contentEnd: location.endTagOffset,
+        },
+      });
+      return node;
     } else if (isETIDefaultTemplate(ts, node)) {
       // Annotate that this template is a default export
       setEmitMetadata(node.expression, { prepend: 'export default ' });
@@ -30,36 +59,12 @@ export const transform: GlintExtensionTransform<PreprocessData> = (
       // Annotate that this template is a default export
       setEmitMetadata(node.expression.expression, { prepend: 'export default ' });
       return node;
-    } else if (isETITemplateExpression(ts, node)) {
-      // Convert '[__T`foo`]' as an expression to just '__T`foo`'
-      let location = findTemplateLocation(templateLocations, node);
-
-      let template = node.elements[0];
-      setEmitMetadata(template, {
-        templateLocation: {
-          start: location.startTagOffset,
-          end: location.endTagOffset + location.endTagLength,
-          contentStart: location.startTagOffset + location.startTagLength,
-          contentEnd: location.endTagOffset,
-        },
-      });
-      return template;
     } else if (isETITemplateProperty(ts, node)) {
-      // Convert '[__T`foo`]' in a class body to 'static { __T`foo` }'
-      let location = findTemplateLocation(templateLocations, node);
+      // Convert '[___T`foo`]' in a class body to 'static { ___T`foo` }'. The
+      // tag literal already carries its `templateLocation` from the branch
+      // above; here we only add the static-block framing.
       let template = node.name.expression;
-
-      setEmitMetadata(template, {
-        prepend: 'static { ',
-        append: ' }',
-        templateLocation: {
-          start: location.startTagOffset,
-          end: location.endTagOffset + location.endTagLength,
-          contentStart: location.startTagOffset + location.startTagLength,
-          contentEnd: location.endTagOffset,
-        },
-      });
-
+      setEmitMetadata(template, { prepend: 'static { ', append: ' }' });
       return buildStaticBlockForTemplate(f, template);
     }
 
@@ -104,10 +109,6 @@ function addTagImport(f: ts.NodeFactory, sourceFile: ts.SourceFile): ts.SourceFi
 
 type ETITemplateLiteral = ts.TaggedTemplateExpression & {
   template: ts.NoSubstitutionTemplateLiteral;
-};
-
-type ETITemplateExpression = ts.ArrayLiteralExpression & {
-  elements: [ETITemplateLiteral];
 };
 
 type ETITemplateProperty = ts.PropertyDeclaration & {
@@ -162,14 +163,6 @@ function isETITemplateProperty(ts: TSLib, node: ts.Node): node is ETITemplatePro
   );
 }
 
-function isETITemplateExpression(ts: TSLib, node: ts.Node): node is ETITemplateExpression {
-  return (
-    ts.isArrayLiteralExpression(node) &&
-    node.elements.length === 1 &&
-    isETITemplateLiteral(ts, node.elements[0])
-  );
-}
-
 function isETITemplateLiteral(ts: TSLib, node: ts.Node): node is ETITemplateLiteral {
   return (
     ts.isTaggedTemplateExpression(node) &&
@@ -181,9 +174,12 @@ function isETITemplateLiteral(ts: TSLib, node: ts.Node): node is ETITemplateLite
 
 function findTemplateLocation(
   locations: Array<TemplateLocation>,
-  node: ETITemplateExpression | ETITemplateProperty,
+  node: ETITemplateLiteral,
+  sourceFile?: ts.SourceFile,
 ): TemplateLocation {
-  let location = locations.find((loc) => loc.transformedStart === node.getStart());
+  // Every emitted tag literal corresponds to exactly one recorded location, so
+  // a miss here is a genuine construction bug, not an expected "skip this node".
+  let location = locations.find((loc) => loc.transformedStart === node.getStart(sourceFile));
 
   if (!location) {
     throw new Error('Internal error: missing location info for template');

@@ -7,9 +7,23 @@ import { describe, expect, test } from 'vitest';
 
 describe('Environment: ETI', () => {
   describe('preprocess', () => {
+    // The transformed span of a tag literal runs from `___T`` to its closing
+    // backtick, excluding any class-member `[ ]` framing. The templates in
+    // these tests contain no embedded backticks, so the first backtick after
+    // the opener is the closer.
+    function tagSpan(
+      transformed: string,
+      from = 0,
+    ): { transformedStart: number; transformedEnd: number } {
+      let transformedStart = transformed.indexOf('___T`', from);
+      let transformedEnd = transformed.indexOf('`', transformedStart + '___T`'.length) + 1;
+      return { transformedStart, transformedEnd };
+    }
+
     test('single template', () => {
       let source = '<template>hi</template>\n';
-      let transformed = '[___T`hi`]\n';
+      // An expression-position template is emitted bare, with no wrapping `[ ]`.
+      let transformed = '___T`hi`\n';
       let result = preprocess(source, 'index.gts');
 
       expect(result.contents).toEqual(transformed);
@@ -20,8 +34,30 @@ describe('Environment: ETI', () => {
             startTagLength: '<template>'.length,
             endTagOffset: source.indexOf('</template>'),
             endTagLength: '</template>'.length,
-            transformedStart: transformed.indexOf('[___T'),
-            transformedEnd: transformed.indexOf(']') + 1,
+            ...tagSpan(transformed),
+          },
+        ],
+      });
+    });
+
+    test('template inside an array expression', () => {
+      // The user's array is preserved and the template is emitted bare inside
+      // it, so `[<template/>]` becomes a single array literal `[___T`...`]` —
+      // never the double-nested `[[___T`...`]]` that used to require collapsing
+      // and could be confused with the wrapper.
+      let source = 'const x = [<template>hello</template>];';
+      let transformed = 'const x = [___T`hello`];';
+      let result = preprocess(source, 'index.gts');
+
+      expect(result.contents).toEqual(transformed);
+      expect(result.data).toEqual({
+        templateLocations: [
+          {
+            startTagOffset: source.indexOf('<template>'),
+            startTagLength: '<template>'.length,
+            endTagOffset: source.indexOf('</template>'),
+            endTagLength: '</template>'.length,
+            ...tagSpan(transformed),
           },
         ],
       });
@@ -39,10 +75,10 @@ describe('Environment: ETI', () => {
         let result = preprocess(source, 'index.gts');
 
         expect(result.contents).toMatchInlineSnapshot(`
-          "const a = [___T\`one 💩\`];
-          const b = [___T\`two\`];
+          "const a = ___T\`one 💩\`;
+          const b = ___T\`two\`;
           const c = "‘foo’";
-          const d = [___T\`four\`];"
+          const d = ___T\`four\`;"
         `);
       });
 
@@ -51,7 +87,7 @@ describe('Environment: ETI', () => {
 
         let result = preprocess(source, 'index.gts');
 
-        expect(result.contents).toMatchInlineSnapshot('"[___T`\\${{dollarAmount}}`];"');
+        expect(result.contents).toMatchInlineSnapshot(`"___T\`\\\${{dollarAmount}}\`;"`);
       });
 
       test('foo.$foo', () => {
@@ -68,7 +104,7 @@ describe('Environment: ETI', () => {
           "const foo = {
             $foo: 'bar',
           }
-          [___T\`{{foo.$foo}}\`];"
+          ___T\`{{foo.$foo}}\`;"
         `);
       });
 
@@ -77,7 +113,7 @@ describe('Environment: ETI', () => {
 
         let result = preprocess(source, 'index.gts');
 
-        expect(result.contents).toMatchInlineSnapshot('"[___T`\\`code\\``];"');
+        expect(result.contents).toMatchInlineSnapshot(`"___T\`\\\`code\\\`\`;"`);
       });
     });
 
@@ -92,10 +128,12 @@ describe('Environment: ETI', () => {
         }
       `;
 
+      // The top-level template is an expression (bare); the one in the class
+      // body is a class member (wrapped in `[ ]` as a computed-property name).
       let transformed = stripIndent`
-        [___T\`
+        ___T\`
           <Foo />
-        \`]
+        \`
 
         class Foo {
           [___T\`Hello\`]
@@ -115,16 +153,14 @@ describe('Environment: ETI', () => {
             startTagLength: '<template>'.length,
             endTagOffset: source.indexOf('</template>'),
             endTagLength: '</template>'.length,
-            transformedStart: transformed.indexOf('[___T'),
-            transformedEnd: transformed.indexOf(']') + 1,
+            ...tagSpan(transformed),
           },
           {
             startTagOffset: source.indexOf('<template>', sourceClassOffset),
             startTagLength: '<template>'.length,
             endTagOffset: source.indexOf('</template>', sourceClassOffset),
             endTagLength: '</template>'.length,
-            transformedStart: transformed.indexOf('[___T', transformedClassOffset),
-            transformedEnd: transformed.indexOf(']', transformedClassOffset) + 1,
+            ...tagSpan(transformed, transformedClassOffset),
           },
         ],
       });
@@ -138,9 +174,9 @@ describe('Environment: ETI', () => {
       `;
 
       let transformed = stripIndent`
-        let a = [___T\`\`];
+        let a = ___T\`\`;
         // ‘
-        let b = [___T\`\`];
+        let b = ___T\`\`;
       `;
 
       let result = preprocess(source, 'index.gts');
@@ -154,16 +190,14 @@ describe('Environment: ETI', () => {
             startTagLength: '<template>'.length,
             endTagOffset: source.indexOf('</template>'),
             endTagLength: '</template>'.length,
-            transformedStart: transformed.indexOf('[___T'),
-            transformedEnd: transformed.indexOf(']') + 1,
+            ...tagSpan(transformed),
           },
           {
             startTagOffset: source.lastIndexOf('<template>'),
             startTagLength: '<template>'.length,
             endTagOffset: source.lastIndexOf('</template>'),
             endTagLength: '</template>'.length,
-            transformedStart: transformed.lastIndexOf('[___T'),
-            transformedEnd: transformed.lastIndexOf(']') + 1,
+            ...tagSpan(transformed, transformed.lastIndexOf('___T`')),
           },
         ],
       });
@@ -231,10 +265,10 @@ describe('Environment: ETI', () => {
         let { sourceFile } = applyTransform(source);
 
         expect(sourceFile.text).toMatchInlineSnapshot(`
-          "const a = [___T\`one 💩\`];
-          const b = [___T\`two\`];
+          "const a = ___T\`one 💩\`;
+          const b = ___T\`two\`;
           const c = "‘foo’";
-          const d = [___T\`four\`];"
+          const d = ___T\`four\`;"
         `);
       });
 
@@ -243,11 +277,11 @@ describe('Environment: ETI', () => {
         let { sourceFile } = applyTransform(source);
 
         expect(sourceFile.text).toMatchInlineSnapshot(`
-"const foo = 2;
+          "const foo = 2;
 
-[___T\`\\\${{foo}}\`]
-"
-`);
+          ___T\`\\\${{foo}}\`
+          "
+        `);
       });
 
       test('foo.$foo', () => {
@@ -264,7 +298,7 @@ describe('Environment: ETI', () => {
           "const foo = {
             $foo: 'bar',
           }
-          [___T\`{{foo.$foo}}\`];"
+          ___T\`{{foo.$foo}}\`;"
         `);
       });
 
@@ -445,6 +479,36 @@ describe('Environment: ETI', () => {
                 contentEnd: secondContentEnd,
                 end: secondEnd,
               },
+            },
+          ],
+        ]),
+      );
+    });
+
+    test('template inside an array expression', () => {
+      // Regression: a `<template>` in expression position is preprocessed to a
+      // bare tag literal, so `[<template/>]` is a single array literal
+      // `[___T`hello`]`. The user's array must be preserved untouched while the
+      // tag literal inside it still receives its templateLocation.
+      let source = 'const x = [<template>hello</template>];';
+      let { meta, sourceFile } = applyTransform(source);
+
+      let declaration = sourceFile.statements[1] as ts.VariableStatement;
+      let arrayLiteral = declaration.declarationList.declarations[0]
+        .initializer as ts.ArrayLiteralExpression;
+      let templateNode = arrayLiteral.elements[0] as ts.TaggedTemplateExpression;
+
+      let start = source.indexOf('<template>');
+      let contentStart = start + '<template>'.length;
+      let contentEnd = source.indexOf('</template>');
+      let end = contentEnd + '</template>'.length;
+
+      expect(meta).toEqual(
+        new Map([
+          [
+            templateNode,
+            {
+              templateLocation: { start, contentStart, contentEnd, end },
             },
           ],
         ]),
