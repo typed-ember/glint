@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url);
 const fs = require('node:fs') as typeof import('node:fs');
 
 export function run(): void {
-  patchVolarProxyForExtensionlessImports();
+  patchCompilerSourcesForGts();
   patchVolarDecorateProgramForContentTagErrors();
 
   let cwd = process.cwd();
@@ -59,17 +59,28 @@ export function run(): void {
 // Upstream fix: https://github.com/volarjs/volar.js/pull/309 — once that ships
 // in a `@volar/typescript` release we depend on, this monkey-patch can go.
 // Tracking: https://github.com/typed-ember/glint/issues/806
-function patchVolarProxyForExtensionlessImports(): void {
+function patchCompilerSourcesForGts(): void {
   const originalReadFileSync = fs.readFileSync;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (fs as any).readFileSync = function (...args: unknown[]) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = (originalReadFileSync as any).apply(fs, args);
     const filePath = args[0];
-    if (typeof filePath === 'string' && filePath.endsWith('/proxyCreateProgram.js')) {
+    if (typeof filePath !== 'string') {
+      return result;
+    }
+    if (filePath.endsWith('/proxyCreateProgram.js')) {
       const text = typeof result === 'string' ? result : (result as Buffer).toString('utf8');
       const patched = applyProxyPatches(text);
       return typeof result === 'string' ? patched : Buffer.from(patched);
+    }
+    // The compiled tsc source (read here on its way to volar's runTsc).
+    if (/\/typescript\/lib\/[^/]+\.js$/.test(filePath)) {
+      const text = typeof result === 'string' ? result : (result as Buffer).toString('utf8');
+      if (text.includes('function tryGetJSExtensionForFile(')) {
+        const patched = patchTscJsExtensionForGts(text);
+        return typeof result === 'string' ? patched : Buffer.from(patched);
+      }
     }
     return result;
   };
@@ -92,6 +103,36 @@ function applyProxyPatches(source: string): string {
   }
 
   return source.replace(literalsPattern, `$1${guard}$2`).replace(namesPattern, `$1${guard}$2`);
+}
+
+// TypeScript's `tryGetJSExtensionForFile` maps a source file extension to the
+// JS extension it emits (`.ts` -> `.js`, `.tsx` -> `.jsx`/`.js`, ...). It has no
+// case for `.gts`/`.gjs`, even though we register them as supported TS
+// extensions (so `hasTSFileExtension` is true for them). In build mode
+// (`tsc -b`), declaration emit computes module specifiers for imported symbols;
+// when the preferred ending is "js" (e.g. a sibling `./x.js` import is preserved
+// in the emitted `.d.ts`) and the target is a `.gts`/`.gjs` file, tsc calls
+// `getJSExtensionForFile`, which `Debug.fail`s with
+// "Extension .gts is unsupported" and aborts the entire build. `.gts`/`.gjs`
+// compile to `.js` (like `.ts`), so teach the function that mapping by
+// short-circuiting at the top of the function. The proper home for this is
+// volar's `transformTscContent` (which already patches `changeExtension` and the
+// supported-extension lists); this monkey-patch can go once that lands upstream.
+function patchTscJsExtensionForGts(source: string): string {
+  const pattern = /function tryGetJSExtensionForFile\(([A-Za-z0-9_$]+),[^)]*\)\s*\{/;
+  const match = pattern.exec(source);
+  if (!match) {
+    throw new Error(
+      '[glint] failed to patch typescript `tryGetJSExtensionForFile`: ' +
+        'function signature not found in expected shape. ' +
+        'The typescript dep may have changed; update patchTscJsExtensionForGts() in run-volar-tsc.ts.',
+    );
+  }
+  const fileNameParam = match[1];
+  return source.replace(
+    pattern,
+    (m) => `${m}\n    if (/\\.g[jt]s$/.test(${fileNameParam})) return ".js";`,
+  );
 }
 
 // Volar's `runTsc` does not surface the content-tag parse errors that we attach

@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "build-mode-declarations",
+    "rootDir": "build-mode-fixture"
+  },
+  "include": ["build-mode-fixture"]
+}
