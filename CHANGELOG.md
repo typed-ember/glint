@@ -1,5 +1,20 @@
 # Changelog
 
+## Release (2026-06-24)
+
+* @glint/ember-tsc 1.8.2 (patch)
+* @glint/tsserver-plugin 2.5.8 (patch)
+
+#### :bug: Bug Fix
+* Other
+  * [#1160](https://github.com/typed-ember/glint/pull/1160) Guard against torn-down workspace in shared tsserver bridge ([@johanrd](https://github.com/johanrd))
+* `@glint/ember-tsc`
+  * [#1159](https://github.com/typed-ember/glint/pull/1159) Make `{{array}}` keyword preserve literal element types ([@johanrd](https://github.com/johanrd))
+  * [#1158](https://github.com/typed-ember/glint/pull/1158) Fix `{{hash}}` keyword to narrow named-arg values like the `@ember/helper` import ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- Johan Røed ([@johanrd](https://github.com/johanrd))
+
 ## Release (2026-06-18)
 
 * @glint/ember-tsc 1.8.1 (patch)
