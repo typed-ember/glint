@@ -5,7 +5,7 @@ import { DirectInvokable } from '@glint/template/-private/integration';
  * Built-in keyword in ember-source >= 7.1 (RFC 1000).
  */
 export type ArrayHelper = DirectInvokable<{
-  <T extends unknown[]>(...args: T): T;
+  <const T extends unknown[]>(...args: T): T;
 }>;
 
 /**
