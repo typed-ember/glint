@@ -1,7 +1,11 @@
 // `@glint/ember-tsc` is ESM-only; this plugin is emitted as CommonJS, so these
 // type-only imports need an explicit import-mode resolution.
-import type { TransformedModule } from '@glint/ember-tsc/transform' with { 'resolution-mode': 'import' };
-import type { ComponentMeta } from '@glint/ember-tsc/plugins/g-component-hover' with { 'resolution-mode': 'import' };
+import type { TransformedModule } from '@glint/ember-tsc/transform' with {
+  'resolution-mode': 'import',
+};
+import type { ComponentMeta } from '@glint/ember-tsc/plugins/g-component-hover' with {
+  'resolution-mode': 'import',
+};
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 
