@@ -4,9 +4,8 @@
     "rootDir": "src",
     "outDir": "lib",
 
-    // ts server plugins need to be cjs
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    // ts server plugins need to be cjs; the inherited `module: Node16` setting
+    // emits CommonJS because this package is `"type": "commonjs"`.
     "types": ["@types/node"]
   },
   "include": ["src"],

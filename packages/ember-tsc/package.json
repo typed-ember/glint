@@ -15,6 +15,10 @@
       "types": "./lib/config/types.d.cts",
       "default": "./lib/config/types.cjs"
     },
+    "./transform": {
+      "types": "./lib/transform/index.d.ts",
+      "default": "./lib/transform/index.js"
+    },
     "./bin/*": "./bin/*.js",
     "./globals": "./types/globals/index.d.ts",
     "./-private/dsl": {

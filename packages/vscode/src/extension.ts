@@ -9,7 +9,15 @@ import * as lsp from '@volar/vscode/node';
 import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
-import {
+// `reactive-vscode` ships a CommonJS build but only ESM-flavored types. This
+// package is emitted as CommonJS and uses these helpers synchronously (e.g.
+// `defineExtension` defines the extension's `activate`/`deactivate`), so we take
+// the types via a type-only (import-mode) import and the runtime values via
+// `require`, which resolves to the package's CommonJS build.
+import type * as ReactiveVscode from 'reactive-vscode' with { 'resolution-mode': 'import' };
+import * as vscode from 'vscode';
+
+const {
   defineExtension,
   executeCommand,
   extensionContext,
@@ -20,8 +28,7 @@ import {
   useOutputChannel,
   useVisibleTextEditors,
   watch,
-} from 'reactive-vscode';
-import * as vscode from 'vscode';
+} = require('reactive-vscode') as typeof ReactiveVscode;
 
 const V1_EXTENSION_ID = 'typed-ember.glint-vscode';
 const V2_EXTENSION_ID = 'typed-ember.glint2-vscode';
