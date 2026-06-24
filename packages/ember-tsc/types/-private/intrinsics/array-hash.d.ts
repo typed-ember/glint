@@ -13,5 +13,5 @@ export type ArrayHelper = DirectInvokable<{
  * Built-in keyword in ember-source >= 7.1 (RFC 999).
  */
 export type HashHelper = DirectInvokable<{
-  <T extends Record<string, unknown>>(args: T): T;
+  <const T extends Record<string, unknown>>(args: T): T;
 }>;
