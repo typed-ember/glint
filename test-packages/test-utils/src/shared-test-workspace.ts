@@ -94,7 +94,12 @@ export async function getSharedTestWorkspaceHelper(): Promise<{
         command: command,
         arguments: args,
       });
-      serverHandle!.connection.sendNotification('tsserver/response', [id, res.body]);
+      // The shared workspace may have been torn down (`serverHandle` reset to
+      // `undefined`) while this async tsserver round-trip was in flight. Guard
+      // against dereferencing it so a late response doesn't reject unhandled.
+      if (serverHandle) {
+        serverHandle.connection.sendNotification('tsserver/response', [id, res.body]);
+      }
     });
 
     await serverHandle.initialize(
