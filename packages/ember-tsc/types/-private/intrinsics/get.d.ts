@@ -1,12 +1,16 @@
 import { DirectInvokable } from '@glint/template/-private/integration';
 import ObjectProxy from '@ember/object/proxy';
-import '@ember/object/-private/types';
 
 // This hack lets us support both the stable/preview types from `ember-source`
 // and the classic types still live on DefinitelyTyped. If using the DT types,
-// this acts as a declaration merge for a module which is then integrated via
-// the rest of the DT types. If using the stable/preview types, this ends up
-// being a no-op.
+// the `declare module` below acts as a declaration merge for a module which is
+// then integrated via the rest of the DT types. If using the stable/preview
+// types, the module does not exist and this ends up being a no-op.
+//
+// Note: we intentionally do *not* add a side-effect `import '@ember/object/-private/types'`
+// here. TypeScript 6.0 errors (TS2882) on a side-effect import of a module that
+// cannot be resolved, which is exactly the no-op (ember-source) case above. The
+// `declare module` augmentation still merges into the DT module when it exists.
 declare const GetSetMarker: unique symbol;
 declare module '@ember/object/-private/types' {
   interface ComputedPropertyMarker<Get, Set = Get> {

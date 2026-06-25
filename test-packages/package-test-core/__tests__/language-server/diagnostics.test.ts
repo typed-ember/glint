@@ -6,6 +6,9 @@ import {
   ensureNoOpenDocuments,
 } from 'glint-monorepo-test-utils';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import * as ts from 'typescript';
+
+const TS_MAJOR = Number.parseInt(ts.versionMajorMinor.split('.')[0], 10);
 
 describe('Language Server: Diagnostics (ts plugin)', () => {
   beforeEach(ensureNoOpenDocuments);
@@ -358,7 +361,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
                   "line": 29,
                   "offset": 49,
                 },
-                "file": "\${repoRootPath}/node_modules/.pnpm/@glint+_613915052ef8d5bca99f4a5a07a55bb0/node_modules/@glint/ember-tsc/types/-private/dsl/index.d.ts",
+                "file": "\${repoRootPath}/node_modules/.pnpm/__PNPM_VIRTUAL_STORE__/node_modules/@glint/ember-tsc/types/-private/dsl/index.d.ts",
                 "start": {
                   "line": 29,
                   "offset": 5,
@@ -968,13 +971,24 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       code,
     );
 
-    // In a project with Glint config, this would produce error 2551:
-    // "Property 'startupTimee' does not exist on type 'Application'. Did you mean 'startupTime'?"
-    // Without Glint config, the plugin deactivates and no template diagnostics are reported.
+    // ember-template-imports is always active, so the `{{this.startupTimee}}` typo
+    // produces TS2551 ("Property 'startupTimee' does not exist on type 'Application'.
+    // Did you mean 'startupTime'?").
+    //
+    // The behavior currently differs by TypeScript major version for a project with
+    // no tsconfig/jsconfig: TS 6+ honors the package `exports` map when resolving
+    // `@glint/ember-tsc/-private/dsl` in the inferred project, so the template is
+    // fully type-checked and the 2551 surfaces. TS 5.x does not, so the DSL types
+    // fail to resolve and no template type diagnostic is produced. Split the
+    // expectation by TS major until config-less resolution is consistent.
     const templateTypeDiagnostics = diagnostics.filter(
       (d: any) => d.code === 2551 || d.code === 2339,
     );
-    expect(templateTypeDiagnostics).toEqual([]);
+    if (TS_MAJOR >= 6) {
+      expect(templateTypeDiagnostics).toMatchObject([{ code: 2551 }]);
+    } else {
+      expect(templateTypeDiagnostics).toEqual([]);
+    }
   });
 
   test('plugin deactivates for project without glint config (.gjs)', async () => {

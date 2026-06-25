@@ -1,9 +1,9 @@
 {
   "extends": "../../tsconfig.compileroptions.json",
   "compilerOptions": {
-    "outDir": "lib",
-    "module": "CommonJS",
-    "moduleResolution": "Node"
+    "outDir": "lib"
+    // The extension is emitted as CommonJS via the inherited `module: Node16`
+    // setting combined with this package's `"type": "commonjs"`.
   },
   "include": ["src", "__tests__"],
   "references": [{ "path": "../ember-tsc" }]

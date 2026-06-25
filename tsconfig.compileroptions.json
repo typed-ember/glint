@@ -21,10 +21,12 @@
     // new
     "allowSyntheticDefaultImports": true,
 
-    // esModuleInterop needs to be false so that the fs.readFileSync monkeypatch in vscode/src/extension.ts
-    // continues to work (setting esModuleInterop to true will wrap require() in __importStar
-    // which breaks the monkeypatch)
-    "esModuleInterop": false,
+    // We intentionally leave `esModuleInterop` unset so it takes the default for
+    // the configured `module` mode (`true` under Node16). Explicitly setting it
+    // to `false` is deprecated as of TypeScript 6.0 (TS5107). The fs.readFileSync
+    // monkeypatch in vscode/src/extension.ts does not depend on this setting: it
+    // patches the module object obtained from a runtime `require('node:fs')`, not
+    // the top-level `import * as fs`.
 
     "types": []
   }

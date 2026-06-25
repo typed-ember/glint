@@ -30,6 +30,18 @@ const pathToTemplatePackage = normalizeFilePath(
 );
 const fileUriToTemplatePackage = filePathToUri(pathToTemplatePackage);
 
+// pnpm stores each package in a virtual-store directory under `node_modules/.pnpm`
+// whose name encodes a content hash of the package and its (peer) dependencies.
+// That hash changes whenever the dependency graph changes — e.g. bumping the
+// TypeScript version in the CI matrix — which would otherwise churn every
+// snapshot that references a path into `.pnpm`. Normalize the volatile
+// virtual-store directory name so snapshots stay stable across dependency
+// changes.
+const PNPM_VIRTUAL_STORE_RE = /\.pnpm\/[^/]+\/node_modules\//g;
+export function normalizePnpmStorePaths(value: string): string {
+  return value.replace(PNPM_VIRTUAL_STORE_RE, '.pnpm/__PNPM_VIRTUAL_STORE__/node_modules/');
+}
+
 let serverHandle: LanguageServerHandle | undefined;
 let tsserver: import('@typescript/server-harness').Server;
 let seq = 1;
@@ -284,7 +296,9 @@ export async function requestTsserverDiagnostics(
     if (diagnostic.relatedInformation) {
       for (const related of diagnostic.relatedInformation) {
         if (related.span) {
-          related.span.file = '${repoRootPath}' + related.span.file.slice(repoRootPath.length);
+          related.span.file = normalizePnpmStorePaths(
+            '${repoRootPath}' + related.span.file.slice(repoRootPath.length),
+          );
         }
       }
     }
@@ -343,7 +357,7 @@ function normalizeForSnapshotting(uri: string, object: unknown): unknown {
   // Create file URI for the test workspace path
   const repoRootFileUri = URI.file(repoRootPath).toString();
 
-  const normalized = stringified
+  const normalized = normalizePnpmStorePaths(stringified)
     .replaceAll(
       volarEmbeddedContentUri_template_ts.toString(),
       `volar-embedded-content://template_ts/PATH_TO_FILE`,

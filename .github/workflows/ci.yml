@@ -33,8 +33,14 @@ jobs:
       - uses: wyvox/action-setup-pnpm@v3
 
   type-tests:
-    name: "Type Tests"
+    name: "Type Tests (TS ${{ matrix.typescript }})"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        typescript:
+          - "5"
+          - "6"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
@@ -42,12 +48,20 @@ jobs:
         with:
           cache: pnpm
       - run: pnpm reset
+      - name: Use TypeScript ${{ matrix.typescript }}.x
+        run: pnpm up -r "typescript@${{ matrix.typescript }}" && pnpm build && pnpm sync
       - run: "pnpm --filter '*' run test:typecheck"
       - run: "pnpm --filter '*' run test:tsc"
 
   test:
-    name: Test
+    name: "Test (TS ${{ matrix.typescript }})"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        typescript:
+          - "5"
+          - "6"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
@@ -55,6 +69,8 @@ jobs:
         with:
           cache: "pnpm"
       - run: pnpm reset
+      - name: Use TypeScript ${{ matrix.typescript }}.x
+        run: pnpm up -r "typescript@${{ matrix.typescript }}" && pnpm build && pnpm sync
       - name: Run Tests
         uses: coactions/setup-xvfb@v1
         with:
