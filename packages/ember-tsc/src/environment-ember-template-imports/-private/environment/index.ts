@@ -97,37 +97,33 @@ export default function emberTemplateImportsEnvironment(
   ];
 
   return {
-    tags: {
-      '@glint/ember-tsc/environment-ember-template-imports/-private/tag': {
-        hbs: {
-          typesModule: '@glint/ember-tsc/-private/dsl',
-          specialForms: {
-            globals: {
-              if: 'if',
-              unless: 'if-not',
-              yield: 'yield',
-              component: 'bind-invokable',
-              modifier: 'bind-invokable',
-              helper: 'bind-invokable',
-              ...additionalGlobalSpecialForms,
-            },
-            imports: {
-              '@ember/helper': {
-                array: 'array-literal',
-                hash: 'object-literal',
-                ...additionalSpecialForms.imports?.['@ember/helper'],
-              },
-              ...additionalSpecialForms.imports,
-            },
+    template: {
+      typesModule: '@glint/ember-tsc/-private/dsl',
+      specialForms: {
+        globals: {
+          if: 'if',
+          unless: 'if-not',
+          yield: 'yield',
+          component: 'bind-invokable',
+          modifier: 'bind-invokable',
+          helper: 'bind-invokable',
+          ...additionalGlobalSpecialForms,
+        },
+        imports: {
+          '@ember/helper': {
+            array: 'array-literal',
+            hash: 'object-literal',
+            ...additionalSpecialForms.imports?.['@ember/helper'],
           },
-          globals: [
-            ...globalsForEmber,
-            ...(hasEmber71BuiltIns() ? globalsForEmber71 : []),
-            ...Object.keys(additionalGlobalSpecialForms),
-            ...additionalGlobals,
-          ],
+          ...additionalSpecialForms.imports,
         },
       },
+      globals: [
+        ...globalsForEmber,
+        ...(hasEmber71BuiltIns() ? globalsForEmber71 : []),
+        ...Object.keys(additionalGlobalSpecialForms),
+        ...additionalGlobals,
+      ],
     },
     extensions: {
       '.gts': {

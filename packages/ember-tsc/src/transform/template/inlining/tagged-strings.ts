@@ -2,7 +2,7 @@ import {
   GlintEmitMetadata,
   GlintSpecialForm,
   GlintSpecialFormConfig,
-  GlintTagConfig,
+  GlintTemplateConfig,
 } from '@glint/ember-tsc/config-types';
 import type ts from 'typescript';
 import { GlintEnvironment } from '../../../config/index.js';
@@ -66,10 +66,10 @@ export function calculateTaggedTemplateSpans(
       suffix: script.contents.slice(templateLocation.contentEnd, templateLocation.end),
     };
 
-    let preamble = [];
-    if (!info.importedBinding.synthetic) {
-      preamble.push(`${tag.text};`);
-    }
+    // The `<template>` form's backing import is always compiler-synthesized
+    // (see `resolveTagInfo`), so there is never a user-written tag binding to
+    // reference in a preamble.
+    let preamble: Array<string> = [];
 
     let specialForms = collectSpecialForms(importedBindings, info.tagConfig.specialForms ?? {});
 
@@ -164,22 +164,28 @@ function resolveTagInfo(
   importedBindings: ImportedBindings,
   tag: ts.Identifier,
   environment: GlintEnvironment,
-): { importedBinding: ImportedBinding; tagConfig: GlintTagConfig } | undefined {
+): { importedBinding: ImportedBinding; tagConfig: GlintTemplateConfig } | undefined {
   let importedBinding = importedBindings[tag.text];
   if (!importedBinding) {
     return;
   }
 
-  for (let [importSource, tags] of Object.entries(environment.getConfiguredTemplateTags())) {
-    for (let [importSpecifier, tagConfig] of Object.entries(tags)) {
-      if (
-        importSource === importedBinding.source &&
-        importSpecifier === importedBinding.specifier
-      ) {
-        return { importedBinding, tagConfig };
-      }
-    }
+  // Only the compiler-generated `<template>` form is processed. Its backing
+  // import is synthesized by the gts/gjs transform (see `addTagImport` in
+  // `environment-ember-template-imports/-private/environment/transform.ts`) and
+  // therefore has no position in the original source. User-authored tagged
+  // templates (`hbs`...``) have a real import and are deliberately ignored —
+  // Glint no longer supports tagged-string templates.
+  if (!importedBinding.synthetic) {
+    return;
   }
+
+  let tagConfig = environment.getTemplateConfig();
+  if (!tagConfig) {
+    return;
+  }
+
+  return { importedBinding, tagConfig };
 }
 
 type ImportedBinding = { specifier: string; source: string; synthetic: boolean };

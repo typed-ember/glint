@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest';
 
 function buildConfig(configObject: any): any {
   const env = GlintEnvironment.load(configObject) as any;
-  return env.tagConfig['@glint/ember-tsc/environment-ember-template-imports/-private/tag'].hbs;
+  return env.getTemplateConfig();
 }
 
 describe('tsconfig.glint config object', () => {

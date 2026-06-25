@@ -160,12 +160,12 @@ function calculateCorrelatedSpans(
   ts.transform(ast, [
     (context) =>
       function visit<T extends ts.Node>(node: T): T {
-        // Here we look for ```hbs``` tagged template expressions, originally introduced
-        // in the now-removed GlimmerX environment. We can consider getting rid of this, but
-        // then again there are still some use cases in the wild (e.g. Glimmer Next / GXT)
-        // where have tagged templates closing over outer scope is desirable:
-        // https://github.com/lifeart/glimmer-next/tree/master/glint-environment-gxt
-        // https://discord.com/channels/480462759797063690/717767358743183412/1259061848632721480
+        // The gts/gjs preprocessor rewrites every `<template>` into a tagged
+        // template expression using a compiler-synthesized tag (see
+        // `environment-ember-template-imports/-private/environment/{preprocess,transform}.ts`).
+        // We look for those tagged templates here and hand them to
+        // `calculateTaggedTemplateSpans`, which only processes the synthesized
+        // tag — user-authored `hbs`...`` tagged strings are not supported.
         if (ts.isTaggedTemplateExpression(node)) {
           let meta = emitMetadata.get(node);
           let result = calculateTaggedTemplateSpans(ts, node, meta, script, environment);

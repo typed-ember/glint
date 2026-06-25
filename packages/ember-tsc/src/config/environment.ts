@@ -2,7 +2,7 @@ import {
   GlintEnvironmentConfig,
   GlintExtensionConfig,
   GlintExtensionsConfig,
-  GlintTagsConfig,
+  GlintTemplateConfig,
   SourceKind,
 } from '@glint/ember-tsc/config-types';
 import * as path from 'node:path';
@@ -20,14 +20,14 @@ export const DEFAULT_EXTENSIONS: GlintExtensionsConfig = {
  * glint environments (e.g. ember-template-imports).
  */
 export class GlintEnvironment {
-  private tagConfig: GlintTagsConfig;
+  private templateConfig: GlintTemplateConfig | undefined;
   private extensionsConfig: GlintExtensionsConfig;
 
   public constructor(
     public readonly names: Array<string>,
     config: GlintEnvironmentConfig,
   ) {
-    this.tagConfig = config.tags ?? {};
+    this.templateConfig = config.template;
     // when is this populated? what is config?
     this.extensionsConfig = config.extensions ?? {};
   }
@@ -58,31 +58,11 @@ export class GlintEnvironment {
       }
     }
 
-    let tags: GlintTagsConfig = {};
     let extensions: GlintExtensionsConfig = { ...DEFAULT_EXTENSIONS };
 
     const envUserConfig = { additionalGlobals, additionalSpecialForms };
 
     let config = emberTemplateImportsEnvironment(envUserConfig) as GlintEnvironmentConfig;
-
-    if (config.tags) {
-      for (let [importSource, specifiers] of Object.entries(config.tags)) {
-        tags[importSource] ??= {};
-        for (let [importSpecifier, tagConfig] of Object.entries(specifiers)) {
-          if (importSpecifier in tags[importSource]) {
-            throw new SilentError(
-              'Multiple configured Glint environments attempted to define behavior for the tag `' +
-                importSpecifier +
-                "` in module '" +
-                importSource +
-                "'.",
-            );
-          }
-
-          tags[importSource][importSpecifier] = tagConfig;
-        }
-      }
-    }
 
     if (config.extensions) {
       for (let [extension, extensionConfig] of Object.entries(config.extensions)) {
@@ -98,7 +78,7 @@ export class GlintEnvironment {
       }
     }
 
-    return new GlintEnvironment(Object.keys(config), { tags, extensions });
+    return new GlintEnvironment(Object.keys(config), { template: config.template, extensions });
   }
 
   public getSourceKind(fileName: string): SourceKind | 'unknown' {
@@ -118,11 +98,12 @@ export class GlintEnvironment {
   }
 
   /**
-   * Returns an array of template tags that should be rewritten according to this
-   * config object, along with an import specifier indicating where the template types
-   * for each tag can be found.
+   * Returns the configuration for the built-in `<template>` form — the types
+   * module its transformed output references, plus the keyword globals and
+   * special forms available inside it. Returns `undefined` if the active
+   * environment defines no template form.
    */
-  public getConfiguredTemplateTags(): GlintTagsConfig {
-    return this.tagConfig;
+  public getTemplateConfig(): GlintTemplateConfig | undefined {
+    return this.templateConfig;
   }
 }
