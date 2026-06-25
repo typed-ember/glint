@@ -10,7 +10,7 @@ export type GlintConfigInput = {
 };
 
 export type GlintEnvironmentConfig = {
-  tags?: GlintTagsConfig;
+  template?: GlintTemplateConfig;
   extensions?: GlintExtensionsConfig;
 };
 
@@ -72,14 +72,14 @@ export type GlintExtensionsConfig = {
   [extension: string]: GlintExtensionConfig;
 };
 
-export type GlintTagConfig = {
+/**
+ * Configuration for the single, built-in template form (the `<template>` tag in
+ * `.gts`/`.gjs` files). Glint no longer supports user-authored or
+ * environment-registered template tags, so this is internal compiler
+ * configuration rather than a user-facing extension point.
+ */
+export type GlintTemplateConfig = {
   typesModule: string;
   globals?: Array<string>;
   specialForms?: GlintSpecialFormConfig;
-};
-
-export type GlintTagsConfig = {
-  [importSource: string]: {
-    [importSpecifier: string]: GlintTagConfig;
-  };
 };
