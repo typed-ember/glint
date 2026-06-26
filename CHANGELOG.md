@@ -1,5 +1,26 @@
 # Changelog
 
+## Release (2026-06-26)
+
+* @glint/ember-tsc 1.8.3 (patch)
+* @glint/tsserver-plugin 2.5.9 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1167](https://github.com/typed-ember/glint/pull/1167) Improve the types for the `element` helper ([@boris-petrov](https://github.com/boris-petrov))
+  * [#1166](https://github.com/typed-ember/glint/pull/1166) Narrowing tests and fix control-flow narrowing in eq/neq for new 7.1 helpers ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+  * [#1162](https://github.com/typed-ember/glint/pull/1162) fix array parsing `[<template>...</template>]` ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :house: Internal
+* `@glint/ember-tsc`
+  * [#1165](https://github.com/typed-ember/glint/pull/1165) Delete unsupported template-literal strict code ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* `@glint/ember-tsc`, `@glint/tsserver-plugin`
+  * [#1163](https://github.com/typed-ember/glint/pull/1163) Test against TS 5 and 6 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 2
+- Boris Petrov ([@boris-petrov](https://github.com/boris-petrov))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-06-24)
 
 * @glint/ember-tsc 1.8.2 (patch)

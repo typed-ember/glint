@@ -2,13 +2,17 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.8.1",
-      "newVersion": "1.8.2",
+      "oldVersion": "1.8.2",
+      "newVersion": "1.8.3",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/ember-tsc/package.json"
@@ -18,13 +22,17 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.5.7",
-      "newVersion": "2.5.8",
+      "oldVersion": "2.5.8",
+      "newVersion": "2.5.9",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -33,5 +41,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-06-24)\n\n* @glint/ember-tsc 1.8.2 (patch)\n* @glint/tsserver-plugin 2.5.8 (patch)\n\n#### :bug: Bug Fix\n* Other\n  * [#1160](https://github.com/typed-ember/glint/pull/1160) Guard against torn-down workspace in shared tsserver bridge ([@johanrd](https://github.com/johanrd))\n* `@glint/ember-tsc`\n  * [#1159](https://github.com/typed-ember/glint/pull/1159) Make `{{array}}` keyword preserve literal element types ([@johanrd](https://github.com/johanrd))\n  * [#1158](https://github.com/typed-ember/glint/pull/1158) Fix `{{hash}}` keyword to narrow named-arg values like the `@ember/helper` import ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- Johan Røed ([@johanrd](https://github.com/johanrd))\n"
+  "description": "## Release (2026-06-26)\n\n* @glint/ember-tsc 1.8.3 (patch)\n* @glint/tsserver-plugin 2.5.9 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1167](https://github.com/typed-ember/glint/pull/1167) Improve the types for the `element` helper ([@boris-petrov](https://github.com/boris-petrov))\n  * [#1166](https://github.com/typed-ember/glint/pull/1166) Narrowing tests and fix control-flow narrowing in eq/neq for new 7.1 helpers ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#1162](https://github.com/typed-ember/glint/pull/1162) fix array parsing `[<template>...</template>]` ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* `@glint/ember-tsc`\n  * [#1165](https://github.com/typed-ember/glint/pull/1165) Delete unsupported template-literal strict code ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1163](https://github.com/typed-ember/glint/pull/1163) Test against TS 5 and 6 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 2\n- Boris Petrov ([@boris-petrov](https://github.com/boris-petrov))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
