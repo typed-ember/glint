@@ -47,6 +47,17 @@ const box = { isTruthy: true, data: 'x' } as Loaded | Empty;
 const loaded = { isTruthy: true, data: 'x' } as Loaded;
 const empty = { isTruthy: false } as Empty;
 
+// ---------------------------------------------------------------------------
+// (4) Control-flow narrowing driven by `eq`/`neq`. These compile to native
+// `===`/`!==`, so `{{#if (eq foo.x "a")}}` narrows the *parent* discriminated
+// union `foo` to the matching variant (something a boolean-returning helper
+// cannot do).
+// ---------------------------------------------------------------------------
+type Foo = { x: 'a'; y: number } | { x: 'b'; y: string };
+const foo = { x: 'a', y: 1 } as Foo;
+const fooA = { x: 'a', y: 1 } as { x: 'a'; y: number };
+const fooB = { x: 'b', y: 's' } as { x: 'b'; y: string };
+
 <template>
   {{! ===== (1) result-type narrowing of or / and ===== }}
 
@@ -112,5 +123,23 @@ const empty = { isTruthy: false } as Empty;
     {{expectTypeOf box to.equalTypeOf empty}}
   {{else}}
     {{expectTypeOf box to.equalTypeOf loaded}}
+  {{/if}}
+
+  {{! ===== (4) discriminated-union narrowing via eq / neq ===== }}
+
+  {{! ---- (eq) narrows the parent union on a string-literal discriminant ---- }}
+  {{#if (eq foo.x "a")}}
+    {{expectTypeOf foo to.equalTypeOf fooA}}
+    {{expectTypeOf foo.y to.beNumber}}
+  {{else}}
+    {{expectTypeOf foo to.equalTypeOf fooB}}
+    {{expectTypeOf foo.y to.beString}}
+  {{/if}}
+
+  {{! ---- (neq) narrows the opposite direction ---- }}
+  {{#if (neq foo.x "a")}}
+    {{expectTypeOf foo.y to.beString}}
+  {{else}}
+    {{expectTypeOf foo.y to.beNumber}}
   {{/if}}
 </template>
