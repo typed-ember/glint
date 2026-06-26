@@ -4,14 +4,7 @@ import * as VM from '@glint/template/-private/keywords';
 
 import { ActionKeyword } from '../intrinsics/action';
 import { ArrayHelper, HashHelper } from '../intrinsics/array-hash';
-import {
-  EqHelper,
-  GtHelper,
-  GteHelper,
-  LtHelper,
-  LteHelper,
-  NeqHelper,
-} from '../intrinsics/comparison';
+import { GtHelper, GteHelper, LtHelper, LteHelper } from '../intrinsics/comparison';
 import { EachKeyword } from '../intrinsics/each';
 import { EachInKeyword } from '../intrinsics/each-in';
 import { ElementHelper } from '../intrinsics/element';
@@ -331,7 +324,8 @@ interface KeywordsForEmber71Members {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/eq
    */
-  eq: EqHelper;
+  // `{{eq}}` is emitted as the native `===` operator in `ember-tsc`.
+  eq: void;
 
   /**
    * `{{fn}}` is a helper that receives a function and some arguments, and
@@ -459,7 +453,8 @@ interface KeywordsForEmber71Members {
    *
    * @see https://api.emberjs.com/ember/release/functions/@ember%2Fhelper/neq
    */
-  neq: NeqHelper;
+  // `{{neq}}` is emitted as the native `!==` operator in `ember-tsc`.
+  neq: void;
 
   /**
    * The `{{not}}` helper returns the logical negation of its argument using

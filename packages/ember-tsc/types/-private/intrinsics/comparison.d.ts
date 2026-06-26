@@ -1,19 +1,12 @@
 import { DirectInvokable } from '@glint/template/-private/integration';
 
-/**
- * `(eq a b)` — strict equality of two values. Built-in keyword in
- * ember-source >= 7.1 (RFC 561). The result is narrowed when both sides are
- * literal types so templates such as `{{#if (eq this.kind "primary")}}` get
- * accurate type information.
- */
-export type EqHelper = DirectInvokable<{
-  <A, B>(a: A, b: B): [A] extends [B] ? ([B] extends [A] ? true : boolean) : boolean;
-}>;
-
-/** `(neq a b)` — strict inequality. Built-in keyword in ember-source >= 7.1. */
-export type NeqHelper = DirectInvokable<{
-  <A, B>(a: A, b: B): [A] extends [B] ? ([B] extends [A] ? false : boolean) : boolean;
-}>;
+// NOTE: `eq`/`neq` (RFC 561) are not represented here. Because their runtime is
+// exactly `left === right` / `left !== right`, they are emitted as the native
+// `===`/`!==` operators (see the `ember-template-imports` environment's
+// `specialForms`) — which, unlike a boolean-returning helper type, lets
+// TypeScript narrow discriminated unions in `{{#if (eq foo.kind "a")}}`. The
+// `lt`/`lte`/`gt`/`gte` keywords below have no narrowing benefit and remain
+// ordinary helpers.
 
 /** `(lt a b)` — numeric less-than. Built-in keyword in ember-source >= 7.1. */
 export type LtHelper = DirectInvokable<{

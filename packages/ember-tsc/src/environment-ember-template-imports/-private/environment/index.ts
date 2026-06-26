@@ -107,6 +107,15 @@ export default function emberTemplateImportsEnvironment(
           component: 'bind-invokable',
           modifier: 'bind-invokable',
           helper: 'bind-invokable',
+          // The RFC 561 `eq`/`neq` keywords are exactly `===`/`!==` at runtime,
+          // so we emit them as the native operators. Beyond matching runtime
+          // semantics, this lets TypeScript's control-flow analysis narrow
+          // discriminated unions — e.g. `{{#if (eq foo.kind "a")}}` narrows
+          // `foo` to the matching variant inside the block, which a
+          // boolean-returning helper type cannot do.
+          ...(hasEmber71BuiltIns()
+            ? ({ eq: '===', neq: '!==' } satisfies GlintSpecialFormConfig['globals'])
+            : {}),
           ...additionalGlobalSpecialForms,
         },
         imports: {

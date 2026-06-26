@@ -577,6 +577,9 @@ importers:
       '@glint/tsserver-plugin':
         specifier: workspace:*
         version: file:packages/tsserver-plugin
+      '@glint/type-test':
+        specifier: workspace:*
+        version: link:../../packages/type-test
       '@tsconfig/ember':
         specifier: ^3.0.9
         version: 3.0.9

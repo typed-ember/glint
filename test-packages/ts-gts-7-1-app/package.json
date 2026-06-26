@@ -24,6 +24,7 @@
     "@glint/ember-tsc": "workspace:*",
     "@glint/template": "workspace:*",
     "@glint/tsserver-plugin": "workspace:*",
+    "@glint/type-test": "workspace:*",
     "@tsconfig/ember": "^3.0.9",
     "ember-source": "~7.1.0-beta.1",
     "typescript": "^5.9.3"
