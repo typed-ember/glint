@@ -6,18 +6,32 @@ import type { Falsy, FirstFalsy, FirstTruthy, MaybeTruthy } from './truth-conver
  * `(and a b ...)` — short-circuit logical AND. Returns the first falsy
  * positional argument or the last argument. Available as a built-in keyword
  * in ember-source >= 7.1 (RFC 560).
+ *
+ * The runtime requires **at least two** arguments (it throws otherwise), so the
+ * signature pins two leading positionals before the rest.
  */
 export type AndHelper = DirectInvokable<{
-  <T extends MaybeTruthy[]>(...args: T): FirstFalsy<T>;
+  <A extends MaybeTruthy, B extends MaybeTruthy, Rest extends MaybeTruthy[]>(
+    a: A,
+    b: B,
+    ...rest: Rest
+  ): FirstFalsy<[A, B, ...Rest]>;
 }>;
 
 /**
  * `(or a b ...)` — short-circuit logical OR. Returns the first truthy
  * positional argument or the last argument. Available as a built-in keyword
  * in ember-source >= 7.1 (RFC 560).
+ *
+ * The runtime requires **at least two** arguments (it throws otherwise), so the
+ * signature pins two leading positionals before the rest.
  */
 export type OrHelper = DirectInvokable<{
-  <T extends MaybeTruthy[]>(...args: T): FirstTruthy<T>;
+  <A extends MaybeTruthy, B extends MaybeTruthy, Rest extends MaybeTruthy[]>(
+    a: A,
+    b: B,
+    ...rest: Rest
+  ): FirstTruthy<[A, B, ...Rest]>;
 }>;
 
 /**
