@@ -553,7 +553,17 @@ export function templateToTypescript(
           let isGlobal = globals ? globals.includes(name) : true;
           let form = specialForms[name];
 
-          return { name, form, requiresConsumption: !isGlobal };
+          // Operator special forms (`===`, `!==`, `&&`, `||`, `!`) emit only the
+          // operator expression — never a reference to the keyword itself. For a
+          // documented global keyword (e.g. `eq`/`neq`) that would drop hover
+          // docs and go-to-definition, so we still emit a discarded reference to
+          // it. Narrowing is preserved: the keyword is emitted as the throwaway
+          // first operand of a comma expression whose value is the operator
+          // expression (`(noop(eq), (a === b))`).
+          let isOperatorForm =
+            form === '===' || form === '!==' || form === '&&' || form === '||' || form === '!';
+
+          return { name, form, requiresConsumption: !isGlobal || isOperatorForm };
         }
       }
 

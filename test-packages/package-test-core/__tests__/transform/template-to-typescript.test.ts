@@ -477,9 +477,7 @@ describe('Transform: rewriteTemplate', () => {
         `;
 
         expect(templateBody(template, { globals: ['testEq'], specialForms: { testEq: '===' } }))
-          .toMatchInlineSnapshot(`
-          "__glintDSL__.emitContent(__glintDSL__.resolve(log)((1 === 2)));"
-        `);
+          .toMatchInlineSnapshot(`"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testEq), (1 === 2))));"`);
       });
     });
 
@@ -490,9 +488,7 @@ describe('Transform: rewriteTemplate', () => {
         `;
 
         expect(templateBody(template, { globals: ['testNeq'], specialForms: { testNeq: '!==' } }))
-          .toMatchInlineSnapshot(`
-          "__glintDSL__.emitContent(__glintDSL__.resolve(log)((1 !== 2)));"
-        `);
+          .toMatchInlineSnapshot(`"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testNeq), (1 !== 2))));"`);
       });
     });
 
@@ -503,9 +499,7 @@ describe('Transform: rewriteTemplate', () => {
         `;
 
         expect(templateBody(template, { globals: ['testAnd'], specialForms: { testAnd: '&&' } }))
-          .toMatchInlineSnapshot(`
-        "__glintDSL__.emitContent(__glintDSL__.resolve(log)((1 && 2)));"
-        `);
+          .toMatchInlineSnapshot(`"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testAnd), (1 && 2))));"`);
       });
 
       test('with three arguments', () => {
@@ -514,9 +508,7 @@ describe('Transform: rewriteTemplate', () => {
         `;
 
         expect(templateBody(template, { globals: ['testAnd'], specialForms: { testAnd: '&&' } }))
-          .toMatchInlineSnapshot(`
-        "__glintDSL__.emitContent(__glintDSL__.resolve(log)((1 && 2 && 3)));"
-        `);
+          .toMatchInlineSnapshot(`"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testAnd), (1 && 2 && 3))));"`);
       });
     });
 
@@ -527,9 +519,7 @@ describe('Transform: rewriteTemplate', () => {
         `;
 
         expect(templateBody(template, { globals: ['testOr'], specialForms: { testOr: '||' } }))
-          .toMatchInlineSnapshot(`
-        "__glintDSL__.emitContent(__glintDSL__.resolve(log)((1 || 2)));"
-        `);
+          .toMatchInlineSnapshot(`"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testOr), (1 || 2))));"`);
       });
 
       test('with three arguments', () => {
@@ -538,9 +528,7 @@ describe('Transform: rewriteTemplate', () => {
         `;
 
         expect(templateBody(template, { globals: ['testOr'], specialForms: { testOr: '||' } }))
-          .toMatchInlineSnapshot(`
-        "__glintDSL__.emitContent(__glintDSL__.resolve(log)((1 || 2 || 3)));"
-        `);
+          .toMatchInlineSnapshot(`"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testOr), (1 || 2 || 3))));"`);
       });
     });
 
@@ -551,9 +539,7 @@ describe('Transform: rewriteTemplate', () => {
         `;
 
         expect(templateBody(template, { globals: ['testNot'], specialForms: { testNot: '!' } }))
-          .toMatchInlineSnapshot(`
-        "__glintDSL__.emitContent(__glintDSL__.resolve(log)(!1));"
-        `);
+          .toMatchInlineSnapshot(`"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testNot), !1)));"`);
       });
     });
   });

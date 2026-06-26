@@ -21,7 +21,8 @@
         "typed-ember.glint-vscode",
         // comment to activate your local extensions
         "--disable-extensions",
-        "${workspaceFolder}/packages/vscode/__fixtures__/ember-app"
+        "${workspaceFolder}/packages/vscode/__fixtures__/ember-app",
+        // "${workspaceFolder}/test-packages/ts-gts-7-1-app/",
       ]
     },
     {
