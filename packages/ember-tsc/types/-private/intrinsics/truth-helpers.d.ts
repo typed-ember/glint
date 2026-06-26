@@ -1,6 +1,6 @@
 import { DirectInvokable } from '@glint/template/-private/integration';
 
-import type { FirstFalsy, FirstTruthy, MaybeTruthy, TruthConvert } from './truth-convert';
+import type { Falsy, FirstFalsy, FirstTruthy, MaybeTruthy } from './truth-convert';
 
 /**
  * `(and a b ...)` — short-circuit logical AND. Returns the first falsy
@@ -21,12 +21,15 @@ export type OrHelper = DirectInvokable<{
 }>;
 
 /**
- * `(not value)` — boolean negation using truthy semantics matching the rest
- * of Ember's template-side helpers. Built-in keyword in ember-source >= 7.1
- * (RFC 560).
+ * `(not value)` — boolean negation using Handlebars truthiness semantics.
+ * Built-in keyword in ember-source >= 7.1 (RFC 560).
+ *
+ * Typed as a type predicate over Ember's `Falsy` type so that using it as a
+ * condition narrows the operand: in `{{#if (not value)}}` the operand is
+ * narrowed to its falsy members, and in the `{{else}}` branch to its truthy
+ * members. (As a predicate its *value* is `boolean` rather than a `true`/
+ * `false` literal — narrowing in conditions is the more useful guarantee.)
  */
 export type NotHelper = DirectInvokable<{
-  <T>(
-    value: T,
-  ): TruthConvert<T> extends true ? false : TruthConvert<T> extends false ? true : boolean;
+  <T>(value: T): value is Extract<T, Falsy>;
 }>;
