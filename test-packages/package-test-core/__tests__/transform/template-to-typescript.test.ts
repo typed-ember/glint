@@ -499,7 +499,11 @@ describe('Transform: rewriteTemplate', () => {
     });
 
     describe('{{and}}', () => {
-      test('with two arguments', () => {
+      // In value position `and` emits as a helper invocation so its return type
+      // reproduces Ember's runtime truthiness (see truth-convert.d.ts). The
+      // native `&&` operator is only used in a condition (below), where its
+      // narrowing matters and a truthiness approximation is already in play.
+      test('in value position emits a helper invocation', () => {
         let template = stripIndent`
         {{log (testAnd 1 2)}}
         `;
@@ -507,11 +511,11 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testAnd'], specialForms: { testAnd: '&&' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testAnd), (1 && 2))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(__glintDSL__.resolve(__glintDSL__.Globals.testAnd)(1, 2)));"`,
         );
       });
 
-      test('with three arguments', () => {
+      test('with three arguments in value position emits a helper invocation', () => {
         let template = stripIndent`
         {{log (testAnd 1 2 3)}}
         `;
@@ -519,13 +523,29 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testAnd'], specialForms: { testAnd: '&&' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testAnd), (1 && 2 && 3))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(__glintDSL__.resolve(__glintDSL__.Globals.testAnd)(1, 2, 3)));"`,
         );
+      });
+
+      test('in a condition emits a native operator chain (so TS narrows operands)', () => {
+        let template = stripIndent`
+          {{#testIf (testAnd foo bar)}}{{/testIf}}
+        `;
+
+        expect(
+          templateBody(template, {
+            globals: ['testIf', 'testAnd'],
+            specialForms: { testIf: 'if', testAnd: '&&' },
+          }),
+        ).toMatchInlineSnapshot(`
+          "if (((__glintDSL__.noop(__glintDSL__.Globals.testAnd), foo) && bar)) {
+          }"
+        `);
       });
     });
 
     describe('{{or}}', () => {
-      test('with two arguments', () => {
+      test('in value position emits a helper invocation', () => {
         let template = stripIndent`
         {{log (testOr 1 2)}}
         `;
@@ -533,11 +553,11 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testOr'], specialForms: { testOr: '||' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testOr), (1 || 2))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(__glintDSL__.resolve(__glintDSL__.Globals.testOr)(1, 2)));"`,
         );
       });
 
-      test('with three arguments', () => {
+      test('with three arguments in value position emits a helper invocation', () => {
         let template = stripIndent`
         {{log (testOr 1 2 3)}}
         `;
@@ -545,8 +565,24 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testOr'], specialForms: { testOr: '||' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testOr), (1 || 2 || 3))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(__glintDSL__.resolve(__glintDSL__.Globals.testOr)(1, 2, 3)));"`,
         );
+      });
+
+      test('in a condition emits a native operator chain (so TS narrows operands)', () => {
+        let template = stripIndent`
+          {{#testIf (testOr foo bar baz)}}{{/testIf}}
+        `;
+
+        expect(
+          templateBody(template, {
+            globals: ['testIf', 'testOr'],
+            specialForms: { testIf: 'if', testOr: '||' },
+          }),
+        ).toMatchInlineSnapshot(`
+          "if (((__glintDSL__.noop(__glintDSL__.Globals.testOr), foo) || bar || baz)) {
+          }"
+        `);
       });
     });
 
@@ -1361,18 +1397,16 @@ describe('Transform: rewriteTemplate', () => {
       ]);
     });
 
-    test('{{and}} with wrong number of parameters', () => {
+    test('{{and}} with too few parameters falls back to a helper invocation', () => {
+      // Fewer than two operands can't form an `&&` chain, so we emit the keyword
+      // as a helper invocation instead. This produces no transform error; the
+      // keyword's own type (e.g. `AndHelper`) reports the arity requirement.
       let { errors } = templateToTypescript('<Foo @attr={{testAnd 123}} />', {
         typesModule: '@glint/template',
         specialForms: { testAnd: '&&' },
       });
 
-      expect(errors).toEqual([
-        {
-          message: '{{testAnd}} requires at least two parameters',
-          location: { start: 11, end: 26 },
-        },
-      ]);
+      expect(errors).toEqual([]);
     });
 
     test('{{or}} with named parameters', () => {
@@ -1389,18 +1423,16 @@ describe('Transform: rewriteTemplate', () => {
       ]);
     });
 
-    test('{{or}} with wrong number of parameters', () => {
+    test('{{or}} with too few parameters falls back to a helper invocation', () => {
+      // Fewer than two operands can't form an `||` chain, so we emit the keyword
+      // as a helper invocation instead. This produces no transform error; the
+      // keyword's own type (e.g. `OrHelper`) reports the arity requirement.
       let { errors } = templateToTypescript('<Foo @attr={{testOr 123}} />', {
         typesModule: '@glint/template',
         specialForms: { testOr: '||' },
       });
 
-      expect(errors).toEqual([
-        {
-          message: '{{testOr}} requires at least two parameters',
-          location: { start: 11, end: 25 },
-        },
-      ]);
+      expect(errors).toEqual([]);
     });
 
     test('{{not}} with named parameters', () => {
