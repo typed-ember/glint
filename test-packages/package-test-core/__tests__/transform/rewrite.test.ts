@@ -285,15 +285,20 @@ describe('Transform: rewriteModule', () => {
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(46:57):   this.target
-        | | | | |  ts(257:281):  __glintRef__.this.target
+        | | | | |  ts(228:282):  __glintDSL__.resolveOrReturn(__glintRef__.this.target)
         | | | | |
-        | | | | | | Mapping: Identifier
-        | | | | | |  hbs(46:50):   this
-        | | | | | |  ts(270:274):  this
+        | | | | | | Mapping: PathExpression
+        | | | | | |  hbs(46:57):   this.target
+        | | | | | |  ts(257:281):  __glintRef__.this.target
         | | | | | |
-        | | | | | | Mapping: Identifier
-        | | | | | |  hbs(51:57):   target
-        | | | | | |  ts(275:281):  target
+        | | | | | | | Mapping: Identifier
+        | | | | | | |  hbs(46:50):   this
+        | | | | | | |  ts(270:274):  this
+        | | | | | | |
+        | | | | | | | Mapping: Identifier
+        | | | | | | |  hbs(51:57):   target
+        | | | | | | |  ts(275:281):  target
+        | | | | | | |
         | | | | | |
         | | | | |
         | | | |
@@ -347,11 +352,16 @@ describe('Transform: rewriteModule', () => {
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(22:29):   @target
-        | | | | |  ts(230:254):  __glintRef__.args.target
+        | | | | |  ts(201:255):  __glintDSL__.resolveOrReturn(__glintRef__.args.target)
         | | | | |
-        | | | | | | Mapping: Identifier
-        | | | | | |  hbs(23:29):   target
-        | | | | | |  ts(248:254):  target
+        | | | | | | Mapping: PathExpression
+        | | | | | |  hbs(22:29):   @target
+        | | | | | |  ts(230:254):  __glintRef__.args.target
+        | | | | | |
+        | | | | | | | Mapping: Identifier
+        | | | | | | |  hbs(23:29):   target
+        | | | | | | |  ts(248:254):  target
+        | | | | | | |
         | | | | | |
         | | | | |
         | | | |
@@ -405,11 +415,16 @@ describe('Transform: rewriteModule', () => {
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(68:76):   @message
-        | | | | |  ts(271:296):  __glintRef__.args.message
+        | | | | |  ts(242:297):  __glintDSL__.resolveOrReturn(__glintRef__.args.message)
         | | | | |
-        | | | | | | Mapping: Identifier
-        | | | | | |  hbs(69:76):   message
-        | | | | | |  ts(289:296):  message
+        | | | | | | Mapping: PathExpression
+        | | | | | |  hbs(68:76):   @message
+        | | | | | |  ts(271:296):  __glintRef__.args.message
+        | | | | | |
+        | | | | | | | Mapping: Identifier
+        | | | | | | |  hbs(69:76):   message
+        | | | | | | |  ts(289:296):  message
+        | | | | | | |
         | | | | | |
         | | | | |
         | | | |
@@ -439,15 +454,20 @@ describe('Transform: rewriteModule', () => {
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(151:161): this.title
-        | | | | |  ts(617:640):  __glintRef__.this.title
+        | | | | |  ts(588:641):  __glintDSL__.resolveOrReturn(__glintRef__.this.title)
         | | | | |
-        | | | | | | Mapping: Identifier
-        | | | | | |  hbs(151:155): this
-        | | | | | |  ts(630:634):  this
+        | | | | | | Mapping: PathExpression
+        | | | | | |  hbs(151:161): this.title
+        | | | | | |  ts(617:640):  __glintRef__.this.title
         | | | | | |
-        | | | | | | Mapping: Identifier
-        | | | | | |  hbs(156:161): title
-        | | | | | |  ts(635:640):  title
+        | | | | | | | Mapping: Identifier
+        | | | | | | |  hbs(151:155): this
+        | | | | | | |  ts(630:634):  this
+        | | | | | | |
+        | | | | | | | Mapping: Identifier
+        | | | | | | |  hbs(156:161): title
+        | | | | | | |  ts(635:640):  title
+        | | | | | | |
         | | | | | |
         | | | | |
         | | | |
@@ -581,11 +601,16 @@ describe('Transform: rewriteModule', () => {
         | | | | |
         | | | | | | Mapping: PathExpression
         | | | | | |  hbs(164:167): arr
-        | | | | | |  ts(517:520):  arr
+        | | | | | |  ts(488:521):  __glintDSL__.resolveOrReturn(arr)
         | | | | | |
-        | | | | | | | Mapping: Identifier
+        | | | | | | | Mapping: PathExpression
         | | | | | | |  hbs(164:167): arr
         | | | | | | |  ts(517:520):  arr
+        | | | | | | |
+        | | | | | | | | Mapping: Identifier
+        | | | | | | | |  hbs(164:167): arr
+        | | | | | | | |  ts(517:520):  arr
+        | | | | | | | |
         | | | | | | |
         | | | | | |
         | | | | |
@@ -604,11 +629,16 @@ describe('Transform: rewriteModule', () => {
         | | | | |
         | | | | | | Mapping: PathExpression
         | | | | | |  hbs(184:185): h
-        | | | | | |  ts(580:581):  h
+        | | | | | |  ts(551:582):  __glintDSL__.resolveOrReturn(h)
         | | | | | |
-        | | | | | | | Mapping: Identifier
+        | | | | | | | Mapping: PathExpression
         | | | | | | |  hbs(184:185): h
         | | | | | | |  ts(580:581):  h
+        | | | | | | |
+        | | | | | | | | Mapping: Identifier
+        | | | | | | | |  hbs(184:185): h
+        | | | | | | | |  ts(580:581):  h
+        | | | | | | | |
         | | | | | | |
         | | | | | |
         | | | | |
