@@ -113,8 +113,18 @@ export default function emberTemplateImportsEnvironment(
           // discriminated unions — e.g. `{{#if (eq foo.kind "a")}}` narrows
           // `foo` to the matching variant inside the block, which a
           // boolean-returning helper type cannot do.
+          //
+          // The same reasoning applies to `and`/`or`: emitting them as the
+          // native `&&`/`||` operators lets `{{#if (and (isNumber x) ...)}}`
+          // propagate the type predicates of its operands into the block, which
+          // a value-returning helper type cannot do (typed-ember/glint#1169).
           ...(hasEmber71BuiltIns()
-            ? ({ eq: '===', neq: '!==' } satisfies GlintSpecialFormConfig['globals'])
+            ? ({
+                eq: '===',
+                neq: '!==',
+                and: '&&',
+                or: '||',
+              } satisfies GlintSpecialFormConfig['globals'])
             : {}),
           ...additionalGlobalSpecialForms,
         },

@@ -243,7 +243,14 @@ export function templateToTypescript(
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition,
     ): void {
-      if (formInfo.requiresConsumption) {
+      // Logical forms (`&&`/`||`) manage their own keyword consumption: wrapping
+      // the whole operator chain in a `(noop(kw), <chain>)` comma defeats
+      // TypeScript's control-flow narrowing of an `&&`/`||` chain of type
+      // guards. Instead they ride the consumption on the first operand only
+      // (see `emitLogicalExpression`), keeping the chain at the top level.
+      const isLogicalForm = formInfo.form === '&&' || formInfo.form === '||';
+
+      if (formInfo.requiresConsumption && !isLogicalForm) {
         mapper.text('(__glintDSL__.noop(');
         emitExpression(node.path);
         mapper.text('), ');
@@ -281,7 +288,7 @@ export function templateToTypescript(
 
         case '&&':
         case '||':
-          emitLogicalExpression(formInfo, node);
+          emitLogicalExpression(formInfo, node, formInfo.requiresConsumption);
           break;
 
         case '!':
@@ -293,7 +300,7 @@ export function templateToTypescript(
           mapper.text('undefined');
       }
 
-      if (formInfo.requiresConsumption) {
+      if (formInfo.requiresConsumption && !isLogicalForm) {
         mapper.text(')');
       }
     }
@@ -492,20 +499,41 @@ export function templateToTypescript(
     function emitLogicalExpression(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
+      consumeKeyword: boolean,
     ): void {
       mapper.forNode(node, () => {
         assert(
           node.hash.pairs.length === 0,
           () => `{{${formInfo.name}}} only accepts positional parameters`,
         );
-        assert(
-          node.params.length >= 2,
-          () => `{{${formInfo.name}}} requires at least two parameters`,
-        );
+
+        if (node.params.length < 2) {
+          // `and`/`or` require at least two operands. A one-armed operator
+          // expression would be a syntax error, so instead invoke the keyword
+          // as a helper: its type (e.g. `AndHelper`) reports the arity
+          // requirement as an ordinary type error, which `@glint-expect-error`
+          // can target. This also consumes the keyword reference, so no extra
+          // consumption wrapper is needed.
+          emitResolve(node, 'resolve');
+          return;
+        }
 
         mapper.text('(');
         for (const [index, param] of node.params.entries()) {
-          emitExpression(param);
+          if (index === 0 && consumeKeyword) {
+            // Ride the keyword consumption on the first operand
+            // (`(noop(kw), <first>) && <rest>`) so the operator chain stays at
+            // the top level of the expression. Wrapping the whole chain in the
+            // comma instead would discard TypeScript's narrowing of an `&&`/`||`
+            // chain of type guards.
+            mapper.text('(__glintDSL__.noop(');
+            emitExpression(node.path);
+            mapper.text('), ');
+            emitExpression(param);
+            mapper.text(')');
+          } else {
+            emitExpression(param);
+          }
 
           if (index < node.params.length - 1) {
             mapper.text(` ${formInfo.form} `);

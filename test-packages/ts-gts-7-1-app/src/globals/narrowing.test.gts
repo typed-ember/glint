@@ -58,6 +58,18 @@ const foo = { x: 'a', y: 1 } as Foo;
 const fooA = { x: 'a', y: 1 } as { x: 'a'; y: number };
 const fooB = { x: 'b', y: 's' } as { x: 'b'; y: string };
 
+// ---------------------------------------------------------------------------
+// (5) Control-flow narrowing via `and`/`or` (typed-ember/glint#1169). These are
+// emitted as the native `&&`/`||` operators, so a chain of type-predicate
+// guards propagates each `arg is T` predicate into the block — something a
+// value-returning helper type cannot do.
+// ---------------------------------------------------------------------------
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number';
+}
+type Mixed = { a: unknown; b: unknown };
+const mixed = { a: 1, b: 2 } as Mixed;
+
 <template>
   {{! ===== (1) result-type narrowing of or / and ===== }}
 
@@ -141,5 +153,19 @@ const fooB = { x: 'b', y: 's' } as { x: 'b'; y: string };
     {{expectTypeOf foo.y to.beString}}
   {{else}}
     {{expectTypeOf foo.y to.beNumber}}
+  {{/if}}
+
+  {{! ===== (5) narrowing via the `and`/`or` keywords (glint#1169) ===== }}
+
+  {{! ---- a single type-predicate guard narrows its argument ---- }}
+  {{#if (isNumber mixed.a)}}
+    {{expectTypeOf mixed.a to.beNumber}}
+  {{/if}}
+
+  {{! ---- `(and ...)` propagates each operand's type predicate, so both
+      operands narrow inside the block ---- }}
+  {{#if (and (isNumber mixed.a) (isNumber mixed.b))}}
+    {{expectTypeOf mixed.a to.beNumber}}
+    {{expectTypeOf mixed.b to.beNumber}}
   {{/if}}
 </template>

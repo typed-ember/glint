@@ -507,7 +507,7 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testAnd'], specialForms: { testAnd: '&&' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testAnd), (1 && 2))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(((__glintDSL__.noop(__glintDSL__.Globals.testAnd), 1) && 2)));"`,
         );
       });
 
@@ -519,7 +519,7 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testAnd'], specialForms: { testAnd: '&&' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testAnd), (1 && 2 && 3))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(((__glintDSL__.noop(__glintDSL__.Globals.testAnd), 1) && 2 && 3)));"`,
         );
       });
     });
@@ -533,7 +533,7 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testOr'], specialForms: { testOr: '||' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testOr), (1 || 2))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(((__glintDSL__.noop(__glintDSL__.Globals.testOr), 1) || 2)));"`,
         );
       });
 
@@ -545,7 +545,7 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testOr'], specialForms: { testOr: '||' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testOr), (1 || 2 || 3))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(((__glintDSL__.noop(__glintDSL__.Globals.testOr), 1) || 2 || 3)));"`,
         );
       });
     });
@@ -1361,18 +1361,16 @@ describe('Transform: rewriteTemplate', () => {
       ]);
     });
 
-    test('{{and}} with wrong number of parameters', () => {
+    test('{{and}} with too few parameters falls back to a helper invocation', () => {
+      // Fewer than two operands can't form an `&&` chain, so we emit the keyword
+      // as a helper invocation instead. This produces no transform error; the
+      // keyword's own type (e.g. `AndHelper`) reports the arity requirement.
       let { errors } = templateToTypescript('<Foo @attr={{testAnd 123}} />', {
         typesModule: '@glint/template',
         specialForms: { testAnd: '&&' },
       });
 
-      expect(errors).toEqual([
-        {
-          message: '{{testAnd}} requires at least two parameters',
-          location: { start: 11, end: 26 },
-        },
-      ]);
+      expect(errors).toEqual([]);
     });
 
     test('{{or}} with named parameters', () => {
@@ -1389,18 +1387,16 @@ describe('Transform: rewriteTemplate', () => {
       ]);
     });
 
-    test('{{or}} with wrong number of parameters', () => {
+    test('{{or}} with too few parameters falls back to a helper invocation', () => {
+      // Fewer than two operands can't form an `||` chain, so we emit the keyword
+      // as a helper invocation instead. This produces no transform error; the
+      // keyword's own type (e.g. `OrHelper`) reports the arity requirement.
       let { errors } = templateToTypescript('<Foo @attr={{testOr 123}} />', {
         typesModule: '@glint/template',
         specialForms: { testOr: '||' },
       });
 
-      expect(errors).toEqual([
-        {
-          message: '{{testOr}} requires at least two parameters',
-          location: { start: 11, end: 25 },
-        },
-      ]);
+      expect(errors).toEqual([]);
     });
 
     test('{{not}} with named parameters', () => {
