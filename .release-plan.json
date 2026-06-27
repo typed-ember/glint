@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.8.2",
-      "newVersion": "1.8.3",
+      "oldVersion": "1.8.3",
+      "newVersion": "1.8.4",
       "tagName": "latest",
       "constraints": [
         {
@@ -12,7 +12,7 @@
         },
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
+          "reason": "Appears in changelog section :present: Additional updates"
         }
       ],
       "pkgJSONPath": "./packages/ember-tsc/package.json"
@@ -22,17 +22,13 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.5.8",
-      "newVersion": "2.5.9",
+      "oldVersion": "2.5.9",
+      "newVersion": "2.5.10",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -41,5 +37,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-06-26)\n\n* @glint/ember-tsc 1.8.3 (patch)\n* @glint/tsserver-plugin 2.5.9 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1167](https://github.com/typed-ember/glint/pull/1167) Improve the types for the `element` helper ([@boris-petrov](https://github.com/boris-petrov))\n  * [#1166](https://github.com/typed-ember/glint/pull/1166) Narrowing tests and fix control-flow narrowing in eq/neq for new 7.1 helpers ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#1162](https://github.com/typed-ember/glint/pull/1162) fix array parsing `[<template>...</template>]` ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* `@glint/ember-tsc`\n  * [#1165](https://github.com/typed-ember/glint/pull/1165) Delete unsupported template-literal strict code ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1163](https://github.com/typed-ember/glint/pull/1163) Test against TS 5 and 6 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 2\n- Boris Petrov ([@boris-petrov](https://github.com/boris-petrov))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-06-27)\n\n* @glint/ember-tsc 1.8.4 (patch)\n* @glint/tsserver-plugin 2.5.10 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1171](https://github.com/typed-ember/glint/pull/1171) Report missing-argument errors on helper/component invocations (#1168) ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### :present: Additional updates\n* Other\n  * [Glint 2] Helpers do not type-check correctly ([@boris-petrov](https://github.com/boris-petrov))\n* `@glint/ember-tsc`\n  * [Glint 2] Helpers do not type-check correctly ([@boris-petrov](https://github.com/boris-petrov))\n\n#### Committers: 2\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n- Boris Petrov ([@boris-petrov](https://github.com/boris-petrov))\n"
 }

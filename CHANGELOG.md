@@ -1,5 +1,24 @@
 # Changelog
 
+## Release (2026-06-27)
+
+* @glint/ember-tsc 1.8.4 (patch)
+* @glint/tsserver-plugin 2.5.10 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1171](https://github.com/typed-ember/glint/pull/1171) Report missing-argument errors on helper/component invocations (#1168) ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### :present: Additional updates
+* Other
+  * [Glint 2] Helpers do not type-check correctly ([@boris-petrov](https://github.com/boris-petrov))
+* `@glint/ember-tsc`
+  * [Glint 2] Helpers do not type-check correctly ([@boris-petrov](https://github.com/boris-petrov))
+
+#### Committers: 2
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+- Boris Petrov ([@boris-petrov](https://github.com/boris-petrov))
+
 ## Release (2026-06-26)
 
 * @glint/ember-tsc 1.8.3 (patch)
