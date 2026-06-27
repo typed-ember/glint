@@ -242,6 +242,7 @@ export function templateToTypescript(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition,
+      inTestPosition = false,
     ): void {
       // Logical forms (`&&`/`||`) manage their own keyword consumption: wrapping
       // the whole operator chain in a `(noop(kw), <chain>)` comma defeats
@@ -288,7 +289,7 @@ export function templateToTypescript(
 
         case '&&':
         case '||':
-          emitLogicalExpression(formInfo, node, formInfo.requiresConsumption);
+          emitLogicalExpression(formInfo, node, inTestPosition);
           break;
 
         case '!':
@@ -431,7 +432,7 @@ export function templateToTypescript(
         );
 
         mapper.text('(');
-        emitExpression(node.params[0]);
+        emitExpression(node.params[0], true);
         mapper.text(') ? (');
         emitExpression(node.params[1]);
         mapper.text(') : (');
@@ -457,7 +458,7 @@ export function templateToTypescript(
         );
 
         mapper.text('!(');
-        emitExpression(node.params[0]);
+        emitExpression(node.params[0], true);
         mapper.text(') ? (');
         emitExpression(node.params[1]);
         mapper.text(') : (');
@@ -499,7 +500,7 @@ export function templateToTypescript(
     function emitLogicalExpression(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
-      consumeKeyword: boolean,
+      inTestPosition: boolean,
     ): void {
       mapper.forNode(node, () => {
         assert(
@@ -507,20 +508,26 @@ export function templateToTypescript(
           () => `{{${formInfo.name}}} only accepts positional parameters`,
         );
 
-        if (node.params.length < 2) {
-          // `and`/`or` require at least two operands. A one-armed operator
-          // expression would be a syntax error, so instead invoke the keyword
-          // as a helper: its type (e.g. `AndHelper`) reports the arity
-          // requirement as an ordinary type error, which `@glint-expect-error`
-          // can target. This also consumes the keyword reference, so no extra
-          // consumption wrapper is needed.
+        if (!inTestPosition || node.params.length < 2) {
+          // Outside a condition we emit the keyword as a helper invocation
+          // rather than a native operator chain. The helper's return type
+          // (`FirstFalsy`/`FirstTruthy`) reproduces Ember's runtime truthiness —
+          // e.g. empty arrays and `{ isTruthy: false }` are falsy — which the
+          // JavaScript `&&`/`||` operators do not. The helper also enforces the
+          // "at least two operands" requirement as an ordinary type error, so it
+          // handles the too-few-operands case too. (This matches what the
+          // keyword would emit if it were a plain helper rather than a special
+          // form, so value-position behavior is unchanged.)
           emitResolve(node, 'resolve');
           return;
         }
 
+        // In a condition, emit the native `&&`/`||` operator chain so that
+        // TypeScript's control-flow analysis narrows the operands' type guards
+        // inside the block (e.g. `{{#if (and (isNumber x) (isNumber y))}}`).
         mapper.text('(');
         for (const [index, param] of node.params.entries()) {
-          if (index === 0 && consumeKeyword) {
+          if (index === 0 && formInfo.requiresConsumption) {
             // Ride the keyword consumption on the first operand
             // (`(noop(kw), <first>) && <rest>`) so the operator chain stays at
             // the top level of the expression. Wrapping the whole chain in the
@@ -598,13 +605,18 @@ export function templateToTypescript(
       return null;
     }
 
-    function emitExpression(node: AST.Expression): void {
+    // `inTestPosition` marks expressions emitted as the condition of an
+    // `if`/`unless`. It only affects `and`/`or`: in a condition they emit as
+    // native `&&`/`||` so TypeScript narrows their operands, whereas in any
+    // other (value) position they emit as helper invocations to preserve their
+    // exact runtime return type (see `emitLogicalExpression`).
+    function emitExpression(node: AST.Expression, inTestPosition = false): void {
       switch (node.type) {
         case 'PathExpression':
           return emitPath(node);
 
         case 'SubExpression':
-          return emitSubExpression(node);
+          return emitSubExpression(node, inTestPosition);
 
         case 'BooleanLiteral':
         case 'NullLiteral':
@@ -1185,7 +1197,7 @@ export function templateToTypescript(
         );
 
         mapper.text('if (');
-        emitExpression(node.params[0]);
+        emitExpression(node.params[0], true);
         mapper.text(') {');
         mapper.newline();
         mapper.indent();
@@ -1219,7 +1231,7 @@ export function templateToTypescript(
         );
 
         mapper.text('if (!(');
-        emitExpression(node.params[0]);
+        emitExpression(node.params[0], true);
         mapper.text(')) {');
         mapper.newline();
         mapper.indent();
@@ -1337,10 +1349,10 @@ export function templateToTypescript(
       scope.pop();
     }
 
-    function emitSubExpression(node: AST.SubExpression): void {
+    function emitSubExpression(node: AST.SubExpression, inTestPosition = false): void {
       let specialFormInfo = checkSpecialForm(node);
       if (specialFormInfo) {
-        emitSpecialFormExpression(specialFormInfo, node, 'sexpr');
+        emitSpecialFormExpression(specialFormInfo, node, 'sexpr', inTestPosition);
         return;
       }
 

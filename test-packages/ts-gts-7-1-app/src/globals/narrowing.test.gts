@@ -70,6 +70,18 @@ function isNumber(value: unknown): value is number {
 type Mixed = { a: unknown; b: unknown };
 const mixed = { a: 1, b: 2 } as Mixed;
 
+// ---------------------------------------------------------------------------
+// (6) Value-position `and`/`or` must keep Ember's runtime truthiness. Although
+// they emit as native `&&`/`||` inside a condition (section 5), in value
+// position they emit as helper invocations whose return type follows Ember's
+// `isTruthy`/`ember-truth-helpers` rules — under which an empty array and a
+// `{ isTruthy: false }` object are *falsy*, even though JavaScript's `&&`/`||`
+// treat both as truthy. These assertions would fail if value position used the
+// native operators. (typed-ember/glint#1169)
+// ---------------------------------------------------------------------------
+const emptyArray = [] as never[];
+const isFalsyBox = { isTruthy: false, tag: 'empty' } as { isTruthy: false; tag: 'empty' };
+
 <template>
   {{! ===== (1) result-type narrowing of or / and ===== }}
 
@@ -168,4 +180,15 @@ const mixed = { a: 1, b: 2 } as Mixed;
     {{expectTypeOf mixed.a to.beNumber}}
     {{expectTypeOf mixed.b to.beNumber}}
   {{/if}}
+
+  {{! ===== (6) value-position results keep Ember truthiness (glint#1169) ===== }}
+
+  {{! ---- an empty array is Ember-falsy, so `(or emptyArray fallback)` resolves
+      to the string fallback. Native `||` would type this as `never[] | string`. ---- }}
+  {{expectTypeOf (or emptyArray fallback) to.beString}}
+
+  {{! ---- a `{ isTruthy: false }` object is Ember-falsy, so `(and ...)` returns
+      it as the first falsy operand. Native `&&` would type this as the trailing
+      operand instead. ---- }}
+  {{expectTypeOf (and isFalsyBox fallback) to.equalTypeOf isFalsyBox}}
 </template>
