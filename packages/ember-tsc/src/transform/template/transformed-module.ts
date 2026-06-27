@@ -307,6 +307,28 @@ export default class TransformedModule {
       });
     };
 
+    // Push a mapping that covers a generated span whose length differs from the
+    // source span it maps back to (via Volar's `generatedLengths`). This lets a
+    // diagnostic anchored anywhere within the generated span translate back to
+    // the source region even though the two aren't the same length. We restrict
+    // it to `verification` so that navigation/completion/hover features (which
+    // are served by the narrower, length-aligned mappings) are unaffected.
+    const pushWide = (
+      sourceOffset: number,
+      sourceLength: number,
+      generatedOffset: number,
+      generatedLength: number,
+      codeInformation: CodeInformation | undefined,
+    ): void => {
+      codeMappings.push({
+        sourceOffsets: [sourceOffset],
+        generatedOffsets: [generatedOffset],
+        lengths: [sourceLength],
+        generatedLengths: [generatedLength],
+        data: { verification: codeInformation?.verification ?? true },
+      });
+    };
+
     let recurse = (span: CorrelatedSpan, mapping: GlimmerASTMappingTree): void => {
       const children = mapping.children;
       let { originalRange, transformedRange } = mapping;
@@ -359,6 +381,26 @@ export default class TransformedModule {
         // Disregard the "null zone" mappings, i.e. cases where TS code maps to empty HBS code
         if (isNonNullMapping) {
           push(hbsEnd, tsEnd, 0, mapping.codeInformation);
+
+          // The boundary mappings above only mark the start/end of this node's
+          // generated output; the synthetic boilerplate in between (e.g. the
+          // `__glintDSL__.resolve(foo)` callee emitted for `{{foo ...}}`) has no
+          // covering mapping. Some TS diagnostics anchor on exactly that span —
+          // notably "Expected N arguments, but got M" for a missing positional
+          // arg, which points at the callee rather than the args. Without a
+          // covering verification mapping, Volar can't translate such a
+          // diagnostic back to the template and silently drops it (#1168).
+          //
+          // Only nodes explicitly flagged for this opt in (see `forNode`'s
+          // `wideVerification` option): a blanket wide mapping on every parent
+          // would re-expose diagnostics suppressed by a narrower
+          // `@glint-expect-error`, since an ancestor spanning multiple directive
+          // regions carries its own (unsuppressed) verification. We push it
+          // *after* the children so the narrower leaf mappings still win for
+          // diagnostics that fall squarely within them.
+          if (mapping.wideVerification) {
+            pushWide(hbsStart, hbsLength, tsStart, tsLength, mapping.codeInformation);
+          }
         }
       } else {
         if (hbsLength === tsLength) {

@@ -93,8 +93,18 @@ export type Mapper = {
   /**
    * Map all content emitted in the given callback to the span
    * corresponding to the given AST node in the original source.
+   *
+   * When `wideVerification` is set, an extra verification-only mapping covering
+   * the callback's entire generated span is emitted so that diagnostics anchored
+   * on synthetic generated boilerplate within it still map back to the node
+   * (see `GlimmerASTMappingTree#wideVerification`).
    */
-  forNode(node: AST.Node, callback: () => void, codeFeaturesForNode?: CodeInformation): void;
+  forNode(
+    node: AST.Node,
+    callback: () => void,
+    codeFeaturesForNode?: CodeInformation,
+    wideVerification?: boolean,
+  ): void;
   forNodeWithSpan(
     node: AST.Node,
     span: AST.Node['loc'],
@@ -193,6 +203,7 @@ export function mapTemplateContents(
     allowEmpty: boolean,
     callback: () => void,
     codeFeaturesForNode?: CodeInformation,
+    wideVerification = false,
   ): void => {
     let start = offset;
     let mappings: GlimmerASTMappingTree[] = [];
@@ -229,6 +240,7 @@ export function mapTemplateContents(
           // point in the future but by default tends to make the highlighting in gts files look wrong.
           codeFeaturesForNode ??
             augmentCodeFeaturesWithIgnoreDirectivesSupport(codeFeatures.withoutHighlight, hbsRange),
+          wideVerification,
         ),
       );
       segmentsStack[0].push(...segments);
@@ -327,8 +339,20 @@ export function mapTemplateContents(
       let source = new Identifier(value);
       captureMapping(hbsRange, source, true, () => mapper.text(value));
     },
-    forNode(node: AST.Node, callback: () => void, codeFeaturesForNode?: CodeInformation) {
-      captureMapping(mapper.rangeForNode(node), node, false, callback, codeFeaturesForNode);
+    forNode(
+      node: AST.Node,
+      callback: () => void,
+      codeFeaturesForNode?: CodeInformation,
+      wideVerification?: boolean,
+    ) {
+      captureMapping(
+        mapper.rangeForNode(node),
+        node,
+        false,
+        callback,
+        codeFeaturesForNode,
+        wideVerification,
+      );
     },
 
     forNodeWithSpan(

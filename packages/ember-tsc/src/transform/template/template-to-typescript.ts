@@ -1061,10 +1061,12 @@ export function templateToTypescript(
         } else if (position === 'top-level') {
           // e.g. top-level mustache `{{someValue}}`
           mapper.text('__glintDSL__.emitContent(');
-          emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
+          // Direct mustache invocations opt into wide verification so a missing
+          // required argument is reported (#1168); see `emitResolve`.
+          emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn', true);
           mapper.text(')');
         } else {
-          emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn');
+          emitResolve(node, hasParams ? 'resolve' : 'resolveOrReturn', true);
         }
       });
     }
@@ -1328,17 +1330,45 @@ export function templateToTypescript(
       | AST.BlockStatement
       | AST.ElementModifierStatement;
 
-    function emitResolve(node: CurlyInvocationNode, resolveType: string): void {
+    function emitResolve(
+      node: CurlyInvocationNode,
+      resolveType: string,
+      wideVerification = false,
+    ): void {
       // We use forNode here to wrap the emitted resolve expression here so that when
       // we convert to Volar mappings, we can create a boundary around
       // e.g. "__glintDSL__.resolveOrReturn(expectsAtLeastOneArg)()", which is required because
       // this is where TS might generate a diagnostic error.
       mapper.forNode(node, () => {
-        mapper.text('__glintDSL__.');
-        mapper.text(resolveType);
-        mapper.text('(');
-        emitExpression(node.path);
-        mapper.text(')(');
+        if (wideVerification) {
+          // Wrap just the synthetic callee `__glintDSL__.resolve(<path>)` and
+          // map its whole generated span back to the path. TS anchors an
+          // "Expected N arguments, but got M" diagnostic (raised when a required
+          // positional arg is missing) on this callee rather than on the args;
+          // without a covering mapping Volar drops it and the missing-arg goes
+          // unreported (#1168). Mapping to the tight `path` node (rather than the
+          // whole invocation) keeps `@glint-expect-error` suppression scoped
+          // correctly.
+          mapper.forNode(
+            node.path,
+            () => {
+              mapper.text('__glintDSL__.');
+              mapper.text(resolveType);
+              mapper.text('(');
+              emitExpression(node.path);
+              mapper.text(')');
+            },
+            undefined,
+            true,
+          );
+          mapper.text('(');
+        } else {
+          mapper.text('__glintDSL__.');
+          mapper.text(resolveType);
+          mapper.text('(');
+          emitExpression(node.path);
+          mapper.text(')(');
+        }
         emitArgs(node.params, node.hash);
         mapper.text(')');
       });

@@ -58,6 +58,14 @@ export default class GlimmerASTMappingTree {
     public children: Array<GlimmerASTMappingTree> = [],
     public sourceNode: MappingSource,
     public codeInformation?: CodeInformation,
+    /**
+     * When set, `toVolarMappings` emits an additional verification-only mapping
+     * covering this node's entire generated span (even when it differs in length
+     * from the source span). This lets diagnostics that TS anchors on synthetic
+     * generated boilerplate — e.g. the `__glintDSL__.resolve(foo)` callee, where
+     * a missing-positional-arg error lands — map back to the template (#1168).
+     */
+    public wideVerification: boolean = false,
   ) {
     children.forEach((child) => (child.parent = this));
   }
