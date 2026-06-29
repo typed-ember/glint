@@ -15,6 +15,8 @@ const rect = null as unknown as ElementComponent<SVGRectElement>;
 const empty = null as unknown as ElementComponent<null>;
 const anyElement = null as unknown as ElementComponent<Element>;
 
+const videoOrNot = null as unknown as 'video' | '';
+
 const dynamicTag: string = 'div';
 
 <template>
@@ -34,6 +36,9 @@ const dynamicTag: string = 'div';
 
   {{! Empty string renders no wrapping element -> `null` (no element) }}
   {{expectTypeOf (element "") to.equalTypeOf empty}}
+
+  {{! A tag or empty is typed as the tag }}
+  {{expectTypeOf (element videoOrNot) to.equalTypeOf video}}
 
   {{! A dynamic (non-literal) tag name falls back to the base `Element` }}
   {{expectTypeOf (element dynamicTag) to.equalTypeOf anyElement}}
