@@ -479,7 +479,7 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testEq'], specialForms: { testEq: '===' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testEq), (1 === 2))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(((__glintDSL__.noop(__glintDSL__.Globals.testEq), 1) === 2)));"`,
         );
       });
     });
@@ -493,7 +493,7 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testNeq'], specialForms: { testNeq: '!==' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testNeq), (1 !== 2))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(((__glintDSL__.noop(__glintDSL__.Globals.testNeq), 1) !== 2)));"`,
         );
       });
     });
@@ -507,7 +507,7 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testAnd'], specialForms: { testAnd: '&&' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testAnd), (1 && 2))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(((__glintDSL__.noop(__glintDSL__.Globals.testAnd), 1) && 2)));"`,
         );
       });
 
@@ -519,7 +519,7 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testAnd'], specialForms: { testAnd: '&&' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testAnd), (1 && 2 && 3))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(((__glintDSL__.noop(__glintDSL__.Globals.testAnd), 1) && 2 && 3)));"`,
         );
       });
     });
@@ -533,7 +533,7 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testOr'], specialForms: { testOr: '||' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testOr), (1 || 2))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(((__glintDSL__.noop(__glintDSL__.Globals.testOr), 1) || 2)));"`,
         );
       });
 
@@ -545,7 +545,7 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testOr'], specialForms: { testOr: '||' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testOr), (1 || 2 || 3))));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(((__glintDSL__.noop(__glintDSL__.Globals.testOr), 1) || 2 || 3)));"`,
         );
       });
     });
@@ -559,8 +559,83 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { globals: ['testNot'], specialForms: { testNot: '!' } }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testNot), !1)));"`,
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(log)(!(__glintDSL__.noop(__glintDSL__.Globals.testNot), 1)));"`,
         );
+      });
+    });
+
+    // The discarded keyword reference (kept for hover/go-to-definition) is
+    // attached to the operator's *first operand* rather than wrapping the whole
+    // expression, so the operator stays at the top level of the emitted `if (…)`
+    // condition and TypeScript's control-flow analysis still narrows the
+    // operands inside the block. (#1169)
+    describe('operator special forms keep narrowing in a condition', () => {
+      test('{{#if (and …)}} emits `((noop(and), a) && b)` as the condition', () => {
+        let template = stripIndent`
+          {{#testIf (testAnd @a @b)}}{{@ok}}{{/testIf}}
+        `;
+
+        expect(
+          templateBody(template, {
+            globals: ['testIf', 'testAnd'],
+            specialForms: { testIf: 'if', testAnd: '&&' },
+          }),
+        ).toMatchInlineSnapshot(`
+          "if (((__glintDSL__.noop(__glintDSL__.Globals.testAnd), __glintRef__.args.a) && __glintRef__.args.b)) {
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.ok)());
+          }"
+        `);
+      });
+
+      test('{{#if (or …)}} emits `((noop(or), a) || b)` as the condition', () => {
+        let template = stripIndent`
+          {{#testIf (testOr @a @b)}}{{@ok}}{{/testIf}}
+        `;
+
+        expect(
+          templateBody(template, {
+            globals: ['testIf', 'testOr'],
+            specialForms: { testIf: 'if', testOr: '||' },
+          }),
+        ).toMatchInlineSnapshot(`
+          "if (((__glintDSL__.noop(__glintDSL__.Globals.testOr), __glintRef__.args.a) || __glintRef__.args.b)) {
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.ok)());
+          }"
+        `);
+      });
+
+      test('{{#if (eq …)}} emits `((noop(eq), a) === b)` as the condition', () => {
+        let template = stripIndent`
+          {{#testIf (testEq @a @b)}}{{@ok}}{{/testIf}}
+        `;
+
+        expect(
+          templateBody(template, {
+            globals: ['testIf', 'testEq'],
+            specialForms: { testIf: 'if', testEq: '===' },
+          }),
+        ).toMatchInlineSnapshot(`
+          "if (((__glintDSL__.noop(__glintDSL__.Globals.testEq), __glintRef__.args.a) === __glintRef__.args.b)) {
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.ok)());
+          }"
+        `);
+      });
+
+      test('{{#if (not …)}} emits `!(noop(not), a)` as the condition', () => {
+        let template = stripIndent`
+          {{#testIf (testNot @a)}}{{@ok}}{{/testIf}}
+        `;
+
+        expect(
+          templateBody(template, {
+            globals: ['testIf', 'testNot'],
+            specialForms: { testIf: 'if', testNot: '!' },
+          }),
+        ).toMatchInlineSnapshot(`
+          "if (!(__glintDSL__.noop(__glintDSL__.Globals.testNot), __glintRef__.args.a)) {
+          __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.ok)());
+          }"
+        `);
       });
     });
   });

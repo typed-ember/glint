@@ -243,7 +243,16 @@ export function templateToTypescript(
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition,
     ): void {
-      if (formInfo.requiresConsumption) {
+      // Operator special forms (`===`/`!==`/`&&`/`||`/`!`) emit the discarded
+      // keyword reference (kept for hover/go-to-definition) attached to their
+      // first operand rather than wrapping the whole expression — see
+      // `emitConsumedOperand`. Wrapping the whole operator expression in the
+      // `(__glintDSL__.noop(keyword), <expr>)` comma expression severs
+      // TypeScript's control-flow narrowing of the operands inside `{{#if}}`
+      // (e.g. `{{#if (and (isNumber x) (isNumber y))}}`), so they handle their
+      // own consumption below. (#1169)
+      let consumeAroundWholeExpression = formInfo.requiresConsumption && !isOperatorForm(formInfo);
+      if (consumeAroundWholeExpression) {
         mapper.text('(__glintDSL__.noop(');
         emitExpression(node.path);
         mapper.text('), ');
@@ -293,8 +302,42 @@ export function templateToTypescript(
           mapper.text('undefined');
       }
 
-      if (formInfo.requiresConsumption) {
+      if (consumeAroundWholeExpression) {
         mapper.text(')');
+      }
+    }
+
+    // `===`/`!==`/`&&`/`||`/`!`: these emit the native operator (never a keyword
+    // call), so TypeScript can narrow their operands as a condition.
+    function isOperatorForm(formInfo: Pick<SpecialFormInfo, 'form'>): boolean {
+      return (
+        formInfo.form === '===' ||
+        formInfo.form === '!==' ||
+        formInfo.form === '&&' ||
+        formInfo.form === '||' ||
+        formInfo.form === '!'
+      );
+    }
+
+    // Emit a single operand as `(__glintDSL__.noop(keyword), <operand>)` when the
+    // form requires consumption, so the discarded keyword reference (which
+    // preserves hover/go-to-definition on e.g. `eq`/`neq`) rides along with the
+    // operand instead of wrapping the whole operator expression. Because the
+    // operator itself stays at the top level of the emitted condition,
+    // TypeScript's control-flow analysis still narrows every operand. (#1169)
+    function emitConsumedOperand(
+      formInfo: SpecialFormInfo,
+      node: AST.MustacheStatement | AST.SubExpression,
+      emitOperand: () => void,
+    ): void {
+      if (formInfo.requiresConsumption) {
+        mapper.text('(__glintDSL__.noop(');
+        emitExpression(node.path);
+        mapper.text('), ');
+        emitOperand();
+        mapper.text(')');
+      } else {
+        emitOperand();
       }
     }
 
@@ -482,7 +525,7 @@ export function templateToTypescript(
         const [left, right] = node.params;
 
         mapper.text('(');
-        emitExpression(left);
+        emitConsumedOperand(formInfo, node, () => emitExpression(left));
         mapper.text(` ${formInfo.form} `);
         emitExpression(right);
         mapper.text(')');
@@ -505,7 +548,11 @@ export function templateToTypescript(
 
         mapper.text('(');
         for (const [index, param] of node.params.entries()) {
-          emitExpression(param);
+          if (index === 0) {
+            emitConsumedOperand(formInfo, node, () => emitExpression(param));
+          } else {
+            emitExpression(param);
+          }
 
           if (index < node.params.length - 1) {
             mapper.text(` ${formInfo.form} `);
@@ -532,7 +579,7 @@ export function templateToTypescript(
         const [param] = node.params;
 
         mapper.text(formInfo.form);
-        emitExpression(param);
+        emitConsumedOperand(formInfo, node, () => emitExpression(param));
       });
     }
 
@@ -557,13 +604,10 @@ export function templateToTypescript(
           // operator expression — never a reference to the keyword itself. For a
           // documented global keyword (e.g. `eq`/`neq`) that would drop hover
           // docs and go-to-definition, so we still emit a discarded reference to
-          // it. Narrowing is preserved: the keyword is emitted as the throwaway
-          // first operand of a comma expression whose value is the operator
-          // expression (`(noop(eq), (a === b))`).
-          let isOperatorForm =
-            form === '===' || form === '!==' || form === '&&' || form === '||' || form === '!';
-
-          return { name, form, requiresConsumption: !isGlobal || isOperatorForm };
+          // it. Narrowing is preserved by attaching that reference to the first
+          // operand rather than wrapping the whole expression — see
+          // `emitConsumedOperand` (`((noop(eq), a) === b)`). (#1169)
+          return { name, form, requiresConsumption: !isGlobal || isOperatorForm({ form }) };
         }
       }
 
