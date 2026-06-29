@@ -58,6 +58,19 @@ const foo = { x: 'a', y: 1 } as Foo;
 const fooA = { x: 'a', y: 1 } as { x: 'a'; y: number };
 const fooB = { x: 'b', y: 's' } as { x: 'b'; y: string };
 
+// A *standalone* string-literal union (not a discriminant property). Comparing
+// it to a string literal with `(eq choice "foo")` narrows `choice` itself to the
+// matching member, and the `{{else}}` branch to the remaining member.
+type Choice = 'foo' | 'bar';
+const choice = 'foo' as Choice;
+// `const b = 'foo'` keeps its `'foo'` literal type in a *comparison* position, so
+// `(eq choice b)` narrows exactly like `(eq choice "foo")` does. (`fooLit`/`barLit`
+// are `as const` because passing a value as a generic `expectTypeOf` argument
+// widens a bare literal to `string` — that widening does not affect `===`.)
+const b = 'foo';
+const fooLit = 'foo' as const;
+const barLit = 'bar' as const;
+
 <template>
   {{! ===== (1) result-type narrowing of or / and ===== }}
 
@@ -141,5 +154,21 @@ const fooB = { x: 'b', y: 's' } as { x: 'b'; y: string };
     {{expectTypeOf foo.y to.beString}}
   {{else}}
     {{expectTypeOf foo.y to.beNumber}}
+  {{/if}}
+
+  {{! ---- (eq) narrows a standalone string-literal union to the compared
+      literal; the else branch keeps the remaining member ---- }}
+  {{#if (eq choice "foo")}}
+    {{expectTypeOf choice to.equalTypeOf fooLit}}
+  {{else}}
+    {{expectTypeOf choice to.equalTypeOf barLit}}
+  {{/if}}
+
+  {{! ---- comparing against a literal-typed value (`b: 'foo'`) narrows exactly
+      like comparing against the literal `"foo"` itself ---- }}
+  {{#if (eq choice b)}}
+    {{expectTypeOf choice to.equalTypeOf fooLit}}
+  {{else}}
+    {{expectTypeOf choice to.equalTypeOf barLit}}
   {{/if}}
 </template>
