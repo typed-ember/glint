@@ -8,22 +8,22 @@ import { DirectInvokable } from '@glint/template/-private/integration';
 // `lt`/`lte`/`gt`/`gte` keywords below have no narrowing benefit and remain
 // ordinary helpers.
 
-/** `(lt a b)` — numeric less-than. Built-in keyword in ember-source >= 7.1. */
+/** `(lt a b)` — less-than. Built-in keyword in ember-source >= 7.1. */
 export type LtHelper = DirectInvokable<{
-  (a: number, b: number): boolean;
+  <T extends number | string | Date>(a: T, b: T): boolean;
 }>;
 
-/** `(lte a b)` — numeric less-than-or-equal. Built-in keyword in ember-source >= 7.1. */
+/** `(lte a b)` — less-than-or-equal. Built-in keyword in ember-source >= 7.1. */
 export type LteHelper = DirectInvokable<{
-  (a: number, b: number): boolean;
+  <T extends number | string | Date>(a: T, b: T): boolean;
 }>;
 
-/** `(gt a b)` — numeric greater-than. Built-in keyword in ember-source >= 7.1. */
+/** `(gt a b)` — greater-than. Built-in keyword in ember-source >= 7.1. */
 export type GtHelper = DirectInvokable<{
-  (a: number, b: number): boolean;
+  <T extends number | string | Date>(a: T, b: T): boolean;
 }>;
 
-/** `(gte a b)` — numeric greater-than-or-equal. Built-in keyword in ember-source >= 7.1. */
+/** `(gte a b)` — greater-than-or-equal. Built-in keyword in ember-source >= 7.1. */
 export type GteHelper = DirectInvokable<{
-  (a: number, b: number): boolean;
+  <T extends number | string | Date>(a: T, b: T): boolean;
 }>;
