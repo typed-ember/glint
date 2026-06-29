@@ -1,5 +1,17 @@
 # Changelog
 
+## Release (2026-06-29)
+
+* @glint/ember-tsc 1.8.5 (patch)
+* @glint/tsserver-plugin 2.5.11 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1175](https://github.com/typed-ember/glint/pull/1175) Fix `lt`, `lte`, `gt` and `gte` not accepting strings and dates ([@boris-petrov](https://github.com/boris-petrov))
+
+#### Committers: 1
+- Boris Petrov ([@boris-petrov](https://github.com/boris-petrov))
+
 ## Release (2026-06-27)
 
 * @glint/ember-tsc 1.8.4 (patch)
