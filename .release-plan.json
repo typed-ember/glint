@@ -2,17 +2,13 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.8.3",
-      "newVersion": "1.8.4",
+      "oldVersion": "1.8.4",
+      "newVersion": "1.8.5",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :present: Additional updates"
         }
       ],
       "pkgJSONPath": "./packages/ember-tsc/package.json"
@@ -22,8 +18,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.5.9",
-      "newVersion": "2.5.10",
+      "oldVersion": "2.5.10",
+      "newVersion": "2.5.11",
       "tagName": "latest",
       "constraints": [
         {
@@ -37,5 +33,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-06-27)\n\n* @glint/ember-tsc 1.8.4 (patch)\n* @glint/tsserver-plugin 2.5.10 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1171](https://github.com/typed-ember/glint/pull/1171) Report missing-argument errors on helper/component invocations (#1168) ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### :present: Additional updates\n* Other\n  * [Glint 2] Helpers do not type-check correctly ([@boris-petrov](https://github.com/boris-petrov))\n* `@glint/ember-tsc`\n  * [Glint 2] Helpers do not type-check correctly ([@boris-petrov](https://github.com/boris-petrov))\n\n#### Committers: 2\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n- Boris Petrov ([@boris-petrov](https://github.com/boris-petrov))\n"
+  "description": "## Release (2026-06-29)\n\n* @glint/ember-tsc 1.8.5 (patch)\n* @glint/tsserver-plugin 2.5.11 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1175](https://github.com/typed-ember/glint/pull/1175) Fix `lt`, `lte`, `gt` and `gte` not accepting strings and dates ([@boris-petrov](https://github.com/boris-petrov))\n\n#### Committers: 1\n- Boris Petrov ([@boris-petrov](https://github.com/boris-petrov))\n"
 }
