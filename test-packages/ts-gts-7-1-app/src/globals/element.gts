@@ -9,6 +9,7 @@ type ElementComponent<El> = ComponentLike<{
 }>;
 
 const video = null as unknown as ElementComponent<HTMLVideoElement>;
+const inputOrButton = null as unknown as ElementComponent<HTMLInputElement | HTMLButtonElement>;
 const anchor = null as unknown as ElementComponent<HTMLAnchorElement>;
 const svg = null as unknown as ElementComponent<SVGSVGElement>;
 const rect = null as unknown as ElementComponent<SVGRectElement>;
@@ -18,6 +19,8 @@ const anyElement = null as unknown as ElementComponent<Element>;
 const videoOrNot = null as unknown as 'video' | '';
 
 const dynamicTag: string = 'div';
+
+declare function narrow(loose: string): loose is 'input' | 'button';
 
 <template>
   {{! ---- (RFC 389) element ---- }}
@@ -46,6 +49,10 @@ const dynamicTag: string = 'div';
   {{! A known tag is not assignable to the wrong element type }}
   {{! @glint-expect-error: a video is not an anchor }}
   {{expectTypeOf (element "video") to.equalTypeOf anchor}}
+
+  {{#if (narrow dynamicTag)}}
+    {{expectTypeOf (element dynamicTag) to.equalTypeOf inputOrButton}}
+  {{/if}}
 
   {{! ---- Narrowing flows through to attribute checking ---- }}
 
