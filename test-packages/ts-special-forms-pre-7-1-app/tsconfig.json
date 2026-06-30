@@ -1,0 +1,19 @@
+{
+  "extends": "@tsconfig/ember",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["ember-source/types", "@glint/ember-tsc/types"]
+  },
+  "include": ["src", "types"],
+  "glint": {
+    "additionalSpecialForms": {
+      "globals": {
+        "and": "&&",
+        "or": "||",
+        "not": "!",
+        "eq": "===",
+        "neq": "!=="
+      }
+    }
+  }
+}

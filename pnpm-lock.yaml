@@ -621,6 +621,74 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  test-packages/ts-special-forms-app:
+    dependenciesMeta:
+      '@glint/ember-tsc':
+        injected: true
+      '@glint/template':
+        injected: true
+      '@glint/tsserver-plugin':
+        injected: true
+    devDependencies:
+      '@glimmer/component':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@glint/ember-tsc':
+        specifier: workspace:*
+        version: file:packages/ember-tsc(671831d5ef01bb1c4e55e2727bcae909)
+      '@glint/template':
+        specifier: workspace:*
+        version: file:packages/template
+      '@glint/tsserver-plugin':
+        specifier: workspace:*
+        version: file:packages/tsserver-plugin
+      '@glint/type-test':
+        specifier: workspace:*
+        version: link:../../packages/type-test
+      '@tsconfig/ember':
+        specifier: ^3.0.9
+        version: 3.0.9
+      ember-source:
+        specifier: ~7.1.0-beta.1
+        version: 7.1.0-beta.1(@glimmer/component@2.0.0)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  test-packages/ts-special-forms-pre-7-1-app:
+    dependenciesMeta:
+      '@glint/ember-tsc':
+        injected: true
+      '@glint/template':
+        injected: true
+      '@glint/tsserver-plugin':
+        injected: true
+    devDependencies:
+      '@glimmer/component':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@glint/ember-tsc':
+        specifier: workspace:*
+        version: file:packages/ember-tsc(ea5fe0a69289ce36b0caa09bb31a58c2)
+      '@glint/template':
+        specifier: workspace:*
+        version: file:packages/template
+      '@glint/tsserver-plugin':
+        specifier: workspace:*
+        version: file:packages/tsserver-plugin
+      '@glint/type-test':
+        specifier: workspace:*
+        version: link:../../packages/type-test
+      '@tsconfig/ember':
+        specifier: ^3.0.9
+        version: 3.0.9
+      ember-source:
+        specifier: ^6.2.0
+        version: 6.11.0(@glimmer/component@2.0.0)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   test-packages/ts-template-imports-app:
     dependenciesMeta:
       '@glint/ember-tsc':
