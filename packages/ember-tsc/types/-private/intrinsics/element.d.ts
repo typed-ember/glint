@@ -14,20 +14,38 @@ export type ElementHelper = DirectInvokable<{
   <const K extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap | (string & {})>(
     tagName: K,
   ): ComponentLike<{
-    // A known HTML or SVG tag name narrows to the corresponding element type.
-    // When a name exists in both maps (e.g. `a`, `script`, `style`, `title`)
-    // the HTML element wins, matching the default (non-SVG) namespace at
-    // runtime. An empty string renders the block without a wrapping element, so
-    // there is no element to receive attributes (`null`, which makes applying
-    // any attribute a type error). Any other (dynamic) tag name falls back to
-    // the base `Element`, covering both HTML and SVG.
-    Element: K extends keyof HTMLElementTagNameMap
-      ? HTMLElementTagNameMap[K]
-      : K extends keyof SVGElementTagNameMap
-        ? SVGElementTagNameMap[K]
-        : K extends ''
-          ? null
-          : Element;
+    // Resolve the tag name `K` to the element type it produces, from the
+    // most-specific case to the least. Each branch is explained below.
+    //
+    //   ┌─ K is exactly ''      → null     (no wrapping element)
+    //   ├─ K is `'tag' | ''`    → Element  (ambiguous: may or may not render)
+    //   ├─ K is a known HTML tag → HTMLElementTagNameMap[K]
+    //   ├─ K is a known SVG tag  → SVGElementTagNameMap[K]
+    //   └─ K is a dynamic string → Element  (unknown tag)
+    //
+    Element: [K] extends [''] // // `'video' | ''` falls through to Case 2. // attributes. Tuple-wrapping keeps this non-distributive, so a union like // Case 1: exactly `''` — no wrapping element renders, so it can't receive //
+      ? null
+      : //
+        // Case 2: a union containing `''` (e.g. `'video' | ''`) is ambiguous —
+        // it may or may not render — so fall back to base `Element`.
+        //
+        '' extends K
+        ? Element
+        : //
+          // Case 3: a known HTML tag. Names in both maps (e.g. `"a"`) match
+          // HTML first — the default, non-SVG namespace.
+          //
+          K extends keyof HTMLElementTagNameMap
+          ? HTMLElementTagNameMap[K]
+          : //
+            // Case 4: a known SVG tag.
+            //
+            K extends keyof SVGElementTagNameMap
+            ? SVGElementTagNameMap[K]
+            : //
+              // We could not determine what type the user wants
+              //
+              Element;
     Args: Record<string, unknown>;
     Blocks: { default: [] };
   }>;

@@ -9,13 +9,18 @@ type ElementComponent<El> = ComponentLike<{
 }>;
 
 const video = null as unknown as ElementComponent<HTMLVideoElement>;
+const inputOrButton = null as unknown as ElementComponent<HTMLInputElement | HTMLButtonElement>;
 const anchor = null as unknown as ElementComponent<HTMLAnchorElement>;
 const svg = null as unknown as ElementComponent<SVGSVGElement>;
 const rect = null as unknown as ElementComponent<SVGRectElement>;
 const empty = null as unknown as ElementComponent<null>;
 const anyElement = null as unknown as ElementComponent<Element>;
 
+const videoOrNot = null as unknown as 'video' | '';
+
 const dynamicTag: string = 'div';
+
+declare function narrow(loose: string): loose is 'input' | 'button';
 
 <template>
   {{! ---- (RFC 389) element ---- }}
@@ -35,12 +40,19 @@ const dynamicTag: string = 'div';
   {{! Empty string renders no wrapping element -> `null` (no element) }}
   {{expectTypeOf (element "") to.equalTypeOf empty}}
 
+  {{! A tag or empty -- because element can't know which will be received }}
+  {{expectTypeOf (element videoOrNot) to.equalTypeOf anyElement}}
+
   {{! A dynamic (non-literal) tag name falls back to the base `Element` }}
   {{expectTypeOf (element dynamicTag) to.equalTypeOf anyElement}}
 
   {{! A known tag is not assignable to the wrong element type }}
   {{! @glint-expect-error: a video is not an anchor }}
   {{expectTypeOf (element "video") to.equalTypeOf anchor}}
+
+  {{#if (narrow dynamicTag)}}
+    {{expectTypeOf (element dynamicTag) to.equalTypeOf inputOrButton}}
+  {{/if}}
 
   {{! ---- Narrowing flows through to attribute checking ---- }}
 
@@ -72,7 +84,7 @@ const dynamicTag: string = 'div';
       no element for attributes to apply to }}
   {{#let (element "") as |Tag|}}
     <Tag>hello</Tag>
-    {{! @glint-expect-error: a tagless element has no attributes }}
+    {{! @glint-expect-error: a tagless element has no attributes (no element rendered) }}
     <Tag id="foo" />
   {{/let}}
 </template>
