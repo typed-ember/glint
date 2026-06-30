@@ -40,8 +40,8 @@ declare function narrow(loose: string): loose is 'input' | 'button';
   {{! Empty string renders no wrapping element -> `null` (no element) }}
   {{expectTypeOf (element "") to.equalTypeOf empty}}
 
-  {{! A tag or empty is typed as the tag }}
-  {{expectTypeOf (element videoOrNot) to.equalTypeOf video}}
+  {{! A tag or empty -- because element can't know which will be received }}
+  {{expectTypeOf (element videoOrNot) to.equalTypeOf anyElement}}
 
   {{! A dynamic (non-literal) tag name falls back to the base `Element` }}
   {{expectTypeOf (element dynamicTag) to.equalTypeOf anyElement}}
@@ -84,7 +84,7 @@ declare function narrow(loose: string): loose is 'input' | 'button';
       no element for attributes to apply to }}
   {{#let (element "") as |Tag|}}
     <Tag>hello</Tag>
-    {{! @glint-expect-error: a tagless element has no attributes }}
+    {{! @glint-expect-error: a tagless element has no attributes (no element rendered) }}
     <Tag id="foo" />
   {{/let}}
 </template>

@@ -171,4 +171,4 @@ const barLit = 'bar' as const;
   {{else}}
     {{expectTypeOf choice to.equalTypeOf barLit}}
   {{/if}}
-</template>
+</template>;
