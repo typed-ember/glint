@@ -1,5 +1,27 @@
 # Changelog
 
+## Release (2026-06-30)
+
+* @glint/ember-tsc 1.8.6 (patch)
+* @glint/tsserver-plugin 2.5.12 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1174](https://github.com/typed-ember/glint/pull/1174) Handle `''` specially in the `element` helper ([@boris-petrov](https://github.com/boris-petrov))
+  * [#1157](https://github.com/typed-ember/glint/pull/1157)  Fix `tsc -b` / `ember-tsc --build` crash on `.gts` declaration emit ("Extension .gts is unsupported") ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+  * [#1179](https://github.com/typed-ember/glint/pull/1179) Fix control-flow narrowing through operator special forms (#1169) ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :house: Internal
+* [#1177](https://github.com/typed-ember/glint/pull/1177) Add eq narrowing coverage for standalone literal unions ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :present: Additional updates
+* `@glint/ember-tsc`
+  * [Glint 2] `and` doesn't type-narrow correctly ([@boris-petrov](https://github.com/boris-petrov))
+
+#### Committers: 2
+- Boris Petrov ([@boris-petrov](https://github.com/boris-petrov))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-06-29)
 
 * @glint/ember-tsc 1.8.5 (patch)
