@@ -483,9 +483,8 @@ describe('Transform: rewriteTemplate', () => {
 
         let specialForms = { testHash: 'object-literal' } as const;
 
-        expect(
-          templateBody(template, { globals: ['testHash'], specialForms }),
-        ).toMatchInlineSnapshot(`
+        expect(templateBody(template, { globals: ['testHash'], specialForms }))
+          .toMatchInlineSnapshot(`
           "__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testHash), ({
           a: 1,
           b: "ok",
