@@ -586,6 +586,9 @@ importers:
       ember-source:
         specifier: ~7.1.0-beta.1
         version: 7.1.0-beta.1(@glimmer/component@2.0.0)
+      expect-type:
+        specifier: ^1.2.1
+        version: 1.3.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
