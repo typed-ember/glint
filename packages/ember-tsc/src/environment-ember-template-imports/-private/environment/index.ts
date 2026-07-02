@@ -113,8 +113,22 @@ export default function emberTemplateImportsEnvironment(
           // discriminated unions — e.g. `{{#if (eq foo.kind "a")}}` narrows
           // `foo` to the matching variant inside the block, which a
           // boolean-returning helper type cannot do.
+          //
+          // The RFC 999 `hash` keyword emits as an object literal, matching the
+          // `@ember/helper` import below. Emitting it as a helper call instead
+          // loses the literal's "freshness": TypeScript's overload resolution
+          // rejects a non-fresh argument that omits an optional property during
+          // its subtype pass, so `{{x "A" (hash a=1)}}` would pick a catch-all
+          // overload that the equivalent inline literal `x('A', { a: 1 })`
+          // does not (#1180). `array` intentionally stays a helper call: its
+          // `const` signature preserves literal element types at non-contextual
+          // positions (see `array-keyword-preserve-literals.test.gts`).
           ...(hasEmber71BuiltIns()
-            ? ({ eq: '===', neq: '!==' } satisfies GlintSpecialFormConfig['globals'])
+            ? ({
+                eq: '===',
+                neq: '!==',
+                hash: 'object-literal',
+              } satisfies GlintSpecialFormConfig['globals'])
             : {}),
           ...additionalGlobalSpecialForms,
         },

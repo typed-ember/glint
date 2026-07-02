@@ -319,6 +319,14 @@ export function templateToTypescript(
       );
     }
 
+    // `object-literal`/`array-literal`: these emit a native literal (never a
+    // keyword call), so TypeScript treats the result as a fresh literal —
+    // contextual typing, excess property checking, and overload resolution all
+    // behave exactly as they would for a hand-written literal. (#1180)
+    function isLiteralForm(formInfo: Pick<SpecialFormInfo, 'form'>): boolean {
+      return formInfo.form === 'object-literal' || formInfo.form === 'array-literal';
+    }
+
     // Emit a single operand as `(__glintDSL__.noop(keyword), <operand>)` when the
     // form requires consumption, so the discarded keyword reference (which
     // preserves hover/go-to-definition on e.g. `eq`/`neq`) rides along with the
@@ -600,14 +608,20 @@ export function templateToTypescript(
           let isGlobal = globals ? globals.includes(name) : true;
           let form = specialForms[name];
 
-          // Operator special forms (`===`, `!==`, `&&`, `||`, `!`) emit only the
-          // operator expression — never a reference to the keyword itself. For a
-          // documented global keyword (e.g. `eq`/`neq`) that would drop hover
-          // docs and go-to-definition, so we still emit a discarded reference to
-          // it. Narrowing is preserved by attaching that reference to the first
-          // operand rather than wrapping the whole expression — see
-          // `emitConsumedOperand` (`((noop(eq), a) === b)`). (#1169)
-          return { name, form, requiresConsumption: !isGlobal || isOperatorForm({ form }) };
+          // Operator special forms (`===`, `!==`, `&&`, `||`, `!`) and literal
+          // forms (`object-literal`, `array-literal`) emit only the resulting
+          // expression — never a reference to the keyword itself. For a
+          // documented global keyword (e.g. `eq`/`neq`, `hash`) that would drop
+          // hover docs and go-to-definition, so we still emit a discarded
+          // reference to it. For operator forms, narrowing is preserved by
+          // attaching that reference to the first operand rather than wrapping
+          // the whole expression — see `emitConsumedOperand`
+          // (`((noop(eq), a) === b)`). (#1169)
+          return {
+            name,
+            form,
+            requiresConsumption: !isGlobal || isOperatorForm({ form }) || isLiteralForm({ form }),
+          };
         }
       }
 

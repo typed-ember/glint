@@ -99,15 +99,18 @@ describe('Transform: rewriteTemplate', () => {
         `);
       });
 
-      test('implicit globals are ignored in expression position', () => {
+      // Global literal forms still emit a discarded reference to the keyword,
+      // preserving hover docs and go-to-definition (as `eq`/`neq` do — #1169)
+      // while the literal itself stays fresh for TypeScript. (#1180)
+      test('implicit globals emit a discarded reference in expression position', () => {
         let body = templateBody(`{{obj x=123}}`, {
           specialForms: { obj: 'object-literal' },
         });
 
         expect(body).toMatchInlineSnapshot(`
-          "({
+          "(__glintDSL__.noop(__glintDSL__.Globals.obj), ({
           x: 123,
-          });"
+          }));"
         `);
       });
 
@@ -123,16 +126,16 @@ describe('Transform: rewriteTemplate', () => {
         `);
       });
 
-      test('explicit globals are ignored in expression position', () => {
+      test('explicit globals emit a discarded reference in expression position', () => {
         let body = templateBody(`{{obj x=123}}`, {
           specialForms: { obj: 'object-literal' },
           globals: ['obj'],
         });
 
         expect(body).toMatchInlineSnapshot(`
-          "({
+          "(__glintDSL__.noop(__glintDSL__.Globals.obj), ({
           x: 123,
-          });"
+          }));"
         `);
       });
 
@@ -463,6 +466,27 @@ describe('Transform: rewriteTemplate', () => {
 
         expect(templateBody(template, { globals: [], specialForms })).toMatchInlineSnapshot(`
           "__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(testHash), ({
+          a: 1,
+          b: "ok",
+          }))));"
+        `);
+      });
+
+      // The 7.1 built-in `hash` keyword is a global object-literal special
+      // form. It still emits a discarded reference to the keyword (preserving
+      // hover docs and go-to-definition on `Globals`), followed by a fresh
+      // object literal. (#1180)
+      test('as a global keyword', () => {
+        let template = stripIndent`
+          {{log (testHash a=1 b="ok")}}
+        `;
+
+        let specialForms = { testHash: 'object-literal' } as const;
+
+        expect(
+          templateBody(template, { globals: ['testHash'], specialForms }),
+        ).toMatchInlineSnapshot(`
+          "__glintDSL__.emitContent(__glintDSL__.resolve(log)((__glintDSL__.noop(__glintDSL__.Globals.testHash), ({
           a: 1,
           b: "ok",
           }))));"
