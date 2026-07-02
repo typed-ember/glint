@@ -31,7 +31,7 @@ describe('Transform: rewriteTemplate', () => {
     test('without any specified type parameters or context type', () => {
       expect(templateToTypescript('', { typesModule: '@glint/template' }).result?.code)
         .toMatchInlineSnapshot(`
-          "({} as typeof import("@glint/template")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/template")) {
+          "({} as typeof import("@glint/template")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/template")) => {
           __glintRef__; __glintDSL__;
           })"
         `);
@@ -53,7 +53,7 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateToTypescript('', { preamble, typesModule: '@glint/template' }).result?.code)
         .toMatchInlineSnapshot(`
-          "({} as typeof import("@glint/template")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/template")) {
+          "({} as typeof import("@glint/template")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/template")) => {
           console.log("hello!");
           throw new Error();
           __glintRef__; __glintDSL__;
@@ -350,7 +350,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testYield: 'yield' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"__glintDSL__.yieldToBlock(__glintRef__, "default")(123, __glintRef__.this.message);"`,
+          `"__glintDSL__.yieldToBlock(__glintRef__, "default")(123, this.message);"`,
         );
       });
 
@@ -710,7 +710,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this)());"',
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(this)());"`,
           );
         });
 
@@ -718,7 +718,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this.foo.bar}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            '"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.foo?.bar)());"',
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(this.foo?.bar)());"`,
           );
         });
 
@@ -726,7 +726,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this.foo-bar}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this["foo-bar"])());"`,
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(this["foo-bar"])());"`,
           );
         });
 
@@ -1206,7 +1206,7 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintRef__.this.foo)({ 
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(this.foo)({ 
         arg: "hello", ...__glintDSL__.NamedArgsMarker }));
         }"
       `);

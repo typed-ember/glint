@@ -32,6 +32,44 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
+    // A `<template>` in a class field initializer is an expression template
+    // (the authoring format compiles it to a template-only component), so it
+    // must emit `templateExpression` — NOT `templateForBackingValue(this)`,
+    // which breaks context inference in field position and silently types the
+    // template's `{{this}}` as `any`. (#1182)
+    test('with a class field template', () => {
+      let script = {
+        filename: 'test.gts',
+        contents: stripIndent`
+          import Component from '@glimmer/component';
+          export default class MyComponent extends Component {
+            private readonly X = <template>hi</template>;
+
+            <template><this.X /></template>
+          }
+        `,
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, env);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import Component from '@glimmer/component';
+        export default class MyComponent extends Component {
+          private readonly X = ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {
+        __glintRef__; __glintDSL__;
+        });
+
+          static { ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
+        {
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintRef__.this.X)());
+        }
+        __glintRef__; __glintDSL__;
+        }) }
+        }"
+      `);
+    });
+
     test('handles the $ character', () => {
       let script = {
         filename: 'test.gts',
@@ -42,7 +80,7 @@ describe('Transform: rewriteModule', () => {
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
+        "export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(dollarAmount)());
         __glintRef__; __glintDSL__;
         });"
@@ -59,7 +97,7 @@ describe('Transform: rewriteModule', () => {
 
       expect(transformedModule?.errors).toEqual([]);
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-        "export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
+        "export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {
         __glintRef__; __glintDSL__;
         });"
       `);
@@ -231,7 +269,7 @@ describe('Transform: rewriteModule', () => {
 
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from 'special/component';
-        export default class MyComponent extends Component(({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
+        export default class MyComponent extends Component(({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {
         __glintRef__; __glintDSL__;
         })) {
 
@@ -328,7 +366,7 @@ describe('Transform: rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(0:44):    <template>\\n  Hello, {{@target}}!\\n</template>
-        |  ts(0:290):    export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)());\\n__glintRef__; __glintDSL__;\\n})
+        |  ts(0:285):    export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)());\\n__glintRef__; __glintDSL__;\\n})
         |
         | | Mapping: Template
         | |  hbs(10:33):   Hello, {{@target}}!
@@ -336,31 +374,31 @@ describe('Transform: rewriteModule', () => {
         | |
         | | Mapping: Template
         | |  hbs(10:33):   Hello, {{@target}}!
-        | |  ts(176:260):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)());
+        | |  ts(171:255):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)());
         | |
         | | | Mapping: TextContent
         | | |  hbs(13:19):   Hello,
-        | | |  ts(176:176):
+        | | |  ts(171:171):
         | | |
         | | | Mapping: MustacheStatement
         | | |  hbs(20:31):   {{@target}}
-        | | |  ts(176:258):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)())
+        | | |  ts(171:253):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.target)())
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(20:31):   {{@target}}
-        | | | |  ts(201:257):  __glintDSL__.resolveOrReturn(__glintRef__.args.target)()
+        | | | |  ts(196:252):  __glintDSL__.resolveOrReturn(__glintRef__.args.target)()
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(22:29):   @target
-        | | | | |  ts(201:255):  __glintDSL__.resolveOrReturn(__glintRef__.args.target)
+        | | | | |  ts(196:250):  __glintDSL__.resolveOrReturn(__glintRef__.args.target)
         | | | | |
         | | | | | | Mapping: PathExpression
         | | | | | |  hbs(22:29):   @target
-        | | | | | |  ts(230:254):  __glintRef__.args.target
+        | | | | | |  ts(225:249):  __glintRef__.args.target
         | | | | | |
         | | | | | | | Mapping: Identifier
         | | | | | | |  hbs(23:29):   target
-        | | | | | | |  ts(248:254):  target
+        | | | | | | |  ts(243:249):  target
         | | | | | | |
         | | | | | |
         | | | | |
@@ -368,7 +406,7 @@ describe('Transform: rewriteModule', () => {
         | | |
         | | | Mapping: TextContent
         | | |  hbs(31:32):   !
-        | | |  ts(260:260):
+        | | |  ts(255:255):
         | | |
         | |
         |"
@@ -395,7 +433,7 @@ describe('Transform: rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(56:89):   <template>{{@message}}</template>
-        |  ts(56:332):   ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)());\\n__glintRef__; __glintDSL__;\\n})
+        |  ts(56:327):   ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)());\\n__glintRef__; __glintDSL__;\\n})
         |
         | | Mapping: Template
         | |  hbs(66:78):   {{@message}}
@@ -403,27 +441,27 @@ describe('Transform: rewriteModule', () => {
         | |
         | | Mapping: Template
         | |  hbs(66:78):   {{@message}}
-        | |  ts(217:302):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)());
+        | |  ts(212:297):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)());
         | |
         | | | Mapping: MustacheStatement
         | | |  hbs(66:78):   {{@message}}
-        | | |  ts(217:300):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)())
+        | | |  ts(212:295):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.message)())
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(66:78):   {{@message}}
-        | | | |  ts(242:299):  __glintDSL__.resolveOrReturn(__glintRef__.args.message)()
+        | | | |  ts(237:294):  __glintDSL__.resolveOrReturn(__glintRef__.args.message)()
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(68:76):   @message
-        | | | | |  ts(242:297):  __glintDSL__.resolveOrReturn(__glintRef__.args.message)
+        | | | | |  ts(237:292):  __glintDSL__.resolveOrReturn(__glintRef__.args.message)
         | | | | |
         | | | | | | Mapping: PathExpression
         | | | | | |  hbs(68:76):   @message
-        | | | | | |  ts(271:296):  __glintRef__.args.message
+        | | | | | |  ts(266:291):  __glintRef__.args.message
         | | | | | |
         | | | | | | | Mapping: Identifier
         | | | | | | |  hbs(69:76):   message
-        | | | | | | |  ts(289:296):  message
+        | | | | | | |  ts(284:291):  message
         | | | | | | |
         | | | | | |
         | | | | |
@@ -434,39 +472,39 @@ describe('Transform: rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(139:174): <template>{{this.title}}</template>
-        |  ts(382:678):  static { ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.title)());\\n__glintRef__; __glintDSL__;\\n}) }
+        |  ts(377:673):  static { ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.title)());\\n__glintRef__; __glintDSL__;\\n}) }
         |
         | | Mapping: Template
         | |  hbs(149:163): {{this.title}}
-        | |  ts(412:443):  "@glint/ember-tsc/-private/dsl"
+        | |  ts(407:438):  "@glint/ember-tsc/-private/dsl"
         | |
         | | Mapping: Template
         | |  hbs(149:163): {{this.title}}
-        | |  ts(563:646):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.title)());
+        | |  ts(558:641):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.title)());
         | |
         | | | Mapping: MustacheStatement
         | | |  hbs(149:163): {{this.title}}
-        | | |  ts(563:644):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.title)())
+        | | |  ts(558:639):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.title)())
         | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(149:163): {{this.title}}
-        | | | |  ts(588:643):  __glintDSL__.resolveOrReturn(__glintRef__.this.title)()
+        | | | |  ts(583:638):  __glintDSL__.resolveOrReturn(__glintRef__.this.title)()
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(151:161): this.title
-        | | | | |  ts(588:641):  __glintDSL__.resolveOrReturn(__glintRef__.this.title)
+        | | | | |  ts(583:636):  __glintDSL__.resolveOrReturn(__glintRef__.this.title)
         | | | | |
         | | | | | | Mapping: PathExpression
         | | | | | |  hbs(151:161): this.title
-        | | | | | |  ts(617:640):  __glintRef__.this.title
+        | | | | | |  ts(612:635):  __glintRef__.this.title
         | | | | | |
         | | | | | | | Mapping: Identifier
         | | | | | | |  hbs(151:155): this
-        | | | | | | |  ts(630:634):  this
+        | | | | | | |  ts(625:629):  this
         | | | | | | |
         | | | | | | | Mapping: Identifier
         | | | | | | |  hbs(156:161): title
-        | | | | | | |  ts(635:640):  title
+        | | | | | | |  ts(630:635):  title
         | | | | | | |
         | | | | | |
         | | | | |
@@ -499,7 +537,7 @@ describe('Transform: rewriteModule', () => {
 
         | Mapping: TemplateEmbedding
         |  hbs(58:210):  <template>\\n  {{! Intentionally shadowing }}\\n  {{#let (arr 1 2) (h red="blue") as |arr h|}}\\n    Array is {{arr}}\\n    Hash is {{h}}\\n  {{/let}}\\n</template>
-        |  ts(58:647):   export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {\\n{\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n}))));\\n{\\nconst [arr, h] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(arr)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(h)());\\n}\\n__glintDSL__.Globals.let;\\n}\\n__glintRef__; __glintDSL__;\\n})
+        |  ts(58:642):   export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {\\n{\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n}))));\\n{\\nconst [arr, h] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(arr)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(h)());\\n}\\n__glintDSL__.Globals.let;\\n}\\n__glintRef__; __glintDSL__;\\n})
         |
         | | Mapping: Template
         | |  hbs(68:199):  {{! Intentionally shadowing }}\\n  {{#let (arr 1 2) (h red="blue") as |arr h|}}\\n    Array is {{arr}}\\n    Hash is {{h}}\\n  {{/let}}
@@ -507,109 +545,109 @@ describe('Transform: rewriteModule', () => {
         | |
         | | Mapping: Template
         | |  hbs(68:199):  {{! Intentionally shadowing }}\\n  {{#let (arr 1 2) (h red="blue") as |arr h|}}\\n    Array is {{arr}}\\n    Hash is {{h}}\\n  {{/let}}
-        | |  ts(234:617):  {\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n}))));\\n{\\nconst [arr, h] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(arr)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(h)());\\n}\\n__glintDSL__.Globals.let;\\n}
+        | |  ts(229:612):  {\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n}))));\\n{\\nconst [arr, h] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(arr)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(h)());\\n}\\n__glintDSL__.Globals.let;\\n}
         | |
         | | | Mapping: TextContent
         | | |  hbs(68:69):
-        | | |  ts(234:234):
+        | | |  ts(229:229):
         | | |
         | | | Mapping: MustacheCommentStatement
         | | |  hbs(71:101):  {{! Intentionally shadowing }}
-        | | |  ts(234:234):
+        | | |  ts(229:229):
         | | |
         | | | Mapping: BlockStatement
         | | |  hbs(104:198): {{#let (arr 1 2) (h red="blue") as |arr h|}}\\n    Array is {{arr}}\\n    Hash is {{h}}\\n  {{/let}}
-        | | |  ts(234:616):  {\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n}))));\\n{\\nconst [arr, h] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(arr)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(h)());\\n}\\n__glintDSL__.Globals.let;\\n}
+        | | |  ts(229:611):  {\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n}))));\\n{\\nconst [arr, h] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(arr)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(h)());\\n}\\n__glintDSL__.Globals.let;\\n}
         | | |
         | | | | Mapping: BlockStatement
         | | | |  hbs(104:198): {{#let (arr 1 2) (h red="blue") as |arr h|}}\\n    Array is {{arr}}\\n    Hash is {{h}}\\n  {{/let}}
-        | | | |  ts(282:406):  __glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n})))
+        | | | |  ts(277:401):  __glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.noop(arr), [1, 2]), (__glintDSL__.noop(h), ({\\nred: "blue",\\n})))
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(107:110): let
-        | | | | |  ts(303:327):  __glintDSL__.Globals.let
+        | | | | |  ts(298:322):  __glintDSL__.Globals.let
         | | | | |
         | | | | | | Mapping: Identifier
         | | | | | |  hbs(107:110): let
-        | | | | | |  ts(324:327):  let
+        | | | | | |  ts(319:322):  let
         | | | | | |
         | | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(112:115): arr
-        | | | | |  ts(348:351):  arr
+        | | | | |  ts(343:346):  arr
         | | | | |
         | | | | | | Mapping: Identifier
         | | | | | |  hbs(112:115): arr
-        | | | | | |  ts(348:351):  arr
+        | | | | | |  ts(343:346):  arr
         | | | | | |
         | | | | |
         | | | | | Mapping: SubExpression
         | | | | |  hbs(111:120): (arr 1 2)
-        | | | | |  ts(354:360):  [1, 2]
+        | | | | |  ts(349:355):  [1, 2]
         | | | | |
         | | | | | | Mapping: NumberLiteral
         | | | | | |  hbs(116:117): 1
-        | | | | | |  ts(355:356):  1
+        | | | | | |  ts(350:351):  1
         | | | | | |
         | | | | | | Mapping: NumberLiteral
         | | | | | |  hbs(118:119): 2
-        | | | | | |  ts(358:359):  2
+        | | | | | |  ts(353:354):  2
         | | | | | |
         | | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(122:123): h
-        | | | | |  ts(382:383):  h
+        | | | | |  ts(377:378):  h
         | | | | |
         | | | | | | Mapping: Identifier
         | | | | | |  hbs(122:123): h
-        | | | | | |  ts(382:383):  h
+        | | | | | |  ts(377:378):  h
         | | | | | |
         | | | | |
         | | | | | Mapping: SubExpression
         | | | | |  hbs(121:135): (h red="blue")
-        | | | | |  ts(386:404):  ({\\nred: "blue",\\n})
+        | | | | |  ts(381:399):  ({\\nred: "blue",\\n})
         | | | | |
         | | | | | | Mapping: Identifier
         | | | | | |  hbs(124:127): red
-        | | | | | |  ts(389:392):  red
+        | | | | | |  ts(384:387):  red
         | | | | | |
         | | | | | | Mapping: StringLiteral
         | | | | | |  hbs(128:134): "blue"
-        | | | | | |  ts(394:400):  "blue"
+        | | | | | |  ts(389:395):  "blue"
         | | | | | |
         | | | | |
         | | | |
         | | | | Mapping: Identifier
         | | | |  hbs(140:143): arr
-        | | | |  ts(418:421):  arr
+        | | | |  ts(413:416):  arr
         | | | |
         | | | | Mapping: Identifier
         | | | |  hbs(144:145): h
-        | | | |  ts(423:424):  h
+        | | | |  ts(418:419):  h
         | | | |
         | | | | Mapping: TextContent
         | | | |  hbs(153:161): Array is
-        | | | |  ts(463:463):
+        | | | |  ts(458:458):
         | | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(162:169): {{arr}}
-        | | | |  ts(463:524):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(arr)())
+        | | | |  ts(458:519):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(arr)())
         | | | |
         | | | | | Mapping: MustacheStatement
         | | | | |  hbs(162:169): {{arr}}
-        | | | | |  ts(488:523):  __glintDSL__.resolveOrReturn(arr)()
+        | | | | |  ts(483:518):  __glintDSL__.resolveOrReturn(arr)()
         | | | | |
         | | | | | | Mapping: PathExpression
         | | | | | |  hbs(164:167): arr
-        | | | | | |  ts(488:521):  __glintDSL__.resolveOrReturn(arr)
+        | | | | | |  ts(483:516):  __glintDSL__.resolveOrReturn(arr)
         | | | | | |
         | | | | | | | Mapping: PathExpression
         | | | | | | |  hbs(164:167): arr
-        | | | | | | |  ts(517:520):  arr
+        | | | | | | |  ts(512:515):  arr
         | | | | | | |
         | | | | | | | | Mapping: Identifier
         | | | | | | | |  hbs(164:167): arr
-        | | | | | | | |  ts(517:520):  arr
+        | | | | | | | |  ts(512:515):  arr
         | | | | | | | |
         | | | | | | |
         | | | | | |
@@ -617,27 +655,27 @@ describe('Transform: rewriteModule', () => {
         | | | |
         | | | | Mapping: TextContent
         | | | |  hbs(174:181): Hash is
-        | | | |  ts(526:526):
+        | | | |  ts(521:521):
         | | | |
         | | | | Mapping: MustacheStatement
         | | | |  hbs(182:187): {{h}}
-        | | | |  ts(526:585):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(h)())
+        | | | |  ts(521:580):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(h)())
         | | | |
         | | | | | Mapping: MustacheStatement
         | | | | |  hbs(182:187): {{h}}
-        | | | | |  ts(551:584):  __glintDSL__.resolveOrReturn(h)()
+        | | | | |  ts(546:579):  __glintDSL__.resolveOrReturn(h)()
         | | | | |
         | | | | | | Mapping: PathExpression
         | | | | | |  hbs(184:185): h
-        | | | | | |  ts(551:582):  __glintDSL__.resolveOrReturn(h)
+        | | | | | |  ts(546:577):  __glintDSL__.resolveOrReturn(h)
         | | | | | |
         | | | | | | | Mapping: PathExpression
         | | | | | | |  hbs(184:185): h
-        | | | | | | |  ts(580:581):  h
+        | | | | | | |  ts(575:576):  h
         | | | | | | |
         | | | | | | | | Mapping: Identifier
         | | | | | | | |  hbs(184:185): h
-        | | | | | | | |  ts(580:581):  h
+        | | | | | | | |  ts(575:576):  h
         | | | | | | | |
         | | | | | | |
         | | | | | |
@@ -645,11 +683,11 @@ describe('Transform: rewriteModule', () => {
         | | | |
         | | | | Mapping: TextContent
         | | | |  hbs(187:188):
-        | | | |  ts(587:587):
+        | | | |  ts(582:582):
         | | | |
         | | | | Mapping: Identifier
         | | | |  hbs(193:196): let
-        | | | |  ts(610:613):  let
+        | | | |  ts(605:608):  let
         | | | |
         | | |
         | |
@@ -675,7 +713,7 @@ describe('Transform: rewriteModule', () => {
         expect(transformedModule?.errors).toEqual([]);
         expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
           "import type { TOC } from '@ember/component/template-only';
-          export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
+          export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {
           __glintRef__; __glintDSL__;
           }) satisfies TOC<{
             Blocks: { default: [] }
@@ -710,12 +748,12 @@ describe('Transform: rewriteModule', () => {
           "import type { TOC } from '@ember/component/template-only';
 
           const SmolComp = 
-            ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
+            ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {
           __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.name)());
           __glintRef__; __glintDSL__;
           }) satisfies TOC<{ Args: { name: string }}>;
 
-          export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
+          export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {
           {
           const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(SmolComp)({ 
           name: "Ember", ...__glintDSL__.NamedArgsMarker }));
@@ -777,7 +815,7 @@ describe('Transform: rewriteModule', () => {
           expect.soft(transformedModule?.errors?.length).toBe(0);
           expect.soft(transformedModule?.errors).toMatchInlineSnapshot(`[]`);
           expect.soft(transformedModule?.transformedContents).toMatchInlineSnapshot(`
-            "export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression(function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
+            "export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {
             __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(foo)());
             __glintRef__; __glintDSL__;
             })"
