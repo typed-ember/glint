@@ -150,14 +150,22 @@ export function templateToTypescript(
       if (backingValue) {
         mapper.text(`.templateForBackingValue(${backingValue}, function(__glintRef__`);
       } else {
-        mapper.text(`.templateExpression(function(__glintRef__`);
+        // An expression template (RFC 931 implicit form) captures the lexical
+        // `this` of the position it appears in, the way an arrow function
+        // does — a class field initializer sees the enclosing instance, module
+        // scope sees `undefined`. Emitting an arrow (and raw `this` for
+        // `{{this.*}}` paths — see `emitPathContents`) lets TypeScript apply
+        // exactly those semantics. (#1182)
+        mapper.text(`.templateExpression((__glintRef__`);
       }
 
       if (useJsDoc) {
-        mapper.text(`, /** @type {typeof import("${typesModule}")} */ __glintDSL__) {`);
+        mapper.text(`, /** @type {typeof import("${typesModule}")} */ __glintDSL__)`);
       } else {
-        mapper.text(`, __glintDSL__: typeof import("${typesModule}")) {`);
+        mapper.text(`, __glintDSL__: typeof import("${typesModule}"))`);
       }
+
+      mapper.text(backingValue ? ' {' : ' => {');
 
       mapper.newline();
       mapper.indent();
@@ -1495,7 +1503,13 @@ export function templateToTypescript(
     function emitPathContents(parts: string[], start: number, kind: PathKind): void {
       if (kind === 'this') {
         let thisStart = template.indexOf('this', start);
-        mapper.text('__glintRef__.');
+        // A class-member template's `this` is the backing class instance,
+        // reached through the template context. An expression template's
+        // `this` is the *lexical* `this` of the template's position (its body
+        // is emitted as an arrow function), so we reference it directly.
+        if (backingValue) {
+          mapper.text('__glintRef__.');
+        }
         mapper.identifier('this', thisStart);
         start = template.indexOf('.', thisStart) + 1;
       } else if (kind === 'arg') {
