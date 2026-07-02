@@ -1,5 +1,18 @@
 # Changelog
 
+## Release (2026-07-02)
+
+* @glint/ember-tsc 1.8.7 (patch)
+* @glint/tsserver-plugin 2.5.13 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1185](https://github.com/typed-ember/glint/pull/1185) fix types for non-default in-class templates were missing ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+  * [#1183](https://github.com/typed-ember/glint/pull/1183) Closes [#1180](https://github.com/typed-ember/glint/issues/1180), improve types for hash ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-06-30)
 
 * @glint/ember-tsc 1.8.6 (patch)

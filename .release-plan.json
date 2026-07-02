@@ -2,17 +2,13 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.8.5",
-      "newVersion": "1.8.6",
+      "oldVersion": "1.8.6",
+      "newVersion": "1.8.7",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :present: Additional updates"
         }
       ],
       "pkgJSONPath": "./packages/ember-tsc/package.json"
@@ -22,8 +18,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.5.11",
-      "newVersion": "2.5.12",
+      "oldVersion": "2.5.12",
+      "newVersion": "2.5.13",
       "tagName": "latest",
       "constraints": [
         {
@@ -37,5 +33,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-06-30)\n\n* @glint/ember-tsc 1.8.6 (patch)\n* @glint/tsserver-plugin 2.5.12 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1174](https://github.com/typed-ember/glint/pull/1174) Handle `''` specially in the `element` helper ([@boris-petrov](https://github.com/boris-petrov))\n  * [#1157](https://github.com/typed-ember/glint/pull/1157)  Fix `tsc -b` / `ember-tsc --build` crash on `.gts` declaration emit (\"Extension .gts is unsupported\") ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#1179](https://github.com/typed-ember/glint/pull/1179) Fix control-flow narrowing through operator special forms (#1169) ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* [#1177](https://github.com/typed-ember/glint/pull/1177) Add eq narrowing coverage for standalone literal unions ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :present: Additional updates\n* `@glint/ember-tsc`\n  * [Glint 2] `and` doesn't type-narrow correctly ([@boris-petrov](https://github.com/boris-petrov))\n\n#### Committers: 2\n- Boris Petrov ([@boris-petrov](https://github.com/boris-petrov))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-07-02)\n\n* @glint/ember-tsc 1.8.7 (patch)\n* @glint/tsserver-plugin 2.5.13 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1185](https://github.com/typed-ember/glint/pull/1185) fix types for non-default in-class templates were missing ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#1183](https://github.com/typed-ember/glint/pull/1183) Closes [#1180](https://github.com/typed-ember/glint/issues/1180), improve types for hash ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
