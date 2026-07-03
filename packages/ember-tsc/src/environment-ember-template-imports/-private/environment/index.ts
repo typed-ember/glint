@@ -123,11 +123,26 @@ export default function emberTemplateImportsEnvironment(
           // does not (#1180). `array` intentionally stays a helper call: its
           // `const` signature preserves literal element types at non-contextual
           // positions (see `array-keyword-preserve-literals.test.gts`).
+          //
+          // The RFC 470 `fn` keyword needs a special form for a subtler
+          // reason: its `FnHelper` type is overloaded (one overload per
+          // bound-argument arity), and TypeScript's nested-call re-inference
+          // only handles single-signature callees, so an inline `(fn ...)`
+          // inside another invocation's arguments (most visibly
+          // `{{component Foo onChange=(fn ...)}}`) collapsed the outer call's
+          // entire inference (#1147). The `bind-positional` form emits a
+          // comma pair — the real `fn` call for validation, single-signature
+          // `bindPositional` for the resulting type. See `bindPositional` in
+          // `types/-private/dsl/index.d.ts`. (The `@ember/helper` import
+          // below gets the same treatment unconditionally; this entry is
+          // gated with the other built-in globals so a pre-7.1 project's own
+          // `fn` import from elsewhere isn't hijacked.)
           ...(hasEmber71BuiltIns()
             ? ({
                 eq: '===',
                 neq: '!==',
                 hash: 'object-literal',
+                fn: 'bind-positional',
               } satisfies GlintSpecialFormConfig['globals'])
             : {}),
           ...additionalGlobalSpecialForms,
@@ -136,6 +151,7 @@ export default function emberTemplateImportsEnvironment(
           '@ember/helper': {
             array: 'array-literal',
             hash: 'object-literal',
+            fn: 'bind-positional',
             ...additionalSpecialForms.imports?.['@ember/helper'],
           },
           ...additionalSpecialForms.imports,

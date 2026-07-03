@@ -46,6 +46,7 @@ export type GlintSpecialForm =
   | 'object-literal'
   | 'array-literal'
   | 'bind-invokable'
+  | 'bind-positional'
   | '==='
   | '!=='
   | '&&'
