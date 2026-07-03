@@ -1060,4 +1060,90 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
 
     expect(diagnostics).toMatchInlineSnapshot(`[]`);
   });
+
+  test('using a named block not declared in the signature should be an error (#1132)', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface ProviderSignature {
+        Blocks: {
+          pending: [];
+          success: [value: string];
+        };
+      }
+
+      class Provider extends Component<ProviderSignature> {
+        <template>{{yield to="pending"}}</template>
+      }
+
+      export default class Consumer extends Component {
+        <template>
+          <Provider>
+            <:loading>...</:loading>
+            <:success as |value|>{{value}}</:success>
+          </Provider>
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 7053,
+          "end": {
+            "line": 17,
+            "offset": 16,
+          },
+          "start": {
+            "line": 17,
+            "offset": 9,
+          },
+          "text": "Element implicitly has an 'any' type because expression of type '"loading"' can't be used to index type 'Required<FlattenBlockParams<{ pending: { Params: { Positional: []; }; }; success: { Params: { Positional: [value: string]; }; }; }>>'.
+        Property 'loading' does not exist on type 'Required<FlattenBlockParams<{ pending: { Params: { Positional: []; }; }; success: { Params: { Positional: [value: string]; }; }; }>>'.",
+        },
+      ]
+    `);
+  });
+
+  test('using a named block not declared in the signature -- suppressed with @glint-expect-error', async () => {
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      interface ProviderSignature {
+        Blocks: {
+          pending: [];
+          success: [value: string];
+        };
+      }
+
+      class Provider extends Component<ProviderSignature> {
+        <template>{{yield to="pending"}}</template>
+      }
+
+      export default class Consumer extends Component {
+        <template>
+          <Provider>
+            {{! @glint-expect-error: no such block }}
+            <:loading>...</:loading>
+            <:success as |value|>{{value}}</:success>
+          </Provider>
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`[]`);
+  });
 });

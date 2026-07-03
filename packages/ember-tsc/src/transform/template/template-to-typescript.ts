@@ -2,7 +2,12 @@ import { AST } from '@glimmer/syntax';
 import { GlintEmitMetadata, GlintSpecialForm } from '@glint/ember-tsc/config-types';
 import { assert, unreachable } from '../util.js';
 import { TextContent } from './glimmer-ast-mapping-tree.js';
-import { EmbeddingSyntax, mapTemplateContents, RewriteResult } from './map-template-contents.js';
+import {
+  EmbeddingSyntax,
+  Identifier,
+  mapTemplateContents,
+  RewriteResult,
+} from './map-template-contents.js';
 import ScopeStack from './scope-stack.js';
 
 const SPLATTRIBUTES = '...attributes';
@@ -964,11 +969,13 @@ export function templateToTypescript(
         return {
           type: 'named',
           children: node.children.filter(
-            // Filter out ignorable content between named blocks
-            (child): child is NamedBlockChild => child.type === 'ElementNode',
-            //  ||
-            //   child.type === 'CommentStatement' ||
-            //   child.type === 'MustacheCommentStatement',
+            // Filter out ignorable content between named blocks, but keep
+            // comments: they may carry `@glint-expect-error`/`@glint-ignore`
+            // directives that apply to the named block that follows them.
+            (child): child is NamedBlockChild =>
+              child.type === 'ElementNode' ||
+              child.type === 'CommentStatement' ||
+              child.type === 'MustacheCommentStatement',
           ),
         };
       } else {
@@ -1413,8 +1420,31 @@ export function templateToTypescript(
         mapper.identifier(makeJSSafe(param), start, param.length);
       }
 
-      mapper.text('] = __glintY__.blockParams');
-      emitPropertyAccesss(name, { offset: nameOffset, synthetic: true });
+      mapper.text('] = ');
+
+      // When a block name isn't declared in the component's signature, TS
+      // anchors its "Property 'foo' does not exist" diagnostic on the whole
+      // `__glintY__.blockParams["foo"]` element access, whose start is
+      // synthetic text with no covering mapping — so Volar would silently
+      // drop it (#1132). Wrapping the access in a `wideVerification` mapping
+      // (see #1168) anchored to the block name lets the diagnostic map back.
+      const emitBlockParamsAccess = (): void => {
+        mapper.text('__glintY__.blockParams');
+        emitPropertyAccesss(name, { offset: nameOffset, synthetic: true });
+      };
+
+      if (nameOffset !== undefined) {
+        mapper.forRange(
+          { start: nameOffset, end: nameOffset + name.length },
+          new Identifier(name),
+          emitBlockParamsAccess,
+          undefined,
+          true,
+        );
+      } else {
+        emitBlockParamsAccess();
+      }
+
       mapper.text(';');
       mapper.newline();
 
