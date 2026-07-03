@@ -9,7 +9,7 @@ import { GlintEnvironment } from '../../../config/index.js';
 import { assert, TSLib } from '../../util.js';
 import { templateToTypescript } from '../template-to-typescript.js';
 import { Directive, Range, SourceFile, TransformError } from '../transformed-module.js';
-import { CorrelatedSpansResult, isEmbeddedInClass, PartialCorrelatedSpan } from './index.js';
+import { CorrelatedSpansResult, templateThisBinding, PartialCorrelatedSpan } from './index.js';
 
 export function calculateTaggedTemplateSpans(
   ts: TSLib,
@@ -92,6 +92,8 @@ export function calculateTaggedTemplateSpans(
       (name) => name in keywordSpecialForms || !(name in importedBindings),
     );
 
+    let thisBinding = templateThisBinding(ts, node);
+
     let transformedTemplate = templateToTypescript(template, {
       typesModule: typesModule,
       meta,
@@ -99,7 +101,8 @@ export function calculateTaggedTemplateSpans(
       globals: effectiveGlobals,
       embeddingSyntax,
       specialForms,
-      backingValue: isEmbeddedInClass(ts, node) ? 'this' : undefined,
+      backingValue: thisBinding === 'backing-class' ? 'this' : undefined,
+      lexicalThis: thisBinding === 'lexical',
       useJsDoc: environment.isUntypedScript(script.filename),
     });
 

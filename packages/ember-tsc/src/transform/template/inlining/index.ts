@@ -11,32 +11,50 @@ export type CorrelatedSpansResult = {
 };
 
 /**
- * Given an AST node for an embedded template, determines whether it's embedded
- * within a class in such a way that that class should be treated as its backing
- * value.
+ * How the `{{this}}` of an embedded template should be bound, based on where
+ * the template sits in the surrounding module:
  *
- * Only a class-member `<template>` (the class's own template) is backed by the
- * class; the environment transform rewrites that form into a static block, so
- * we look for one on the way up. A template anywhere else inside a class —
- * a field initializer, a method body, a heritage clause — is an expression
- * template (RFC 931 implicit form): a template-only component whose `this` is
- * the *lexical* `this` of its position, captured like an arrow function's.
- * Treating those as class-backed emitted `templateForBackingValue(this, ...)`
- * into positions where `this` is not the class constructor, which broke
- * `Context` inference and silently typed the template's `{{this}}` as `any`
- * (#1182). Expression templates instead emit an arrow whose body references
- * `this` directly — see `templateExpression` in `template-to-typescript.ts`.
+ * - `'backing-class'`: a class-member `<template>` (the class's own template).
+ *   The environment transform rewrites that form into a static block, so we
+ *   look for one on the way up. Emitted as `templateForBackingValue(this, ...)`;
+ *   `{{this}}` is the class instance, reached through the template context.
+ *
+ * - `'lexical'`: an expression template (RFC 931 implicit form) inside a class
+ *   member — a field initializer or method body. Its `this` is the *lexical*
+ *   `this` of its position, captured like an arrow function's, so `{{this}}`
+ *   in a field initializer sees the enclosing instance. Treating these as
+ *   class-backed emitted `templateForBackingValue(this, ...)` into positions
+ *   where `this` is not the class constructor, which broke `Context` inference
+ *   and silently typed the template's `{{this}}` as `any` (#1182).
+ *
+ * - `'context'`: an expression template anywhere else — module scope, a call
+ *   argument, a heritage clause. `{{this}}` stays on the template context
+ *   (`__glintRef__.this`) so that consumers which assign a context type to a
+ *   template-only value keep working: `typeTest(context, <template>...)` from
+ *   `@glint/type-test` contextually types `Context['this']` through the
+ *   expected type of the `templateExpression(...)` expression, and emitting
+ *   the module's lexical `this` (type `undefined`) instead severed that and
+ *   broke every such type test (#1186).
  */
-export function isEmbeddedInClass(ts: TSLib, node: ts.Node): boolean {
+export type TemplateThisBinding = 'backing-class' | 'lexical' | 'context';
+
+/**
+ * Given an AST node for an embedded template, determines how the template's
+ * `{{this}}` should be bound. See {@link TemplateThisBinding}.
+ */
+export function templateThisBinding(ts: TSLib, node: ts.Node): TemplateThisBinding {
   let current: ts.Node | null = node;
   do {
     if (ts.isClassStaticBlockDeclaration(current)) {
-      return true;
+      return 'backing-class';
     }
-    if (ts.isClassLike(current) || ts.isHeritageClause(current)) {
-      return false;
+    if (ts.isHeritageClause(current)) {
+      return 'context';
+    }
+    if (ts.isClassLike(current)) {
+      return 'lexical';
     }
   } while ((current = current.parent));
 
-  return false;
+  return 'context';
 }

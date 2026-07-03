@@ -36,14 +36,18 @@ describe('Transform: rewriteModule', () => {
     // (the authoring format compiles it to a template-only component), so it
     // must emit `templateExpression` — NOT `templateForBackingValue(this)`,
     // which breaks context inference in field position and silently types the
-    // template's `{{this}}` as `any`. (#1182)
+    // template's `{{this}}` as `any`. (#1182) Its `{{this.*}}` paths reference
+    // the lexical `this` of the field position (the enclosing instance)
+    // directly rather than going through the template context.
     test('with a class field template', () => {
       let script = {
         filename: 'test.gts',
         contents: stripIndent`
           import Component from '@glimmer/component';
           export default class MyComponent extends Component {
-            private readonly X = <template>hi</template>;
+            private readonly index = 10;
+
+            private readonly X = <template>{{this.index}}</template>;
 
             <template><this.X /></template>
           }
@@ -56,7 +60,10 @@ describe('Transform: rewriteModule', () => {
       expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
         "import Component from '@glimmer/component';
         export default class MyComponent extends Component {
+          private readonly index = 10;
+
           private readonly X = ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {
+        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(this.index)());
         __glintRef__; __glintDSL__;
         });
 
@@ -67,6 +74,31 @@ describe('Transform: rewriteModule', () => {
         __glintRef__; __glintDSL__;
         }) }
         }"
+      `);
+    });
+
+    // An expression template at module scope has no meaningful lexical `this`,
+    // so `{{this.*}}` stays on the template context (`__glintRef__.this`).
+    // That's what lets consumers assign a context type to the template through
+    // contextual typing — `typeTest(context, <template>...)` from
+    // `@glint/type-test` types `{{this}}` as the given context. Emitting the
+    // module's lexical `this` (type `undefined`) instead broke that. (#1186)
+    test('with a module-scope expression template referencing {{this}}', () => {
+      let script = {
+        filename: 'test.gts',
+        contents: stripIndent`
+          const ModuleScoped = <template>{{this.message}}</template>;
+        `,
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, env);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "const ModuleScoped = ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {
+        __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.message)());
+        __glintRef__; __glintDSL__;
+        });"
       `);
     });
 

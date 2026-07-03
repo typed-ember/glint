@@ -32,6 +32,7 @@ export type TemplateToTypescriptOptions = {
   meta?: GlintEmitMetadata | undefined;
   globals?: Array<string> | undefined;
   backingValue?: string;
+  lexicalThis?: boolean;
   preamble?: Array<string>;
   embeddingSyntax?: EmbeddingSyntax;
   useJsDoc?: boolean;
@@ -66,6 +67,7 @@ export function templateToTypescript(
     globals,
     meta,
     backingValue,
+    lexicalThis = false,
     preamble = [],
     embeddingSyntax = { prefix: '', suffix: '' },
     specialForms = {},
@@ -150,12 +152,12 @@ export function templateToTypescript(
       if (backingValue) {
         mapper.text(`.templateForBackingValue(${backingValue}, function(__glintRef__`);
       } else {
-        // An expression template (RFC 931 implicit form) captures the lexical
-        // `this` of the position it appears in, the way an arrow function
-        // does — a class field initializer sees the enclosing instance, module
-        // scope sees `undefined`. Emitting an arrow (and raw `this` for
-        // `{{this.*}}` paths — see `emitPathContents`) lets TypeScript apply
-        // exactly those semantics. (#1182)
+        // An expression template (RFC 931 implicit form) inside a class member
+        // captures the lexical `this` of its position, the way an arrow
+        // function does — a class field initializer sees the enclosing
+        // instance. Emitting an arrow (and, when `lexicalThis` is set, raw
+        // `this` for `{{this.*}}` paths — see `emitPathContents`) lets
+        // TypeScript apply exactly those semantics. (#1182)
         mapper.text(`.templateExpression((__glintRef__`);
       }
 
@@ -1503,11 +1505,17 @@ export function templateToTypescript(
     function emitPathContents(parts: string[], start: number, kind: PathKind): void {
       if (kind === 'this') {
         let thisStart = template.indexOf('this', start);
-        // A class-member template's `this` is the backing class instance,
-        // reached through the template context. An expression template's
-        // `this` is the *lexical* `this` of the template's position (its body
-        // is emitted as an arrow function), so we reference it directly.
-        if (backingValue) {
+        // An expression template inside a class member (`lexicalThis`) sees
+        // the *lexical* `this` of its position (its body is emitted as an
+        // arrow function), so we reference it directly (#1182). Everywhere
+        // else `this` comes from the template context: a class-member
+        // template's context holds the backing class instance, and an
+        // expression template elsewhere (module scope, a call argument) gets
+        // its context from contextual typing — e.g. `typeTest` from
+        // `@glint/type-test` assigns `Context['this']` through the expected
+        // type of the expression, which raw lexical `this` (type `undefined`
+        // at module scope) would sever (#1186).
+        if (!lexicalThis) {
           mapper.text('__glintRef__.');
         }
         mapper.identifier('this', thisStart);
