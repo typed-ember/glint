@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.8.6",
-      "newVersion": "1.8.7",
+      "oldVersion": "1.8.7",
+      "newVersion": "1.8.8",
       "tagName": "latest",
       "constraints": [
         {
@@ -18,8 +18,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.5.12",
-      "newVersion": "2.5.13",
+      "oldVersion": "2.5.13",
+      "newVersion": "2.5.14",
       "tagName": "latest",
       "constraints": [
         {
@@ -33,5 +33,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-07-02)\n\n* @glint/ember-tsc 1.8.7 (patch)\n* @glint/tsserver-plugin 2.5.13 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1185](https://github.com/typed-ember/glint/pull/1185) fix types for non-default in-class templates were missing ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#1183](https://github.com/typed-ember/glint/pull/1183) Closes [#1180](https://github.com/typed-ember/glint/issues/1180), improve types for hash ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-07-03)\n\n* @glint/ember-tsc 1.8.8 (patch)\n* @glint/tsserver-plugin 2.5.14 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1187](https://github.com/typed-ember/glint/pull/1187) Closes [#1186](https://github.com/typed-ember/glint/issues/1186): restore context-based `this` for expression templates outside classes ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### Committers: 1\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n"
 }
