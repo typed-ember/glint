@@ -2,6 +2,18 @@
 
 ## Release (2026-07-03)
 
+* @glint/ember-tsc 1.8.9 (patch)
+* @glint/tsserver-plugin 2.5.15 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1189](https://github.com/typed-ember/glint/pull/1189) Closes [#1147](https://github.com/typed-ember/glint/issues/1147): emit `fn` as a comma pair so inline `(fn ...)` survives nested inference ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### Committers: 1
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+## Release (2026-07-03)
+
 * @glint/ember-tsc 1.8.8 (patch)
 * @glint/tsserver-plugin 2.5.14 (patch)
 

@@ -1,6 +1,6 @@
 {
   "name": "@glint/tsserver-plugin",
-  "version": "2.5.14",
+  "version": "2.5.15",
   "type": "commonjs",
   "repository": "typed-ember/glint",
   "description": "TypeScript Server Plugin for Glint",
