@@ -111,6 +111,20 @@ export type Mapper = {
     callback: () => void,
     codeFeaturesForNode?: CodeInformation,
   ): void;
+
+  /**
+   * Like `forNode`, but anchored to an explicit range in the original source
+   * rather than an AST node's own span. Useful when the natural anchor is a
+   * sub-token that @glimmer/syntax doesn't model as a node, such as a named
+   * block's name.
+   */
+  forRange(
+    range: Range,
+    source: MappingSource,
+    callback: () => void,
+    codeFeaturesForNode?: CodeInformation,
+    wideVerification?: boolean,
+  ): void;
 };
 
 type LocalDirective = Omit<Directive, 'source'>;
@@ -362,6 +376,16 @@ export function mapTemplateContents(
       codeFeaturesForNode?: CodeInformation,
     ) {
       captureMapping(mapper.rangeForNode(node, span), node, false, callback, codeFeaturesForNode);
+    },
+
+    forRange(
+      range: Range,
+      source: MappingSource,
+      callback: () => void,
+      codeFeaturesForNode?: CodeInformation,
+      wideVerification?: boolean,
+    ) {
+      captureMapping(range, source, false, callback, codeFeaturesForNode, wideVerification);
     },
 
     error(message: string, location: Range) {
