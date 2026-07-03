@@ -580,79 +580,105 @@ export function templateToTypescript(
       });
     }
 
+    // Operator emits opt into `wideVerification` (the literal `true` passed
+    // to their `forNode` calls; see #1168): TypeScript anchors operator-level
+    // diagnostics on the whole emitted expression — notably TS2367
+    // ("comparison appears to be unintentional") for `===`/`!==` — and with
+    // the keyword consumption attached to the first operand
+    // (`((noop(eq), x) === y)`, #1169) that expression starts on synthetic
+    // text. Without a covering verification mapping Volar silently dropped
+    // such diagnostics, so impossible `(eq ...)` comparisons went unreported
+    // and `@glint-expect-error` directives guarding them read as unused
+    // (#1193). (A shared `const` is a TDZ trap here: these declarations sit
+    // after the closure's early `return`, so only hoisted functions execute.)
     function emitBinaryOperatorExpression(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
     ): void {
-      mapper.forNode(node, () => {
-        assert(
-          node.hash.pairs.length === 0,
-          () => `{{${formInfo.name}}} only accepts positional parameters`,
-        );
-        assert(
-          node.params.length === 2,
-          () => `{{${formInfo.name}}} requires exactly two parameters`,
-        );
+      mapper.forNode(
+        node,
+        () => {
+          assert(
+            node.hash.pairs.length === 0,
+            () => `{{${formInfo.name}}} only accepts positional parameters`,
+          );
+          assert(
+            node.params.length === 2,
+            () => `{{${formInfo.name}}} requires exactly two parameters`,
+          );
 
-        const [left, right] = node.params;
+          const [left, right] = node.params;
 
-        mapper.text('(');
-        emitConsumedOperand(formInfo, node, () => emitExpression(left));
-        mapper.text(` ${formInfo.form} `);
-        emitExpression(right);
-        mapper.text(')');
-      });
+          mapper.text('(');
+          emitConsumedOperand(formInfo, node, () => emitExpression(left));
+          mapper.text(` ${formInfo.form} `);
+          emitExpression(right);
+          mapper.text(')');
+        },
+        undefined,
+        /* wideVerification */ true,
+      );
     }
 
     function emitLogicalExpression(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
     ): void {
-      mapper.forNode(node, () => {
-        assert(
-          node.hash.pairs.length === 0,
-          () => `{{${formInfo.name}}} only accepts positional parameters`,
-        );
-        assert(
-          node.params.length >= 2,
-          () => `{{${formInfo.name}}} requires at least two parameters`,
-        );
+      mapper.forNode(
+        node,
+        () => {
+          assert(
+            node.hash.pairs.length === 0,
+            () => `{{${formInfo.name}}} only accepts positional parameters`,
+          );
+          assert(
+            node.params.length >= 2,
+            () => `{{${formInfo.name}}} requires at least two parameters`,
+          );
 
-        mapper.text('(');
-        for (const [index, param] of node.params.entries()) {
-          if (index === 0) {
-            emitConsumedOperand(formInfo, node, () => emitExpression(param));
-          } else {
-            emitExpression(param);
-          }
+          mapper.text('(');
+          for (const [index, param] of node.params.entries()) {
+            if (index === 0) {
+              emitConsumedOperand(formInfo, node, () => emitExpression(param));
+            } else {
+              emitExpression(param);
+            }
 
-          if (index < node.params.length - 1) {
-            mapper.text(` ${formInfo.form} `);
+            if (index < node.params.length - 1) {
+              mapper.text(` ${formInfo.form} `);
+            }
           }
-        }
-        mapper.text(')');
-      });
+          mapper.text(')');
+        },
+        undefined,
+        /* wideVerification */ true,
+      );
     }
 
     function emitUnaryOperatorExpression(
       formInfo: SpecialFormInfo,
       node: AST.MustacheStatement | AST.SubExpression,
     ): void {
-      mapper.forNode(node, () => {
-        assert(
-          node.hash.pairs.length === 0,
-          () => `{{${formInfo.name}}} only accepts positional parameters`,
-        );
-        assert(
-          node.params.length === 1,
-          () => `{{${formInfo.name}}} requires exactly one parameter`,
-        );
+      mapper.forNode(
+        node,
+        () => {
+          assert(
+            node.hash.pairs.length === 0,
+            () => `{{${formInfo.name}}} only accepts positional parameters`,
+          );
+          assert(
+            node.params.length === 1,
+            () => `{{${formInfo.name}}} requires exactly one parameter`,
+          );
 
-        const [param] = node.params;
+          const [param] = node.params;
 
-        mapper.text(formInfo.form);
-        emitConsumedOperand(formInfo, node, () => emitExpression(param));
-      });
+          mapper.text(formInfo.form);
+          emitConsumedOperand(formInfo, node, () => emitExpression(param));
+        },
+        undefined,
+        /* wideVerification */ true,
+      );
     }
 
     type SpecialFormInfo = {
