@@ -166,6 +166,42 @@ describe('Transform: rewriteTemplate', () => {
       });
     });
 
+    // The `fn` keyword emits as a two-stage comma expression: the real
+    // (overloaded) helper call validates the arguments, while the
+    // single-signature `bindPositional` supplies the resulting type. Emitting
+    // the overloaded call alone made any inline `(fn ...)` inside another
+    // generic call's arguments collapse that call's entire inference —
+    // TypeScript's nested-call re-inference only handles single-signature
+    // callees. (#1147)
+    describe('{{fn}} (bind-positional)', () => {
+      test('in top-level position', () => {
+        let template = '{{testFn foo 123}}';
+        let specialForms = { testFn: 'bind-positional' } as const;
+
+        expect(templateBody(template, { specialForms, globals: ['testFn'] })).toMatchInlineSnapshot(
+          `"__glintDSL__.emitContent((__glintDSL__.resolve(__glintDSL__.Globals.testFn)(foo, 123), __glintDSL__.bindPositional(foo, 123)));"`,
+        );
+      });
+
+      test('in a subexpression inside another invocation', () => {
+        let template = '{{someHelper (testFn foo 123)}}';
+        let specialForms = { testFn: 'bind-positional' } as const;
+
+        expect(templateBody(template, { specialForms, globals: ['testFn'] })).toMatchInlineSnapshot(
+          `"__glintDSL__.emitContent(__glintDSL__.resolve(someHelper)((__glintDSL__.resolve(__glintDSL__.Globals.testFn)(foo, 123), __glintDSL__.bindPositional(foo, 123))));"`,
+        );
+      });
+
+      test('as an imported (non-global) binding', () => {
+        let template = '{{testFn foo}}';
+        let specialForms = { testFn: 'bind-positional' } as const;
+
+        expect(templateBody(template, { specialForms, globals: [] })).toMatchInlineSnapshot(
+          `"(__glintDSL__.noop(testFn), __glintDSL__.emitContent((__glintDSL__.resolve(testFn)(foo), __glintDSL__.bindPositional(foo))));"`,
+        );
+      });
+    });
+
     describe('{{if}}', () => {
       test('without an alternate', () => {
         let template = '{{testIf @foo "ok"}}';

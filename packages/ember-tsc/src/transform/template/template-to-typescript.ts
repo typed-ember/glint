@@ -293,6 +293,10 @@ export function templateToTypescript(
           emitBindInvokableExpression(formInfo, node, position);
           break;
 
+        case 'bind-positional':
+          emitBindPositionalExpression(formInfo, node, position);
+          break;
+
         case '===':
         case '!==':
           emitBinaryOperatorExpression(formInfo, node);
@@ -414,6 +418,51 @@ export function templateToTypescript(
           mapper.text(')');
         }
       });
+    }
+
+    function emitBindPositionalExpression(
+      formInfo: SpecialFormInfo,
+      node: AST.MustacheStatement | AST.SubExpression,
+      position: InvokePosition,
+    ): void {
+      // `wideVerification` (see #1168): several of the diagnostics this emit
+      // exists to surface anchor on synthetic generated text — arity errors
+      // point at the emitted callee, and assignability errors at the whole
+      // comma expression — and would otherwise be silently dropped by Volar
+      // for want of a covering verification mapping.
+      const wideVerification = true;
+      mapper.forNode(
+        node,
+        () => {
+          if (position === 'top-level') {
+            mapper.text('__glintDSL__.emitContent(');
+          }
+
+          // Two-stage comma expression, like `bind-invokable` above: the real
+          // helper call validates the arguments against the helper's arity
+          // overloads (result discarded, errors mapped) — including misuse
+          // like zero arguments or named arguments, which is why there are no
+          // arity asserts here — while the single-signature `bindPositional`
+          // computes the partially-applied type (result used). The single
+          // signature is what lets the result survive when this expression
+          // sits inside another generic call's arguments — TypeScript's
+          // nested-call re-inference gives up on overloaded callees,
+          // collapsing the outer call's inference (#1147).
+          mapper.text('(__glintDSL__.resolve(');
+          emitExpression(node.path);
+          mapper.text(')(');
+          emitArgs(node.params, node.hash);
+          mapper.text('), __glintDSL__.bindPositional(');
+          emitArgs(node.params, node.hash);
+          mapper.text('))');
+
+          if (position === 'top-level') {
+            mapper.text(')');
+          }
+        },
+        undefined,
+        wideVerification,
+      );
     }
 
     function emitObjectExpression(
