@@ -2,6 +2,18 @@
 
 ## Release (2026-07-03)
 
+* @glint/ember-tsc 1.8.10 (patch)
+* @glint/tsserver-plugin 2.5.16 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1191](https://github.com/typed-ember/glint/pull/1191) Report usage of named blocks missing from a component's signature ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### Committers: 1
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+## Release (2026-07-03)
+
 * @glint/ember-tsc 1.8.9 (patch)
 * @glint/tsserver-plugin 2.5.15 (patch)
 
