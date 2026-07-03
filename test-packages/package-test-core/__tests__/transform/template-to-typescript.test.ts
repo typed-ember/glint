@@ -350,7 +350,7 @@ describe('Transform: rewriteTemplate', () => {
         let specialForms = { testYield: 'yield' } as const;
 
         expect(templateBody(template, { specialForms })).toMatchInlineSnapshot(
-          `"__glintDSL__.yieldToBlock(__glintRef__, "default")(123, this.message);"`,
+          `"__glintDSL__.yieldToBlock(__glintRef__, "default")(123, __glintRef__.this.message);"`,
         );
       });
 
@@ -710,7 +710,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(this)());"`,
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this)());"`,
           );
         });
 
@@ -718,7 +718,7 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this.foo.bar}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(this.foo?.bar)());"`,
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this.foo?.bar)());"`,
           );
         });
 
@@ -726,7 +726,20 @@ describe('Transform: rewriteTemplate', () => {
           let template = '{{this.foo-bar}}';
 
           expect(templateBody(template)).toMatchInlineSnapshot(
-            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(this["foo-bar"])());"`,
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.this["foo-bar"])());"`,
+          );
+        });
+
+        // An expression template inside a class member (e.g. a field
+        // initializer) sees the lexical `this` of its position, so `{{this.*}}`
+        // references `this` directly rather than the template context (#1182).
+        // Everywhere else, `this` must stay on `__glintRef__` so contextual
+        // typing (e.g. `typeTest` from `@glint/type-test`) can supply it (#1186).
+        test('`this` path with lexicalThis', () => {
+          let template = '{{this.foo}}';
+
+          expect(templateBody(template, { lexicalThis: true })).toMatchInlineSnapshot(
+            `"__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(this.foo)());"`,
           );
         });
 
@@ -1206,7 +1219,7 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
-        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(this.foo)({ 
+        const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintRef__.this.foo)({ 
         arg: "hello", ...__glintDSL__.NamedArgsMarker }));
         }"
       `);
