@@ -93,3 +93,30 @@ export declare function bindPositional<F, Bound extends unknown[]>(
   : F extends (...args: [...Bound, ...infer Rest]) => infer Ret
     ? (...rest: Rest) => Ret
     : never;
+
+import { Invokable } from '@glint/template/-private/integration';
+
+/*
+ * The cast target for a `{{#let}}`-bound curried component consumed in
+ * argument position (#1068).
+ *
+ * When `{{component Cell onSelect=@onSelect}}` curries a generic class
+ * component, `bindInvokable` deliberately keeps the component's own type
+ * parameter free — that's what lets the curried value satisfy generic-shaped
+ * targets like `WithBoundArgs<typeof Cell, 'onSelect'>` (typically reached
+ * via `{{yield}}`). But when such a value is passed as an ARG to another
+ * generic component, TypeScript has no way to unify the curried value's
+ * independent type parameter with the consumer's: inference instantiates it
+ * to its constraint, and that collapsed candidate wins over (or conflicts
+ * with) the correct inference from sibling args. No library-signature shape
+ * can express "pin the curried generic from the bound args" — signature
+ * instantiation in context only fires when the target signature is otherwise
+ * fully concrete — so instead the transform casts the reference to this
+ * inference-inert type at exactly those use sites. The value contributes no
+ * inference candidates (so the consumer's type parameter is inferred from its
+ * other args), while remaining an `Invokable`, so passing it where no
+ * invokable belongs is still an error. The trade-off: compatibility between
+ * the curried component's signature and the consuming arg's declared type is
+ * not checked at that position.
+ */
+export type InferenceInertInvokable = Invokable<(...args: any[]) => any>;

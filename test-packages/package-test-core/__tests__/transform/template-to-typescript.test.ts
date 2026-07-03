@@ -166,6 +166,103 @@ describe('Transform: rewriteTemplate', () => {
       });
     });
 
+    // A `{{#let}}`-bound curried component reference is cast to the
+    // inference-inert invokable type when passed as an arg, so its free
+    // generic (kept by `bindInvokable`) can't collapse the consuming
+    // component's type-parameter inference to its constraint. Every other
+    // position — including `{{yield}}` — keeps the fully-typed reference so
+    // `WithBoundArgs<typeof C, K>`-shaped targets continue to work. (#1068)
+    describe('curried component references (#1068)', () => {
+      test('cast in arg position, untouched elsewhere', () => {
+        let template = stripIndent`
+          {{#let (testComponent Inner x=1) as |Bound|}}
+            <Consumer @bound={{Bound}} @direct={{Inner}} />
+            {{testYield Bound}}
+          {{/let}}
+        `;
+        let specialForms = { testComponent: 'bind-invokable', testYield: 'yield' } as const;
+
+        expect(templateBody(template, { specialForms, globals: ['testComponent', 'let'] }))
+          .toMatchInlineSnapshot(`
+          "{
+          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.resolve(__glintDSL__.Globals.testComponent)((() => __glintDSL__.resolveForBind(Inner))(), { x: 1 , ...__glintDSL__.NamedArgsMarker }), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(Inner), { x: 1 , ...__glintDSL__.NamedArgsMarker }))));
+          {
+          const [Bound] = __glintY__.blockParams["default"];
+          {
+          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Consumer)({ 
+          bound: (Bound as import("@glint/template").InferenceInertInvokable), 
+          direct: Inner, ...__glintDSL__.NamedArgsMarker }));
+          }
+          (__glintDSL__.noop(testYield), __glintDSL__.yieldToBlock(__glintRef__, "default")(Bound));
+          }
+          __glintDSL__.Globals.let;
+          }"
+        `);
+      });
+
+      test('cast uses a JSDoc annotation in untyped scripts', () => {
+        let template = stripIndent`
+          {{#let (testComponent Inner x=1) as |Bound|}}
+            <Consumer @bound={{Bound}} />
+          {{/let}}
+        `;
+        let specialForms = { testComponent: 'bind-invokable' } as const;
+
+        expect(
+          templateBody(template, {
+            specialForms,
+            globals: ['testComponent', 'let'],
+            useJsDoc: true,
+          }),
+        ).toMatchInlineSnapshot(`
+          "{
+          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.resolve(__glintDSL__.Globals.testComponent)((() => __glintDSL__.resolveForBind(Inner))(), { x: 1 , ...__glintDSL__.NamedArgsMarker }), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(Inner), { x: 1 , ...__glintDSL__.NamedArgsMarker }))));
+          {
+          const [Bound] = __glintY__.blockParams["default"];
+          {
+          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Consumer)({ 
+          bound: (/** @type {import("@glint/template").InferenceInertInvokable} */ (Bound)), ...__glintDSL__.NamedArgsMarker }));
+          }
+          }
+          __glintDSL__.Globals.let;
+          }"
+        `);
+      });
+
+      test('an inner shadowing binding is not cast', () => {
+        let template = stripIndent`
+          {{#let (testComponent Inner x=1) as |Bound|}}
+            {{#let Other as |Bound|}}
+              <Consumer @bound={{Bound}} />
+            {{/let}}
+          {{/let}}
+        `;
+        let specialForms = { testComponent: 'bind-invokable' } as const;
+
+        expect(templateBody(template, { specialForms, globals: ['testComponent', 'let'] }))
+          .toMatchInlineSnapshot(`
+          "{
+          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.resolve(__glintDSL__.Globals.testComponent)((() => __glintDSL__.resolveForBind(Inner))(), { x: 1 , ...__glintDSL__.NamedArgsMarker }), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(Inner), { x: 1 , ...__glintDSL__.NamedArgsMarker }))));
+          {
+          const [Bound] = __glintY__.blockParams["default"];
+          {
+          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)(Other));
+          {
+          const [Bound] = __glintY__.blockParams["default"];
+          {
+          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Consumer)({ 
+          bound: Bound, ...__glintDSL__.NamedArgsMarker }));
+          }
+          }
+          __glintDSL__.Globals.let;
+          }
+          }
+          __glintDSL__.Globals.let;
+          }"
+        `);
+      });
+    });
+
     // The `fn` keyword emits as a two-stage comma expression: the real
     // (overloaded) helper call validates the arguments, while the
     // single-signature `bindPositional` supplies the resulting type. Emitting
