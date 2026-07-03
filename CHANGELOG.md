@@ -1,5 +1,17 @@
 # Changelog
 
+## Release (2026-07-03)
+
+* @glint/ember-tsc 1.8.8 (patch)
+* @glint/tsserver-plugin 2.5.14 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1187](https://github.com/typed-ember/glint/pull/1187) Closes [#1186](https://github.com/typed-ember/glint/issues/1186): restore context-based `this` for expression templates outside classes ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### Committers: 1
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
 ## Release (2026-07-02)
 
 * @glint/ember-tsc 1.8.7 (patch)
