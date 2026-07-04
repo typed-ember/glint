@@ -1217,21 +1217,20 @@ export function templateToTypescript(
           // other position (notably `{{yield}}`) the reference stays fully
           // typed so generic-shaped targets like `WithBoundArgs<typeof C, K>`
           // keep working.
+          //
+          // Untyped scripts are left alone: the collapse requires a generic
+          // class component, which is a TypeScript-only concern, and `as`
+          // casts aren't valid syntax in the JS intermediate format.
           if (
+            !useJsDoc &&
             node.path.type === 'PathExpression' &&
             node.path.head.type === 'VarHead' &&
             node.path.tail.length === 0 &&
             scope.isCurriedInvokable(node.path.head.name)
           ) {
-            if (useJsDoc) {
-              mapper.text(`(/** @type {import("${typesModule}").InferenceInertInvokable} */ (`);
-              emitExpression(node.path);
-              mapper.text('))');
-            } else {
-              mapper.text('(');
-              emitExpression(node.path);
-              mapper.text(` as import("${typesModule}").InferenceInertInvokable)`);
-            }
+            mapper.text('(');
+            emitExpression(node.path);
+            mapper.text(` as import("${typesModule}").InferenceInertInvokable)`);
           } else {
             emitExpression(node.path);
           }

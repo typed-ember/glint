@@ -200,7 +200,10 @@ describe('Transform: rewriteTemplate', () => {
         `);
       });
 
-      test('cast uses a JSDoc annotation in untyped scripts', () => {
+      // The collapse this cast prevents requires a generic class component —
+      // a TypeScript-only concern — and `as` casts aren't valid syntax in the
+      // JS intermediate format, so untyped scripts emit the plain reference.
+      test('untyped scripts are not cast', () => {
         let template = stripIndent`
           {{#let (testComponent Inner x=1) as |Bound|}}
             <Consumer @bound={{Bound}} />
@@ -221,7 +224,7 @@ describe('Transform: rewriteTemplate', () => {
           const [Bound] = __glintY__.blockParams["default"];
           {
           const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Consumer)({ 
-          bound: (/** @type {import("@glint/template").InferenceInertInvokable} */ (Bound)), ...__glintDSL__.NamedArgsMarker }));
+          bound: Bound, ...__glintDSL__.NamedArgsMarker }));
           }
           }
           __glintDSL__.Globals.let;
