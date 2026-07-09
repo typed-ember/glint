@@ -4,5 +4,5 @@
 import { Util } from '../build-mode-fixture/util';
 
 export function useUtil(): number {
-	return new Util().v;
+  return new Util().v;
 }
