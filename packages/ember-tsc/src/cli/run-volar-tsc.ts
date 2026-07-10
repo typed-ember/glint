@@ -137,10 +137,11 @@ function patchTscJsExtensionForGts(source: string): string {
 
 // Volar's `runTsc` does not surface the content-tag parse errors that we attach
 // to `TransformedModule.errors` when content-tag fails to parse a .gts/.gjs
-// file. The transformed source is intentionally blanked to whitespace in that
-// case (see `rewriteModule`) so TypeScript does not emit a flood of misleading
-// errors against the still-unparsed `<template>` tags; the trade-off is that
-// the underlying parse failure is silently dropped.
+// file. In that case the transformed source is the raw .gts/.gjs source and
+// every mapping carries `verification: false` (see `rewriteModule` /
+// `toVolarMappings`), so volar drops the flood of misleading TS errors against
+// the still-unparsed `<template>` tags; the trade-off is that the underlying
+// parse failure is silently dropped.
 //
 // In language-server / tsserver-plugin contexts that silence is fine because
 // the parse error is re-surfaced by separate diagnostic providers. But the
@@ -175,12 +176,12 @@ function injectContentTagDiagnostics(language: unknown, program: ts.Program): vo
   const lang = language as { scripts: { get(id: string): any } };
 
   // Cache of synthetic SourceFiles built from the original .gts/.gjs text,
-  // keyed by file name. We need our own SourceFile here because the one TS
+  // keyed by file name. We use our own SourceFile here because the one TS
   // gives us via `program.getSourceFile` was built from the *transformed*
-  // (whitespace-blanked, on parse failure) text — so `--pretty` rendering
-  // would print an empty source line under the diagnostic header (see
-  // https://github.com/typed-ember/glint/pull/1149#discussion_r... for the
-  // bug report). The original text lives on volar's `sourceScript.snapshot`.
+  // text, which is not guaranteed to match the original — so `--pretty`
+  // rendering could print the wrong source line under the diagnostic header
+  // (see https://github.com/typed-ember/glint/pull/1149#discussion_r... for
+  // the bug report). The original text lives on volar's `sourceScript.snapshot`.
   const originalSourceFiles = new Map<string, ts.SourceFile>();
 
   const getOriginalSourceFile = (fileName: string): ts.SourceFile | undefined => {
@@ -222,8 +223,8 @@ function injectContentTagDiagnostics(language: unknown, program: ts.Program): vo
       return [];
     }
     // Render against the original .gts/.gjs text (not the SourceFile TS
-    // hands back, which holds the blanked transformed contents) so
-    // `tsc --pretty` prints the actual offending source line.
+    // hands back, which holds the transformed contents) so `tsc --pretty`
+    // prints the actual offending source line.
     const originalSourceFile = getOriginalSourceFile(sourceFile.fileName) ?? sourceFile;
     return getTransformErrorDiagnostics(transformedModule, originalSourceFile);
   };

@@ -690,8 +690,8 @@ function getSemanticDiagnostics<T>(
 
     // Surface content-tag parse errors directly through the tsserver path so
     // consumers that don't run the Volar language server still see the actual
-    // error (rather than the silence produced by blanking the transformed
-    // output in `rewriteModule`).
+    // error (rather than the silence produced by the verification-disabled
+    // mappings emitted on parse failure — see `rewriteModule`).
     const transformErrorDiagnostics = getTransformErrorDiagnostics
       ? getTransformErrorDiagnostics(transformedModule, sourceFile)
       : [];

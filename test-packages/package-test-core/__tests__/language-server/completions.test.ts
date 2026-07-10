@@ -165,6 +165,40 @@ describe('Language Server: Completions (ts plugin)', () => {
     `);
   });
 
+  test('member completions in script portion while file has a content-tag parse error', async () => {
+    // Regression test: asking for member completions right after typing `.`
+    // means the file is momentarily invalid — content-tag/swc fails to parse
+    // it (unlike TS's error-tolerant parser, which recovers fine in .ts
+    // files). We used to blank the entire transformed file to whitespace in
+    // that case, which made tsserver answer every completion request with the
+    // global scope list (AbortController, AbstractRange, ...) instead of the
+    // members of the object left of the cursor.
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      const params = new URLSearchParams();
+      params.%
+
+      export default class MyComponent extends Component {
+        <template>
+          hello
+        </template>
+      }
+    `;
+
+    const completions = await requestCompletion(
+      'ts-template-imports-app/src/index.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(completions.some((c: any) => c.name === 'append')).toBe(true);
+    expect(completions.some((c: any) => c.name === 'getAll')).toBe(true);
+    // The global-scope list is what we get when the position maps to
+    // whitespace; its presence would mean the member context was lost.
+    expect(completions.some((c: any) => c.name === 'AbortController')).toBe(false);
+  });
+
   test('referencing class properties', async () => {
     const code = stripIndent`
       import Component from '@glimmer/component';

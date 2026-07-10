@@ -49,29 +49,20 @@ export function rewriteModule(
   let sparseSpans = completeCorrelatedSpans(partialSpans);
   let { contents, correlatedSpans } = calculateTransformedSource(script, sparseSpans, directives);
 
-  if (errors.some((error) => error.isContentTagError)) {
-    // content-tag failed to parse the .gts/.gjs source, which means the
-    // "transformed" output above is just the raw source (still containing
-    // `<template>` tags etc.). Feeding that to TypeScript would produce a
-    // flood of misleading syntax/type errors on top of the underlying
-    // parse failure. Blank the transformed output to whitespace so TS sees
-    // an effectively empty file and stays quiet. The content-tag error
-    // itself is preserved on `errors` and surfaced as the sole diagnostic
-    // by the `g-compiler-errors` language service plugin.
-    contents = blankNonNewlineChars(contents);
-    correlatedSpans = correlatedSpans.map((span) => ({
-      ...span,
-      transformedSource: blankNonNewlineChars(span.transformedSource),
-    }));
-  }
-
+  // When content-tag fails to parse the .gts/.gjs source (which happens
+  // constantly while the user is mid-keystroke, e.g. right after typing
+  // `foo.`), the "transformed" output above is just the raw source (still
+  // containing `<template>` tags etc.). We keep that raw source as the
+  // transformed contents so that TypeScript's error-tolerant parser can
+  // continue to power completions/hover/navigation in the script portions
+  // of the file. The flood of misleading syntax/type errors TS would report
+  // against the still-unparsed `<template>` tags is suppressed via the
+  // mappings instead: `toVolarMappings` disables `verification` for every
+  // mapping when a content-tag error is present, so Volar drops all TS
+  // diagnostics for the file. The content-tag error itself is preserved on
+  // `errors` and surfaced as the sole diagnostic by the `g-compiler-errors`
+  // language service plugin (and by the CLI's decorateProgram patch).
   return new TransformedModule(contents, errors, directives, correlatedSpans, script.filename);
-}
-
-function blankNonNewlineChars(value: string): string {
-  // Preserve newlines so that line/column tracking still works for any
-  // remaining offset-mapping queries; replace everything else with spaces.
-  return value.replace(/[^\n]/g, ' ');
 }
 
 /**
