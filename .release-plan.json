@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.8.10",
-      "newVersion": "1.8.11",
+      "oldVersion": "1.8.11",
+      "newVersion": "1.8.12",
       "tagName": "latest",
       "constraints": [
         {
@@ -18,13 +18,17 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.5.16",
-      "newVersion": "2.5.17",
+      "oldVersion": "2.5.17",
+      "newVersion": "2.5.18",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -33,5 +37,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-07-03)\n\n* @glint/ember-tsc 1.8.11 (patch)\n* @glint/tsserver-plugin 2.5.17 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1194](https://github.com/typed-ember/glint/pull/1194) Closes [#1193](https://github.com/typed-ember/glint/issues/1193): stop dropping TS2367 \"no overlap\" errors on `eq`/`neq` comparisons ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### Committers: 1\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n"
+  "description": "## Release (2026-07-10)\n\n* @glint/ember-tsc 1.8.12 (patch)\n* @glint/tsserver-plugin 2.5.18 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1201](https://github.com/typed-ember/glint/pull/1201) Fix member completions in gts files during mid-keystroke parse errors ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
