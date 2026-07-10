@@ -1,5 +1,17 @@
 # Changelog
 
+## Release (2026-07-10)
+
+* @glint/ember-tsc 1.8.12 (patch)
+* @glint/tsserver-plugin 2.5.18 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`, `@glint/tsserver-plugin`
+  * [#1201](https://github.com/typed-ember/glint/pull/1201) Fix member completions in gts files during mid-keystroke parse errors ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-07-03)
 
 * @glint/ember-tsc 1.8.11 (patch)
