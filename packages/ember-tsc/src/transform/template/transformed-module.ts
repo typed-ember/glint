@@ -275,6 +275,14 @@ export default class TransformedModule {
   public toVolarMappings(filenameFilter?: string): CodeMapping[] {
     const codeMappings: CodeMapping[] = [];
 
+    // When content-tag failed to parse the file, the "transformed" contents
+    // are the raw source (see `rewriteModule`). We still map it so that
+    // completions/hover/navigation keep working in the script portions while
+    // the user is mid-edit, but we disable `verification` so Volar drops the
+    // flood of TS diagnostics against the unparsed `<template>` tags; the
+    // content-tag parse error itself is surfaced separately.
+    const hasContentTagError = this.errors.some((error) => error.isContentTagError);
+
     const push = (
       sourceOffset: number,
       generatedOffset: number,
@@ -448,6 +456,8 @@ export default class TransformedModule {
 
             // This enables symbol/outline info for the transformed TS to appear in for the .gts file.
             structure: true,
+
+            ...(hasContentTagError ? { verification: false } : null),
           });
         }
       }

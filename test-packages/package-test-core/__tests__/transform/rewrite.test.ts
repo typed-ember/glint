@@ -253,7 +253,7 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
-    test('with a content-tag parse error, blanks transformed contents so TS sees an empty file', () => {
+    test('with a content-tag parse error, keeps raw source but disables verification', () => {
       let script = {
         filename: 'test.gts',
         contents: stripIndent`
@@ -274,13 +274,23 @@ describe('Transform: rewriteModule', () => {
       expect(transformedModule?.errors.length).toBe(1);
       expect(transformedModule?.errors[0]?.isContentTagError).toBe(true);
 
-      // The transformed source is whitespace-only (preserving line structure)
-      // so TypeScript will treat it as an empty file rather than producing a
-      // cascade of misleading errors against the still-unparsed `<template>` tags.
-      const transformed = transformedModule?.transformedContents ?? '';
-      expect(transformed.length).toBeGreaterThan(0);
-      expect(/\S/.test(transformed)).toBe(false);
-      expect(transformed.split('\n').length).toBe(script.contents.split('\n').length);
+      // The transformed source is the raw .gts source: content-tag parse
+      // errors happen constantly mid-keystroke (e.g. right after typing
+      // `foo.`), and TypeScript's error-tolerant parser can still provide
+      // completions/hover/navigation for the script portions of the raw
+      // source. The flood of misleading TS errors against the still-unparsed
+      // `<template>` tags is suppressed via the mappings instead: every
+      // mapping has `verification: false`, so Volar drops all TS diagnostics
+      // for the file (in both tsserver and CLI modes) while other language
+      // features keep working.
+      expect(transformedModule?.transformedContents).toBe(script.contents);
+
+      const mappings = transformedModule!.toVolarMappings();
+      expect(mappings.length).toBeGreaterThan(0);
+      for (const mapping of mappings) {
+        expect(mapping.data.verification).toBe(false);
+        expect(mapping.data.completion).toBe(true);
+      }
     });
   });
 

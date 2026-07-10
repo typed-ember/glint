@@ -8,15 +8,15 @@ import { Diagnostic } from './index.js';
  * tsserver-plugin path see the underlying error rather than nothing.
  *
  * Without this, when content-tag fails to parse a .gts/.gjs file we suppress
- * the resulting flood of TS errors by blanking the transformed contents (see
- * `rewriteModule`). That leaves the tsserver path silent on its own — fine
- * inside VS Code, where the Volar language server's `g-compiler-errors`
- * plugin surfaces the error, but unhelpful for any consumer running only
- * the tsserver plugin.
+ * the resulting flood of TS errors by disabling `verification` on every
+ * mapping (see `rewriteModule` / `toVolarMappings`). That leaves the tsserver
+ * path silent on its own — fine inside VS Code, where the Volar language
+ * server's `g-compiler-errors` plugin surfaces the error, but unhelpful for
+ * any consumer running only the tsserver plugin.
  *
  * Offsets are in original (.gts) source coordinates; tsserver maps them to
  * line/column using its own ScriptInfo for the source file, so the same
- * value works regardless of how we blanked the transformed output.
+ * value works regardless of what the transformed output contains.
  */
 export function getTransformErrorDiagnostics(
   transformedModule: TransformedModule,
