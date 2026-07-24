@@ -714,6 +714,7 @@ interface GlobalSVGAttributes extends GlobalHTMLAttributes {
   ['style']: AttrValue;
   ['tabindex']: AttrValue;
   ['typeof']: AttrValue;
+  ['vector-effect']: AttrValue;
   ['onabort']: AttrValue;
   ['onactivate']: AttrValue;
   ['onafterprint']: AttrValue;
@@ -1847,6 +1848,8 @@ interface SVGFEDropShadowElementAttributes extends GlobalSVGAttributes {
   ['width']: AttrValue;
   ['x']: AttrValue;
   ['y']: AttrValue;
+  ['flood-color']: AttrValue;
+  ['flood-opacity']: AttrValue;
 }
 interface SVGFEFloodElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
