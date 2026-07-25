@@ -879,27 +879,39 @@ export function templateToTypescript(
             mapper.text('{ ');
 
             for (let attr of dataAttrs) {
-              mapper.forNode(attr, () => {
-                mapper.newline();
+              // The arg opts into `wideVerification` (see #1168) for the same
+              // reason as plain attributes in `emitPlainAttributes`: unsafe
+              // arg names (e.g. dashed ones) are emitted as *quoted* object
+              // keys, and TS anchors diagnostics such as TS2353 on the full
+              // quoted key. The quotes are generated-only text, so without a
+              // covering verification mapping Volar cannot translate the
+              // diagnostic back to the template and silently drops it.
+              mapper.forNode(
+                attr,
+                () => {
+                  mapper.newline();
 
-                const attrStartOffset = attr.loc.getStart().offset!;
-                emitHashKey(attr.name.slice(1), attrStartOffset + prefix.length + 1);
-                mapper.text(': ');
+                  const attrStartOffset = attr.loc.getStart().offset!;
+                  emitHashKey(attr.name.slice(1), attrStartOffset + prefix.length + 1);
+                  mapper.text(': ');
 
-                switch (attr.value.type) {
-                  case 'TextNode':
-                    emitQuotedTextNodeValue(attr.value);
-                    break;
-                  case 'ConcatStatement':
-                    emitConcatStatement(attr.value);
-                    break;
-                  case 'MustacheStatement':
-                    emitMustacheStatement(attr.value, 'arg');
-                    break;
-                  default:
-                    unreachable(attr.value);
-                }
-              });
+                  switch (attr.value.type) {
+                    case 'TextNode':
+                      emitQuotedTextNodeValue(attr.value);
+                      break;
+                    case 'ConcatStatement':
+                      emitConcatStatement(attr.value);
+                      break;
+                    case 'MustacheStatement':
+                      emitMustacheStatement(attr.value, 'arg');
+                      break;
+                    default:
+                      unreachable(attr.value);
+                  }
+                },
+                undefined,
+                /* wideVerification */ !isSafeKey(attr.name.slice(1)),
+              );
 
               start = rangeForNode(attr.value).end;
               mapper.text(', ');
@@ -1109,22 +1121,37 @@ export function templateToTypescript(
           mapper.newline();
           mapper.indent();
 
-          mapper.forNode(attr, () => {
-            const attrStartOffset = attr.loc.getStart().offset!;
-            emitHashKey(attr.name, attrStartOffset + prefix.length);
-            mapper.text(': ');
+          // Unsafe attribute names (e.g. dashed ones like `vector-effect`)
+          // are emitted as *quoted* object keys, and TS anchors diagnostics
+          // such as TS2353 ("Object literal may only specify known
+          // properties") on the full quoted key. The quotes are
+          // generated-only text, so without a covering verification mapping
+          // Volar cannot translate the diagnostic back to the template and
+          // silently drops it — hence `wideVerification` (see #1168) for
+          // unsafe keys. Safe identifier keys are mapped 1:1 and their
+          // diagnostics already survive, so they don't need the extra
+          // covering mapping.
+          mapper.forNode(
+            attr,
+            () => {
+              const attrStartOffset = attr.loc.getStart().offset!;
+              emitHashKey(attr.name, attrStartOffset + prefix.length);
+              mapper.text(': ');
 
-            if (attr.value.type === 'MustacheStatement') {
-              emitMustacheStatement(attr.value, 'attr');
-            } else if (attr.value.type === 'ConcatStatement') {
-              emitConcatStatement(attr.value);
-            } else {
-              mapper.text(JSON.stringify(attr.value.chars));
-            }
+              if (attr.value.type === 'MustacheStatement') {
+                emitMustacheStatement(attr.value, 'attr');
+              } else if (attr.value.type === 'ConcatStatement') {
+                emitConcatStatement(attr.value);
+              } else {
+                mapper.text(JSON.stringify(attr.value.chars));
+              }
 
-            mapper.text(',');
-            mapper.newline();
-          });
+              mapper.text(',');
+              mapper.newline();
+            },
+            undefined,
+            /* wideVerification */ !isSafeKey(attr.name),
+          );
         }
         mapper.newline();
       });
