@@ -33,7 +33,7 @@ export type BindInvokableKeyword<Prefix extends number, Kind> = DirectInvokable<
   // {{bind invokableWithNamedAndPositionalArgs name="foo"}}
   <Named, Positional extends unknown[], Return extends Kind, GivenNamed extends Partial<Named>>(
     invokable: (...args: [...Positional, NamedArgs<Named>]) => Return,
-    named: GivenNamed,
+    named: NamedArgs<GivenNamed>,
   ): Invokable<
     (
       ...args: [
@@ -43,9 +43,9 @@ export type BindInvokableKeyword<Prefix extends number, Kind> = DirectInvokable<
     ) => Return
   >;
   <Named, Positional extends unknown[], Return extends Kind, GivenNamed extends Partial<Named>>(
-    invokable: (...args: [...Positional, NamedArgs<Named>]) => Return,
-    named: GivenNamed,
-  ): Invokable<
+    invokable: null | undefined | ((...args: [...Positional, NamedArgs<Named>]) => Return),
+    named: NamedArgs<GivenNamed>,
+  ): null | Invokable<
     (
       ...args: [
         ...Positional,
