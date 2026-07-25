@@ -607,11 +607,16 @@ describe('Transform: rewriteModule', () => {
         | | | |
         | | | | | Mapping: PathExpression
         | | | | |  hbs(107:110): let
-        | | | | |  ts(298:322):  __glintDSL__.Globals.let
+        | | | | |  ts(277:323):  __glintDSL__.resolve(__glintDSL__.Globals.let)
         | | | | |
-        | | | | | | Mapping: Identifier
+        | | | | | | Mapping: PathExpression
         | | | | | |  hbs(107:110): let
-        | | | | | |  ts(319:322):  let
+        | | | | | |  ts(298:322):  __glintDSL__.Globals.let
+        | | | | | |
+        | | | | | | | Mapping: Identifier
+        | | | | | | |  hbs(107:110): let
+        | | | | | | |  ts(319:322):  let
+        | | | | | | |
         | | | | | |
         | | | | |
         | | | | | Mapping: PathExpression

@@ -1382,7 +1382,12 @@ export function templateToTypescript(
         mapper.indent();
 
         mapper.text('const __glintY__ = __glintDSL__.emitComponent(');
-        emitResolve(node, 'resolve');
+        // `wideVerification` (see #1168) for the same reason as direct
+        // mustaches and sub-expressions: TS anchors missing-argument
+        // diagnostics on the generated `__glintDSL__.resolve(...)` callee,
+        // which needs a covering mapping to survive translation back to the
+        // template.
+        emitResolve(node, 'resolve', /* wideVerification */ true);
         mapper.text(');');
         mapper.newline();
 
