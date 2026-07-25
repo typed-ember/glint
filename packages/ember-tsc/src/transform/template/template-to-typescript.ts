@@ -1178,7 +1178,15 @@ export function templateToTypescript(
         mapper.forNode(splattributes, () => {
           mapper.text('__glintRef__.element');
         });
-        mapper.text(', __glintY__.element);');
+        mapper.text(', ');
+        // Also map __glintY__.element: TS anchors the target-element
+        // mismatch (e.g. `<div ...attributes>` where the signature declares
+        // `Element: HTMLCanvasElement`) on this *second* argument, and
+        // without a mapping the diagnostic is silently dropped.
+        mapper.forNode(splattributes, () => {
+          mapper.text('__glintY__.element');
+        });
+        mapper.text(');');
       });
 
       mapper.newline();
