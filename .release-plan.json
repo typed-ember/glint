@@ -2,8 +2,25 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.8.11",
-      "newVersion": "1.8.12",
+      "oldVersion": "1.8.12",
+      "newVersion": "1.8.13",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:*` on @glint/template"
+        }
+      ],
+      "pkgJSONPath": "./packages/ember-tsc/package.json"
+    },
+    "@glint/template": {
+      "impact": "patch",
+      "oldVersion": "1.7.8",
+      "newVersion": "1.7.9",
       "tagName": "latest",
       "constraints": [
         {
@@ -11,24 +28,17 @@
           "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
-      "pkgJSONPath": "./packages/ember-tsc/package.json"
-    },
-    "@glint/template": {
-      "oldVersion": "1.7.8"
+      "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.5.17",
-      "newVersion": "2.5.18",
+      "oldVersion": "2.5.18",
+      "newVersion": "2.5.19",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -37,5 +47,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-07-10)\n\n* @glint/ember-tsc 1.8.12 (patch)\n* @glint/tsserver-plugin 2.5.18 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1201](https://github.com/typed-ember/glint/pull/1201) Fix member completions in gts files during mid-keystroke parse errors ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-07-25)\n\n* @glint/ember-tsc 1.8.13 (patch)\n* @glint/template 1.7.9 (patch)\n* @glint/tsserver-plugin 2.5.19 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`, `@glint/template`\n  * [#1207](https://github.com/typed-ember/glint/pull/1207) Report dropped sub-expression missing-argument diagnostics ([@johanrd](https://github.com/johanrd))\n* `@glint/ember-tsc`\n  * [#1206](https://github.com/typed-ember/glint/pull/1206) Report dropped ...attributes element-type mismatch diagnostics ([@johanrd](https://github.com/johanrd))\n  * [#1205](https://github.com/typed-ember/glint/pull/1205) Report dropped {{yield}} diagnostics (arity + undeclared block target) ([@johanrd](https://github.com/johanrd))\n  * [#1203](https://github.com/typed-ember/glint/pull/1203) Report dropped diagnostics on quoted attribute keys via `wideVerification` ([@johanrd](https://github.com/johanrd))\n  * [#1208](https://github.com/typed-ember/glint/pull/1208) Report dropped block-form curly missing-argument diagnostics ([@johanrd](https://github.com/johanrd))\n\n#### :house: Internal\n* [#1204](https://github.com/typed-ember/glint/pull/1204) Add regression coverage for modifier diagnostics anchored on generated code ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- Johan Røed ([@johanrd](https://github.com/johanrd))\n"
 }

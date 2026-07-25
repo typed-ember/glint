@@ -1,6 +1,6 @@
 {
   "name": "@glint/template",
-  "version": "1.7.8",
+  "version": "1.7.9",
   "repository": "typed-ember/glint",
   "description": "Type definitions to back typechecking for Glimmer templates",
   "license": "MIT",
