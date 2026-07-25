@@ -1235,40 +1235,64 @@ export function templateToTypescript(
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition,
     ): void {
-      mapper.forNode(node, () => {
-        assert(
-          position === 'top-level',
-          () => `{{${formInfo.name}}} may only appear as a top-level statement`,
-        );
-
-        let to = 'default';
-        let toPair = node.hash.pairs.find((pair) => pair.key === 'to');
-        if (toPair) {
+      // `wideVerification` (see #1168): TS anchors "Expected N arguments,
+      // but got M" for an under-supplied `{{yield}}` on the generated
+      // `__glintDSL__.yieldToBlock(__glintRef__, "...")` callee, which is
+      // generated-only text; without a covering verification mapping Volar
+      // cannot translate the diagnostic back to the template and silently
+      // drops it.
+      mapper.forNode(
+        node,
+        () => {
           assert(
-            toPair.value.type === 'StringLiteral',
-            () => `Named block {{${formInfo.name}}}s must have a literal block name`,
+            position === 'top-level',
+            () => `{{${formInfo.name}}} may only appear as a top-level statement`,
           );
-          to = toPair.value.value;
-        }
 
-        if (to === 'inverse') {
-          to = 'else';
-        }
-
-        mapper.text('__glintDSL__.yieldToBlock(__glintRef__, ');
-        mapper.text(JSON.stringify(to));
-        mapper.text(')(');
-
-        for (let [index, param] of node.params.entries()) {
-          if (index) {
-            mapper.text(', ');
+          let to = 'default';
+          let toPair = node.hash.pairs.find((pair) => pair.key === 'to');
+          if (toPair) {
+            assert(
+              toPair.value.type === 'StringLiteral',
+              () => `Named block {{${formInfo.name}}}s must have a literal block name`,
+            );
+            to = toPair.value.value;
           }
 
-          emitExpression(param);
-        }
+          if (to === 'inverse') {
+            to = 'else';
+          }
 
-        mapper.text(')');
-      });
+          mapper.text('__glintDSL__.yieldToBlock(__glintRef__, ');
+          if (toPair) {
+            // Map the emitted block-name string to the `to='...'` literal so
+            // that a TS2345 for an undeclared block anchors on the name in
+            // the template rather than on unmapped generated text.
+            mapper.forNode(toPair.value, () => {
+              mapper.text(JSON.stringify(to));
+            });
+          } else {
+            // No explicit target; map the implicit "default" to the yield
+            // statement itself.
+            mapper.forNode(node, () => {
+              mapper.text(JSON.stringify(to));
+            });
+          }
+          mapper.text(')(');
+
+          for (let [index, param] of node.params.entries()) {
+            if (index) {
+              mapper.text(', ');
+            }
+
+            emitExpression(param);
+          }
+
+          mapper.text(')');
+        },
+        undefined,
+        /* wideVerification */ true,
+      );
     }
 
     function emitSpecialFormStatement(formInfo: SpecialFormInfo, node: AST.BlockStatement): void {

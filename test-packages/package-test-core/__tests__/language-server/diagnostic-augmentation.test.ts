@@ -160,6 +160,19 @@ describe('Language Server: Diagnostic Augmentation', () => {
           "category": "error",
           "code": 2554,
           "end": {
+            "line": 25,
+            "offset": 42,
+          },
+          "start": {
+            "line": 25,
+            "offset": 5,
+          },
+          "text": "Expected 2 arguments, but got 1.",
+        },
+        {
+          "category": "error",
+          "code": 2554,
+          "end": {
             "line": 26,
             "offset": 28,
           },
@@ -168,6 +181,37 @@ describe('Language Server: Diagnostic Augmentation', () => {
             "offset": 21,
           },
           "text": "Expected 2 arguments, but got 3.",
+        },
+        {
+          "category": "error",
+          "code": 2555,
+          "end": {
+            "line": 27,
+            "offset": 42,
+          },
+          "relatedInformation": [
+            {
+              "category": "error",
+              "code": 6236,
+              "message": "Arguments for the rest parameter 'values' were not provided.",
+              "span": {
+                "end": {
+                  "line": 139,
+                  "offset": 49,
+                },
+                "file": "\${repoRootPath}/packages/template/-private/dsl/emit.d.ts",
+                "start": {
+                  "line": 139,
+                  "offset": 5,
+                },
+              },
+            },
+          ],
+          "start": {
+            "line": 27,
+            "offset": 5,
+          },
+          "text": "Expected at least 1 arguments, but got 0.",
         },
       ]
     `);
