@@ -1,5 +1,26 @@
 # Changelog
 
+## Release (2026-07-25)
+
+* @glint/ember-tsc 1.8.13 (patch)
+* @glint/template 1.7.9 (patch)
+* @glint/tsserver-plugin 2.5.19 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`, `@glint/template`
+  * [#1207](https://github.com/typed-ember/glint/pull/1207) Report dropped sub-expression missing-argument diagnostics ([@johanrd](https://github.com/johanrd))
+* `@glint/ember-tsc`
+  * [#1206](https://github.com/typed-ember/glint/pull/1206) Report dropped ...attributes element-type mismatch diagnostics ([@johanrd](https://github.com/johanrd))
+  * [#1205](https://github.com/typed-ember/glint/pull/1205) Report dropped {{yield}} diagnostics (arity + undeclared block target) ([@johanrd](https://github.com/johanrd))
+  * [#1203](https://github.com/typed-ember/glint/pull/1203) Report dropped diagnostics on quoted attribute keys via `wideVerification` ([@johanrd](https://github.com/johanrd))
+  * [#1208](https://github.com/typed-ember/glint/pull/1208) Report dropped block-form curly missing-argument diagnostics ([@johanrd](https://github.com/johanrd))
+
+#### :house: Internal
+* [#1204](https://github.com/typed-ember/glint/pull/1204) Add regression coverage for modifier diagnostics anchored on generated code ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- Johan Røed ([@johanrd](https://github.com/johanrd))
+
 ## Release (2026-07-10)
 
 * @glint/ember-tsc 1.8.12 (patch)
