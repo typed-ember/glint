@@ -1,5 +1,18 @@
 # Changelog
 
+## Release (2026-07-27)
+
+* @glint/ember-tsc 1.8.14 (patch)
+* @glint/template 1.7.10 (patch)
+* @glint/tsserver-plugin 2.5.20 (patch)
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#1210](https://github.com/typed-ember/glint/pull/1210) Regression fix: Add missing SVG 2 / Filter Effects attributes to generated element types by bumping `svg-element-attributes` to `2.2.0` ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- Johan Røed ([@johanrd](https://github.com/johanrd))
+
 ## Release (2026-07-25)
 
 * @glint/ember-tsc 1.8.13 (patch)

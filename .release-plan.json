@@ -2,14 +2,10 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.8.12",
-      "newVersion": "1.8.13",
+      "oldVersion": "1.8.13",
+      "newVersion": "1.8.14",
       "tagName": "latest",
       "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
-        },
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/template"
@@ -19,8 +15,8 @@
     },
     "@glint/template": {
       "impact": "patch",
-      "oldVersion": "1.7.8",
-      "newVersion": "1.7.9",
+      "oldVersion": "1.7.9",
+      "newVersion": "1.7.10",
       "tagName": "latest",
       "constraints": [
         {
@@ -32,8 +28,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.5.18",
-      "newVersion": "2.5.19",
+      "oldVersion": "2.5.19",
+      "newVersion": "2.5.20",
       "tagName": "latest",
       "constraints": [
         {
@@ -47,5 +43,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-07-25)\n\n* @glint/ember-tsc 1.8.13 (patch)\n* @glint/template 1.7.9 (patch)\n* @glint/tsserver-plugin 2.5.19 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`, `@glint/template`\n  * [#1207](https://github.com/typed-ember/glint/pull/1207) Report dropped sub-expression missing-argument diagnostics ([@johanrd](https://github.com/johanrd))\n* `@glint/ember-tsc`\n  * [#1206](https://github.com/typed-ember/glint/pull/1206) Report dropped ...attributes element-type mismatch diagnostics ([@johanrd](https://github.com/johanrd))\n  * [#1205](https://github.com/typed-ember/glint/pull/1205) Report dropped {{yield}} diagnostics (arity + undeclared block target) ([@johanrd](https://github.com/johanrd))\n  * [#1203](https://github.com/typed-ember/glint/pull/1203) Report dropped diagnostics on quoted attribute keys via `wideVerification` ([@johanrd](https://github.com/johanrd))\n  * [#1208](https://github.com/typed-ember/glint/pull/1208) Report dropped block-form curly missing-argument diagnostics ([@johanrd](https://github.com/johanrd))\n\n#### :house: Internal\n* [#1204](https://github.com/typed-ember/glint/pull/1204) Add regression coverage for modifier diagnostics anchored on generated code ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- Johan Røed ([@johanrd](https://github.com/johanrd))\n"
+  "description": "## Release (2026-07-27)\n\n* @glint/ember-tsc 1.8.14 (patch)\n* @glint/template 1.7.10 (patch)\n* @glint/tsserver-plugin 2.5.20 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1210](https://github.com/typed-ember/glint/pull/1210) Regression fix: Add missing SVG 2 / Filter Effects attributes to generated element types by bumping `svg-element-attributes` to `2.2.0` ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- Johan Røed ([@johanrd](https://github.com/johanrd))\n"
 }
