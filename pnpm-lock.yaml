@@ -72,8 +72,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       svg-element-attributes:
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^2.2.0
+        version: 2.2.0
       svg-event-attributes:
         specifier: ^2.0.2
         version: 2.0.2
@@ -199,8 +199,8 @@ importers:
         specifier: ^2.1.0
         version: 2.2.0
       svg-element-attributes:
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^2.2.0
+        version: 2.2.0
       svg-event-attributes:
         specifier: ^2.0.2
         version: 2.0.2
@@ -7607,8 +7607,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svg-element-attributes@2.1.0:
-    resolution: {integrity: sha512-Tq0WY3uGw/rltlSlAsro/WWqbg5oNiaRwzq13I9H1m/dYjMjesuxKV76dGSlpacjslGyAis8VIwqPXaUUXw26w==}
+  svg-element-attributes@2.2.0:
+    resolution: {integrity: sha512-t/7bOuynnY9XNkGAiMFq7nNsSqzoBQj4PZ1luVaSE1l2iZqAb1HctffddeQcKbXgYtBcHuzp6oauj5FWwo/mOw==}
 
   svg-event-attributes@2.0.2:
     resolution: {integrity: sha512-q8c6knvA5SccFLurAhSANIgMnYEN+KO7lxV92nr8ORB1pYSe1XSQ9NT57J9kyUJ71krR3th8R3+ufYdo5w7ffA==}
@@ -17847,7 +17847,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svg-element-attributes@2.1.0: {}
+  svg-element-attributes@2.2.0: {}
 
   svg-event-attributes@2.0.2: {}
 

@@ -702,19 +702,78 @@ interface GlintHtmlElementAttributesMap {
 declare global {
 interface GlobalSVGAttributes extends GlobalHTMLAttributes {
   ['about']: AttrValue;
+  ['alignment-baseline']: AttrValue;
+  ['baseline-shift']: AttrValue;
   ['class']: AttrValue;
+  ['clip-path']: AttrValue;
+  ['clip-rule']: AttrValue;
+  ['color']: AttrValue;
+  ['color-interpolation']: AttrValue;
+  ['color-interpolation-filters']: AttrValue;
+  ['color-rendering']: AttrValue;
   ['content']: AttrValue;
+  ['cursor']: AttrValue;
   ['datatype']: AttrValue;
+  ['direction']: AttrValue;
+  ['display']: AttrValue;
+  ['dominant-baseline']: AttrValue;
+  ['fill']: AttrValue;
+  ['fill-opacity']: AttrValue;
+  ['fill-rule']: AttrValue;
+  ['filter']: AttrValue;
+  ['flood-color']: AttrValue;
+  ['flood-opacity']: AttrValue;
+  ['font-family']: AttrValue;
+  ['font-size']: AttrValue;
+  ['font-size-adjust']: AttrValue;
+  ['font-stretch']: AttrValue;
+  ['font-style']: AttrValue;
+  ['font-variant']: AttrValue;
+  ['font-weight']: AttrValue;
+  ['glyph-orientation-horizontal']: AttrValue;
+  ['glyph-orientation-vertical']: AttrValue;
   ['id']: AttrValue;
+  ['image-rendering']: AttrValue;
   ['lang']: AttrValue;
+  ['letter-spacing']: AttrValue;
+  ['lighting-color']: AttrValue;
+  ['marker-end']: AttrValue;
+  ['marker-mid']: AttrValue;
+  ['marker-start']: AttrValue;
+  ['mask']: AttrValue;
+  ['opacity']: AttrValue;
+  ['overflow']: AttrValue;
+  ['paint-order']: AttrValue;
+  ['pointer-events']: AttrValue;
   ['property']: AttrValue;
   ['rel']: AttrValue;
   ['resource']: AttrValue;
   ['rev']: AttrValue;
+  ['shape-rendering']: AttrValue;
+  ['stop-color']: AttrValue;
+  ['stop-opacity']: AttrValue;
+  ['stroke']: AttrValue;
+  ['stroke-dasharray']: AttrValue;
+  ['stroke-dashoffset']: AttrValue;
+  ['stroke-linecap']: AttrValue;
+  ['stroke-linejoin']: AttrValue;
+  ['stroke-miterlimit']: AttrValue;
+  ['stroke-opacity']: AttrValue;
+  ['stroke-width']: AttrValue;
   ['style']: AttrValue;
   ['tabindex']: AttrValue;
+  ['text-anchor']: AttrValue;
+  ['text-decoration']: AttrValue;
+  ['text-overflow']: AttrValue;
+  ['text-rendering']: AttrValue;
+  ['transform']: AttrValue;
   ['typeof']: AttrValue;
+  ['unicode-bidi']: AttrValue;
   ['vector-effect']: AttrValue;
+  ['visibility']: AttrValue;
+  ['white-space']: AttrValue;
+  ['word-spacing']: AttrValue;
+  ['writing-mode']: AttrValue;
   ['onabort']: AttrValue;
   ['onactivate']: AttrValue;
   ['onafterprint']: AttrValue;
@@ -819,8 +878,8 @@ interface SVGAElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -1055,8 +1114,8 @@ interface SVGCircleElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -1279,8 +1338,8 @@ interface SVGEllipseElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -1848,8 +1907,6 @@ interface SVGFEDropShadowElementAttributes extends GlobalSVGAttributes {
   ['width']: AttrValue;
   ['x']: AttrValue;
   ['y']: AttrValue;
-  ['flood-color']: AttrValue;
-  ['flood-opacity']: AttrValue;
 }
 interface SVGFEFloodElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
@@ -2615,8 +2672,8 @@ interface SVGForeignObjectElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -2699,8 +2756,8 @@ interface SVGGElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -2780,8 +2837,8 @@ interface SVGImageElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -2867,8 +2924,8 @@ interface SVGLineElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -3175,8 +3232,8 @@ interface SVGPathElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -3331,8 +3388,8 @@ interface SVGPolygonElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -3413,8 +3470,8 @@ interface SVGPolylineElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -3567,8 +3624,8 @@ interface SVGRectElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -3727,8 +3784,8 @@ interface SVGStyleElementAttributes extends GlobalSVGAttributes {
 }
 interface SVGSVGElementAttributes extends GlobalSVGAttributes {
   ['alignment-baseline']: AttrValue;
-  ['baseProfile']: AttrValue;
   ['baseline-shift']: AttrValue;
+  ['baseProfile']: AttrValue;
   ['clip']: AttrValue;
   ['clip-path']: AttrValue;
   ['clip-rule']: AttrValue;
@@ -3751,8 +3808,8 @@ interface SVGSVGElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -3783,8 +3840,8 @@ interface SVGSVGElementAttributes extends GlobalSVGAttributes {
   ['nav-up-right']: AttrValue;
   ['opacity']: AttrValue;
   ['overflow']: AttrValue;
-  ['playbackOrder']: AttrValue;
   ['playbackorder']: AttrValue;
+  ['playbackOrder']: AttrValue;
   ['pointer-events']: AttrValue;
   ['preserveAspectRatio']: AttrValue;
   ['requiredExtensions']: AttrValue;
@@ -3807,8 +3864,8 @@ interface SVGSVGElementAttributes extends GlobalSVGAttributes {
   ['text-anchor']: AttrValue;
   ['text-decoration']: AttrValue;
   ['text-rendering']: AttrValue;
-  ['timelineBegin']: AttrValue;
   ['timelinebegin']: AttrValue;
+  ['timelineBegin']: AttrValue;
   ['transform']: AttrValue;
   ['unicode-bidi']: AttrValue;
   ['version']: AttrValue;
@@ -3845,8 +3902,8 @@ interface SVGSwitchElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -3998,8 +4055,8 @@ interface SVGTextElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -4165,8 +4222,8 @@ interface SVGTSpanElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;
@@ -4249,8 +4306,8 @@ interface SVGUseElementAttributes extends GlobalSVGAttributes {
   ['filter']: AttrValue;
   ['flood-color']: AttrValue;
   ['flood-opacity']: AttrValue;
-  ['focusHighlight']: AttrValue;
   ['focusable']: AttrValue;
+  ['focusHighlight']: AttrValue;
   ['font-family']: AttrValue;
   ['font-size']: AttrValue;
   ['font-size-adjust']: AttrValue;

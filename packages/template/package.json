@@ -32,7 +32,7 @@
     "html-element-attributes": "^3.5.0",
     "html-event-attributes": "^2.2.0",
     "sums-up": "^2.1.0",
-    "svg-element-attributes": "^2.1.0",
+    "svg-element-attributes": "^2.2.0",
     "svg-event-attributes": "^2.0.2",
     "typescript": "^5.9.3"
   },

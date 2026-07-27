@@ -11,13 +11,8 @@ describe('Language Server: Diagnostics — SVG presentation attributes', () => {
   afterEach(teardownSharedTestWorkspaceAfterEach);
 
   test('accepts valid SVG 2 / Filter Effects presentation attributes', async () => {
-    // `vector-effect` (SVG 2) and `flood-color`/`flood-opacity` on
-    // <feDropShadow> (Filter Effects 1) are valid attributes that are missing
-    // from the svg-element-attributes dataset; they are added via
-    // `missingSpecAttributes` in bin/build-elements.mjs so they must never be
-    // reported. This guards against regressions for real-world SVG usage
-    // once diagnostics on quoted attribute keys are reported (see the
-    // wideVerification work).
+    // SVG 2 presentation attributes are valid on any element in the SVG
+    // namespace, including ones whose per-element list omits them.
     const code = stripIndent`
       import Component from '@glimmer/component';
 

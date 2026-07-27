@@ -42,25 +42,6 @@ const runtimeAdditionalProperties = new Map([
   ['SVGSVGElement', new Map([['xmlns', 'AttrValue']])],
 ]);
 
-// Valid attributes missing from svg-element-attributes@2.1.0, whose crawler
-// misses the SVG 2 presentation attributes list (fix proposed upstream:
-// https://github.com/wooorm/svg-element-attributes/pull/5 — remove these
-// once a release includes it and the dependency is bumped).
-const missingSpecAttributes = new Map([
-  // SVG 2 presentation attribute; may be specified on any SVG element:
-  // https://svgwg.org/svg2-draft/coords.html#VectorEffectProperty
-  ['GlobalSVG', new Map([['vector-effect', 'AttrValue']])],
-  // Filter Effects 1 applies these to <feDropShadow>, not just <feFlood>:
-  // https://drafts.fxtf.org/filter-effects/#feDropShadowElement
-  [
-    'SVGFEDropShadowElement',
-    new Map([
-      ['flood-color', 'AttrValue'],
-      ['flood-opacity', 'AttrValue'],
-    ]),
-  ],
-]);
-
 const GLOBAL_HTML_ATTRIBUTES_NAME = 'GlobalHTMLAttributes';
 const GLOBAL_SVG_ATTRIBUTES_NAME = 'GlobalSVGAttributes';
 const htmlElementsMap = new Map([[GLOBAL_HTML_ATTRIBUTES_NAME, 'HTMLElement']]);
@@ -225,13 +206,6 @@ function createSvgElementAttributesMap() {
     if (properties) {
       properties.forEach((value, property) => {
         svgElementsContent += `  ['${property}']: ${value};\n`;
-      });
-    }
-
-    const missingAttributes = missingSpecAttributes.get(type);
-    if (missingAttributes) {
-      missingAttributes.forEach((value, attribute) => {
-        svgElementsContent += `  ['${attribute}']: ${value};\n`;
       });
     }
 
