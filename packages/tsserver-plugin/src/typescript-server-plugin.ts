@@ -580,7 +580,8 @@ function proxyLanguageServiceForGlint<T>(
       // case 'getCompletionEntryDetails': return getCompletionEntryDetails(language, asScriptId, target[p]);
       // case 'getCodeFixesAtPosition': return getCodeFixesAtPosition(target[p]);
       // case 'getDefinitionAndBoundSpan': return getDefinitionAndBoundSpan(ts, language, languageService, glintOptions, asScriptId, target[p]);
-      // case 'getQuickInfoAtPosition': return getQuickInfoAtPosition(ts, target, target[p]);
+      case 'getQuickInfoAtPosition':
+        return getQuickInfoAtPosition(language, asScriptId, target[p]);
       // TS plugin only
 
       // Left as an example in case we want to augment semantic classification in .gts files.
@@ -610,6 +611,115 @@ function proxyLanguageServiceForGlint<T>(
       return Reflect.set(target, p, value, receiver);
     },
   });
+}
+
+/**
+ * Hovering a plain element's tag name serves quickinfo from the discarded
+ * `elementTypes` lookup the transform emits for it, whose property-style
+ * display would read `(property) my_element: MyElement`. Rewrite it to show
+ * just the element type. Components (PascalCase / `this.` / `@` / dotted
+ * tags) are untouched, as is any quickinfo that doesn't match the expected
+ * `(property) <tag-name-ish>: ...` shape.
+ */
+function getQuickInfoAtPosition<T>(
+  language: any, // Language<T>,
+  asScriptId: (fileName: string) => T,
+  getQuickInfoAtPosition: ts.LanguageService['getQuickInfoAtPosition'],
+): ts.LanguageService['getQuickInfoAtPosition'] {
+  return (fileName, position, ...rest: any[]) => {
+    const info = (getQuickInfoAtPosition as any)(fileName, position, ...rest);
+    if (!info?.displayParts) return info;
+
+    try {
+      const sourceScript = language.scripts.get(asScriptId(fileName));
+      const root = sourceScript?.generated?.root;
+      const transformedModule: TransformedModule = root?.transformedModule;
+
+      let mapping: any = null;
+      for (const span of transformedModule?.correlatedSpans ?? []) {
+        if (!span.glimmerAstMapping) continue;
+        if (position < span.originalStart || position >= span.originalStart + span.originalLength) {
+          continue;
+        }
+        // `narrowestMappingForOriginalRange` returns the *first* containing
+        // child, and the mapping tree can hold sibling twins of the same
+        // node where the first has no children — so search for the
+        // smallest containing mapping ourselves.
+        mapping = smallestMappingAt(span.glimmerAstMapping, position - span.originalStart);
+        break;
+      }
+
+      const parentNode = mapping?.parent?.sourceNode;
+
+      if (
+        mapping?.sourceNode?.type === 'PathExpression' &&
+        parentNode?.type === 'ElementNode' &&
+        isPlainElementTagName(parentNode.tag)
+      ) {
+        const parts: Array<{ text: string; kind: string }> = info.displayParts;
+        const tag = parentNode.tag;
+        const identifierSafeTag = tag.replace(/-/g, '_');
+        const nameIndex = parts.findIndex(
+          (part) =>
+            part.text === identifierSafeTag ||
+            part.text === tag ||
+            part.text === `'${tag}'` ||
+            part.text === `"${tag}"`,
+        );
+        const colonIndex =
+          nameIndex >= 0
+            ? parts.findIndex(
+                (part, index) =>
+                  index > nameIndex && part.kind === 'punctuation' && part.text === ':',
+              )
+            : -1;
+
+        if (parts[1]?.text === 'property' && colonIndex >= 0) {
+          let typeParts = parts.slice(colonIndex + 1);
+          while (typeParts[0]?.kind === 'space') {
+            typeParts = typeParts.slice(1);
+          }
+          if (typeParts.length) {
+            return { ...info, displayParts: typeParts };
+          }
+        }
+      }
+    } catch {
+      // If anything goes wrong inspecting the mapping, fall through to the
+      // unmodified quickinfo.
+    }
+
+    return info;
+  };
+}
+
+function smallestMappingAt(mapping: any, offset: number): any {
+  if (offset < mapping.originalRange.start || offset >= mapping.originalRange.end) {
+    return null;
+  }
+  let best: any = null;
+  for (const child of mapping.children) {
+    const found = smallestMappingAt(child, offset);
+    if (
+      found &&
+      (!best ||
+        found.originalRange.end - found.originalRange.start <=
+          best.originalRange.end - best.originalRange.start)
+    ) {
+      best = found;
+    }
+  }
+  return best ?? mapping;
+}
+
+function isPlainElementTagName(tag: string): boolean {
+  const firstChar = tag.charAt(0);
+  return (
+    firstChar === firstChar.toLowerCase() &&
+    !tag.includes('.') &&
+    !tag.startsWith('@') &&
+    !tag.startsWith(':')
+  );
 }
 
 function getCompletionsAtPosition<T>(

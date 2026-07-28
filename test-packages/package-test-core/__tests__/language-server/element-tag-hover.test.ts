@@ -30,9 +30,7 @@ describe('Language Server: element tag hover and definition (ts plugin)', () => 
 
     const hover = await performHoverRequest(doc, offset);
 
-    expect(hover.displayString).toMatchInlineSnapshot(
-      `"(property) my_custom_element: MyCustomElement"`,
-    );
+    expect(hover.displayString).toMatchInlineSnapshot(`"MyCustomElement"`);
   });
 
   test('go-to-definition on a registered custom element resolves to its registry entry', async () => {
@@ -90,9 +88,7 @@ describe('Language Server: element tag hover and definition (ts plugin)', () => 
 
     const hover = await performHoverRequest(doc, offset);
 
-    expect(hover.displayString).toMatchInlineSnapshot(
-      `"(property) HTMLElementTagNameMap["div"]: HTMLDivElement"`,
-    );
+    expect(hover.displayString).toMatchInlineSnapshot(`"HTMLDivElement"`);
   });
 });
 
