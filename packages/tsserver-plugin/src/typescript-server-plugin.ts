@@ -582,6 +582,8 @@ function proxyLanguageServiceForGlint<T>(
       // case 'getDefinitionAndBoundSpan': return getDefinitionAndBoundSpan(ts, language, languageService, glintOptions, asScriptId, target[p]);
       case 'getQuickInfoAtPosition':
         return getQuickInfoAtPosition(ts, language, languageService, asScriptId, target[p]);
+      case 'getDefinitionAndBoundSpan':
+        return getDefinitionAndBoundSpan(language, asScriptId, target, target[p]);
       // TS plugin only
 
       // Left as an example in case we want to augment semantic classification in .gts files.
@@ -632,27 +634,15 @@ function getQuickInfoAtPosition<T>(
     const info = (getQuickInfoAtPosition as any)(fileName, position, ...rest);
 
     try {
-      const sourceScript = language.scripts.get(asScriptId(fileName));
-      const root = sourceScript?.generated?.root;
-      const transformedModule: TransformedModule = root?.transformedModule;
-
-      let mapping: any = null;
-      let containingSpan: any = null;
-      for (const span of transformedModule?.correlatedSpans ?? []) {
-        if (!span.glimmerAstMapping) continue;
-        if (position < span.originalStart || position >= span.originalStart + span.originalLength) {
-          continue;
-        }
-        // `narrowestMappingForOriginalRange` returns the *first* containing
-        // child, and the mapping tree can hold sibling twins of the same
-        // node where the first has no children — so search for the
-        // smallest containing mapping ourselves.
-        mapping = smallestMappingAt(span.glimmerAstMapping, position - span.originalStart);
-        containingSpan = span;
-        break;
-      }
+      const { transformedModule, mapping, containingSpan } = locateTemplateMapping(
+        language,
+        asScriptId,
+        fileName,
+        position,
+      );
 
       if (!info) {
+        if (!transformedModule) return info;
         return recoverAttributeNameQuickInfo(
           ts,
           languageService,
@@ -814,6 +804,80 @@ function recoverAttributeNameQuickInfo(
   }
 
   return undefined;
+}
+
+/**
+ * VS Code (and most LSP clients) resolve definitions through tsserver's
+ * `definitionAndBoundSpan` command. Volar's proxy for it drops the *entire*
+ * result when the origin ("bound") span can't be translated back to the
+ * template — which is the case for the quoted `elementTypes["my-element"]`
+ * keys serving element tag names, and for quoted attribute keys: their
+ * quotes have no source counterpart. Fall back to `getDefinitionAtPosition`
+ * (whose per-target translation works fine) and synthesize the bound span
+ * from the mapping tree.
+ */
+function getDefinitionAndBoundSpan<T>(
+  language: any, // Language<T>,
+  asScriptId: (fileName: string) => T,
+  languageServiceProxy: ts.LanguageService,
+  getDefinitionAndBoundSpan: ts.LanguageService['getDefinitionAndBoundSpan'],
+): ts.LanguageService['getDefinitionAndBoundSpan'] {
+  return (fileName, position) => {
+    const result = getDefinitionAndBoundSpan(fileName, position);
+    if (result?.definitions?.length) return result;
+
+    try {
+      const { mapping, containingSpan } = locateTemplateMapping(
+        language,
+        asScriptId,
+        fileName,
+        position,
+      );
+      if (!mapping) return result;
+
+      const definitions = languageServiceProxy.getDefinitionAtPosition(fileName, position);
+      if (!definitions?.length) return result;
+
+      return {
+        definitions,
+        textSpan: {
+          start: containingSpan.originalStart + mapping.originalRange.start,
+          length: mapping.originalRange.end - mapping.originalRange.start,
+        },
+      };
+    } catch {
+      return result;
+    }
+  };
+}
+
+function locateTemplateMapping<T>(
+  language: any, // Language<T>,
+  asScriptId: (fileName: string) => T,
+  fileName: string,
+  position: number,
+): { transformedModule: TransformedModule | undefined; mapping: any; containingSpan: any } {
+  const sourceScript = language.scripts.get(asScriptId(fileName));
+  const root = sourceScript?.generated?.root;
+  const transformedModule: TransformedModule = root?.transformedModule;
+
+  let mapping: any = null;
+  let containingSpan: any = null;
+  for (const span of transformedModule?.correlatedSpans ?? []) {
+    if (!span.glimmerAstMapping) continue;
+    if (position < span.originalStart || position >= span.originalStart + span.originalLength) {
+      continue;
+    }
+    // `narrowestMappingForOriginalRange` returns the *first* containing
+    // child, and the mapping tree can hold sibling twins of the same
+    // node where the first has no children — so search for the
+    // smallest containing mapping ourselves.
+    mapping = smallestMappingAt(span.glimmerAstMapping, position - span.originalStart);
+    containingSpan = span;
+    break;
+  }
+
+  return { transformedModule, mapping, containingSpan };
 }
 
 function smallestMappingAt(mapping: any, offset: number): any {

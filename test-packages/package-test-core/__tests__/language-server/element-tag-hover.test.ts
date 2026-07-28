@@ -49,27 +49,39 @@ describe('Language Server: element tag hover and definition (ts plugin)', () => 
     const definitions = await performDefinitionRequest(doc, offset);
 
     expect(definitions).toMatchInlineSnapshot(`
-      [
-        {
-          "contextEnd": {
-            "line": 13,
-            "offset": 42,
+      {
+        "definitions": [
+          {
+            "contextEnd": {
+              "line": 13,
+              "offset": 42,
+            },
+            "contextStart": {
+              "line": 13,
+              "offset": 5,
+            },
+            "end": {
+              "line": 13,
+              "offset": 24,
+            },
+            "file": "\${testWorkspacePath}/ts-template-imports-app/src/custom-elements.gts",
+            "start": {
+              "line": 13,
+              "offset": 5,
+            },
           },
-          "contextStart": {
-            "line": 13,
-            "offset": 5,
-          },
+        ],
+        "textSpan": {
           "end": {
-            "line": 13,
-            "offset": 24,
+            "line": 2,
+            "offset": 21,
           },
-          "file": "\${testWorkspacePath}/ts-template-imports-app/src/custom-elements.gts",
           "start": {
-            "line": 13,
-            "offset": 5,
+            "line": 2,
+            "offset": 4,
           },
         },
-      ]
+      }
     `);
   });
 
@@ -107,27 +119,39 @@ describe('Language Server: element tag hover and definition (ts plugin)', () => 
     const definitions = await performDefinitionRequest(doc, offset);
 
     expect(definitions).toMatchInlineSnapshot(`
-      [
-        {
-          "contextEnd": {
-            "line": 18,
-            "offset": 26,
+      {
+        "definitions": [
+          {
+            "contextEnd": {
+              "line": 18,
+              "offset": 26,
+            },
+            "contextStart": {
+              "line": 18,
+              "offset": 7,
+            },
+            "end": {
+              "line": 18,
+              "offset": 17,
+            },
+            "file": "\${testWorkspacePath}/ts-template-imports-app/src/custom-elements.gts",
+            "start": {
+              "line": 18,
+              "offset": 7,
+            },
           },
-          "contextStart": {
-            "line": 18,
-            "offset": 7,
-          },
+        ],
+        "textSpan": {
           "end": {
-            "line": 18,
-            "offset": 17,
+            "line": 2,
+            "offset": 30,
           },
-          "file": "\${testWorkspacePath}/ts-template-imports-app/src/custom-elements.gts",
           "start": {
-            "line": 18,
-            "offset": 7,
+            "line": 2,
+            "offset": 22,
           },
         },
-      ]
+      }
     `);
   });
 
@@ -184,12 +208,17 @@ async function performHoverRequest(document: TextDocument, offset: number): Prom
   return res.body;
 }
 
+// `definitionAndBoundSpan` is what real editors issue (VS Code's TS
+// integration and most LSP clients), and unlike the plain `definition`
+// command it also requires the origin ("bound") span to translate back to
+// the template — a regression surface of its own (see
+// `getDefinitionAndBoundSpan` in the tsserver plugin).
 async function performDefinitionRequest(document: TextDocument, offset: number): Promise<any> {
   const workspaceHelper = await getSharedTestWorkspaceHelper();
 
   const res = await workspaceHelper.tsserver.message({
     seq: workspaceHelper.nextSeq(),
-    command: 'definition',
+    command: 'definitionAndBoundSpan',
     arguments: {
       file: URI.parse(document.uri).fsPath,
       position: offset,
@@ -197,7 +226,7 @@ async function performDefinitionRequest(document: TextDocument, offset: number):
   });
   expect(res.success).toBe(true);
 
-  for (const ref of res.body) {
+  for (const ref of res.body.definitions ?? []) {
     ref.file = '${testWorkspacePath}' + ref.file.slice(testWorkspacePath.length);
   }
   return res.body;
