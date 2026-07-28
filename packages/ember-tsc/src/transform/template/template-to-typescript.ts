@@ -1,4 +1,5 @@
 import { AST } from '@glimmer/syntax';
+import { CodeInformation } from '@volar/language-server/node.js';
 import { GlintEmitMetadata, GlintSpecialForm } from '@glint/ember-tsc/config-types';
 import { assert, unreachable } from '../util.js';
 import { TextContent } from './glimmer-ast-mapping-tree.js';
@@ -17,6 +18,30 @@ const SPLATTRIBUTES = '...attributes';
 // between `Globals.NAME` (which preserves JSDoc on hover/completions) and
 // the bracket-string fallback `Globals["NAME"]` for hyphenated keywords.
 const VALID_JS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+
+// Tag names that become valid JS identifiers once hyphens are substituted
+// with underscores, and can therefore be emitted as `elementTypes.tag_name`
+// property accesses (see `emitPlainElement`).
+const IDENTIFIER_SAFE_TAG_NAME = /^[A-Za-z_$][A-Za-z0-9_$-]*$/;
+
+// Mapping capabilities for the two discarded `elementTypes` tag-name
+// references (see `emitPlainElement`): the identifier form serves hover, the
+// quoted-key form serves navigation (definition/references). Everything else
+// is disabled so the two mappings can't produce duplicate or misanchored
+// results for other language features.
+const TAG_NAME_HOVER_FEATURES: CodeInformation = {
+  semantic: { shouldHighlight: () => false },
+  navigation: false,
+  completion: false,
+  verification: false,
+};
+
+const TAG_NAME_NAVIGATION_FEATURES: CodeInformation = {
+  semantic: false,
+  navigation: true,
+  completion: false,
+  verification: false,
+};
 
 // Hyphenated globals translated to identifier-safe aliases declared on the
 // `Globals` interface (see `KeywordAliasesForEmber` in
@@ -1054,16 +1079,59 @@ export function templateToTypescript(
         mapper.indent();
 
         if (inHtmlContext === 'default') {
-          mapper.text('const __glintY__ = __glintDSL__.emitElement("');
-        } else if (inHtmlContext === 'svg') {
-          mapper.text('const __glintY__ = __glintDSL__.emitSVGElement("');
-        } else if (inHtmlContext === 'math') {
-          mapper.text('const __glintY__ = __glintDSL__.emitMathMlElement("');
+          // The tag name is mapped onto discarded `elementTypes` lookups
+          // (rather than onto `emitElement`'s string argument) so that
+          // hovering the tag name shows the element's type and
+          // go-to-definition resolves to its `HTMLElementTagNameMap` /
+          // `GlintCustomElementTagNameMap` entry. Each feature needs its own
+          // reference form:
+          //
+          // - Hover requires an *identifier* whose length matches the source
+          //   tag name (hyphens substituted with underscores, matching
+          //   `elementTypes`' remapped keys — like `each-in` ->
+          //   `Globals.each_in`): a quoted key's quickinfo textSpan includes
+          //   the quotes, which Volar can't map back to the template, so the
+          //   hover result gets dropped.
+          // - Go-to-definition requires the *raw quoted key*: TypeScript
+          //   retains no declaration links through the key-remapped mapped
+          //   type, so definition comes up empty on the identifier form.
+          if (IDENTIFIER_SAFE_TAG_NAME.test(node.tag)) {
+            mapper.text('__glintDSL__.noop(__glintDSL__.elementTypes.');
+            mapper.forNode(
+              node.path,
+              () => {
+                mapper.text(node.tag.replace(/-/g, '_'));
+              },
+              TAG_NAME_HOVER_FEATURES,
+            );
+            mapper.text(');');
+            mapper.newline();
+          }
+          mapper.text('__glintDSL__.noop(__glintDSL__.elementTypes["');
+          mapper.forNode(
+            node.path,
+            () => {
+              mapper.text(node.tag);
+            },
+            TAG_NAME_NAVIGATION_FEATURES,
+          );
+          mapper.text('"]);');
+          mapper.newline();
+          mapper.text(`const __glintY__ = __glintDSL__.emitElement("${node.tag}");`);
+        } else {
+          // In SVG/MathML context the tag name stays mapped onto the emit
+          // function's argument: its `keyof` constraint anchors "unknown
+          // element" diagnostics there.
+          if (inHtmlContext === 'svg') {
+            mapper.text('const __glintY__ = __glintDSL__.emitSVGElement("');
+          } else {
+            mapper.text('const __glintY__ = __glintDSL__.emitMathMlElement("');
+          }
+          mapper.forNode(node.path, () => {
+            mapper.text(node.tag);
+          });
+          mapper.text('");');
         }
-        mapper.forNode(node.path, () => {
-          mapper.text(node.tag);
-        });
-        mapper.text('");');
         mapper.newline();
 
         emitAttributesAndModifiers(node, 'element');

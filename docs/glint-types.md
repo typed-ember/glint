@@ -250,6 +250,9 @@ With both registered:
 {{! ^ attributes are checked, and the element itself is typed as MyCustomElement }}
 ```
 
+Hovering a registered element's tag name shows its element type, and
+go-to-definition on the tag name resolves to its registry entry.
+
 The two registries are independent:
 
 - Registering only the element type gives you a typed element (for modifiers

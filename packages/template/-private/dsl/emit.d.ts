@@ -38,6 +38,47 @@ export declare const NamedArgsMarker: NamedArgs<unknown>;
 export declare function emitContent(value: ContentValue): void;
 
 /*
+ * Rewrites hyphens in tag names to underscores so that tag names can be
+ * emitted as *identifier* property accesses of the same length as the source
+ * tag name. Both constraints matter: hover only works when TypeScript's
+ * quickinfo textSpan (the referenced identifier) lies entirely within a
+ * length-preserving mapping back to the template — a quoted key's textSpan
+ * includes the quotes, which have no source counterpart, so Volar drops the
+ * hover result. (This is the same trick used for hyphenated keywords like
+ * `each-in` -> `Globals.each_in`.)
+ */
+type IdentifierSafeName<Name> = Name extends `${infer Head}-${infer Tail}`
+  ? `${Head}_${IdentifierSafeName<Tail>}`
+  : Name;
+
+type IdentifierSafeKeys<T> = {
+  [K in keyof T as IdentifierSafeName<K & string>]: T[K];
+};
+
+/*
+ * A value-level tag name -> element type lookup. The transform emits
+ * discarded references like:
+ *
+ *     __glintDSL__.noop(__glintDSL__.elementTypes.my_element);
+ *     __glintDSL__.noop(__glintDSL__.elementTypes["my-element"]);
+ *
+ * with the tag name in the template mapped onto both, so that hovering an
+ * element's tag name shows its element type (served by the identifier form)
+ * and go-to-definition resolves to the corresponding `HTMLElementTagNameMap`
+ * / `GlintCustomElementTagNameMap` entry (served by the raw-key form, since
+ * TypeScript retains no declaration links through the key-remapped copies).
+ */
+export declare const elementTypes: HTMLElementTagNameMap &
+  GlintCustomElementTagNameMap &
+  IdentifierSafeKeys<HTMLElementTagNameMap> &
+  IdentifierSafeKeys<GlintCustomElementTagNameMap> & {
+    svg: SVGSVGElement;
+    math: MathMLElement;
+  } & {
+    [tagName: string]: Element;
+  };
+
+/*
  * Emits an element of the given name, providing a value to the
  * given handler of an appropriate type for the DOM node that will
  * be produced. This:

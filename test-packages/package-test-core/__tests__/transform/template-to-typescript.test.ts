@@ -834,6 +834,8 @@ describe('Transform: rewriteTemplate', () => {
 
           expect(templateBody(template)).toMatchInlineSnapshot(`
             "{
+            __glintDSL__.noop(__glintDSL__.elementTypes.div);
+            __glintDSL__.noop(__glintDSL__.elementTypes["div"]);
             const __glintY__ = __glintDSL__.emitElement("div");
             __glintDSL__.applyTagAttributes(__glintY__, {
             "data-attr": __glintDSL__.resolveOrReturn(__glintRef__.args.input)(),
@@ -847,6 +849,8 @@ describe('Transform: rewriteTemplate', () => {
 
           expect(templateBody(template)).toMatchInlineSnapshot(`
             "{
+            __glintDSL__.noop(__glintDSL__.elementTypes.div);
+            __glintDSL__.noop(__glintDSL__.elementTypes["div"]);
             const __glintY__ = __glintDSL__.emitElement("div");
             __glintDSL__.applyTagAttributes(__glintY__, {
             "data-attr": \`\${__glintDSL__.resolveOrReturn(__glintRef__.args.input)()}\`,
@@ -977,6 +981,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
+        __glintDSL__.noop(__glintDSL__.elementTypes.div);
+        __glintDSL__.noop(__glintDSL__.elementTypes["div"]);
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.applyModifier(__glintDSL__.resolve(modifier)(__glintY__.element, { foo: "bar" , ...__glintDSL__.NamedArgsMarker }));
         }"
@@ -1001,6 +1007,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template, { globals: [] })).toMatchInlineSnapshot(`
         "{
+        __glintDSL__.noop(__glintDSL__.elementTypes.div);
+        __glintDSL__.noop(__glintDSL__.elementTypes["div"]);
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.applyTagAttributes(__glintY__, {
         "data-attr": __glintDSL__.resolve(concat)(__glintDSL__.resolve(foo)(1), __glintDSL__.resolve(foo)(true)),
@@ -1090,6 +1098,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
+        __glintDSL__.noop(__glintDSL__.elementTypes.div);
+        __glintDSL__.noop(__glintDSL__.elementTypes["div"]);
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.foo)());
         }"
@@ -1101,6 +1111,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
+        __glintDSL__.noop(__glintDSL__.elementTypes.div);
+        __glintDSL__.noop(__glintDSL__.elementTypes["div"]);
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.applyTagAttributes(__glintY__, {
         "data-foo": __glintDSL__.resolveOrReturn(__glintRef__.args.foo)(),
@@ -1114,6 +1126,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
+        __glintDSL__.noop(__glintDSL__.elementTypes.div);
+        __glintDSL__.noop(__glintDSL__.elementTypes["div"]);
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.applyTagAttributes(__glintY__, {
         "data-foo": \`\${__glintDSL__.resolveOrReturn(__glintRef__.args.foo)()}\${__glintDSL__.resolveOrReturn(__glintRef__.args.bar)()}\`,
@@ -1127,6 +1141,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
+        __glintDSL__.noop(__glintDSL__.elementTypes.div);
+        __glintDSL__.noop(__glintDSL__.elementTypes["div"]);
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.applySplattributes(__glintRef__.element, __glintY__.element);
         }"
@@ -1161,6 +1177,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
+        __glintDSL__.noop(__glintDSL__.elementTypes.my_element);
+        __glintDSL__.noop(__glintDSL__.elementTypes["my-element"]);
         const __glintY__ = __glintDSL__.emitElement("my-element");
         __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(__glintRef__.args.foo)());
         }"
@@ -1172,6 +1190,8 @@ describe('Transform: rewriteTemplate', () => {
 
       expect(templateBody(template)).toMatchInlineSnapshot(`
         "{
+        __glintDSL__.noop(__glintDSL__.elementTypes.my_element);
+        __glintDSL__.noop(__glintDSL__.elementTypes["my-element"]);
         const __glintY__ = __glintDSL__.emitElement("my-element");
         __glintDSL__.applyTagAttributes(__glintY__, {
         "prop-num": 123,
