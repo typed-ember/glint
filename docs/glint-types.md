@@ -207,3 +207,59 @@ declare global {
   }
 }
 ```
+
+### Custom Elements / Web Components
+
+By default, Glint knows nothing about custom elements: `<my-element>` is typed
+as a plain `Element`, and any attributes are accepted.
+
+To teach Glint about a custom element, register it in one (or both) of two
+global interfaces:
+
+- `GlintCustomElementTagNameMap` — maps the tag name to the element's instance
+  type (mirroring the DOM's own `HTMLElementTagNameMap`). This is what gives
+  the element a real type for modifiers, `...attributes`, and hover info.
+- `GlintCustomElementAttributesMap` — maps the tag name to the attributes the
+  element accepts. Attributes are registered separately because TypeScript has
+  no way to derive "settable attributes" from an element class (methods and
+  readonly DOM properties would leak in).
+
+```ts
+import '@glint/template';
+
+import type { MyCustomElement } from './wherever';
+
+declare global {
+  interface GlintCustomElementTagNameMap {
+    'my-custom-element': MyCustomElement;
+  }
+
+  interface GlintCustomElementAttributesMap {
+    'my-custom-element': {
+      'prop-num': number;
+      'prop-str': string;
+    };
+  }
+}
+```
+
+With both registered:
+
+```handlebars
+<my-custom-element prop-num={{123}} prop-str="hello"></my-custom-element>
+{{! ^ attributes are checked, and the element itself is typed as MyCustomElement }}
+```
+
+The two registries are independent:
+
+- Registering only the element type gives you a typed element (for modifiers
+  and `...attributes`) while leaving attributes unchecked.
+- Registering only attributes checks them while leaving the element typed as
+  `Element`.
+- Tag names registered in neither registry behave as before: `Element` type,
+  arbitrary attributes accepted.
+
+If you already augment the DOM's standard `HTMLElementTagNameMap` for your
+custom elements (as is conventional in e.g. Lit), Glint picks the element type
+up from there too — `GlintCustomElementTagNameMap` exists for projects that
+prefer not to extend the DOM's own registry.

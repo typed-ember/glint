@@ -12,6 +12,7 @@ import {
 } from '../integration';
 import {
   AttributesForElement,
+  AttributesForTagName,
   ElementForTagName,
   MathMlElementForTagName,
   SVGElementForTagName,
@@ -54,20 +55,35 @@ export declare function emitContent(value: ContentValue): void;
 export declare function emitElement<Name extends string | 'math' | 'svg'>(
   name: Name,
 ): {
+  name: Name;
   element: Name extends 'math'
     ? MathMlElementForTagName<'math'>
     : Name extends 'svg'
       ? SVGElementForTagName<'svg'>
       : ElementForTagName<Name>;
+  attributes: Name extends 'math'
+    ? Record<string, AttrValue>
+    : Name extends 'svg'
+      ? AttributesForElement<SVGElementForTagName<'svg'>>
+      : AttributesForTagName<Name>;
 };
 
 export declare function emitSVGElement<Name extends keyof SVGElementTagNameMap>(
   name: Name,
-): { element: SVGElementForTagName<Name> };
+): {
+  name: Name;
+  element: SVGElementForTagName<Name>;
+  attributes: AttributesForElement<SVGElementTagNameMap[Name]>;
+};
 
 export declare function emitMathMlElement<Name extends keyof MathMLElementTagNameMap>(
   name: Name,
-): { element: MathMlElementForTagName<Name> };
+): {
+  name: Name;
+  element: MathMlElementForTagName<Name>;
+  // MathML elements have no attribute typings, so anything goes.
+  attributes: Record<string, AttrValue>;
+};
 
 /*
  * Emits the given value as an entity that expects to receive blocks
@@ -159,6 +175,25 @@ export declare function applySplattributes<
 export declare function applyAttributes<T extends Element>(
   element: T,
   attrs: Partial<AttributesForElement<T>>,
+): void;
+
+/*
+ * Applies named attributes to a plain element, resolving them from the tag
+ * name the element was emitted with (via the `attributes` member of the
+ * `emitElement`/`emitSVGElement`/`emitMathMlElement` result) rather than from
+ * the element's instance type. This is what allows registered custom elements
+ * to have their attributes checked.
+ *
+ *     <my-element prop-num={{123}}></my-element>
+ *
+ * Would produce code like:
+ *
+ *     const __glintY__ = emitElement('my-element');
+ *     applyTagAttributes(__glintY__, { 'prop-num': 123 });
+ */
+export declare function applyTagAttributes<T extends { attributes: object }>(
+  target: T,
+  attrs: Partial<T['attributes']>,
 ): void;
 
 /*

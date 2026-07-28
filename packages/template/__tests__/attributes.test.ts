@@ -10,6 +10,8 @@ import {
   resolve,
   templateForBackingValue,
 } from '../-private/dsl';
+import type { AttrValue } from '../-private/index';
+import type { AttributesForTagName } from '../-private/dsl';
 import { ModifierLike } from '../-private/index';
 import TestComponent from './test-component';
 
@@ -54,12 +56,17 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 // `emitElement` type resolution
 {
   const el = emitElement('img');
-  expectTypeOf(el).toEqualTypeOf<{ element: HTMLImageElement }>();
+  expectTypeOf(el.name).toEqualTypeOf<'img'>();
+  expectTypeOf(el.element).toEqualTypeOf<HTMLImageElement>();
+  expectTypeOf(el.attributes).toEqualTypeOf<AttributesForTagName<'img'>>();
 }
 
 {
   const el = emitElement('customelement');
-  expectTypeOf(el).toEqualTypeOf<{ element: Element }>();
+  expectTypeOf(el.name).toEqualTypeOf<'customelement'>();
+  expectTypeOf(el.element).toEqualTypeOf<Element>();
+  // Unregistered elements accept arbitrary attribute values.
+  expectTypeOf(el.attributes).toEqualTypeOf<Record<string, AttrValue>>();
 }
 
 /**
@@ -110,7 +117,8 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
  */
 {
   const ctx = emitElement('a');
-  expectTypeOf(ctx).toEqualTypeOf<{ element: HTMLAnchorElement }>();
+  expectTypeOf(ctx.name).toEqualTypeOf<'a'>();
+  expectTypeOf(ctx.element).toEqualTypeOf<HTMLAnchorElement>();
   applyModifier(resolve(anchorModifier)(ctx.element));
 }
 
@@ -262,16 +270,16 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
 // (Verified fixed in V2 - emitSVGElement correctly resolves SVG child element types)
 {
   const text = emitSVGElement('text');
-  expectTypeOf(text).toEqualTypeOf<{ element: SVGTextElement }>();
+  expectTypeOf(text.element).toEqualTypeOf<SVGTextElement>();
 
   const rect = emitSVGElement('rect');
-  expectTypeOf(rect).toEqualTypeOf<{ element: SVGRectElement }>();
+  expectTypeOf(rect.element).toEqualTypeOf<SVGRectElement>();
 
   const circle = emitSVGElement('circle');
-  expectTypeOf(circle).toEqualTypeOf<{ element: SVGCircleElement }>();
+  expectTypeOf(circle.element).toEqualTypeOf<SVGCircleElement>();
 
   const path = emitSVGElement('path');
-  expectTypeOf(path).toEqualTypeOf<{ element: SVGPathElement }>();
+  expectTypeOf(path.element).toEqualTypeOf<SVGPathElement>();
 }
 
 {

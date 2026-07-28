@@ -924,7 +924,7 @@ export function templateToTypescript(
         mapper.text('));');
         mapper.newline();
 
-        emitAttributesAndModifiers(node);
+        emitAttributesAndModifiers(node, 'component');
 
         if (!node.selfClosing) {
           let blocks = determineBlockChildren(node);
@@ -1066,7 +1066,7 @@ export function templateToTypescript(
         mapper.text('");');
         mapper.newline();
 
-        emitAttributesAndModifiers(node);
+        emitAttributesAndModifiers(node, 'element');
 
         for (let child of node.children) {
           emitTopLevelStatement(child);
@@ -1082,13 +1082,16 @@ export function templateToTypescript(
       });
     }
 
-    function emitAttributesAndModifiers(node: AST.ElementNode): void {
+    function emitAttributesAndModifiers(
+      node: AST.ElementNode,
+      kind: 'component' | 'element',
+    ): void {
       emitSplattributes(node);
-      emitPlainAttributes(node);
+      emitPlainAttributes(node, kind);
       emitModifiers(node);
     }
 
-    function emitPlainAttributes(node: AST.ElementNode): void {
+    function emitPlainAttributes(node: AST.ElementNode, kind: 'component' | 'element'): void {
       let attributes = node.attributes.filter(
         (attr) => !attr.name.startsWith('@') && attr.name !== SPLATTRIBUTES,
       );
@@ -1106,13 +1109,21 @@ export function templateToTypescript(
           if (isFirstAttribute) {
             isFirstAttribute = false;
 
-            mapper.text('__glintDSL__.applyAttributes(');
+            // Components resolve attributes from their signature's `Element`
+            // type; plain elements resolve them from the tag name they were
+            // emitted with, which is what allows registered custom elements
+            // to have their attributes checked.
+            mapper.text(
+              kind === 'component'
+                ? '__glintDSL__.applyAttributes('
+                : '__glintDSL__.applyTagAttributes(',
+            );
 
-            // We map the `__glintY__.element` arg to the first attribute node, which has the effect
-            // such that diagnostics due to passing attributes to invalid elements will show up
-            // on the attribute, rather than on the whole element.
+            // We map the `__glintY__.element`/`__glintY__` arg to the first attribute node, which
+            // has the effect such that diagnostics due to passing attributes to invalid elements
+            // will show up on the attribute, rather than on the whole element.
             mapper.forNode(attr, () => {
-              mapper.text('__glintY__.element');
+              mapper.text(kind === 'component' ? '__glintY__.element' : '__glintY__');
             });
 
             mapper.text(', {');

@@ -46,7 +46,8 @@ class MyComponent<T> extends TestComponent<MyComponentSignature<T>> {
 
       {
         const __glintY__ = emitElement('div');
-        expectTypeOf(__glintY__).toEqualTypeOf<{ element: HTMLDivElement }>();
+        expectTypeOf(__glintY__.name).toEqualTypeOf<'div'>();
+        expectTypeOf(__glintY__.element).toEqualTypeOf<HTMLDivElement>();
         applyModifier(
           resolve(globals.on)(__glintY__.element, 'click', __glintRef__.this.wrapperClicked),
         );

@@ -41,6 +41,11 @@ import type { AttributesForElement } from '../../-private/dsl';
 }
 
 {
+  type AttributeMap = AttributesForElement<HTMLSelectElement>;
+  expectTypeOf<AttributeMap['length']>().toEqualTypeOf<number>();
+}
+
+{
   type Attributes = keyof AttributesForElement<HTMLDivElement> & string;
   expectTypeOf<Attributes>().toEqualTypeOf<`data-${string}` | keyof HTMLDivElementAttributes>();
 
