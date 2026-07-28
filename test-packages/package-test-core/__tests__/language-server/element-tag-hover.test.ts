@@ -73,6 +73,82 @@ describe('Language Server: element tag hover and definition (ts plugin)', () => 
     `);
   });
 
+  test('hovering a registered custom element attribute shows the attribute type', async () => {
+    const [offset, content] = extractCursor(stripIndent`
+      export const Usage = <template>
+        <my-custom-element prop-%num={{123}} prop-str="hello"></my-custom-element>
+      </template>;
+    `);
+
+    const doc = await prepareDocument(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      content,
+    );
+
+    const hover = await performHoverRequest(doc, offset);
+
+    expect(hover.displayString).toMatchInlineSnapshot(`"(property) 'prop-num': number"`);
+  });
+
+  test('go-to-definition on a custom element attribute resolves to its registry entry', async () => {
+    const [offset, content] = extractCursor(stripIndent`
+      export const Usage = <template>
+        <my-custom-element prop-%num={{123}} prop-str="hello"></my-custom-element>
+      </template>;
+    `);
+
+    const doc = await prepareDocument(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      content,
+    );
+
+    const definitions = await performDefinitionRequest(doc, offset);
+
+    expect(definitions).toMatchInlineSnapshot(`
+      [
+        {
+          "contextEnd": {
+            "line": 18,
+            "offset": 26,
+          },
+          "contextStart": {
+            "line": 18,
+            "offset": 7,
+          },
+          "end": {
+            "line": 18,
+            "offset": 17,
+          },
+          "file": "\${testWorkspacePath}/ts-template-imports-app/src/custom-elements.gts",
+          "start": {
+            "line": 18,
+            "offset": 7,
+          },
+        },
+      ]
+    `);
+  });
+
+  test('hovering a built-in element attribute shows the attribute type', async () => {
+    const [offset, content] = extractCursor(stripIndent`
+      export const Usage = <template>
+        <div cla%ss="x"></div>
+      </template>;
+    `);
+
+    const doc = await prepareDocument(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      content,
+    );
+
+    const hover = await performHoverRequest(doc, offset);
+
+    expect(hover.displayString).toMatchInlineSnapshot(`"(property) class: string"`);
+  });
+
   test('hovering a built-in element shows its element type', async () => {
     const [offset, content] = extractCursor(stripIndent`
       export const Usage = <template>

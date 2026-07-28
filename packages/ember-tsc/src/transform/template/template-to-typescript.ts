@@ -43,6 +43,19 @@ const TAG_NAME_NAVIGATION_FEATURES: CodeInformation = {
   verification: false,
 };
 
+// The `__glintY__`/`__glintY__.element` target argument of
+// `applyTagAttributes`/`applyAttributes` is mapped onto the attribute node
+// purely so that "can't apply attributes to this element" diagnostics show up
+// on the attribute. It must not serve hover, navigation, or completion —
+// those would surface the private `__glintY__` binding when pointing at the
+// attribute name.
+const ATTR_TARGET_FEATURES: CodeInformation = {
+  semantic: false,
+  navigation: false,
+  completion: false,
+  verification: true,
+};
+
 // Hyphenated globals translated to identifier-safe aliases declared on the
 // `Globals` interface (see `KeywordAliasesForEmber` in
 // `types/-private/dsl/globals.d.ts`). Aliases substitute `-` with `_` so the
@@ -1189,9 +1202,13 @@ export function templateToTypescript(
           // We map the `__glintY__.element`/`__glintY__` arg to the attribute node, which has the
           // effect such that diagnostics due to passing attributes to invalid elements will show
           // up on the attribute, rather than on the whole element.
-          mapper.forNode(attr, () => {
-            mapper.text(kind === 'component' ? '__glintY__.element' : '__glintY__');
-          });
+          mapper.forNode(
+            attr,
+            () => {
+              mapper.text(kind === 'component' ? '__glintY__.element' : '__glintY__');
+            },
+            ATTR_TARGET_FEATURES,
+          );
 
           mapper.text(', {');
           mapper.newline();
