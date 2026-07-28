@@ -1103,32 +1103,29 @@ export function templateToTypescript(
         .withStart(node.path.loc.getEnd())
         .withEnd(node.openTag.getEnd().move(-1));
       mapper.forNodeWithSpan(node, attrsSpan, () => {
-        let isFirstAttribute = true;
-
+        // Each attribute is applied in its own call: TypeScript's
+        // excess-property check only reports the FIRST unknown key in an
+        // object literal, so bundling all attributes into one object would
+        // surface an "unknown attribute" error only for the first offender.
         for (let attr of attributes) {
-          if (isFirstAttribute) {
-            isFirstAttribute = false;
+          // Components resolve attributes from their signature's `Element`
+          // type; plain elements resolve them from the tag name they were
+          // emitted with, which is what allows registered custom elements
+          // to have their attributes checked.
+          mapper.text(
+            kind === 'component'
+              ? '__glintDSL__.applyAttributes('
+              : '__glintDSL__.applyTagAttributes(',
+          );
 
-            // Components resolve attributes from their signature's `Element`
-            // type; plain elements resolve them from the tag name they were
-            // emitted with, which is what allows registered custom elements
-            // to have their attributes checked.
-            mapper.text(
-              kind === 'component'
-                ? '__glintDSL__.applyAttributes('
-                : '__glintDSL__.applyTagAttributes(',
-            );
+          // We map the `__glintY__.element`/`__glintY__` arg to the attribute node, which has the
+          // effect such that diagnostics due to passing attributes to invalid elements will show
+          // up on the attribute, rather than on the whole element.
+          mapper.forNode(attr, () => {
+            mapper.text(kind === 'component' ? '__glintY__.element' : '__glintY__');
+          });
 
-            // We map the `__glintY__.element`/`__glintY__` arg to the first attribute node, which
-            // has the effect such that diagnostics due to passing attributes to invalid elements
-            // will show up on the attribute, rather than on the whole element.
-            mapper.forNode(attr, () => {
-              mapper.text(kind === 'component' ? '__glintY__.element' : '__glintY__');
-            });
-
-            mapper.text(', {');
-          }
-
+          mapper.text(', {');
           mapper.newline();
           mapper.indent();
 
@@ -1163,13 +1160,12 @@ export function templateToTypescript(
             undefined,
             /* wideVerification */ !isSafeKey(attr.name),
           );
+
+          mapper.dedent();
+          mapper.text('});');
+          mapper.newline();
         }
-        mapper.newline();
       });
-      mapper.newline();
-      mapper.dedent();
-      mapper.text('});');
-      mapper.newline();
     }
 
     function emitSplattributes(node: AST.ElementNode): void {

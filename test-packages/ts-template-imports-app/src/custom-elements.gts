@@ -42,3 +42,13 @@ export const UsesCustomElement = <template>
   {{! unregistered custom elements still accept arbitrary attributes }}
   <some-other-element anything="goes"></some-other-element>
 </template>;
+
+export const MultipleUnknownAttributes = <template>
+  {{! every unknown attribute is reported, not just the first }}
+  <my-custom-element
+    {{! @glint-expect-error: unknown attribute }}
+    foo="hi"
+    {{! @glint-expect-error: unknown attribute }}
+    bar="hi"
+  ></my-custom-element>
+</template>;

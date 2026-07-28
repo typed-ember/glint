@@ -803,8 +803,6 @@ describe('Transform: rewriteTemplate', () => {
             const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Foo)());
             __glintDSL__.applyAttributes(__glintY__.element, {
             "data-bar": __glintDSL__.resolve(helper)({ param: true , ...__glintDSL__.NamedArgsMarker }),
-
-
             });
             }"
           `);
@@ -839,8 +837,6 @@ describe('Transform: rewriteTemplate', () => {
             const __glintY__ = __glintDSL__.emitElement("div");
             __glintDSL__.applyTagAttributes(__glintY__, {
             "data-attr": __glintDSL__.resolveOrReturn(__glintRef__.args.input)(),
-
-
             });
             }"
           `);
@@ -854,8 +850,6 @@ describe('Transform: rewriteTemplate', () => {
             const __glintY__ = __glintDSL__.emitElement("div");
             __glintDSL__.applyTagAttributes(__glintY__, {
             "data-attr": \`\${__glintDSL__.resolveOrReturn(__glintRef__.args.input)()}\`,
-
-
             });
             }"
           `);
@@ -1010,8 +1004,6 @@ describe('Transform: rewriteTemplate', () => {
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.applyTagAttributes(__glintY__, {
         "data-attr": __glintDSL__.resolve(concat)(__glintDSL__.resolve(foo)(1), __glintDSL__.resolve(foo)(true)),
-
-
         });
         }"
       `);
@@ -1112,8 +1104,6 @@ describe('Transform: rewriteTemplate', () => {
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.applyTagAttributes(__glintY__, {
         "data-foo": __glintDSL__.resolveOrReturn(__glintRef__.args.foo)(),
-
-
         });
         }"
       `);
@@ -1127,8 +1117,6 @@ describe('Transform: rewriteTemplate', () => {
         const __glintY__ = __glintDSL__.emitElement("div");
         __glintDSL__.applyTagAttributes(__glintY__, {
         "data-foo": \`\${__glintDSL__.resolveOrReturn(__glintRef__.args.foo)()}\${__glintDSL__.resolveOrReturn(__glintRef__.args.bar)()}\`,
-
-
         });
         }"
       `);
@@ -1187,10 +1175,9 @@ describe('Transform: rewriteTemplate', () => {
         const __glintY__ = __glintDSL__.emitElement("my-element");
         __glintDSL__.applyTagAttributes(__glintY__, {
         "prop-num": 123,
-
+        });
+        __glintDSL__.applyTagAttributes(__glintY__, {
         "prop-str": "hello",
-
-
         });
         }"
       `);
@@ -1351,8 +1338,6 @@ describe('Transform: rewriteTemplate', () => {
         const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(NS?.Nested?.Custom)());
         __glintDSL__.applyAttributes(__glintY__.element, {
         class: "foo",
-
-
         });
         }
         }
