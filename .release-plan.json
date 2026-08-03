@@ -1,11 +1,15 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "patch",
-      "oldVersion": "1.9.0",
-      "newVersion": "1.9.1",
+      "impact": "minor",
+      "oldVersion": "1.9.1",
+      "newVersion": "1.10.0",
       "tagName": "latest",
       "constraints": [
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
@@ -17,14 +21,18 @@
       "oldVersion": "1.8.0"
     },
     "@glint/tsserver-plugin": {
-      "impact": "patch",
-      "oldVersion": "2.6.0",
-      "newVersion": "2.6.1",
+      "impact": "minor",
+      "oldVersion": "2.6.1",
+      "newVersion": "2.7.0",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -33,5 +41,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-08-03)\n\n* @glint/ember-tsc 1.9.1 (patch)\n* @glint/tsserver-plugin 2.6.1 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1196](https://github.com/typed-ember/glint/pull/1196) Closes [#1068](https://github.com/typed-ember/glint/issues/1068): keep curried generic components from poisoning consumer inference ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### Committers: 1\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n"
+  "description": "## Release (2026-08-03)\n\n* @glint/ember-tsc 1.10.0 (minor)\n* @glint/tsserver-plugin 2.7.0 (minor)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1217](https://github.com/typed-ember/glint/pull/1217) Upgrade Volar ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1200](https://github.com/typed-ember/glint/pull/1200) Make `--build --watch` iterations reuse programs (30s → ~2s per file change) ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n  * [#1218](https://github.com/typed-ember/glint/pull/1218) Map .gts declaration diagnostics to source coordinates in `--incremental` shape signatures ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :house: Internal\n* [#1220](https://github.com/typed-ember/glint/pull/1220) Fix flaky `--build --watch` test and make its failures diagnosable ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }

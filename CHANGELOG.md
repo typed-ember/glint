@@ -2,6 +2,26 @@
 
 ## Release (2026-08-03)
 
+* @glint/ember-tsc 1.10.0 (minor)
+* @glint/tsserver-plugin 2.7.0 (minor)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`, `@glint/tsserver-plugin`
+  * [#1217](https://github.com/typed-ember/glint/pull/1217) Upgrade Volar ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1200](https://github.com/typed-ember/glint/pull/1200) Make `--build --watch` iterations reuse programs (30s → ~2s per file change) ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+  * [#1218](https://github.com/typed-ember/glint/pull/1218) Map .gts declaration diagnostics to source coordinates in `--incremental` shape signatures ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :house: Internal
+* [#1220](https://github.com/typed-ember/glint/pull/1220) Fix flaky `--build --watch` test and make its failures diagnosable ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
+## Release (2026-08-03)
+
 * @glint/ember-tsc 1.9.1 (patch)
 * @glint/tsserver-plugin 2.6.1 (patch)
 
