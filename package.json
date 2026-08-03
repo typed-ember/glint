@@ -49,6 +49,12 @@
     "pnpm": "10.6.2"
   },
   "pnpm": {
+    "overrides": {
+      "vscode-languageserver-protocol": "3.17.5"
+    },
+    "overrides:notes": {
+      "vscode-languageserver-protocol": "vscode-languageserver@9.x (volar's runtime connection layer) hard-pins 3.17.5; without this override volar's ^3.17.5 ranges drift to 3.18.x, creating two copies of the protocol types that don't unify"
+    },
     "peerDependencyRules": {
       "ignoreMissing": [
         "webpack",

@@ -142,9 +142,6 @@
     "color": "#1E293B",
     "theme": "dark"
   },
-  "devDependencies:notes": {
-    "@vscode/test-electron": "Dropped support for Node < 16 in the 2.2.1 patch release, so locking to 2.2.0 while we still support Node 14."
-  },
   "devDependencies": {
     "@glint/ember-tsc": "workspace:*",
     "@glint/template": "workspace:*",
@@ -154,7 +151,7 @@
     "@types/vscode": "^1.108.1",
     "@volar/language-server": "~2.4.28",
     "@volar/vscode": "~2.4.28",
-    "@vscode/test-electron": "^2.5.2",
+    "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.7.1",
     "esbuild": "^0.24.0",
     "expect": "^29.5.0",
@@ -186,6 +183,6 @@
     "isPreReleaseVersion": false
   },
   "dependencies": {
-    "semver": "^7.5.2"
+    "semver": "^7.8.5"
   }
 }
