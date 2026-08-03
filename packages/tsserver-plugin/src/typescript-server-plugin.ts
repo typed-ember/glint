@@ -580,7 +580,10 @@ function proxyLanguageServiceForGlint<T>(
       // case 'getCompletionEntryDetails': return getCompletionEntryDetails(language, asScriptId, target[p]);
       // case 'getCodeFixesAtPosition': return getCodeFixesAtPosition(target[p]);
       // case 'getDefinitionAndBoundSpan': return getDefinitionAndBoundSpan(ts, language, languageService, glintOptions, asScriptId, target[p]);
-      // case 'getQuickInfoAtPosition': return getQuickInfoAtPosition(ts, target, target[p]);
+      case 'getQuickInfoAtPosition':
+        return getQuickInfoAtPosition(ts, language, languageService, asScriptId, target[p]);
+      case 'getDefinitionAndBoundSpan':
+        return getDefinitionAndBoundSpan(language, asScriptId, target, target[p]);
       // TS plugin only
 
       // Left as an example in case we want to augment semantic classification in .gts files.
@@ -610,6 +613,300 @@ function proxyLanguageServiceForGlint<T>(
       return Reflect.set(target, p, value, receiver);
     },
   });
+}
+
+/**
+ * Hovering a plain element's tag name serves quickinfo from the discarded
+ * `elementTypes` lookup the transform emits for it, whose property-style
+ * display would read `(property) my_element: MyElement`. Rewrite it to show
+ * just the element type. Components (PascalCase / `this.` / `@` / dotted
+ * tags) are untouched, as is any quickinfo that doesn't match the expected
+ * `(property) <tag-name-ish>: ...` shape.
+ */
+function getQuickInfoAtPosition<T>(
+  ts: typeof import('typescript'),
+  language: any, // Language<T>,
+  languageService: ts.LanguageService,
+  asScriptId: (fileName: string) => T,
+  getQuickInfoAtPosition: ts.LanguageService['getQuickInfoAtPosition'],
+): ts.LanguageService['getQuickInfoAtPosition'] {
+  return (fileName, position, ...rest: any[]) => {
+    const info = (getQuickInfoAtPosition as any)(fileName, position, ...rest);
+
+    try {
+      const { transformedModule, mapping, containingSpan } = locateTemplateMapping(
+        language,
+        asScriptId,
+        fileName,
+        position,
+      );
+
+      if (!info) {
+        if (!transformedModule) return info;
+        return recoverAttributeNameQuickInfo(
+          ts,
+          languageService,
+          transformedModule,
+          fileName,
+          position,
+          mapping,
+          containingSpan,
+        );
+      }
+
+      if (!info.displayParts) return info;
+
+      const parentNode = mapping?.parent?.sourceNode;
+
+      if (
+        mapping?.sourceNode?.type === 'PathExpression' &&
+        parentNode?.type === 'ElementNode' &&
+        isPlainElementTagName(parentNode.tag)
+      ) {
+        const parts: Array<{ text: string; kind: string }> = info.displayParts;
+        const tag = parentNode.tag;
+        const identifierSafeTag = tag.replace(/-/g, '_');
+        const nameIndex = parts.findIndex(
+          (part) =>
+            part.text === identifierSafeTag ||
+            part.text === tag ||
+            part.text === `'${tag}'` ||
+            part.text === `"${tag}"`,
+        );
+        const colonIndex =
+          nameIndex >= 0
+            ? parts.findIndex(
+                (part, index) =>
+                  index > nameIndex && part.kind === 'punctuation' && part.text === ':',
+              )
+            : -1;
+
+        if (parts[1]?.text === 'property' && colonIndex >= 0) {
+          let typeParts = parts.slice(colonIndex + 1);
+          while (typeParts[0]?.kind === 'space') {
+            typeParts = typeParts.slice(1);
+          }
+          if (typeParts.length) {
+            return { ...info, displayParts: typeParts };
+          }
+        }
+      }
+    } catch {
+      // If anything goes wrong inspecting the mapping, fall through to the
+      // unmodified quickinfo.
+    }
+
+    return info;
+  };
+}
+
+/**
+ * Hovering an attribute whose name isn't a safe JS identifier (e.g. the
+ * hyphenated `prop-num`) yields no quickinfo: such names are emitted as
+ * *quoted* object keys, and TypeScript's quickinfo textSpan for a quoted key
+ * includes the quotes — which have no source counterpart, so Volar drops the
+ * result. Recover by resolving the contextual property for the attribute
+ * ourselves and synthesizing a property-style quickinfo with a source-space
+ * span.
+ */
+function recoverAttributeNameQuickInfo(
+  ts: typeof import('typescript'),
+  languageService: ts.LanguageService,
+  transformedModule: TransformedModule,
+  fileName: string,
+  position: number,
+  mapping: any,
+  containingSpan: any,
+): ts.QuickInfo | undefined {
+  // The name of an unsafe-key attribute is mapped as an `Identifier` child
+  // of the `AttrNode` mapping (see `emitHashKey`).
+  const attrMapping = mapping?.sourceNode?.type === 'AttrNode' ? mapping : mapping?.parent;
+  const attrNode = attrMapping?.sourceNode;
+  if (attrNode?.type !== 'AttrNode') return undefined;
+
+  const name: string = attrNode.name;
+  if (name.startsWith('@') || name === '...attributes') return undefined;
+
+  // Only handle the attribute *name* portion (the name sits at the start of
+  // the attribute's source range); values have their own mappings.
+  const attrStart = containingSpan.originalStart + attrMapping.originalRange.start;
+  if (position < attrStart || position >= attrStart + name.length) return undefined;
+
+  const program = languageService.getProgram();
+  if (!program) return undefined;
+  const sourceFile = program.getSourceFile(fileName);
+  if (!sourceFile) return undefined;
+  const checker = program.getTypeChecker();
+
+  // Several mappings cover parts of this attribute (the name identifier, the
+  // applyAttributes target argument, the value); find the one whose
+  // generated text is the (possibly quoted) key.
+  const contents = transformedModule.transformedContents;
+  const candidates: any[] = [mapping, attrMapping, ...(attrMapping.children ?? [])];
+  for (const candidate of candidates) {
+    const generatedStart = containingSpan.transformedStart + candidate.transformedRange.start;
+    const generated = contents.slice(generatedStart, generatedStart + name.length + 2);
+    let keyPosition = -1;
+    if (generated.startsWith(`"${name}`) || generated.startsWith(`'${name}`)) {
+      keyPosition = generatedStart + 1;
+    } else if (generated.startsWith(name)) {
+      keyPosition = generatedStart;
+    }
+    if (keyPosition < 0) {
+      continue;
+    }
+
+    // In TS plugin mode the target script's text is the *source* text with
+    // the generated text appended (Volar's "leading offset"), so program
+    // positions are shifted by the source length relative to
+    // `transformedContents` offsets.
+    const leadingOffset = sourceFile.text.length - contents.length;
+    if (leadingOffset > 0) {
+      keyPosition += leadingOffset;
+    }
+    if (!sourceFile.text.startsWith(name, keyPosition)) {
+      continue;
+    }
+
+    const token = (ts as any).getTokenAtPosition(sourceFile, keyPosition) as ts.Node | undefined;
+    const propertyAssignment = token?.parent;
+    if (!token || !propertyAssignment || !ts.isPropertyAssignment(propertyAssignment)) {
+      continue;
+    }
+    const objectLiteral = propertyAssignment.parent;
+    if (!ts.isObjectLiteralExpression(objectLiteral)) continue;
+
+    const contextualType = checker.getContextualType(objectLiteral);
+    const property = contextualType?.getProperty(name);
+    if (!property) continue;
+
+    // Strip the `| undefined` that `Partial<...>` adds; it's noise for a
+    // "what does this attribute accept" hover.
+    const type = checker.getNonNullableType(checker.getTypeOfSymbol(property));
+
+    return {
+      kind: ts.ScriptElementKind.memberVariableElement,
+      kindModifiers: '',
+      textSpan: { start: attrStart, length: name.length },
+      displayParts: [
+        { text: '(', kind: 'punctuation' },
+        { text: 'property', kind: 'text' },
+        { text: ')', kind: 'punctuation' },
+        { text: ' ', kind: 'space' },
+        { text: `'${name}'`, kind: 'propertyName' },
+        { text: ':', kind: 'punctuation' },
+        { text: ' ', kind: 'space' },
+        { text: checker.typeToString(type), kind: 'text' },
+      ],
+      documentation: property.getDocumentationComment(checker),
+      tags: property.getJsDocTags(checker),
+    };
+  }
+
+  return undefined;
+}
+
+/**
+ * VS Code (and most LSP clients) resolve definitions through tsserver's
+ * `definitionAndBoundSpan` command. Volar's proxy for it drops the *entire*
+ * result when the origin ("bound") span can't be translated back to the
+ * template — which is the case for the quoted `elementTypes["my-element"]`
+ * keys serving element tag names, and for quoted attribute keys: their
+ * quotes have no source counterpart. Fall back to `getDefinitionAtPosition`
+ * (whose per-target translation works fine) and synthesize the bound span
+ * from the mapping tree.
+ */
+function getDefinitionAndBoundSpan<T>(
+  language: any, // Language<T>,
+  asScriptId: (fileName: string) => T,
+  languageServiceProxy: ts.LanguageService,
+  getDefinitionAndBoundSpan: ts.LanguageService['getDefinitionAndBoundSpan'],
+): ts.LanguageService['getDefinitionAndBoundSpan'] {
+  return (fileName, position) => {
+    const result = getDefinitionAndBoundSpan(fileName, position);
+    if (result?.definitions?.length) return result;
+
+    try {
+      const { mapping, containingSpan } = locateTemplateMapping(
+        language,
+        asScriptId,
+        fileName,
+        position,
+      );
+      if (!mapping) return result;
+
+      const definitions = languageServiceProxy.getDefinitionAtPosition(fileName, position);
+      if (!definitions?.length) return result;
+
+      return {
+        definitions,
+        textSpan: {
+          start: containingSpan.originalStart + mapping.originalRange.start,
+          length: mapping.originalRange.end - mapping.originalRange.start,
+        },
+      };
+    } catch {
+      return result;
+    }
+  };
+}
+
+function locateTemplateMapping<T>(
+  language: any, // Language<T>,
+  asScriptId: (fileName: string) => T,
+  fileName: string,
+  position: number,
+): { transformedModule: TransformedModule | undefined; mapping: any; containingSpan: any } {
+  const sourceScript = language.scripts.get(asScriptId(fileName));
+  const root = sourceScript?.generated?.root;
+  const transformedModule: TransformedModule = root?.transformedModule;
+
+  let mapping: any = null;
+  let containingSpan: any = null;
+  for (const span of transformedModule?.correlatedSpans ?? []) {
+    if (!span.glimmerAstMapping) continue;
+    if (position < span.originalStart || position >= span.originalStart + span.originalLength) {
+      continue;
+    }
+    // `narrowestMappingForOriginalRange` returns the *first* containing
+    // child, and the mapping tree can hold sibling twins of the same
+    // node where the first has no children — so search for the
+    // smallest containing mapping ourselves.
+    mapping = smallestMappingAt(span.glimmerAstMapping, position - span.originalStart);
+    containingSpan = span;
+    break;
+  }
+
+  return { transformedModule, mapping, containingSpan };
+}
+
+function smallestMappingAt(mapping: any, offset: number): any {
+  if (offset < mapping.originalRange.start || offset >= mapping.originalRange.end) {
+    return null;
+  }
+  let best: any = null;
+  for (const child of mapping.children) {
+    const found = smallestMappingAt(child, offset);
+    if (
+      found &&
+      (!best ||
+        found.originalRange.end - found.originalRange.start <=
+          best.originalRange.end - best.originalRange.start)
+    ) {
+      best = found;
+    }
+  }
+  return best ?? mapping;
+}
+
+function isPlainElementTagName(tag: string): boolean {
+  const firstChar = tag.charAt(0);
+  return (
+    firstChar === firstChar.toLowerCase() &&
+    !tag.includes('.') &&
+    !tag.startsWith('@') &&
+    !tag.startsWith(':')
+  );
 }
 
 function getCompletionsAtPosition<T>(

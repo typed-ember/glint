@@ -1,4 +1,5 @@
 import { AST } from '@glimmer/syntax';
+import { CodeInformation } from '@volar/language-server/node.js';
 import { GlintEmitMetadata, GlintSpecialForm } from '@glint/ember-tsc/config-types';
 import { assert, unreachable } from '../util.js';
 import { TextContent } from './glimmer-ast-mapping-tree.js';
@@ -17,6 +18,43 @@ const SPLATTRIBUTES = '...attributes';
 // between `Globals.NAME` (which preserves JSDoc on hover/completions) and
 // the bracket-string fallback `Globals["NAME"]` for hyphenated keywords.
 const VALID_JS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+
+// Tag names that become valid JS identifiers once hyphens are substituted
+// with underscores, and can therefore be emitted as `elementTypes.tag_name`
+// property accesses (see `emitPlainElement`).
+const IDENTIFIER_SAFE_TAG_NAME = /^[A-Za-z_$][A-Za-z0-9_$-]*$/;
+
+// Mapping capabilities for the two discarded `elementTypes` tag-name
+// references (see `emitPlainElement`): the identifier form serves hover, the
+// quoted-key form serves navigation (definition/references). Everything else
+// is disabled so the two mappings can't produce duplicate or misanchored
+// results for other language features.
+const TAG_NAME_HOVER_FEATURES: CodeInformation = {
+  semantic: { shouldHighlight: () => false },
+  navigation: false,
+  completion: false,
+  verification: false,
+};
+
+const TAG_NAME_NAVIGATION_FEATURES: CodeInformation = {
+  semantic: false,
+  navigation: true,
+  completion: false,
+  verification: false,
+};
+
+// The `__glintY__`/`__glintY__.element` target argument of
+// `applyTagAttributes`/`applyAttributes` is mapped onto the attribute node
+// purely so that "can't apply attributes to this element" diagnostics show up
+// on the attribute. It must not serve hover, navigation, or completion —
+// those would surface the private `__glintY__` binding when pointing at the
+// attribute name.
+const ATTR_TARGET_FEATURES: CodeInformation = {
+  semantic: false,
+  navigation: false,
+  completion: false,
+  verification: true,
+};
 
 // Hyphenated globals translated to identifier-safe aliases declared on the
 // `Globals` interface (see `KeywordAliasesForEmber` in
@@ -924,7 +962,7 @@ export function templateToTypescript(
         mapper.text('));');
         mapper.newline();
 
-        emitAttributesAndModifiers(node);
+        emitAttributesAndModifiers(node, 'component');
 
         if (!node.selfClosing) {
           let blocks = determineBlockChildren(node);
@@ -1054,19 +1092,62 @@ export function templateToTypescript(
         mapper.indent();
 
         if (inHtmlContext === 'default') {
-          mapper.text('const __glintY__ = __glintDSL__.emitElement("');
-        } else if (inHtmlContext === 'svg') {
-          mapper.text('const __glintY__ = __glintDSL__.emitSVGElement("');
-        } else if (inHtmlContext === 'math') {
-          mapper.text('const __glintY__ = __glintDSL__.emitMathMlElement("');
+          // The tag name is mapped onto discarded `elementTypes` lookups
+          // (rather than onto `emitElement`'s string argument) so that
+          // hovering the tag name shows the element's type and
+          // go-to-definition resolves to its `HTMLElementTagNameMap` /
+          // `GlintCustomElementTagNameMap` entry. Each feature needs its own
+          // reference form:
+          //
+          // - Hover requires an *identifier* whose length matches the source
+          //   tag name (hyphens substituted with underscores, matching
+          //   `elementTypes`' remapped keys — like `each-in` ->
+          //   `Globals.each_in`): a quoted key's quickinfo textSpan includes
+          //   the quotes, which Volar can't map back to the template, so the
+          //   hover result gets dropped.
+          // - Go-to-definition requires the *raw quoted key*: TypeScript
+          //   retains no declaration links through the key-remapped mapped
+          //   type, so definition comes up empty on the identifier form.
+          if (IDENTIFIER_SAFE_TAG_NAME.test(node.tag)) {
+            mapper.text('__glintDSL__.noop(__glintDSL__.elementTypes.');
+            mapper.forNode(
+              node.path,
+              () => {
+                mapper.text(node.tag.replace(/-/g, '_'));
+              },
+              TAG_NAME_HOVER_FEATURES,
+            );
+            mapper.text(');');
+            mapper.newline();
+          }
+          mapper.text('__glintDSL__.noop(__glintDSL__.elementTypes["');
+          mapper.forNode(
+            node.path,
+            () => {
+              mapper.text(node.tag);
+            },
+            TAG_NAME_NAVIGATION_FEATURES,
+          );
+          mapper.text('"]);');
+          mapper.newline();
+          mapper.text(`const __glintY__ = __glintDSL__.emitElement("${node.tag}");`);
+        } else {
+          // In SVG/MathML context the tag name stays mapped onto the emit
+          // function's argument: its `keyof` constraint anchors "unknown
+          // element" diagnostics there.
+          if (inHtmlContext === 'svg') {
+            mapper.text('const __glintY__ = __glintDSL__.emitSVGElement("');
+          } else {
+            mapper.text('const __glintY__ = __glintDSL__.emitMathMlElement("');
+          }
+          mapper.forNode(node.path, () => {
+            mapper.text(node.tag);
+          });
+          mapper.text('");');
         }
-        mapper.forNode(node.path, () => {
-          mapper.text(node.tag);
-        });
-        mapper.text('");');
         mapper.newline();
 
-        emitAttributesAndModifiers(node);
+        emitAttributesAndModifiers(node, 'element');
 
         for (let child of node.children) {
           emitTopLevelStatement(child);
@@ -1082,13 +1163,16 @@ export function templateToTypescript(
       });
     }
 
-    function emitAttributesAndModifiers(node: AST.ElementNode): void {
+    function emitAttributesAndModifiers(
+      node: AST.ElementNode,
+      kind: 'component' | 'element',
+    ): void {
       emitSplattributes(node);
-      emitPlainAttributes(node);
+      emitPlainAttributes(node, kind);
       emitModifiers(node);
     }
 
-    function emitPlainAttributes(node: AST.ElementNode): void {
+    function emitPlainAttributes(node: AST.ElementNode, kind: 'component' | 'element'): void {
       let attributes = node.attributes.filter(
         (attr) => !attr.name.startsWith('@') && attr.name !== SPLATTRIBUTES,
       );
@@ -1100,24 +1184,33 @@ export function templateToTypescript(
         .withStart(node.path.loc.getEnd())
         .withEnd(node.openTag.getEnd().move(-1));
       mapper.forNodeWithSpan(node, attrsSpan, () => {
-        let isFirstAttribute = true;
-
+        // Each attribute is applied in its own call: TypeScript's
+        // excess-property check only reports the FIRST unknown key in an
+        // object literal, so bundling all attributes into one object would
+        // surface an "unknown attribute" error only for the first offender.
         for (let attr of attributes) {
-          if (isFirstAttribute) {
-            isFirstAttribute = false;
+          // Components resolve attributes from their signature's `Element`
+          // type; plain elements resolve them from the tag name they were
+          // emitted with, which is what allows registered custom elements
+          // to have their attributes checked.
+          mapper.text(
+            kind === 'component'
+              ? '__glintDSL__.applyAttributes('
+              : '__glintDSL__.applyTagAttributes(',
+          );
 
-            mapper.text('__glintDSL__.applyAttributes(');
+          // We map the `__glintY__.element`/`__glintY__` arg to the attribute node, which has the
+          // effect such that diagnostics due to passing attributes to invalid elements will show
+          // up on the attribute, rather than on the whole element.
+          mapper.forNode(
+            attr,
+            () => {
+              mapper.text(kind === 'component' ? '__glintY__.element' : '__glintY__');
+            },
+            ATTR_TARGET_FEATURES,
+          );
 
-            // We map the `__glintY__.element` arg to the first attribute node, which has the effect
-            // such that diagnostics due to passing attributes to invalid elements will show up
-            // on the attribute, rather than on the whole element.
-            mapper.forNode(attr, () => {
-              mapper.text('__glintY__.element');
-            });
-
-            mapper.text(', {');
-          }
-
+          mapper.text(', {');
           mapper.newline();
           mapper.indent();
 
@@ -1152,13 +1245,12 @@ export function templateToTypescript(
             undefined,
             /* wideVerification */ !isSafeKey(attr.name),
           );
+
+          mapper.dedent();
+          mapper.text('});');
+          mapper.newline();
         }
-        mapper.newline();
       });
-      mapper.newline();
-      mapper.dedent();
-      mapper.text('});');
-      mapper.newline();
     }
 
     function emitSplattributes(node: AST.ElementNode): void {

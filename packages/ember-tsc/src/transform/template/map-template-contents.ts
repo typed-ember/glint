@@ -252,8 +252,10 @@ export function mapTemplateContents(
           // https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide) from being
           // source-mapped back to the glimmer template. These might be useful to reinstate at some
           // point in the future but by default tends to make the highlighting in gts files look wrong.
-          codeFeaturesForNode ??
-            augmentCodeFeaturesWithIgnoreDirectivesSupport(codeFeatures.withoutHighlight, hbsRange),
+          augmentCodeFeaturesWithIgnoreDirectivesSupport(
+            codeFeaturesForNode ?? codeFeatures.withoutHighlight,
+            hbsRange,
+          ),
           wideVerification,
         ),
       );
