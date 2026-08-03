@@ -1,10 +1,21 @@
-import { afterEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { execa, type ResultPromise } from 'execa';
 import stripAnsi from 'strip-ansi';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const PROJECT_ROOT = resolve(__dirname, '..');
+
+// Each of these tests spawns `ember-tsc` several times and waits on its output.
+// Keep the per-wait budget comfortably below the per-test budget so that when
+// something does hang, the failure is this file's "timed out waiting for X"
+// message *with the watch output attached* rather than vitest's generic
+// "Test timed out in Nms", which says nothing about what the compiler was doing.
+const WAIT_TIMEOUT = 30_000;
+const TEST_TIMEOUT = 180_000;
+// How long to wait for a rebuild before re-applying an edit; see
+// `editAndWaitForRebuild` for why re-applying is necessary at all.
+const NUDGE_INTERVAL = 3_000;
 
 // A generated (gitignored) member of the consumer project. Tests edit this file
 // rather than a checked-in fixture, so a hard kill mid-run can't leave the
@@ -62,6 +73,26 @@ describe('ember-tsc --build --watch: iterations against a reused program', () =>
   let output = '';
   let cursor = 0;
 
+  // `@glint/ember-tsc` is an injected (hardlinked, per-file) workspace dep here,
+  // so a source file added to it is invisible to this package until the next
+  // `pnpm install` — and every test below then fails with a stack trace from
+  // deep inside the CLI. Check once, up front, with an actionable message.
+  beforeAll(async () => {
+    const probe = await execa('pnpm', ['ember-tsc', '--version'], {
+      cwd: PROJECT_ROOT,
+      reject: false,
+      all: true,
+    });
+    if (probe.exitCode !== 0) {
+      throw new Error(
+        `\`pnpm ember-tsc\` is not runnable in ${PROJECT_ROOT}, so the build/watch ` +
+          `tests below cannot run. Try \`pnpm install && pnpm build\` from the repo ` +
+          `root (injected workspace deps need a reinstall when files are added).\n\n` +
+          stripAnsi(probe.all ?? ''),
+      );
+    }
+  }, 60_000);
+
   function spawnWatch(): void {
     output = '';
     cursor = 0;
@@ -82,8 +113,9 @@ describe('ember-tsc --build --watch: iterations against a reused program', () =>
    * matters because a file watcher may coalesce edits and matching on
    * diagnostic text alone can then wait forever for output that never comes.
    */
-  async function waitForNextSummary(label: string): Promise<number> {
-    const deadline = Date.now() + 60_000;
+  async function waitForNextSummary(label: string, onNudge?: () => void): Promise<number> {
+    const deadline = Date.now() + WAIT_TIMEOUT;
+    let nextNudge = Date.now() + NUDGE_INTERVAL;
     for (;;) {
       const match = output.slice(cursor).match(WATCH_SUMMARY);
       if (match?.index !== undefined) {
@@ -94,10 +126,39 @@ describe('ember-tsc --build --watch: iterations against a reused program', () =>
         throw new Error(`watch process exited while waiting for ${label}:\n${output}`);
       }
       if (Date.now() > deadline) {
-        throw new Error(`timed out waiting for ${label}:\n${output}`);
+        throw new Error(
+          `timed out after ${WAIT_TIMEOUT}ms waiting for ${label}. ` +
+            `Watch output so far (${output.length} bytes):\n${output || '<no output at all>'}`,
+        );
+      }
+      if (onNudge && Date.now() > nextNudge) {
+        onNudge();
+        nextNudge = Date.now() + NUDGE_INTERVAL;
       }
       await new Promise((r) => setTimeout(r, 100));
     }
+  }
+
+  /**
+   * Rewrites the generated file and waits for the resulting rebuild.
+   *
+   * tsc registers its file watchers around the same time it prints the initial
+   * "Watching for file changes." summary. A write that lands in that window gets
+   * baselined as the file's starting state, so the edit is never observed and
+   * the watcher sits idle forever — which is exactly what a test that edits
+   * immediately after the summary tends to hit. Rather than sleeping and hoping,
+   * re-write the file periodically until the rebuild actually happens. Each
+   * rewrite varies a trailing comment so the content genuinely differs (a
+   * same-content touch is not reliably treated as a change).
+   */
+  async function editAndWaitForRebuild(content: string, label: string): Promise<number> {
+    let attempt = 0;
+    const write = (): void => {
+      writeFileSync(GENERATED, attempt === 0 ? content : `${content}// retry ${attempt}\n`);
+      attempt++;
+    };
+    write();
+    return waitForNextSummary(label, write);
   }
 
   /**
@@ -105,12 +166,12 @@ describe('ember-tsc --build --watch: iterations against a reused program', () =>
    * The second rebuild is the one that runs against a reused program.
    */
   async function driveTwoIterations(): Promise<void> {
-    writeFileSync(GENERATED, GENERATED_BAD);
-    expect(await waitForNextSummary('error after edit'), output).toBeGreaterThan(0);
+    expect(await editAndWaitForRebuild(GENERATED_BAD, 'error after edit'), output).toBeGreaterThan(
+      0,
+    );
     expect(output, output).toContain('error TS2322');
 
-    writeFileSync(GENERATED, GENERATED_OK);
-    expect(await waitForNextSummary('green after revert'), output).toBe(0);
+    expect(await editAndWaitForRebuild(GENERATED_OK, 'green after revert'), output).toBe(0);
   }
 
   afterEach(async () => {
@@ -125,51 +186,64 @@ describe('ember-tsc --build --watch: iterations against a reused program', () =>
   // The per-project cache keying and the project-scoped SourceFile cache apply
   // to plain `--build` too, so make sure a multi-project graph still builds —
   // and still builds incrementally off the buildinfo it just wrote.
-  test('builds a multi-project reference graph without watch', async () => {
-    cleanArtifacts();
-    writeFileSync(GENERATED, GENERATED_OK);
+  test(
+    'builds a multi-project reference graph without watch',
+    async () => {
+      cleanArtifacts();
+      writeFileSync(GENERATED, GENERATED_OK);
 
-    const build = async (): Promise<void> => {
-      const result = await execa('pnpm', ['ember-tsc', '--build', 'tsconfig.watch-consumer.json'], {
-        cwd: PROJECT_ROOT,
-        reject: false,
-        all: true,
-      });
-      const text = stripAnsi(result.all ?? '');
-      expect(text, text).not.toMatch(/Cannot read properties of undefined/);
-      expect(text, text).not.toMatch(/Debug Failure/);
-      expect(result.exitCode, text).toBe(0);
-    };
+      const build = async (): Promise<void> => {
+        const result = await execa(
+          'pnpm',
+          ['ember-tsc', '--build', 'tsconfig.watch-consumer.json'],
+          {
+            cwd: PROJECT_ROOT,
+            reject: false,
+            all: true,
+            timeout: WAIT_TIMEOUT * 2,
+          },
+        );
+        const text = stripAnsi(result.all ?? '');
+        expect(text, text).not.toMatch(/Cannot read properties of undefined/);
+        expect(text, text).not.toMatch(/Debug Failure/);
+        expect(result.exitCode, text).toBe(0);
+      };
 
-    await build();
-    expect(existsSync(CONSUMER_BUILD_INFO)).toBe(true);
+      await build();
+      expect(existsSync(CONSUMER_BUILD_INFO)).toBe(true);
 
-    // Both roots of the consumer project must be recorded, and the referenced
-    // project must have produced its declarations.
-    expect(readBuildInfoRoots(CONSUMER_BUILD_INFO)).toEqual([
-      './watch-consumer-fixture/consumer.ts',
-      './watch-consumer-fixture/generated.ts',
-    ]);
-    expect(existsSync(resolve(DECLARATIONS, 'outer.d.ts'))).toBe(true);
+      // Both roots of the consumer project must be recorded, and the referenced
+      // project must have produced its declarations.
+      expect(readBuildInfoRoots(CONSUMER_BUILD_INFO)).toEqual([
+        './watch-consumer-fixture/consumer.ts',
+        './watch-consumer-fixture/generated.ts',
+      ]);
+      expect(existsSync(resolve(DECLARATIONS, 'outer.d.ts'))).toBe(true);
 
-    await build();
-  }, 120_000);
+      await build();
+    },
+    TEST_TIMEOUT,
+  );
 
-  test('reports and clears diagnostics across watch iterations without crashing', async () => {
-    cleanArtifacts();
-    writeFileSync(GENERATED, GENERATED_OK);
-    spawnWatch();
+  test(
+    'reports and clears diagnostics across watch iterations without crashing',
+    async () => {
+      cleanArtifacts();
+      writeFileSync(GENERATED, GENERATED_OK);
+      spawnWatch();
 
-    expect(await waitForNextSummary('initial build'), output).toBe(0);
+      expect(await waitForNextSummary('initial build'), output).toBe(0);
 
-    await driveTwoIterations();
+      await driveTwoIterations();
 
-    expect(output).not.toMatch(/Cannot read properties of undefined/);
-    expect(output).not.toMatch(/Debug Failure/);
-    // The narrowed `tryAddRoot` guard throws with this message rather than
-    // silently omitting a root; it must never fire.
-    expect(output).not.toMatch(/no file include reasons/);
-  }, 120_000);
+      expect(output).not.toMatch(/Cannot read properties of undefined/);
+      expect(output).not.toMatch(/Debug Failure/);
+      // The narrowed `tryAddRoot` guard throws with this message rather than
+      // silently omitting a root; it must never fire.
+      expect(output).not.toMatch(/no file include reasons/);
+    },
+    TEST_TIMEOUT,
+  );
 
   // Guards the riskiest part of the reuse patches. `tryAddRoot` tolerates a file
   // whose `fileIncludeReasons` lookup comes back undefined, and the `root` list
@@ -178,26 +252,31 @@ describe('ember-tsc --build --watch: iterations against a reused program', () =>
   // and a later build could consider it up to date when it isn't — a silent
   // failure surfacing much later. So the buildinfo a reused program writes must
   // record exactly the roots a cold build records.
-  test('writes the same buildinfo roots as a cold build', async () => {
-    cleanArtifacts();
-    writeFileSync(GENERATED, GENERATED_OK);
+  test(
+    'writes the same buildinfo roots as a cold build',
+    async () => {
+      cleanArtifacts();
+      writeFileSync(GENERATED, GENERATED_OK);
 
-    const cold = await execa('pnpm', ['ember-tsc', '--build', 'tsconfig.watch-consumer.json'], {
-      cwd: PROJECT_ROOT,
-      reject: false,
-      all: true,
-    });
-    expect(cold.exitCode, stripAnsi(cold.all ?? '')).toBe(0);
-    const coldRoots = readBuildInfoRoots(CONSUMER_BUILD_INFO);
-    expect(coldRoots.length).toBeGreaterThan(0);
+      const cold = await execa('pnpm', ['ember-tsc', '--build', 'tsconfig.watch-consumer.json'], {
+        cwd: PROJECT_ROOT,
+        reject: false,
+        all: true,
+        timeout: WAIT_TIMEOUT * 2,
+      });
+      expect(cold.exitCode, stripAnsi(cold.all ?? '')).toBe(0);
+      const coldRoots = readBuildInfoRoots(CONSUMER_BUILD_INFO);
+      expect(coldRoots.length).toBeGreaterThan(0);
 
-    // Rebuild the same graph under watch, driving two iterations so the final
-    // buildinfo is emitted from a reused program.
-    cleanArtifacts();
-    spawnWatch();
-    expect(await waitForNextSummary('initial watch build'), output).toBe(0);
-    await driveTwoIterations();
+      // Rebuild the same graph under watch, driving two iterations so the final
+      // buildinfo is emitted from a reused program.
+      cleanArtifacts();
+      spawnWatch();
+      expect(await waitForNextSummary('initial watch build'), output).toBe(0);
+      await driveTwoIterations();
 
-    expect(readBuildInfoRoots(CONSUMER_BUILD_INFO), output).toEqual(coldRoots);
-  }, 120_000);
+      expect(readBuildInfoRoots(CONSUMER_BUILD_INFO), output).toEqual(coldRoots);
+    },
+    TEST_TIMEOUT,
+  );
 });
