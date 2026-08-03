@@ -20,7 +20,7 @@
     "test:typecheck": "pnpm --filter '*' run test:typecheck"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.6",
+    "@babel/core": "^7.29.6",
     "@babel/parser": "^7.28.6",
     "@glimmer/component": "^2.0.0",
     "@glint/tsserver-plugin": "workspace:*",
