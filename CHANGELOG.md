@@ -1,5 +1,18 @@
 # Changelog
 
+## Release (2026-08-03)
+
+* @glint/ember-tsc 1.9.0 (minor)
+* @glint/template 1.8.0 (minor)
+* @glint/tsserver-plugin 2.6.0 (minor)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`
+  * [#1212](https://github.com/typed-ember/glint/pull/1212) Add type-system support for custom elements / web components ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### Committers: 1
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
 ## Release (2026-07-27)
 
 * @glint/ember-tsc 1.8.14 (patch)

@@ -1,11 +1,15 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "patch",
-      "oldVersion": "1.8.13",
-      "newVersion": "1.8.14",
+      "impact": "minor",
+      "oldVersion": "1.8.14",
+      "newVersion": "1.9.0",
       "tagName": "latest",
       "constraints": [
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/template"
@@ -14,27 +18,31 @@
       "pkgJSONPath": "./packages/ember-tsc/package.json"
     },
     "@glint/template": {
-      "impact": "patch",
-      "oldVersion": "1.7.9",
-      "newVersion": "1.7.10",
+      "impact": "minor",
+      "oldVersion": "1.7.10",
+      "newVersion": "1.8.0",
       "tagName": "latest",
       "constraints": [
         {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
         }
       ],
       "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
-      "impact": "patch",
-      "oldVersion": "2.5.19",
-      "newVersion": "2.5.20",
+      "impact": "minor",
+      "oldVersion": "2.5.20",
+      "newVersion": "2.6.0",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
+        },
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -43,5 +51,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-07-27)\n\n* @glint/ember-tsc 1.8.14 (patch)\n* @glint/template 1.7.10 (patch)\n* @glint/tsserver-plugin 2.5.20 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1210](https://github.com/typed-ember/glint/pull/1210) Regression fix: Add missing SVG 2 / Filter Effects attributes to generated element types by bumping `svg-element-attributes` to `2.2.0` ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- Johan Røed ([@johanrd](https://github.com/johanrd))\n"
+  "description": "## Release (2026-08-03)\n\n* @glint/ember-tsc 1.9.0 (minor)\n* @glint/template 1.8.0 (minor)\n* @glint/tsserver-plugin 2.6.0 (minor)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`, `@glint/template`, `@glint/tsserver-plugin`\n  * [#1212](https://github.com/typed-ember/glint/pull/1212) Add type-system support for custom elements / web components ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### Committers: 1\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n"
 }
