@@ -260,8 +260,63 @@ function injectContentTagDiagnostics(language: unknown, program: ts.Program): vo
   // same signature as the methods above but is not part of the public types.
   wrapPerFileDiagnostics('getBindAndCheckDiagnostics' as unknown as 'getSyntacticDiagnostics');
 
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { transformDiagnostic } = require('@volar/typescript/lib/node/transform.js') as {
+    transformDiagnostic: (
+      language: unknown,
+      diagnostic: ts.Diagnostic,
+      program: ts.Program | undefined,
+      isTsc: boolean,
+    ) => ts.Diagnostic | undefined;
+  };
+
   const originalEmit = program.emit;
   program.emit = (...args) => {
+    // TypeScript's incremental builder computes a changed file's "shape
+    // signature" by declaration-emitting just that file through
+    // `program.emit(sourceFile, writeFile, ct, EmitOnly.BuilderSignature, ...,
+    // forceDtsEmit)` and hashing the result — including every declaration
+    // diagnostic's `(start,length)` (see `computeSignatureWithDiagnostics`).
+    // For a .ts file those offsets are source positions, so the signature only
+    // changes when something before the diagnostic moves. For .gts/.gjs they
+    // are *transformed-file* positions, and volar's transformed text begins
+    // with a whitespace pad exactly as long as the original file — so every
+    // offset shifts whenever the file's length changes at all. A .gts with any
+    // declaration-emit diagnostic (TS2742, TS4094, ... — invisible under
+    // `--noEmit`) therefore gets a new signature on every length-changing
+    // edit, and tsc re-checks its entire transitive importer closure every
+    // time. Restore parity with .ts by mapping the diagnostics back to
+    // original source coordinates before they are hashed. (Diagnostics that
+    // exist only in generated code have no source position and are dropped.)
+    const emitOnly = args[3] as boolean | number | undefined;
+    if (emitOnly === 2 /* ts.EmitOnly.BuilderSignature (internal) */) {
+      const [sourceFile, writeFile] = args;
+      if (
+        sourceFile &&
+        writeFile &&
+        lang.scripts.get(sourceFile.fileName)?.generated?.root instanceof VirtualGtsCode
+      ) {
+        const wrappedArgs = [...args] as typeof args;
+        wrappedArgs[1] = (fileName, text, writeByteOrderMark, onError, sourceFiles, data) => {
+          // `diagnostics` is not part of the public WriteFileCallbackData type.
+          const dataWithDiagnostics = data as
+            | (ts.WriteFileCallbackData & { diagnostics?: readonly ts.Diagnostic[] })
+            | undefined;
+          if (dataWithDiagnostics?.diagnostics?.length) {
+            const diagnostics = dataWithDiagnostics.diagnostics
+              .map((diagnostic) => transformDiagnostic(language, diagnostic, program, true))
+              .filter((diagnostic) => !!diagnostic);
+            data = { ...dataWithDiagnostics, diagnostics } as ts.WriteFileCallbackData;
+          }
+          writeFile(fileName, text, writeByteOrderMark, onError, sourceFiles, data);
+        };
+        return originalEmit.apply(program, wrappedArgs);
+      }
+      // Signature emits never surface user-facing diagnostics, so skip the
+      // content-tag extras: `collectExtras()` walks every source file in the
+      // program, which is pure overhead once per signature computation.
+      return originalEmit.apply(program, args);
+    }
     const result = originalEmit.apply(program, args);
     const extras = collectExtras();
     return extras.length ? { ...result, diagnostics: [...result.diagnostics, ...extras] } : result;
