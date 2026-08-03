@@ -1334,7 +1334,33 @@ export function templateToTypescript(
         // component/helper, and returned as a value otherwise.
         let hasParams = Boolean(node.hash.pairs.length || node.params.length);
         if (!hasParams && position === 'arg' && !isGlobal(node.path)) {
-          emitExpression(node.path);
+          // A `{{#let}}`-bound curried component passed as an arg must not
+          // contribute inference candidates to the consuming component's type
+          // parameters: `bindInvokable` keeps the curried component's own
+          // generic free, and TypeScript instantiates a free generic to its
+          // constraint during inference, which then beats the correct
+          // candidates supplied by sibling args (#1068). The cast keeps the
+          // value invokable-shaped while making it inference-inert; in every
+          // other position (notably `{{yield}}`) the reference stays fully
+          // typed so generic-shaped targets like `WithBoundArgs<typeof C, K>`
+          // keep working.
+          //
+          // Untyped scripts are left alone: the collapse requires a generic
+          // class component, which is a TypeScript-only concern, and `as`
+          // casts aren't valid syntax in the JS intermediate format.
+          if (
+            !useJsDoc &&
+            node.path.type === 'PathExpression' &&
+            node.path.head.type === 'VarHead' &&
+            node.path.tail.length === 0 &&
+            scope.isCurriedInvokable(node.path.head.name)
+          ) {
+            mapper.text('(');
+            emitExpression(node.path);
+            mapper.text(` as import("${typesModule}").InferenceInertInvokable)`);
+          } else {
+            emitExpression(node.path);
+          }
         } else if (position === 'top-level') {
           // e.g. top-level mustache `{{someValue}}`
           mapper.text('__glintDSL__.emitContent(');
@@ -1542,7 +1568,7 @@ export function templateToTypescript(
         mapper.text(');');
         mapper.newline();
 
-        emitBlock('default', node.program);
+        emitBlock('default', node.program, curriedLetBindings(node));
 
         if (node.inverse) {
           emitBlock('else', node.inverse);
@@ -1565,13 +1591,52 @@ export function templateToTypescript(
       mapper.newline();
     }
 
-    function emitBlock(name: string, node: AST.Block): void {
+    // For `{{#let}}`, identify block params bound to `(component ... named=args)`
+    // (or `helper`/`modifier`) curried invokables. Their references need to be
+    // cast to an inference-inert type when consumed in argument position — see
+    // `emitMustacheStatement` and `InferenceInertInvokable` in the environment
+    // DSL. (#1068)
+    function curriedLetBindings(node: AST.BlockStatement): Set<string> | undefined {
+      let path = node.path;
+      if (
+        path.type !== 'PathExpression' ||
+        path.tail.length > 0 ||
+        path.head.type !== 'VarHead' ||
+        path.head.name !== 'let' ||
+        scope.hasBinding('let')
+      ) {
+        return undefined;
+      }
+
+      let curried: Set<string> | undefined;
+      for (let [index, param] of node.params.entries()) {
+        let name = node.program.blockParams[index];
+        if (
+          name &&
+          param.type === 'SubExpression' &&
+          checkSpecialForm(param)?.form === 'bind-invokable' &&
+          param.hash.pairs.length > 0
+        ) {
+          (curried ??= new Set()).add(name);
+        }
+      }
+      return curried;
+    }
+
+    function emitBlock(name: string, node: AST.Block, curriedInvokables?: Set<string>): void {
       let paramsStart = template.lastIndexOf(
         '|',
         template.lastIndexOf('|', rangeForNode(node).end) - 1,
       );
 
-      emitBlockContents(name, undefined, node.blockParams, paramsStart, node.body);
+      emitBlockContents(
+        name,
+        undefined,
+        node.blockParams,
+        paramsStart,
+        node.body,
+        curriedInvokables,
+      );
     }
 
     function emitBlockContents(
@@ -1580,13 +1645,14 @@ export function templateToTypescript(
       blockParams: string[],
       blockParamsOffset: number,
       children: AST.TopLevelStatement[],
+      curriedInvokables?: Set<string>,
     ): void {
       assert(
         blockParams.every((name) => !name.includes('-')),
         'Block params must be valid TypeScript identifiers',
       );
 
-      scope.push(blockParams);
+      scope.push(blockParams, curriedInvokables);
 
       mapper.text('{');
       mapper.newline();
