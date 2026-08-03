@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": true,
+    "tsBuildInfoFile": "incremental-fixture/tsconfig.incremental.tsbuildinfo"
+  },
+  "include": ["incremental-fixture"]
+}
