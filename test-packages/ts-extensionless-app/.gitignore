@@ -1,2 +1,6 @@
 tsconfig.tsbuildinfo
 build-mode-declarations/
+watch-consumer.tsbuildinfo
+# Written and removed by build-watch-mode.test.ts, which edits it to drive watch
+# iterations. Generated so a hard kill can't leave a tracked fixture dirty.
+watch-consumer-fixture/generated.ts

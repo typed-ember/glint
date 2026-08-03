@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": true,
+    "tsBuildInfoFile": "watch-consumer.tsbuildinfo"
+  },
+  "include": ["watch-consumer-fixture"],
+  "references": [{ "path": "./tsconfig.build-mode.json" }]
+}
