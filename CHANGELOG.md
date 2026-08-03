@@ -2,6 +2,18 @@
 
 ## Release (2026-08-03)
 
+* @glint/ember-tsc 1.9.1 (patch)
+* @glint/tsserver-plugin 2.6.1 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1196](https://github.com/typed-ember/glint/pull/1196) Closes [#1068](https://github.com/typed-ember/glint/issues/1068): keep curried generic components from poisoning consumer inference ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### Committers: 1
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+## Release (2026-08-03)
+
 * @glint/ember-tsc 1.9.0 (minor)
 * @glint/template 1.8.0 (minor)
 * @glint/tsserver-plugin 2.6.0 (minor)
