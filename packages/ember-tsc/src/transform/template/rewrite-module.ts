@@ -42,6 +42,17 @@ export function rewriteModule(
     clientId,
   );
 
+  return buildTransformedModule(script, { errors, directives, partialSpans });
+}
+
+/**
+ * Assembles the final `TransformedModule` from the spans and errors collected
+ * for a script. Shared by `rewriteModule` and `rewriteModuleStandalone`.
+ */
+export function buildTransformedModule(
+  script: SourceFile,
+  { errors, directives, partialSpans }: CorrelatedSpansResult,
+): TransformedModule | null {
   if (!partialSpans.length && !errors.length) {
     return null;
   }
@@ -90,58 +101,7 @@ function calculateCorrelatedSpans(
   let { ast, emitMetadata, error } = parseScript(ts, script, environment);
 
   if (error) {
-    if (typeof error === 'string') {
-      errors.push({
-        message: error,
-        location: { start: 0, end: script.contents.length - 1 },
-        source: script,
-      });
-    } else if ('isContentTagError' in error && error.isContentTagError) {
-      // Translate content-tag's 1-based (line, column) into an absolute
-      // offset in the original source. We use the line/column verbatim
-      // (rather than shifting back a line) so the diagnostic lands exactly
-      // where content-tag's own snippet points — including for cases like
-      // `Unexpected eof` where the report sits at the end of a broken
-      // closing tag. The previous implementation summed the first
-      // `error.line` lines' lengths *without* their newlines, which by
-      // coincidence landed on the line above for some inputs and pointed
-      // at a blank line (or past EOF) for others (e.g. a `.gts` ending in
-      // `</templat\n`, which would render an empty source snippet).
-      let lines = script.contents.split('\n');
-      let lineIdx = Math.max(0, Math.min(error.line - 1, lines.length - 1));
-      let lineStart = 0;
-      for (let i = 0; i < lineIdx; i++) {
-        lineStart += lines[i].length + 1; // +1 for the consumed `\n`
-      }
-      let lineLength = lines[lineIdx]?.length ?? 0;
-      // Clamp the column to the last *character* of the line, not the
-      // newline that follows it. Otherwise a 1-char-wide diagnostic at
-      // (line N, col past EOL) would span across the `\n` into line N+1
-      // and TS would render two source-snippet lines (the second one
-      // empty) instead of just the offending one.
-      let col = lineLength === 0 ? 0 : Math.max(0, Math.min(error.column - 1, lineLength - 1));
-      let start = lineStart + col;
-      let end = Math.min(start + 1, script.contents.length);
-
-      errors.push({
-        isContentTagError: true,
-        // Use only `error.message` here. `error.help` is content-tag's pretty-
-        // printed source snippet with its own (1-based, post-error-line) line
-        // numbers, which conflict with the line/column the surrounding
-        // diagnostic surface (tsc, tsserver, LSP) reports for `location`.
-        // Including both produced output like
-        //   src/Foo.gts(6,11): error TS0: Unexpected token ...
-        //
-        //    7 │ }
-        // where the two line numbers disagree and confuse readers.
-        message: error.message,
-        source: script,
-        location: {
-          start,
-          end,
-        },
-      });
-    }
+    errors.push(toTransformError(error, script));
 
     // We've hit a parsing error, so we need to immediately return as the parsed
     // document must be correct before we can continue.
@@ -176,7 +136,7 @@ function calculateCorrelatedSpans(
   return { errors, directives, partialSpans };
 }
 
-type ParseError =
+export type ParseError =
   | string
   | {
       isContentTagError: true;
@@ -193,6 +153,66 @@ type ParseResult = {
   emitMetadata: WeakMap<ts.Node, GlintEmitMetadata>;
   error?: ParseError;
 };
+
+/**
+ * Translates the error thrown by an environment's `preprocess` step (for the
+ * built-in environment: content-tag) into a `TransformError` positioned in the
+ * original source.
+ */
+export function toTransformError(error: ParseError, script: SourceFile): TransformError {
+  if (typeof error === 'string') {
+    return {
+      message: error,
+      location: { start: 0, end: script.contents.length - 1 },
+      source: script,
+    };
+  }
+
+  // Translate content-tag's 1-based (line, column) into an absolute
+  // offset in the original source. We use the line/column verbatim
+  // (rather than shifting back a line) so the diagnostic lands exactly
+  // where content-tag's own snippet points — including for cases like
+  // `Unexpected eof` where the report sits at the end of a broken
+  // closing tag. The previous implementation summed the first
+  // `error.line` lines' lengths *without* their newlines, which by
+  // coincidence landed on the line above for some inputs and pointed
+  // at a blank line (or past EOF) for others (e.g. a `.gts` ending in
+  // `</templat\n`, which would render an empty source snippet).
+  let lines = script.contents.split('\n');
+  let lineIdx = Math.max(0, Math.min(error.line - 1, lines.length - 1));
+  let lineStart = 0;
+  for (let i = 0; i < lineIdx; i++) {
+    lineStart += lines[i].length + 1; // +1 for the consumed `\n`
+  }
+  let lineLength = lines[lineIdx]?.length ?? 0;
+  // Clamp the column to the last *character* of the line, not the
+  // newline that follows it. Otherwise a 1-char-wide diagnostic at
+  // (line N, col past EOL) would span across the `\n` into line N+1
+  // and TS would render two source-snippet lines (the second one
+  // empty) instead of just the offending one.
+  let col = lineLength === 0 ? 0 : Math.max(0, Math.min(error.column - 1, lineLength - 1));
+  let start = lineStart + col;
+  let end = Math.min(start + 1, script.contents.length);
+
+  return {
+    isContentTagError: true,
+    // Use only `error.message` here. `error.help` is content-tag's pretty-
+    // printed source snippet with its own (1-based, post-error-line) line
+    // numbers, which conflict with the line/column the surrounding
+    // diagnostic surface (tsc, tsserver, LSP) reports for `location`.
+    // Including both produced output like
+    //   src/Foo.gts(6,11): error TS0: Unexpected token ...
+    //
+    //    7 │ }
+    // where the two line numbers disagree and confuse readers.
+    message: error.message,
+    source: script,
+    location: {
+      start,
+      end,
+    },
+  };
+}
 
 function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironment): ParseResult {
   let { filename, contents } = script;
@@ -244,7 +264,7 @@ function parseScript(ts: TSLib, script: SourceFile, environment: GlintEnvironmen
   return { ast, emitMetadata, error };
 }
 
-function parseError(e: unknown, filename: string): ParseError {
+export function parseError(e: unknown, filename: string): ParseError {
   if (typeof e === 'object' && e !== null) {
     // Parse Errors from the rust parser
     if ('source_code' in e) {

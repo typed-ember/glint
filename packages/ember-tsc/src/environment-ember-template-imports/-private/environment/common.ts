@@ -3,6 +3,8 @@ export type PreprocessData = {
 };
 
 export type TemplateLocation = {
+  /** content-tag's classification: a class's own template, or a template expression. */
+  type: 'expression' | 'class-member';
   startTagOffset: number;
   startTagLength: number;
   endTagOffset: number;

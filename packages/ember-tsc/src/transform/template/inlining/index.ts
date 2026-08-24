@@ -1,3 +1,4 @@
+import { GlintEmitMetadata } from '@glint/ember-tsc/config-types';
 import type ts from 'typescript';
 import { CorrelatedSpan, Directive, TransformError } from '../transformed-module.js';
 import { TSLib } from '../../util.js';
@@ -8,6 +9,27 @@ export type CorrelatedSpansResult = {
   errors: Array<TransformError>;
   directives: Array<Directive>;
   partialSpans: Array<PartialCorrelatedSpan>;
+};
+
+export type ImportedBinding = { specifier: string; source: string; synthetic: boolean };
+export type ImportedBindings = Record<string, ImportedBinding>;
+
+/**
+ * Everything the template transform needs to know about one embedded
+ * `<template>`, independent of how the surrounding script was analyzed.
+ * `rewriteModule` derives this from the TypeScript AST; the standalone entry
+ * point derives it from content-tag's parse output and a lightweight scan of
+ * the script (see `script-scanner.ts`).
+ */
+export type EmbeddedTemplate = {
+  /** The template's text, as authored between the tags. */
+  template: string;
+  /** Offsets into the original script, in the same shape as `GlintEmitMetadata['templateLocation']`. */
+  templateLocation: NonNullable<GlintEmitMetadata['templateLocation']>;
+  thisBinding: TemplateThisBinding;
+  /** Text emitted before / after the template's transformed output (e.g. `export default `). */
+  prepend?: string | undefined;
+  append?: string | undefined;
 };
 
 /**

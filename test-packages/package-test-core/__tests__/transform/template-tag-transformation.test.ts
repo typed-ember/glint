@@ -30,6 +30,7 @@ describe('Environment: ETI', () => {
       expect(result.data).toEqual({
         templateLocations: [
           {
+            type: 'expression',
             startTagOffset: source.indexOf('<template>'),
             startTagLength: '<template>'.length,
             endTagOffset: source.indexOf('</template>'),
@@ -53,6 +54,7 @@ describe('Environment: ETI', () => {
       expect(result.data).toEqual({
         templateLocations: [
           {
+            type: 'expression',
             startTagOffset: source.indexOf('<template>'),
             startTagLength: '<template>'.length,
             endTagOffset: source.indexOf('</template>'),
@@ -129,14 +131,14 @@ describe('Environment: ETI', () => {
       `;
 
       // The top-level template is an expression (bare); the one in the class
-      // body is a class member (wrapped in `[ ]` as a computed-property name).
+      // body is a class member (wrapped in `[ ]` as a computed-property name, preceded by an empty `;` element).
       let transformed = stripIndent`
         ___T\`
           <Foo />
         \`
 
         class Foo {
-          [___T\`Hello\`]
+          ;[___T\`Hello\`]
         }
       `;
 
@@ -149,6 +151,7 @@ describe('Environment: ETI', () => {
       expect(result.data).toEqual({
         templateLocations: [
           {
+            type: 'expression',
             startTagOffset: source.indexOf('<template>'),
             startTagLength: '<template>'.length,
             endTagOffset: source.indexOf('</template>'),
@@ -156,6 +159,7 @@ describe('Environment: ETI', () => {
             ...tagSpan(transformed),
           },
           {
+            type: 'class-member',
             startTagOffset: source.indexOf('<template>', sourceClassOffset),
             startTagLength: '<template>'.length,
             endTagOffset: source.indexOf('</template>', sourceClassOffset),
@@ -186,6 +190,7 @@ describe('Environment: ETI', () => {
       expect(result.data).toEqual({
         templateLocations: [
           {
+            type: 'expression',
             startTagOffset: source.indexOf('<template>'),
             startTagLength: '<template>'.length,
             endTagOffset: source.indexOf('</template>'),
@@ -193,6 +198,7 @@ describe('Environment: ETI', () => {
             ...tagSpan(transformed),
           },
           {
+            type: 'expression',
             startTagOffset: source.lastIndexOf('<template>'),
             startTagLength: '<template>'.length,
             endTagOffset: source.lastIndexOf('</template>'),
@@ -317,7 +323,7 @@ describe('Environment: ETI', () => {
           "class MyClass {
             $foo: string = 'bar';
 
-            [___T\`{{this.$foo}}\`];
+            ;[___T\`{{this.$foo}}\`];
           }"
         `);
       });
@@ -437,10 +443,12 @@ describe('Environment: ETI', () => {
       let classStart = source.indexOf('class');
       let { meta, sourceFile } = applyTransform(source);
       let firstTemplate = (sourceFile.statements[1] as ts.ExpressionStatement).expression;
-      let secondTemplate = (
+      let secondTemplate = // `members[0]` is the empty `;` element preprocess emits ahead of
+      // the template member.
+      (
         (
           (sourceFile.statements[2] as ts.ClassDeclaration)
-            .members[0] as ts.ClassStaticBlockDeclaration
+            .members[1] as ts.ClassStaticBlockDeclaration
         ).body.statements[0] as ts.ExpressionStatement
       ).expression;
 
@@ -537,7 +545,7 @@ describe('Environment: ETI', () => {
       let secondTemplate = (
         (
           (sourceFile.statements[3] as ts.ClassDeclaration)
-            .members[0] as ts.ClassStaticBlockDeclaration
+            .members[1] as ts.ClassStaticBlockDeclaration
         ).body.statements[0] as ts.ExpressionStatement
       ).expression;
 
