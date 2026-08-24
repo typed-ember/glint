@@ -1,6 +1,5 @@
 import { GlintEnvironment } from '@glint/ember-tsc/config/index';
 import { rewriteModule, rewriteModuleStandalone } from '@glint/ember-tsc/transform/index';
-import { scanScript } from '@glint/ember-tsc/transform/template/inlining/script-scanner';
 import { stripIndent } from 'common-tags';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
@@ -90,7 +89,11 @@ describe('Transform: rewriteModuleStandalone', () => {
       );
     });
 
-    test('static block and heritage clause', () => {
+    // ember-estree 0.7.0 builds its placeholder JS from content-tag's results
+    // in content-tag order, which puts a heritage-clause template after the
+    // class body template; NullVoxPopuli/ember-estree#77 sorts them. Flip to
+    // `test` once that ships.
+    test.fails('static block and heritage clause', () => {
       expectParity(
         'test.gts',
         stripIndent`
@@ -153,7 +156,10 @@ describe('Transform: rewriteModuleStandalone', () => {
       );
     });
 
-    test('templates after statements that rely on automatic semicolon insertion', () => {
+    // ember-estree 0.7.0's bare-backtick placeholder reads as a tagged
+    // template after `x`; NullVoxPopuli/ember-estree#78 switches it to
+    // `void `...``. Flip to `test` once that ships.
+    test.fails('templates after statements that rely on automatic semicolon insertion', () => {
       expectParity(
         'test.gts',
         stripIndent`
@@ -227,6 +233,31 @@ describe('Transform: rewriteModuleStandalone', () => {
       );
     });
 
+    test('script syntax error still emits the template', () => {
+      // oxc-parser yields an empty program on an unrecoverable script error
+      // (TypeScript's parser is more tolerant), so import bindings and
+      // template placement are unavailable: content-tag still classifies the
+      // class member, and `fn` is emitted as a bare identifier, which
+      // resolves lexically to the import. The syntax error itself is
+      // reported by whichever type-checker consumes the output.
+      let script = {
+        filename: 'test.gts',
+        contents: stripIndent`
+          import { fn } from '@ember/helper';
+          let planets = []);
+          export default class Demo {
+            <template>{{fn this.remove}}</template>
+          }
+        `,
+      };
+
+      let standalone = rewriteModuleStandalone({ script }, env);
+
+      expect(standalone?.errors).toEqual([]);
+      expect(standalone?.transformedContents).toContain('templateForBackingValue(this');
+      expect(standalone?.transformedContents).toContain('__glintDSL__.resolve(fn)(');
+    });
+
     test('no templates', () => {
       expectParity('test.gts', `export const x = 1;\n`);
       expectParity('test.ts', `export const x = 1;\n`);
@@ -249,78 +280,5 @@ describe('Transform: rewriteModuleStandalone', () => {
         `,
       );
     });
-  });
-});
-
-describe('Transform: scanScript', () => {
-  function scan(source: string): ReturnType<typeof scanScript> {
-    // `<template>...</template>` ranges are located by hand here; the real
-    // caller gets them from content-tag.
-    let ranges: Array<{ start: number; end: number }> = [];
-    let re = /<template>[\s\S]*?<\/template>/g;
-    let match: RegExpExecArray | null;
-    while ((match = re.exec(source))) {
-      ranges.push({ start: match.index, end: match.index + match[0].length });
-    }
-    return scanScript(source, ranges);
-  }
-
-  test('reads default, named, aliased and type-only import bindings', () => {
-    let { imports } = scan(stripIndent`
-      import Component from '@glimmer/component';
-      import { hash as h, array, type Foo } from '@ember/helper';
-      import type { TOC } from '@ember/component/template-only';
-      import type from './type';
-      import { type } from './type-binding';
-      import * as ns from './ns';
-      import Both, * as both from './both';
-      import './side-effect';
-      import { "string-name" as stringName } from './strings';
-      import json from './data.json' with { type: 'json' };
-      import fs = require('node:fs');
-      const lazy = import('./lazy');
-      const url = import.meta.url;
-      const obj = { import: 1 };
-      obj.import;
-    `);
-
-    expect(imports).toEqual({
-      Component: { specifier: 'default', source: '@glimmer/component', synthetic: false },
-      h: { specifier: 'hash', source: '@ember/helper', synthetic: false },
-      array: { specifier: 'array', source: '@ember/helper', synthetic: false },
-      Foo: { specifier: 'Foo', source: '@ember/helper', synthetic: false },
-      TOC: { specifier: 'TOC', source: '@ember/component/template-only', synthetic: false },
-      type: { specifier: 'type', source: './type-binding', synthetic: false },
-      Both: { specifier: 'default', source: './both', synthetic: false },
-      stringName: { specifier: 'string-name', source: './strings', synthetic: false },
-      json: { specifier: 'default', source: './data.json', synthetic: false },
-    });
-  });
-
-  test('classifies template positions', () => {
-    let { templates } = scan(stripIndent`
-      <template>module</template>
-      const a = <template>operand</template>;
-      class A extends mixin(<template>heritage</template>) {
-        field = <template>lexical</template>;
-        static {
-          <template>static</template>
-        }
-        method() {
-          <template>statement-in-method</template>
-        }
-      }
-      <template>trailing</template>
-    `);
-
-    expect(templates).toEqual([
-      { thisBinding: 'context', isExpressionStatement: true },
-      { thisBinding: 'context', isExpressionStatement: false },
-      { thisBinding: 'context', isExpressionStatement: false },
-      { thisBinding: 'lexical', isExpressionStatement: false },
-      { thisBinding: 'backing-class', isExpressionStatement: true },
-      { thisBinding: 'lexical', isExpressionStatement: true },
-      { thisBinding: 'context', isExpressionStatement: true },
-    ]);
   });
 });
