@@ -90,11 +90,7 @@ describe('Transform: rewriteModuleStandalone', () => {
       );
     });
 
-    // ember-estree 0.7.0 builds its placeholder JS from content-tag's results
-    // in content-tag order, which puts a heritage-clause template after the
-    // class body template; NullVoxPopuli/ember-estree#77 sorts them. Flip to
-    // `test` once that ships.
-    test.fails('static block and heritage clause', () => {
+    test('static block and heritage clause', () => {
       expectParity(
         'test.gts',
         stripIndent`
@@ -157,10 +153,7 @@ describe('Transform: rewriteModuleStandalone', () => {
       );
     });
 
-    // ember-estree 0.7.0's bare-backtick placeholder reads as a tagged
-    // template after `x`; NullVoxPopuli/ember-estree#78 switches it to
-    // `void `...``. Flip to `test` once that ships.
-    test.fails('templates after statements that rely on automatic semicolon insertion', () => {
+    test('templates after statements that rely on automatic semicolon insertion', () => {
       expectParity(
         'test.gts',
         stripIndent`

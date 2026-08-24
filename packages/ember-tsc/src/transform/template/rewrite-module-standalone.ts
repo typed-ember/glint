@@ -175,7 +175,7 @@ function walk(node: Node, ancestors: Array<Ancestor>, placements: Map<number, Pl
 }
 
 // ember-estree stands each expression template in with a same-length
-// template literal (`void `...`` from 0.8, a bare backtick literal before) and
+// template literal (`void `...`` from 0.7.1, a bare backtick literal before) and
 // each class member with a `static{`...`}` block.
 function isPlaceholderShape(node: Node): boolean {
   return (
