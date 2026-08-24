@@ -45,6 +45,7 @@
     "./-private/intrinsics/truth-helpers": "./types/-private/intrinsics/truth-helpers.d.ts",
     "./-private/intrinsics/unbound": "./types/-private/intrinsics/unbound.d.ts",
     "./-private/intrinsics/unique-id": "./types/-private/intrinsics/unique-id.d.ts",
+    "./package.json": "./package.json",
     "./*": {
       "types": "./lib/*.d.ts",
       "default": "./lib/*.js"
