@@ -907,6 +907,68 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     `);
   });
 
+  test('handlebars parse errors are surfaced through tsserver alongside TS diagnostics', async () => {
+    // A `{{! }}` comment ends at the first `}}` (the one closing `{{array}}`),
+    // so the `{{#let}}` after it is parsed as content and the template fails
+    // to parse. The template
+    // contributes no transformed output in that case, so without surfacing
+    // the transform error here the tsserver path reports nothing at all for
+    // it (typed-ember/glint#1221). The script portion is still checked.
+    const code = stripIndent`
+      import Component from '@glimmer/component';
+
+      const notANumber: number = 'nope';
+
+      export default class MyComponent extends Component {
+        <template>
+          {{! ---- {{array}} bound via {{#let}} ---- }}
+          <div></div>
+        </template>
+      }
+    `;
+
+    const diagnostics = await requestTsserverDiagnostics(
+      'ts-template-imports-app/src/empty-fixture.gts',
+      'glimmer-ts',
+      code,
+    );
+
+    expect(diagnostics).toMatchInlineSnapshot(`
+      [
+        {
+          "category": "error",
+          "code": 0,
+          "end": {
+            "line": 9,
+            "offset": 3,
+          },
+          "source": "glint",
+          "start": {
+            "line": 7,
+            "offset": 42,
+          },
+          "text": "Parse error on line 4:
+      ...}    <div></div>  
+      ---------------------^
+      Expecting 'OPEN_INVERSE_CHAIN', 'INVERSE', 'OPEN_ENDBLOCK', got 'EOF'",
+        },
+        {
+          "category": "error",
+          "code": 2322,
+          "end": {
+            "line": 3,
+            "offset": 17,
+          },
+          "start": {
+            "line": 3,
+            "offset": 7,
+          },
+          "text": "Type 'string' is not assignable to type 'number'.",
+        },
+      ]
+    `);
+  });
+
   test('HTML attribute type-checking', async () => {
     const code = stripIndent`
       import Component from '@glimmer/component';
