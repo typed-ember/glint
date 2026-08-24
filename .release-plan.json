@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.10.0",
-      "newVersion": "1.10.1",
+      "oldVersion": "1.10.1",
+      "newVersion": "1.10.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -18,8 +18,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.7.0",
-      "newVersion": "2.7.1",
+      "oldVersion": "2.7.1",
+      "newVersion": "2.7.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -33,5 +33,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-08-24)\n\n* @glint/ember-tsc 1.10.1 (patch)\n* @glint/tsserver-plugin 2.7.1 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1222](https://github.com/typed-ember/glint/pull/1222) Export package.json from @glint/ember-tsc ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### Committers: 1\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n"
+  "description": "## Release (2026-08-24)\n\n* @glint/ember-tsc 1.10.2 (patch)\n* @glint/tsserver-plugin 2.7.2 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1225](https://github.com/typed-ember/glint/pull/1225) Surface handlebars parse errors from ember-tsc and the tsserver plugin ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### Committers: 1\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n"
 }
