@@ -1,5 +1,6 @@
 import { GlintEnvironment } from '@glint/ember-tsc/config/index';
-import { rewriteModule, rewriteModuleStandalone } from '@glint/ember-tsc/transform/index';
+import { rewriteModule } from '@glint/ember-tsc/transform/index';
+import { rewriteModuleStandalone } from '@glint/ember-tsc/transform/standalone';
 import { stripIndent } from 'common-tags';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';

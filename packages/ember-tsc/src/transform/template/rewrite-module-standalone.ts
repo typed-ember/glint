@@ -30,6 +30,8 @@ import TransformedModule, { Directive, TransformError } from './transformed-modu
  *
  * The output is identical to `rewriteModule`'s for the same input; the
  * language server, tsserver plugin and `ember-tsc` keep using `rewriteModule`.
+ * Exposed only as `@glint/ember-tsc/transform/standalone` so that those paths
+ * never load ember-estree (and oxc-parser's native binary).
  */
 export function rewriteModuleStandalone(
   { script }: RewriteInput,
