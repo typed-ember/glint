@@ -1,5 +1,17 @@
 # Changelog
 
+## Release (2026-08-24)
+
+* @glint/ember-tsc 1.10.1 (patch)
+* @glint/tsserver-plugin 2.7.1 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1222](https://github.com/typed-ember/glint/pull/1222) Export package.json from @glint/ember-tsc ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### Committers: 1
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
 ## Release (2026-08-03)
 
 * @glint/ember-tsc 1.10.0 (minor)
