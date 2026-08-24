@@ -444,13 +444,13 @@ describe('Environment: ETI', () => {
       let { meta, sourceFile } = applyTransform(source);
       let firstTemplate = (sourceFile.statements[1] as ts.ExpressionStatement).expression;
       let secondTemplate = // `members[0]` is the empty `;` element preprocess emits ahead of
-      // the template member.
-      (
+        // the template member.
         (
-          (sourceFile.statements[2] as ts.ClassDeclaration)
-            .members[1] as ts.ClassStaticBlockDeclaration
-        ).body.statements[0] as ts.ExpressionStatement
-      ).expression;
+          (
+            (sourceFile.statements[2] as ts.ClassDeclaration)
+              .members[1] as ts.ClassStaticBlockDeclaration
+          ).body.statements[0] as ts.ExpressionStatement
+        ).expression;
 
       let firstStart = source.indexOf('<template>');
       let firstContentStart = firstStart + '<template>'.length;
