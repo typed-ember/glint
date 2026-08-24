@@ -85,7 +85,7 @@ const barLit = 'bar' as const;
   {{expectTypeOf (and truthyObj fallback) to.beString}}
   {{expectTypeOf (and truthyObj fallbackCount) to.beNumber}}
 
-  {{! ===== (2) control-flow narrowing via {{#if}} ===== }}
+  {{!-- ===== (2) control-flow narrowing via {{#if}} ===== --}}
 
   {{! ---- optional value: the guard refines `string | undefined` to `string`.
       (The else branch stays `string | undefined`, since `''` is also falsy and

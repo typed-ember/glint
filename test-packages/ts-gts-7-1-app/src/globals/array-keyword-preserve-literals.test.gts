@@ -15,12 +15,12 @@ const Layer: TOC<{ Args: { op: Expr } }> = <template></template>;
 const identity = <T,>(value: T): T => value;
 
 <template>
-  {{! ---- {{array}} bound directly via {{#let}} ---- }}
+  {{!-- ---- {{array}} bound directly via {{#let}} ---- --}}
   {{#let (array "case" 1 2) as |op|}}
     <Layer @op={{op}} />
   {{/let}}
 
-  {{! ---- {{array}} nested inside another helper, result bound via {{#let}} ---- }}
+  {{!-- ---- {{array}} nested inside another helper, result bound via {{#let}} ---- --}}
   {{#let (identity (array "case" 1 2)) as |op|}}
     <Layer @op={{op}} />
   {{/let}}

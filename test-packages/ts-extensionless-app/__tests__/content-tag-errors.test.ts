@@ -182,3 +182,60 @@ describe('ember-tsc surfaces content-tag parse errors', () => {
     `);
   });
 });
+
+// Regression test for https://github.com/typed-ember/glint/issues/1221.
+// `ember-tsc` surfaced content-tag parse errors (above) but dropped handlebars
+// parse errors from individual `<template>` tags: the broken template
+// contributed no transformed output, so TypeScript had nothing to report and
+// the whole template went silently unchecked.
+describe('ember-tsc surfaces handlebars parse errors', () => {
+  const targets: string[] = [];
+
+  afterEach(() => {
+    while (targets.length) {
+      try {
+        unlinkSync(targets.pop()!);
+      } catch {
+        // ignore
+      }
+    }
+  });
+
+  test('reports an unclosed block inside a template and exits non-zero', async () => {
+    const target = resolve(SRC_DIR, '_broken_handlebars.gts');
+    targets.push(target);
+    writeFileSync(
+      target,
+      [
+        `import Component from '@glimmer/component';`,
+        ``,
+        `export default class Broken extends Component {`,
+        `  <template>`,
+        // A `{{! }}` comment ends at the first `}}` (the one closing
+        // `{{array}}`), so the `{{#let}}` after it is parsed as content and
+        // never closed.
+        `    {{! ---- {{array}} bound via {{#let}} ---- }}`,
+        `    <div></div>`,
+        `  </template>`,
+        `}`,
+        ``,
+      ].join('\n'),
+    );
+
+    const result = await execa('node', [EMBER_TSC_BIN, '--noEmit'], {
+      cwd: PROJECT_ROOT,
+      reject: false,
+      all: true,
+    });
+
+    const diagnostic = stripAnsi(result.all ?? '').trimEnd();
+
+    expect(result.exitCode, `output:\n${result.all}`).not.toBe(0);
+    expect(diagnostic).toMatchInlineSnapshot(`
+      "src/_broken_handlebars.gts(5,42): error TS0: Parse error on line 4:
+      ...}    <div></div>  
+      ---------------------^
+      Expecting 'OPEN_INVERSE_CHAIN', 'INVERSE', 'OPEN_ENDBLOCK', got 'EOF'"
+    `);
+  });
+});
