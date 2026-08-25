@@ -61,22 +61,43 @@ export type EmbeddedTemplate = {
 export type TemplateThisBinding = 'backing-class' | 'lexical' | 'context';
 
 /**
- * Given an AST node for an embedded template, determines how the template's
+ * The ancestor kinds that decide a template's `this` binding, in the order
+ * met walking outward from the template. See {@link TemplateThisBinding}.
+ */
+export type ThisBindingAncestor = 'static-block' | 'heritage-clause' | 'class' | 'other';
+
+/**
+ * Resolves a template's `this` binding from its ancestors, innermost first:
+ * the first static block, heritage clause or class met decides.
+ */
+export function thisBindingFromAncestors(
+  ancestors: Iterable<ThisBindingAncestor>,
+): TemplateThisBinding {
+  for (let ancestor of ancestors) {
+    switch (ancestor) {
+      case 'static-block':
+        return 'backing-class';
+      case 'heritage-clause':
+        return 'context';
+      case 'class':
+        return 'lexical';
+    }
+  }
+  return 'context';
+}
+
+/**
+ * Given a TS AST node for an embedded template, determines how the template's
  * `{{this}}` should be bound. See {@link TemplateThisBinding}.
  */
 export function templateThisBinding(ts: TSLib, node: ts.Node): TemplateThisBinding {
-  let current: ts.Node | null = node;
-  do {
-    if (ts.isClassStaticBlockDeclaration(current)) {
-      return 'backing-class';
-    }
-    if (ts.isHeritageClause(current)) {
-      return 'context';
-    }
-    if (ts.isClassLike(current)) {
-      return 'lexical';
-    }
-  } while ((current = current.parent));
-
-  return 'context';
+  return thisBindingFromAncestors(
+    (function* () {
+      for (let current = node.parent; current; current = current.parent) {
+        if (ts.isClassStaticBlockDeclaration(current)) yield 'static-block';
+        else if (ts.isHeritageClause(current)) yield 'heritage-clause';
+        else if (ts.isClassLike(current)) yield 'class';
+      }
+    })(),
+  );
 }

@@ -41,16 +41,10 @@ export function calculateTaggedTemplateSpans(
     'No interpolated values in template strings',
   );
 
-  // environment-specific transforms may emit templateLocation in meta, in
-  // which case we use that. Otherwise we use the reported location from the
-  // node itself (which is presumably correct because no transform has messed
-  // with it).
-  let templateLocation = meta?.templateLocation ?? {
-    start: node.getStart(),
-    end: node.getEnd(),
-    contentStart: node.template.getStart() + 1,
-    contentEnd: node.template.getEnd() - 1,
-  };
+  // The gts/gjs transform records where the `<template>` sat in the original
+  // source on every tag literal it synthesizes.
+  let templateLocation = meta?.templateLocation;
+  assert(templateLocation, 'Template literal is missing its original location');
 
   return calculateTemplateSpans(
     {

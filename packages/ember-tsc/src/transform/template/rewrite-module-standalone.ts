@@ -1,4 +1,4 @@
-import { toTree } from 'ember-estree';
+import { toTree, VisitorPath } from 'ember-estree';
 import * as path from 'node:path';
 import { GlintEnvironment } from '../../config/index.js';
 import type { PreprocessData } from '../../environment-ember-template-imports/-private/environment/common.js';
@@ -7,6 +7,8 @@ import {
   ImportedBindings,
   PartialCorrelatedSpan,
   TemplateThisBinding,
+  ThisBindingAncestor,
+  thisBindingFromAncestors,
 } from './inlining/index.js';
 import { calculateTemplateSpans } from './inlining/tagged-strings.js';
 import {
@@ -95,15 +97,15 @@ export function rewriteModuleStandalone(
 }
 
 type Node = { type: string; start?: number; end?: number };
-type Ancestor = { node: Node; key: string };
 
-type Program = Node & { body: Array<Node> };
 type ImportDeclaration = Node & {
   source: { value: string };
   specifiers: Array<
     Node & { local: { name: string }; imported?: { name?: string; value?: string } }
   >;
 };
+
+type ClassNode = Node & { superClass?: Node | null; implements?: Array<Node> };
 
 type Placement = {
   thisBinding: TemplateThisBinding;
@@ -116,129 +118,95 @@ type ScriptAnalysis = {
   placements: Map<number, Placement>;
 };
 
+// ember-estree splices a `GlimmerTemplate` in place of the whole expression
+// statement when the two span the same range, so the template's parent is
+// then the statement list itself rather than the `ExpressionStatement`.
+const STATEMENT_LISTS = new Set(['Program', 'BlockStatement', 'StaticBlock', 'SwitchCase']);
+
 /**
- * Reads import bindings and the syntactic placement of every template from
- * the module's ESTree. The walk runs over ember-estree's outer JS/TS tree
- * before the templates are spliced in, where each `<template>` is still a
- * same-length placeholder starting at the tag's offset, so the placeholder's
- * ancestors are exactly the template's.
+ * Reads import bindings and the syntactic placement of every template off
+ * ember-estree's traversal of the module.
  */
 function analyzeScript(contents: string, filename: string): ScriptAnalysis {
-  let analysis: ScriptAnalysis = { imports: {}, placements: new Map() };
-  let analyzed = false;
+  let imports: ImportedBindings = {};
+  let placements = new Map<number, Placement>();
 
-  try {
-    toTree(contents, {
-      filePath: filename,
-      visitors: (file) => {
-        let program = (file as unknown as { program: Program }).program;
-        collectImportedBindings(program, analysis.imports);
-        walk(program, [], analysis.placements);
-        analyzed = true;
-        return null;
-      },
+  let place = (start: number, path: VisitorPath): void => {
+    placements.set(start, {
+      thisBinding: thisBindingFromAncestors(ancestorsOf(path)),
+      isExpressionStatement: isExpressionStatement(path),
     });
-  } catch (error) {
-    // After the visitor factory has run, ember-estree parses each template's
-    // handlebars to splice it into the tree and throws on a syntax error.
-    // Everything needed here was gathered before that point, and the template
-    // error itself is reported by `calculateTemplateSpans`.
-    if (!analyzed) throw error;
-  }
+  };
 
-  return analysis;
+  toTree(contents, {
+    filePath: filename,
+    visitors: {
+      ImportDeclaration(node) {
+        collectImportedBindings(node as ImportDeclaration, imports);
+      },
+      GlimmerTemplate(node, path) {
+        place(node.start as number, path);
+      },
+    },
+    // A template that fails to parse still sits somewhere; the error itself
+    // is reported by `calculateTemplateSpans`, which parses it again.
+    onTemplateError(_error, { range, path }) {
+      place(range[0], path);
+    },
+  });
+
+  return { imports, placements };
 }
 
-const SKIPPED_KEYS = new Set(['parent', 'loc', 'range', 'tokens', 'comments']);
-
-function walk(node: Node, ancestors: Array<Ancestor>, placements: Map<number, Placement>): void {
-  if (isPlaceholderShape(node) && typeof node.start === 'number' && !placements.has(node.start)) {
-    // Only the placeholders start exactly at a template's tag; the offsets
-    // that miss are user-authored expressions and static blocks, and their
-    // entries are simply never looked up.
-    placements.set(node.start, {
-      thisBinding: templateThisBinding(ancestors),
-      isExpressionStatement: isExpressionStatement(ancestors),
-    });
-  }
-
-  for (let [key, child] of Object.entries(node)) {
-    if (SKIPPED_KEYS.has(key)) continue;
-    if (Array.isArray(child)) {
-      for (let item of child) {
-        if (isNode(item)) walk(item, ancestors.concat({ node, key }), placements);
+function* ancestorsOf(path: VisitorPath): Generator<ThisBindingAncestor> {
+  for (
+    let child = path, parent = path.parentPath;
+    parent;
+    child = parent, parent = parent.parentPath
+  ) {
+    let node = parent.node;
+    switch (node.type) {
+      case 'StaticBlock':
+        yield 'static-block';
+        break;
+      case 'ClassDeclaration':
+      case 'ClassExpression': {
+        let { superClass, implements: implemented } = node as ClassNode;
+        if (superClass === child.node || implemented?.includes(child.node)) yield 'heritage-clause';
+        break;
       }
-    } else if (isNode(child)) {
-      walk(child, ancestors.concat({ node, key }), placements);
+      case 'ClassBody':
+        yield 'class';
+        break;
     }
   }
 }
 
-// ember-estree stands each expression template in with a same-length
-// template literal (`void `...`` from 0.7.1, a bare backtick literal before) and
-// each class member with a `static{`...`}` block.
-function isPlaceholderShape(node: Node): boolean {
+function isExpressionStatement(path: VisitorPath): boolean {
+  let parent = path.parent;
+  if (parent?.type === 'TSSatisfiesExpression') {
+    return path.parentPath?.parent?.type === 'ExpressionStatement';
+  }
   return (
-    node.type === 'TemplateLiteral' ||
-    node.type === 'UnaryExpression' ||
-    node.type === 'StaticBlock'
+    parent !== null && (parent.type === 'ExpressionStatement' || STATEMENT_LISTS.has(parent.type))
   );
 }
 
-function isNode(value: unknown): value is Node {
-  return typeof value === 'object' && value !== null && typeof (value as Node).type === 'string';
-}
-
-// Mirrors `templateThisBinding` in `inlining/index.ts`, which walks up the TS
-// AST and stops at the first static block, heritage clause or class it meets.
-function templateThisBinding(ancestors: Array<Ancestor>): TemplateThisBinding {
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    let { node, key } = ancestors[i];
-    switch (node.type) {
-      case 'StaticBlock':
-        return 'backing-class';
-      case 'ClassDeclaration':
-      case 'ClassExpression':
-        if (key === 'superClass' || key === 'implements') return 'context';
-        break;
-      case 'ClassBody':
-        return 'lexical';
-    }
-  }
-  return 'context';
-}
-
-// Mirrors `isETIDefaultTemplate` / `isETIDefaultSatisfiesTemplate` in the
-// environment transform: the template is the whole expression of an
-// expression statement, optionally through a `satisfies`.
-function isExpressionStatement(ancestors: Array<Ancestor>): boolean {
-  let parent = ancestors[ancestors.length - 1]?.node;
-  if (parent?.type === 'TSSatisfiesExpression') {
-    parent = ancestors[ancestors.length - 2]?.node;
-  }
-  return parent?.type === 'ExpressionStatement';
-}
-
-// Mirrors `collectImportedBindings` in `inlining/tagged-strings.ts`.
-function collectImportedBindings(program: Program, result: ImportedBindings): void {
-  for (let statement of program.body) {
-    if (statement.type !== 'ImportDeclaration') continue;
-
-    let { source, specifiers } = statement as ImportDeclaration;
-    for (let specifier of specifiers) {
-      if (specifier.type === 'ImportDefaultSpecifier') {
-        result[specifier.local.name] = {
-          specifier: 'default',
-          source: source.value,
-          synthetic: false,
-        };
-      } else if (specifier.type === 'ImportSpecifier' && specifier.imported) {
-        result[specifier.local.name] = {
-          specifier: specifier.imported.name ?? specifier.imported.value ?? specifier.local.name,
-          source: source.value,
-          synthetic: false,
-        };
-      }
+function collectImportedBindings(statement: ImportDeclaration, result: ImportedBindings): void {
+  let { source, specifiers } = statement;
+  for (let specifier of specifiers) {
+    if (specifier.type === 'ImportDefaultSpecifier') {
+      result[specifier.local.name] = {
+        specifier: 'default',
+        source: source.value,
+        synthetic: false,
+      };
+    } else if (specifier.type === 'ImportSpecifier' && specifier.imported) {
+      result[specifier.local.name] = {
+        specifier: specifier.imported.name ?? specifier.imported.value ?? specifier.local.name,
+        source: source.value,
+        synthetic: false,
+      };
     }
   }
 }
