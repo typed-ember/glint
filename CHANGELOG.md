@@ -1,5 +1,19 @@
 # Changelog
 
+## Release (2026-08-25)
+
+* @glint/ember-tsc 1.11.0 (minor)
+* @glint/tsserver-plugin 2.7.3 (patch)
+
+#### :rocket: Enhancement
+* Other
+  * [#1228](https://github.com/typed-ember/glint/pull/1228) VS Code extension: stand down on TypeScript 7 workspaces ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+* `@glint/ember-tsc`
+  * [#1226](https://github.com/typed-ember/glint/pull/1226) Add rewriteModuleStandalone, a TypeScript-free entry to the transform ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### Committers: 1
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
 ## Release (2026-08-24)
 
 * @glint/ember-tsc 1.10.2 (patch)
