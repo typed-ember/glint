@@ -117,8 +117,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       ember-estree:
-        specifier: ^0.7.1
-        version: 0.7.1
+        specifier: ^0.8.0
+        version: 0.8.0
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -4528,8 +4528,8 @@ packages:
       '@typescript-eslint/parser':
         optional: true
 
-  ember-estree@0.7.1:
-    resolution: {integrity: sha512-5BRJbX2bL9YE+SPsRLWxYNzIZ7VtRAuj/50g5N28Ig93RFkbxySlUKsdDZUj0ZYwCrGUljSNzr4BPdaJEoiGkA==}
+  ember-estree@0.8.0:
+    resolution: {integrity: sha512-FvH2jGEkcIMPDPgQLHFVSTyF5p7HscVIiJ36v6ce1C9q/6KXCcE0EB2idaGcDWlhB42I3PmLg+vLbUp2GIznBQ==}
 
   ember-modifier@4.2.0:
     resolution: {integrity: sha512-BJ48eTEGxD8J7+lofwVmee7xDgNDgpr5dd6+MSu4gk+I6xb35099RMNorXY5hjjwMJEyi/IRR6Yn3M7iJMz8Zw==}
@@ -13892,7 +13892,7 @@ snapshots:
       - eslint
       - typescript
 
-  ember-estree@0.7.1:
+  ember-estree@0.8.0:
     dependencies:
       '@glimmer/env': 0.1.7
       '@glimmer/syntax': 0.95.0
