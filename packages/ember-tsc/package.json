@@ -19,6 +19,10 @@
       "types": "./lib/transform/index.d.ts",
       "default": "./lib/transform/index.js"
     },
+    "./transform/standalone": {
+      "types": "./lib/transform/template/rewrite-module-standalone.d.ts",
+      "default": "./lib/transform/template/rewrite-module-standalone.js"
+    },
     "./bin/*": "./bin/*.js",
     "./globals": "./types/globals/index.d.ts",
     "./-private/dsl": {
@@ -87,6 +91,7 @@
     "@volar/test-utils": "~2.4.28",
     "@volar/typescript": "~2.4.28",
     "content-tag": "^4.2.0",
+    "ember-estree": "^0.8.0",
     "silent-error": "^1.1.1",
     "volar-service-html": "~0.0.71",
     "volar-service-typescript": "~0.0.71",

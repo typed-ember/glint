@@ -1,3 +1,4 @@
+import { GlintEmitMetadata } from '@glint/ember-tsc/config-types';
 import type ts from 'typescript';
 import { CorrelatedSpan, Directive, TransformError } from '../transformed-module.js';
 import { TSLib } from '../../util.js';
@@ -8,6 +9,27 @@ export type CorrelatedSpansResult = {
   errors: Array<TransformError>;
   directives: Array<Directive>;
   partialSpans: Array<PartialCorrelatedSpan>;
+};
+
+export type ImportedBinding = { specifier: string; source: string; synthetic: boolean };
+export type ImportedBindings = Record<string, ImportedBinding>;
+
+/**
+ * Everything the template transform needs to know about one embedded
+ * `<template>`, independent of how the surrounding script was analyzed.
+ * `rewriteModule` derives this from the TypeScript AST; the standalone entry
+ * point derives it from content-tag's parse output and a lightweight scan of
+ * the script (see `script-scanner.ts`).
+ */
+export type EmbeddedTemplate = {
+  /** The template's text, as authored between the tags. */
+  template: string;
+  /** Offsets into the original script, in the same shape as `GlintEmitMetadata['templateLocation']`. */
+  templateLocation: NonNullable<GlintEmitMetadata['templateLocation']>;
+  thisBinding: TemplateThisBinding;
+  /** Text emitted before / after the template's transformed output (e.g. `export default `). */
+  prepend?: string | undefined;
+  append?: string | undefined;
 };
 
 /**
@@ -39,22 +61,43 @@ export type CorrelatedSpansResult = {
 export type TemplateThisBinding = 'backing-class' | 'lexical' | 'context';
 
 /**
- * Given an AST node for an embedded template, determines how the template's
+ * The ancestor kinds that decide a template's `this` binding, in the order
+ * met walking outward from the template. See {@link TemplateThisBinding}.
+ */
+export type ThisBindingAncestor = 'static-block' | 'heritage-clause' | 'class' | 'other';
+
+/**
+ * Resolves a template's `this` binding from its ancestors, innermost first:
+ * the first static block, heritage clause or class met decides.
+ */
+export function thisBindingFromAncestors(
+  ancestors: Iterable<ThisBindingAncestor>,
+): TemplateThisBinding {
+  for (let ancestor of ancestors) {
+    switch (ancestor) {
+      case 'static-block':
+        return 'backing-class';
+      case 'heritage-clause':
+        return 'context';
+      case 'class':
+        return 'lexical';
+    }
+  }
+  return 'context';
+}
+
+/**
+ * Given a TS AST node for an embedded template, determines how the template's
  * `{{this}}` should be bound. See {@link TemplateThisBinding}.
  */
 export function templateThisBinding(ts: TSLib, node: ts.Node): TemplateThisBinding {
-  let current: ts.Node | null = node;
-  do {
-    if (ts.isClassStaticBlockDeclaration(current)) {
-      return 'backing-class';
-    }
-    if (ts.isHeritageClause(current)) {
-      return 'context';
-    }
-    if (ts.isClassLike(current)) {
-      return 'lexical';
-    }
-  } while ((current = current.parent));
-
-  return 'context';
+  return thisBindingFromAncestors(
+    (function* () {
+      for (let current = node.parent; current; current = current.parent) {
+        if (ts.isClassStaticBlockDeclaration(current)) yield 'static-block';
+        else if (ts.isHeritageClause(current)) yield 'heritage-clause';
+        else if (ts.isClassLike(current)) yield 'class';
+      }
+    })(),
+  );
 }

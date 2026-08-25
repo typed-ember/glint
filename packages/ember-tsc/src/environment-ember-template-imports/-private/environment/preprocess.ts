@@ -3,7 +3,7 @@ import { GLOBAL_TAG, PreprocessData, TemplateLocation } from './common.js';
 
 // A `<template>` becomes a tagged-template expression `___T`...``. In a class
 // body a bare expression is not a valid member, so there it is wrapped in a
-// computed-property name `[___T`...`]` (rewritten to a static block during
+// computed-property name `;[___T`...`]` (rewritten to a static block during
 // transform). In every other position it is emitted bare: that keeps a
 // user-authored array such as `[<template/>]` a single array literal, so it
 // can never be confused with — and collapsed into — the wrapper.
@@ -15,6 +15,12 @@ const p = new Preprocessor();
 
 export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, path) => {
   let templates = p.parse(source, { filename: path });
+
+  // content-tag reports a class's own template before any template that
+  // appears earlier in its heritage clause (`class A extends mixin(<template>
+  // ...</template>) { <template>...</template> }`); the splicing below needs
+  // them in source order.
+  templates.sort((a, b) => a.range.startUtf16Codepoint - b.range.startUtf16Codepoint);
 
   let templateLocations: Array<TemplateLocation> = [];
   let contents = '';
@@ -30,7 +36,11 @@ export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, pat
 
     let isClassMember = template.type === 'class-member';
 
-    if (isClassMember) contents += '[';
+    // The leading `;` is an empty class element. It stops the `[` from being
+    // read as an element access on a preceding field whose initializer has
+    // no trailing semicolon (`isChecked = (v) => v === 1\n<template>...`
+    // would otherwise become `1[___T`...`]`, an expression template).
+    if (isClassMember) contents += ';[';
 
     // `transformedStart`/`transformedEnd` bracket the tag literal itself
     // (`___T`...``), excluding any class-member `[ ]`, so they line up exactly
@@ -48,6 +58,7 @@ export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, pat
 
     sourceOffset = endTagEnd;
     templateLocations.push({
+      type: template.type,
       startTagOffset,
       endTagOffset,
       startTagLength: startTagEnd - startTagOffset,

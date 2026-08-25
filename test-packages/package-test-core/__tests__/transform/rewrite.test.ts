@@ -83,6 +83,39 @@ describe('Transform: rewriteModule', () => {
     // contextual typing — `typeTest(context, <template>...)` from
     // `@glint/type-test` types `{{this}}` as the given context. Emitting the
     // module's lexical `this` (type `undefined`) instead broke that. (#1186)
+    // A field initializer with no trailing semicolon is followed directly by
+    // the class's template. The preprocessed `[___T`...`]` member must not be
+    // read as an element access on that initializer (`value[___T`...`]`),
+    // which emitted the class's own template as a context-bound expression.
+    test('with a class member template after a field without a semicolon', () => {
+      let script = {
+        filename: 'test.gts',
+        contents: stripIndent`
+          import Component from '@glimmer/component';
+          export default class MyComponent extends Component {
+            isChecked = (value: unknown) => this.args.value === value
+
+            <template>{{this.isChecked 1}}</template>
+          }
+        `,
+      };
+
+      let transformedModule = rewriteModule(ts, { script }, env);
+
+      expect(transformedModule?.errors).toEqual([]);
+      expect(transformedModule?.transformedContents).toMatchInlineSnapshot(`
+        "import Component from '@glimmer/component';
+        export default class MyComponent extends Component {
+          isChecked = (value: unknown) => this.args.value === value
+
+          static { ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateForBackingValue(this, function(__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) {
+        __glintDSL__.emitContent(__glintDSL__.resolve(__glintRef__.this.isChecked)(1));
+        __glintRef__; __glintDSL__;
+        }) }
+        }"
+      `);
+    });
+
     test('with a module-scope expression template referencing {{this}}', () => {
       let script = {
         filename: 'test.gts',
