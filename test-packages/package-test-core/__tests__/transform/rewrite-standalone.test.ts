@@ -227,13 +227,12 @@ describe('Transform: rewriteModuleStandalone', () => {
       );
     });
 
-    test('script syntax error still emits the template', () => {
-      // oxc-parser yields an empty program on an unrecoverable script error
-      // (TypeScript's parser is more tolerant), so import bindings and
-      // template placement are unavailable: content-tag still classifies the
-      // class member, and `fn` is emitted as a bare identifier, which
-      // resolves lexically to the import. The syntax error itself is
-      // reported by whichever type-checker consumes the output.
+    test('script syntax error keeps the raw source, like a content-tag error', () => {
+      // oxc yields an empty program on an unrecoverable script error where
+      // TypeScript's parser keeps going, so the standalone entry cannot know
+      // where the templates sit. It falls back the way `rewriteModule` does
+      // when content-tag fails: raw source, verification off, the error on
+      // `errors`, and the type-checker's own parser recovers from there.
       let script = {
         filename: 'test.gts',
         contents: stripIndent`
@@ -247,9 +246,11 @@ describe('Transform: rewriteModuleStandalone', () => {
 
       let standalone = rewriteModuleStandalone({ script }, env);
 
-      expect(standalone?.errors).toEqual([]);
-      expect(standalone?.transformedContents).toContain('templateForBackingValue(this');
-      expect(standalone?.transformedContents).toContain('__glintDSL__.resolve(fn)(');
+      expect(standalone?.transformedContents).toEqual(script.contents);
+      expect(standalone?.errors.map((e) => [e.isContentTagError, e.message])).toEqual([
+        [true, 'Expected a semicolon or an implicit semicolon after a statement, but found none'],
+      ]);
+      expect(standalone?.toVolarMappings().every((m) => m.data.verification === false)).toBe(true);
     });
 
     test('no templates', () => {

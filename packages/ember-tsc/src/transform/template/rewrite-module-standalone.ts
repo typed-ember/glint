@@ -25,6 +25,8 @@ import TransformedModule, { Directive, TransformError } from './transformed-modu
  * this off the TypeScript AST; this entry reads it off ember-estree's.
  */
 type ScriptAnalysis = {
+  /** oxc's diagnostics for the script; see `rewriteModuleStandalone`. */
+  errors: Array<ScriptError>;
   imports: ImportedBindings;
   /**
    * Keyed by the offset of each template's `<template>` tag. A template with
@@ -33,6 +35,8 @@ type ScriptAnalysis = {
    */
   placements: Map<number, TemplatePlacement>;
 };
+
+type ScriptError = { message: string; labels?: Array<{ start: number; end: number }> };
 
 type TemplatePlacement = {
   thisBinding: TemplateThisBinding;
@@ -52,17 +56,13 @@ type TemplatePlacement = {
  * TypeScript install just to run the transform. The output is identical to
  * `rewriteModule`'s for the same input.
  *
- * oxc does not recover from script syntax errors: on an unrecoverable error
- * it yields an empty program (TypeScript's parser keeps going), and the
- * templates in that file are then emitted without import bindings or
- * placement. At build time that is fine: the type-checker reports the syntax
- * error and nothing else about the file matters. In an editor it means the
- * templates of a file lose their imports and `this` binding while the script
- * is mid-edit. Glint's own editor paths (the Volar language server and the
- * tsserver plugin) run inside TypeScript and use `rewriteModule`, whose
- * parser recovers. A TypeScript 7 content mapper has no such parser and
- * should treat a file with script errors as stale (ember-estree reports them
- * on `ast.errors`) rather than serve a degraded transform for it.
+ * oxc does not recover from script syntax errors the way TypeScript's parser
+ * does. When it reports any, this entry does what `rewriteModule` does when
+ * content-tag fails to parse the file: the raw source is kept as the
+ * transformed text with verification disabled, the error is recorded on
+ * `errors`, and the type-checker's own (recovering) parser powers completions
+ * in the script until it parses again. Templates in such a file are not
+ * checked until then, exactly as on the content-tag path.
  *
  * Exposed only as `@glint/ember-tsc/transform/standalone` so that the
  * language server, tsserver plugin and `ember-tsc` never load ember-estree
@@ -95,7 +95,22 @@ export function rewriteModuleStandalone(
     return null;
   }
 
-  let { imports, placements } = analyzeScript(contents, filename);
+  let { errors: scriptErrors, imports, placements } = analyzeScript(contents, filename);
+
+  if (scriptErrors.length) {
+    let [{ message, labels }] = scriptErrors;
+    let start = Math.min(labels?.[0]?.start ?? 0, Math.max(0, contents.length - 1));
+    errors.push({
+      // Recorded as a content-tag error because that is the flag the
+      // consumers key on to keep the raw source and disable verification;
+      // see `TransformedModule#toVolarMappings`.
+      isContentTagError: true,
+      message,
+      source: script,
+      location: { start, end: Math.min(start + 1, contents.length) },
+    });
+    return buildTransformedModule(script, { errors, directives, partialSpans });
+  }
 
   for (let location of data.templateLocations) {
     let start = location.startTagOffset;
@@ -157,6 +172,7 @@ const STATEMENT_LISTS = new Set(['Program', 'BlockStatement', 'StaticBlock', 'Sw
 function analyzeScript(contents: string, filename: string): ScriptAnalysis {
   let imports: ImportedBindings = {};
   let placements = new Map<number, TemplatePlacement>();
+  let errors: Array<ScriptError> = [];
 
   let place = (start: number, path: VisitorPath): void => {
     placements.set(start, {
@@ -165,7 +181,7 @@ function analyzeScript(contents: string, filename: string): ScriptAnalysis {
     });
   };
 
-  toTree(contents, {
+  let file = toTree(contents, {
     filePath: filename,
     visitors: {
       ImportDeclaration(node) {
@@ -182,7 +198,9 @@ function analyzeScript(contents: string, filename: string): ScriptAnalysis {
     },
   });
 
-  return { imports, placements };
+  if ('errors' in file) errors = file.errors as Array<ScriptError>;
+
+  return { errors, imports, placements };
 }
 
 function* ancestorsOf(path: VisitorPath): Generator<ThisBindingAncestor> {
