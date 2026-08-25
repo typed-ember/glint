@@ -4,6 +4,7 @@ import { GlintEnvironment } from '../../config/index.js';
 import type { PreprocessData } from '../../environment-ember-template-imports/-private/environment/common.js';
 import {
   EmbeddedTemplate,
+  ImportedBinding,
   ImportedBindings,
   PartialCorrelatedSpan,
   TemplateThisBinding,
@@ -20,24 +21,73 @@ import {
 import TransformedModule, { Directive, TransformError } from './transformed-module.js';
 
 /**
+ * What the transform needs to know about a script beyond its text: which
+ * names it imports, and where each `<template>` sits. `rewriteModule` reads
+ * this off the TypeScript AST; `rewriteModuleStandalone` reads it off
+ * ember-estree's; a host with its own parser can supply it directly through
+ * `rewriteModuleWithAnalysis`.
+ */
+export type ScriptAnalysis = {
+  imports: ImportedBindings;
+  /**
+   * Keyed by the offset of each template's `<template>` tag. A template with
+   * no entry is emitted as a context-bound expression (`{{this}}` is the
+   * template context) with no `export default`.
+   */
+  placements: Map<number, TemplatePlacement>;
+};
+
+export type TemplatePlacement = {
+  thisBinding: TemplateThisBinding;
+  /**
+   * Whether the template is the whole of an expression statement: the RFC 931
+   * implicit `export default` form.
+   */
+  isExpressionStatement: boolean;
+};
+
+export type { EmbeddedTemplate, ImportedBinding, ImportedBindings, TemplateThisBinding };
+
+/**
  * Like `rewriteModule`, but without a TypeScript compiler API.
  *
- * `rewriteModule` parses the content-tag-preprocessed script with the
- * `TSLib` it is given and reads three things off the AST: where each
- * template sits, how its `{{this}}` binds, and which names the module imports.
- * Here the same facts come from the ESTree that `ember-estree` (content-tag +
- * oxc-parser) produces for the file, so embedders that pair the transform
- * with a compiler that has no JS API (TypeScript 7, build plugins, content
- * mappers) do not need a second TypeScript install just to run the transform.
+ * The script is analyzed with ember-estree (content-tag + oxc-parser), so
+ * embedders that pair the transform with a compiler that has no JS API
+ * (TypeScript 7, build plugins, content mappers) do not need a second
+ * TypeScript install just to run the transform. The output is identical to
+ * `rewriteModule`'s for the same input.
  *
- * The output is identical to `rewriteModule`'s for the same input; the
- * language server, tsserver plugin and `ember-tsc` keep using `rewriteModule`.
- * Exposed only as `@glint/ember-tsc/transform/standalone` so that those paths
- * never load ember-estree (and oxc-parser's native binary).
+ * oxc does not recover from script syntax errors: on an unrecoverable error
+ * it yields an empty program (TypeScript's parser keeps going), and the
+ * templates in that file are then emitted without import bindings or
+ * placement. This entry is therefore meant for build-time use, where a file
+ * with a syntax error is reported by the type-checker and nothing else about
+ * it matters. An editor host that already has a tolerant parse of the file
+ * should feed its own analysis to `rewriteModuleWithAnalysis` instead.
+ *
+ * Exposed only as `@glint/ember-tsc/transform/standalone` so that the
+ * language server, tsserver plugin and `ember-tsc` never load ember-estree
+ * (and oxc-parser's native binary).
  */
 export function rewriteModuleStandalone(
+  input: RewriteInput,
+  environment: GlintEnvironment,
+): TransformedModule | null {
+  return rewriteModuleWithAnalysis(input, environment, (contents, filename) =>
+    analyzeScript(contents, filename),
+  );
+}
+
+/**
+ * Like `rewriteModule`, with the script analysis supplied by the caller.
+ * content-tag still locates the templates; when it finds any, `analyze` is
+ * called once with the script's text and filename and returns the import
+ * bindings and template placements from whatever parse the host already has.
+ */
+export function rewriteModuleWithAnalysis(
   { script }: RewriteInput,
   environment: GlintEnvironment,
+  analyze: (contents: string, filename: string) => ScriptAnalysis,
 ): TransformedModule | null {
   let { filename, contents } = script;
   let { preprocess } = environment.getConfigForExtension(path.extname(filename)) ?? {};
@@ -58,7 +108,11 @@ export function rewriteModuleStandalone(
     return buildTransformedModule(script, { errors, directives, partialSpans });
   }
 
-  let { imports, placements } = analyzeScript(contents, filename);
+  if (!data.templateLocations.length) {
+    return null;
+  }
+
+  let { imports, placements } = analyze(contents, filename);
 
   for (let location of data.templateLocations) {
     let start = location.startTagOffset;
@@ -107,17 +161,6 @@ type ImportDeclaration = Node & {
 
 type ClassNode = Node & { superClass?: Node | null; implements?: Array<Node> };
 
-type Placement = {
-  thisBinding: TemplateThisBinding;
-  isExpressionStatement: boolean;
-};
-
-type ScriptAnalysis = {
-  imports: ImportedBindings;
-  /** Keyed by the offset of each template's `<template>` tag. */
-  placements: Map<number, Placement>;
-};
-
 // ember-estree splices a `GlimmerTemplate` in place of the whole expression
 // statement when the two span the same range, so the template's parent is
 // then the statement list itself rather than the `ExpressionStatement`.
@@ -125,11 +168,12 @@ const STATEMENT_LISTS = new Set(['Program', 'BlockStatement', 'StaticBlock', 'Sw
 
 /**
  * Reads import bindings and the syntactic placement of every template off
- * ember-estree's traversal of the module.
+ * ember-estree's traversal of the module. See `rewriteModuleStandalone` for
+ * what happens when the script does not parse.
  */
 function analyzeScript(contents: string, filename: string): ScriptAnalysis {
   let imports: ImportedBindings = {};
-  let placements = new Map<number, Placement>();
+  let placements = new Map<number, TemplatePlacement>();
 
   let place = (start: number, path: VisitorPath): void => {
     placements.set(start, {

@@ -1,6 +1,11 @@
 import { GlintEnvironment } from '@glint/ember-tsc/config/index';
 import { rewriteModule } from '@glint/ember-tsc/transform/index';
-import { rewriteModuleStandalone } from '@glint/ember-tsc/transform/standalone';
+import {
+  rewriteModuleStandalone,
+  rewriteModuleWithAnalysis,
+  ScriptAnalysis,
+} from '@glint/ember-tsc/transform/standalone';
+import { templateThisBinding } from '@glint/ember-tsc/transform/template/inlining/index';
 import { stripIndent } from 'common-tags';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
@@ -53,6 +58,90 @@ function collectTemplateFiles(dir: string, out: Array<string>): Array<string> {
   }
   return out;
 }
+
+// A host with its own parser supplies the analysis. This one uses the
+// TypeScript AST of the raw .gts text (TS's parser recovers past the
+// `<template>` tags well enough to find imports and class bodies), which is
+// what an editor host on a TypeScript 7 native compiler would do with its
+// own tolerant parse.
+function analyzeWithTypescript(contents: string, filename: string): ScriptAnalysis {
+  let analysis: ScriptAnalysis = { imports: {}, placements: new Map() };
+  let sourceFile = ts.createSourceFile(filename, contents, ts.ScriptTarget.Latest, true);
+
+  for (let statement of sourceFile.statements) {
+    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
+      continue;
+    }
+    let source = statement.moduleSpecifier.text;
+    let { importClause } = statement;
+    if (importClause?.name) {
+      analysis.imports[importClause.name.text] = { specifier: 'default', source, synthetic: false };
+    }
+    if (importClause?.namedBindings && ts.isNamedImports(importClause.namedBindings)) {
+      for (let binding of importClause.namedBindings.elements) {
+        analysis.imports[binding.name.text] = {
+          specifier: binding.propertyName?.text ?? binding.name.text,
+          source,
+          synthetic: false,
+        };
+      }
+    }
+  }
+
+  // `<template>` parses as a JSX-ish `<` expression; its node starts at the
+  // tag, which is all the placement map is keyed on.
+  let visit = (node: ts.Node): void => {
+    if (ts.isJsxElement(node) || ts.isJsxOpeningElement(node) || ts.isBinaryExpression(node)) {
+      let start = node.getStart(sourceFile);
+      if (contents.startsWith('<template>', start) && !analysis.placements.has(start)) {
+        analysis.placements.set(start, {
+          thisBinding: templateThisBinding(ts, node),
+          isExpressionStatement: ts.isExpressionStatement(node.parent),
+        });
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return analysis;
+}
+
+describe('Transform: rewriteModuleWithAnalysis', () => {
+  test('a host-supplied analysis drives the same emit', () => {
+    let script = {
+      filename: 'test.gts',
+      contents: stripIndent`
+        import Component from '@glimmer/component';
+        import { on } from '@ember/modifier';
+
+        export default class Example extends Component {
+          <template><button {{on "click" this.go}}>go</button></template>
+        }
+
+        export const Plain = <template>{{on}}</template>;
+      `,
+    };
+
+    let hosted = rewriteModuleWithAnalysis({ script }, env, analyzeWithTypescript);
+    let viaTypescript = rewriteModule(ts, { script }, env);
+
+    expect(hosted?.transformedContents).toEqual(viaTypescript?.transformedContents);
+    expect(hosted?.errors).toEqual([]);
+  });
+
+  test('a file without templates is not analyzed', () => {
+    let calls = 0;
+    let script = { filename: 'test.gts', contents: `export const x = 1;\n` };
+
+    let result = rewriteModuleWithAnalysis({ script }, env, () => {
+      calls++;
+      return { imports: {}, placements: new Map() };
+    });
+
+    expect(result).toBeNull();
+    expect(calls).toBe(0);
+  });
+});
 
 describe('Transform: rewriteModuleStandalone', () => {
   describe('matches rewriteModule on the test-packages corpus', () => {
