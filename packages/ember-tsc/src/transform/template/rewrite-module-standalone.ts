@@ -95,7 +95,11 @@ export function rewriteModuleStandalone(
     return null;
   }
 
-  let { errors: scriptErrors, imports, placements } = analyzeScript(contents, filename);
+  let {
+    errors: scriptErrors,
+    imports,
+    placements,
+  } = analyzeScript(blankTemplateBodies(contents, data), filename);
 
   if (scriptErrors.length) {
     let [{ message, labels }] = scriptErrors;
@@ -165,6 +169,27 @@ type ClassNode = Node & { superClass?: Node | null; implements?: Array<Node> };
 const STATEMENT_LISTS = new Set(['Program', 'BlockStatement', 'StaticBlock', 'SwitchCase']);
 
 /**
+ * Replaces the body of every `<template>` with spaces of the same length.
+ * Only the script is analyzed here; the templates are parsed by
+ * `calculateTemplateSpans`, which also reports their errors. Blanking them
+ * keeps every offset the same, spares ember-estree a second handlebars parse
+ * of each one, and means a template that does not parse cannot abort the
+ * script analysis.
+ */
+function blankTemplateBodies(contents: string, data: PreprocessData): string {
+  let out = '';
+  let cursor = 0;
+  for (let location of data.templateLocations) {
+    let contentStart = location.startTagOffset + location.startTagLength;
+    let contentEnd = location.endTagOffset;
+    out += contents.slice(cursor, contentStart);
+    out += contents.slice(contentStart, contentEnd).replace(/[^\n]/g, ' ');
+    cursor = contentEnd;
+  }
+  return out + contents.slice(cursor);
+}
+
+/**
  * Reads import bindings and the syntactic placement of every template off
  * ember-estree's traversal of the module. See `rewriteModuleStandalone` for
  * what happens when the script does not parse.
@@ -174,13 +199,6 @@ function analyzeScript(contents: string, filename: string): ScriptAnalysis {
   let placements = new Map<number, TemplatePlacement>();
   let errors: Array<ScriptError> = [];
 
-  let place = (start: number, path: VisitorPath): void => {
-    placements.set(start, {
-      thisBinding: thisBindingFromAncestors(ancestorsOf(path)),
-      isExpressionStatement: isExpressionStatement(path),
-    });
-  };
-
   let file = toTree(contents, {
     filePath: filename,
     visitors: {
@@ -188,13 +206,11 @@ function analyzeScript(contents: string, filename: string): ScriptAnalysis {
         collectImportedBindings(node as ImportDeclaration, imports);
       },
       GlimmerTemplate(node, path) {
-        place(node.start as number, path);
+        placements.set(node.start as number, {
+          thisBinding: thisBindingFromAncestors(ancestorsOf(path)),
+          isExpressionStatement: isExpressionStatement(path),
+        });
       },
-    },
-    // A template that fails to parse still sits somewhere; the error itself
-    // is reported by `calculateTemplateSpans`, which parses it again.
-    onTemplateError(_error, { range, path }) {
-      place(range[0], path);
     },
   });
 
