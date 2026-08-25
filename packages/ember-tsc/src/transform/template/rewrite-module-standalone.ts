@@ -4,7 +4,6 @@ import { GlintEnvironment } from '../../config/index.js';
 import type { PreprocessData } from '../../environment-ember-template-imports/-private/environment/common.js';
 import {
   EmbeddedTemplate,
-  ImportedBinding,
   ImportedBindings,
   PartialCorrelatedSpan,
   TemplateThisBinding,
@@ -23,11 +22,9 @@ import TransformedModule, { Directive, TransformError } from './transformed-modu
 /**
  * What the transform needs to know about a script beyond its text: which
  * names it imports, and where each `<template>` sits. `rewriteModule` reads
- * this off the TypeScript AST; `rewriteModuleStandalone` reads it off
- * ember-estree's; a host with its own parser can supply it directly through
- * `rewriteModuleWithAnalysis`.
+ * this off the TypeScript AST; this entry reads it off ember-estree's.
  */
-export type ScriptAnalysis = {
+type ScriptAnalysis = {
   imports: ImportedBindings;
   /**
    * Keyed by the offset of each template's `<template>` tag. A template with
@@ -37,7 +34,7 @@ export type ScriptAnalysis = {
   placements: Map<number, TemplatePlacement>;
 };
 
-export type TemplatePlacement = {
+type TemplatePlacement = {
   thisBinding: TemplateThisBinding;
   /**
    * Whether the template is the whole of an expression statement: the RFC 931
@@ -45,8 +42,6 @@ export type TemplatePlacement = {
    */
   isExpressionStatement: boolean;
 };
-
-export type { EmbeddedTemplate, ImportedBinding, ImportedBindings, TemplateThisBinding };
 
 /**
  * Like `rewriteModule`, but without a TypeScript compiler API.
@@ -62,32 +57,16 @@ export type { EmbeddedTemplate, ImportedBinding, ImportedBindings, TemplateThisB
  * templates in that file are then emitted without import bindings or
  * placement. This entry is therefore meant for build-time use, where a file
  * with a syntax error is reported by the type-checker and nothing else about
- * it matters. An editor host that already has a tolerant parse of the file
- * should feed its own analysis to `rewriteModuleWithAnalysis` instead.
+ * it matters. An editor that needs the transform to keep up mid-keystroke
+ * still needs TypeScript's recovering parser, i.e. `rewriteModule`.
  *
  * Exposed only as `@glint/ember-tsc/transform/standalone` so that the
  * language server, tsserver plugin and `ember-tsc` never load ember-estree
  * (and oxc-parser's native binary).
  */
 export function rewriteModuleStandalone(
-  input: RewriteInput,
-  environment: GlintEnvironment,
-): TransformedModule | null {
-  return rewriteModuleWithAnalysis(input, environment, (contents, filename) =>
-    analyzeScript(contents, filename),
-  );
-}
-
-/**
- * Like `rewriteModule`, with the script analysis supplied by the caller.
- * content-tag still locates the templates; when it finds any, `analyze` is
- * called once with the script's text and filename and returns the import
- * bindings and template placements from whatever parse the host already has.
- */
-export function rewriteModuleWithAnalysis(
   { script }: RewriteInput,
   environment: GlintEnvironment,
-  analyze: (contents: string, filename: string) => ScriptAnalysis,
 ): TransformedModule | null {
   let { filename, contents } = script;
   let { preprocess } = environment.getConfigForExtension(path.extname(filename)) ?? {};
@@ -112,7 +91,7 @@ export function rewriteModuleWithAnalysis(
     return null;
   }
 
-  let { imports, placements } = analyze(contents, filename);
+  let { imports, placements } = analyzeScript(contents, filename);
 
   for (let location of data.templateLocations) {
     let start = location.startTagOffset;
