@@ -78,6 +78,23 @@ export const { activate, deactivate } = defineExtension(() => {
   let pendingRestart = false;
   let lastActivationReason: string | undefined;
 
+  // Glint's language server and tsserver plugin require the TypeScript 5/6
+  // JS API, which the TypeScript 7 package does not ship. On a TS 7 workspace
+  // they would only produce broken diagnostics, so Glint stands down entirely:
+  // template type-checking comes from a content mapper run by TypeScript
+  // itself instead.
+  const workspaceTypeScriptVersion = detectWorkspaceTypeScriptVersion(getLibraryPathSetting());
+  if (workspaceTypeScriptVersion && parseInt(workspaceTypeScriptVersion, 10) >= 7) {
+    outputChannel.appendLine(
+      `[Activation] TypeScript ${workspaceTypeScriptVersion} is installed in this workspace. ` +
+        `Glint requires TypeScript 5 or 6, so the Glint language server and tsserver plugin will not start. ` +
+        `With TypeScript 7, template type-checking comes from a content mapper instead: add ` +
+        `ember-content-mapper (https://github.com/NullVoxPopuli/ember-content-mapper) to "contentMappers" ` +
+        `in tsconfig.json and run tsc with --runExternalCode.`,
+    );
+    return volarLabs.extensionExports;
+  }
+
   const emberTscStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   emberTscStatus.command = SELECT_EMBER_TSC_COMMAND;
   context.subscriptions.push(emberTscStatus);
@@ -489,6 +506,28 @@ function resolveWorkspaceEmberTscServerPath(resolutionDir: string): string | und
   try {
     const customRequire = createRequire(path.join(resolutionDir, 'package.json'));
     return customRequire.resolve('@glint/ember-tsc/bin/glint-language-server');
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * The version of the `typescript` package installed in the workspace, or
+ * `undefined` when there is no workspace folder or no resolvable typescript.
+ * Both the TypeScript 5/6 and 7 packages export their package.json, so this
+ * resolves across every version Glint might encounter.
+ */
+function detectWorkspaceTypeScriptVersion(libraryPath: string): string | undefined {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (!workspaceFolder) {
+    return undefined;
+  }
+
+  try {
+    const resolutionDir = path.resolve(workspaceFolder.uri.fsPath, libraryPath);
+    const customRequire = createRequire(path.join(resolutionDir, 'package.json'));
+    const manifest = customRequire('typescript/package.json') as { version?: unknown };
+    return typeof manifest.version === 'string' ? manifest.version : undefined;
   } catch {
     return undefined;
   }
