@@ -55,10 +55,14 @@ type TemplatePlacement = {
  * oxc does not recover from script syntax errors: on an unrecoverable error
  * it yields an empty program (TypeScript's parser keeps going), and the
  * templates in that file are then emitted without import bindings or
- * placement. This entry is therefore meant for build-time use, where a file
- * with a syntax error is reported by the type-checker and nothing else about
- * it matters. An editor that needs the transform to keep up mid-keystroke
- * still needs TypeScript's recovering parser, i.e. `rewriteModule`.
+ * placement. At build time that is fine: the type-checker reports the syntax
+ * error and nothing else about the file matters. In an editor it means the
+ * templates of a file lose their imports and `this` binding while the script
+ * is mid-edit. Glint's own editor paths (the Volar language server and the
+ * tsserver plugin) run inside TypeScript and use `rewriteModule`, whose
+ * parser recovers. A TypeScript 7 content mapper has no such parser and
+ * should treat a file with script errors as stale (ember-estree reports them
+ * on `ast.errors`) rather than serve a degraded transform for it.
  *
  * Exposed only as `@glint/ember-tsc/transform/standalone` so that the
  * language server, tsserver plugin and `ember-tsc` never load ember-estree
