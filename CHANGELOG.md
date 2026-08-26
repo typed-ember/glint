@@ -1,5 +1,15 @@
 # Changelog
 
+## Release (2026-08-26)
+
+
+
+#### :bug: Bug Fix
+* [#1230](https://github.com/typed-ember/glint/pull/1230) Register .gts/.gjs with TypeScript (Native Preview) on TypeScript 7 workspaces ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### Committers: 1
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
 ## Release (2026-08-25)
 
 * @glint/ember-tsc 1.11.0 (minor)
