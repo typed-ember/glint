@@ -92,6 +92,7 @@ export const { activate, deactivate } = defineExtension(() => {
         `ember-content-mapper (https://github.com/NullVoxPopuli/ember-content-mapper) to "contentMappers" ` +
         `in tsconfig.json and run tsc with --runExternalCode.`,
     );
+    void registerContentMapperContribution(context, outputChannel);
     return volarLabs.extensionExports;
   }
 
@@ -508,6 +509,64 @@ function resolveWorkspaceEmberTscServerPath(resolutionDir: string): string | und
     return customRequire.resolve('@glint/ember-tsc/bin/glint-language-server');
   } catch {
     return undefined;
+  }
+}
+
+const NATIVE_PREVIEW_EXTENSION_ID = 'TypeScriptTeam.native-preview';
+
+interface NativePreviewApi {
+  registerContentMappers?: (
+    contributorId: string,
+    contributions: ReadonlyArray<{ extensions: ReadonlyArray<string> }>,
+  ) => vscode.Disposable;
+}
+
+/**
+ * TypeScript's native language server only tracks documents whose file
+ * extensions an extension has registered with it, so without this call a
+ * content-mapped `.gts` file never reaches the server and gets no hover,
+ * completions, or diagnostics in the editor. Registering also lets the server
+ * discover the project's tsconfig from a `.gts` file alone.
+ */
+async function registerContentMapperContribution(
+  context: vscode.ExtensionContext,
+  outputChannel: vscode.OutputChannel,
+): Promise<void> {
+  const nativePreview = vscode.extensions.getExtension<NativePreviewApi | undefined>(
+    NATIVE_PREVIEW_EXTENSION_ID,
+  );
+  if (!nativePreview) {
+    outputChannel.appendLine(
+      `[Activation] The TypeScript (Native Preview) extension (${NATIVE_PREVIEW_EXTENSION_ID}) is not installed, ` +
+        `so .gts and .gjs files will not get TypeScript 7 language features.`,
+    );
+    return;
+  }
+
+  try {
+    const api = await nativePreview.activate();
+    const registration = api?.registerContentMappers?.(V2_EXTENSION_ID, [
+      { extensions: ['.gts', '.gjs'] },
+    ]);
+
+    if (!registration) {
+      outputChannel.appendLine(
+        `[Activation] The installed TypeScript (Native Preview) build does not support content mapper ` +
+          `registration; a build newer than 2026-08-19 is required for .gts and .gjs language features.`,
+      );
+      return;
+    }
+
+    context.subscriptions.push(registration);
+    outputChannel.appendLine(
+      '[Activation] Registered .gts and .gjs with TypeScript (Native Preview) for content mapper support.',
+    );
+  } catch (error) {
+    outputChannel.appendLine(
+      `[Activation] Registering with TypeScript (Native Preview) failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
   }
 }
 
