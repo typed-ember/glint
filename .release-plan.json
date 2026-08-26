@@ -1,37 +1,17 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "minor",
-      "oldVersion": "1.10.2",
-      "newVersion": "1.11.0",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        }
-      ],
-      "pkgJSONPath": "./packages/ember-tsc/package.json"
+      "oldVersion": "1.11.0"
     },
     "@glint/template": {
       "oldVersion": "1.8.0"
     },
     "@glint/tsserver-plugin": {
-      "impact": "patch",
-      "oldVersion": "2.7.2",
-      "newVersion": "2.7.3",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
-        }
-      ],
-      "pkgJSONPath": "./packages/tsserver-plugin/package.json"
+      "oldVersion": "2.7.3"
     },
     "@glint/type-test": {
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-08-25)\n\n* @glint/ember-tsc 1.11.0 (minor)\n* @glint/tsserver-plugin 2.7.3 (patch)\n\n#### :rocket: Enhancement\n* Other\n  * [#1228](https://github.com/typed-ember/glint/pull/1228) VS Code extension: stand down on TypeScript 7 workspaces ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n* `@glint/ember-tsc`\n  * [#1226](https://github.com/typed-ember/glint/pull/1226) Add rewriteModuleStandalone, a TypeScript-free entry to the transform ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### Committers: 1\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n"
+  "description": "## Release (2026-08-26)\n\n\n\n#### :bug: Bug Fix\n* [#1230](https://github.com/typed-ember/glint/pull/1230) Register .gts/.gjs with TypeScript (Native Preview) on TypeScript 7 workspaces ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### Committers: 1\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n"
 }
