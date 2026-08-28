@@ -2,21 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.11.0",
-      "newVersion": "1.11.1",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:*` on @glint/template"
-        }
-      ],
-      "pkgJSONPath": "./packages/ember-tsc/package.json"
-    },
-    "@glint/template": {
-      "impact": "patch",
-      "oldVersion": "1.8.0",
-      "newVersion": "1.8.1",
+      "oldVersion": "1.11.1",
+      "newVersion": "1.11.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -24,12 +11,15 @@
           "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
-      "pkgJSONPath": "./packages/template/package.json"
+      "pkgJSONPath": "./packages/ember-tsc/package.json"
+    },
+    "@glint/template": {
+      "oldVersion": "1.8.1"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.7.3",
-      "newVersion": "2.7.4",
+      "oldVersion": "2.7.4",
+      "newVersion": "2.7.5",
       "tagName": "latest",
       "constraints": [
         {
@@ -43,5 +33,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-08-28)\n\n* @glint/ember-tsc 1.11.1 (patch)\n* @glint/template 1.8.1 (patch)\n* @glint/tsserver-plugin 2.7.4 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1234](https://github.com/typed-ember/glint/pull/1234) Treat index-signature Args maps as shorthand named args ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n* Other\n  * [#1230](https://github.com/typed-ember/glint/pull/1230) Register .gts/.gjs with TypeScript (Native Preview) on TypeScript 7 workspaces ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### :house: Internal\n* [#1231](https://github.com/typed-ember/glint/pull/1231) Prepare Release ([@github-actions[bot]](https://github.com/apps/github-actions))\n\n#### :present: Additional updates\n* [#1232](https://github.com/typed-ember/glint/pull/1232) Release extension v 1.4.0 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 3\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n- GitHub Actions [Bot] ([@github-actions](https://github.com/apps/github-actions))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-08-28)\n\n* @glint/ember-tsc 1.11.2 (patch)\n* @glint/tsserver-plugin 2.7.5 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1235](https://github.com/typed-ember/glint/pull/1235) Anchor block params by searching backward from the body start ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
