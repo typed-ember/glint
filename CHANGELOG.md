@@ -1,5 +1,28 @@
 # Changelog
 
+## Release (2026-08-28)
+
+* @glint/ember-tsc 1.11.1 (patch)
+* @glint/template 1.8.1 (patch)
+* @glint/tsserver-plugin 2.7.4 (patch)
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#1234](https://github.com/typed-ember/glint/pull/1234) Treat index-signature Args maps as shorthand named args ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* Other
+  * [#1230](https://github.com/typed-ember/glint/pull/1230) Register .gts/.gjs with TypeScript (Native Preview) on TypeScript 7 workspaces ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### :house: Internal
+* [#1231](https://github.com/typed-ember/glint/pull/1231) Prepare Release ([@github-actions[bot]](https://github.com/apps/github-actions))
+
+#### :present: Additional updates
+* [#1232](https://github.com/typed-ember/glint/pull/1232) Release extension v 1.4.0 ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 3
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+- GitHub Actions [Bot] ([@github-actions](https://github.com/apps/github-actions))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-08-26)
 
 
