@@ -12,6 +12,7 @@ import {
   NamedArgs,
   TemplateContext,
 } from '../-private/integration';
+import { ComponentLike } from '../-private/index';
 import TestComponent, { globals } from './test-component';
 
 declare function value<T>(): T;
@@ -84,6 +85,25 @@ declare function value<T>(): T;
   }>;
 
   expectTypeOf(resolve(value<DirectInvokable<TestSignature>>())).toEqualTypeOf<TestSignature>();
+}
+
+// A `ComponentLike` whose `Args` is an index-signature map resolves to an
+// invokable signature, the same as the equivalent expanded form. (Previously
+// the index signature satisfied the expanded-form detection in
+// `ComponentSignatureArgs`, normalizing the args to never/never and making
+// the component uninvokable.)
+{
+  type NoArgs = Record<string, never>;
+
+  const shorthand = resolve(value<ComponentLike<{ Args: NoArgs }>>());
+  const expanded = resolve(value<ComponentLike<{ Args: { Named: NoArgs; Positional: [] } }>>());
+
+  // Both forms resolve to the same signature...
+  expectTypeOf(shorthand).toEqualTypeOf(expanded);
+
+  // ...whose named args are optional, i.e. the component is invokable rather
+  // than degrading to `(...args: never)`.
+  expectTypeOf(shorthand).parameters.toEqualTypeOf<[named?: NamedArgs<NoArgs>]>();
 }
 
 // Values of type `any` or `never` (themselves typically the product of other type errors)
