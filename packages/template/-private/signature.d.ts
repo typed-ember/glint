@@ -17,18 +17,29 @@ export type InvokableArgs<Args> = [
 export type ComponentSignatureArgs<S> = S extends {
   Args: infer Args;
 }
-  ? Args extends {
-      Named?: object;
-      Positional?: unknown[];
-    }
-    ? {
-        Named: Get<S['Args'], 'Named', {}>;
-        Positional: Get<S['Args'], 'Positional', []>;
-      }
-    : {
+  ? string extends keyof Args
+    ? // An args map with a string index signature (e.g. `Record<string, never>`
+      // or `Record<string, unknown>`) is shorthand named args. Without this
+      // guard, the index signature satisfies the expanded-form test below (it
+      // "provides" both `Named` and `Positional`), normalizing the signature
+      // to `{ Named: never; Positional: never }` and making the component
+      // uninvokable.
+      {
         Named: S['Args'];
         Positional: [];
       }
+    : Args extends {
+          Named?: object;
+          Positional?: unknown[];
+        }
+      ? {
+          Named: Get<S['Args'], 'Named', {}>;
+          Positional: Get<S['Args'], 'Positional', []>;
+        }
+      : {
+          Named: S['Args'];
+          Positional: [];
+        }
   : {
       Named: keyof S extends 'Args' | 'Blocks' | 'Element' ? {} : S;
       Positional: [];

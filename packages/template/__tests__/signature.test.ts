@@ -38,6 +38,30 @@ expectTypeOf<ComponentSignatureArgs<ArgsOnly>>().toEqualTypeOf<{
 expectTypeOf<ComponentSignatureBlocks<ArgsOnly>>().toEqualTypeOf<{}>();
 expectTypeOf<ComponentSignatureElement<ArgsOnly>>().toEqualTypeOf<unknown>();
 
+// An args map with a string index signature is shorthand named args, not the
+// expanded `{ Named, Positional }` form (whose members the index signature
+// would otherwise appear to provide, degrading the signature to
+// `{ Named: never; Positional: never }`).
+interface IndexSignatureArgs {
+  Args: Record<string, never>;
+}
+
+expectTypeOf<ComponentSignatureArgs<IndexSignatureArgs>>().toEqualTypeOf<{
+  Named: Record<string, never>;
+  Positional: [];
+}>();
+expectTypeOf<ComponentSignatureBlocks<IndexSignatureArgs>>().toEqualTypeOf<{}>();
+expectTypeOf<ComponentSignatureElement<IndexSignatureArgs>>().toEqualTypeOf<unknown>();
+
+interface OpenIndexSignatureArgs {
+  Args: Record<string, unknown>;
+}
+
+expectTypeOf<ComponentSignatureArgs<OpenIndexSignatureArgs>>().toEqualTypeOf<{
+  Named: Record<string, unknown>;
+  Positional: [];
+}>();
+
 interface ElementOnly {
   Element: HTMLParagraphElement;
 }
