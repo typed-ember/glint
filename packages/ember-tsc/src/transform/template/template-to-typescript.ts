@@ -1624,9 +1624,15 @@ export function templateToTypescript(
     }
 
     function emitBlock(name: string, node: AST.Block, curriedInvokables?: Set<string>): void {
+      // The `as |params|` list sits just before the block's body, so search
+      // backward from the body's start. Searching backward from its *end*
+      // would find whatever `|` pair occurs last in the body instead — e.g. a
+      // nested block's params — anchoring these params at that later offset:
+      // silently mis-mapped when the param name happens to appear after it,
+      // or offset -1 (an invalid mapping) when it doesn't.
       let paramsStart = template.lastIndexOf(
         '|',
-        template.lastIndexOf('|', rangeForNode(node).end) - 1,
+        template.lastIndexOf('|', rangeForNode(node).start) - 1,
       );
 
       emitBlockContents(

@@ -590,6 +590,186 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
+    test('block params of a block containing nested block params', () => {
+      // The `as |params|` list is located by searching backward from the
+      // block body's start. Searching from its *end* finds the nested block's
+      // params instead, mis-anchoring (or, when the name never appears later,
+      // invalidating) the outer params' mappings.
+      let env = GlintEnvironment.load({});
+      let script = {
+        filename: 'foo.gts',
+        contents: stripIndent`
+          <template>
+            {{#let "hello" as |greeting|}}
+              {{#each @items as |item|}}
+                {{greeting}} {{item}}
+              {{/each}}
+            {{/let}}
+          </template>
+        `,
+      };
+
+      expect(rewriteModule(ts, { script }, env)?.toDebugString()).toMatchInlineSnapshot(`
+        "TransformedModule
+
+        | Mapping: TemplateEmbedding
+        |  hbs(0:139):   <template>\\n  {{#let "hello" as |greeting|}}\\n    {{#each @items as |item|}}\\n      {{greeting}} {{item}}\\n    {{/each}}\\n  {{/let}}\\n</template>
+        |  ts(0:731):    export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {\\n{\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)("hello"));\\n{\\nconst [greeting] = __glintY__.blockParams["default"];\\n{\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.each)(__glintRef__.args.items));\\n{\\nconst [item] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(greeting)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(item)());\\n}\\n__glintDSL__.Globals.each;\\n}\\n}\\n__glintDSL__.Globals.let;\\n}\\n__glintRef__; __glintDSL__;\\n})
+        |
+        | | Mapping: Template
+        | |  hbs(10:128):  {{#let "hello" as |greeting|}}\\n    {{#each @items as |item|}}\\n      {{greeting}} {{item}}\\n    {{/each}}\\n  {{/let}}
+        | |  ts(36:67):    "@glint/ember-tsc/-private/dsl"
+        | |
+        | | Mapping: Template
+        | |  hbs(10:128):  {{#let "hello" as |greeting|}}\\n    {{#each @items as |item|}}\\n      {{greeting}} {{item}}\\n    {{/each}}\\n  {{/let}}
+        | |  ts(171:701):  {\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)("hello"));\\n{\\nconst [greeting] = __glintY__.blockParams["default"];\\n{\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.each)(__glintRef__.args.items));\\n{\\nconst [item] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(greeting)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(item)());\\n}\\n__glintDSL__.Globals.each;\\n}\\n}\\n__glintDSL__.Globals.let;\\n}
+        | |
+        | | | Mapping: TextContent
+        | | |  hbs(10:11):
+        | | |  ts(171:171):
+        | | |
+        | | | Mapping: BlockStatement
+        | | |  hbs(13:127):  {{#let "hello" as |greeting|}}\\n    {{#each @items as |item|}}\\n      {{greeting}} {{item}}\\n    {{/each}}\\n  {{/let}}
+        | | |  ts(171:700):  {\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)("hello"));\\n{\\nconst [greeting] = __glintY__.blockParams["default"];\\n{\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.each)(__glintRef__.args.items));\\n{\\nconst [item] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(greeting)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(item)());\\n}\\n__glintDSL__.Globals.each;\\n}\\n}\\n__glintDSL__.Globals.let;\\n}
+        | | |
+        | | | | Mapping: BlockStatement
+        | | | |  hbs(13:127):  {{#let "hello" as |greeting|}}\\n    {{#each @items as |item|}}\\n      {{greeting}} {{item}}\\n    {{/each}}\\n  {{/let}}
+        | | | |  ts(219:274):  __glintDSL__.resolve(__glintDSL__.Globals.let)("hello")
+        | | | |
+        | | | | | Mapping: PathExpression
+        | | | | |  hbs(16:19):   let
+        | | | | |  ts(219:265):  __glintDSL__.resolve(__glintDSL__.Globals.let)
+        | | | | |
+        | | | | | | Mapping: PathExpression
+        | | | | | |  hbs(16:19):   let
+        | | | | | |  ts(240:264):  __glintDSL__.Globals.let
+        | | | | | |
+        | | | | | | | Mapping: Identifier
+        | | | | | | |  hbs(16:19):   let
+        | | | | | | |  ts(261:264):  let
+        | | | | | | |
+        | | | | | |
+        | | | | |
+        | | | | | Mapping: StringLiteral
+        | | | | |  hbs(20:27):   "hello"
+        | | | | |  ts(266:273):  "hello"
+        | | | | |
+        | | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(32:40):   greeting
+        | | | |  ts(286:294):  greeting
+        | | | |
+        | | | | Mapping: BlockStatement
+        | | | |  hbs(48:116):  {{#each @items as |item|}}\\n      {{greeting}} {{item}}\\n    {{/each}}
+        | | | |  ts(333:670):  {\\nconst __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.each)(__glintRef__.args.items));\\n{\\nconst [item] = __glintY__.blockParams["default"];\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(greeting)());\\n__glintDSL__.emitContent(__glintDSL__.resolveOrReturn(item)());\\n}\\n__glintDSL__.Globals.each;\\n}
+        | | | |
+        | | | | | Mapping: BlockStatement
+        | | | | |  hbs(48:116):  {{#each @items as |item|}}\\n      {{greeting}} {{item}}\\n    {{/each}}
+        | | | | |  ts(381:453):  __glintDSL__.resolve(__glintDSL__.Globals.each)(__glintRef__.args.items)
+        | | | | |
+        | | | | | | Mapping: PathExpression
+        | | | | | |  hbs(51:55):   each
+        | | | | | |  ts(381:428):  __glintDSL__.resolve(__glintDSL__.Globals.each)
+        | | | | | |
+        | | | | | | | Mapping: PathExpression
+        | | | | | | |  hbs(51:55):   each
+        | | | | | | |  ts(402:427):  __glintDSL__.Globals.each
+        | | | | | | |
+        | | | | | | | | Mapping: Identifier
+        | | | | | | | |  hbs(51:55):   each
+        | | | | | | | |  ts(423:427):  each
+        | | | | | | | |
+        | | | | | | |
+        | | | | | |
+        | | | | | | Mapping: PathExpression
+        | | | | | |  hbs(56:62):   @items
+        | | | | | |  ts(429:452):  __glintRef__.args.items
+        | | | | | |
+        | | | | | | | Mapping: Identifier
+        | | | | | | |  hbs(57:62):   items
+        | | | | | | |  ts(447:452):  items
+        | | | | | | |
+        | | | | | |
+        | | | | |
+        | | | | | Mapping: Identifier
+        | | | | |  hbs(67:71):   item
+        | | | | |  ts(465:469):  item
+        | | | | |
+        | | | | | Mapping: TextContent
+        | | | | |  hbs(75:81):
+        | | | | |  ts(508:508):
+        | | | | |
+        | | | | | Mapping: MustacheStatement
+        | | | | |  hbs(81:93):   {{greeting}}
+        | | | | |  ts(508:574):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(greeting)())
+        | | | | |
+        | | | | | | Mapping: MustacheStatement
+        | | | | | |  hbs(81:93):   {{greeting}}
+        | | | | | |  ts(533:573):  __glintDSL__.resolveOrReturn(greeting)()
+        | | | | | |
+        | | | | | | | Mapping: PathExpression
+        | | | | | | |  hbs(83:91):   greeting
+        | | | | | | |  ts(533:571):  __glintDSL__.resolveOrReturn(greeting)
+        | | | | | | |
+        | | | | | | | | Mapping: PathExpression
+        | | | | | | | |  hbs(83:91):   greeting
+        | | | | | | | |  ts(562:570):  greeting
+        | | | | | | | |
+        | | | | | | | | | Mapping: Identifier
+        | | | | | | | | |  hbs(83:91):   greeting
+        | | | | | | | | |  ts(562:570):  greeting
+        | | | | | | | | |
+        | | | | | | | |
+        | | | | | | |
+        | | | | | |
+        | | | | |
+        | | | | | Mapping: TextContent
+        | | | | |  hbs(93:94):
+        | | | | |  ts(576:576):
+        | | | | |
+        | | | | | Mapping: MustacheStatement
+        | | | | |  hbs(94:102):  {{item}}
+        | | | | |  ts(576:638):  __glintDSL__.emitContent(__glintDSL__.resolveOrReturn(item)())
+        | | | | |
+        | | | | | | Mapping: MustacheStatement
+        | | | | | |  hbs(94:102):  {{item}}
+        | | | | | |  ts(601:637):  __glintDSL__.resolveOrReturn(item)()
+        | | | | | |
+        | | | | | | | Mapping: PathExpression
+        | | | | | | |  hbs(96:100):  item
+        | | | | | | |  ts(601:635):  __glintDSL__.resolveOrReturn(item)
+        | | | | | | |
+        | | | | | | | | Mapping: PathExpression
+        | | | | | | | |  hbs(96:100):  item
+        | | | | | | | |  ts(630:634):  item
+        | | | | | | | |
+        | | | | | | | | | Mapping: Identifier
+        | | | | | | | | |  hbs(96:100):  item
+        | | | | | | | | |  ts(630:634):  item
+        | | | | | | | | |
+        | | | | | | | |
+        | | | | | | |
+        | | | | | |
+        | | | | |
+        | | | | | Mapping: TextContent
+        | | | | |  hbs(102:103):
+        | | | | |  ts(640:640):
+        | | | | |
+        | | | | | Mapping: Identifier
+        | | | | |  hbs(110:114): each
+        | | | | |  ts(663:667):  each
+        | | | | |
+        | | | |
+        | | | | Mapping: Identifier
+        | | | |  hbs(122:125): let
+        | | | |  ts(694:697):  let
+        | | | |
+        | | |
+        | |
+        |"
+      `);
+    });
+
     test('with imported special forms', () => {
       let env = GlintEnvironment.load({});
       let script = {
