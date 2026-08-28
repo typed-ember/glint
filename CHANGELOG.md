@@ -2,6 +2,18 @@
 
 ## Release (2026-08-28)
 
+* @glint/ember-tsc 1.11.2 (patch)
+* @glint/tsserver-plugin 2.7.5 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1235](https://github.com/typed-ember/glint/pull/1235) Anchor block params by searching backward from the body start ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
+## Release (2026-08-28)
+
 * @glint/ember-tsc 1.11.1 (patch)
 * @glint/template 1.8.1 (patch)
 * @glint/tsserver-plugin 2.7.4 (patch)
