@@ -1,4 +1,4 @@
-import { DirectInvokable, InvokableInstance, Invoke, InvokeDirect } from '../integration';
+import { DirectInvokable, InvokableInstance, Invoke, InvokeDirect, UnwrapNamedArgs } from '../integration';
 import { ResolveOrReturn } from './types';
 
 /*
@@ -32,9 +32,18 @@ import { ResolveOrReturn } from './types';
  */
 
 export declare function resolve<T extends DirectInvokable>(item: T): T[typeof InvokeDirect];
-export declare function resolve<Args extends unknown[], Instance extends InvokableInstance>(
-  item: (abstract new (...args: Args) => Instance) | null | undefined,
-): (...args: Parameters<Instance[typeof Invoke]>) => ReturnType<Instance[typeof Invoke]>;
+export declare function resolve<
+  Args extends any[], 
+  Instance extends InvokableInstance>(
+    item: (abstract new (...args: Args) => Instance) | null | undefined,
+  ): 
+    (...args: Parameters<NoInfer<Instance>[typeof Invoke]>) => ReturnType<NoInfer<Instance>[typeof Invoke]>;
+
+    
+export declare function resolveComponent<Instance extends InvokableInstance, Args = Parameters<Instance[typeof Invoke]>>(
+  item: (abstract new (...args: Args) => Instance) | null | undefined, 
+  args: Args
+): <Args extends UnwrapNamedArgs<infer _Args>>(...args: _Args) => ReturnType<Instance[typeof Invoke]>;
 
 /*
  * A mustache like `{{this.foo}}` might either return a plain value like a string
