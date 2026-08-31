@@ -149,9 +149,7 @@ declare function value<T>(): T;
   expectTypeOf(attach).parameters.toEqualTypeOf<
     [element: HTMLAudioElement, named?: NamedArgs<Record<string, never>>]
   >();
-  expectTypeOf(definition).toExtend<
-    ModifierLike<{ Args: NoArgs; Element: HTMLAudioElement }>
-  >();
+  expectTypeOf(definition).toExtend<ModifierLike<{ Args: NoArgs; Element: HTMLAudioElement }>>();
 
   attach(value<HTMLAudioElement>());
   attach(
