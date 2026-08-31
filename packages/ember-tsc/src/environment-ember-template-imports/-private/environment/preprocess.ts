@@ -49,7 +49,18 @@ export const preprocess: GlintExtensionPreprocess<PreprocessData> = (source, pat
     contents += TAG_OPEN;
 
     let templateContent = source.slice(startTagEnd, endTagOffset);
-    let escapedContent = templateContent.replaceAll('${{', '\\${{').replaceAll('`', '\\`');
+    // Escape backslashes FIRST: template content is raw text, so a `\` in it
+    // (e.g. `{{t 'you\'ve'}}`) is a literal character, but inside the wrapped
+    // JS template literal it would start an escape sequence. The transform
+    // reads the literal's *cooked* text back out (see
+    // `transform/template/inlining/tagged-strings.ts`), which would interpret
+    // that sequence: `\'` cooks to `'` (breaking the template parse) and any
+    // multi-character escape shifts every downstream source-map offset.
+    // Doubling each backslash makes cooking restore the original text exactly.
+    let escapedContent = templateContent
+      .replaceAll('\\', '\\\\')
+      .replaceAll('${{', '\\${{')
+      .replaceAll('`', '\\`');
     contents += escapedContent;
     contents += TAG_CLOSE;
     let transformedEnd = contents.length;
