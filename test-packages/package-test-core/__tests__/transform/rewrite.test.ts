@@ -770,6 +770,112 @@ describe('Transform: rewriteModule', () => {
       `);
     });
 
+    test('backslash escapes in template string literals', () => {
+      // The .gts preprocessor wraps template content in a JS template literal
+      // and the transform reads the cooked text back out, so user backslashes
+      // must be doubled on the way in or `\'` cooks to `'` and the template
+      // fails to parse.
+      let env = GlintEnvironment.load({});
+      let script = {
+        filename: 'foo.gts',
+        contents: stripIndent`
+          const fm = (s: string): string => s;
+
+          <template>
+            {{fm 'you\\'ve arrived'}}
+            {{fm "say \\"hi\\" now"}}
+          </template>
+        `,
+      };
+
+      expect(rewriteModule(ts, { script }, env)?.toDebugString()).toMatchInlineSnapshot(`
+        "TransformedModule
+
+        | Mapping: TemplateEmbedding
+        |  hbs(38:113):  <template>\\n  {{fm 'you\\'ve arrived'}}\\n  {{fm "say \\"hi\\" now"}}\\n</template>
+        |  ts(38:379):   export default ({} as typeof import("@glint/ember-tsc/-private/dsl")).templateExpression((__glintRef__, __glintDSL__: typeof import("@glint/ember-tsc/-private/dsl")) => {\\n__glintDSL__.emitContent(__glintDSL__.resolve(fm)("you've arrived"));\\n__glintDSL__.emitContent(__glintDSL__.resolve(fm)("say \\"hi\\" now"));\\n__glintRef__; __glintDSL__;\\n})
+        |
+        | | Mapping: Template
+        | |  hbs(48:102):  {{fm 'you\\'ve arrived'}}\\n  {{fm "say \\"hi\\" now"}}
+        | |  ts(74:105):   "@glint/ember-tsc/-private/dsl"
+        | |
+        | | Mapping: Template
+        | |  hbs(48:102):  {{fm 'you\\'ve arrived'}}\\n  {{fm "say \\"hi\\" now"}}
+        | |  ts(209:349):  __glintDSL__.emitContent(__glintDSL__.resolve(fm)("you've arrived"));\\n__glintDSL__.emitContent(__glintDSL__.resolve(fm)("say \\"hi\\" now"));
+        | |
+        | | | Mapping: TextContent
+        | | |  hbs(48:51):
+        | | |  ts(209:209):
+        | | |
+        | | | Mapping: MustacheStatement
+        | | |  hbs(51:75):   {{fm 'you\\'ve arrived'}}
+        | | |  ts(209:277):  __glintDSL__.emitContent(__glintDSL__.resolve(fm)("you've arrived"))
+        | | |
+        | | | | Mapping: MustacheStatement
+        | | | |  hbs(51:75):   {{fm 'you\\'ve arrived'}}
+        | | | |  ts(234:276):  __glintDSL__.resolve(fm)("you've arrived")
+        | | | |
+        | | | | | Mapping: PathExpression
+        | | | | |  hbs(53:55):   fm
+        | | | | |  ts(234:258):  __glintDSL__.resolve(fm)
+        | | | | |
+        | | | | | | Mapping: PathExpression
+        | | | | | |  hbs(53:55):   fm
+        | | | | | |  ts(255:257):  fm
+        | | | | | |
+        | | | | | | | Mapping: Identifier
+        | | | | | | |  hbs(53:55):   fm
+        | | | | | | |  ts(255:257):  fm
+        | | | | | | |
+        | | | | | |
+        | | | | |
+        | | | | | Mapping: StringLiteral
+        | | | | |  hbs(56:73):   'you\\'ve arrived'
+        | | | | |  ts(259:275):  "you've arrived"
+        | | | | |
+        | | | |
+        | | |
+        | | | Mapping: TextContent
+        | | |  hbs(75:78):
+        | | |  ts(279:279):
+        | | |
+        | | | Mapping: MustacheStatement
+        | | |  hbs(78:101):  {{fm "say \\"hi\\" now"}}
+        | | |  ts(279:347):  __glintDSL__.emitContent(__glintDSL__.resolve(fm)("say \\"hi\\" now"))
+        | | |
+        | | | | Mapping: MustacheStatement
+        | | | |  hbs(78:101):  {{fm "say \\"hi\\" now"}}
+        | | | |  ts(304:346):  __glintDSL__.resolve(fm)("say \\"hi\\" now")
+        | | | |
+        | | | | | Mapping: PathExpression
+        | | | | |  hbs(80:82):   fm
+        | | | | |  ts(304:328):  __glintDSL__.resolve(fm)
+        | | | | |
+        | | | | | | Mapping: PathExpression
+        | | | | | |  hbs(80:82):   fm
+        | | | | | |  ts(325:327):  fm
+        | | | | | |
+        | | | | | | | Mapping: Identifier
+        | | | | | | |  hbs(80:82):   fm
+        | | | | | | |  ts(325:327):  fm
+        | | | | | | |
+        | | | | | |
+        | | | | |
+        | | | | | Mapping: StringLiteral
+        | | | | |  hbs(83:99):   "say \\"hi\\" now"
+        | | | | |  ts(329:345):  "say \\"hi\\" now"
+        | | | | |
+        | | | |
+        | | |
+        | | | Mapping: TextContent
+        | | |  hbs(101:102):
+        | | |  ts(349:349):
+        | | |
+        | |
+        |"
+      `);
+    });
+
     test('with imported special forms', () => {
       let env = GlintEnvironment.load({});
       let script = {
