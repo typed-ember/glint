@@ -2,24 +2,34 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.11.1",
-      "newVersion": "1.11.2",
+      "oldVersion": "1.11.2",
+      "newVersion": "1.11.3",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
+          "reason": "Has dependency `workspace:*` on @glint/template"
         }
       ],
       "pkgJSONPath": "./packages/ember-tsc/package.json"
     },
     "@glint/template": {
-      "oldVersion": "1.8.1"
+      "impact": "minor",
+      "oldVersion": "1.8.1",
+      "newVersion": "1.9.0",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        }
+      ],
+      "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.7.4",
-      "newVersion": "2.7.5",
+      "oldVersion": "2.7.5",
+      "newVersion": "2.7.6",
       "tagName": "latest",
       "constraints": [
         {
@@ -33,5 +43,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-08-28)\n\n* @glint/ember-tsc 1.11.2 (patch)\n* @glint/tsserver-plugin 2.7.5 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1235](https://github.com/typed-ember/glint/pull/1235) Anchor block params by searching backward from the body start ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-08-31)\n\n* @glint/ember-tsc 1.11.3 (patch)\n* @glint/template 1.9.0 (minor)\n* @glint/tsserver-plugin 2.7.6 (patch)\n\n#### :rocket: Enhancement\n* `@glint/template`\n  * [#1237](https://github.com/typed-ember/glint/pull/1237) Add a NoArgs signature Args type ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }

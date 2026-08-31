@@ -1,5 +1,18 @@
 # Changelog
 
+## Release (2026-08-31)
+
+* @glint/ember-tsc 1.11.3 (patch)
+* @glint/template 1.9.0 (minor)
+* @glint/tsserver-plugin 2.7.6 (patch)
+
+#### :rocket: Enhancement
+* `@glint/template`
+  * [#1237](https://github.com/typed-ember/glint/pull/1237) Add a NoArgs signature Args type ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-08-28)
 
 * @glint/ember-tsc 1.11.2 (patch)
