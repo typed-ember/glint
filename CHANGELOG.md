@@ -2,6 +2,18 @@
 
 ## Release (2026-08-31)
 
+* @glint/ember-tsc 1.11.4 (patch)
+* @glint/tsserver-plugin 2.7.7 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1239](https://github.com/typed-ember/glint/pull/1239) Escape backslashes when wrapping template content in a tagged literal ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
+## Release (2026-08-31)
+
 * @glint/ember-tsc 1.11.3 (patch)
 * @glint/template 1.9.0 (minor)
 * @glint/tsserver-plugin 2.7.6 (patch)
