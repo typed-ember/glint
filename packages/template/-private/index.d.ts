@@ -57,6 +57,20 @@ type ArglessCurlyComponent = ComponentReturn<{}, any>;
 export type AttrValue = string | number | boolean | null | undefined | SafeString;
 
 /**
+ * A signature `Args` member for an invokable that accepts no arguments:
+ * there are no positional arguments, and every named argument is an error.
+ *
+ *     import Component from '@glimmer/component';
+ *     import type { NoArgs } from '@glint/template';
+ *
+ *     export default class Divider extends Component<{ Args: NoArgs }> {}
+ */
+export type NoArgs = {
+  Named: Record<string, never>;
+  Positional: [];
+};
+
+/**
  * A value that is invokable like a component in a template. In an
  * appropriate Glint environment, subclasses of `EmberComponent` and
  * `GlimmerComponent` are examples of `ComponentLike` values, as are
