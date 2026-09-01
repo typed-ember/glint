@@ -62,6 +62,7 @@ const languageIds = ['glimmer-js', 'glimmer-ts'];
 const TS_PLUGIN_NAME = 'glint-tsserver-plugin-pack';
 const EMBER_TSC_SOURCE_SETTING = 'glint2.emberTscSource';
 const SELECT_EMBER_TSC_COMMAND = 'glint2.select-ember-tsc-source';
+const TYPESCRIPT_7_SHOW_MENU_COMMAND = 'typescript.native-preview.showMenu';
 
 type EmberTscSource = 'auto' | 'workspace' | 'bundled';
 
@@ -88,6 +89,7 @@ export const { activate, deactivate } = defineExtension(() => {
         `ember-content-mapper (https://github.com/NullVoxPopuli/ember-content-mapper) to "contentMappers" ` +
         `in tsconfig.json and run tsc with --runExternalCode.`,
     );
+    registerTypeScript7LanguageStatus(context);
     void registerContentMapperContribution(context, outputChannel);
     return;
   }
@@ -524,6 +526,92 @@ interface TypeScript7Api {
     contributorId: string,
     contributions: ReadonlyArray<{ extensions: ReadonlyArray<string> }>,
   ) => vscode.Disposable;
+}
+
+function registerTypeScript7LanguageStatus(context: vscode.ExtensionContext): void {
+  const status = vscode.languages.createLanguageStatusItem(
+    'glint2.typescript7.status',
+    languageIds,
+  );
+  status.name = 'TypeScript 7';
+  status.text = 'TypeScript 7';
+  status.detail = 'TypeScript Language Server';
+  status.command = {
+    title: 'Show Menu',
+    command: TYPESCRIPT_7_SHOW_MENU_COMMAND,
+  };
+
+  context.subscriptions.push(status);
+
+  const projectStatus = vscode.languages.createLanguageStatusItem(
+    'glint2.typescript7.projectStatus',
+    languageIds,
+  );
+  projectStatus.name = 'TypeScript 7 Project Status';
+  projectStatus.detail = 'TypeScript Language Server';
+
+  const updateProjectStatus = (): void => {
+    const document = vscode.window.activeTextEditor?.document;
+    if (!document || !languageIds.includes(document.languageId)) {
+      return;
+    }
+
+    const configFile = findNearestTypeScriptConfig(document.uri);
+    if (configFile) {
+      projectStatus.text = vscode.workspace.asRelativePath(configFile);
+      projectStatus.command = {
+        title: 'Open Config File',
+        command: 'vscode.open',
+        arguments: [vscode.Uri.file(configFile)],
+      };
+    } else {
+      projectStatus.text = document.languageId === 'glimmer-ts' ? 'No tsconfig' : 'No jsconfig';
+      projectStatus.command = undefined;
+    }
+  };
+
+  updateProjectStatus();
+  context.subscriptions.push(
+    projectStatus,
+    vscode.window.onDidChangeActiveTextEditor(updateProjectStatus),
+    vscode.workspace.onDidChangeWorkspaceFolders(updateProjectStatus),
+  );
+}
+
+function findNearestTypeScriptConfig(resource: vscode.Uri): string | undefined {
+  if (resource.scheme !== 'file') {
+    return undefined;
+  }
+
+  const workspaceFolder = vscode.workspace.getWorkspaceFolder(resource);
+  if (!workspaceFolder) {
+    return undefined;
+  }
+
+  const workspaceRoot = workspaceFolder.uri.fsPath;
+  let currentDirectory = path.dirname(resource.fsPath);
+
+  while (isInDirectory(currentDirectory, workspaceRoot)) {
+    for (const configFileName of ['tsconfig.json', 'jsconfig.json']) {
+      const configFile = path.join(currentDirectory, configFileName);
+      if (fs.existsSync(configFile)) {
+        return configFile;
+      }
+    }
+
+    const parentDirectory = path.dirname(currentDirectory);
+    if (parentDirectory === currentDirectory) {
+      break;
+    }
+    currentDirectory = parentDirectory;
+  }
+
+  return undefined;
+}
+
+function isInDirectory(pathToCheck: string, directory: string): boolean {
+  const relativePath = path.relative(directory, pathToCheck);
+  return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
 }
 
 /**
