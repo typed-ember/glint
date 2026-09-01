@@ -71,30 +71,34 @@ export const { activate, deactivate } = defineExtension(() => {
   }
 
   const context = extensionContext.value!;
-  const volarLabs = createLabsInfo(languageServerProtocol);
-  const activeTextEditor = useActiveTextEditor();
-  const visibleTextEditors = useVisibleTextEditors();
   const outputChannel = useOutputChannel('Glint2 Language Server');
-  let pendingRestart = false;
-  let lastActivationReason: string | undefined;
 
   // Glint's language server and tsserver plugin require the TypeScript 5/6
-  // JS API, which the TypeScript 7 package does not ship. On a TS 7 workspace
+  // JS API, which TypeScript 7 does not ship. When TypeScript 7 is in play,
   // they would only produce broken diagnostics, so Glint stands down entirely:
   // template type-checking comes from a content mapper run by TypeScript
-  // itself instead.
-  const workspaceTypeScriptVersion = detectWorkspaceTypeScriptVersion(getLibraryPathSetting());
-  if (workspaceTypeScriptVersion && parseInt(workspaceTypeScriptVersion, 10) >= 7) {
+  // itself instead. The only work left is telling the native server about
+  // the file extensions.
+  const typeScript7Reason = detectTypeScript7(getLibraryPathSetting());
+  if (typeScript7Reason) {
     outputChannel.appendLine(
-      `[Activation] TypeScript ${workspaceTypeScriptVersion} is installed in this workspace. ` +
+      `[Activation] ${typeScript7Reason} ` +
         `Glint requires TypeScript 5 or 6, so the Glint language server and tsserver plugin will not start. ` +
         `With TypeScript 7, template type-checking comes from a content mapper instead: add ` +
         `ember-content-mapper (https://github.com/NullVoxPopuli/ember-content-mapper) to "contentMappers" ` +
         `in tsconfig.json and run tsc with --runExternalCode.`,
     );
     void registerContentMapperContribution(context, outputChannel);
-    return volarLabs.extensionExports;
+    return;
   }
+
+  prepareBuiltinTypeScriptExtension();
+
+  const volarLabs = createLabsInfo(languageServerProtocol);
+  const activeTextEditor = useActiveTextEditor();
+  const visibleTextEditors = useVisibleTextEditors();
+  let pendingRestart = false;
+  let lastActivationReason: string | undefined;
 
   const emberTscStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   emberTscStatus.command = SELECT_EMBER_TSC_COMMAND;
@@ -571,6 +575,57 @@ async function registerContentMapperContribution(
 }
 
 /**
+ * Why Glint must stand down for TypeScript 7, or `undefined` when it must run.
+ *
+ * TypeScript 7 is in play in either of two situations. The user turned on the
+ * native preview in VS Code. That replaces the built-in tsserver that Glint
+ * hooks into, whatever `typescript` package the workspace installs. Or the
+ * workspace installs the TypeScript 7 package, whose JS API Glint cannot load.
+ */
+function detectTypeScript7(libraryPath: string): string | undefined {
+  const useTsgo = getUseTsgoSetting();
+  if (useTsgo) {
+    return `TypeScript 7 is enabled in VS Code via "${useTsgo}".`;
+  }
+
+  const workspaceTypeScriptVersion = detectWorkspaceTypeScriptVersion(libraryPath);
+  if (workspaceTypeScriptVersion && parseInt(workspaceTypeScriptVersion, 10) >= 7) {
+    return `TypeScript ${workspaceTypeScriptVersion} is installed in this workspace.`;
+  }
+
+  return undefined;
+}
+
+const USE_TSGO_SETTINGS = ['js/ts.experimental.useTsgo', 'typescript.experimental.useTsgo'];
+const CONFIGURATION_SCOPES = ['workspaceFolderValue', 'workspaceValue', 'globalValue'] as const;
+
+/**
+ * The name of the setting that turns on TypeScript 7 in VS Code, or
+ * `undefined` when TypeScript 7 is off. The native preview extension only
+ * honors explicitly set values, lets the most specific scope win, and prefers
+ * the `js/ts` name over the deprecated `typescript` name within a scope. This
+ * resolves the two names the same way so Glint and the native preview agree.
+ */
+function getUseTsgoSetting(): string | undefined {
+  const configuration = vscode.workspace.getConfiguration();
+  const inspections = USE_TSGO_SETTINGS.map((setting) => ({
+    setting,
+    inspection: configuration.inspect<boolean>(setting),
+  }));
+
+  for (const scope of CONFIGURATION_SCOPES) {
+    for (const { setting, inspection } of inspections) {
+      const value = inspection?.[scope];
+      if (value !== undefined) {
+        return value ? setting : undefined;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+/**
  * The version of the `typescript` package installed in the workspace, or
  * `undefined` when there is no workspace folder or no resolvable typescript.
  * Both the TypeScript 5/6 and 7 packages export their package.json, so this
@@ -610,13 +665,25 @@ function resolveBundledEmberTscServerPath(): string | undefined {
   }
 }
 
-// We need to activate the default VSCode TypeScript extension so that our
-// TS Plugin kicks in. We do this because the TS extension is (obviously) not
-// configured to activate for, say, .gts files:
-// https://github.com/microsoft/vscode/blob/878af07/extensions/typescript-language-features/package.json#L62..L75
-const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features');
+/**
+ * Hooks Glint into the built-in VS Code TypeScript extension
+ * (vscode.typescript-language-features). Glint's language features ride on
+ * that extension's tsserver, so it must be activated even though it is not
+ * configured to activate for .gts files:
+ * https://github.com/microsoft/vscode/blob/878af07/extensions/typescript-language-features/package.json#L62..L75
+ *
+ * Before activating it, its bundle is monkeypatched so that features like Find
+ * File References and Go to Source Definition treat .gts/.gjs as TypeScript.
+ * The patch must be in place before the bundle is read, so it comes first.
+ */
+function prepareBuiltinTypeScriptExtension(): void {
+  const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features');
+  if (!tsExtension) {
+    return;
+  }
 
-if (tsExtension) {
+  patchBuiltinTypeScriptExtension(tsExtension);
+
   const activationPromise = tsExtension.activate();
   if (activationPromise && typeof activationPromise.then === 'function') {
     activationPromise.then(
@@ -642,26 +709,25 @@ if (tsExtension) {
   }
 }
 
-if (!v1ExtensionPresent) {
-  // The code below contains hacks lifted from the Vue extension to monkeypatch
-  // portions of official VSCode TS extension (vscode.typescript-language-features)
-  // to add some missing features that make the tooling more seamless.
-  //
-  // Note that these hacks should ABSOLUTELY be upstreamed to VSCode but it is unclear
-  // whether our efforts will be successful.
-  //
-  // https://github.com/vuejs/language-tools/blob/master/extensions/vscode/src/nodeClientMain.ts#L135-L195
-  //
-  // It is important for us (for the time being) to manually follow along with changes made to the
-  // Vue extension within the above file. Ideally Volar should extract this logic into a shared library.
-  //
-  // Specifically these hacks make things like Find File References, Go to Source Definition, etc.
-  // work in .gts files.
-  //
-  // https://github.com/search?q=repo%3Amicrosoft%2Fvscode%20isSupportedLanguageMode&type=code
+// The code below contains hacks lifted from the Vue extension to monkeypatch
+// portions of official VSCode TS extension (vscode.typescript-language-features)
+// to add some missing features that make the tooling more seamless.
+//
+// Note that these hacks should ABSOLUTELY be upstreamed to VSCode but it is unclear
+// whether our efforts will be successful.
+//
+// https://github.com/vuejs/language-tools/blob/master/extensions/vscode/src/nodeClientMain.ts#L135-L195
+//
+// It is important for us (for the time being) to manually follow along with changes made to the
+// Vue extension within the above file. Ideally Volar should extract this logic into a shared library.
+//
+// Specifically these hacks make things like Find File References, Go to Source Definition, etc.
+// work in .gts files.
+//
+// https://github.com/search?q=repo%3Amicrosoft%2Fvscode%20isSupportedLanguageMode&type=code
+function patchBuiltinTypeScriptExtension(tsExtension: vscode.Extension<unknown>): void {
   try {
     const fs = require('node:fs');
-    const tsExtension = vscode.extensions.getExtension('vscode.typescript-language-features')!;
     const readFileSync = fs.readFileSync;
     const extensionJsPath = require.resolve('./dist/extension.js', {
       paths: [tsExtension.extensionPath],
