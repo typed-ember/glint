@@ -30,7 +30,7 @@
       // through ember-content-mapper. The extension must stand down here: no
       // language server, no status bar item, only registering the file
       // extensions with TypeScriptTeam.native-preview. That extension must be
-      // installed, and the app's .vscode/settings.json turns TypeScript 7 on.
+      // installed. The app's .vscode/settings.json turns TypeScript 7 on.
       // Same prerequisites as above: `tsc --build --watch` at the root and
       // `pnpm bundle:watch` in packages/vscode.
       "name": "Debug Extension (TypeScript 7, content mapper)",
@@ -51,7 +51,7 @@
         "typed-ember.glint-vscode",
         "--disable-extension",
         "typed-ember.glint2-vscode",
-        "${input:typescript7App}"
+        "${workspaceFolder}/test-packages/ts7-content-mapper-app"
       ]
     },
     {
@@ -65,13 +65,5 @@
         "!**/node_modules/**"
       ],
     }
-    ],
-  "inputs": [
-    {
-      "id": "typescript7App",
-      "type": "promptString",
-      "description": "Path to a TypeScript 7 app that uses ember-content-mapper",
-      "default": "${env:HOME}/Development/NullVoxPopuli/ember-content-mapper/examples/nvp-app"
-    }
-  ]
+    ]
 }

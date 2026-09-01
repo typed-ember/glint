@@ -1,0 +1,5 @@
+{
+  // TypeScript 7 (the native preview extension) must serve this app, so that
+  // .gts and .gjs go through the content mapper instead of Glint.
+  "js/ts.experimental.useTsgo": true
+}
