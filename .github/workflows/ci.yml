@@ -49,9 +49,30 @@ jobs:
           cache: pnpm
       - run: pnpm reset
       - name: Use TypeScript ${{ matrix.typescript }}.x
-        run: pnpm up -r "typescript@${{ matrix.typescript }}" && pnpm build && pnpm sync
-      - run: "pnpm --filter '*' run test:typecheck"
-      - run: "pnpm --filter '*' run test:tsc"
+        # ts7-content-mapper-app pins a TypeScript 7 nightly and is covered by the TS 7 job below
+        run: pnpm up -r --filter '!ts7-content-mapper-app' "typescript@${{ matrix.typescript }}" && pnpm build && pnpm sync
+      - run: "pnpm --filter '*' --filter '!ts7-content-mapper-app' run test:typecheck"
+      - run: "pnpm --filter '*' --filter '!ts7-content-mapper-app' run test:tsc"
+
+  type-tests-ts7:
+    name: "Type Tests (TS 7: ${{ matrix.typescript }})"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        typescript:
+          - "next"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+      - run: pnpm reset
+      - name: Use TypeScript ${{ matrix.typescript }}
+        run: pnpm --filter ts7-content-mapper-app up "typescript@${{ matrix.typescript }}" && pnpm build && pnpm sync
+      - run: pnpm --filter ts7-content-mapper-app run test:typecheck
+      - run: pnpm --filter ts7-content-mapper-app run test:tsc
 
   test:
     name: "Test (TS ${{ matrix.typescript }})"
@@ -70,7 +91,8 @@ jobs:
           cache: "pnpm"
       - run: pnpm reset
       - name: Use TypeScript ${{ matrix.typescript }}.x
-        run: pnpm up -r "typescript@${{ matrix.typescript }}" && pnpm build && pnpm sync
+        # ts7-content-mapper-app pins a TypeScript 7 nightly; don't downgrade it
+        run: pnpm up -r --filter '!ts7-content-mapper-app' "typescript@${{ matrix.typescript }}" && pnpm build && pnpm sync
       - name: Run Tests
         uses: coactions/setup-xvfb@v1
         with:
