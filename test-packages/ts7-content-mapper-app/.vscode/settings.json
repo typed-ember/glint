@@ -1,5 +1,6 @@
 {
-  // TypeScript 7 (the native preview extension) must serve this app, so that
-  // .gts and .gjs go through the content mapper instead of Glint.
+  // TypeScript 7 must serve this app, so that .gts and .gjs go through the
+  // content mapper instead of Glint. The TypeScript 7 Nightly extension must
+  // also be installed, because only its nightly build supports content mappers.
   "js/ts.experimental.useTsgo": true
 }

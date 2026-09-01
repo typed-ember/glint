@@ -516,9 +516,10 @@ function resolveWorkspaceEmberTscServerPath(resolutionDir: string): string | und
   }
 }
 
-const NATIVE_PREVIEW_EXTENSION_ID = 'TypeScriptTeam.native-preview';
+const TYPESCRIPT_7_EXTENSION_ID = 'TypeScriptTeam.native-preview';
+const TYPESCRIPT_7_NIGHTLY_EXTENSION_ID = 'TypeScriptTeam.vscode-typescript-nightly';
 
-interface NativePreviewApi {
+interface TypeScript7Api {
   registerContentMappers?: (
     contributorId: string,
     contributions: ReadonlyArray<{ extensions: ReadonlyArray<string> }>,
@@ -531,31 +532,45 @@ interface NativePreviewApi {
  * content-mapped `.gts` file never reaches the server and gets no hover,
  * completions, or diagnostics in the editor. Registering also lets the server
  * discover the project's tsconfig from a `.gts` file alone.
+ *
+ * The registration API belongs to the TypeScript 7 extension. The TypeScript 7
+ * Nightly extension has no code of its own: it only ships a nightly build that
+ * the TypeScript 7 extension runs instead of its bundled one. Content mappers
+ * need that nightly build, so Glint requires the Nightly to be installed and
+ * registers through the TypeScript 7 extension's API.
  */
 async function registerContentMapperContribution(
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel,
 ): Promise<void> {
-  const nativePreview = vscode.extensions.getExtension<NativePreviewApi | undefined>(
-    NATIVE_PREVIEW_EXTENSION_ID,
+  const typeScript7 = vscode.extensions.getExtension<TypeScript7Api | undefined>(
+    TYPESCRIPT_7_EXTENSION_ID,
   );
-  if (!nativePreview) {
+  if (!typeScript7) {
     outputChannel.appendLine(
-      `[Activation] The TypeScript (Native Preview) extension (${NATIVE_PREVIEW_EXTENSION_ID}) is not installed, ` +
+      `[Activation] The TypeScript 7 extension (${TYPESCRIPT_7_EXTENSION_ID}) is not installed, ` +
         `so .gts and .gjs files will not get TypeScript 7 language features.`,
     );
     return;
   }
 
+  if (!vscode.extensions.getExtension(TYPESCRIPT_7_NIGHTLY_EXTENSION_ID)) {
+    outputChannel.appendLine(
+      `[Activation] The TypeScript 7 Nightly extension (${TYPESCRIPT_7_NIGHTLY_EXTENSION_ID}) is not installed. ` +
+        `Content mappers need its nightly build, so .gts and .gjs files will not get TypeScript 7 language features.`,
+    );
+    return;
+  }
+
   try {
-    const api = await nativePreview.activate();
+    const api = await typeScript7.activate();
     const registration = api?.registerContentMappers?.(V2_EXTENSION_ID, [
       { extensions: ['.gts', '.gjs'] },
     ]);
 
     if (!registration) {
       outputChannel.appendLine(
-        `[Activation] The installed TypeScript (Native Preview) build does not support content mapper ` +
+        `[Activation] The installed TypeScript 7 extension does not support content mapper ` +
           `registration; a build newer than 2026-08-19 is required for .gts and .gjs language features.`,
       );
       return;
@@ -563,11 +578,11 @@ async function registerContentMapperContribution(
 
     context.subscriptions.push(registration);
     outputChannel.appendLine(
-      '[Activation] Registered .gts and .gjs with TypeScript (Native Preview) for content mapper support.',
+      '[Activation] Registered .gts and .gjs with TypeScript 7 for content mapper support.',
     );
   } catch (error) {
     outputChannel.appendLine(
-      `[Activation] Registering with TypeScript (Native Preview) failed: ${
+      `[Activation] Registering with TypeScript 7 failed: ${
         error instanceof Error ? error.message : String(error)
       }`,
     );
