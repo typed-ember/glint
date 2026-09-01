@@ -16,6 +16,7 @@
       ],
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+        // "--extensionDevelopmentPath=${env:HOME}/.vscode/extensions/lifeart.vscode-glimmer-syntax-1.0.47",
         // Disable v1 vscode glint
         "--disable-extension",
         "typed-ember.glint-vscode",
@@ -23,6 +24,39 @@
         "--disable-extensions",
         "${workspaceFolder}/packages/vscode/__fixtures__/ember-app",
         // "${workspaceFolder}/test-packages/ts-gts-7-1-app/",
+      ]
+    },
+    {
+      // Runs the extension against a TypeScript 7 app that type-checks .gts/.gjs
+      // through ember-content-mapper. The extension must stand down here: no
+      // language server, no status bar item, only registering the file
+      // extensions with the TypeScript 7 extension. Two extensions must be
+      // installed: TypeScriptTeam.native-preview (TypeScript 7) and
+      // TypeScriptTeam.vscode-typescript-nightly (TypeScript 7 Nightly), whose
+      // nightly build is what supports content mappers. The app's
+      // .vscode/settings.json turns TypeScript 7 on.
+      // Same prerequisites as above: `tsc --build --watch` at the root and
+      // `pnpm bundle:watch` in packages/vscode.
+      "name": "Debug Extension (TypeScript 7, content mapper)",
+      "type": "extensionHost",
+      "request": "launch",
+      "autoAttachChildProcesses": true,
+      "runtimeExecutable": "${execPath}",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js",
+        "!**/node_modules/**"
+      ],
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+        // "--extensionDevelopmentPath=${env:HOME}/.vscode/extensions/lifeart.vscode-glimmer-syntax-1.0.47",
+        // Both marketplace builds would run beside the development build.
+        // `--disable-extensions` is not used because it would also disable
+        // the TypeScript 7 and TypeScript 7 Nightly extensions.
+        "--disable-extension",
+        "typed-ember.glint-vscode",
+        "--disable-extension",
+        "typed-ember.glint2-vscode",
+        "${workspaceFolder}/test-packages/ts7-content-mapper-app"
       ]
     },
     {
@@ -36,5 +70,5 @@
         "!**/node_modules/**"
       ],
     }
-  ]
+    ]
 }

@@ -1,0 +1,56 @@
+{
+  "name": "ts7-content-mapper-app",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "imports": {
+    "#app/*": "./app/*",
+    "#config": "./app/config.ts",
+    "#components/*": "./app/components/*",
+    "#services/*": "./app/services/*",
+    "#test-helpers/*": "./tests/helpers/*",
+    "#utils/*": "./app/utils/*"
+  },
+  "exports": {
+    "./tests/*": "./tests/*",
+    "./*": "./app/*"
+  },
+  "scripts": {
+    "test": "echo 'no standalone test within this project'",
+    "test:typecheck": "tsc --noEmit --runExternalCode",
+    "test:tsc": "echo 'no standalone tsc within this project'"
+  },
+  "dependenciesMeta": {
+    "@glint/ember-tsc": {
+      "injected": true
+    },
+    "@glint/template": {
+      "injected": true
+    }
+  },
+  "devDependencies": {
+    "@ember/app-tsconfig": "2.0.0",
+    "@ember/test-helpers": "5.4.3",
+    "@ember/test-waiters": "4.1.2",
+    "@embroider/core": "4.6.3",
+    "@embroider/macros": "1.20.6",
+    "@embroider/router": "3.0.6",
+    "@glimmer/component": "2.1.1",
+    "@glint/ember-tsc": "workspace:*",
+    "@glint/template": "workspace:*",
+    "@types/qunit": "2.19.14",
+    "decorator-transforms": "2.4.0",
+    "ember-content-mapper": "0.3.1",
+    "ember-modifier": "^4.3.0",
+    "ember-qunit": "9.1.0",
+    "ember-source": "7.2.0",
+    "qunit": "2.26.0",
+    "qunit-dom": "3.5.0",
+    "typescript": "7.1.0-dev.20260901.1",
+    "vite": "8.2.2"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

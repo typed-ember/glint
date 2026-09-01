@@ -1,0 +1,23 @@
+{
+  "extends": "@ember/app-tsconfig",
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "types": ["@embroider/core/virtual", "vite/client"],
+    // The injected `@glint/ember-tsc` augments these two packages, and in this
+    // monorepo it reaches them through pnpm's hoisted copies, which are
+    // different instances from the ones this app installs. TypeScript then
+    // sees two modules and the augmentations miss. A real app has one copy of
+    // each, so this only exists to make the fixture resolve like a real app.
+    "paths": {
+      "@glimmer/component": ["./node_modules/@glimmer/component/dist/index.d.ts"],
+      "ember-modifier": ["./node_modules/ember-modifier/declarations/index.d.ts"]
+    }
+  },
+  "contentMappers": [
+    {
+      "package": "ember-content-mapper",
+      "extensions": [".gts", ".gjs"]
+    }
+  ]
+}
