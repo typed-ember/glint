@@ -16,7 +16,7 @@
       ],
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-        "--extensionDevelopmentPath=${env:HOME}/.vscode/extensions/lifeart.vscode-glimmer-syntax-1.0.47",
+        // "--extensionDevelopmentPath=${env:HOME}/.vscode/extensions/lifeart.vscode-glimmer-syntax-1.0.47",
         // Disable v1 vscode glint
         "--disable-extension",
         "typed-ember.glint-vscode",
@@ -48,7 +48,7 @@
       ],
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-        "--extensionDevelopmentPath=${env:HOME}/.vscode/extensions/lifeart.vscode-glimmer-syntax-1.0.47",
+        // "--extensionDevelopmentPath=${env:HOME}/.vscode/extensions/lifeart.vscode-glimmer-syntax-1.0.47",
         // Both marketplace builds would run beside the development build.
         // `--disable-extensions` is not used because it would also disable
         // the TypeScript 7 and TypeScript 7 Nightly extensions.
