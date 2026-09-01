@@ -26,6 +26,35 @@
       ]
     },
     {
+      // Runs the extension against a TypeScript 7 app that type-checks .gts/.gjs
+      // through ember-content-mapper. The extension must stand down here: no
+      // language server, no status bar item, only registering the file
+      // extensions with TypeScriptTeam.native-preview. That extension must be
+      // installed, and the app's .vscode/settings.json turns TypeScript 7 on.
+      // Same prerequisites as above: `tsc --build --watch` at the root and
+      // `pnpm bundle:watch` in packages/vscode.
+      "name": "Debug Extension (TypeScript 7, content mapper)",
+      "type": "extensionHost",
+      "request": "launch",
+      "autoAttachChildProcesses": true,
+      "runtimeExecutable": "${execPath}",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js",
+        "!**/node_modules/**"
+      ],
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+        // Both marketplace builds would run beside the development build.
+        // `--disable-extensions` is not used because it would also disable
+        // TypeScriptTeam.native-preview.
+        "--disable-extension",
+        "typed-ember.glint-vscode",
+        "--disable-extension",
+        "typed-ember.glint2-vscode",
+        "${input:typescript7App}"
+      ]
+    },
+    {
       "name": "Attach to TS Server",
       "type": "node",
       "request": "attach",
@@ -35,6 +64,14 @@
         "${workspaceFolder}/**/*.js",
         "!**/node_modules/**"
       ],
+    }
+    ],
+  "inputs": [
+    {
+      "id": "typescript7App",
+      "type": "promptString",
+      "description": "Path to a TypeScript 7 app that uses ember-content-mapper",
+      "default": "${env:HOME}/Development/NullVoxPopuli/ember-content-mapper/examples/nvp-app"
     }
   ]
 }
