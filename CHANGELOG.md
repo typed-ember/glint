@@ -1,5 +1,23 @@
 # Changelog
 
+## Release (2026-09-02)
+
+
+
+#### :bug: Bug Fix
+* [#1244](https://github.com/typed-ember/glint/pull/1244) VS Code extension: discover the content mapper API and show the TypeScript version ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+* [#1241](https://github.com/typed-ember/glint/pull/1241) VS Code extension: stand down when TypeScript 7 is enabled ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### :house: Internal
+* [#1245](https://github.com/typed-ember/glint/pull/1245) Release 1.4.2 (extension) ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### :present: Additional updates
+* [#1243](https://github.com/typed-ember/glint/pull/1243) Prepare release 1.4.1 (extension) ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 2
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-08-31)
 
 * @glint/ember-tsc 1.11.4 (patch)
