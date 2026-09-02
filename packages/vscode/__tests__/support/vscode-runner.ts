@@ -8,7 +8,7 @@ import Mocha = require('mocha');
 export function run(
   runner: unknown,
   callback: (error: unknown, failures?: number) => void,
-  testSubfolder: 'language-server-tests' | 'ts-plugin-tests',
+  testSubfolder: 'language-server-tests' | 'ts-plugin-tests' | 'ts7-tests',
 ): void {
   try {
     let mocha = new Mocha({ color: true, slow: 3_000, timeout: 30_000 });
