@@ -90,9 +90,13 @@ export const { activate, deactivate } = defineExtension(() => {
         `ember-content-mapper (https://github.com/NullVoxPopuli/ember-content-mapper) to "contentMappers" ` +
         `in tsconfig.json and run tsc with --runExternalCode.`,
     );
-    registerTypeScript7LanguageStatus(context, outputChannel, getLibraryPathSetting());
-    void registerContentMapperContribution(context, outputChannel);
-    return;
+    const version = registerTypeScript7LanguageStatus(
+      context,
+      outputChannel,
+      getLibraryPathSetting(),
+    );
+    const mode = registerContentMapperContribution(context, outputChannel);
+    return { typescript7: { version, mode } };
   }
 
   prepareBuiltinTypeScriptExtension();
@@ -535,7 +539,7 @@ function registerTypeScript7LanguageStatus(
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel,
   libraryPath: string,
-): void {
+): Promise<string | undefined> {
   context.subscriptions.push(
     vscode.commands.registerCommand(TYPESCRIPT_7_SHOW_MENU_COMMAND, () =>
       showTypeScript7Menu(outputChannel),
@@ -548,9 +552,10 @@ function registerTypeScript7LanguageStatus(
   );
   status.name = 'TypeScript 7';
   status.text = 'TypeScript 7';
-  void resolveTypeScript7Version(libraryPath).then((version) => {
-    if (version) {
-      status.text = `TypeScript ${version}`;
+  const version = resolveTypeScript7Version(libraryPath);
+  void version.then((resolved) => {
+    if (resolved) {
+      status.text = `TypeScript ${resolved}`;
     }
   });
   status.detail = 'TypeScript Language Server';
@@ -594,6 +599,8 @@ function registerTypeScript7LanguageStatus(
     vscode.window.onDidChangeActiveTextEditor(updateProjectStatus),
     vscode.workspace.onDidChangeWorkspaceFolders(updateProjectStatus),
   );
+
+  return version;
 }
 
 function findNearestTypeScriptConfig(resource: vscode.Uri): string | undefined {
@@ -639,18 +646,20 @@ function isInDirectory(pathToCheck: string, directory: string): boolean {
  * completions, or diagnostics in the editor. Registering also lets the server
  * discover the project's tsconfig from a `.gts` file alone.
  */
+/** How `.gts` and `.gjs` reach the native TypeScript server, if at all. */
+type TypeScript7Mode = 'registered' | 'client' | 'none';
+
 async function registerContentMapperContribution(
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel,
-): Promise<void> {
+): Promise<TypeScript7Mode> {
   const owner = await findContentMapperApi();
   if (!owner) {
     outputChannel.appendLine(
       `[Activation] No installed extension exposes TypeScript's content mapper registration API. ` +
         `Glint will run the native TypeScript server for .gts and .gjs itself.`,
     );
-    await startNativeTypeScriptClient(context, outputChannel);
-    return;
+    return startNativeTypeScriptClient(context, outputChannel);
   }
 
   try {
@@ -662,12 +671,14 @@ async function registerContentMapperContribution(
       `[Activation] Registered .gts and .gjs with ${owner.id} for content mapper support. ` +
         CONTENT_MAPPER_INSTALL_ADVICE,
     );
+    return 'registered';
   } catch (error) {
     outputChannel.appendLine(
       `[Activation] Registering .gts and .gjs with ${owner.id} failed: ${
         error instanceof Error ? error.message : String(error)
       }`,
     );
+    return 'none';
   }
 }
 
@@ -684,23 +695,28 @@ let nativeClient: lsp.LanguageClient | undefined;
 async function startNativeTypeScriptClient(
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel,
-): Promise<void> {
-  const host = preferredNativeTypeScriptHost();
-  if (!host) {
+): Promise<TypeScript7Mode> {
+  const executable = resolveTsdkExecutable() ?? preferredNativeTypeScriptHost()?.executable;
+  if (!executable) {
     outputChannel.appendLine(
-      `[Activation] No installed extension ships a native TypeScript build, so .gts and .gjs files ` +
-        `will not get TypeScript 7 language features. ${CONTENT_MAPPER_INSTALL_ADVICE}`,
+      `[Activation] No tsdk path setting resolves to a native TypeScript build and no installed ` +
+        `extension ships one, so .gts and .gjs files will not get TypeScript 7 language features. ` +
+        CONTENT_MAPPER_INSTALL_ADVICE,
     );
-    return;
+    return 'none';
   }
 
   const server: lsp.ServerOptions = {
-    command: host.executable,
+    command: executable,
     args: ['--lsp'],
     transport: lsp.TransportKind.stdio,
   };
+  // No static document selector: once it learns the extensions, the server
+  // registers document sync, diagnostics, hover, and the rest for them itself.
+  // A static selector on top would register each of those twice, so every
+  // edit would reach the server twice and corrupt its copy of the document.
   const client = new lsp.LanguageClient('glint2-typescript7', 'TypeScript 7 (Glint)', server, {
-    documentSelector: languageIds.map((language) => ({ scheme: 'file', language })),
+    documentSelector: [],
     initializationOptions: { runExternalCode: true },
     outputChannel,
   });
@@ -709,22 +725,34 @@ async function startNativeTypeScriptClient(
 
   try {
     await client.start();
+  } catch (error) {
+    outputChannel.appendLine(
+      `[Activation] Starting ${executable} for .gts and .gjs failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+    return 'none';
+  }
+
+  try {
     await client.sendRequest('custom/setContentMapperContributions', {
-      contributions: [{ extensions: ['.gts', '.gjs'] }],
+      contributions: [{ contributorId: V2_EXTENSION_ID, extensions: ['.gts', '.gjs'] }],
       openDocuments: vscode.workspace.textDocuments
         .filter((document) => languageIds.includes(document.languageId))
         .map((document) => ({ uri: document.uri.toString() })),
     });
-    outputChannel.appendLine(
-      `[Activation] Started ${host.executable} for .gts and .gjs. ${CONTENT_MAPPER_INSTALL_ADVICE}`,
-    );
   } catch (error) {
     outputChannel.appendLine(
-      `[Activation] Starting ${host.executable} for .gts and .gjs failed: ${
+      `[Activation] ${executable} rejected the content mapper contribution: ${
         error instanceof Error ? error.message : String(error)
       }`,
     );
   }
+
+  outputChannel.appendLine(
+    `[Activation] Started ${executable} for .gts and .gjs. ${CONTENT_MAPPER_INSTALL_ADVICE}`,
+  );
+  return 'client';
 }
 
 /**
@@ -803,24 +831,26 @@ function hasContentMapperApi(api: unknown): api is ContentMapperApi {
 async function showTypeScript7Menu(outputChannel: vscode.OutputChannel): Promise<void> {
   await findContentMapperApi();
 
-  const commands = await vscode.commands.getCommands(true);
-  const menuCommand = commands.find((command) => /^typescript\.(?:.+\.)?showMenu$/.test(command));
-  if (menuCommand) {
-    await vscode.commands.executeCommand(menuCommand);
-    return;
-  }
-
-  const restart = 'Restart TypeScript 7 for .gts and .gjs';
-  const showOutput = 'Show Glint Output';
-  const selected = await vscode.window.showQuickPick(
-    nativeClient ? [restart, showOutput] : [showOutput],
-    { title: 'TypeScript 7 (Glint)' },
+  const extensionMenu = (await vscode.commands.getCommands(true)).find((command) =>
+    /^typescript\.(?:.+\.)?showMenu$/.test(command),
   );
-  if (selected === restart) {
-    await nativeClient?.restart();
-  } else if (selected === showOutput) {
-    outputChannel.show();
+  const items: Array<{ label: string; run: () => Thenable<unknown> }> = [];
+  if (extensionMenu) {
+    items.push({
+      label: 'TypeScript 7 extension menu',
+      run: () => vscode.commands.executeCommand(extensionMenu),
+    });
   }
+  if (nativeClient) {
+    items.push({
+      label: 'Restart TypeScript 7 for .gts and .gjs',
+      run: () => nativeClient!.restart(),
+    });
+  }
+  items.push({ label: 'Show Glint output', run: () => Promise.resolve(outputChannel.show()) });
+
+  const selected = await vscode.window.showQuickPick(items, { title: 'TypeScript 7 (Glint)' });
+  await selected?.run();
 }
 
 /**
@@ -836,9 +866,9 @@ async function showTypeScript7Menu(outputChannel: vscode.OutputChannel): Promise
  * is the last resort.
  */
 async function resolveTypeScript7Version(libraryPath: string): Promise<string | undefined> {
-  const tsdkVersion = readTsdkPathVersion();
-  if (tsdkVersion) {
-    return tsdkVersion;
+  const tsdk = resolveTsdkPackage();
+  if (tsdk) {
+    return tsdk.version;
   }
 
   const preferred = preferredNativeTypeScriptHost();
@@ -898,12 +928,20 @@ function readExecutableVersion(executable: string): Promise<string | undefined> 
 
 const TSDK_PATH_SETTINGS = ['js/ts.tsdk.path', 'typescript.native-preview.tsdk'];
 
+interface TsdkPackage {
+  packageJsonPath: string;
+  name: string;
+  version: string;
+}
+
 /**
- * The version of a TypeScript package the user pointed the native server at
- * through a tsdk path setting. The setting may name the package directory or
- * its `lib` directory, so the package manifest is looked for in both.
+ * The TypeScript package the user pointed the native server at through a
+ * tsdk path setting, or `undefined` when none is set or none resolves. The
+ * setting names the package directory; its `lib` directory is accepted too.
+ * The path is made real first, because under pnpm the package directory is a
+ * symlink and its platform package only resolves from the real location.
  */
-function readTsdkPathVersion(): string | undefined {
+function resolveTsdkPackage(): TsdkPackage | undefined {
   const configuration = vscode.workspace.getConfiguration();
   for (const setting of TSDK_PATH_SETTINGS) {
     const value = configuration.get<string>(setting);
@@ -916,11 +954,13 @@ function readTsdkPathVersion(): string | undefined {
       path.isAbsolute(value) || !workspaceRoot ? value : path.resolve(workspaceRoot, value);
     for (const directory of [tsdkPath, path.dirname(tsdkPath)]) {
       try {
-        const manifest = JSON.parse(
-          fs.readFileSync(path.join(directory, 'package.json'), 'utf8'),
-        ) as { version?: unknown };
-        if (typeof manifest.version === 'string') {
-          return manifest.version;
+        const packageJsonPath = fs.realpathSync(path.join(directory, 'package.json'));
+        const manifest = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as {
+          name?: unknown;
+          version?: unknown;
+        };
+        if (typeof manifest.name === 'string' && typeof manifest.version === 'string') {
+          return { packageJsonPath, name: manifest.name, version: manifest.version };
         }
       } catch {
         // Not a package directory; try the parent.
@@ -929,6 +969,35 @@ function readTsdkPathVersion(): string | undefined {
   }
 
   return undefined;
+}
+
+/**
+ * The native executable inside the tsdk package, resolved the way the
+ * package's own `lib/getExePath.js` does: the binary lives in a platform
+ * package named after the package, the platform, and the architecture.
+ */
+function resolveTsdkExecutable(): string | undefined {
+  const tsdk = resolveTsdkPackage();
+  if (!tsdk) {
+    return undefined;
+  }
+
+  const baseName = tsdk.name.startsWith('@') ? tsdk.name.split('/')[1] : tsdk.name;
+  const binName = baseName === 'typescript' ? 'tsc' : 'tsgo';
+  const platformPackage = `@typescript/${baseName}-${process.platform}-${process.arch}`;
+  try {
+    const platformPackageJson = createRequire(tsdk.packageJsonPath).resolve(
+      `${platformPackage}/package.json`,
+    );
+    const executable = path.join(
+      path.dirname(platformPackageJson),
+      'lib',
+      binName + (process.platform === 'win32' ? '.exe' : ''),
+    );
+    return fs.existsSync(executable) ? executable : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /**

@@ -8,5 +8,5 @@
   // `typescript` one, and without it their built-in extension starts its own
   // tsserver beside the native one.
   "js/ts.experimental.useTsgo": true,
-  "js/ts.tsdk.path": "./node_modules/typescript-7"
+  "js/ts.tsdk.path": "./node_modules/typescript"
 }

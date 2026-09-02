@@ -1,5 +1,6 @@
 import { commands, extensions, languages, Range, Uri, ViewColumn, window } from 'vscode';
 import type { Diagnostic } from 'vscode';
+import * as fs from 'fs';
 import * as path from 'path';
 import { describe, afterEach, before, test } from 'mocha';
 import { expect } from 'expect';
@@ -28,19 +29,60 @@ describe('TypeScript 7 stand-down (content mapper mode)', () => {
     expect(registered).not.toContain('glint2.restart-language-server');
   });
 
+  test('serves .gts through the tsdk the workspace points at', async () => {
+    const api = extensions.getExtension(GLINT_EXTENSION_ID)!.exports as {
+      typescript7: { version: Promise<string | undefined>; mode: Promise<string> };
+    };
+    const tsdkManifest = JSON.parse(
+      fs.readFileSync(`${rootDir}/node_modules/typescript/package.json`, 'utf8'),
+    ) as { version: string };
+
+    expect(await api.typescript7.version).toBe(tsdkManifest.version);
+    expect(await api.typescript7.mode).toBe('client');
+  });
+
+  test('the TypeScript 7 extension runs its server for .ts files', async () => {
+    await window.showTextDocument(Uri.file(`${rootDir}/app/utils/format.ts`));
+
+    const host = extensions.all.find(
+      (extension) =>
+        typeof (extension.packageJSON as { main?: unknown }).main === 'string' &&
+        typeof (extension.packageJSON as { bundledTypeScriptVersion?: unknown })
+          .bundledTypeScriptVersion === 'string',
+    );
+    expect(host).toBeDefined();
+    const api = (await host!.activate()) as {
+      initializeAPIConnection?: () => Promise<string>;
+    };
+    // Rejects with "Language server is not running." when it did not start.
+    await waitUntil(
+      () =>
+        api.initializeAPIConnection?.().then(
+          () => true,
+          () => false,
+        ),
+      'TypeScript 7 server running',
+    );
+  });
+
   test('the native server checks .gts templates and .ts files alike', async () => {
     const gtsUri = Uri.file(`${rootDir}/app/components/greeting.gts`);
     const gtsEditor = await window.showTextDocument(gtsUri, { viewColumn: ViewColumn.One });
 
     // `shout` takes a string; hand it a number inside the template.
+    const call = gtsEditor.document.getText().indexOf('{{shout @name}}');
+    expect(call).toBeGreaterThan(-1);
+    const argument = gtsEditor.document.positionAt(call + '{{shout '.length);
     await gtsEditor.edit((edit) => {
-      edit.replace(new Range(16, 12, 16, 17), '123');
+      edit.replace(new Range(argument, argument.translate(0, '@name'.length)), '123');
     });
     const gtsDiagnostic = await waitForDiagnostic(gtsUri, 2345);
     expect(gtsDiagnostic.message).toBe(
       "Argument of type 'number' is not assignable to parameter of type 'string'.",
     );
-    expect(gtsDiagnostic.range).toEqual(new Range(16, 12, 16, 15));
+    expect(gtsDiagnostic.range).toEqual(new Range(argument, argument.translate(0, 3)));
+    // One server, one report: a duplicate here means two clients serve the file.
+    expect(languages.getDiagnostics(gtsUri).filter((d) => d.code === 2345)).toHaveLength(1);
 
     const tsUri = Uri.file(`${rootDir}/app/utils/format.ts`);
     const tsEditor = await window.showTextDocument(tsUri, { viewColumn: ViewColumn.One });
@@ -58,6 +100,16 @@ describe('TypeScript 7 stand-down (content mapper mode)', () => {
 async function waitForDiagnostic(uri: Uri, code: number): Promise<Diagnostic> {
   const find = (): Diagnostic | undefined =>
     languages.getDiagnostics(uri).find((diagnostic) => diagnostic.code === code);
-  await waitUntil(find, `diagnostic ${code} for ${path.basename(uri.fsPath)}`);
+  await waitUntil(
+    find,
+    () =>
+      `diagnostic ${code} for ${path.basename(uri.fsPath)}; saw ${JSON.stringify(
+        languages.getDiagnostics(uri).map((diagnostic) => ({
+          code: diagnostic.code,
+          source: diagnostic.source,
+          message: diagnostic.message,
+        })),
+      )}`,
+  );
   return find()!;
 }
