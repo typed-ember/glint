@@ -890,29 +890,27 @@ function preferredNativeTypeScriptHost(): NativeTypeScriptHost | undefined {
   return hosts.find((host) => host.buildOnly) ?? hosts[0];
 }
 
+const NATIVE_TSC = 'tsc' + (process.platform === 'win32' ? '.exe' : '');
+
 function findNativeTypeScriptHosts(): NativeTypeScriptHost[] {
-  const suffix = process.platform === 'win32' ? '.exe' : '';
   const hosts: NativeTypeScriptHost[] = [];
   for (const extension of vscode.extensions.all) {
-    for (const baseName of ['tsgo', 'tsc']) {
-      const executable = path.join(extension.extensionPath, 'lib', baseName + suffix);
-      if (!fs.existsSync(executable)) {
-        continue;
-      }
-      const manifest = extension.packageJSON as {
-        main?: unknown;
-        bundledTypeScriptVersion?: unknown;
-      };
-      hosts.push({
-        executable,
-        declaredVersion:
-          typeof manifest.bundledTypeScriptVersion === 'string'
-            ? manifest.bundledTypeScriptVersion
-            : undefined,
-        buildOnly: manifest.main === undefined,
-      });
-      break;
+    const executable = path.join(extension.extensionPath, 'lib', NATIVE_TSC);
+    if (!fs.existsSync(executable)) {
+      continue;
     }
+    const manifest = extension.packageJSON as {
+      main?: unknown;
+      bundledTypeScriptVersion?: unknown;
+    };
+    hosts.push({
+      executable,
+      declaredVersion:
+        typeof manifest.bundledTypeScriptVersion === 'string'
+          ? manifest.bundledTypeScriptVersion
+          : undefined,
+      buildOnly: manifest.main === undefined,
+    });
   }
   return hosts;
 }
@@ -972,28 +970,22 @@ function resolveTsdkPackage(): TsdkPackage | undefined {
 }
 
 /**
- * The native executable inside the tsdk package, resolved the way the
- * package's own `lib/getExePath.js` does: the binary lives in a platform
- * package named after the package, the platform, and the architecture.
+ * The native `tsc` inside the tsdk package, resolved the way the package's
+ * own `lib/getExePath.js` does: the binary lives in a platform package named
+ * after the platform and the architecture. Only the `typescript` package
+ * qualifies; older native packages predate content mapper support.
  */
 function resolveTsdkExecutable(): string | undefined {
   const tsdk = resolveTsdkPackage();
-  if (!tsdk) {
+  if (tsdk?.name !== 'typescript') {
     return undefined;
   }
 
-  const baseName = tsdk.name.startsWith('@') ? tsdk.name.split('/')[1] : tsdk.name;
-  const binName = baseName === 'typescript' ? 'tsc' : 'tsgo';
-  const platformPackage = `@typescript/${baseName}-${process.platform}-${process.arch}`;
   try {
     const platformPackageJson = createRequire(tsdk.packageJsonPath).resolve(
-      `${platformPackage}/package.json`,
+      `@typescript/typescript-${process.platform}-${process.arch}/package.json`,
     );
-    const executable = path.join(
-      path.dirname(platformPackageJson),
-      'lib',
-      binName + (process.platform === 'win32' ? '.exe' : ''),
-    );
+    const executable = path.join(path.dirname(platformPackageJson), 'lib', NATIVE_TSC);
     return fs.existsSync(executable) ? executable : undefined;
   } catch {
     return undefined;
