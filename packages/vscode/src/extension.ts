@@ -6,6 +6,7 @@ import {
   middleware,
 } from '@volar/vscode';
 import * as lsp from '@volar/vscode/node';
+import { execFile } from 'node:child_process';
 import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
@@ -62,7 +63,7 @@ const languageIds = ['glimmer-js', 'glimmer-ts'];
 const TS_PLUGIN_NAME = 'glint-tsserver-plugin-pack';
 const EMBER_TSC_SOURCE_SETTING = 'glint2.emberTscSource';
 const SELECT_EMBER_TSC_COMMAND = 'glint2.select-ember-tsc-source';
-const TYPESCRIPT_7_SHOW_MENU_COMMAND = 'typescript.native-preview.showMenu';
+const TYPESCRIPT_7_SHOW_MENU_COMMAND = 'glint2.typescript7.showMenu';
 
 type EmberTscSource = 'auto' | 'workspace' | 'bundled';
 
@@ -89,9 +90,13 @@ export const { activate, deactivate } = defineExtension(() => {
         `ember-content-mapper (https://github.com/NullVoxPopuli/ember-content-mapper) to "contentMappers" ` +
         `in tsconfig.json and run tsc with --runExternalCode.`,
     );
-    registerTypeScript7LanguageStatus(context);
-    void registerContentMapperContribution(context, outputChannel);
-    return;
+    const version = registerTypeScript7LanguageStatus(
+      context,
+      outputChannel,
+      getLibraryPathSetting(),
+    );
+    const mode = registerContentMapperContribution(context, outputChannel);
+    return { typescript7: { version, mode } };
   }
 
   prepareBuiltinTypeScriptExtension();
@@ -518,23 +523,41 @@ function resolveWorkspaceEmberTscServerPath(resolutionDir: string): string | und
   }
 }
 
-const TYPESCRIPT_7_EXTENSION_ID = 'TypeScriptTeam.native-preview';
-const TYPESCRIPT_7_NIGHTLY_EXTENSION_ID = 'TypeScriptTeam.vscode-typescript-nightly';
-
-interface TypeScript7Api {
-  registerContentMappers?: (
+interface ContentMapperApi {
+  registerContentMappers: (
     contributorId: string,
     contributions: ReadonlyArray<{ extensions: ReadonlyArray<string> }>,
   ) => vscode.Disposable;
 }
 
-function registerTypeScript7LanguageStatus(context: vscode.ExtensionContext): void {
+const CONTENT_MAPPER_INSTALL_ADVICE =
+  `Content mappers need a TypeScript 7 build newer than 2026-08-19. Until TypeScript 7.1 is released, ` +
+  `install the TypeScript team's nightly TypeScript 7 extension; from TypeScript 7.1 on, the TypeScript 7 ` +
+  `extension alone is enough.`;
+
+function registerTypeScript7LanguageStatus(
+  context: vscode.ExtensionContext,
+  outputChannel: vscode.OutputChannel,
+  libraryPath: string,
+): Promise<string | undefined> {
+  context.subscriptions.push(
+    vscode.commands.registerCommand(TYPESCRIPT_7_SHOW_MENU_COMMAND, () =>
+      showTypeScript7Menu(outputChannel),
+    ),
+  );
+
   const status = vscode.languages.createLanguageStatusItem(
     'glint2.typescript7.status',
     languageIds,
   );
   status.name = 'TypeScript 7';
   status.text = 'TypeScript 7';
+  const version = resolveTypeScript7Version(libraryPath);
+  void version.then((resolved) => {
+    if (resolved) {
+      status.text = `TypeScript ${resolved}`;
+    }
+  });
   status.detail = 'TypeScript Language Server';
   status.command = {
     title: 'Show Menu',
@@ -576,6 +599,8 @@ function registerTypeScript7LanguageStatus(context: vscode.ExtensionContext): vo
     vscode.window.onDidChangeActiveTextEditor(updateProjectStatus),
     vscode.workspace.onDidChangeWorkspaceFolders(updateProjectStatus),
   );
+
+  return version;
 }
 
 function findNearestTypeScriptConfig(resource: vscode.Uri): string | undefined {
@@ -620,60 +645,350 @@ function isInDirectory(pathToCheck: string, directory: string): boolean {
  * content-mapped `.gts` file never reaches the server and gets no hover,
  * completions, or diagnostics in the editor. Registering also lets the server
  * discover the project's tsconfig from a `.gts` file alone.
- *
- * The registration API belongs to the TypeScript 7 extension. The TypeScript 7
- * Nightly extension has no code of its own: it only ships a nightly build that
- * the TypeScript 7 extension runs instead of its bundled one. Content mappers
- * need that nightly build, so Glint requires the Nightly to be installed and
- * registers through the TypeScript 7 extension's API.
  */
+/** How `.gts` and `.gjs` reach the native TypeScript server, if at all. */
+type TypeScript7Mode = 'registered' | 'client' | 'none';
+
 async function registerContentMapperContribution(
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel,
-): Promise<void> {
-  const typeScript7 = vscode.extensions.getExtension<TypeScript7Api | undefined>(
-    TYPESCRIPT_7_EXTENSION_ID,
-  );
-  if (!typeScript7) {
+): Promise<TypeScript7Mode> {
+  const owner = await findContentMapperApi();
+  if (!owner) {
     outputChannel.appendLine(
-      `[Activation] The TypeScript 7 extension (${TYPESCRIPT_7_EXTENSION_ID}) is not installed, ` +
-        `so .gts and .gjs files will not get TypeScript 7 language features.`,
+      `[Activation] No installed extension exposes TypeScript's content mapper registration API. ` +
+        `Glint will run the native TypeScript server for .gts and .gjs itself.`,
     );
-    return;
-  }
-
-  if (!vscode.extensions.getExtension(TYPESCRIPT_7_NIGHTLY_EXTENSION_ID)) {
-    outputChannel.appendLine(
-      `[Activation] The TypeScript 7 Nightly extension (${TYPESCRIPT_7_NIGHTLY_EXTENSION_ID}) is not installed. ` +
-        `Content mappers need its nightly build, so .gts and .gjs files will not get TypeScript 7 language features.`,
-    );
-    return;
+    return startNativeTypeScriptClient(context, outputChannel);
   }
 
   try {
-    const api = await typeScript7.activate();
-    const registration = api?.registerContentMappers?.(V2_EXTENSION_ID, [
+    const registration = owner.api.registerContentMappers(V2_EXTENSION_ID, [
       { extensions: ['.gts', '.gjs'] },
     ]);
-
-    if (!registration) {
-      outputChannel.appendLine(
-        `[Activation] The installed TypeScript 7 extension does not support content mapper ` +
-          `registration; a build newer than 2026-08-19 is required for .gts and .gjs language features.`,
-      );
-      return;
-    }
-
     context.subscriptions.push(registration);
     outputChannel.appendLine(
-      '[Activation] Registered .gts and .gjs with TypeScript 7 for content mapper support.',
+      `[Activation] Registered .gts and .gjs with ${owner.id} for content mapper support. ` +
+        CONTENT_MAPPER_INSTALL_ADVICE,
     );
+    return 'registered';
   } catch (error) {
     outputChannel.appendLine(
-      `[Activation] Registering with TypeScript 7 failed: ${
+      `[Activation] Registering .gts and .gjs with ${owner.id} failed: ${
         error instanceof Error ? error.message : String(error)
       }`,
     );
+    return 'none';
+  }
+}
+
+let nativeClient: lsp.LanguageClient | undefined;
+
+/**
+ * Runs the native TypeScript server for `.gts` and `.gjs` when no installed
+ * extension can be asked to. This speaks the same protocol the TypeScript 7
+ * extension's client does: `--lsp` over stdio, `runExternalCode` so the
+ * server may run the content mapper from tsconfig, and one custom request
+ * that names the extensions to serve. It uses the build the TypeScript 7
+ * extension would prefer, so `.ts` and `.gts` files see the same version.
+ */
+async function startNativeTypeScriptClient(
+  context: vscode.ExtensionContext,
+  outputChannel: vscode.OutputChannel,
+): Promise<TypeScript7Mode> {
+  const executable = resolveTsdkExecutable() ?? preferredNativeTypeScriptHost()?.executable;
+  if (!executable) {
+    outputChannel.appendLine(
+      `[Activation] No tsdk path setting resolves to a native TypeScript build and no installed ` +
+        `extension ships one, so .gts and .gjs files will not get TypeScript 7 language features. ` +
+        CONTENT_MAPPER_INSTALL_ADVICE,
+    );
+    return 'none';
+  }
+
+  const server: lsp.ServerOptions = {
+    command: executable,
+    args: ['--lsp'],
+    transport: lsp.TransportKind.stdio,
+  };
+  // No static document selector: once it learns the extensions, the server
+  // registers document sync, diagnostics, hover, and the rest for them itself.
+  // A static selector on top would register each of those twice, so every
+  // edit would reach the server twice and corrupt its copy of the document.
+  const client = new lsp.LanguageClient('glint2-typescript7', 'TypeScript 7 (Glint)', server, {
+    documentSelector: [],
+    initializationOptions: { runExternalCode: true },
+    outputChannel,
+  });
+  nativeClient = client;
+  context.subscriptions.push(client);
+
+  try {
+    await client.start();
+  } catch (error) {
+    outputChannel.appendLine(
+      `[Activation] Starting ${executable} for .gts and .gjs failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+    return 'none';
+  }
+
+  try {
+    await client.sendRequest('custom/setContentMapperContributions', {
+      contributions: [{ contributorId: V2_EXTENSION_ID, extensions: ['.gts', '.gjs'] }],
+      openDocuments: vscode.workspace.textDocuments
+        .filter((document) => languageIds.includes(document.languageId))
+        .map((document) => ({ uri: document.uri.toString() })),
+    });
+  } catch (error) {
+    outputChannel.appendLine(
+      `[Activation] ${executable} rejected the content mapper contribution: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+
+  outputChannel.appendLine(
+    `[Activation] Started ${executable} for .gts and .gjs. ${CONTENT_MAPPER_INSTALL_ADVICE}`,
+  );
+  return 'client';
+}
+
+/**
+ * The extension that exposes `registerContentMappers`, if any is installed.
+ *
+ * Which extension owns the API is not stable, and its id has changed before,
+ * so no id is assumed. An already active extension that exports the API wins.
+ * Otherwise every extension that looks like a TypeScript 7 host by its
+ * manifest is activated and checked. The built-in TypeScript extension is
+ * left alone: activating it spawns a tsserver that Glint stands down from.
+ */
+async function findContentMapperApi(): Promise<{ id: string; api: ContentMapperApi } | undefined> {
+  for (const extension of vscode.extensions.all) {
+    if (extension.isActive && hasContentMapperApi(extension.exports)) {
+      return { id: extension.id, api: extension.exports };
+    }
+  }
+
+  for (const extension of vscode.extensions.all) {
+    if (extension.isActive || !looksLikeTypeScript7Extension(extension)) {
+      continue;
+    }
+
+    try {
+      const api: unknown = await extension.activate();
+      if (hasContentMapperApi(api)) {
+        return { id: extension.id, api };
+      }
+    } catch {
+      // An extension that fails to activate cannot own the API.
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Whether an extension's manifest marks it as a TypeScript 7 host. Extensions
+ * that ship a native TypeScript build declare `bundledTypeScriptVersion`, and
+ * the one that runs it contributes the `experimental.useTsgo` setting.
+ */
+function looksLikeTypeScript7Extension(extension: vscode.Extension<unknown>): boolean {
+  const manifest = extension.packageJSON as {
+    bundledTypeScriptVersion?: unknown;
+    contributes?: { configuration?: unknown };
+  };
+  if (typeof manifest.bundledTypeScriptVersion === 'string') {
+    return true;
+  }
+
+  const configuration = manifest.contributes?.configuration;
+  const sections = Array.isArray(configuration) ? configuration : [configuration];
+  return sections.some((section) => {
+    const properties = (section as { properties?: Record<string, unknown> } | undefined)
+      ?.properties;
+    return (
+      properties !== undefined &&
+      Object.keys(properties).some((key) => key.endsWith('.experimental.useTsgo'))
+    );
+  });
+}
+
+function hasContentMapperApi(api: unknown): api is ContentMapperApi {
+  return (
+    typeof api === 'object' &&
+    api !== null &&
+    typeof (api as { registerContentMappers?: unknown }).registerContentMappers === 'function'
+  );
+}
+
+/**
+ * Opens the TypeScript 7 extension's menu from Glint's language status item.
+ * That menu command is registered at runtime by whichever extension hosts
+ * TypeScript 7, so it is looked up when clicked rather than assumed by id.
+ */
+async function showTypeScript7Menu(outputChannel: vscode.OutputChannel): Promise<void> {
+  await findContentMapperApi();
+
+  const extensionMenu = (await vscode.commands.getCommands(true)).find((command) =>
+    /^typescript\.(?:.+\.)?showMenu$/.test(command),
+  );
+  const items: Array<{ label: string; run: () => Thenable<unknown> }> = [];
+  if (extensionMenu) {
+    items.push({
+      label: 'TypeScript 7 extension menu',
+      run: () => vscode.commands.executeCommand(extensionMenu),
+    });
+  }
+  if (nativeClient) {
+    items.push({
+      label: 'Restart TypeScript 7 for .gts and .gjs',
+      run: () => nativeClient!.restart(),
+    });
+  }
+  items.push({ label: 'Show Glint output', run: () => Promise.resolve(outputChannel.show()) });
+
+  const selected = await vscode.window.showQuickPick(items, { title: 'TypeScript 7 (Glint)' });
+  await selected?.run();
+}
+
+/**
+ * The TypeScript version the native language server runs, for the language
+ * status item, or `undefined` when it cannot be determined.
+ *
+ * This mirrors how the TypeScript 7 extension picks its executable. A
+ * `js/ts.tsdk.path` setting wins. Otherwise, extensions that ship a native
+ * build under `lib/` are candidates, and one that only contributes a build
+ * (no entry point, like the nightly) is run in preference to the bundled one.
+ * Newer manifests declare the version as `bundledTypeScriptVersion`; older
+ * ones do not, so the executable is asked. The workspace's typescript package
+ * is the last resort.
+ */
+async function resolveTypeScript7Version(libraryPath: string): Promise<string | undefined> {
+  const tsdk = resolveTsdkPackage();
+  if (tsdk) {
+    return tsdk.version;
+  }
+
+  const preferred = preferredNativeTypeScriptHost();
+  if (preferred) {
+    return preferred.declaredVersion ?? (await readExecutableVersion(preferred.executable));
+  }
+
+  return detectWorkspaceTypeScriptVersion(libraryPath);
+}
+
+interface NativeTypeScriptHost {
+  executable: string;
+  declaredVersion?: string;
+  buildOnly: boolean;
+}
+
+function preferredNativeTypeScriptHost(): NativeTypeScriptHost | undefined {
+  const hosts = findNativeTypeScriptHosts();
+  return hosts.find((host) => host.buildOnly) ?? hosts[0];
+}
+
+const NATIVE_TSC = 'tsc' + (process.platform === 'win32' ? '.exe' : '');
+
+function findNativeTypeScriptHosts(): NativeTypeScriptHost[] {
+  const hosts: NativeTypeScriptHost[] = [];
+  for (const extension of vscode.extensions.all) {
+    const executable = path.join(extension.extensionPath, 'lib', NATIVE_TSC);
+    if (!fs.existsSync(executable)) {
+      continue;
+    }
+    const manifest = extension.packageJSON as {
+      main?: unknown;
+      bundledTypeScriptVersion?: unknown;
+    };
+    hosts.push({
+      executable,
+      declaredVersion:
+        typeof manifest.bundledTypeScriptVersion === 'string'
+          ? manifest.bundledTypeScriptVersion
+          : undefined,
+      buildOnly: manifest.main === undefined,
+    });
+  }
+  return hosts;
+}
+
+function readExecutableVersion(executable: string): Promise<string | undefined> {
+  return new Promise((resolve) => {
+    execFile(executable, ['--version'], { timeout: 5_000 }, (error, stdout) => {
+      const match = error ? undefined : /\d+\.\d+\.\d+\S*/.exec(stdout);
+      resolve(match?.[0]);
+    });
+  });
+}
+
+const TSDK_PATH_SETTINGS = ['js/ts.tsdk.path', 'typescript.native-preview.tsdk'];
+
+interface TsdkPackage {
+  packageJsonPath: string;
+  name: string;
+  version: string;
+}
+
+/**
+ * The TypeScript package the user pointed the native server at through a
+ * tsdk path setting, or `undefined` when none is set or none resolves. The
+ * setting names the package directory; its `lib` directory is accepted too.
+ * The path is made real first, because under pnpm the package directory is a
+ * symlink and its platform package only resolves from the real location.
+ */
+function resolveTsdkPackage(): TsdkPackage | undefined {
+  const configuration = vscode.workspace.getConfiguration();
+  for (const setting of TSDK_PATH_SETTINGS) {
+    const value = configuration.get<string>(setting);
+    if (!value) {
+      continue;
+    }
+
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    const tsdkPath =
+      path.isAbsolute(value) || !workspaceRoot ? value : path.resolve(workspaceRoot, value);
+    for (const directory of [tsdkPath, path.dirname(tsdkPath)]) {
+      try {
+        const packageJsonPath = fs.realpathSync(path.join(directory, 'package.json'));
+        const manifest = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as {
+          name?: unknown;
+          version?: unknown;
+        };
+        if (typeof manifest.name === 'string' && typeof manifest.version === 'string') {
+          return { packageJsonPath, name: manifest.name, version: manifest.version };
+        }
+      } catch {
+        // Not a package directory; try the parent.
+      }
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * The native `tsc` inside the tsdk package, resolved the way the package's
+ * own `lib/getExePath.js` does: the binary lives in a platform package named
+ * after the platform and the architecture. Only the `typescript` package
+ * qualifies; older native packages predate content mapper support.
+ */
+function resolveTsdkExecutable(): string | undefined {
+  const tsdk = resolveTsdkPackage();
+  if (tsdk?.name !== 'typescript') {
+    return undefined;
+  }
+
+  try {
+    const platformPackageJson = createRequire(tsdk.packageJsonPath).resolve(
+      `@typescript/typescript-${process.platform}-${process.arch}/package.json`,
+    );
+    const executable = path.join(path.dirname(platformPackageJson), 'lib', NATIVE_TSC);
+    return fs.existsSync(executable) ? executable : undefined;
+  } catch {
+    return undefined;
   }
 }
 

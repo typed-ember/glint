@@ -2,7 +2,10 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function waitUntil(callback: () => unknown, message?: string): Promise<void> {
+export async function waitUntil(
+  callback: () => unknown,
+  message?: string | (() => string),
+): Promise<void> {
   let start = Date.now();
   while (Date.now() - start < 15_000) {
     if (await callback()) {
@@ -12,5 +15,7 @@ export async function waitUntil(callback: () => unknown, message?: string): Prom
     await sleep(500);
   }
 
-  throw new Error(`waitUntil condition never came true (${message})`);
+  throw new Error(
+    `waitUntil condition never came true (${typeof message === 'function' ? message() : message})`,
+  );
 }

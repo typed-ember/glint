@@ -30,11 +30,10 @@
       // Runs the extension against a TypeScript 7 app that type-checks .gts/.gjs
       // through ember-content-mapper. The extension must stand down here: no
       // language server, no status bar item, only registering the file
-      // extensions with the TypeScript 7 extension. Two extensions must be
-      // installed: TypeScriptTeam.native-preview (TypeScript 7) and
-      // TypeScriptTeam.vscode-typescript-nightly (TypeScript 7 Nightly), whose
-      // nightly build is what supports content mappers. The app's
-      // .vscode/settings.json turns TypeScript 7 on.
+      // extensions with the TypeScript 7 extension. Install the TypeScript
+      // team's TypeScript 7 extension and, until TypeScript 7.1 is released,
+      // its nightly companion, whose build is what supports content mappers.
+      // The app's .vscode/settings.json turns TypeScript 7 on.
       // Same prerequisites as above: `tsc --build --watch` at the root and
       // `pnpm bundle:watch` in packages/vscode.
       "name": "Debug Extension (TypeScript 7, content mapper)",

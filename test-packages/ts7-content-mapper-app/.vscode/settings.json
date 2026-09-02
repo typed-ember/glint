@@ -1,6 +1,12 @@
 {
   // TypeScript 7 must serve this app, so that .gts and .gjs go through the
-  // content mapper instead of Glint. The TypeScript 7 Nightly extension must
-  // also be installed, because only its nightly build supports content mappers.
-  "js/ts.experimental.useTsgo": true
+  // content mapper instead of Glint. Until TypeScript 7.1 is released, the
+  // TypeScript team's nightly extension must also be installed, because only
+  // its build supports content mappers.
+  //
+  // Both setting names are set: older VS Code builds read only the
+  // `typescript` one, and without it their built-in extension starts its own
+  // tsserver beside the native one.
+  "js/ts.experimental.useTsgo": true,
+  "js/ts.tsdk.path": "./node_modules/typescript"
 }
