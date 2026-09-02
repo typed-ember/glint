@@ -62,7 +62,7 @@ const languageIds = ['glimmer-js', 'glimmer-ts'];
 const TS_PLUGIN_NAME = 'glint-tsserver-plugin-pack';
 const EMBER_TSC_SOURCE_SETTING = 'glint2.emberTscSource';
 const SELECT_EMBER_TSC_COMMAND = 'glint2.select-ember-tsc-source';
-const TYPESCRIPT_7_SHOW_MENU_COMMAND = 'typescript.native-preview.showMenu';
+const TYPESCRIPT_7_SHOW_MENU_COMMAND = 'glint2.typescript7.showMenu';
 
 type EmberTscSource = 'auto' | 'workspace' | 'bundled';
 
@@ -89,7 +89,7 @@ export const { activate, deactivate } = defineExtension(() => {
         `ember-content-mapper (https://github.com/NullVoxPopuli/ember-content-mapper) to "contentMappers" ` +
         `in tsconfig.json and run tsc with --runExternalCode.`,
     );
-    registerTypeScript7LanguageStatus(context, getLibraryPathSetting());
+    registerTypeScript7LanguageStatus(context, outputChannel, getLibraryPathSetting());
     void registerContentMapperContribution(context, outputChannel);
     return;
   }
@@ -525,15 +525,22 @@ interface ContentMapperApi {
   ) => vscode.Disposable;
 }
 
-const CONTENT_MAPPER_BUILD_DATE = '2026-08-19';
 const CONTENT_MAPPER_INSTALL_ADVICE =
-  `Until TypeScript 7.1 is released, install TypeScript 7 Nightly (TypeScriptTeam.vscode-typescript-nightly) ` +
-  `next to TypeScript 7 (TypeScriptTeam.native-preview). From TypeScript 7.1 on, TypeScript 7 alone is enough.`;
+  `Content mappers need a TypeScript 7 build newer than 2026-08-19. Until TypeScript 7.1 is released, ` +
+  `install the TypeScript team's nightly TypeScript 7 extension; from TypeScript 7.1 on, the TypeScript 7 ` +
+  `extension alone is enough.`;
 
 function registerTypeScript7LanguageStatus(
   context: vscode.ExtensionContext,
+  outputChannel: vscode.OutputChannel,
   libraryPath: string,
 ): void {
+  context.subscriptions.push(
+    vscode.commands.registerCommand(TYPESCRIPT_7_SHOW_MENU_COMMAND, () =>
+      showTypeScript7Menu(outputChannel),
+    ),
+  );
+
   const status = vscode.languages.createLanguageStatusItem(
     'glint2.typescript7.status',
     languageIds,
@@ -647,7 +654,7 @@ async function registerContentMapperContribution(
     context.subscriptions.push(registration);
     outputChannel.appendLine(
       `[Activation] Registered .gts and .gjs with ${owner.id} for content mapper support. ` +
-        `Content mappers need a TypeScript build newer than ${CONTENT_MAPPER_BUILD_DATE}. ${CONTENT_MAPPER_INSTALL_ADVICE}`,
+        CONTENT_MAPPER_INSTALL_ADVICE,
     );
   } catch (error) {
     outputChannel.appendLine(
@@ -661,16 +668,21 @@ async function registerContentMapperContribution(
 /**
  * The extension that exposes `registerContentMappers`, if any is installed.
  *
- * Which extension owns the API is not stable: today it is the TypeScript 7
- * extension, the build it runs may come from a separate nightly extension, and
- * the built-in TypeScript extension may absorb it later. So rather than
- * requiring particular extension ids, this activates the TypeScript team's
- * extensions plus the built-in one and takes whichever exports the API.
+ * Which extension owns the API is not stable, and its id has changed before,
+ * so no id is assumed. An already active extension that exports the API wins.
+ * Otherwise every extension that looks like a TypeScript 7 host by its
+ * manifest is activated and checked. The built-in TypeScript extension is
+ * left alone: activating it spawns a tsserver that Glint stands down from.
  */
 async function findContentMapperApi(): Promise<{ id: string; api: ContentMapperApi } | undefined> {
   for (const extension of vscode.extensions.all) {
-    const id = extension.id.toLowerCase();
-    if (!id.startsWith('typescriptteam.') && id !== 'vscode.typescript-language-features') {
+    if (extension.isActive && hasContentMapperApi(extension.exports)) {
+      return { id: extension.id, api: extension.exports };
+    }
+  }
+
+  for (const extension of vscode.extensions.all) {
+    if (extension.isActive || !looksLikeTypeScript7Extension(extension)) {
       continue;
     }
 
@@ -687,12 +699,63 @@ async function findContentMapperApi(): Promise<{ id: string; api: ContentMapperA
   return undefined;
 }
 
+/**
+ * Whether an extension's manifest marks it as a TypeScript 7 host. Extensions
+ * that ship a native TypeScript build declare `bundledTypeScriptVersion`, and
+ * the one that runs it contributes the `experimental.useTsgo` setting.
+ */
+function looksLikeTypeScript7Extension(extension: vscode.Extension<unknown>): boolean {
+  const manifest = extension.packageJSON as {
+    bundledTypeScriptVersion?: unknown;
+    contributes?: { configuration?: unknown };
+  };
+  if (typeof manifest.bundledTypeScriptVersion === 'string') {
+    return true;
+  }
+
+  const configuration = manifest.contributes?.configuration;
+  const sections = Array.isArray(configuration) ? configuration : [configuration];
+  return sections.some((section) => {
+    const properties = (section as { properties?: Record<string, unknown> } | undefined)
+      ?.properties;
+    return (
+      properties !== undefined &&
+      Object.keys(properties).some((key) => key.endsWith('.experimental.useTsgo'))
+    );
+  });
+}
+
 function hasContentMapperApi(api: unknown): api is ContentMapperApi {
   return (
     typeof api === 'object' &&
     api !== null &&
     typeof (api as { registerContentMappers?: unknown }).registerContentMappers === 'function'
   );
+}
+
+/**
+ * Opens the TypeScript 7 extension's menu from Glint's language status item.
+ * That menu command is registered at runtime by whichever extension hosts
+ * TypeScript 7, so it is looked up when clicked rather than assumed by id.
+ */
+async function showTypeScript7Menu(outputChannel: vscode.OutputChannel): Promise<void> {
+  await findContentMapperApi();
+
+  const commands = await vscode.commands.getCommands(true);
+  const menuCommand = commands.find((command) => /^typescript\.(?:.+\.)?showMenu$/.test(command));
+  if (menuCommand) {
+    await vscode.commands.executeCommand(menuCommand);
+    return;
+  }
+
+  const showOutput = 'Show Glint Output';
+  const selected = await vscode.window.showInformationMessage(
+    'No TypeScript 7 extension is running for this workspace, so its menu is not available.',
+    showOutput,
+  );
+  if (selected === showOutput) {
+    outputChannel.show();
+  }
 }
 
 /**
