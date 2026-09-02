@@ -1,37 +1,17 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "patch",
-      "oldVersion": "1.11.3",
-      "newVersion": "1.11.4",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
-        }
-      ],
-      "pkgJSONPath": "./packages/ember-tsc/package.json"
+      "oldVersion": "1.11.4"
     },
     "@glint/template": {
       "oldVersion": "1.9.0"
     },
     "@glint/tsserver-plugin": {
-      "impact": "patch",
-      "oldVersion": "2.7.6",
-      "newVersion": "2.7.7",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
-        }
-      ],
-      "pkgJSONPath": "./packages/tsserver-plugin/package.json"
+      "oldVersion": "2.7.7"
     },
     "@glint/type-test": {
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-08-31)\n\n* @glint/ember-tsc 1.11.4 (patch)\n* @glint/tsserver-plugin 2.7.7 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1239](https://github.com/typed-ember/glint/pull/1239) Escape backslashes when wrapping template content in a tagged literal ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-09-02)\n\n\n\n#### :bug: Bug Fix\n* [#1244](https://github.com/typed-ember/glint/pull/1244) VS Code extension: discover the content mapper API and show the TypeScript version ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n* [#1241](https://github.com/typed-ember/glint/pull/1241) VS Code extension: stand down when TypeScript 7 is enabled ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### :house: Internal\n* [#1245](https://github.com/typed-ember/glint/pull/1245) Release 1.4.2 (extension) ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### :present: Additional updates\n* [#1243](https://github.com/typed-ember/glint/pull/1243) Prepare release 1.4.1 (extension) ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 2\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
