@@ -13,9 +13,9 @@ import { expectTypeOf, to } from '@glint/type-test';
 // re-inference only handles single-signature callees, so
 // `{{component Foo onChange=(fn ...)}}` produced
 // `Invokable<(...args: unknown[]) => unknown>` instead of the bound component
-// type. The transform now emits `fn` as a comma pair — the real (overloaded)
-// call for argument validation, single-signature `bindPositional` for the
-// resulting type — so the outer inference sees only a resolved value.
+// type. The `bindInvokable` half of the keyword's comma pair
+// now emits a placeholder for every named-arg value,
+// so `fn` only appears in the keyword half that validates the args.
 
 const MyComponent: TOC<{
   Args: (
@@ -58,8 +58,7 @@ function noop(): void {}
 }>;
 
 // Direct `{{fn}}` type behavior away from nested-argument positions, plus the
-// `(fn (mut ...))` forms that FnHelper's Mut overloads validate and
-// `bindPositional`'s Mut branch types.
+// `(fn (mut ...))` forms that FnHelper's Mut overloads type.
 const state = { count: 0 };
 
 const directForms = <template>
