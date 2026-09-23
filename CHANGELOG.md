@@ -2,6 +2,18 @@
 
 ## Release (2026-09-23)
 
+* @glint/ember-tsc 1.11.6 (patch)
+* @glint/tsserver-plugin 2.7.9 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1249](https://github.com/typed-ember/glint/pull/1249) Don't emit named-arg values in `bindInvokable`, so generic helpers can't collapse curried types ([@BoussonKarel](https://github.com/BoussonKarel))
+
+#### Committers: 1
+- [@BoussonKarel](https://github.com/BoussonKarel)
+
+## Release (2026-09-23)
+
 * @glint/ember-tsc 1.11.5 (patch)
 * @glint/tsserver-plugin 2.7.8 (patch)
 
