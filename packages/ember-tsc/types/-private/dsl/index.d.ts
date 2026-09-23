@@ -50,8 +50,9 @@ export declare function templateExpression<
   (abstract new () => InvokableInstance<Signature> & HasContext<Context>);
 
 /*
- * The value emitted for each named arg in the `bindInvokable(...)` half of a
- * `{{component}}`/`{{helper}}`/`{{modifier}}` comma pair (#1068):
+ * The value emitted for each named arg of a `bindInvokable(...)` call.
+ * `{{component}}`, `{{helper}}` and `{{modifier}}` emit that call
+ * as the second half of a comma pair (#1068):
  *
  *     {{component Foo onChange=(fn f a)}}
  *
@@ -60,12 +61,15 @@ export declare function templateExpression<
  *     (resolve(component)(Foo, { onChange: resolve(fn)(f, a) }),
  *      bindInvokable(Foo, { onChange: boundArg }))
  *
- * `bindInvokable` only reads the keys of its named args, and the keyword call
- * validates the values with the invokable's arg types as context. Emitting
- * the real values there could collapse `bindInvokable`'s inference to
- * `Invokable<(...args: unknown[]) => unknown>`: TypeScript skips calls to
- * generic functions that return functions (`fn`, ember-set-helper's `set`)
- * during an outer call's first inference pass (`SkipGenericFunctions`), and
+ * `bindInvokable` only reads the keys of its named args.
+ * The keyword call validates the values,
+ * with the invokable's arg types as context.
+ *
+ * Emitting the real values there could collapse `bindInvokable`'s inference
+ * to `Invokable<(...args: unknown[]) => unknown>`.
+ * During an outer call's first inference pass (`SkipGenericFunctions`),
+ * TypeScript skips calls to generic functions that return functions,
+ * such as `fn` and ember-set-helper's `set`.
  * `bindInvokable`'s type parameters are lost with them (#1147).
  */
 export declare const boundArg: unknown;

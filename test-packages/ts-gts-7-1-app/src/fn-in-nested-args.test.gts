@@ -13,9 +13,9 @@ import { expectTypeOf, to } from '@glint/type-test';
 // re-inference only handles single-signature callees, so
 // `{{component Foo onChange=(fn ...)}}` produced
 // `Invokable<(...args: unknown[]) => unknown>` instead of the bound component
-// type. The `bindInvokable` half of the keyword's comma pair now emits a
-// placeholder for every named-arg value, so `fn` only appears in the keyword
-// half that validates the args.
+// type. The `bindInvokable` half of the keyword's comma pair
+// now emits a placeholder for every named-arg value,
+// so `fn` only appears in the keyword half that validates the args.
 
 const MyComponent: TOC<{
   Args: (

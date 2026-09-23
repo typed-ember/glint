@@ -6,14 +6,18 @@ import { expectTypeOf, to } from '@glint/type-test';
 //
 // `{{component}}`/`{{helper}}`/`{{modifier}}` with named args emit a comma
 // pair (#1068): a keyword call that validates the args, and a `bindInvokable`
-// call whose result is the curried value. When a named arg's value was a call
-// to a generic function that returns a function — like ember-set-helper's
-// `(set this "el")` — TypeScript skipped that call during `bindInvokable`'s
-// first inference pass (`SkipGenericFunctions`) and lost its type parameters,
-// so the curried value collapsed to `Invokable<(...args: unknown[]) => unknown>`.
-// Yielded against `WithBoundArgs`, `Args` was then inferred from the expected
-// type instead, and valid code was rejected. `bindInvokable` only uses the
-// named args' keys, so the transform no longer emits their values there.
+// call whose result is the curried value.
+// `bindInvokable` only uses the named args' keys,
+// so the transform emits a placeholder for their values.
+//
+// A real value there can collapse the curried value's type.
+// Take a call to a generic function that returns a function,
+// like ember-set-helper's `(set this "el")`.
+// TypeScript skips that call during `bindInvokable`'s first inference pass
+// (`SkipGenericFunctions`) and loses its type parameters.
+// The curried value then collapses to `Invokable<(...args: unknown[]) => unknown>`.
+// Yielded against `WithBoundArgs`, `Args` is inferred from the expected type instead,
+// and valid code is rejected.
 
 // Same shape as ember-set-helper's `set`.
 declare function setter<T extends object, K extends keyof T & string>(
@@ -48,8 +52,9 @@ export class YieldComponent extends Component<{
 
 declare const boundModifier: WithBoundArgs<typeof myModifier, 'onCreate'>;
 
-// The same bind consumed via `{{#let}}`. This used to type-check only because
-// the collapsed value accepts anything; it now keeps the modifier's type.
+// The same bind consumed via `{{#let}}`.
+// A collapsed value would accept anything here,
+// so this checks that `m` keeps the modifier's type.
 export class LetModifier extends Component {
   el: HTMLElement | null = null;
   <template>

@@ -447,12 +447,12 @@ export function templateToTypescript(
           // arg types (result discarded), while bindInvokable preserves
           // generic type parameters via Args/T holistic capture (result used).
           //
-          // bindInvokable only reads the named args' keys, so their values
-          // are emitted as a placeholder here. A real value can collapse its
-          // inference: TypeScript skips calls to generic functions that
-          // return functions — `(fn f a)`, `(set this "el")` — during its
-          // first inference pass, and bindInvokable's type parameters are
-          // then lost (#1147).
+          // bindInvokable only reads the named args' keys,
+          // so their values are emitted as a placeholder here.
+          // A real value can collapse bindInvokable's inference.
+          // During its first inference pass, TypeScript skips calls
+          // to generic functions that return functions, such as `(fn f a)` and `(set this "el")`.
+          // bindInvokable's type parameters are then lost (#1147).
           mapper.text('(');
           emitKeywordCall();
           mapper.text(', __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(');
@@ -487,13 +487,13 @@ export function templateToTypescript(
             mapper.text('__glintDSL__.emitContent(');
           }
 
-          // `fn` is a real call sitting directly in its slot, so it gets the
-          // slot's contextual type. Return-type inference from that context is
-          // what lets a generic callback resolve its type parameters — e.g.
-          // `fn this.update "name"` where `update` is
-          // `<K extends keyof M, V extends M[K]>(key: K, value: V) => void`
-          // (#1247). A comma pair would leave the validating call without a
-          // contextual type.
+          // `fn` is a real call sitting directly in its slot,
+          // so it gets the slot's contextual type.
+          // Return-type inference from that context
+          // lets a generic callback resolve its type parameters.
+          // Take `fn this.update "name"`,
+          // where `update` is `<K extends keyof M, V extends M[K]>(key: K, value: V) => void` (#1247).
+          // A comma pair would leave the validating call without a contextual type.
           mapper.text('__glintDSL__.resolve(');
           emitExpression(node.path);
           mapper.text(')(');
@@ -1820,8 +1820,8 @@ export function templateToTypescript(
       }
     }
 
-    // Emits `{ key: __glintDSL__.boundArg, ... }` for the named args of a
-    // `bindInvokable(...)` call — see `emitBindInvokableExpression`.
+    // Emits `{ key: __glintDSL__.boundArg, ... }` for the named args
+    // of a `bindInvokable(...)` call. See `emitBindInvokableExpression`.
     function emitBoundNamedArgs(named: AST.Hash): void {
       mapper.forNode(named, () => {
         mapper.text('{ ');

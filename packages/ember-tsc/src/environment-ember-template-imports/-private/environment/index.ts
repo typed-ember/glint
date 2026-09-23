@@ -124,15 +124,16 @@ export default function emberTemplateImportsEnvironment(
           // `const` signature preserves literal element types at non-contextual
           // positions (see `array-keyword-preserve-literals.test.gts`).
           //
-          // The RFC 470 `fn` keyword gets the `bind-positional` form, which
-          // emits a plain `fn` call so it keeps its slot's contextual type
-          // (#1247). Inside `{{component}}`/`{{helper}}`/`{{modifier}}`, the
-          // `bindInvokable` half of the comma pair doesn't emit named-arg
-          // values at all (#1147); see `boundArg` in
-          // `types/-private/dsl/index.d.ts`. (The `@ember/helper` import
-          // below gets the same treatment unconditionally; this entry is
-          // gated with the other built-in globals so a pre-7.1 project's own
-          // `fn` import from elsewhere isn't hijacked.)
+          // The RFC 470 `fn` keyword gets the `bind-positional` form.
+          // That form emits a plain `fn` call,
+          // so the call keeps its slot's contextual type (#1247).
+          // Inside `{{component}}`/`{{helper}}`/`{{modifier}}`,
+          // the `bindInvokable` half of the comma pair emits no named-arg values (#1147).
+          // See `boundArg` in `types/-private/dsl/index.d.ts`.
+          //
+          // The `@ember/helper` import below gets the same treatment unconditionally.
+          // This entry is gated with the other built-in globals,
+          // so a pre-7.1 project's own `fn` import from elsewhere isn't hijacked.
           ...(hasEmber71BuiltIns()
             ? ({
                 eq: '===',
