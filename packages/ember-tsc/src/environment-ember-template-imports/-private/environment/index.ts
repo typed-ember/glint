@@ -130,10 +130,11 @@ export default function emberTemplateImportsEnvironment(
           // only handles single-signature callees, so an inline `(fn ...)`
           // inside another invocation's arguments (most visibly
           // `{{component Foo onChange=(fn ...)}}`) collapsed the outer call's
-          // entire inference (#1147). The `bind-positional` form emits a
-          // comma pair — the real `fn` call for validation, single-signature
-          // `bindPositional` for the resulting type. See `bindPositional` in
-          // `types/-private/dsl/index.d.ts`. (The `@ember/helper` import
+          // entire inference (#1147). The `bind-positional` form emits
+          // `bindPositional` in place of the real `fn` call inside the result
+          // half of a `{{component}}`/`{{helper}}`/`{{modifier}}` comma pair,
+          // and a plain `fn` call everywhere else (#1247). See
+          // `bindPositional` in `types/-private/dsl/index.d.ts`. (The `@ember/helper` import
           // below gets the same treatment unconditionally; this entry is
           // gated with the other built-in globals so a pre-7.1 project's own
           // `fn` import from elsewhere isn't hijacked.)

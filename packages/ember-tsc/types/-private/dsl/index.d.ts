@@ -52,38 +52,40 @@ export declare function templateExpression<
 import { Mut } from '../intrinsics/mut';
 
 /*
- * Computes the type of `{{fn ...}}` in a way that survives nested inference
- * (#1147). The transform emits the `fn` keyword as a comma expression,
- * mirroring the `bindInvokable` treatment of `{{component}}` (#1068):
+ * Computes the type of `{{fn ...}}` when it's curried into a component,
+ * helper or modifier via the `{{component}}`/`{{helper}}`/`{{modifier}}`
+ * keywords (#1147). Those keywords emit a two-stage comma expression (#1068),
+ * and `fn` appearing in the result half is emitted as this call instead of a
+ * real `fn` call:
  *
- *     {{foo bar=(fn f a)}}
+ *     {{component Foo onChange=(fn f a)}}
  *
  * becomes
  *
- *     foo({ bar: (resolve(fn)(f, a), bindPositional(f, a)) })
+ *     (resolve(component)(Foo, { onChange: resolve(fn)(f, a) }),
+ *      bindInvokable(Foo, { onChange: bindPositional(f, a) }))
  *
- * The real `resolve(fn)(...)` call validates the arguments against
- * `FnHelper`'s arity overloads (with errors mapped into the template), while
- * `bindPositional` — whose result the comma expression forwards — computes the
- * partially-applied type from a SINGLE call signature.
- *
- * The single signature is what matters: when a call to an *overloaded* generic
- * function appears inside another generic call's arguments, TypeScript's
- * nested-call re-inference (`SkipGenericFunctions`) only handles callees with
- * exactly one call signature. `FnHelper`'s nine overloads made TypeScript
- * give up on ALL of the outer call's type parameters, so anything like
- * `{{component Foo onChange=(fn ...)}}` collapsed to
+ * The keyword call validates the `fn` arguments with the component's arg
+ * types as context, while `bindPositional` — being non-overloaded and not
+ * itself returning a function type — isn't skipped by TypeScript's first
+ * inference pass over `bindInvokable`'s arguments (`SkipGenericFunctions`).
+ * A real `fn` call there made TypeScript give up on ALL of `bindInvokable`'s
+ * type parameters, collapsing the result to
  * `Invokable<(...args: unknown[]) => unknown>`.
+ *
+ * Everywhere else `fn` is emitted as a real call, so it keeps its slot's
+ * contextual type (#1247).
  *
  * Because argument validation is the keyword call's job, this signature is
  * deliberately lenient: a mismatched bind yields `never` here and a real,
- * mapped error from the keyword call. The trade-off relative to invoking
- * `FnHelper` directly is that a generic `f` is instantiated rather than kept
- * generic (`fn identity "hi"` types as `() => unknown`, not `() => string`)
- * — the conditional return can't propagate signature genericity the way the
- * overloads' direct decomposition can.
+ * mapped error from the keyword call. `Bound` is `const` so literal bound
+ * arguments (`fn f "name"`) aren't widened before being matched against `f`'s
+ * parameters. A generic `f` is instantiated rather than kept generic
+ * (`fn identity "hi"` types as `() => unknown`, not `() => string`), and one
+ * whose type parameters depend on each other may yield `never`; either way
+ * only the curried arg's key matters to `bindInvokable`.
  */
-export declare function bindPositional<F, Bound extends unknown[]>(
+export declare function bindPositional<F, const Bound extends unknown[]>(
   f: F,
   ...bound: Bound
 ): F extends Mut<infer T>

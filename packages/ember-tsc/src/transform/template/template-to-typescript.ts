@@ -124,6 +124,9 @@ export function templateToTypescript(
     let { rangeForNode } = mapper;
     let scope = new ScopeStack([]);
     let inHtmlContext: 'svg' | 'math' | 'default' = 'default';
+    // Depth of `bindInvokable(...)` result-copy args being emitted — see
+    // `emitBindInvokableExpression` and `emitBindPositionalExpression`.
+    let bindInvokableResultDepth = 0;
 
     emitTemplateBoilerplate(() => {
       for (let statement of ast?.body ?? []) {
@@ -451,7 +454,12 @@ export function templateToTypescript(
           mapper.text(', __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(');
           emitExpression(node.params[0]);
           mapper.text('), ');
-          emitArgs([], node.hash);
+          bindInvokableResultDepth++;
+          try {
+            emitArgs([], node.hash);
+          } finally {
+            bindInvokableResultDepth--;
+          }
           mapper.text('))');
         } else {
           emitKeywordCall();
@@ -468,11 +476,10 @@ export function templateToTypescript(
       node: AST.MustacheStatement | AST.SubExpression,
       position: InvokePosition,
     ): void {
-      // `wideVerification` (see #1168): several of the diagnostics this emit
-      // exists to surface anchor on synthetic generated text — arity errors
-      // point at the emitted callee, and assignability errors at the whole
-      // comma expression — and would otherwise be silently dropped by Volar
-      // for want of a covering verification mapping.
+      // `wideVerification` (see #1168): some diagnostics on this emit anchor
+      // on synthetic generated text — arity errors point at the emitted
+      // callee — and would otherwise be silently dropped by Volar for want of
+      // a covering verification mapping.
       const wideVerification = true;
       mapper.forNode(
         node,
@@ -481,23 +488,33 @@ export function templateToTypescript(
             mapper.text('__glintDSL__.emitContent(');
           }
 
-          // Two-stage comma expression, like `bind-invokable` above: the real
-          // helper call validates the arguments against the helper's arity
-          // overloads (result discarded, errors mapped) — including misuse
-          // like zero arguments or named arguments, which is why there are no
-          // arity asserts here — while the single-signature `bindPositional`
-          // computes the partially-applied type (result used). The single
-          // signature is what lets the result survive when this expression
-          // sits inside another generic call's arguments — TypeScript's
-          // nested-call re-inference gives up on overloaded callees,
-          // collapsing the outer call's inference (#1147).
-          mapper.text('(__glintDSL__.resolve(');
-          emitExpression(node.path);
-          mapper.text(')(');
-          emitArgs(node.params, node.hash);
-          mapper.text('), __glintDSL__.bindPositional(');
-          emitArgs(node.params, node.hash);
-          mapper.text('))');
+          if (bindInvokableResultDepth > 0) {
+            // Inside the result half of a `bind-invokable` comma pair, e.g. the
+            // `bindInvokable(...)` call emitted for
+            // `{{component Foo onChange=(fn f a)}}`. Calling the overloaded
+            // (generic, function-returning) `fn` here makes TypeScript skip it
+            // during the outer call's first inference pass, which collapses
+            // `bindInvokable`'s inference entirely (#1147). The single-signature
+            // `bindPositional` computes the partially-applied type instead.
+            // Arguments are validated by the keyword call in the other half of
+            // the pair, where this same `fn` is emitted as a real call.
+            mapper.text('__glintDSL__.bindPositional(');
+            emitArgs(node.params, node.hash);
+            mapper.text(')');
+          } else {
+            // Everywhere else `fn` is a real call sitting directly in its slot,
+            // so it gets the slot's contextual type. Return-type inference from
+            // that context is what lets a generic callback resolve its type
+            // parameters — e.g. `fn this.update "name"` where `update` is
+            // `<K extends keyof M, V extends M[K]>(key: K, value: V) => void`
+            // (#1247). A comma pair would leave the validating call without a
+            // contextual type.
+            mapper.text('__glintDSL__.resolve(');
+            emitExpression(node.path);
+            mapper.text(')(');
+            emitArgs(node.params, node.hash);
+            mapper.text(')');
+          }
 
           if (position === 'top-level') {
             mapper.text(')');
