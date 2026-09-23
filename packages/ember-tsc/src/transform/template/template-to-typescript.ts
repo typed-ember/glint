@@ -124,9 +124,6 @@ export function templateToTypescript(
     let { rangeForNode } = mapper;
     let scope = new ScopeStack([]);
     let inHtmlContext: 'svg' | 'math' | 'default' = 'default';
-    // Depth of `bindInvokable(...)` result-copy args being emitted — see
-    // `emitBindInvokableExpression` and `emitBindPositionalExpression`.
-    let bindInvokableResultDepth = 0;
 
     emitTemplateBoilerplate(() => {
       for (let statement of ast?.body ?? []) {
@@ -449,17 +446,19 @@ export function templateToTypescript(
           // Two-stage comma expression (#1068): the keyword call validates
           // arg types (result discarded), while bindInvokable preserves
           // generic type parameters via Args/T holistic capture (result used).
+          //
+          // bindInvokable only reads the named args' keys, so their values
+          // are emitted as a placeholder here. A real value can collapse its
+          // inference: TypeScript skips calls to generic functions that
+          // return functions — `(fn f a)`, `(set this "el")` — during its
+          // first inference pass, and bindInvokable's type parameters are
+          // then lost (#1147).
           mapper.text('(');
           emitKeywordCall();
           mapper.text(', __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(');
           emitExpression(node.params[0]);
           mapper.text('), ');
-          bindInvokableResultDepth++;
-          try {
-            emitArgs([], node.hash);
-          } finally {
-            bindInvokableResultDepth--;
-          }
+          emitBoundNamedArgs(node.hash);
           mapper.text('))');
         } else {
           emitKeywordCall();
@@ -488,33 +487,18 @@ export function templateToTypescript(
             mapper.text('__glintDSL__.emitContent(');
           }
 
-          if (bindInvokableResultDepth > 0) {
-            // Inside the result half of a `bind-invokable` comma pair, e.g. the
-            // `bindInvokable(...)` call emitted for
-            // `{{component Foo onChange=(fn f a)}}`. Calling the overloaded
-            // (generic, function-returning) `fn` here makes TypeScript skip it
-            // during the outer call's first inference pass, which collapses
-            // `bindInvokable`'s inference entirely (#1147). The single-signature
-            // `bindPositional` computes the partially-applied type instead.
-            // Arguments are validated by the keyword call in the other half of
-            // the pair, where this same `fn` is emitted as a real call.
-            mapper.text('__glintDSL__.bindPositional(');
-            emitArgs(node.params, node.hash);
-            mapper.text(')');
-          } else {
-            // Everywhere else `fn` is a real call sitting directly in its slot,
-            // so it gets the slot's contextual type. Return-type inference from
-            // that context is what lets a generic callback resolve its type
-            // parameters — e.g. `fn this.update "name"` where `update` is
-            // `<K extends keyof M, V extends M[K]>(key: K, value: V) => void`
-            // (#1247). A comma pair would leave the validating call without a
-            // contextual type.
-            mapper.text('__glintDSL__.resolve(');
-            emitExpression(node.path);
-            mapper.text(')(');
-            emitArgs(node.params, node.hash);
-            mapper.text(')');
-          }
+          // `fn` is a real call sitting directly in its slot, so it gets the
+          // slot's contextual type. Return-type inference from that context is
+          // what lets a generic callback resolve its type parameters — e.g.
+          // `fn this.update "name"` where `update` is
+          // `<K extends keyof M, V extends M[K]>(key: K, value: V) => void`
+          // (#1247). A comma pair would leave the validating call without a
+          // contextual type.
+          mapper.text('__glintDSL__.resolve(');
+          emitExpression(node.path);
+          mapper.text(')(');
+          emitArgs(node.params, node.hash);
+          mapper.text(')');
 
           if (position === 'top-level') {
             mapper.text(')');
@@ -1834,6 +1818,24 @@ export function templateToTypescript(
           mapper.text('...__glintDSL__.NamedArgsMarker }');
         });
       }
+    }
+
+    // Emits `{ key: __glintDSL__.boundArg, ... }` for the named args of a
+    // `bindInvokable(...)` call — see `emitBindInvokableExpression`.
+    function emitBoundNamedArgs(named: AST.Hash): void {
+      mapper.forNode(named, () => {
+        mapper.text('{ ');
+
+        let { start } = rangeForNode(named);
+        for (let pair of named.pairs) {
+          start = template.indexOf(pair.key, start);
+          emitHashKey(pair.key, start);
+          mapper.text(': __glintDSL__.boundArg, ');
+          start = rangeForNode(pair.value).end;
+        }
+
+        mapper.text('...__glintDSL__.NamedArgsMarker }');
+      });
     }
 
     type PathKind = 'this' | 'arg' | 'free';

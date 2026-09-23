@@ -49,52 +49,26 @@ export declare function templateExpression<
 ): TemplateOnlyComponent<never> &
   (abstract new () => InvokableInstance<Signature> & HasContext<Context>);
 
-import { Mut } from '../intrinsics/mut';
-
 /*
- * Computes the type of `{{fn ...}}` when it's curried into a component,
- * helper or modifier via the `{{component}}`/`{{helper}}`/`{{modifier}}`
- * keywords (#1147). Those keywords emit a two-stage comma expression (#1068),
- * and `fn` appearing in the result half is emitted as this call instead of a
- * real `fn` call:
+ * The value emitted for each named arg in the `bindInvokable(...)` half of a
+ * `{{component}}`/`{{helper}}`/`{{modifier}}` comma pair (#1068):
  *
  *     {{component Foo onChange=(fn f a)}}
  *
  * becomes
  *
  *     (resolve(component)(Foo, { onChange: resolve(fn)(f, a) }),
- *      bindInvokable(Foo, { onChange: bindPositional(f, a) }))
+ *      bindInvokable(Foo, { onChange: boundArg }))
  *
- * The keyword call validates the `fn` arguments with the component's arg
- * types as context, while `bindPositional` — being non-overloaded and not
- * itself returning a function type — isn't skipped by TypeScript's first
- * inference pass over `bindInvokable`'s arguments (`SkipGenericFunctions`).
- * A real `fn` call there made TypeScript give up on ALL of `bindInvokable`'s
- * type parameters, collapsing the result to
- * `Invokable<(...args: unknown[]) => unknown>`.
- *
- * Everywhere else `fn` is emitted as a real call, so it keeps its slot's
- * contextual type (#1247).
- *
- * Because argument validation is the keyword call's job, this signature is
- * deliberately lenient: a mismatched bind yields `never` here and a real,
- * mapped error from the keyword call. `Bound` is `const` so literal bound
- * arguments (`fn f "name"`) aren't widened before being matched against `f`'s
- * parameters. A generic `f` is instantiated rather than kept generic
- * (`fn identity "hi"` types as `() => unknown`, not `() => string`), and one
- * whose type parameters depend on each other may yield `never`; either way
- * only the curried arg's key matters to `bindInvokable`.
+ * `bindInvokable` only reads the keys of its named args, and the keyword call
+ * validates the values with the invokable's arg types as context. Emitting
+ * the real values there could collapse `bindInvokable`'s inference to
+ * `Invokable<(...args: unknown[]) => unknown>`: TypeScript skips calls to
+ * generic functions that return functions (`fn`, ember-set-helper's `set`)
+ * during an outer call's first inference pass (`SkipGenericFunctions`), and
+ * `bindInvokable`'s type parameters are lost with them (#1147).
  */
-export declare function bindPositional<F, const Bound extends unknown[]>(
-  f: F,
-  ...bound: Bound
-): F extends Mut<infer T>
-  ? Bound extends []
-    ? (value: T) => void
-    : () => void
-  : F extends (...args: [...Bound, ...infer Rest]) => infer Ret
-    ? (...rest: Rest) => Ret
-    : never;
+export declare const boundArg: unknown;
 
 import { Invokable } from '@glint/template/-private/integration';
 

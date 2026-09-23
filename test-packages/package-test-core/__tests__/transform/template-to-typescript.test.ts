@@ -184,20 +184,20 @@ describe('Transform: rewriteTemplate', () => {
 
         expect(templateBody(template, { specialForms, globals: ['testComponent', 'let'] }))
           .toMatchInlineSnapshot(`
-          "{
-          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.resolve(__glintDSL__.Globals.testComponent)((() => __glintDSL__.resolveForBind(Inner))(), { x: 1 , ...__glintDSL__.NamedArgsMarker }), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(Inner), { x: 1 , ...__glintDSL__.NamedArgsMarker }))));
-          {
-          const [Bound] = __glintY__.blockParams["default"];
-          {
-          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Consumer)({ 
-          bound: (Bound as import("@glint/template").InferenceInertInvokable), 
-          direct: Inner, ...__glintDSL__.NamedArgsMarker }));
-          }
-          (__glintDSL__.noop(testYield), __glintDSL__.yieldToBlock(__glintRef__, "default")(Bound));
-          }
-          __glintDSL__.Globals.let;
-          }"
-        `);
+            "{
+            const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.resolve(__glintDSL__.Globals.testComponent)((() => __glintDSL__.resolveForBind(Inner))(), { x: 1 , ...__glintDSL__.NamedArgsMarker }), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(Inner), { x: __glintDSL__.boundArg, ...__glintDSL__.NamedArgsMarker }))));
+            {
+            const [Bound] = __glintY__.blockParams["default"];
+            {
+            const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Consumer)({ 
+            bound: (Bound as import("@glint/template").InferenceInertInvokable), 
+            direct: Inner, ...__glintDSL__.NamedArgsMarker }));
+            }
+            (__glintDSL__.noop(testYield), __glintDSL__.yieldToBlock(__glintRef__, "default")(Bound));
+            }
+            __glintDSL__.Globals.let;
+            }"
+          `);
       });
 
       // The collapse this cast prevents requires a generic class component —
@@ -219,7 +219,7 @@ describe('Transform: rewriteTemplate', () => {
           }),
         ).toMatchInlineSnapshot(`
           "{
-          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.resolve(__glintDSL__.Globals.testComponent)((() => __glintDSL__.resolveForBind(Inner))(), { x: 1 , ...__glintDSL__.NamedArgsMarker }), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(Inner), { x: 1 , ...__glintDSL__.NamedArgsMarker }))));
+          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.resolve(__glintDSL__.Globals.testComponent)((() => __glintDSL__.resolveForBind(Inner))(), { x: 1 , ...__glintDSL__.NamedArgsMarker }), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(Inner), { x: __glintDSL__.boundArg, ...__glintDSL__.NamedArgsMarker }))));
           {
           const [Bound] = __glintY__.blockParams["default"];
           {
@@ -244,33 +244,32 @@ describe('Transform: rewriteTemplate', () => {
 
         expect(templateBody(template, { specialForms, globals: ['testComponent', 'let'] }))
           .toMatchInlineSnapshot(`
-          "{
-          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.resolve(__glintDSL__.Globals.testComponent)((() => __glintDSL__.resolveForBind(Inner))(), { x: 1 , ...__glintDSL__.NamedArgsMarker }), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(Inner), { x: 1 , ...__glintDSL__.NamedArgsMarker }))));
-          {
-          const [Bound] = __glintY__.blockParams["default"];
-          {
-          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)(Other));
-          {
-          const [Bound] = __glintY__.blockParams["default"];
-          {
-          const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Consumer)({ 
-          bound: Bound, ...__glintDSL__.NamedArgsMarker }));
-          }
-          }
-          __glintDSL__.Globals.let;
-          }
-          }
-          __glintDSL__.Globals.let;
-          }"
-        `);
+            "{
+            const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)((__glintDSL__.resolve(__glintDSL__.Globals.testComponent)((() => __glintDSL__.resolveForBind(Inner))(), { x: 1 , ...__glintDSL__.NamedArgsMarker }), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(Inner), { x: __glintDSL__.boundArg, ...__glintDSL__.NamedArgsMarker }))));
+            {
+            const [Bound] = __glintY__.blockParams["default"];
+            {
+            const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(__glintDSL__.Globals.let)(Other));
+            {
+            const [Bound] = __glintY__.blockParams["default"];
+            {
+            const __glintY__ = __glintDSL__.emitComponent(__glintDSL__.resolve(Consumer)({ 
+            bound: Bound, ...__glintDSL__.NamedArgsMarker }));
+            }
+            }
+            __glintDSL__.Globals.let;
+            }
+            }
+            __glintDSL__.Globals.let;
+            }"
+          `);
       });
     });
 
     // The `fn` keyword emits as a plain call, so it keeps its slot's
-    // contextual type (#1247) — except inside the result half of a
-    // `bind-invokable` comma pair, where a real (overloaded, function-returning)
-    // `fn` call collapsed `bindInvokable`'s entire inference (#1147). There it
-    // emits `bindPositional` instead; the keyword half validates the args.
+    // contextual type (#1247). Inside a `bind-invokable` keyword it appears
+    // only in the keyword half of the comma pair: the `bindInvokable` half
+    // emits `boundArg` for every named-arg value (#1147).
     describe('{{fn}} (bind-positional)', () => {
       test('in top-level position', () => {
         let template = '{{testFn foo 123}}';
@@ -306,7 +305,7 @@ describe('Transform: rewriteTemplate', () => {
         expect(
           templateBody(template, { specialForms, globals: ['testFn', 'testComponent'] }),
         ).toMatchInlineSnapshot(
-          `"__glintDSL__.emitContent((__glintDSL__.resolve(__glintDSL__.Globals.testComponent)((() => __glintDSL__.resolveForBind(Foo))(), { onChange: __glintDSL__.resolve(__glintDSL__.Globals.testFn)(foo, 123) , ...__glintDSL__.NamedArgsMarker }), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(Foo), { onChange: __glintDSL__.bindPositional(foo, 123) , ...__glintDSL__.NamedArgsMarker })));"`,
+          `"__glintDSL__.emitContent((__glintDSL__.resolve(__glintDSL__.Globals.testComponent)((() => __glintDSL__.resolveForBind(Foo))(), { onChange: __glintDSL__.resolve(__glintDSL__.Globals.testFn)(foo, 123) , ...__glintDSL__.NamedArgsMarker }), __glintDSL__.bindInvokable(__glintDSL__.resolveForBind(Foo), { onChange: __glintDSL__.boundArg, ...__glintDSL__.NamedArgsMarker })));"`,
         );
       });
     });
