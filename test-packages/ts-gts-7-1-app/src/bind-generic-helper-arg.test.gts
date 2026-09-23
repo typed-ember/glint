@@ -2,7 +2,7 @@ import Component from '@glimmer/component';
 import type { ComponentLike, ModifierLike, WithBoundArgs } from '@glint/template';
 import { expectTypeOf, to } from '@glint/type-test';
 
-// Regression guard: a generic helper as a curried named arg.
+// Regression guard for https://github.com/typed-ember/glint/pull/1249
 //
 // `{{component}}`/`{{helper}}`/`{{modifier}}` with named args emit a comma
 // pair (#1068): a keyword call that validates the args, and a `bindInvokable`
