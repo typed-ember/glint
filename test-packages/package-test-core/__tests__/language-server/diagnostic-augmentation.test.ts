@@ -437,12 +437,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "message": "The last overload is declared here.",
               "span": {
                 "end": {
-                  "line": 86,
+                  "line": 147,
                   "offset": 5,
                 },
                 "file": "\${repoRootPath}/packages/template/-private/keywords/-bind-invokable.d.ts",
                 "start": {
-                  "line": 72,
+                  "line": 133,
                   "offset": 3,
                 },
               },
@@ -473,12 +473,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "message": "The last overload is declared here.",
               "span": {
                 "end": {
-                  "line": 86,
+                  "line": 147,
                   "offset": 5,
                 },
                 "file": "\${repoRootPath}/packages/template/-private/keywords/-bind-invokable.d.ts",
                 "start": {
-                  "line": 72,
+                  "line": 133,
                   "offset": 3,
                 },
               },
@@ -509,12 +509,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "message": "The last overload is declared here.",
               "span": {
                 "end": {
-                  "line": 86,
+                  "line": 147,
                   "offset": 5,
                 },
                 "file": "\${repoRootPath}/packages/template/-private/keywords/-bind-invokable.d.ts",
                 "start": {
-                  "line": 72,
+                  "line": 133,
                   "offset": 3,
                 },
               },

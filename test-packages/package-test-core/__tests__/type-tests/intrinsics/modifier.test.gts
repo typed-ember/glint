@@ -2,6 +2,7 @@ import Modifier, { modifier } from 'ember-modifier';
 import type { ModifierLike } from '@glint/template';
 import { array } from '@ember/helper';
 import { hash } from '@ember/helper';
+import { on } from '@ember/modifier';
 
 class Render3DModelModifier extends Modifier<{
   Element: HTMLCanvasElement;
@@ -131,3 +132,40 @@ const PrebindingTest = <template>
   {{! @glint-expect-error: extra arg }}
   <div {{(modifier MyriadPositionals "one" true 3) "four"}}></div>
 </template>;
+
+// Issue #812: pre-binding positional args of a generic modifier
+{
+  const onClick = (_event: MouseEvent): void => {};
+  const onKey = (_event: KeyboardEvent): void => {};
+  const maybeClick = undefined as ((event: MouseEvent) => void) | undefined;
+  const generic = modifier(<T,>(_el: HTMLElement, _positional: [T]) => {});
+  const numeric = modifier(<T extends number>(_el: HTMLElement, _positional: [T]) => {});
+
+  const GenericPositionalTest = <template>
+    <div {{(modifier on "click" onClick)}}></div>
+    <div {{(modifier on "keydown" onKey)}}></div>
+    <div {{(modifier on "click") onClick}}></div>
+    <div {{(if maybeClick (modifier on "click" maybeClick))}}></div>
+    <div {{(modifier generic 1)}}></div>
+    <div {{(modifier numeric 1)}}></div>
+
+    {{#let (modifier on "click" onClick) as |bound|}}
+      <div {{bound}}></div>
+    {{/let}}
+
+    {{! @glint-expect-error: wrong handler for the event }}
+    <div {{(modifier on "click" onKey)}}></div>
+
+    {{! @glint-expect-error: wrong handler for the bound event }}
+    <div {{(modifier on "click") onKey}}></div>
+
+    {{! @glint-expect-error: event name is not a string }}
+    <div {{(modifier on 1 onClick)}}></div>
+
+    {{! @glint-expect-error: missing handler }}
+    <div {{(modifier on "click")}}></div>
+
+    {{! @glint-expect-error: not a number }}
+    <div {{(modifier numeric "one")}}></div>
+  </template>;
+}
