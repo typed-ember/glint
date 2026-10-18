@@ -163,3 +163,27 @@ declare const maybeMapVal: Map<string, number> | undefined;
     expectTypeOf(value).toEqualTypeOf<bigint>();
   }
 }
+
+// A generic object type gives string keys
+function genericObject<T extends object>(object: T): void {
+  const component = emitComponent(eachIn(object));
+  const [key, value] = component.blockParams.default;
+  const keyString: string = key;
+  // @ts-expect-error: the key is a string
+  const keyNumber: number = key;
+  // @ts-expect-error: the value is not known
+  const valueString: string = value;
+  void [keyString, keyNumber, valueString];
+}
+
+// A generic record type gives string keys and its value type
+function genericRecord<T extends Record<string, number>>(object: T): void {
+  const component = emitComponent(eachIn(object));
+  const [key, value] = component.blockParams.default;
+  const keyString: string = key;
+  const valueNumber: number = value;
+  void [keyString, valueNumber];
+}
+
+genericObject({ a: 1 });
+genericRecord({ a: 1 });
