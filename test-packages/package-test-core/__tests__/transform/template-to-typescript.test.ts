@@ -1277,6 +1277,41 @@ describe('Transform: rewriteTemplate', () => {
         '...attributes',
       );
     });
+    test('nested svg and foreignObject restore the outer context', () => {
+      let template = stripIndent`
+        <svg>
+          <foreignObject><div></div></foreignObject>
+          <svg></svg>
+          <circle></circle>
+        </svg>
+        <div></div>
+      `;
+
+      expect(templateBody(template)).toMatchInlineSnapshot(`
+        "{
+        const __glintY__ = __glintDSL__.emitSVGElement("svg");
+        {
+        const __glintY__ = __glintDSL__.emitSVGElement("foreignObject");
+        {
+        __glintDSL__.noop(__glintDSL__.elementTypes.div);
+        __glintDSL__.noop(__glintDSL__.elementTypes["div"]);
+        const __glintY__ = __glintDSL__.emitElement("div");
+        }
+        }
+        {
+        const __glintY__ = __glintDSL__.emitSVGElement("svg");
+        }
+        {
+        const __glintY__ = __glintDSL__.emitSVGElement("circle");
+        }
+        }
+        {
+        __glintDSL__.noop(__glintDSL__.elementTypes.div);
+        __glintDSL__.noop(__glintDSL__.elementTypes["div"]);
+        const __glintY__ = __glintDSL__.emitElement("div");
+        }"
+      `);
+    });
   });
 
   describe('custom elements', () => {
