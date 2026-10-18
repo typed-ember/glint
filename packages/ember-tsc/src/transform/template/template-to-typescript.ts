@@ -73,6 +73,117 @@ const HYPHENATED_GLOBAL_ALIASES: Record<string, string> = {
   'unique-id': 'unique_id',
 };
 
+// The HTML spec's "listed elements": the controls `form.elements` exposes.
+// https://html.spec.whatwg.org/multipage/forms.html#category-listed
+export const FORM_CONTROL_TAGS = [
+  'button',
+  'fieldset',
+  'input',
+  'object',
+  'output',
+  'select',
+  'textarea',
+] as const;
+
+// How many controls can render under one name: none, one (of these types), several.
+type Count = { none: boolean; one: Set<string>; many: boolean };
+
+// What a form renders under one name: how many controls of which types, their
+// values when all are radios, and whether a control of unknown type can.
+type FoundControl = Count & {
+  radioValues: Set<string> | null;
+  unknown: boolean;
+};
+type FoundControls = Map<string, FoundControl>;
+
+const NONE: Count = { none: true, one: new Set(), many: false };
+
+function mergeControls(
+  branches: Array<FoundControl | undefined>,
+  combine: (counts: Array<Count>) => Count,
+): FoundControl {
+  let present = branches.filter((control) => control !== undefined);
+  let { none, one, many } = combine(branches.map((control) => control ?? NONE));
+  return {
+    none,
+    one,
+    many,
+    radioValues: present.every((control) => control.radioValues)
+      ? new Set(present.flatMap((control) => [...(control.radioValues ?? [])]))
+      : null,
+    unknown: present.some((control) => control.unknown),
+  };
+}
+
+const sum = (counts: Array<Count>): Count =>
+  counts.reduce((a, b) => ({
+    none: a.none && b.none,
+    one: new Set([...(b.none ? a.one : []), ...(a.none ? b.one : [])]),
+    many: a.many || b.many || (a.one.size > 0 && b.one.size > 0),
+  }));
+
+const either = (counts: Array<Count>): Count => ({
+  none: counts.some((count) => count.none),
+  one: new Set(counts.flatMap((count) => [...count.one])),
+  many: counts.some((count) => count.many),
+});
+
+// Adds the controls of content rendered after `found`.
+function addControls(found: FoundControls, next: FoundControls): void {
+  for (let [name, control] of next) {
+    let current = found.get(name);
+    found.set(name, current ? mergeControls([current, control], sum) : control);
+  }
+}
+
+// Branches of which exactly one renders. A missing `{{else}}` is an empty branch.
+function exclusiveControls(branches: Array<FoundControls>): FoundControls {
+  let result: FoundControls = new Map();
+  for (let name of new Set(branches.flatMap((branch) => [...branch.keys()]))) {
+    result.set(
+      name,
+      mergeControls(
+        branches.map((branch) => branch.get(name)),
+        either,
+      ),
+    );
+  }
+  return result;
+}
+
+// Content that renders any number of times, or at least once.
+function repeatedControls(found: FoundControls, atLeastOnce = false): FoundControls {
+  return new Map(
+    [...found].map(([name, control]) => [
+      name,
+      {
+        ...control,
+        none: control.none || !atLeastOnce,
+        many: control.many || control.one.size > 0,
+      },
+    ]),
+  );
+}
+
+function formControlType({ one, many, radioValues, unknown }: FoundControl): string {
+  if (unknown) return 'unknown';
+  let group = radioValues?.size
+    ? `globalThis.RadioNodeList & { value: ${[...radioValues, ''].map((value) => JSON.stringify(value)).join(' | ')} }`
+    : 'globalThis.RadioNodeList';
+  return [...one, ...(many ? [group] : [])].join(' | ');
+}
+
+// The members of `HTMLFormControlsCollection` and `HTMLCollection`.
+export const FORM_COLLECTION_MEMBERS = ['item', 'length', 'namedItem'] as const;
+
+// `form.elements` has no named property for an array index or for a name its
+// prototype chain already defines.
+function isNamedProperty(key: string): boolean {
+  let arrayIndex = /^(0|[1-9][0-9]*)$/.test(key) && Number(key) < 2 ** 32 - 1;
+  let member = FORM_COLLECTION_MEMBERS.some((name) => name === key);
+  return !!key && !arrayIndex && !member && !(key in Object.prototype);
+}
+
 export type TemplateToTypescriptOptions = {
   typesModule: string;
   meta?: GlintEmitMetadata | undefined;
@@ -781,12 +892,7 @@ export function templateToTypescript(
     }
 
     function emitElementNode(node: AST.ElementNode): void {
-      let firstCharacter = node.tag.charAt(0);
-      if (
-        firstCharacter.toUpperCase() === firstCharacter ||
-        node.tag.includes('.') ||
-        scope.hasBinding(node.tag)
-      ) {
+      if (isComponentTag(node.tag)) {
         emitComponent(node);
       } else {
         emitPlainElement(node);
@@ -1004,7 +1110,7 @@ export function templateToTypescript(
       );
     }
 
-    function isNamedBlock(node: AST.Node): boolean {
+    function isNamedBlock(node: AST.Node): node is AST.ElementNode {
       return node.type === 'ElementNode' && node.tag.startsWith(':');
     }
 
@@ -1121,7 +1227,18 @@ export function templateToTypescript(
           );
           mapper.text('"]);');
           mapper.newline();
-          mapper.text(`const __glintY__ = __glintDSL__.emitElement("${node.tag}");`);
+          // JSDoc has no type arguments.
+          let controls = node.tag === 'form' && !useJsDoc ? collectFormControls(node) : undefined;
+          if (controls?.size) {
+            mapper.text('const __glintY__ = __glintDSL__.emitFormElement<{ ');
+            for (let [name, control] of controls) {
+              let key = JSON.stringify(name) + (control.none ? '?' : '');
+              mapper.text(`${key}: ${formControlType(control)}; `);
+            }
+            mapper.text('}>("form");');
+          } else {
+            mapper.text(`const __glintY__ = __glintDSL__.emitElement("${node.tag}");`);
+          }
         } else {
           // In SVG/MathML context the tag name stays mapped onto the emit
           // function's argument: its `keyof` constraint anchors "unknown
@@ -1159,6 +1276,202 @@ export function templateToTypescript(
         mapper.text('}');
         mapper.newline();
       });
+    }
+
+    // Finds the controls a form renders under a static `name` or `id`, or `null`
+    // when a control or image named `elements` replaces `form.elements`.
+    function collectFormControls(form: AST.ElementNode): FoundControls | null {
+      let formId = attributeValue(form, 'id');
+      let spreadId = form.attributes.some((attr) => attr.name === SPLATTRIBUTES);
+      let replaced = false;
+
+      // Whether a `form` attribute leaves the control in this form. It names the
+      // first element with that id, which may be another copy of this form.
+      let association = (node: AST.ElementNode): 'yes' | 'no' | 'maybe' => {
+        let value = attributeValue(node, 'form');
+        if (value === undefined) return 'yes';
+        if (value === '') return 'no';
+        return value === null || spreadId || formId === null || formId === value ? 'maybe' : 'no';
+      };
+
+      // `inner` holds the block params bound inside the form, which are not in
+      // scope where the form is emitted.
+      let visit = (statements: Array<AST.Statement>, inner: ReadonlySet<string>): FoundControls => {
+        let found: FoundControls = new Map();
+        let within = (params: Array<string>): Set<string> => new Set([...inner, ...params]);
+        // The built-in a block or helper invokes, as the emitter resolves it.
+        let keyword = (path: AST.Expression): string => {
+          if (path.type !== 'PathExpression' || path.head.type !== 'VarHead' || path.tail.length) {
+            return '';
+          }
+          let { name } = path.head;
+          if (inner.has(name)) return '';
+          let special = typeof specialForms[name] === 'string';
+          return (special ? !scope.hasBinding(name) : treatAsGlobal(name)) ? name : '';
+        };
+
+        for (let statement of statements) {
+          if (statement.type === 'BlockStatement') {
+            let { program, inverse } = statement;
+            let name = keyword(statement.path);
+            // `{{#in-element}}` renders its contents outside the form.
+            if (name === 'in-element') continue;
+
+            let body = visit(program.body, within(program.blockParams));
+            let otherwise = visit(inverse?.body ?? [], within(inverse?.blockParams ?? []));
+            if (name === 'let') {
+              addControls(found, body);
+            } else if (specialForms[name] === 'if' || specialForms[name] === 'if-not') {
+              addControls(found, exclusiveControls([body, otherwise]));
+            } else if (name === 'each' || name === 'each-in') {
+              // `{{else}}` renders when there is nothing to repeat.
+              let repeated = repeatedControls(body, !!inverse);
+              addControls(found, inverse ? exclusiveControls([repeated, otherwise]) : repeated);
+            } else {
+              // Any other block may yield any number of times.
+              addControls(found, repeatedControls(body));
+              addControls(found, repeatedControls(otherwise));
+            }
+          } else if (statement.type === 'ElementNode') {
+            let component = isComponentTag(statement.tag) || inner.has(statement.tag);
+            // Browsers lowercase tag names.
+            let tag = component ? '' : statement.tag.toLowerCase();
+            // Nested forms are invalid HTML.
+            if (tag === 'form') continue;
+
+            let listed = FORM_CONTROL_TAGS.some((listed) => listed === tag);
+            let custom = tag.includes('-');
+            // `...attributes` can replace a control's `name`, `type` and `form`.
+            let spread = statement.attributes.some((attr) => attr.name === SPLATTRIBUTES);
+            let types = tag !== 'input' ? [] : spread ? null : inputTypes(statement, keyword);
+            let every = (type: string): boolean =>
+              !!types?.length && types.every((t) => t === type);
+            // A component's `type` and `form` may not reach the element it renders,
+            // and an image always belongs to the form around it.
+            let joins = component ? 'maybe' : listed || custom ? association(statement) : 'yes';
+            let image = every('image');
+
+            let named = [attributeValue(statement, 'name'), attributeValue(statement, 'id')];
+            if (
+              named.includes('elements') &&
+              joins !== 'no' &&
+              (component || custom || tag === 'img' || (listed && !image))
+            ) {
+              replaced = true;
+            }
+
+            if (joins === 'no' || image) {
+              // The control belongs to another form, or is an image button, which is
+              // not in `elements`.
+            } else if (component || custom) {
+              // A component or a form-associated custom element may render a control here.
+              addControls(found, controlKeys(statement, null));
+            } else if (listed) {
+              addControls(
+                found,
+                controlKeys(statement, {
+                  type: `globalThis.HTMLElementTagNameMap[${JSON.stringify(tag)}]`,
+                  certain: joins === 'yes' && !spread && !!types && !types.includes('image'),
+                  radioValue: every('radio') ? attributeValue(statement, 'value') : null,
+                }),
+              );
+            }
+
+            if (component) {
+              // A component may render each of its blocks any number of times.
+              let blocks = statement.children.filter(isNamedBlock);
+              let rest = statement.children.filter((child) => !isNamedBlock(child));
+              for (let block of blocks) {
+                addControls(
+                  found,
+                  repeatedControls(visit(block.children, within(block.blockParams))),
+                );
+              }
+              addControls(found, repeatedControls(visit(rest, within(statement.blockParams))));
+            } else {
+              addControls(found, visit(statement.children, inner));
+            }
+          }
+        }
+        return found;
+      };
+
+      let found = visit(form.children, new Set());
+      return replaced ? null : found;
+    }
+
+    // The values an input's `type` can have, or `null` when the template does
+    // not show them. `{{if}}` and `{{unless}}` with literal branches are read.
+    function inputTypes(
+      node: AST.ElementNode,
+      keyword: (path: AST.Expression) => string,
+    ): Array<string> | null {
+      let attr = lastAttribute(node, 'type');
+      if (!attr) return ['text'];
+      if (attr.value.type === 'TextNode') return [attr.value.chars.toLowerCase()];
+      if (attr.value.type !== 'MustacheStatement') return null;
+
+      let { path, params } = attr.value;
+      let form = specialForms[keyword(path)];
+      let branches = params.slice(1);
+      if ((form !== 'if' && form !== 'if-not') || params.length < 2 || params.length > 3) {
+        return null;
+      }
+      if (!branches.every((param) => param.type === 'StringLiteral')) return null;
+      return [
+        ...branches.map((param) => param.value.toLowerCase()),
+        ...(params.length < 3 ? [''] : []),
+      ];
+    }
+
+    // `form.elements` finds a control by its `name` and by its `id`. A `null`
+    // control is one of a type the template does not show.
+    function controlKeys(
+      node: AST.ElementNode,
+      control: { type: string; certain: boolean; radioValue: string | null | undefined } | null,
+    ): FoundControls {
+      let keys = [attributeValue(node, 'name'), attributeValue(node, 'id')].filter(
+        (key): key is string => typeof key === 'string' && isNamedProperty(key),
+      );
+      let found: FoundControl = control
+        ? {
+            none: !control.certain,
+            one: new Set([control.type]),
+            many: false,
+            radioValues:
+              typeof control.radioValue === 'string' ? new Set([control.radioValue]) : null,
+            unknown: false,
+          }
+        : { ...NONE, radioValues: new Set(), unknown: true };
+      return new Map(keys.map((key) => [key, found]));
+    }
+
+    // The static value of an attribute, `null` when it is dynamic, and
+    // `undefined` when it is absent.
+    function attributeValue(
+      node: Pick<AST.ElementNode, 'attributes'>,
+      name: string,
+    ): string | null | undefined {
+      let attr = lastAttribute(node, name);
+      if (!attr) return undefined;
+      return attr.value.type === 'TextNode' ? attr.value.chars : null;
+    }
+
+    // Of duplicate attributes, the last one applies.
+    function lastAttribute(
+      node: Pick<AST.ElementNode, 'attributes'>,
+      name: string,
+    ): AST.AttrNode | undefined {
+      return [...node.attributes].reverse().find((attr) => attr.name.toLowerCase() === name);
+    }
+
+    function isComponentTag(tag: string): boolean {
+      let firstCharacter = tag.charAt(0);
+      return (
+        firstCharacter.toUpperCase() === firstCharacter ||
+        tag.includes('.') ||
+        scope.hasBinding(tag)
+      );
     }
 
     function emitAttributesAndModifiers(

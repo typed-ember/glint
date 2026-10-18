@@ -281,3 +281,15 @@ export declare function bindInvokable<Args extends unknown[], T, GivenNamed>(
   invokable: (...args: Args) => T,
   named: NamedArgs<GivenNamed>,
 ): Invokable<BindNamedResult<Args, T, GivenNamed>>;
+
+/** Emits a `<form>` whose `elements` has the named controls found in its template. */
+export declare function emitFormElement<Found>(name: 'form'): {
+  name: 'form';
+  element: FormElement<Found>;
+  attributes: AttributesForTagName<'form'>;
+};
+
+// An interface, not an intersection: it costs the checker less per form.
+interface FormElement<Found> extends HTMLFormElement {
+  readonly elements: HTMLFormControlsCollection & Found;
+}
