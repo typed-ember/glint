@@ -105,8 +105,8 @@ export declare function emitElement<Name extends string | 'math' | 'svg'>(
   attributes: Name extends 'math'
     ? Record<string, AttrValue>
     : Name extends 'svg'
-      ? AttributesForElement<SVGElementForTagName<'svg'>>
-      : AttributesForTagName<Name>;
+      ? Partial<AttributesForElement<SVGElementForTagName<'svg'>>>
+      : Partial<AttributesForTagName<Name>>;
 };
 
 export declare function emitSVGElement<Name extends keyof SVGElementTagNameMap>(
@@ -114,7 +114,7 @@ export declare function emitSVGElement<Name extends keyof SVGElementTagNameMap>(
 ): {
   name: Name;
   element: SVGElementForTagName<Name>;
-  attributes: AttributesForElement<SVGElementTagNameMap[Name]>;
+  attributes: Partial<AttributesForElement<SVGElementTagNameMap[Name]>>;
 };
 
 export declare function emitMathMlElement<Name extends keyof MathMLElementTagNameMap>(
@@ -213,9 +213,10 @@ export declare function applySplattributes<
  *     <div foo={{bar}}></div>
  *     <AnotherComponent foo={{bar}} />
  */
-export declare function applyAttributes<T extends Element>(
+// `A` is never inferred, so the attribute type is computed once per element type.
+export declare function applyAttributes<T extends Element, A = Partial<AttributesForElement<T>>>(
   element: T,
-  attrs: Partial<AttributesForElement<T>>,
+  attrs: NoInfer<A>,
 ): void;
 
 /*
@@ -234,7 +235,7 @@ export declare function applyAttributes<T extends Element>(
  */
 export declare function applyTagAttributes<T extends { attributes: object }>(
   target: T,
-  attrs: Partial<T['attributes']>,
+  attrs: T['attributes'],
 ): void;
 
 /*
