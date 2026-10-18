@@ -42,6 +42,13 @@ const workspace = ts7
   ? path.resolve(packageRoot, '../../test-packages/ts7-content-mapper-app')
   : `${packageRoot}/__fixtures__/ember-app`;
 
+if (ts7) {
+  // The TypeScript 7 extension uses a workspace's tsdk setting only after the user
+  // allows it, and its bundled build cannot run content mappers. A user setting
+  // needs no such approval.
+  userPreferences['js/ts.tsdk.path'] = path.join(workspace, 'node_modules/typescript');
+}
+
 fs.writeFileSync(path.join(settingsDir, 'settings.json'), JSON.stringify(userPreferences, null, 2));
 
 try {
