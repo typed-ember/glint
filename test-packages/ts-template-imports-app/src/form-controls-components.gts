@@ -32,9 +32,9 @@ export default class FormControlComponents extends Component<{ Args: { flag: boo
       </Fieldset>
     </form>
 
-    {{! @glint-expect-error }}
+    {{! @glint-expect-error: a name on a component is unknown, not an HTMLInputElement }}
     <form {{on "submit" this.typed}}><Toggle name="engine" /></form>
-    {{! @glint-expect-error }}
+    {{! @glint-expect-error: a control named "elements" replaces form.elements, so the form is not typed }}
     <form {{on "submit" this.elements}}><Toggle name="elements" /><input name="from" /></form>
   </template>
 }
