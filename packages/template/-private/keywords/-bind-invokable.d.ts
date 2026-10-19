@@ -5,7 +5,13 @@ type PrefixOf<T extends unknown[]> = T extends [arg: infer Arg, ...rest: infer R
   ? [] | [Arg, ...PrefixOf<Rest>]
   : T;
 
-export type BindInvokableKeyword<Prefix extends number, Kind> = DirectInvokable<{
+export type BindInvokableKeyword<Prefix extends number, Kind> = DirectInvokable<
+  BindInvokableSignatures<Prefix, Kind> &
+    (Prefix extends 1 ? BindElementPositional<Kind> : unknown) &
+    BindNullablePositional<Prefix, Kind>
+>;
+
+type BindInvokableSignatures<Prefix extends number, Kind> = {
   // {{bind invokable}}
   <Args extends unknown[], T extends Kind>(
     invokable: (...args: Args) => T,
@@ -69,6 +75,61 @@ export type BindInvokableKeyword<Prefix extends number, Kind> = DirectInvokable<
       ]
     ) => Return
   >;
+};
+
+// {{modifier invokable positional}} for a generic modifier such as `on`.
+// The overloads above infer `Positional` from the modifier's signature,
+// which erases its type parameters. Here each given argument has its own
+// `const` type parameter, so TS instantiates the modifier from the given
+// arguments: `{{modifier on "click" this.onClick}}` binds `Name` to "click".
+type BindElementPositional<Kind> = {
+  <El, const A, Return extends Kind, Rest extends unknown[]>(
+    invokable: (element: El, a: A, ...rest: Rest) => Return,
+    a: A,
+  ): Invokable<(element: El, ...rest: Rest) => Return>;
+  <El, const A, const B, Return extends Kind, Rest extends unknown[]>(
+    invokable: (element: El, a: A, b: B, ...rest: Rest) => Return,
+    a: A,
+    b: B,
+  ): Invokable<(element: El, ...rest: Rest) => Return>;
+  <El, const A, const B, const C, Return extends Kind, Rest extends unknown[]>(
+    invokable: (element: El, a: A, b: B, c: C, ...rest: Rest) => Return,
+    a: A,
+    b: B,
+    c: C,
+  ): Invokable<(element: El, ...rest: Rest) => Return>;
+  <El, const A, const B, const C, const D, Return extends Kind, Rest extends unknown[]>(
+    invokable: (element: El, a: A, b: B, c: C, d: D, ...rest: Rest) => Return,
+    a: A,
+    b: B,
+    c: C,
+    d: D,
+  ): Invokable<(element: El, ...rest: Rest) => Return>;
+  <El, const A, Return extends Kind, Rest extends unknown[]>(
+    invokable: null | undefined | ((element: El, a: A, ...rest: Rest) => Return),
+    a: A,
+  ): null | Invokable<(element: El, ...rest: Rest) => Return>;
+  <El, const A, const B, Return extends Kind, Rest extends unknown[]>(
+    invokable: null | undefined | ((element: El, a: A, b: B, ...rest: Rest) => Return),
+    a: A,
+    b: B,
+  ): null | Invokable<(element: El, ...rest: Rest) => Return>;
+  <El, const A, const B, const C, Return extends Kind, Rest extends unknown[]>(
+    invokable: null | undefined | ((element: El, a: A, b: B, c: C, ...rest: Rest) => Return),
+    a: A,
+    b: B,
+    c: C,
+  ): null | Invokable<(element: El, ...rest: Rest) => Return>;
+  <El, const A, const B, const C, const D, Return extends Kind, Rest extends unknown[]>(
+    invokable: null | undefined | ((element: El, a: A, b: B, c: C, d: D, ...rest: Rest) => Return),
+    a: A,
+    b: B,
+    c: C,
+    d: D,
+  ): null | Invokable<(element: El, ...rest: Rest) => Return>;
+};
+
+type BindNullablePositional<Prefix extends number, Kind> = {
   <
     Positional extends any[],
     Return extends Kind,
@@ -84,4 +145,4 @@ export type BindInvokableKeyword<Prefix extends number, Kind> = DirectInvokable<
       ]
     ) => Return
   >;
-}>;
+};
