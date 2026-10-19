@@ -24,6 +24,9 @@ const VALID_JS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 // property accesses (see `emitPlainElement`).
 const IDENTIFIER_SAFE_TAG_NAME = /^[A-Za-z_$][A-Za-z0-9_$-]*$/;
 
+// https://html.spec.whatwg.org/multipage/parsing.html#html-integration-point
+const SVG_HTML_INTEGRATION_POINTS = new Set(['foreignObject', 'desc', 'title']);
+
 // Mapping capabilities for the two discarded `elementTypes` tag-name
 // references (see `emitPlainElement`): the identifier form serves hover, the
 // quoted-key form serves navigation (definition/references). Everything else
@@ -1076,6 +1079,7 @@ export function templateToTypescript(
 
     function emitPlainElement(node: AST.ElementNode): void {
       mapper.forNode(node, () => {
+        let outerContext = inHtmlContext;
         if (node.tag === 'svg') {
           inHtmlContext = 'svg';
         }
@@ -1150,12 +1154,19 @@ export function templateToTypescript(
 
         emitAttributesAndModifiers(node, 'element');
 
+        // The children of SVG's HTML integration points are parsed as HTML.
+        let isIntegrationPoint =
+          inHtmlContext === 'svg' && SVG_HTML_INTEGRATION_POINTS.has(node.tag);
+        if (isIntegrationPoint) {
+          inHtmlContext = 'default';
+        }
+
         for (let child of node.children) {
           emitTopLevelStatement(child);
         }
 
-        if (node.tag === 'svg' || node.tag === 'math') {
-          inHtmlContext = 'default';
+        if (node.tag === 'svg' || node.tag === 'math' || isIntegrationPoint) {
+          inHtmlContext = outerContext;
         }
 
         mapper.dedent();
