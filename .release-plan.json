@@ -1,47 +1,35 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "minor",
-      "oldVersion": "1.12.0",
-      "newVersion": "1.13.0",
+      "impact": "patch",
+      "oldVersion": "1.13.0",
+      "newVersion": "1.13.1",
       "tagName": "latest",
       "constraints": [
         {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/template"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/ember-tsc/package.json"
     },
     "@glint/template": {
       "impact": "minor",
-      "oldVersion": "1.9.1",
-      "newVersion": "1.10.0",
+      "oldVersion": "1.10.0",
+      "newVersion": "1.11.0",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "minor",
           "reason": "Appears in changelog section :rocket: Enhancement"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.7.10",
-      "newVersion": "2.7.11",
+      "oldVersion": "2.7.11",
+      "newVersion": "2.7.12",
       "tagName": "latest",
       "constraints": [
         {
@@ -55,5 +43,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-10-19)\n\n* @glint/ember-tsc 1.13.0 (minor)\n* @glint/template 1.10.0 (minor)\n* @glint/tsserver-plugin 2.7.11 (patch)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`, `@glint/template`\n  * [#1252](https://github.com/typed-ember/glint/pull/1252) Type form.elements from the template's named controls ([@johanrd](https://github.com/johanrd))\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1258](https://github.com/typed-ember/glint/pull/1258) Let the modifier keyword pre-bind args of a generic modifier ([@johanrd](https://github.com/johanrd))\n* `@glint/ember-tsc`\n  * [#1259](https://github.com/typed-ember/glint/pull/1259) Fix each-in block params for a generic object type ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- Johan Røed ([@johanrd](https://github.com/johanrd))\n"
+  "description": "## Release (2026-10-19)\n\n* @glint/ember-tsc 1.13.1 (patch)\n* @glint/template 1.11.0 (minor)\n* @glint/tsserver-plugin 2.7.12 (patch)\n\n#### :rocket: Enhancement\n* `@glint/template`\n  * [#1262](https://github.com/typed-ember/glint/pull/1262) Keep form attributes partial in emitFormElement ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- Johan Røed ([@johanrd](https://github.com/johanrd))\n"
 }
