@@ -1,5 +1,29 @@
 # Changelog
 
+## Release (2026-10-19)
+
+* @glint/ember-tsc 1.12.0 (minor)
+* @glint/template 1.9.1 (patch)
+* @glint/tsserver-plugin 2.7.10 (patch)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`
+  * [#1253](https://github.com/typed-ember/glint/pull/1253) Give the on modifier a direct call signature ([@johanrd](https://github.com/johanrd))
+  * [#1254](https://github.com/typed-ember/glint/pull/1254) Give the each keyword a direct call signature ([@johanrd](https://github.com/johanrd))
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#1255](https://github.com/typed-ember/glint/pull/1255) Compute Partial once for element attributes ([@johanrd](https://github.com/johanrd))
+* `@glint/ember-tsc`
+  * [#1256](https://github.com/typed-ember/glint/pull/1256) Map block params from their own source locations ([@johanrd](https://github.com/johanrd))
+  * [#1257](https://github.com/typed-ember/glint/pull/1257) Restore the outer SVG context after nested svg and foreignObject ([@johanrd](https://github.com/johanrd))
+
+#### :house: Internal
+* [#1251](https://github.com/typed-ember/glint/pull/1251) Fix the TypeScript 7 extension tests for native-preview 1.0.1 ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- Johan Røed ([@johanrd](https://github.com/johanrd))
+
 ## Release (2026-09-23)
 
 * @glint/ember-tsc 1.11.6 (patch)
