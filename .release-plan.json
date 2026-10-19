@@ -2,8 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "minor",
-      "oldVersion": "1.11.6",
-      "newVersion": "1.12.0",
+      "oldVersion": "1.12.0",
+      "newVersion": "1.13.0",
       "tagName": "latest",
       "constraints": [
         {
@@ -22,11 +22,15 @@
       "pkgJSONPath": "./packages/ember-tsc/package.json"
     },
     "@glint/template": {
-      "impact": "patch",
-      "oldVersion": "1.9.0",
-      "newVersion": "1.9.1",
+      "impact": "minor",
+      "oldVersion": "1.9.1",
+      "newVersion": "1.10.0",
       "tagName": "latest",
       "constraints": [
+        {
+          "impact": "minor",
+          "reason": "Appears in changelog section :rocket: Enhancement"
+        },
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
@@ -36,8 +40,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.7.9",
-      "newVersion": "2.7.10",
+      "oldVersion": "2.7.10",
+      "newVersion": "2.7.11",
       "tagName": "latest",
       "constraints": [
         {
@@ -51,5 +55,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-10-19)\n\n* @glint/ember-tsc 1.12.0 (minor)\n* @glint/template 1.9.1 (patch)\n* @glint/tsserver-plugin 2.7.10 (patch)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`\n  * [#1253](https://github.com/typed-ember/glint/pull/1253) Give the on modifier a direct call signature ([@johanrd](https://github.com/johanrd))\n  * [#1254](https://github.com/typed-ember/glint/pull/1254) Give the each keyword a direct call signature ([@johanrd](https://github.com/johanrd))\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1255](https://github.com/typed-ember/glint/pull/1255) Compute Partial once for element attributes ([@johanrd](https://github.com/johanrd))\n* `@glint/ember-tsc`\n  * [#1256](https://github.com/typed-ember/glint/pull/1256) Map block params from their own source locations ([@johanrd](https://github.com/johanrd))\n  * [#1257](https://github.com/typed-ember/glint/pull/1257) Restore the outer SVG context after nested svg and foreignObject ([@johanrd](https://github.com/johanrd))\n\n#### :house: Internal\n* [#1251](https://github.com/typed-ember/glint/pull/1251) Fix the TypeScript 7 extension tests for native-preview 1.0.1 ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- Johan Røed ([@johanrd](https://github.com/johanrd))\n"
+  "description": "## Release (2026-10-19)\n\n* @glint/ember-tsc 1.13.0 (minor)\n* @glint/template 1.10.0 (minor)\n* @glint/tsserver-plugin 2.7.11 (patch)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`, `@glint/template`\n  * [#1252](https://github.com/typed-ember/glint/pull/1252) Type form.elements from the template's named controls ([@johanrd](https://github.com/johanrd))\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1258](https://github.com/typed-ember/glint/pull/1258) Let the modifier keyword pre-bind args of a generic modifier ([@johanrd](https://github.com/johanrd))\n* `@glint/ember-tsc`\n  * [#1259](https://github.com/typed-ember/glint/pull/1259) Fix each-in block params for a generic object type ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- Johan Røed ([@johanrd](https://github.com/johanrd))\n"
 }

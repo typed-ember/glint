@@ -2,6 +2,25 @@
 
 ## Release (2026-10-19)
 
+* @glint/ember-tsc 1.13.0 (minor)
+* @glint/template 1.10.0 (minor)
+* @glint/tsserver-plugin 2.7.11 (patch)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`, `@glint/template`
+  * [#1252](https://github.com/typed-ember/glint/pull/1252) Type form.elements from the template's named controls ([@johanrd](https://github.com/johanrd))
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#1258](https://github.com/typed-ember/glint/pull/1258) Let the modifier keyword pre-bind args of a generic modifier ([@johanrd](https://github.com/johanrd))
+* `@glint/ember-tsc`
+  * [#1259](https://github.com/typed-ember/glint/pull/1259) Fix each-in block params for a generic object type ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- Johan Røed ([@johanrd](https://github.com/johanrd))
+
+## Release (2026-10-19)
+
 * @glint/ember-tsc 1.12.0 (minor)
 * @glint/template 1.9.1 (patch)
 * @glint/tsserver-plugin 2.7.10 (patch)
