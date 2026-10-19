@@ -2,6 +2,19 @@
 
 ## Release (2026-10-19)
 
+* @glint/ember-tsc 1.13.1 (patch)
+* @glint/template 1.11.0 (minor)
+* @glint/tsserver-plugin 2.7.12 (patch)
+
+#### :rocket: Enhancement
+* `@glint/template`
+  * [#1262](https://github.com/typed-ember/glint/pull/1262) Keep form attributes partial in emitFormElement ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- Johan Røed ([@johanrd](https://github.com/johanrd))
+
+## Release (2026-10-19)
+
 * @glint/ember-tsc 1.13.0 (minor)
 * @glint/template 1.10.0 (minor)
 * @glint/tsserver-plugin 2.7.11 (patch)
