@@ -41,7 +41,7 @@
     "@glint/template": "workspace:*",
     "@types/qunit": "2.19.14",
     "decorator-transforms": "2.4.0",
-    "ember-content-mapper": "0.3.1",
+    "ember-content-mapper": "0.3.2",
     "ember-modifier": "^4.3.0",
     "ember-qunit": "9.1.0",
     "ember-source": "7.2.0",

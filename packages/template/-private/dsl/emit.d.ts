@@ -286,7 +286,7 @@ export declare function bindInvokable<Args extends unknown[], T, GivenNamed>(
 export declare function emitFormElement<Found>(name: 'form'): {
   name: 'form';
   element: FormElement<Found>;
-  attributes: AttributesForTagName<'form'>;
+  attributes: Partial<AttributesForTagName<'form'>>;
 };
 
 // An interface, not an intersection: it costs the checker less per form.
