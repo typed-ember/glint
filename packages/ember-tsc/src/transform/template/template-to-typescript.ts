@@ -979,28 +979,14 @@ export function templateToTypescript(
 
               let childStart = rangeForNode(child).start;
               let nameStart = template.indexOf(child.tag, childStart) + ':'.length;
-              let blockParamsStart = template.indexOf('|', childStart);
               let name = child.tag.slice(1);
 
               mapper.forNode(child, () =>
-                emitBlockContents(
-                  name,
-                  nameStart,
-                  child.blockParams,
-                  blockParamsStart,
-                  child.children,
-                ),
+                emitBlockContents(name, nameStart, child.params, child.children),
               );
             }
           } else {
-            let blockParamsStart = template.indexOf('|', rangeForNode(node).start);
-            emitBlockContents(
-              'default',
-              undefined,
-              node.blockParams,
-              blockParamsStart,
-              blocks.children,
-            );
+            emitBlockContents('default', undefined, node.params, blocks.children);
           }
         }
 
@@ -1636,35 +1622,17 @@ export function templateToTypescript(
     }
 
     function emitBlock(name: string, node: AST.Block, curriedInvokables?: Set<string>): void {
-      // The `as |params|` list sits just before the block's body, so search
-      // backward from the body's start. Searching backward from its *end*
-      // would find whatever `|` pair occurs last in the body instead — e.g. a
-      // nested block's params — anchoring these params at that later offset:
-      // silently mis-mapped when the param name happens to appear after it,
-      // or offset -1 (an invalid mapping) when it doesn't.
-      let paramsStart = template.lastIndexOf(
-        '|',
-        template.lastIndexOf('|', rangeForNode(node).start) - 1,
-      );
-
-      emitBlockContents(
-        name,
-        undefined,
-        node.blockParams,
-        paramsStart,
-        node.body,
-        curriedInvokables,
-      );
+      emitBlockContents(name, undefined, node.params, node.body, curriedInvokables);
     }
 
     function emitBlockContents(
       name: string,
       nameOffset: number | undefined,
-      blockParams: string[],
-      blockParamsOffset: number,
+      params: AST.VarHead[],
       children: AST.TopLevelStatement[],
       curriedInvokables?: Set<string>,
     ): void {
+      let blockParams = params.map((param) => param.name);
       assert(
         blockParams.every((name) => !name.includes('-')),
         'Block params must be valid TypeScript identifiers',
@@ -1678,12 +1646,11 @@ export function templateToTypescript(
 
       mapper.text('const [');
 
-      let start = blockParamsOffset;
-      for (let [index, param] of blockParams.entries()) {
+      for (let [index, param] of params.entries()) {
         if (index) mapper.text(', ');
 
-        start = template.indexOf(param, start);
-        mapper.identifier(makeJSSafe(param), start, param.length);
+        let start = param.loc.getStart().offset! + prefix.length;
+        mapper.identifier(makeJSSafe(param.name), start, param.name.length);
       }
 
       mapper.text('] = ');

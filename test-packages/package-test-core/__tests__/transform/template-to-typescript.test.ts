@@ -1527,6 +1527,37 @@ describe('Transform: rewriteTemplate', () => {
     });
   });
 
+  describe('block param mappings', () => {
+    // Returns the template offset that the emitted declaration of `param` maps back to.
+    function declarationOffset(template: string, param: string): number | undefined {
+      let { result } = templateToTypescript(template, { typesModule: '@glint/template' });
+      let match = new RegExp(`const \\[[^\\]]*?\\b${param}\\b`).exec(result!.code)!;
+      let start = match.index + match[0].length - param.length;
+      return result!.mapping.narrowestMappingForTransformedRange({
+        start,
+        end: start + param.length,
+      })?.originalRange.start;
+    }
+
+    test('default block with a `|` in an earlier argument', () => {
+      let template = '<Foo @label="a|item" as |item|>{{item}}</Foo>';
+
+      expect(declarationOffset(template, 'item')).toBe(template.indexOf('|item|') + 1);
+    });
+
+    test('named block with a param that prefixes an earlier one', () => {
+      let template = '<Foo><:body as |items item|>{{item}}</:body></Foo>';
+
+      expect(declarationOffset(template, 'item')).toBe(template.indexOf(' item|') + 1);
+    });
+
+    test('block curly with a param that prefixes an earlier one', () => {
+      let template = '{{#let 1 2 as |items item|}}{{item}}{{/let}}';
+
+      expect(declarationOffset(template, 'item')).toBe(template.indexOf(' item|') + 1);
+    });
+  });
+
   describe('error conditions', () => {
     test('Handlebars syntax error', () => {
       let { errors } = templateToTypescript('<Foo @attr={{"123}} />', {
