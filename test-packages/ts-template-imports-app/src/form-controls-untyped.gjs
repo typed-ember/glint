@@ -12,7 +12,7 @@ export default class FormControlsUntyped extends Component {
   <template>
     <form class="form" {{on "submit" this.submit}}><input name="from" /></form>
 
-    {{! @glint-expect-error }}
+    {{! @glint-expect-error: currentTarget is the form, not an input }}
     <form {{on "submit" this.wrongTarget}}><input name="from" /></form>
   </template>
 }
