@@ -38,7 +38,18 @@ describe('TypeScript 7 stand-down (content mapper mode)', () => {
     ) as { version: string };
 
     expect(await api.typescript7.version).toBe(tsdkManifest.version);
-    expect(await api.typescript7.mode).toBe('client');
+
+    // Glint registers .gts with an extension that exposes the content mapper API,
+    // and runs its own client only when none does. Looking for one activates it,
+    // so check after the mode has settled.
+    const mode = await api.typescript7.mode;
+    const apiOwner = extensions.all.some(
+      (extension) =>
+        extension.isActive &&
+        typeof (extension.exports as { registerContentMappers?: unknown } | undefined)
+          ?.registerContentMappers === 'function',
+    );
+    expect(mode).toBe(apiOwner ? 'registered' : 'client');
   });
 
   test('the TypeScript 7 extension runs its server for .ts files', async () => {
