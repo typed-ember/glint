@@ -87,7 +87,9 @@ declare const registeredElementModifier: ModifierLike<{ Element: RegisteredEleme
   const el = emitElement('registered-element-with-attrs');
 
   expectTypeOf(el.element).toEqualTypeOf<RegisteredElementWithAttrs>();
-  expectTypeOf(el.attributes).toEqualTypeOf<WithDataAttributes<RegisteredElementAttributes>>();
+  expectTypeOf(el.attributes).toEqualTypeOf<
+    Partial<WithDataAttributes<RegisteredElementAttributes>>
+  >();
 
   applyTagAttributes(el, {
     'prop-num': 123,

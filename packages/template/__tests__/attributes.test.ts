@@ -58,7 +58,7 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
   const el = emitElement('img');
   expectTypeOf(el.name).toEqualTypeOf<'img'>();
   expectTypeOf(el.element).toEqualTypeOf<HTMLImageElement>();
-  expectTypeOf(el.attributes).toEqualTypeOf<AttributesForTagName<'img'>>();
+  expectTypeOf(el.attributes).toEqualTypeOf<Partial<AttributesForTagName<'img'>>>();
 }
 
 {
