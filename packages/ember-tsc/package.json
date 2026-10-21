@@ -23,6 +23,10 @@
       "types": "./lib/transform/template/rewrite-module-standalone.d.ts",
       "default": "./lib/transform/template/rewrite-module-standalone.js"
     },
+    "./-private/content-mapper": {
+      "types": "./lib/-private/content-mapper.d.ts",
+      "default": "./lib/-private/content-mapper.js"
+    },
     "./bin/*": "./bin/*.js",
     "./globals": "./types/globals/index.d.ts",
     "./-private/dsl": {
