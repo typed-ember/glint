@@ -8,45 +8,38 @@ type EachInKeywordClass = abstract new <T>() => InstanceType<
       Named: { key?: string };
     };
     Blocks: {
-      default: [key: EachInBlockKey<T>, value: EachInBlockValue<T>];
+      default: EachInIteratorPair<T>;
       else?: [];
     };
   }>
 >;
 
 // A direct call signature, so templates don't instantiate the component class
-// for every object type.
-type EachInKeywordCall = DirectInvokable<
+// for every object type. Iterables and plain objects get their own overloads,
+// because a conditional type on a generic `T` stays deferred, and TS checks it
+// through both of its branches.
+type EachInKeywordCall = DirectInvokable<{
+  <K, V>(
+    object: Iterable<[K, V]> | null | undefined,
+    named?: NamedArgs<{ key?: string }>,
+  ): EachInBlocks<[key: K, value: V]>;
+  <T extends NotIterable>(
+    object: T,
+    named?: NamedArgs<{ key?: string }>,
+  ): EachInBlocks<[key: EachInKey<T>, value: Exclude<T, null | undefined>[EachInKey<T>]]>;
+  // A union of an iterable and an object, or a `T` with no constraint, which
+  // keeps the `any` block params it had before.
   <T>(
     object: T,
     named?: NamedArgs<{ key?: string }>,
-  ) => ComponentReturn<{
-    default: [key: EachInBlockKey<T>, value: EachInBlockValue<T>];
-    else?: [];
-  }>
->;
+  ): EachInBlocks<unknown extends T ? [key: any, value: any] : EachInIteratorPair<T>>;
+}>;
 
-export interface EachInKeyword extends EachInKeywordClass, EachInKeywordCall {}
+type EachInBlocks<Params extends unknown[]> = ComponentReturn<{ default: Params; else?: [] }>;
 
-// The block params are a tuple, not a conditional type, so that a generic `T`
-// does not make them `unknown`. The `NotIterable` check comes first so that a
-// generic `T extends object`, which TS checks through its constraint, gets
-// `string` keys. `{}` (which also allows primitives) keeps `never` keys.
 type NotIterable = { [Symbol.iterator]?: never } | null | undefined;
 
-type EachInBlockKey<T> = T extends NotIterable
-  ? [EachInKey<T>] extends [never]
-    ? T extends object
-      ? string extends T
-        ? never
-        : string
-      : never
-    : EachInKey<T>
-  : EachInIteratorPair<T>[0];
-
-type EachInBlockValue<T> = T extends NotIterable
-  ? Exclude<T, null | undefined>[EachInKey<T>]
-  : EachInIteratorPair<T>[1];
+export interface EachInKeyword extends EachInKeywordClass, EachInKeywordCall {}
 
 type EachInIteratorPair<T> =
   T extends Iterable<[infer K, infer V]>

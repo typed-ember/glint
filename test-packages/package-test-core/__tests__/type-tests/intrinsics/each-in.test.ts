@@ -185,5 +185,15 @@ function genericRecord<T extends Record<string, number>>(object: T): void {
   void [keyString, valueNumber];
 }
 
+// A union of a map and an object gives the entries of each
+declare const mapOrObject: Map<number, boolean> | { a: string };
+
+{
+  const component = emitComponent(eachIn(mapOrObject));
+  const [key, value] = component.blockParams.default;
+  expectTypeOf(key).toEqualTypeOf<number | 'a'>();
+  expectTypeOf(value).toEqualTypeOf<boolean | string>();
+}
+
 genericObject({ a: 1 });
 genericRecord({ a: 1 });
