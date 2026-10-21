@@ -1,15 +1,11 @@
 {
   "solution": {
     "@glint/ember-tsc": {
-      "impact": "minor",
-      "oldVersion": "1.13.1",
-      "newVersion": "1.14.0",
+      "impact": "patch",
+      "oldVersion": "1.14.0",
+      "newVersion": "1.14.1",
       "tagName": "latest",
       "constraints": [
-        {
-          "impact": "minor",
-          "reason": "Appears in changelog section :rocket: Enhancement"
-        },
         {
           "impact": "patch",
           "reason": "Appears in changelog section :bug: Bug Fix"
@@ -22,8 +18,8 @@
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.7.12",
-      "newVersion": "2.7.13",
+      "oldVersion": "2.7.13",
+      "newVersion": "2.7.14",
       "tagName": "latest",
       "constraints": [
         {
@@ -37,5 +33,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-10-21)\n\n* @glint/ember-tsc 1.14.0 (minor)\n* @glint/tsserver-plugin 2.7.13 (patch)\n\n#### :rocket: Enhancement\n* `@glint/ember-tsc`\n  * [#1264](https://github.com/typed-ember/glint/pull/1264) Widen @glimmer/syntax range to >= 0.95.0 ([@johanrd](https://github.com/johanrd))\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1266](https://github.com/typed-ember/glint/pull/1266) Fix each-in block params for a mapped or generic-keyed object ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- Johan Røed ([@johanrd](https://github.com/johanrd))\n"
+  "description": "## Release (2026-10-21)\n\n* @glint/ember-tsc 1.14.1 (patch)\n* @glint/tsserver-plugin 2.7.14 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1268](https://github.com/typed-ember/glint/pull/1268) Widen ember-estree range to >= 0.8.0 ([@johanrd](https://github.com/johanrd))\n\n#### Committers: 1\n- Johan Røed ([@johanrd](https://github.com/johanrd))\n"
 }
