@@ -1,5 +1,21 @@
 # Changelog
 
+## Release (2026-10-21)
+
+* @glint/ember-tsc 1.14.0 (minor)
+* @glint/tsserver-plugin 2.7.13 (patch)
+
+#### :rocket: Enhancement
+* `@glint/ember-tsc`
+  * [#1264](https://github.com/typed-ember/glint/pull/1264) Widen @glimmer/syntax range to >= 0.95.0 ([@johanrd](https://github.com/johanrd))
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1266](https://github.com/typed-ember/glint/pull/1266) Fix each-in block params for a mapped or generic-keyed object ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- Johan Røed ([@johanrd](https://github.com/johanrd))
+
 ## Release (2026-10-19)
 
 * @glint/ember-tsc 1.13.1 (patch)
