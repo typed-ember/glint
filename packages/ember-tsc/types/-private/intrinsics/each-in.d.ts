@@ -20,7 +20,7 @@ type EachInKeywordClass = abstract new <T>() => InstanceType<
 // through both of its branches.
 type EachInKeywordCall = DirectInvokable<{
   <K, V>(
-    object: Iterable<[K, V]> | null | undefined,
+    object: Iterable<[K, V]>,
     named?: NamedArgs<{ key?: string }>,
   ): EachInBlocks<[key: K, value: V]>;
   <T extends NotIterable>(
