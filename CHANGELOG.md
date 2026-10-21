@@ -2,6 +2,18 @@
 
 ## Release (2026-10-21)
 
+* @glint/ember-tsc 1.14.1 (patch)
+* @glint/tsserver-plugin 2.7.14 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1268](https://github.com/typed-ember/glint/pull/1268) Widen ember-estree range to >= 0.8.0 ([@johanrd](https://github.com/johanrd))
+
+#### Committers: 1
+- Johan Røed ([@johanrd](https://github.com/johanrd))
+
+## Release (2026-10-21)
+
 * @glint/ember-tsc 1.14.0 (minor)
 * @glint/tsserver-plugin 2.7.13 (patch)
 
