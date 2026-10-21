@@ -48,7 +48,7 @@
     "qunit": "2.26.0",
     "qunit-dom": "3.5.0",
     "typescript": "7.1.0-dev.20260901.1",
-    "vite": "8.2.2"
+    "vite": "8.2.4"
   },
   "volta": {
     "extends": "../../package.json"
