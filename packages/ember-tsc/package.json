@@ -81,7 +81,7 @@
     }
   },
   "dependencies": {
-    "@glimmer/syntax": "^0.95.0",
+    "@glimmer/syntax": ">= 0.95.0",
     "@glint/template": "workspace:*",
     "@volar/kit": "~2.4.28",
     "@volar/language-core": "~2.4.28",
