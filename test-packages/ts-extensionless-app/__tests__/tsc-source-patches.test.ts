@@ -4,7 +4,6 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import {
   applyProxyPatches,
-  patchTscJsExtensionForGts,
   patchTscSolutionBuilderWatchReuse,
   replaceExactlyOnce,
 } from '@glint/ember-tsc/cli/tsc-source-patches';
@@ -80,50 +79,29 @@ describe('@volar/typescript proxyCreateProgram patches', () => {
     expectParses(patched, 'proxyCreateProgram.js');
   });
 
-  test('disables the module-resolution fast path for hidden extensions', () => {
-    expect(patched).toContain('!languagePlugins.some(p => p.typescript?.resolveHiddenExtensions)');
-  });
-
-  test('keys volar caches per project', () => {
-    expect(patched).toContain('const projectCaches = new Map()');
-    expect(patched).toContain("String(options.options.configFilePath ?? '')");
-    // The single-slot cache the upstream source uses must be gone.
-    expect(volarSource).toContain('let moduleResolutionCache;');
-    expect(patched).not.toMatch(
-      /const sourceFileSnapshots = new language_core_1\.FileMap\(ts\.sys\.useCaseSensitiveFileNames\);\n {4}const parsedSourceFiles/,
+  test('scopes sourceFileSnapshots to the per-project state', () => {
+    expect(volarSource).toContain('const states = new Map();');
+    expect(patched).toContain('    let sourceFileSnapshots;');
+    expect(patched).toContain(
+      'sourceFileSnapshots = state.sourceFileSnapshots ??= new language_core_1.FileMap(',
     );
   });
 
-  // The per-project entries hold a whole volar `language` (every .gts's virtual
-  // code) plus the snapshots that reference SourceFiles. They must not outlive
-  // the Program they belong to, or a long watch session grows without bound.
-  test('holds per-project state weakly', () => {
-    expect(patched).toContain('languageRef: new WeakRef(language)');
-    expect(patched).toContain('projectCacheEntry.languageRef.deref()');
-    expect(patched).toContain('new FinalizationRegistry');
-  });
-
-  test('scopes sourceFileSnapshots per project so it cannot pin SourceFiles', () => {
-    expect(patched).toContain('sourceFileSnapshots = projectCacheEntry.sourceFileSnapshots');
-    expect(patched).toContain('let sourceFileSnapshots =');
-  });
-
   test('fails loudly when an anchor no longer matches', () => {
-    const upgraded = volarSource.replace('let moduleResolutionCache;', 'let mrc;');
+    const upgraded = volarSource.replace(
+      'const { languagePlugins, language, moduleResolutionCache } = state;',
+      'const { languagePlugins, language } = state;',
+    );
     expect(() => applyProxyPatches(upgraded)).toThrow(/failed to patch @volar\/typescript/);
   });
 });
 
 describe('typescript solution-builder watch-reuse patches', () => {
-  const patched = patchTscSolutionBuilderWatchReuse(patchTscJsExtensionForGts(tscSource));
+  const patched = patchTscSolutionBuilderWatchReuse(tscSource);
 
   test('applies against the installed typescript version', () => {
     expect(patched).not.toBe(tscSource);
     expectParses(patched, '_tsc.js');
-  });
-
-  test('teaches tryGetJSExtensionForFile about .gts/.gjs', () => {
-    expect(patched).toMatch(/if \(\/\\\.g\[jt\]s\$\/\.test\(\w+\)\) return "\.js";/);
   });
 
   test('retains programs in watch mode only', () => {
@@ -200,13 +178,6 @@ describe('typescript solution-builder watch-reuse patches', () => {
     );
     expect(() => patchTscSolutionBuilderWatchReuse(upgraded)).toThrow(
       /failed to patch typescript solution-builder watch reuse \(rootFileNames binding\)/,
-    );
-  });
-
-  test('fails loudly when tryGetJSExtensionForFile changes shape', () => {
-    const upgraded = tscSource.replace('function tryGetJSExtensionForFile(', 'function getJsExt(');
-    expect(() => patchTscJsExtensionForGts(upgraded)).toThrow(
-      /failed to patch typescript `tryGetJSExtensionForFile`/,
     );
   });
 });

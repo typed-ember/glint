@@ -36,214 +36,45 @@ export function replaceExactlyOnce(
   return source.slice(0, first) + replacement + source.slice(first + needle.length);
 }
 
-function replacePatternExactlyOnce(
-  source: string,
-  pattern: RegExp,
-  replacement: string,
-  target: string,
-  what: string,
-): string {
-  const matches = source.match(new RegExp(pattern.source, `${pattern.flags.replace('g', '')}g`));
-  if (!matches) {
-    failPatch(target, what, 'source not found in expected shape');
-  }
-  if (matches.length > 1) {
-    failPatch(target, what, 'expected exactly one occurrence but found several');
-  }
-  return source.replace(pattern, replacement);
-}
-
 const VOLAR_PROXY = '@volar/typescript proxyCreateProgram.js';
 const TSC = 'typescript solution-builder watch reuse';
 
-// Volar's proxyCreateProgram fast-paths module resolution back to the
-// original compiler host when no import literal ends in a `.gts`/`.gjs`
-// extension. In one-shot `tsc` the original host has no resolver, so volar's
-// wrapper (which makes `Bang.gts` look like `Bang.d.ts` to tsc's extensionless
-// resolver via `resolveHiddenExtensions`) runs and extensionless imports work.
-// But `tsc --watch` installs a cached resolver on the host before volar's
-// proxy runs, so extensionless `.gts` imports skip the wrapper and fail with
-// TS2307. Patch the compiled volar source so the fast-path is also disabled
-// whenever any plugin sets `resolveHiddenExtensions: true`.
+// Volar's `proxyCreateProgram` keeps its language instance and module
+// resolution cache per `configFilePath`, but `sourceFileSnapshots` is one map
+// for the whole process. Each entry holds the SourceFile it was made from.
 //
-// Upstream fix: https://github.com/volarjs/volar.js/pull/309 — once that ships
-// in a `@volar/typescript` release we depend on, this monkey-patch can go.
-// Tracking: https://github.com/typed-ember/glint/issues/806
-export function applyProxyPatches(source: string): string {
-  const guard = '!languagePlugins.some(p => p.typescript?.resolveHiddenExtensions) && ';
-
-  const literalsPattern =
-    /(if \(resolveModuleNameLiterals\s+&& )(moduleLiterals\.every\(name => !pluginExtensions\.some\(ext => name\.text\.endsWith\(ext\)\)\)\) \{)/;
-  const namesPattern =
-    /(if \(resolveModuleNames && )(moduleNames\.every\(name => !pluginExtensions\.some\(ext => name\.endsWith\(ext\)\)\)\) \{)/;
-
-  source = replacePatternExactlyOnce(
-    source,
-    literalsPattern,
-    `$1${guard}$2`,
-    VOLAR_PROXY,
-    'resolveModuleNameLiterals fast-path condition',
-  );
-  source = replacePatternExactlyOnce(
-    source,
-    namesPattern,
-    `$1${guard}$2`,
-    VOLAR_PROXY,
-    'resolveModuleNames fast-path condition',
-  );
-  source = patchProxyPerProjectCaches(source);
-  return source;
-}
-
-// Volar's `proxyCreateProgram` keeps its language instance, virtual-file
-// snapshots, and moduleResolutionCache in a SINGLE slot, invalidated whenever
-// `createProgram` is called with different rootNames/options than the previous
-// call. That assumption holds for one-project processes (plain `tsc`,
-// `vue-tsc`), but under `tsc -b` a single process builds MANY projects, so
-// every project's build evicts the previous project's cache: each watch
-// iteration re-transforms every .gts file and re-resolves every import.
-// Key the cache per `configFilePath` instead.
+// With project references, one physical file is a different SourceFile object
+// in each project.
+// So under `tsc -b`, each project switch replaces the snapshot,
+// and volar transforms that .gts file again.
 //
-// Lifetime: entries are held only for as long as the corresponding project's
-// Program is alive. Volar's `decorateProgram()` installs closures over
-// `language` onto the Program, so a live Program is a strong reference to its
-// language; we keep only a `WeakRef` here and let a `FinalizationRegistry` drop
-// the entry once the Program is gone. That means the cache follows the programs
-// retained by `patchTscSolutionBuilderWatchReuse` without growing without
-// bound, and projects that leave the build graph are released automatically —
-// no eviction policy to tune.
+// The map also keeps the last SourceFile of every file
+// until the process exits.
 //
-// Measured effect (19,286-file project, one-line change, together with the
-// solution-builder patches below): ResolveModule 7.2s -> 0.0s, iteration
-// 30s -> ~2s. Tracking: https://github.com/typed-ember/glint/issues/1199 /
+// Move the map onto volar's per-project state.
+// Then it is released together with the project's language.
+//
+// Tracking: https://github.com/typed-ember/glint/issues/1199 /
 // upstream https://github.com/volarjs/volar.js/issues/314
-export function patchProxyPerProjectCaches(source: string): string {
-  // Replace the whole single-slot declaration block so the expected shape is
-  // asserted in one place.
-  const declarations = `    const sourceFileSnapshots = new language_core_1.FileMap(ts.sys.useCaseSensitiveFileNames);
-    const parsedSourceFiles = new WeakMap();
-    let lastOptions;
-    let languagePlugins;
-    let language;
-    let moduleResolutionCache;`;
-
+export function applyProxyPatches(source: string): string {
   source = replaceExactlyOnce(
     source,
-    declarations,
-    `    const projectCaches = new Map();
-    const projectCacheRegistry = typeof FinalizationRegistry === "function"
-        ? new FinalizationRegistry((held) => {
-            if (held.caches.get(held.key) === held.entry) {
-                held.caches.delete(held.key);
-            }
-        })
-        : undefined;
-    // Scoped per project alongside \`language\`. With project references the same
-    // physical file is a different SourceFile object in each project, so a
-    // process-global map here would both churn on every project switch and pin
-    // every SourceFile it has ever seen for the lifetime of the process.
-    let sourceFileSnapshots = new language_core_1.FileMap(ts.sys.useCaseSensitiveFileNames);
-    // Keyed by SourceFile object, which is already per project, so this needs no
-    // scoping and stays collectable along with the SourceFiles it describes.
-    const parsedSourceFiles = new WeakMap();
-    let lastOptions;
-    let languagePlugins;
-    let language;
-    let moduleResolutionCache;`,
+    `    const sourceFileSnapshots = new language_core_1.FileMap(ts.sys.useCaseSensitiveFileNames);`,
+    `    let sourceFileSnapshots;`,
     VOLAR_PROXY,
-    'single-slot cache declarations',
+    'sourceFileSnapshots declaration',
   );
 
-  // Swap the current project's cache slot in at the top of every createProgram
-  // call, and persist it back after the cache-rebuild block.
-  const applyEntry = `            const options = args[0];
-            assert(!!options.host, '!!options.host');
-            if (!lastOptions`;
-
   source = replaceExactlyOnce(
     source,
-    applyEntry,
-    `            const options = args[0];
-            assert(!!options.host, '!!options.host');
-            const projectCacheKey = String(options.options.configFilePath ?? '');
-            const projectCacheEntry = projectCacheKey ? projectCaches.get(projectCacheKey) : undefined;
-            // A dead WeakRef means this project's Program has been released, so
-            // its virtual code is gone too: fall through and rebuild.
-            const cachedLanguage = projectCacheEntry && projectCacheEntry.languageRef.deref();
-            if (cachedLanguage) {
-                lastOptions = projectCacheEntry.lastOptions;
-                languagePlugins = projectCacheEntry.languagePlugins;
-                language = cachedLanguage;
-                moduleResolutionCache = projectCacheEntry.moduleResolutionCache;
-                sourceFileSnapshots = projectCacheEntry.sourceFileSnapshots;
-            }
-            else {
-                lastOptions = languagePlugins = language = moduleResolutionCache = undefined;
-                sourceFileSnapshots = new language_core_1.FileMap(ts.sys.useCaseSensitiveFileNames);
-            }
-            if (!lastOptions`,
+    `            const { languagePlugins, language, moduleResolutionCache } = state;`,
+    `            const { languagePlugins, language, moduleResolutionCache } = state;
+            sourceFileSnapshots = state.sourceFileSnapshots ??= new language_core_1.FileMap(ts.sys.useCaseSensitiveFileNames);`,
     VOLAR_PROXY,
-    'createProgram apply entry',
-  );
-
-  // Persist the (possibly rebuilt) slot right after the rebuild block closes —
-  // anchored on the `const originalHost = options.host;` line that follows it.
-  //
-  // Note that a cached `language` closes over the `originalHost` of the call
-  // that created it. Under `tsc -b` that is the solution builder's single
-  // long-lived compiler host, so it stays valid across iterations; if TS ever
-  // starts recreating that host per iteration, this cache has to be keyed on it.
-  const afterRebuild = `            const originalHost = options.host;`;
-
-  source = replaceExactlyOnce(
-    source,
-    afterRebuild,
-    `            if (projectCacheKey) {
-                const projectCacheValue = { lastOptions, languagePlugins, languageRef: new WeakRef(language), moduleResolutionCache, sourceFileSnapshots };
-                projectCaches.set(projectCacheKey, projectCacheValue);
-                if (projectCacheRegistry) {
-                    projectCacheRegistry.register(language, { caches: projectCaches, key: projectCacheKey, entry: projectCacheValue });
-                }
-            }
-            const originalHost = options.host;`,
-    VOLAR_PROXY,
-    'originalHost anchor',
+    'per-project state destructuring',
   );
 
   return source;
-}
-
-// TypeScript's `tryGetJSExtensionForFile` maps a source file extension to the
-// JS extension it emits (`.ts` -> `.js`, `.tsx` -> `.jsx`/`.js`, ...). It has no
-// case for `.gts`/`.gjs`, even though we register them as supported TS
-// extensions (so `hasTSFileExtension` is true for them). In build mode
-// (`tsc -b`), declaration emit computes module specifiers for imported symbols;
-// when the preferred ending is "js" (e.g. a sibling `./x.js` import is preserved
-// in the emitted `.d.ts`) and the target is a `.gts`/`.gjs` file, tsc calls
-// `getJSExtensionForFile`, which `Debug.fail`s with
-// "Extension .gts is unsupported" and aborts the entire build. `.gts`/`.gjs`
-// compile to `.js` (like `.ts`), so teach the function that mapping by
-// short-circuiting at the top of the function. The proper home for this is
-// volar's `transformTscContent` (which already patches `changeExtension` and the
-// supported-extension lists); this monkey-patch can go once that lands upstream.
-export function patchTscJsExtensionForGts(source: string): string {
-  const pattern = /function tryGetJSExtensionForFile\(([A-Za-z0-9_$]+),[^)]*\)\s*\{/;
-  const match = pattern.exec(source);
-  if (!match) {
-    failPatch(
-      'typescript `tryGetJSExtensionForFile`',
-      'function signature',
-      'source not found in expected shape',
-    );
-  }
-  const fileNameParam = match[1];
-  return replacePatternExactlyOnce(
-    source,
-    pattern,
-    `$&\n    if (/\\.g[jt]s$/.test(${fileNameParam})) return ".js";`,
-    'typescript `tryGetJSExtensionForFile`',
-    'function signature',
-  );
 }
 
 // `tsc -b --watch` reconstructs each project's Program from scratch on every
@@ -252,7 +83,7 @@ export function patchTscJsExtensionForGts(source: string): string {
 // `createProgram`, and its compiler host (unlike plain `--watch`'s) has no
 // SourceFile cache across iterations. For a 19,286-file project a one-line
 // change cost 30s (Parse 7.3s + ResolveModule 7.2s + re-transform of every
-// .gts); with these patches (plus the per-project proxy caches above) the same
+// .gts); with these patches and the per-project snapshots above, the same
 // iteration costs ~2s — identical to plain `--watch`. Retaining the programs is
 // what costs memory (~+1.4GB RSS on that project); everything layered on top of
 // them is held weakly so nothing outlives the programs themselves.
