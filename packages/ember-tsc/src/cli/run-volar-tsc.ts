@@ -4,11 +4,7 @@ import { createEmberLanguagePlugin } from '../volar/ember-language-plugin.js';
 import { findConfig } from '../config/index.js';
 import { VirtualGtsCode } from '../volar/gts-virtual-code.js';
 import { getTransformErrorDiagnostics } from '../transform/diagnostics/transform-errors.js';
-import {
-  applyProxyPatches,
-  patchTscJsExtensionForGts,
-  patchTscSolutionBuilderWatchReuse,
-} from './tsc-source-patches.js';
+import { applyProxyPatches, patchTscSolutionBuilderWatchReuse } from './tsc-source-patches.js';
 
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -73,8 +69,7 @@ function patchCompilerSourcesForGts(): void {
     if (/\/typescript\/lib\/[^/]+\.js$/.test(filePath)) {
       const text = typeof result === 'string' ? result : (result as Buffer).toString('utf8');
       if (text.includes('function tryGetJSExtensionForFile(')) {
-        let patched = patchTscJsExtensionForGts(text);
-        patched = patchTscSolutionBuilderWatchReuse(patched);
+        const patched = patchTscSolutionBuilderWatchReuse(text);
         return typeof result === 'string' ? patched : Buffer.from(patched);
       }
     }
