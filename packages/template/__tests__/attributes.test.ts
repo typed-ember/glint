@@ -7,6 +7,7 @@ import {
   emitComponent,
   emitElement,
   emitSVGElement,
+  NamedArgsMarker,
   resolve,
   templateForBackingValue,
 } from '../-private/dsl';
@@ -306,4 +307,25 @@ class MyComponent extends TestComponent<{ Element: HTMLImageElement }> {
     role: 'img',
     tabindex: '0',
   });
+}
+
+class ConditionalElementComponent<AsDiv extends boolean> extends TestComponent<{
+  Element: AsDiv extends true ? HTMLDivElement : HTMLButtonElement;
+  Args: { asDiv: AsDiv };
+}> {}
+
+class GenericButtonComponent<E extends HTMLButtonElement> extends TestComponent<{ Element: E }> {}
+
+export function conditionalElementAttributes<IsFake extends boolean>(asDiv: IsFake): void {
+  const component = emitComponent(
+    resolve(ConditionalElementComponent)({ asDiv, ...NamedArgsMarker }),
+  );
+  applyAttributes(component.element, { id: 'trigger', 'aria-haspopup': 'listbox' });
+}
+
+export function genericElementAttributes<E extends HTMLButtonElement>(
+  button: typeof GenericButtonComponent<E>,
+): void {
+  const component = emitComponent(resolve(button)());
+  applyAttributes(component.element, { id: 'action', title: 'Run' });
 }
