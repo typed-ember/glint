@@ -1036,7 +1036,7 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
             "line": 27,
             "offset": 25,
           },
-          "text": "Object literal may only specify known properties, and 'foo' does not exist in type 'Partial<WithDataAttributes<HTMLDivElementAttributes | HTMLHeadingElementAttributes | HTMLParagraphElementAttributes | HTMLTableCaptionElementAttributes>>'.",
+          "text": "Object literal may only specify known properties, and 'foo' does not exist in type 'Partial<WithDataAttributes<HTMLDivElementAttributes>> | Partial<WithDataAttributes<HTMLHeadingElementAttributes>> | Partial<...> | Partial<...>'.",
         },
       ]
     `);

@@ -95,6 +95,24 @@ export type AttributesForElement<T extends Element> = [CustomElementLookup<T>] e
       : Record<string, AttrValue>
   : AttributesForCustomElement<CustomElementLookup<T>>;
 
+type PartialAttributesByName<Map> = {
+  [K in keyof Map]: Partial<WithDataAttributes<Map[K]>>;
+};
+
+type PartialCustomElementAttributes = {
+  [K in keyof GlintCustomElementTagNameMap]: Partial<AttributesForCustomElement<K>>;
+};
+
+export type PartialAttributesForElement<T extends Element> = [CustomElementLookup<T>] extends [
+  never,
+]
+  ? [HTMLElementLookup<T> | SVGElementLookup<T>] extends [never]
+    ? Partial<Record<string, AttrValue>>
+    :
+        | PartialAttributesByName<GlintHtmlElementAttributesMap>[HTMLElementLookup<T>]
+        | PartialAttributesByName<GlintSvgElementAttributesMap>[SVGElementLookup<T>]
+  : PartialCustomElementAttributes[CustomElementLookup<T>];
+
 /**
  * Attributes for an element written with the given tag name. Unlike
  * `AttributesForElement`, this can resolve attributes for custom elements

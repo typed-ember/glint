@@ -15,6 +15,7 @@ import {
   AttributesForTagName,
   ElementForTagName,
   MathMlElementForTagName,
+  PartialAttributesForElement,
   SVGElementForTagName,
 } from './types';
 import { MaybeNamed, PrebindArgs, UnionKeysOf } from '../signature';
@@ -214,7 +215,7 @@ export declare function applySplattributes<
  *     <AnotherComponent foo={{bar}} />
  */
 // `A` is never inferred, so the attribute type is computed once per element type.
-export declare function applyAttributes<T extends Element, A = Partial<AttributesForElement<T>>>(
+export declare function applyAttributes<T extends Element, A = PartialAttributesForElement<T>>(
   element: T,
   attrs: NoInfer<A>,
 ): void;
