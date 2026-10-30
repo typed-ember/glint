@@ -1,5 +1,18 @@
 # Changelog
 
+## Release (2026-10-30)
+
+* @glint/ember-tsc 1.14.3 (patch)
+* @glint/template 1.11.1 (patch)
+* @glint/tsserver-plugin 2.7.16 (patch)
+
+#### :bug: Bug Fix
+* `@glint/template`
+  * [#1273](https://github.com/typed-ember/glint/pull/1273) Check attributes on components with a generic Element ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2026-10-22)
 
 * @glint/ember-tsc 1.14.2 (patch)

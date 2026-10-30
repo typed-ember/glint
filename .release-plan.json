@@ -2,8 +2,21 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.14.1",
-      "newVersion": "1.14.2",
+      "oldVersion": "1.14.2",
+      "newVersion": "1.14.3",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Has dependency `workspace:*` on @glint/template"
+        }
+      ],
+      "pkgJSONPath": "./packages/ember-tsc/package.json"
+    },
+    "@glint/template": {
+      "impact": "patch",
+      "oldVersion": "1.11.0",
+      "newVersion": "1.11.1",
       "tagName": "latest",
       "constraints": [
         {
@@ -11,24 +24,17 @@
           "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
-      "pkgJSONPath": "./packages/ember-tsc/package.json"
-    },
-    "@glint/template": {
-      "oldVersion": "1.11.0"
+      "pkgJSONPath": "./packages/template/package.json"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.7.14",
-      "newVersion": "2.7.15",
+      "oldVersion": "2.7.15",
+      "newVersion": "2.7.16",
       "tagName": "latest",
       "constraints": [
         {
           "impact": "patch",
           "reason": "Has dependency `workspace:*` on @glint/ember-tsc"
-        },
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
       "pkgJSONPath": "./packages/tsserver-plugin/package.json"
@@ -37,5 +43,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-10-22)\n\n* @glint/ember-tsc 1.14.2 (patch)\n* @glint/tsserver-plugin 2.7.15 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`, `@glint/tsserver-plugin`\n  * [#1271](https://github.com/typed-ember/glint/pull/1271) Support @volar/typescript 2.4.29 and newer ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### Committers: 1\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n"
+  "description": "## Release (2026-10-30)\n\n* @glint/ember-tsc 1.14.3 (patch)\n* @glint/template 1.11.1 (patch)\n* @glint/tsserver-plugin 2.7.16 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1273](https://github.com/typed-ember/glint/pull/1273) Check attributes on components with a generic Element ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
