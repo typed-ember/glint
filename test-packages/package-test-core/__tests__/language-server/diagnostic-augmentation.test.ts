@@ -196,12 +196,12 @@ describe('Language Server: Diagnostic Augmentation', () => {
               "message": "Arguments for the rest parameter 'values' were not provided.",
               "span": {
                 "end": {
-                  "line": 196,
+                  "line": 197,
                   "offset": 49,
                 },
                 "file": "\${repoRootPath}/packages/template/-private/dsl/emit.d.ts",
                 "start": {
-                  "line": 196,
+                  "line": 197,
                   "offset": 5,
                 },
               },
