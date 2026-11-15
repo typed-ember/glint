@@ -778,7 +778,18 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestLanguageServerDiagnostics(
+    // Glint's own errors come from the TS plugin only. The language server
+    // used to report them too, which showed each one twice in VS Code. It now
+    // offers no diagnostics at all, so it rejects the request.
+    await expect(
+      requestLanguageServerDiagnostics(
+        'ts-template-imports-app/src/empty-fixture.gts',
+        'glimmer-ts',
+        code,
+      ),
+    ).rejects.toThrow('Unhandled method textDocument/diagnostic');
+
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       code,
@@ -787,31 +798,21 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
-          "code": 9999,
-          "data": {
-            "documentUri": "volar-embedded-content://gts/PATH_TO_FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 3,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/test-packages/ts-template-imports-app/src/empty-fixture.gts",
-            "version": 0,
+          "category": "error",
+          "code": 0,
+          "end": {
+            "line": 5,
+            "offset": 19,
           },
-          "message": "Parse error on line 2:
+          "source": "glint",
+          "start": {
+            "line": 5,
+            "offset": 17,
+          },
+          "text": "Parse error on line 2:
           <div>SYNTAX {{ERROR</div>  
       ------------------^
       Expecting 'OPEN_SEXPR', 'ID', 'OPEN_ARRAY', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'",
-          "range": {
-            "end": {
-              "character": 18,
-              "line": 4,
-            },
-            "start": {
-              "character": 16,
-              "line": 4,
-            },
-          },
-          "severity": 1,
-          "source": "glint",
         },
       ]
     `);
@@ -828,7 +829,18 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
       }
     `;
 
-    const diagnostics = await requestLanguageServerDiagnostics(
+    // Glint's own errors come from the TS plugin only. The language server
+    // used to report them too, which showed each one twice in VS Code. It now
+    // offers no diagnostics at all, so it rejects the request.
+    await expect(
+      requestLanguageServerDiagnostics(
+        'ts-template-imports-app/src/empty-fixture.gts',
+        'glimmer-ts',
+        code,
+      ),
+    ).rejects.toThrow('Unhandled method textDocument/diagnostic');
+
+    const diagnostics = await requestTsserverDiagnostics(
       'ts-template-imports-app/src/empty-fixture.gts',
       'glimmer-ts',
       code,
@@ -837,28 +849,18 @@ describe('Language Server: Diagnostics (ts plugin)', () => {
     expect(diagnostics).toMatchInlineSnapshot(`
       [
         {
-          "code": 9999,
-          "data": {
-            "documentUri": "volar-embedded-content://gts/PATH_TO_FILE",
-            "isFormat": false,
-            "original": {},
-            "pluginIndex": 3,
-            "uri": "file:///path/to/EPHEMERAL_TEST_PROJECT/test-packages/ts-template-imports-app/src/empty-fixture.gts",
-            "version": 0,
+          "category": "error",
+          "code": 0,
+          "end": {
+            "line": 7,
+            "offset": 2,
           },
-          "message": "Unexpected token \`<lexing error>\`. Expected content tag",
-          "range": {
-            "end": {
-              "character": 1,
-              "line": 6,
-            },
-            "start": {
-              "character": 0,
-              "line": 6,
-            },
-          },
-          "severity": 1,
           "source": "glint",
+          "start": {
+            "line": 7,
+            "offset": 1,
+          },
+          "text": "Unexpected token \`<lexing error>\`. Expected content tag",
         },
       ]
     `);
