@@ -2,21 +2,8 @@
   "solution": {
     "@glint/ember-tsc": {
       "impact": "patch",
-      "oldVersion": "1.14.2",
-      "newVersion": "1.14.3",
-      "tagName": "latest",
-      "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Has dependency `workspace:*` on @glint/template"
-        }
-      ],
-      "pkgJSONPath": "./packages/ember-tsc/package.json"
-    },
-    "@glint/template": {
-      "impact": "patch",
-      "oldVersion": "1.11.0",
-      "newVersion": "1.11.1",
+      "oldVersion": "1.14.3",
+      "newVersion": "1.14.4",
       "tagName": "latest",
       "constraints": [
         {
@@ -24,12 +11,15 @@
           "reason": "Appears in changelog section :bug: Bug Fix"
         }
       ],
-      "pkgJSONPath": "./packages/template/package.json"
+      "pkgJSONPath": "./packages/ember-tsc/package.json"
+    },
+    "@glint/template": {
+      "oldVersion": "1.11.1"
     },
     "@glint/tsserver-plugin": {
       "impact": "patch",
-      "oldVersion": "2.7.15",
-      "newVersion": "2.7.16",
+      "oldVersion": "2.7.16",
+      "newVersion": "2.7.17",
       "tagName": "latest",
       "constraints": [
         {
@@ -43,5 +33,5 @@
       "oldVersion": "2.0.1"
     }
   },
-  "description": "## Release (2026-10-30)\n\n* @glint/ember-tsc 1.14.3 (patch)\n* @glint/template 1.11.1 (patch)\n* @glint/tsserver-plugin 2.7.16 (patch)\n\n#### :bug: Bug Fix\n* `@glint/template`\n  * [#1273](https://github.com/typed-ember/glint/pull/1273) Check attributes on components with a generic Element ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 1\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
+  "description": "## Release (2026-11-16)\n\n* @glint/ember-tsc 1.14.4 (patch)\n* @glint/tsserver-plugin 2.7.17 (patch)\n\n#### :bug: Bug Fix\n* `@glint/ember-tsc`\n  * [#1276](https://github.com/typed-ember/glint/pull/1276) Report Glint's errors once in VS Code ([@evoactivity](https://github.com/evoactivity))\n\n#### :house: Internal\n* [#1277](https://github.com/typed-ember/glint/pull/1277) Fix the TypeScript 7 server test for native-preview 1.0.2 ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### Committers: 2\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n- Liam ([@evoactivity](https://github.com/evoactivity))\n"
 }
