@@ -1,5 +1,21 @@
 # Changelog
 
+## Release (2026-11-16)
+
+* @glint/ember-tsc 1.14.4 (patch)
+* @glint/tsserver-plugin 2.7.17 (patch)
+
+#### :bug: Bug Fix
+* `@glint/ember-tsc`
+  * [#1276](https://github.com/typed-ember/glint/pull/1276) Report Glint's errors once in VS Code ([@evoactivity](https://github.com/evoactivity))
+
+#### :house: Internal
+* [#1277](https://github.com/typed-ember/glint/pull/1277) Fix the TypeScript 7 server test for native-preview 1.0.2 ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### Committers: 2
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+- Liam ([@evoactivity](https://github.com/evoactivity))
+
 ## Release (2026-10-30)
 
 * @glint/ember-tsc 1.14.3 (patch)
