@@ -65,10 +65,18 @@ describe('TypeScript 7 stand-down (content mapper mode)', () => {
     const api = (await host!.activate()) as {
       initializeAPIConnection?: () => Promise<string>;
     };
+    // Since native-preview 1.0.2, the API connection is a command, not an export.
+    const command = (await commands.getCommands(true)).find((id) =>
+      id.endsWith('.initializeAPIConnection'),
+    );
+    const initializeAPIConnection =
+      api.initializeAPIConnection ??
+      (command ? () => commands.executeCommand<string>(command) : undefined);
+    expect(initializeAPIConnection).toBeDefined();
     // Rejects with "Language server is not running." when it did not start.
     await waitUntil(
       () =>
-        api.initializeAPIConnection?.().then(
+        Promise.resolve(initializeAPIConnection!()).then(
           () => true,
           () => false,
         ),
