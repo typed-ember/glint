@@ -127,7 +127,6 @@ export class VirtualGtsCode implements VirtualCode {
         //
         // @GLINT_FEATURE_DIAGNOSTICS
         // @GLINT_FEATURE_DIAGNOSTICS_LANGUAGE_SERVER
-        // @GLINT_FEATURE_DIAGNOSTICS_LANGUAGE_SERVER_GTS_COMPILER_ERRORS
         verification: true,
       } satisfies CodeInformation,
     };

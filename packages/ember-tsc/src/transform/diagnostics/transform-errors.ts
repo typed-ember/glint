@@ -18,9 +18,9 @@ import { Diagnostic } from './index.js';
  *   for it and the rest of the template goes unchecked; the only trace of the
  *   failure is the error recorded here (typed-ember/glint#1221).
  *
- * The Volar language server surfaces both through its `g-compiler-errors`
- * plugin, so VS Code sees them regardless; this function covers every other
- * consumer.
+ * This is the only place these errors are reported, in the editor through the
+ * tsserver plugin as well as in the CLI. The Volar language server does not
+ * report them, or VS Code would show each one twice.
  *
  * Offsets are in original (.gts) source coordinates; tsserver maps them to
  * line/column using its own ScriptInfo for the source file, so the same
@@ -38,8 +38,6 @@ export function getTransformErrorDiagnostics(
     // ts.DiagnosticCategory.Error — hardcoded to avoid importing the ts
     // namespace just for the enum.
     category: 1,
-    // Matches the code used by the Volar language server's compiler-errors
-    // plugin, so the two surfaces present a consistent identity.
     code: 0,
     source: 'glint',
     isContentTagError: error.isContentTagError,
